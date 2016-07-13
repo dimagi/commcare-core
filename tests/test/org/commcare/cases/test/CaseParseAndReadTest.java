@@ -39,16 +39,25 @@ public class CaseParseAndReadTest {
     @Test
     public void testReadCaseDB() throws Exception {
         compareCaseDbState("/case_create_basic.xml", "/case_create_basic_output.xml");
+
+        EvaluationContext ec =
+                MockDataUtils.buildContextWithInstance(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", "case"));
+    }
+
+    @Test
+    public void testDoubleCreateCase() throws Exception {
+        compareCaseDbState("/case_create_overwrite.xml", "/case_create_overwrite_output.xml");
+
+        EvaluationContext ec =
+                MockDataUtils.buildContextWithInstance(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", "case_overwrite"));
     }
 
 
     private void compareCaseDbState(String inputTransactions,
                                     String caseDbState) throws Exception {
             ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox);
-
-        EvaluationContext ec =
-            MockDataUtils.buildContextWithInstance(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
-        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", "case"));
 
         byte[] parsedDb = serializeCaseInstanceFromSandbox(sandbox);
         Document parsed = XmlComparator.getDocumentFromStream(new ByteArrayInputStream(parsedDb));

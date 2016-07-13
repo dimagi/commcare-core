@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.cases.util;
 
 import org.commcare.cases.model.Case;
@@ -12,7 +9,8 @@ import org.javarosa.core.util.MD5;
  * @author ctsims
  */
 public class CaseDBUtils {
-    public static String computeHash(IStorageUtility<Case> storage) {
+
+    public static String computeCaseDbHash(IStorageUtility<Case> storage) {
         byte[] data = new byte[MD5.length];
         for (int i = 0; i < data.length; ++i) {
             data[i] = 0;
@@ -33,7 +31,7 @@ public class CaseDBUtils {
         return MD5.toHex(data);
     }
 
-    public static byte[] xordata(byte[] one, byte[] two) {
+    private static byte[] xordata(byte[] one, byte[] two) {
         if (one.length != two.length) {
             //Pad?
             throw new RuntimeException("Invalid XOR operation between byte arrays of unequal length");
