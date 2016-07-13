@@ -32,6 +32,7 @@ public class Callout implements Externalizable, DetailTemplate {
     private String type;
     private Hashtable<String, String> extras;
     private Vector<String> responses;
+    private boolean isAutoLaunching;
 
     /**
      * Allows case list intent callouts to map result data to cases. 'header'
@@ -49,7 +50,7 @@ public class Callout implements Externalizable, DetailTemplate {
 
     public Callout(String actionName, String image, String displayName,
                    Hashtable<String, String> extras, Vector<String> responses,
-                   DetailField responseDetail, String type) {
+                   DetailField responseDetail, String type, boolean isAutoLaunching) {
         this.actionName = actionName;
         this.image = image;
         this.displayName = displayName;
@@ -57,6 +58,7 @@ public class Callout implements Externalizable, DetailTemplate {
         this.responses = responses;
         this.responseDetail = responseDetail;
         this.type = type;
+        this.isAutoLaunching = isAutoLaunching;
     }
 
     @Override
@@ -96,6 +98,7 @@ public class Callout implements Externalizable, DetailTemplate {
         responses = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
         responseDetail = (DetailField)ExtUtil.read(in, new ExtWrapNullable(DetailField.class), pf);
         type = ExtUtil.readString(in);
+        isAutoLaunching = ExtUtil.readBool(in);
     }
 
     @Override
@@ -107,6 +110,7 @@ public class Callout implements Externalizable, DetailTemplate {
         ExtUtil.write(out, new ExtWrapList(responses));
         ExtUtil.write(out, new ExtWrapNullable(responseDetail));
         ExtUtil.writeString(out, type);
+        ExtUtil.writeBool(out, isAutoLaunching);
     }
 
     public String getImage() {
@@ -131,5 +135,9 @@ public class Callout implements Externalizable, DetailTemplate {
 
     public DetailField getResponseDetailField() {
         return responseDetail;
+    }
+
+    public boolean isAutoLaunching() {
+        return isAutoLaunching;
     }
 }
