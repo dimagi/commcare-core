@@ -13,5 +13,5 @@ public abstract class TransactionParser<T> extends ElementParser<T> {
         super(parser);
     }
 
-    public abstract void commit(T parsed) throws IOException;
+    protected abstract void commit(T parsed) throws IOException;
 }
