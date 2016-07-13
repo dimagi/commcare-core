@@ -199,7 +199,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         cache.initializeCache();
 
         OutputStream cacheOut = cache.getCacheStream();
-        StreamsUtil.writeFromInputToOutput(connectionStream, cacheOut);
+        StreamsUtil.writeFromInputToOutputNew(connectionStream, cacheOut);
 
         return cache.retrieveCache();
     }

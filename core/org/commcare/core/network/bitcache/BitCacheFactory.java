@@ -6,9 +6,9 @@ import java.io.File;
  * @author ctsims
  */
 public class BitCacheFactory {
-    public static BitCache getCache(CacheDirSetup context, long estimatedSize) {
+    public static BitCache getCache(CacheDirSetup cacheDirSetup, long estimatedSize) {
         if (estimatedSize == -1 || estimatedSize > 1024 * 1024 * 4) {
-            return new FileBitCache(context);
+            return new FileBitCache(cacheDirSetup);
         }
         return new MemoryBitCache();
     }
