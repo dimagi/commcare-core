@@ -43,7 +43,7 @@ public abstract class Action implements Externalizable {
      * @return TreeReference targeted by the action or null if the action
      * wasn't completed.
      */
-    public abstract TreeReference processAction(FormDef model, TreeReference context);
+    public abstract TreeReference processAction(FormDef model, TreeReference context, String event);
 
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         name = ExtUtil.readString(in);

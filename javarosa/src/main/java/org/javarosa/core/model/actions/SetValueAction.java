@@ -67,7 +67,7 @@ public class SetValueAction extends Action {
     }
 
     @Override
-    public TreeReference processAction(FormDef model, TreeReference contextRef) {
+    public TreeReference processAction(FormDef model, TreeReference contextRef, String event) {
 
         // Qualify the reference if necessary
         TreeReference targetReference =
