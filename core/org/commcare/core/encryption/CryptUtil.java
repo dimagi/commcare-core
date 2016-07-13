@@ -34,7 +34,7 @@ public class CryptUtil {
 
     private static final String PBE_PROVIDER = "PBEWITHSHA-256AND256BITAES-CBC-BC";
 
-    protected static Cipher encodingCipher(String passwordOrPin)
+    public static Cipher encodingCipher(String passwordOrPin)
             throws NoSuchAlgorithmException, InvalidKeyException,
             NoSuchPaddingException, InvalidKeySpecException {
 
@@ -48,7 +48,7 @@ public class CryptUtil {
         return cipher;
     }
 
-    protected static Cipher decodingCipher(String password)
+    public static Cipher decodingCipher(String password)
             throws NoSuchAlgorithmException, InvalidKeySpecException,
             NoSuchPaddingException, InvalidKeyException {
         KeySpec spec = new PBEKeySpec(password.toCharArray(), "SFDWFDCF".getBytes(), 10);
