@@ -43,8 +43,8 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     private final boolean isPostRequest;
     private final BitCacheFactory.CacheDirSetup cacheDirSetup;
     private HttpResponseProcessor responseProcessor;
-    private final URL url;
-    private final HashMap<String, String> params;
+    protected final URL url;
+    protected final HashMap<String, String> params;
     private HttpURLConnection httpConnection;
 
     public ModernHttpRequester(BitCacheFactory.CacheDirSetup cacheDirSetup,
@@ -153,7 +153,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         os.close();
     }
 
-    private URL buildUrlWithParams() throws MalformedURLException {
+    protected URL buildUrlWithParams() throws MalformedURLException {
         UriBuilder b = UriBuilder.fromUri(url.toString());
         for (Map.Entry<String, String> param : params.entrySet()) {
             b.queryParam(param.getKey(), param.getValue());
