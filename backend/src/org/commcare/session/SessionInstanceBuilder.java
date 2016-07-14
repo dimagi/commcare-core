@@ -19,41 +19,49 @@ public class SessionInstanceBuilder {
                                                   Hashtable<String, String> userFields) {
         TreeElement sessionRoot = new TreeElement("session", 0);
 
-        addDatums(sessionRoot, frame);
-        addSessionNav(sessionRoot, frame);
+        addSessionNavData(sessionRoot, frame);
         addMetadata(sessionRoot, deviceId, appversion, username, userId);
         addUserProperties(sessionRoot, userFields);
 
         return new FormInstance(sessionRoot, "session");
     }
 
-    private static void addDatums(TreeElement sessionRoot, SessionFrame frame) {
+    private static void addSessionNavData(TreeElement sessionRoot, SessionFrame frame) {
         TreeElement sessionData = new TreeElement("data", 0);
-
+        addDatums(sessionData, frame);
+        addUserQueryData(sessionData, frame);
         sessionRoot.addChild(sessionData);
+    }
+
+    /**
+     * Add datums chosen by user to the session
+     */
+    private static void addDatums(TreeElement sessionData, SessionFrame frame) {
         for (StackFrameStep step : frame.getSteps()) {
             if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                 Vector<TreeElement> matchingElements =
                         sessionData.getChildrenWithName(step.getId());
-
                 if (matchingElements.size() > 0) {
                     matchingElements.elementAt(0).setValue(new UncastData(step.getValue()));
                 } else {
-                    TreeElement datum = new TreeElement(step.getId());
-                    datum.setValue(new UncastData(step.getValue()));
-                    sessionData.addChild(datum);
+                    addData(sessionData, step.getId(), step.getValue());
                 }
             }
         }
     }
 
-    private static void addSessionNav(TreeElement sessionRoot, SessionFrame frame) {
+    /**
+     * Add data to session tracking queries user made before entering form
+     */
+    private static void addUserQueryData(TreeElement sessionData, SessionFrame frame) {
         for (StackFrameStep step : frame.getSteps()) {
             Object textSearch = step.getExtra(KEY_LAST_QUERY_STRING);
             if (textSearch != null) {
+                addData(sessionData, "stringquery", "1");
             }
             Object entitySelectCalloutSearch = step.getExtra(KEY_ENTITY_LIST_EXTRA_DATA);
             if (entitySelectCalloutSearch != null) {
+                addData(sessionData, "calloutquery", "1");
             }
         }
     }
