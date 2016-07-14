@@ -1,5 +1,6 @@
 package org.javarosa.core.io;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,8 +10,7 @@ public class StreamsUtil {
      * Write everything from input stream to output stream, byte by byte then
      * close the streams
      */
-    @SuppressWarnings("unused")
-    public static void writeFromInputToOutput(InputStream in, OutputStream out, long[] tally) throws InputIOException, OutputIOException {
+    private static void writeFromInputToOutputInner(InputStream in, OutputStream out) throws InputIOException, OutputIOException {
         //TODO: God this is naive
         int val;
         try {
@@ -24,7 +24,6 @@ public class StreamsUtil {
             } catch (IOException e) {
                 throw new StreamsUtil().new OutputIOException(e);
             }
-            incr(tally);
             try {
                 val = in.read();
             } catch (IOException e) {
@@ -34,12 +33,12 @@ public class StreamsUtil {
     }
 
     public static void writeFromInputToOutputSpecific(InputStream in, OutputStream out) throws InputIOException, OutputIOException {
-        writeFromInputToOutput(in, out, null);
+        writeFromInputToOutputInner(in, out);
     }
 
     public static void writeFromInputToOutput(InputStream in, OutputStream out) throws IOException {
         try {
-            writeFromInputToOutput(in, out, null);
+            writeFromInputToOutputInner(in, out);
         } catch (InputIOException e) {
             throw e.internal;
         } catch (OutputIOException e) {
@@ -47,14 +46,7 @@ public class StreamsUtil {
         }
     }
 
-    private static void incr(long[] tally) {
-        if (tally != null) {
-            tally[0]++;
-        }
-    }
-
     //Unify the functional aspects here
-
     private abstract class DirectionalIOException extends IOException {
         final IOException internal;
 
@@ -85,4 +77,71 @@ public class StreamsUtil {
             super(internal);
         }
     }
+
+    public static byte[] inputStreamToByteArray(InputStream input) throws IOException {
+        byte[] buffer = new byte[8192];
+        int bytesRead;
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        while ((bytesRead = input.read(buffer)) != -1) {
+            output.write(buffer, 0, bytesRead);
+        }
+        return output.toByteArray();
+    }
+
+    /**
+     * Writes input stream to output stream in a buffered fasion, but doesn't
+     * close either stream.
+     */
+    public static void writeFromInputToOutputUnmanaged(InputStream is,
+                                                       OutputStream os) throws IOException {
+        byte[] buffer = new byte[8192];
+        int count = is.read(buffer);
+        while (count != -1) {
+            os.write(buffer, 0, count);
+            count = is.read(buffer);
+        }
+    }
+
+    /**
+     * Write is to os and close both
+     */
+    public static void writeFromInputToOutputNew(InputStream is, OutputStream os) throws IOException {
+        writeFromInputToOutputNew(is, os, null);
+    }
+
+    /**
+     * Write is to os and close both
+     */
+    public static void writeFromInputToOutputNew(InputStream is, OutputStream os, StreamReadObserver observer) throws IOException {
+        byte[] buffer = new byte[8192];
+        long counter = 0;
+
+        try {
+            int count = is.read(buffer);
+            while (count != -1) {
+                counter += count;
+                if (observer != null) {
+                    observer.notifyCurrentCount(counter);
+                }
+                os.write(buffer, 0, count);
+                count = is.read(buffer);
+            }
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                os.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public interface StreamReadObserver {
+        void notifyCurrentCount(long bytesRead);
+    }
+
 }

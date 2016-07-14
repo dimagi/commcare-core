@@ -7,6 +7,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -60,8 +61,8 @@ public class RemoteQuerySessionManager {
         userAnswers.put(key, answer);
     }
 
-    public String getBaseUrl() {
-        return queryDatum.getValue();
+    public URL getBaseUrl() {
+        return queryDatum.getUrl();
     }
 
     public String getStorageInstanceName() {
