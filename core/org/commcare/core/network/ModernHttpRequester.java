@@ -33,12 +33,12 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     /**
      * How long to wait when opening network connection in milliseconds
      */
-    public static final int CONNECTION_TIMEOUT = (int)TimeUnit.SECONDS.toMillis(2);
+    public static final int CONNECTION_TIMEOUT = (int)TimeUnit.MINUTES.toMillis(2);
 
     /**
      * How long to wait when receiving data (in milliseconds)
      */
-    public static final int CONNECTION_SO_TIMEOUT = (int)TimeUnit.SECONDS.toMillis(1);
+    public static final int CONNECTION_SO_TIMEOUT = (int)TimeUnit.MINUTES.toMillis(1);
 
     private final boolean isPostRequest;
     private final BitCacheFactory.CacheDirSetup cacheDirSetup;
