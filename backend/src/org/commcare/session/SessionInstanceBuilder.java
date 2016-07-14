@@ -15,10 +15,18 @@ public class SessionInstanceBuilder {
                                                   String userId,
                                                   Hashtable<String, String> userFields) {
         TreeElement sessionRoot = new TreeElement("session", 0);
+
+        addDatums(sessionRoot, frame);
+        addMetadata(sessionRoot, deviceId, appversion, username, userId);
+        addUserProperties(sessionRoot, userFields);
+
+        return new FormInstance(sessionRoot, "session");
+    }
+
+    private static void addDatums(TreeElement sessionRoot, SessionFrame frame) {
         TreeElement sessionData = new TreeElement("data", 0);
 
         sessionRoot.addChild(sessionData);
-
         for (StackFrameStep step : frame.getSteps()) {
             if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                 Vector<TreeElement> matchingElements =
@@ -33,7 +41,11 @@ public class SessionInstanceBuilder {
                 }
             }
         }
+    }
 
+    private static void addMetadata(TreeElement sessionRoot, String deviceId,
+                                    String appversion, String username,
+                                    String userId) {
         TreeElement sessionMeta = new TreeElement("context", 0);
 
         addData(sessionMeta, "deviceid", deviceId);
@@ -42,18 +54,20 @@ public class SessionInstanceBuilder {
         addData(sessionMeta, "userid", userId);
 
         sessionRoot.addChild(sessionMeta);
+    }
 
+    private static void addUserProperties(TreeElement sessionRoot,
+                                          Hashtable<String, String> userFields) {
         TreeElement user = new TreeElement("user", 0);
         TreeElement userData = new TreeElement("data", 0);
         user.addChild(userData);
         for (Enumeration en = userFields.keys(); en.hasMoreElements(); ) {
-            String key = (String) en.nextElement();
+            String key = (String)en.nextElement();
             addData(userData, key, userFields.get(key));
         }
 
         sessionRoot.addChild(user);
 
-        return new FormInstance(sessionRoot, "session");
     }
 
     private static void addData(TreeElement root, String name, String data) {
@@ -61,4 +75,5 @@ public class SessionInstanceBuilder {
         datum.setValue(new UncastData(data));
         root.addChild(datum);
     }
+
 }
