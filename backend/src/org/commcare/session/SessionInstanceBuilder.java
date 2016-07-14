@@ -10,6 +10,9 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 public class SessionInstanceBuilder {
+    public static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
+    public static final String KEY_ENTITY_LIST_EXTRA_DATA = "entity-list-data";
+
     public static FormInstance getSessionInstance(SessionFrame frame, String deviceId,
                                                   String appversion, String username,
                                                   String userId,
@@ -17,6 +20,7 @@ public class SessionInstanceBuilder {
         TreeElement sessionRoot = new TreeElement("session", 0);
 
         addDatums(sessionRoot, frame);
+        addSessionNav(sessionRoot, frame);
         addMetadata(sessionRoot, deviceId, appversion, username, userId);
         addUserProperties(sessionRoot, userFields);
 
@@ -39,6 +43,17 @@ public class SessionInstanceBuilder {
                     datum.setValue(new UncastData(step.getValue()));
                     sessionData.addChild(datum);
                 }
+            }
+        }
+    }
+
+    private static void addSessionNav(TreeElement sessionRoot, SessionFrame frame) {
+        for (StackFrameStep step : frame.getSteps()) {
+            Object textSearch = step.getExtra(KEY_LAST_QUERY_STRING);
+            if (textSearch != null) {
+            }
+            Object entitySelectCalloutSearch = step.getExtra(KEY_ENTITY_LIST_EXTRA_DATA);
+            if (entitySelectCalloutSearch != null) {
             }
         }
     }
