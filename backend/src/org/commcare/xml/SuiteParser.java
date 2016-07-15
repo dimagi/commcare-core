@@ -59,11 +59,11 @@ public class SuiteParser extends ElementParser<Suite> {
         this.isUpgrade = false;
     }
 
-    public SuiteParser(InputStream suiteStream,
-                       ResourceTable table,
-                       String resourceGuid,
-                       IStorageUtilityIndexed<FormInstance> fixtureStorage,
-                       boolean skipResources, boolean isValidationPass, boolean isUpgrade) throws IOException {
+    protected SuiteParser(InputStream suiteStream,
+                          ResourceTable table, String resourceGuid,
+                          IStorageUtilityIndexed<FormInstance> fixtureStorage,
+                          boolean skipResources, boolean isValidationPass,
+                          boolean isUpgrade) throws IOException {
         super(ElementParser.instantiateParser(suiteStream));
 
         this.table = table;
@@ -135,7 +135,7 @@ public class SuiteParser extends ElementParser<Suite> {
                     } else if (parser.getName().toLowerCase().equals("fixture")) {
                         if (!isValidationPass) {
                             // commit fixture to the memory, overwriting existing
-                            // fixture only during install, not init or validation
+                            // fixture only during first init after app upgrade
                             new FixtureXmlParser(parser, isUpgrade, fixtureStorage).parse();
                         }
                     } else {
