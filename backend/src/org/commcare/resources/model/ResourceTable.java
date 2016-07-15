@@ -906,7 +906,7 @@ public class ResourceTable {
      * @param instance
      * @throws ResourceInitializationException
      */
-    public void initializeResources(CommCareInstance instance)
+    public void initializeResources(CommCareInstance instance, boolean isUpgrade)
             throws ResourceInitializationException {
         // HHaaaacckkk. (Some properties cannot be handled until after others
         // TODO: Replace this with some sort of sorted priority queue.

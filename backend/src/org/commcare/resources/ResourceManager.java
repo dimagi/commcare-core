@@ -246,7 +246,7 @@ public class ResourceManager {
                 //everything here? Locale files are registered elsewhere, and we
                 //can't guarantee we're the only thing in there, so we can't
                 //straight up clear it...
-                platform.initialize(masterTable);
+                platform.initialize(masterTable, true);
             }
         }
     }
