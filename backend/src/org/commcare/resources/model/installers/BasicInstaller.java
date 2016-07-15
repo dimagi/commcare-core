@@ -24,25 +24,18 @@ import java.util.Vector;
  * @author ctsims
  */
 public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
-    ResourceLocation installed;
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInitializer#initializeResource(org.commcare.resources.model.Resource)
-     */
-    public boolean initialize(CommCareInstance instance) throws ResourceInitializationException {
+    @Override
+    public boolean initialize(CommCareInstance instance, boolean isUpgrade) throws ResourceInitializationException {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInitializer#requiresRuntimeInitialization()
-     */
+    @Override
     public boolean requiresRuntimeInitialization() {
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInitializer#resourceReady(org.commcare.resources.model.Resource)
-     */
+    @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException {
         //If we have local resource authority, and the file exists, things are golden. We can just use that file.
         if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
@@ -74,40 +67,47 @@ public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
     }
 
 
+    @Override
     public boolean upgrade(Resource r) throws UnresolvedResourceException {
         throw new RuntimeException("Basic Installer resources can't be marked as upgradable");
     }
 
+    @Override
     public boolean uninstall(Resource r) throws UnresolvedResourceException {
         return true;
     }
 
+    @Override
     public boolean unstage(Resource r, int newStatus) {
         return true;
     }
 
+    @Override
     public boolean revert(Resource r, ResourceTable table) {
         return true;
     }
 
+    @Override
     public int rollback(Resource r) {
         throw new RuntimeException("Basic Installer resources can't rolled back");
     }
 
+    @Override
     public void cleanup() {
 
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
 
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        // TODO Auto-generated method stub
-
     }
 
+    @Override
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
         //Work by default
         return true;

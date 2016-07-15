@@ -919,12 +919,12 @@ public class ResourceTable {
                 if (i instanceof ProfileInstaller) {
                     lateInit.addElement(i);
                 } else {
-                    i.initialize(instance);
+                    i.initialize(instance, isUpgrade);
                 }
             }
         }
         for (ResourceInstaller i : lateInit) {
-            i.initialize(instance);
+            i.initialize(instance, isUpgrade);
         }
     }
 

@@ -19,7 +19,6 @@ import org.javarosa.xform.util.XFormUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -28,10 +27,12 @@ import java.util.Vector;
  */
 public class XFormInstaller extends CacheInstaller<FormDef> {
 
+    @Override
     protected String getCacheKey() {
         return FormDef.STORAGE_KEY;
     }
 
+    @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException {
         InputStream incoming = null;
         try {
@@ -83,6 +84,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
         }
     }
 
+    @Override
     public boolean upgrade(Resource r) throws UnresolvedResourceException {
         //Basically some content as revert. Merge;
         FormDef form = storage().read(cacheLocation);
@@ -100,6 +102,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
     private static final String STAGING_EXT = "_STAGING-OPENROSA";
     private static final String[] exts = new String[]{UPGRADE_EXT, STAGING_EXT};
 
+    @Override
     public boolean unstage(Resource r, int newStatus) {
         //This either unstages back to upgrade mode or
         //to unstaged mode. Figure out which one
@@ -123,6 +126,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
         }
     }
 
+    @Override
     public boolean revert(Resource r, ResourceTable table) {
         //Basically some content as upgrade. Merge;
         FormDef form = storage().read(cacheLocation);
@@ -141,6 +145,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
         return true;
     }
 
+    @Override
     public int rollback(Resource r) {
         int status = r.getStatus();
 
@@ -169,10 +174,10 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
         }
     }
 
-
+    @Override
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
-
-        SizeBoundUniqueVector sizeBoundProblems = (SizeBoundUniqueVector)problems;
+        SizeBoundUniqueVector<MissingMediaException> sizeBoundProblems =
+                (SizeBoundUniqueVector<MissingMediaException>)problems;
 
         //Check to see whether the formDef exists and reads correctly
         FormDef formDef;

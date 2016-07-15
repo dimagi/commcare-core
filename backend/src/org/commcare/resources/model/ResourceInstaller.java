@@ -35,7 +35,7 @@ public interface ResourceInstaller<T extends CommCareInstance> extends Externali
     /**
      * initializes an installed resource for use at runtime.
      *
-     * @param isUpgrade true when initializion happening
+     * @param isUpgrade true when first initializion is happening after an app upgrade
      * @return true if a resource is ready for use. False if
      * a problem occurred.
      * @throws ResourceInitializationException If the resource could not be initialized

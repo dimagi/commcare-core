@@ -29,7 +29,7 @@ import java.util.Vector;
 public class SuiteInstaller extends CacheInstaller<Suite> {
 
     @Override
-    public boolean initialize(CommCareInstance instance) throws ResourceInitializationException {
+    public boolean initialize(CommCareInstance instance, boolean isUpgrade) throws ResourceInitializationException {
         instance.registerSuite(storage().read(cacheLocation));
         return true;
     }
