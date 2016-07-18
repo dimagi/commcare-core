@@ -20,24 +20,20 @@ public class AlertParser extends CommCareElementParser<Alert> {
     @Override
     public Alert parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
 
-        String property1 = "";
-        String property2 = "";
+        String condition = "";
         String type = "";
 
         while (nextTagInBlock("alert")) {
             String tagName = parser.getName();
 
-            if(tagName.toLowerCase().equals("cp1")){
-                property1 = parser.nextText();
-            }
-            else if(tagName.toLowerCase().equals("cp2")){
-                property2 = parser.nextText();
+            if(tagName.toLowerCase().equals("exp")){
+                condition = parser.nextText();
             }
             else if(tagName.toLowerCase().equals("type")){
                 type = parser.nextText();
             }
         }
 
-        return new Alert(property1, property2, type);
+        return new Alert(type, condition);
     }
 }

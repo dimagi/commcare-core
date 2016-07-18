@@ -120,9 +120,6 @@ public class Suite implements Persistable {
 
     public void addAlert(Alert a){
         alerts.add(a);
-        System.out.println(a.getCaseProperty1());
-        System.out.println(a.getCaseProperty2());
-        System.out.println(a.getCaseType());
     }
 
     public Vector<Alert> getAlerts(){

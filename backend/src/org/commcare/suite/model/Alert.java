@@ -5,22 +5,16 @@ package org.commcare.suite.model;
  */
 public class Alert {
 
-    private String caseProperty1;
-    private String caseProperty2;
+    private String condition;
     private String caseType;
 
-    public Alert(String c1, String c2, String type){
-        caseProperty1 = c1;
-        caseProperty2 = c2;
+    public Alert(String type, String exp){
         caseType = type;
+        condition = exp;
     }
 
-    public String getCaseProperty1(){
-        return caseProperty1;
-    }
-
-    public String getCaseProperty2(){
-        return caseProperty2;
+    public String getCondition(){
+        return condition;
     }
 
     public String getCaseType(){
