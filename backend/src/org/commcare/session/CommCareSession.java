@@ -373,6 +373,14 @@ public class CommCareSession {
         }
     }
 
+    public void popStep(EvaluationContext evalContext) {
+        popSessionFrameStack();
+
+        while (getNeededData(evalContext) == null) {
+            popSessionFrameStack();
+        }
+    }
+
     private void popSessionFrameStack() {
         StackFrameStep recentPop = frame.popStep();
         //TODO: Check the "base state" of the frame after popping to see if we invalidated the stack

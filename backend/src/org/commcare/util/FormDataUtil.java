@@ -2,7 +2,9 @@ package org.commcare.util;
 
 import org.commcare.cases.model.Case;
 import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.modern.util.Pair;
 import org.commcare.session.CommCareSession;
+import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Text;
@@ -18,19 +20,15 @@ public class FormDataUtil {
                                              EvaluationContext evalContext) {
         CommCareSession sessionCopy = new CommCareSession(session);
 
-        EntityDatum entityDatum =
-                findDatumWithLongDetail(sessionCopy, evalContext);
-        if (entityDatum == null || sessionCopy.getFrame().getSteps().size() == 0) {
+        Pair<EntityDatum, String> datumEntityAndValue =
+                getDatumAndCaseId(sessionCopy, evalContext);
+        if (datumEntityAndValue.first == null || datumEntityAndValue.second == null) {
             return null;
         }
 
-        //Get the value that was chosen for this item
-        String value = sessionCopy.getPoppedStep().getValue();
+        EntityDatum entityDatum = datumEntityAndValue.first;
+        String value = datumEntityAndValue.second;
 
-        // Now determine what nodeset that was going to be used to load this select
-        if (value == null) {
-            return null;
-        }
         TreeReference elem = entityDatum.getEntityFromID(evalContext, value);
         if (elem == null) {
             return null;
@@ -60,14 +58,26 @@ public class FormDataUtil {
         }
     }
 
-    private static EntityDatum findDatumWithLongDetail(CommCareSession session,
-                                                       EvaluationContext evaluationContext) {
+    private static Pair<EntityDatum, String> getDatumAndCaseId(CommCareSession session,
+                                                               EvaluationContext evaluationContext) {
+        String datumValue = null;
         while (session.getFrame().getSteps().size() > 0) {
             SessionDatum datum = session.getNeededDatum();
-            if (datum instanceof EntityDatum && ((EntityDatum)datum).getLongDetail() != null) {
-                return (EntityDatum)datum;
+            if (datum instanceof ComputedDatum) {
+                // Loads case id for forms that create cases, since case id was
+                // a computed datum injected into the form. Assumes that it was
+                // the 1st computed datum... another good heuristic would be
+                // session.getPoppedStep().getId().startsWith("case_id")
+                datumValue = session.getPoppedStep().getValue();
             }
-            session.stepBack(evaluationContext);
+            if (datum instanceof EntityDatum && ((EntityDatum)datum).getLongDetail() != null) {
+                String tmpDatumValue = session.getPoppedStep().getValue();
+                if (tmpDatumValue != null) {
+                    datumValue = tmpDatumValue;
+                }
+                return new Pair<>((EntityDatum)datum, datumValue);
+            }
+            session.popStep(evaluationContext);
         }
         return null;
     }
