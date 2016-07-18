@@ -14,7 +14,7 @@
           user_id="test_user"
           xmlns="http://commcarehq.org/case/transaction/v2">
         <create>
-            <case_type>test_case</case_type>
+            <case_type>adult</case_type>
             <case_name>Saul</case_name>
             <owner_id>test_user</owner_id>
         </create>
