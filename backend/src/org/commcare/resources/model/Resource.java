@@ -234,18 +234,12 @@ public class Resource implements Persistable, IMetaData {
         this.status = status;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.storage.Persistable#getID()
-     */
+    @Override
     public int getID() {
         return recordId;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.storage.Persistable#setID(int)
-     */
+    @Override
     public void setID(int ID) {
         recordId = ID;
     }
@@ -286,10 +280,7 @@ public class Resource implements Persistable, IMetaData {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.recordId = ExtUtil.readInt(in);
         this.version = ExtUtil.readInt(in);
@@ -303,10 +294,7 @@ public class Resource implements Persistable, IMetaData {
         this.descriptor = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, recordId);
         ExtUtil.writeNumeric(out, version);
@@ -320,10 +308,7 @@ public class Resource implements Persistable, IMetaData {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(descriptor));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IMetaData#getMetaData(java.lang.String)
-     */
+    @Override
     public Object getMetaData(String fieldName) {
         if (fieldName.equals(META_INDEX_RESOURCE_ID)) {
             return id;
@@ -337,10 +322,7 @@ public class Resource implements Persistable, IMetaData {
         throw new IllegalArgumentException("No Field w/name " + fieldName + " is relevant for resources");
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IMetaData#getMetaDataFields()
-     */
+    @Override
     public String[] getMetaDataFields() {
         return new String[]{META_INDEX_RESOURCE_ID, META_INDEX_RESOURCE_GUID, META_INDEX_PARENT_GUID, META_INDEX_VERSION};
     }

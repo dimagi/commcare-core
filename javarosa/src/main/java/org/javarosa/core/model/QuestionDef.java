@@ -67,7 +67,7 @@ public class QuestionDef implements IFormElement, Localizable {
 
     Vector<QuestionDataExtension> extensions;
 
-    final Vector observers;
+    final Vector<FormElementStateListener> observers;
 
     private ActionController actionController;
 
@@ -78,7 +78,7 @@ public class QuestionDef implements IFormElement, Localizable {
     public QuestionDef(int id, int controlType) {
         setID(id);
         setControlType(controlType);
-        observers = new Vector();
+        observers = new Vector<>();
         mQuestionStrings = new Hashtable<>();
         extensions = new Vector<>();
         
@@ -101,14 +101,17 @@ public class QuestionDef implements IFormElement, Localizable {
         return (mQuestionStrings.get(key) != null);
     }
 
+    @Override
     public int getID() {
         return id;
     }
 
+    @Override
     public void setID(int id) {
         this.id = id;
     }
 
+    @Override
     public XPathReference getBind() {
         return binding;
     }
@@ -125,10 +128,12 @@ public class QuestionDef implements IFormElement, Localizable {
         this.controlType = controlType;
     }
 
+    @Override
     public String getAppearanceAttr() {
         return appearanceAttr;
     }
 
+    @Override
     public void setAppearanceAttr(String appearanceAttr) {
         this.appearanceAttr = appearanceAttr;
     }
@@ -137,7 +142,6 @@ public class QuestionDef implements IFormElement, Localizable {
     public ActionController getActionController() {
         return this.actionController;
     }
-
 
     public String getHelpTextID() {
         return mQuestionStrings.get(XFormParser.HELP_ELEMENT) == null ? null : mQuestionStrings.get(XFormParser.HELP_ELEMENT).getTextId();
@@ -218,26 +222,27 @@ public class QuestionDef implements IFormElement, Localizable {
         alertStateObservers(FormElementStateListener.CHANGE_LOCALE);
     }
 
-    public Vector getChildren() {
+    @Override
+    public Vector<IFormElement> getChildren() {
         return null;
     }
 
+    @Override
     public void setChildren(Vector v) {
         throw new IllegalStateException("Can't add children to question def");
     }
 
+    @Override
     public void addChild(IFormElement fe) {
         throw new IllegalStateException("Can't add children to question def");
     }
 
+    @Override
     public IFormElement getChild(int i) {
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.Externalizable#readExternal(java.io.DataInputStream)
-     */
+    @Override
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         setID(ExtUtil.readInt(dis));
         binding = (XPathReference)ExtUtil.read(dis, new ExtWrapNullable(new ExtWrapTagged()), pf);
@@ -253,10 +258,7 @@ public class QuestionDef implements IFormElement, Localizable {
         actionController = (ActionController)ExtUtil.read(dis, new ExtWrapNullable(ActionController.class), pf);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream dos) throws IOException {
         ExtUtil.writeNumeric(dos, getID());
         ExtUtil.write(dos, new ExtWrapNullable(binding == null ? null : new ExtWrapTagged(binding)));
@@ -271,12 +273,14 @@ public class QuestionDef implements IFormElement, Localizable {
 
     /* === MANAGING OBSERVERS === */
 
+    @Override
     public void registerStateObserver(FormElementStateListener qsl) {
         if (!observers.contains(qsl)) {
             observers.addElement(qsl);
         }
     }
 
+    @Override
     public void unregisterStateObserver(FormElementStateListener qsl) {
         observers.removeElement(qsl);
     }
@@ -286,22 +290,22 @@ public class QuestionDef implements IFormElement, Localizable {
             ((FormElementStateListener)e.nextElement()).formElementStateChanged(this, changeFlags);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.model.IFormElement#getDeepChildCount()
-     */
+    @Override
     public int getDeepChildCount() {
         return 1;
     }
 
+    @Override
     public String getTextID() {
         return this.getQuestionString(XFormParser.LABEL_ELEMENT).getTextId();
     }
 
+    @Override
     public String getLabelInnerText() {
         return this.getQuestionString(XFormParser.LABEL_ELEMENT).getTextInner();
     }
 
+    @Override
     public void setTextID(String textID) {
         if (DateUtils.stringContains(textID, ";")) {
             System.err.println("Warning: TextID contains ;form modifier:: \"" + textID.substring(textID.indexOf(";")) + "\"... will be stripped.");

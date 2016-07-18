@@ -10,6 +10,8 @@ import org.javarosa.xpath.expr.XPathExpression;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Hashtable;
 
 /**
@@ -26,10 +28,10 @@ public class RemoteQueryDatum extends SessionDatum {
     public RemoteQueryDatum() {
     }
 
-    public RemoteQueryDatum(String url, String storageInstance,
+    public RemoteQueryDatum(URL url, String storageInstance,
                             Hashtable<String, XPathExpression> hiddenQueryValues,
                             Hashtable<String, DisplayUnit> userQueryPrompts) {
-        super(storageInstance, url);
+        super(storageInstance, url.toString());
         this.hiddenQueryValues = hiddenQueryValues;
         this.userQueryPrompts = userQueryPrompts;
     }
@@ -40,6 +42,16 @@ public class RemoteQueryDatum extends SessionDatum {
 
     public Hashtable<String, XPathExpression> getHiddenQueryValues() {
         return hiddenQueryValues;
+    }
+
+    public URL getUrl() {
+        try {
+            return new URL(getValue());
+        } catch (MalformedURLException e) {
+            // Not possible given constructor passes in a valid URL
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override

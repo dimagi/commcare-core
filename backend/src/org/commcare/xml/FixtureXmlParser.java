@@ -94,7 +94,7 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
     }
 
     @Override
-    public void commit(FormInstance parsed) throws IOException {
+    protected void commit(FormInstance parsed) throws IOException {
         try {
             storage().write(parsed);
         } catch (StorageFullException e) {

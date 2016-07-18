@@ -54,6 +54,7 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
         this.storage = storage;
     }
 
+    @Override
     public Ledger[] parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode(new String[]{TAG_BALANCE, TRANSFER});
 
@@ -214,7 +215,8 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
         return tw;
     }
 
-    public void commit(Ledger[] parsed) throws IOException {
+    @Override
+    protected void commit(Ledger[] parsed) throws IOException {
         try {
             for (Ledger s : parsed) {
                 storage().write(s);
