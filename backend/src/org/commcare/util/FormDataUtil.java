@@ -28,6 +28,9 @@ public class FormDataUtil {
         String value = sessionCopy.getPoppedStep().getValue();
 
         // Now determine what nodeset that was going to be used to load this select
+        if (value == null) {
+            return null;
+        }
         TreeReference elem = entityDatum.getEntityFromID(evalContext, value);
         if (elem == null) {
             return null;

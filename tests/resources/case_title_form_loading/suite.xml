@@ -1,0 +1,163 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="36" descriptor="Suite File">
+  <xform>
+    <resource id="1662072614e4dc0c3808d095c5b1cc826be7c1ec" version="28" descriptor="Placeholder">
+      <location authority="local">./placeholder_form.xml</location>
+    </resource>
+  </xform>
+
+  <detail id="m0_case_short">
+    <title>
+      <text>
+        <locale id="m0.case_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="3" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_short.case_mmr_pat_adr3_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="mmr_pat_adr3"/>
+        </text>
+      </template>
+      <sort type="string" order="2" direction="ascending">
+        <text>
+          <xpath function="mmr_pat_adr3"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <header width="0">
+        <text/>
+      </header>
+      <template width="0">
+        <text>
+          <xpath function="edd"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="edd"/>
+        </text>
+      </sort>
+    </field>
+    <action>
+      <display>
+        <text>
+          <locale id="case_list_form.m0"/>
+        </text>
+        <text form="image">
+          <locale id="case_list_form.m0.icon"/>
+        </text>
+      </display>
+      <stack>
+        <push>
+          <command value="'m3-f0'"/>
+          <datum id="case_id_new_adult_0" value="uuid()"/>
+          <datum id="usercase_id" value="instance('casedb')/casedb/case[@case_type='commcare-user'][hq_user_id=instance('commcaresession')/session/context/userid][1]/@case_id"/>
+          <datum id="return_to" value="'m0'"/>
+        </push>
+      </stack>
+    </action>
+  </detail>
+
+  <detail id="m0_case_long">
+    <title>
+      <text>
+        <locale id="m0.case_long.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_long.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+
+  <entry>
+    <form>http://openrosa.org/formdesigner/b70b3ce04873dc38c12ded3fda45f329f768f9ed</form>
+    <command id="m0-f0">
+      <display>
+        <text>
+          <locale id="forms.m0f0"/>
+        </text>
+        <text form="image">
+          <locale id="forms.m0f0.icon"/>
+        </text>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='adult'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+    </session>
+  </entry>
+
+  <entry>
+    <form>http://openrosa.org/formdesigner/E5E690D1-B846-4EAB-8EE0-A9B3085B9E8D</form>
+    <command id="m3-f0">
+      <display>
+        <text>
+          <locale id="forms.m3f0"/>
+        </text>
+        <text form="image">
+          <locale id="forms.m3f0.icon"/>
+        </text>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <datum id="case_id_new_adult_0" function="uuid()"/>
+      <datum id="usercase_id" function="instance('casedb')/casedb/case[@case_type='commcare-user'][hq_user_id=instance('commcaresession')/session/context/userid][1]/@case_id"/>
+    </session>
+    <stack>
+      <create if="count(instance('commcaresession')/session/data/return_to) = 1 and instance('commcaresession')/session/data/return_to = 'm0' and count(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_new_adult_0]) &gt; 0">
+        <command value="'m0'"/>
+        <datum id="case_id" value="instance('commcaresession')/session/data/case_id_new_adult_0"/>
+      </create>
+      <create if="count(instance('commcaresession')/session/data/return_to) = 1 and instance('commcaresession')/session/data/return_to = 'm0' and count(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_new_adult_0]) = 0">
+        <command value="'m0'"/>
+      </create>
+    </stack>
+  </entry>
+
+  <menu id="m0">
+    <display>
+      <text>
+        <locale id="modules.m0"/>
+      </text>
+      <text form="image">
+        <locale id="modules.m0.icon"/>
+      </text>
+    </display>
+    <command id="m0-f0"/>
+  </menu>
+</suite>
