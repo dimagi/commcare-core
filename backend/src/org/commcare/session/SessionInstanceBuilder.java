@@ -4,6 +4,7 @@ import org.commcare.suite.model.StackFrameStep;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.util.OrderedHashtable;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -55,16 +56,34 @@ public class SessionInstanceBuilder {
      */
     private static void addUserQueryData(TreeElement sessionData, SessionFrame frame) {
         for (StackFrameStep step : frame.getSteps()) {
-            Object textSearch = step.getExtra(KEY_LAST_QUERY_STRING);
+            String textSearch = getStringQuery(step);
             if (textSearch != null) {
-                addData(sessionData, "stringquery", "1");
+                addData(sessionData, "stringquery", textSearch);
             }
-            Object entitySelectCalloutSearch = step.getExtra(KEY_ENTITY_LIST_EXTRA_DATA);
-            if (entitySelectCalloutSearch != null) {
-                addData(sessionData, "calloutquery", "1");
+
+            String calloutResultCount = getCalloutSearchResultCount(step);
+            if (calloutResultCount != null) {
+                addData(sessionData, "fingerprintquery", calloutResultCount);
             }
         }
     }
+
+    private static String getStringQuery(StackFrameStep step) {
+        Object extra = step.getExtra(KEY_LAST_QUERY_STRING);
+        if (extra != null && extra instanceof String && !"".equals(extra)) {
+            return (String) extra;
+        }
+        return null;
+    }
+
+    private static String getCalloutSearchResultCount(StackFrameStep step) {
+        Object entitySelectCalloutSearch = step.getExtra(KEY_ENTITY_LIST_EXTRA_DATA);
+        if (entitySelectCalloutSearch != null && entitySelectCalloutSearch instanceof OrderedHashtable) {
+            return "" + ((OrderedHashtable)entitySelectCalloutSearch).keySet().size();
+        }
+        return null;
+    }
+
 
     private static void addMetadata(TreeElement sessionRoot, String deviceId,
                                     String appversion, String username,
