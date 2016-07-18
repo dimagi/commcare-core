@@ -522,7 +522,18 @@ public class CommCareSession {
         return new EvaluationContext(null, instancesInScope);
     }
 
-    private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap) {
+    public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif, Hashtable<String, DataInstance> data) {
+        for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
+            String key = (String)en.nextElement();
+            data.put(key, data.get(key).initialize(iif, key));
+        }
+        addInstancesFromFrame(data);
+
+        return new EvaluationContext(null, data);
+    }
+
+
+        private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap) {
         for (StackFrameStep step : frame.getSteps()) {
             if (step.hasXmlInstance()) {
                 instanceMap.put(step.getId(), step.getXmlInstance());
