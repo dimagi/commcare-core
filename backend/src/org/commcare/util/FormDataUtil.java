@@ -7,6 +7,7 @@ import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
@@ -22,13 +23,54 @@ public class FormDataUtil {
 
         Pair<EntityDatum, String> datumEntityAndValue =
                 getDatumAndCaseId(sessionCopy, evalContext);
-        if (datumEntityAndValue.first == null || datumEntityAndValue.second == null) {
-            return null;
-        }
-
         EntityDatum entityDatum = datumEntityAndValue.first;
         String value = datumEntityAndValue.second;
 
+        if (entityDatum == null) {
+            if (value == null) {
+                return null;
+            } else {
+                return getCaseName(userSandbox, value);
+            }
+        } else {
+            return loadTitleFromEntity(entityDatum, value, evalContext, sessionCopy, userSandbox);
+        }
+    }
+
+    private static Pair<EntityDatum, String> getDatumAndCaseId(CommCareSession session,
+                                                               EvaluationContext evaluationContext) {
+        String datumValue = null;
+        while (session.getFrame().getSteps().size() > 0) {
+            SessionDatum datum = session.getNeededDatum();
+            if (isCaseIdComputedDatum(datum, datumValue, session.getPoppedStep())) {
+                // Loads case id for forms that create cases, since case id was
+                // a computed datum injected into the form. Assumes that it was
+                // the 1st computed datum... another good heuristic would be
+                // session.getPoppedStep().getId().startsWith("case_id")
+                datumValue = session.getPoppedStep().getValue();
+            } else if (datum instanceof EntityDatum && ((EntityDatum)datum).getLongDetail() != null) {
+                String tmpDatumValue = session.getPoppedStep().getValue();
+                if (tmpDatumValue != null) {
+                    datumValue = tmpDatumValue;
+                }
+                return new Pair<>((EntityDatum)datum, datumValue);
+            }
+            session.popStep(evaluationContext);
+        }
+        return new Pair<>(null, datumValue);
+    }
+
+    private static boolean isCaseIdComputedDatum(SessionDatum datum,
+                                                 String currentDatumValue,
+                                                 StackFrameStep poppedStep) {
+        return datum instanceof ComputedDatum &&
+                (currentDatumValue == null || poppedStep.getId().equals(datum.getDataId()));
+    }
+
+    private static String loadTitleFromEntity(EntityDatum entityDatum, String value,
+                                              EvaluationContext evalContext,
+                                              CommCareSession sessionCopy,
+                                              UserSandbox userSandbox) {
         TreeReference elem = entityDatum.getEntityFromID(evalContext, value);
         if (elem == null) {
             return null;
@@ -58,29 +100,6 @@ public class FormDataUtil {
         }
     }
 
-    private static Pair<EntityDatum, String> getDatumAndCaseId(CommCareSession session,
-                                                               EvaluationContext evaluationContext) {
-        String datumValue = null;
-        while (session.getFrame().getSteps().size() > 0) {
-            SessionDatum datum = session.getNeededDatum();
-            if (datum instanceof ComputedDatum) {
-                // Loads case id for forms that create cases, since case id was
-                // a computed datum injected into the form. Assumes that it was
-                // the 1st computed datum... another good heuristic would be
-                // session.getPoppedStep().getId().startsWith("case_id")
-                datumValue = session.getPoppedStep().getValue();
-            }
-            if (datum instanceof EntityDatum && ((EntityDatum)datum).getLongDetail() != null) {
-                String tmpDatumValue = session.getPoppedStep().getValue();
-                if (tmpDatumValue != null) {
-                    datumValue = tmpDatumValue;
-                }
-                return new Pair<>((EntityDatum)datum, datumValue);
-            }
-            session.popStep(evaluationContext);
-        }
-        return null;
-    }
 
     private static String getCaseName(UserSandbox userSandbox, String caseId) {
         try {

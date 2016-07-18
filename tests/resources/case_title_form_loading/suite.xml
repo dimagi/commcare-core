@@ -124,6 +124,26 @@
   </entry>
 
   <entry>
+    <form>http://openrosa.org/formdesigner/E5E690D1-B846-4EAB-8EE0-A9B3085B9E8D</form>
+    <command id="m2-f0">
+      <display>
+        <text>
+          <locale id="forms.m3f0"/>
+        </text>
+        <text form="image">
+          <locale id="forms.m3f0.icon"/>
+        </text>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <datum id="case_id_new_adult_0" function="uuid()"/>
+    </session>
+    <stack/>
+  </entry>
+
+  <entry>
     <form>http://openrosa.org/formdesigner/e1f870ef46c9ec0781806ef24ff0537ad604c816</form>
     <command id="m1-f0">
       <text>
@@ -153,5 +173,17 @@
       <locale id="modules.m1"/>
     </text>
     <command id="m1-f0"/>
+  </menu>
+
+  <menu id="m2">
+    <display>
+      <text>
+        <locale id="modules.m0"/>
+      </text>
+      <text form="image">
+        <locale id="modules.m0.icon"/>
+      </text>
+    </display>
+    <command id="m2-f0"/>
   </menu>
 </suite>
