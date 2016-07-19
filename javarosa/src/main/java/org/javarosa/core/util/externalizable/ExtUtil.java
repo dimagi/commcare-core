@@ -1,6 +1,7 @@
 package org.javarosa.core.util.externalizable;
 
 import org.javarosa.core.services.PrototypeManager;
+import org.javarosa.core.util.Interner;
 import org.javarosa.core.util.OrderedHashtable;
 
 import java.io.ByteArrayInputStream;
@@ -16,6 +17,9 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 public class ExtUtil {
+    public static boolean interning = true;
+    public static Interner<String> stringCache;
+
     public static byte[] serialize(Object o) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
@@ -220,7 +224,8 @@ public class ExtUtil {
     }
 
     public static String readString(DataInputStream in) throws IOException {
-        return in.readUTF();
+        String s = in.readUTF();
+        return (interning && stringCache != null) ? stringCache.intern(s) : s;
     }
 
     public static Date readDate(DataInputStream in) throws IOException {
@@ -424,4 +429,9 @@ public class ExtUtil {
         return read(new DataInputStream(new ByteArrayInputStream(data)), type, pf);
     }
     ////
+
+    @SuppressWarnings("unused")
+    public static void attachCacheTable(Interner<String> stringCache) {
+        ExtUtil.stringCache = stringCache;
+    }
 }

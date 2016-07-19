@@ -200,7 +200,7 @@ public class TreeReference implements Externalizable {
     }
 
     public void add(String name, int mult) {
-        add(new TreeReferenceLevel(name, mult));
+        add(new TreeReferenceLevel(name, mult).intern());
     }
 
     /**
@@ -687,7 +687,7 @@ public class TreeReference implements Externalizable {
         int size = ExtUtil.readInt(in);
         for (int i = 0; i < size; ++i) {
             TreeReferenceLevel level = (TreeReferenceLevel)ExtUtil.read(in, TreeReferenceLevel.class, pf);
-            this.add(level);
+            this.add(level.intern());
         }
     }
 

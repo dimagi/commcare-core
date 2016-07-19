@@ -1,3 +1,6 @@
+/**
+ *
+ */
 package org.commcare.cases.instance;
 
 import org.commcare.cases.model.Case;
@@ -43,6 +46,8 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     protected Vector<CaseChildElement> cases;
 
     protected final Interner<TreeElement> treeCache = new Interner<>();
+
+    private Interner<String> stringCache;
 
     private String syncToken;
     private String stateHash;
@@ -94,6 +99,10 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     @Override
     public String getInstanceName() {
         return instanceRoot.getInstanceName();
+    }
+
+    public void attachStringCache(Interner<String> stringCache) {
+        this.stringCache = stringCache;
     }
 
     @Override
@@ -314,6 +323,14 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     @Override
     public String getNamespace() {
         return null;
+    }
+
+    public String intern(String s) {
+        if (stringCache == null) {
+            return s;
+        } else {
+            return stringCache.intern(s);
+        }
     }
 
     public Case getCase(int recordId) {

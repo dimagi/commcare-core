@@ -1,5 +1,6 @@
 package org.javarosa.xpath.expr;
 
+import org.javarosa.core.util.Interner;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
@@ -34,6 +35,9 @@ public class XPathStep implements Externalizable {
     public static final int TEST_TYPE_TEXT = 4;
     public static final int TEST_TYPE_COMMENT = 5;
     public static final int TEST_TYPE_PROCESSING_INSTRUCTION = 6;
+
+    private static Interner<XPathStep> refs;
+    public static boolean XPathStepInterningEnabled = true;
 
     public int axis;
     public int test;
@@ -73,6 +77,13 @@ public class XPathStep implements Externalizable {
 
     public static XPathStep ABBR_DESCENDANTS() {
         return new XPathStep(AXIS_DESCENDANT_OR_SELF, TEST_TYPE_NODE);
+    }
+
+    /**
+     * Used by J2ME
+     */
+    public static void attachInterner(Interner<XPathStep> refs) {
+        XPathStep.refs = refs;
     }
 
     @Override
@@ -298,5 +309,13 @@ public class XPathStep implements Externalizable {
             v.addElement(predicate);
         }
         ExtUtil.write(out, new ExtWrapListPoly(v));
+    }
+
+    public XPathStep intern() {
+        if (!XPathStepInterningEnabled || refs == null) {
+            return this;
+        } else {
+            return refs.intern(this);
+        }
     }
 }

@@ -5,6 +5,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.xform.parse.QuestionExtensionParser;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
+import org.javarosa.xform.parse.XFormParserFactory;
 import org.kxml2.kdom.Element;
 
 import java.io.IOException;
@@ -19,6 +20,17 @@ import java.util.Vector;
  * @author Clayton Sims
  */
 public class XFormUtils {
+    private static XFormParserFactory _factory = new XFormParserFactory();
+
+    /**
+     * Used by J2ME
+     */
+    public static XFormParserFactory setXFormParserFactory(XFormParserFactory factory) {
+        XFormParserFactory oldFactory = _factory;
+        _factory = factory;
+        return oldFactory;
+    }
+
     public static FormDef getFormFromResource(String resource) throws XFormParseException {
         InputStream is = System.class.getResourceAsStream(resource);
         if (is == null) {
@@ -29,8 +41,9 @@ public class XFormUtils {
         return getFormFromInputStream(is);
     }
 
+
     public static FormDef getFormRaw(InputStreamReader isr) throws XFormParseException, IOException {
-        return new XFormParser(isr).parse();
+        return _factory.getXFormParser(isr).parse();
     }
 
     public static FormDef getFormFromInputStream(InputStream is,
@@ -50,11 +63,12 @@ public class XFormUtils {
 
         try {
             try {
-                XFormParser parser = new XFormParser(isr);
+                XFormParser parser = _factory.getXFormParser(isr);
                 for (QuestionExtensionParser p : extensionParsers) {
                     parser.registerExtensionParser(p);
                 }
                 return parser.parse();
+                //TODO: Keep removing these, shouldn't be swallowing them
             } catch (IOException e) {
                 throw new XFormParseException("IO Exception during parse! " + e.getMessage());
             }
@@ -86,7 +100,8 @@ public class XFormUtils {
 
         try {
             try {
-                return new XFormParser(isr).parse();
+                return _factory.getXFormParser(isr).parse();
+                //TODO: Keep removing these, shouldn't be swallowing them
             } catch (IOException e) {
                 throw new XFormParseException("IO Exception during parse! " + e.getMessage());
             }

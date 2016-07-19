@@ -11,7 +11,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class XPathUnionExpr extends XPathBinaryOpExpr {
-    @SuppressWarnings("unused")
     public XPathUnionExpr() {
     } //for deserialization
 
