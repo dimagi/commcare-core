@@ -43,11 +43,13 @@ if __name__ == "__main__":
                  "VERSION",
                  "BUILD_NUMBER"]
     args = sys.argv[1:]
-    environ = None
-    try:
-        environ = dict([(var, os.environ[var]) for var in variables])
+    environ = {}
+    for var in variables:
+        if var in os.environ:
+            environ[var] = os.environ[var]
 
-    except KeyError:
+    # If no env vars are found, default to reading in arguments passed in
+    if len(environ) is 0:
         if len(args) == len(variables):
             environ = dict(zip(variables, args))
 
