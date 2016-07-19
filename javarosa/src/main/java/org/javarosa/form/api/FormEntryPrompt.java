@@ -20,7 +20,6 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.core.util.UnregisteredLocaleException;
-import org.javarosa.formmanager.view.IQuestionWidget;
 import org.javarosa.xform.parse.XFormParser;
 
 import java.util.Vector;
@@ -258,27 +257,6 @@ public class FormEntryPrompt extends FormEntryCaption {
 
     public QuestionDef getQuestion() {
         return (QuestionDef)element;
-    }
-
-    //==== observer pattern ====//
-
-    @Override
-    public void register(IQuestionWidget viewWidget) {
-        super.register(viewWidget);
-        mTreeElement.registerStateObserver(this);
-    }
-
-    @Override
-    public void unregister() {
-        mTreeElement.unregisterStateObserver(this);
-        super.unregister();
-    }
-
-    public void formElementStateChanged(TreeElement instanceNode, int changeFlags) {
-        if (this.mTreeElement != instanceNode)
-            throw new IllegalStateException("Widget received event from foreign question");
-        if (viewWidget != null)
-            viewWidget.refreshWidget(changeFlags);
     }
 
     /**

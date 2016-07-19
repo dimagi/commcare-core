@@ -1,25 +1,7 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model;
 
 import org.javarosa.core.model.actions.ActionController;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.locale.Localizable;
-import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -49,7 +31,7 @@ import java.util.Vector;
  *
  * @author Daniel Kayiwa/Drew Roos
  */
-public class QuestionDef implements IFormElement, Localizable {
+public class QuestionDef implements IFormElement {
     private int id;
 
     // reference to the location in the model from which to load data for the question,
@@ -67,8 +49,6 @@ public class QuestionDef implements IFormElement, Localizable {
 
     Vector<QuestionDataExtension> extensions;
 
-    final Vector<FormElementStateListener> observers;
-
     private ActionController actionController;
 
     public QuestionDef() {
@@ -78,7 +58,6 @@ public class QuestionDef implements IFormElement, Localizable {
     public QuestionDef(int id, int controlType) {
         setID(id);
         setControlType(controlType);
-        observers = new Vector<>();
         mQuestionStrings = new Hashtable<>();
         extensions = new Vector<>();
         
@@ -203,21 +182,6 @@ public class QuestionDef implements IFormElement, Localizable {
         return (dynamicChoices != null && dynamicChoices.copyMode);
     }
 
-    //Deprecated
-    public void localeChanged(String locale, Localizer localizer) {
-        if (choices != null) {
-            for (int i = 0; i < choices.size(); i++) {
-                choices.elementAt(i).localeChanged(null, localizer);
-            }
-        }
-
-        if (dynamicChoices != null) {
-            dynamicChoices.localeChanged(locale, localizer);
-        }
-
-        alertStateObservers(FormElementStateListener.CHANGE_LOCALE);
-    }
-
     @Override
     public Vector<IFormElement> getChildren() {
         return null;
@@ -265,25 +229,6 @@ public class QuestionDef implements IFormElement, Localizable {
         ExtUtil.write(dos, new ExtWrapMap(mQuestionStrings));
         ExtUtil.write(dos, new ExtWrapListPoly(extensions));
         ExtUtil.write(dos, new ExtWrapNullable(actionController));
-    }
-
-    /* === MANAGING OBSERVERS === */
-
-    @Override
-    public void registerStateObserver(FormElementStateListener qsl) {
-        if (!observers.contains(qsl)) {
-            observers.addElement(qsl);
-        }
-    }
-
-    @Override
-    public void unregisterStateObserver(FormElementStateListener qsl) {
-        observers.removeElement(qsl);
-    }
-
-    public void alertStateObservers(int changeFlags) {
-        for (Enumeration e = observers.elements(); e.hasMoreElements(); )
-            ((FormElementStateListener)e.nextElement()).formElementStateChanged(this, changeFlags);
     }
 
     @Override
