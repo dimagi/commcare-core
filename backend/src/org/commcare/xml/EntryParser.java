@@ -19,6 +19,8 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -152,7 +154,18 @@ public class EntryParser extends CommCareElementParser<Entry> {
     }
 
     private SyncPost parsePost() throws InvalidStructureException, IOException, XmlPullParserException {
-        String url = parser.getAttributeValue(null, "url");
+        String urlString = parser.getAttributeValue(null, "url");
+        if (urlString == null) {
+            throw new InvalidStructureException("Expected 'url' attribute in a <post> structure.",
+                    parser);
+        }
+        URL url;
+        try {
+            url = new URL(urlString); } catch (MalformedURLException e) {
+            throw new InvalidStructureException(
+                    "The <post> block's 'url' attribute (" + urlString + ") isn't a valid url.",
+                    parser);
+        }
 
         XPathExpression relevantExpr = null;
         String relevantExprString = parser.getAttributeValue(null, "relevant");

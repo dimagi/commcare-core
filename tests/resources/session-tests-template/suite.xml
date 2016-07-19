@@ -104,7 +104,7 @@
   </entry>
 
   <sync-request>
-    <post url="fake.com/claim_patient/"
+    <post url="http://fake.com/claim_patient/"
           relevant="count(instance('casedb')/casedb/case[@case_id=instance('session')/session/data/case_id]) = 0">
       <data key="selected_case_id" ref="instance('session')/session/data/case_id"/>
       <data key="selected_name" ref="instance('patients')/case[@case_id=instance('session')/session/data/case_id]/name"/>
@@ -117,7 +117,7 @@
       </display>
     </command>
     <session>
-      <query url="fake.com/patient_search/" storage-instance="patients">
+      <query url="http://fake.com/patient_search/" storage-instance="patients">
         <data key="device_id" ref="instance('session')/session/data/uuid"/>
         <prompt key="name">
           <display>
@@ -141,7 +141,7 @@
   </sync-request>
 
   <sync-request>
-    <post url="fake.com/claim_patient/"/>
+    <post url="http://fake.com/claim_patient/"/>
     <command id="empty-sync-request">
       <display>
         <text>Global search for person</text>
@@ -151,7 +151,7 @@
   </sync-request>
 
   <sync-request>
-    <post url="fake.com/claim_patient/" relevant="false()"/>
+    <post url="http://fake.com/claim_patient/" relevant="false()"/>
     <command id="irrelevant-sync-request">
       <display>
         <text>Global search for person</text>
@@ -161,7 +161,7 @@
   </sync-request>
 
   <sync-request>
-    <post url="fake.com/claim_patient/" relevant="true()"/>
+    <post url="http://fake.com/claim_patient/" relevant="true()"/>
     <command id="relevant-sync-request">
       <display>
         <text>Global search for person</text>
