@@ -14,6 +14,7 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.services.locale.Localization;
 
 /**
  *  Initializes a CommCare DataInstance against a UserDataInterface and (sometimes) optional
@@ -114,14 +115,14 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             FormInstance fixture = SandboxUtils.loadFixture(mSandbox, refId, userId);
 
             if (fixture == null) {
-                throw new FixtureInitializationException("Could not find an lookup table for src: " + ref);
+                throw new FixtureInitializationException(ref);
             }
 
             TreeElement root = fixture.getRoot();
             root.setParent(instance.getBase());
             return root;
         } catch (IllegalStateException ise) {
-            throw new FixtureInitializationException("Could not load fixture for src: " + ref);
+            throw new FixtureInitializationException(ref);
         }
     }
 
@@ -152,8 +153,8 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
     public static class FixtureInitializationException extends RuntimeException {
 
-        public FixtureInitializationException(String message) {
-            super(message);
+        public FixtureInitializationException(String lookupReference) {
+            super(Localization.get("lookup.table.missing.error", lookupReference));
         }
     }
 }
