@@ -62,7 +62,15 @@ public class SessionNavigator {
     public void startNextSessionStep() {
         currentSession = responder.getSessionForNavigator();
         ec = responder.getEvalContextForNavigator();
-        String needed = currentSession.getNeededData(ec);
+        String needed;
+        try {
+            needed = currentSession.getNeededData(ec);
+        } catch (XPathException e) {
+            thrownException = e;
+            sendResponse(XPATH_EXCEPTION_THROWN);
+            return;
+        }
+
         if (needed == null) {
             readyToProceed();
         } else if (needed.equals(SessionFrame.STATE_COMMAND_ID)) {
