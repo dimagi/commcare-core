@@ -128,7 +128,6 @@ public class SuiteParser extends ElementParser<Suite> {
                         }
                     } else if (parser.getName().toLowerCase().equals("alert")){
                         alerts.add(new AlertParser(parser).parse());
-                        System.out.println("Parsed an alert!!");
                     }
                     else {
                         System.out.println("Unrecognized Tag: " + parser.getName());
