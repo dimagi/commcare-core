@@ -160,9 +160,7 @@ public class SqlHelper {
      * @param storageKey name of table
      * @param p          persistable to be updated
      */
-
     public static void updateId(Connection c, String storageKey, Persistable p) {
-
         HashMap<String, Object> map = DatabaseHelper.getMetaFieldsAndValues(p);
 
         String[] fieldNames = map.keySet().toArray(new String[map.keySet().size()]);
@@ -188,7 +186,6 @@ public class SqlHelper {
                 }
             }
         }
-
     }
 
     /**

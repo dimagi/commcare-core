@@ -1,5 +1,6 @@
 package org.commcare.cases.model;
 
+import org.javarosa.core.api.Constants;
 import org.javarosa.core.model.utils.PreloadUtils;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
@@ -25,7 +26,6 @@ import java.util.Vector;
  * representation across versions.
  *
  * @author Clayton Sims
- * @date Mar 19, 2009
  */
 public class Case implements Persistable, IMetaData, Secure {
     public static final String STORAGE_KEY = "CASE";
@@ -45,7 +45,7 @@ public class Case implements Persistable, IMetaData, Secure {
 
     protected int recordId;
 
-    protected Hashtable data = new Hashtable();
+    protected Hashtable<String, Object> data = new Hashtable<>();
 
     protected Vector<CaseIndex> indices = new Vector<>();
 
@@ -97,11 +97,11 @@ public class Case implements Persistable, IMetaData, Secure {
     }
 
     public String getUserId() {
-        return (String)data.get(org.javarosa.core.api.Constants.USER_ID_KEY);
+        return (String)data.get(Constants.USER_ID_KEY);
     }
 
     public void setUserId(String id) {
-        data.put(org.javarosa.core.api.Constants.USER_ID_KEY, id);
+        data.put(Constants.USER_ID_KEY, id);
     }
 
     public void setCaseId(String id) {
@@ -120,9 +120,7 @@ public class Case implements Persistable, IMetaData, Secure {
         this.dateOpened = dateOpened;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         typeId = ExtUtil.readString(in);
         id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
@@ -134,9 +132,7 @@ public class Case implements Persistable, IMetaData, Secure {
         data = (Hashtable)ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, typeId);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
@@ -168,7 +164,6 @@ public class Case implements Persistable, IMetaData, Secure {
             //xml transform, essentially.
             return PreloadUtils.wrapIndeterminedObject(o).uncast().getString();
         }
-
     }
 
     public Hashtable getProperties() {
@@ -179,6 +174,7 @@ public class Case implements Persistable, IMetaData, Secure {
         return "case";
     }
 
+    @Override
     public Object getMetaData(String fieldName) {
         if (fieldName.equals(INDEX_CASE_ID)) {
             return id;
@@ -200,6 +196,7 @@ public class Case implements Persistable, IMetaData, Secure {
         }
     }
 
+    @Override
     public String[] getMetaDataFields() {
         return new String[]{INDEX_CASE_ID, INDEX_CASE_TYPE, INDEX_CASE_STATUS};
     }

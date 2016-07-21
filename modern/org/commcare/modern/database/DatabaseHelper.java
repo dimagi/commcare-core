@@ -105,7 +105,7 @@ public class DatabaseHelper {
     public static HashMap<String, Object> getNonDataMetaEntries(Externalizable e) {
         HashMap<String, Object> values = new HashMap<>();
 
-        if(e instanceof IMetaData) {
+        if (e instanceof IMetaData) {
             IMetaData m = (IMetaData)e;
             for (String key : m.getMetaDataFields()) {
                 Object o = m.getMetaData(key);
