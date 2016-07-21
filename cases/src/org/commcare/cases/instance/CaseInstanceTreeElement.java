@@ -69,7 +69,6 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         this.instanceRoot = instanceRoot;
         this.storage = storage;
         this.reportMode = reportMode;
-        storage.setReadOnly();
     }
 
     /**

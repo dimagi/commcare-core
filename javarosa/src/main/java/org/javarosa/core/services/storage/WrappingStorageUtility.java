@@ -78,7 +78,6 @@ public class WrappingStorageUtility implements IStorageUtilityIndexed {
         }
     }
 
-
     public int add(Externalizable e) {
         synchronized (wrapper) {
             wrapper.setData(e);
@@ -156,28 +155,8 @@ public class WrappingStorageUtility implements IStorageUtilityIndexed {
         return storage.getNumRecords();
     }
 
-    public int getRecordSize(int id) {
-        return storage.getRecordSize(id);
-    }
-
-    public int getTotalSize() {
-        return storage.getTotalSize();
-    }
-
     public void close() {
         storage.close();
-    }
-
-    public void destroy() {
-        storage.destroy();
-    }
-
-    public void repack() {
-        storage.repack();
-    }
-
-    public void repair() {
-        storage.repair();
     }
 
     public Object getAccessLock() {
@@ -198,10 +177,6 @@ public class WrappingStorageUtility implements IStorageUtilityIndexed {
             throw new RuntimeException("WrappingStorageUtility's factory is not of an indexed type, but had indexed operations requested. Please implement storage " + storage.getClass().getName() + " as indexed storage");
         }
         return (IStorageUtilityIndexed)storage;
-    }
-
-    public void setReadOnly() {
-        storage.setReadOnly();
     }
 
     public void registerIndex(String filterIndex) {

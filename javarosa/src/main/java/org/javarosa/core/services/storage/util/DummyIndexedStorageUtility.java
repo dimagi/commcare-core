@@ -132,14 +132,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#destroy()
-     */
-    public void destroy() {
-        // TODO Auto-generated method stub
-
-    }
-
-    /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#exists(int)
      */
     public boolean exists(int id) {
@@ -159,22 +151,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
      */
     public int getNumRecords() {
         return data.size();
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#getRecordSize(int)
-     */
-    public int getRecordSize(int id) {
-        //serialize and test blah blah.
-        return 0;
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#getTotalSize()
-     */
-    public int getTotalSize() {
-        //serialize and test blah blah.
-        return 0;
     }
 
     /* (non-Javadoc)
@@ -283,20 +259,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#repack()
-     */
-    public void repack() {
-        //Unecessary!
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#repair()
-     */
-    public void repair() {
-        //Unecessary!
-    }
-
-    /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#update(int, org.javarosa.core.util.externalizable.Externalizable)
      */
     public void update(int id, T e) {
@@ -345,12 +307,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
             }
         }
     }
-
-
-    public void setReadOnly() {
-        //TODO: This should have a clear contract.
-    }
-
 
     final Vector<String> dynamicIndices = new Vector<>();
 
