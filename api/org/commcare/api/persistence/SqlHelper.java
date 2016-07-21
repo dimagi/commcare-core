@@ -118,6 +118,8 @@ public class SqlHelper {
                     preparedStatement.setBlob(i + 1, (Blob) obj);
                 } else if (obj instanceof Integer) {
                     preparedStatement.setInt(i + 1, (Integer) obj);
+                } else if (obj instanceof Long) {
+                    preparedStatement.setLong(i + 1, (Long) obj);
                 } else if (obj instanceof byte[]) {
                     preparedStatement.setBinaryStream(i + 1, new ByteArrayInputStream((byte[]) obj), ((byte[]) obj).length);
                 }
@@ -253,6 +255,8 @@ public class SqlHelper {
                 preparedStatement.setBlob(i, (Blob) obj);
             } else if (obj instanceof Integer) {
                 preparedStatement.setInt(i, (Integer) obj);
+            } else if (obj instanceof Long) {
+                preparedStatement.setLong(i, (Long) obj);
             } else if (obj instanceof byte[]) {
                 preparedStatement.setBinaryStream(i, new ByteArrayInputStream((byte[]) obj), ((byte[]) obj).length);
             } else if (obj == null) {
