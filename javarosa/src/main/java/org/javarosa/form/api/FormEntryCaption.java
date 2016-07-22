@@ -328,6 +328,9 @@ public class FormEntryCaption {
         public String delete_header;
     }
 
+    /**
+     * Used by touchforms
+     */
     @SuppressWarnings("unused")
     public RepeatOptions getRepeatOptions() {
         RepeatOptions ro = new RepeatOptions();
