@@ -1,6 +1,5 @@
 package org.commcare.cases.model;
 
-import org.javarosa.core.api.Constants;
 import org.javarosa.core.model.utils.PreloadUtils;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
