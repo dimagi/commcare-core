@@ -1,10 +1,7 @@
 package org.javarosa.core.model.test;
 
 import org.javarosa.core.model.Constants;
-import org.javarosa.core.model.FormElementStateListener;
-import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.QuestionDef;
-import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -123,24 +120,6 @@ public class QuestionDefTest {
     }
 
     @Test
-    public void testFlagObservers() {
-        QuestionDef q = new QuestionDef();
-
-        QuestionObserver qo = new QuestionObserver();
-        q.registerStateObserver(qo);
-
-        if (qo.flag || qo.q != null || qo.flags != 0) {
-            fail("Improper state in question observer");
-        }
-
-        q.unregisterStateObserver(qo);
-
-        if (qo.flag) {
-            fail("Localization observer updated after unregistered");
-        }
-    }
-
-    @Test
     public void testReferences() {
         QuestionDef q = fpi.getFirstQuestionDef();
         FormEntryPrompt fep = fpi.getFormEntryModel().getQuestionPrompt();
@@ -179,25 +158,6 @@ public class QuestionDefTest {
         } catch (InvalidReferenceException ire) {
             fail("There was an Invalid Reference Exception:" + ire.getMessage());
             ire.printStackTrace();
-        }
-    }
-
-    private class QuestionObserver implements FormElementStateListener {
-        public boolean flag = false;
-        public TreeElement e;
-        public QuestionDef q;
-        public int flags;
-
-        public void formElementStateChanged(IFormElement q, int flags) {
-            flag = true;
-            this.q = (QuestionDef)q;
-            this.flags = flags;
-        }
-
-        public void formElementStateChanged(TreeElement question, int changeFlags) {
-            flag = true;
-            this.e = question;
-            this.flags = changeFlags;
         }
     }
 

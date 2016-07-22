@@ -4,8 +4,6 @@ import org.javarosa.core.model.actions.ActionController;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.locale.Localizable;
-import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
@@ -25,7 +23,7 @@ import java.util.Vector;
  *
  * @author Daniel Kayiwa
  */
-public class GroupDef implements IFormElement, Localizable {
+public class GroupDef implements IFormElement {
     // A list of questions on a group.
     private Vector<IFormElement> children;
     // True if this is a "repeat", false if it is a "group"
@@ -50,8 +48,6 @@ public class GroupDef implements IFormElement, Localizable {
     public String delHeader;
     public String mainHeader;
 
-    private final Vector<FormElementStateListener> observers;
-
     /**
      * When set the user can only create as many children as specified by the
      * 'count' reference.
@@ -65,14 +61,9 @@ public class GroupDef implements IFormElement, Localizable {
     public XPathReference count = null;
 
     public GroupDef() {
-        this(Constants.NULL_ID, null, false);
-    }
-
-    public GroupDef(int id, Vector children, boolean repeat) {
-        setID(id);
-        setChildren(children);
-        setRepeat(repeat);
-        observers = new Vector<>();
+        id = Constants.NULL_ID;
+        children = new Vector<>();
+        repeat = false;
     }
 
     @Override
@@ -149,13 +140,6 @@ public class GroupDef implements IFormElement, Localizable {
     @Override
     public ActionController getActionController() {
         return null;
-    }
-
-    @Override
-    public void localeChanged(String locale, Localizer localizer) {
-        for (Enumeration e = children.elements(); e.hasMoreElements(); ) {
-            ((IFormElement)e.nextElement()).localeChanged(locale, localizer);
-        }
     }
 
     /**
@@ -249,18 +233,6 @@ public class GroupDef implements IFormElement, Localizable {
         ExtUtil.writeString(dos, ExtUtil.emptyIfNull(delHeader));
         ExtUtil.writeString(dos, ExtUtil.emptyIfNull(mainHeader));
 
-    }
-
-    @Override
-    public void registerStateObserver(FormElementStateListener qsl) {
-        if (!observers.contains(qsl)) {
-            observers.addElement(qsl);
-        }
-    }
-
-    @Override
-    public void unregisterStateObserver(FormElementStateListener qsl) {
-        observers.removeElement(qsl);
     }
 
     @Override
