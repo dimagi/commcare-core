@@ -1,5 +1,6 @@
 package org.javarosa.xform.util;
 
+import org.javarosa.core.services.locale.Localization;
 import org.joda.time.Chronology;
 import org.joda.time.DateTime;
 import org.joda.time.chrono.EthiopicChronology;
@@ -20,10 +21,7 @@ public class CalendarUtils {
         Chronology chron_greg = GregorianChronology.getInstance();
         DateTime jodaDateTime = new DateTime(gregorianYear, gregorianMonth, gregorianDay, 0, 0, 0, chron_greg);
         DateTime dtEthiopic = jodaDateTime.withChronology(chron_eth);
-        String[] monthsArray = {"Meskerem", "Tikimt", "Hidar", "Tahsas", "Tir",
-                "Yekatit", "Megabit", "Miazia", "Ginbot",
-                "Senie", "Hamlie", "Nehasie", "Pagumien"};
-
+        String[] monthsArray = Localization.getArray("ethiopian.months.list");
         return dtEthiopic.getDayOfMonth() + " "
                 + monthsArray[dtEthiopic.getMonthOfYear() - 1] + " "
                 + dtEthiopic.getYear();
@@ -222,11 +220,8 @@ public class CalendarUtils {
      */
     public static String convertToNepaliString(Date date) {
         UniversalDate dateUniv = CalendarUtils.fromMillis(date.getTime());
-        String[] monthNames = {"Baishakh", "Jestha", "Ashadh", "Shrawan",
-                                "Bhadra", "Ashwin", "Kartik", "Mangsir",
-                                "Poush", "Magh", "Falgun", "Chaitra"};
-
-        return dateUniv.day + " " + monthNames[dateUniv.month - 1] + " " + dateUniv.year;
+        String[] monthsArray = Localization.getArray("nepali.months.list");
+        return dateUniv.day + " " + monthsArray[dateUniv.month - 1] + " " + dateUniv.year;
     }
 
     public static UniversalDate decrementMonth(UniversalDate date) {
