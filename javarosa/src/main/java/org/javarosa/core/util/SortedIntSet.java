@@ -96,10 +96,12 @@ public class SortedIntSet implements Externalizable {
         return v;
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         v = (Vector)ExtUtil.read(in, new ExtWrapList(Integer.class));
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapList(v));
     }

@@ -28,6 +28,7 @@ import java.util.Vector;
  * @author Clayton Sims
  */
 public class Case implements Persistable, IMetaData, Secure {
+    public static final String USER_ID_KEY = "userid";
     public static final String STORAGE_KEY = "CASE";
 
     public static final String INDEX_CASE_ID = "case-id";
@@ -97,11 +98,11 @@ public class Case implements Persistable, IMetaData, Secure {
     }
 
     public String getUserId() {
-        return (String)data.get(Constants.USER_ID_KEY);
+        return (String)data.get(USER_ID_KEY);
     }
 
     public void setUserId(String id) {
-        data.put(Constants.USER_ID_KEY, id);
+        data.put(USER_ID_KEY, id);
     }
 
     public void setCaseId(String id) {

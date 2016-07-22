@@ -343,24 +343,6 @@ public class CommCareSession {
         return null;
     }
 
-    @SuppressWarnings("unused")
-    public Suite getCurrentSuite() {
-        for (Suite s : platform.getInstalledSuites()) {
-            for (Menu m : s.getMenus()) {
-                //We need to see if everything in this menu can be matched
-                if (currentCmd.equals(m.getId())) {
-                    return s;
-                }
-
-                if (s.getEntries().containsKey(currentCmd)) {
-                    return s;
-                }
-            }
-        }
-
-        return null;
-    }
-
     public void stepBack(EvaluationContext evalContext) {
         // Pop the first thing off of the stack frame, no matter what
         popSessionFrameStack();
