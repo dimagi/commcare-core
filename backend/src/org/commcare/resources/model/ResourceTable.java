@@ -135,11 +135,6 @@ public class ResourceTable {
         return factory;
     }
 
-    public void removeResource(Resource resource) {
-        compoundResourceCache.remove(resource.getResourceId());
-        storage.remove(resource);
-    }
-
     public void addResource(Resource resource, ResourceInstaller initializer,
                             String parentId, int status) {
         resource.setInstaller(initializer);
@@ -235,20 +230,6 @@ public class ResourceTable {
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
             v.addElement(r);
-        }
-        return v;
-    }
-
-    /**
-     * Get the resources in this table's storage that have a given status.
-     */
-    private Vector<Resource> getResourcesWithStatus(int status) {
-        Vector<Resource> v = new Vector<>();
-        for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
-            Resource r = (Resource)it.nextRecord();
-            if (r.getStatus() == status) {
-                v.addElement(r);
-            }
         }
         return v;
     }
@@ -1104,19 +1085,5 @@ public class ResourceTable {
 
     public void setInstallStatsLogger(InstallStatsLogger logger) {
         this.installStatsLogger = logger;
-    }
-
-    /**
-     * Sets the number of attempts this table will make to install against
-     * resources which fail on lossy (IE: Network) channels.
-     *
-     * @param number The number of attempts to make per resource. Must be at
-     *               least 0
-     */
-    public void setNumberOfRetries(int number) {
-        if (number < 0) {
-            throw new IllegalArgumentException("Can't have less than 0 retries");
-        }
-        this.numberOfLossyRetries = number;
     }
 }

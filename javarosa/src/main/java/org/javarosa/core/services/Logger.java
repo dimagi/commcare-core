@@ -3,12 +3,14 @@ package org.javarosa.core.services;
 import org.javarosa.core.api.ILogger;
 import org.javarosa.core.log.FatalException;
 import org.javarosa.core.log.WrappedException;
-import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 
 import java.util.Date;
 
 public class Logger {
     private static final int MAX_MSG_LENGTH = 2048;
+
+    public final static String LOGS_ENABLED = "logenabled";
+    public final static String LOGS_ENABLED_YES = "Enabled";
 
     private static ILogger logger;
 
@@ -61,8 +63,8 @@ public class Logger {
         boolean enabled;
         boolean problemReadingFlag = false;
         try {
-            String flag = PropertyManager._().getSingularProperty(JavaRosaPropertyRules.LOGS_ENABLED);
-            enabled = (flag == null || flag.equals(JavaRosaPropertyRules.LOGS_ENABLED_YES));
+            String flag = PropertyManager._().getSingularProperty(LOGS_ENABLED);
+            enabled = (flag == null || flag.equals(LOGS_ENABLED_YES));
         } catch (Exception e) {
             enabled = true;    //default to true if problem
             problemReadingFlag = true;
@@ -108,12 +110,6 @@ public class Logger {
         } catch (InterruptedException ie) {
         }
         throw crashException;
-    }
-
-    public static void halt() {
-        if (logger != null) {
-            logger.halt();
-        }
     }
 }
 
