@@ -1,68 +1,14 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model;
 
 
 /**
  * Constants shared throught classes in the containing package.
- *
- * @version ,
  */
 public class Constants {
-
-    /**
-     * Empty strig representation
-     */
-    public static final String EMPTY_STRING = "";
-
-    /**
-     * Index for no selection
-     */
-    public static final int NO_SELECTION = -1;
-
     /**
      * ID not set to a value
      */
     public static final int NULL_ID = -1;
-
-    /**
-     * Connection type not specified
-     */
-    public static final int CONNECTION_NONE = 0;
-
-    /**
-     * Infrared connection
-     */
-    public static final int CONNECTION_INFRARED = 1;
-
-    /**
-     * Bluetooth connection
-     */
-    public static final int CONNECTION_BLUETOOTH = 2;
-
-    /**
-     * Data cable connection. Can be USB or Serial
-     */
-    public static final int CONNECTION_CABLE = 3;
-
-    /**
-     * Over The Air or HTTP Connection
-     */
-    public static final int CONNECTION_OTA = 4;
 
     public static final int DATATYPE_UNSUPPORTED = -1;
     public static final int DATATYPE_NULL = 0;  /* for nodes that have no data, or data type otherwise unknown */
@@ -138,7 +84,5 @@ public class Constants {
      * constants for xform tags
      */
     public static final String XFTAG_UPLOAD = "upload";
-
-
 }
 

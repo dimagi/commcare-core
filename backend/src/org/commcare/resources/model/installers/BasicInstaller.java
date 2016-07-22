@@ -66,7 +66,6 @@ public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
         return false;
     }
 
-
     @Override
     public boolean upgrade(Resource r) throws UnresolvedResourceException {
         throw new RuntimeException("Basic Installer resources can't be marked as upgradable");
@@ -100,7 +99,6 @@ public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
-
     }
 
     @Override

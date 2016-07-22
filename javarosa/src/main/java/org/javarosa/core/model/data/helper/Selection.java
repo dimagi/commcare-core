@@ -122,22 +122,23 @@ public class Selection implements Externalizable {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         xmlValue = ExtUtil.readString(in);
         index = ExtUtil.readInt(in);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.utilities.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, getValue());
         ExtUtil.writeNumeric(out, index);
     }
-    // Compatibility index for Touchforms which expects 1-indexed selections
+    /**
+     * Used by touchforms
+     *
+     * Compatibility index for Touchforms which expects 1-indexed selections
+     */
+    @SuppressWarnings("unused")
     public int getTouchformsIndex(){
         return index + 1;
     }

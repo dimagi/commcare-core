@@ -2,7 +2,6 @@ package org.javarosa.core.model.instance;
 
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
-import org.javarosa.core.model.FormElementStateListener;
 import org.javarosa.core.model.condition.Constraint;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.AnswerDataFactory;
@@ -51,7 +50,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
 
     //I made all of these null again because there are so many treeelements that they
     //take up a huuuge amount of space together.
-    private Vector<FormElementStateListener> observers = null;
     protected Vector<TreeElement> attributes = null;
     protected Vector<TreeElement> children = null;
 
@@ -382,7 +380,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     public boolean setAnswer(IAnswerData answer) {
         if (value != null || answer != null) {
             setValue(answer);
-            alertStateObservers(FormElementStateListener.CHANGE_DATA);
             return true;
         } else {
             return false;
@@ -392,7 +389,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     public void setRequired(boolean required) {
         if (getMaskVar(MASK_REQUIRED) != required) {
             setMaskVar(MASK_REQUIRED, required);
-            alertStateObservers(FormElementStateListener.CHANGE_REQUIRED);
         }
     }
 
@@ -431,7 +427,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                     children.elementAt(i).setRelevant(isRelevant(), true);
                 }
             }
-            alertStateObservers(FormElementStateListener.CHANGE_RELEVANT);
         }
     }
 
@@ -452,37 +447,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                 for (int i = 0; i < children.size(); i++) {
                     children.elementAt(i).setEnabled(isEnabled(), true);
                 }
-            }
-            alertStateObservers(FormElementStateListener.CHANGE_ENABLED);
-        }
-    }
-
-    /* ==== OBSERVER PATTERN ==== */
-
-    public void registerStateObserver(FormElementStateListener qsl) {
-        if (observers == null) {
-            observers = new Vector<>();
-        }
-
-        if (!observers.contains(qsl)) {
-            observers.addElement(qsl);
-        }
-    }
-
-    public void unregisterStateObserver(FormElementStateListener qsl) {
-        if (observers != null) {
-            observers.removeElement(qsl);
-            if (observers.isEmpty()) {
-                observers = null;
-            }
-        }
-    }
-
-    public void alertStateObservers(int changeFlags) {
-        if (observers != null) {
-            for (Enumeration e = observers.elements(); e.hasMoreElements(); ) {
-                ((FormElementStateListener)e.nextElement())
-                        .formElementStateChanged(this, changeFlags);
             }
         }
     }

@@ -27,7 +27,6 @@ import org.javarosa.core.model.util.restorable.RestoreUtils;
 import org.javarosa.core.model.utils.QuestionPreloader;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
-import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -56,7 +55,7 @@ import java.util.Vector;
  *
  * @author Daniel Kayiwa, Drew Roos
  */
-public class FormDef implements IFormElement, Persistable, IMetaData,
+public class FormDef implements IFormElement, IMetaData,
         ActionController.ActionResultProcessor {
     public static final String STORAGE_KEY = "FORMDEF";
     public static final int TEMPLATING_RECURSION_LIMIT = 10;
@@ -286,14 +285,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
     }
 
     public void setLocalizer(Localizer l) {
-        if (this.localizer != null) {
-            this.localizer.unregisterLocalizable(this);
-        }
-
         this.localizer = l;
-        if (this.localizer != null) {
-            this.localizer.registerLocalizable(this);
-        }
     }
 
     // don't think this should ever be called(!)
@@ -1383,13 +1375,6 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         this.preloader = preloads;
     }
 
-    @Override
-    public void localeChanged(String locale, Localizer localizer) {
-        for (Enumeration e = children.elements(); e.hasMoreElements(); ) {
-            ((IFormElement)e.nextElement()).localeChanged(locale, localizer);
-        }
-    }
-
     public String toString() {
         return getTitle();
     }
@@ -1701,14 +1686,6 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
             total += ((IFormElement)e.nextElement()).getDeepChildCount();
         }
         return total;
-    }
-
-    public void registerStateObserver(FormElementStateListener qsl) {
-        // NO. (Or at least not yet).
-    }
-
-    public void unregisterStateObserver(FormElementStateListener qsl) {
-        // NO. (Or at least not yet).
     }
 
     @Override

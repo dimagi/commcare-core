@@ -1358,17 +1358,6 @@ public class XPathFuncExpr extends XPathExpression {
         return new Double(ret);
     }
 
-    /**
-     * This code is fairly legit, but it not compliant with actual
-     * floating point math reqs. I don't know whether we
-     * should expose the option of using it, exactly.
-     */
-    public static double pow(final double a, final double b) {
-        final long tmp = Double.doubleToLongBits(a);
-        final long tmp2 = (long)(b * (tmp - 4606921280493453312L)) + 4606921280493453312L;
-        return Double.longBitsToDouble(tmp2);
-    }
-
     public static final double DOUBLE_TOLERANCE = 1.0e-12;
 
     /**
