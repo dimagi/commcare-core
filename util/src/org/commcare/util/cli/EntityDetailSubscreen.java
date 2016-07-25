@@ -134,4 +134,6 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
     public String[] getHeaders(){
         return headers;
     }
+
+    public String[] getTitles() { return mDetailListTitles;}
 }
