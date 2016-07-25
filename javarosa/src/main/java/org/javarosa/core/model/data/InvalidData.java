@@ -36,12 +36,12 @@ public class InvalidData implements IAnswerData {
 
     @Override
     public IAnswerData clone() {
-        return null;
+        return new InvalidData(myErrorMessage, savedValue);
     }
 
     @Override
     public UncastData uncast() {
-        return new UncastData("Invalid Date was entered");
+        return new UncastData(myErrorMessage);
     }
 
     @Override
