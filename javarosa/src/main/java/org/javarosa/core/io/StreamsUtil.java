@@ -46,7 +46,6 @@ public class StreamsUtil {
         }
     }
 
-
     //Unify the functional aspects here
     private abstract class DirectionalIOException extends IOException {
         final IOException internal;

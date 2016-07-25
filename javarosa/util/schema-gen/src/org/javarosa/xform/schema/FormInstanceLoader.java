@@ -4,7 +4,6 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
 import org.javarosa.xform.util.XFormUtils;
@@ -36,7 +35,6 @@ public class FormInstanceLoader {
             throws IOException {
         FormDef formDef;
         FormInstance savedModel;
-        FormEntryModel entryModel;
 
         try {
             formDef = XFormUtils.getFormFromInputStream(formInput);
@@ -51,8 +49,6 @@ public class FormInstanceLoader {
         TreeElement templateRoot =
                 formDef.getInstance().getRoot().deepCopy(true);
 
-        entryModel = new FormEntryModel(formDef);
-
         // weak check for matching forms
         if (!savedRoot.getName().equals(templateRoot.getName()) ||
                 savedRoot.getMult() != 0) {
@@ -66,11 +62,6 @@ public class FormInstanceLoader {
 
             // populated model to current form
             formDef.getInstance().setRoot(templateRoot);
-
-            if (entryModel.getLanguages() != null) {
-                formDef.localeChanged(entryModel.getLanguage(),
-                        formDef.getLocalizer());
-            }
         }
 
         return formDef;

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.modern.reference;
 
 import org.javarosa.core.reference.PrefixedRootFactory;
@@ -9,30 +6,19 @@ import org.javarosa.core.reference.Reference;
 
 /**
  * @author ctsims
- *
  */
 public class JavaFileRoot extends PrefixedRootFactory {
 
     final String localRoot;
-    String authority;
 
     public JavaFileRoot(String localRoot) {
-        super(new String[] {"file"});
-        this.localRoot = localRoot;
-    }
-    public JavaFileRoot(String[] uriRoots, String localRoot) {
-        super(uriRoots);
-        if(uriRoots.length ==1 ){
-            authority = uriRoots[0];
-        }
+        super(new String[]{"file"});
+
         this.localRoot = localRoot;
     }
 
+    @Override
     protected Reference factory(String terminal, String URI) {
-        if(authority != null) {
-            return new JavaFileReference(localRoot, terminal, authority);
-        } else {
-            return new JavaFileReference(localRoot, terminal);
-        }
+        return new JavaFileReference(localRoot, terminal);
     }
 }

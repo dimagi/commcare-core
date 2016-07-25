@@ -62,19 +62,40 @@ public class SessionNavigator {
     public void startNextSessionStep() {
         currentSession = responder.getSessionForNavigator();
         ec = responder.getEvalContextForNavigator();
-        String needed = currentSession.getNeededData(ec);
+        String needed;
+        try {
+            needed = currentSession.getNeededData(ec);
+        } catch (XPathException e) {
+            thrownException = e;
+            sendResponse(XPATH_EXCEPTION_THROWN);
+            return;
+        }
+
+        dispatchOnNeededData(needed);
+    }
+
+    private void dispatchOnNeededData(String needed) {
         if (needed == null) {
             readyToProceed();
-        } else if (needed.equals(SessionFrame.STATE_COMMAND_ID)) {
-            sendResponse(GET_COMMAND);
-        } else if (needed.equals(SessionFrame.STATE_SYNC_REQUEST)) {
-            sendResponse(START_SYNC_REQUEST);
-        } else if (needed.equals(SessionFrame.STATE_QUERY_REQUEST)) {
-            sendResponse(PROCESS_QUERY_REQUEST);
-        } else if (needed.equals(SessionFrame.STATE_DATUM_VAL)) {
-            handleGetDatum();
-        } else if (needed.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
-            handleCompute();
+            return;
+        }
+
+        switch (needed) {
+            case SessionFrame.STATE_COMMAND_ID:
+                sendResponse(GET_COMMAND);
+                break;
+            case SessionFrame.STATE_SYNC_REQUEST:
+                sendResponse(START_SYNC_REQUEST);
+                break;
+            case SessionFrame.STATE_QUERY_REQUEST:
+                sendResponse(PROCESS_QUERY_REQUEST);
+                break;
+            case SessionFrame.STATE_DATUM_VAL:
+                handleGetDatum();
+                break;
+            case SessionFrame.STATE_DATUM_COMPUTED:
+                handleCompute();
+                break;
         }
     }
 
