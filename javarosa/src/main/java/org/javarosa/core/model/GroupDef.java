@@ -1,27 +1,9 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model;
 
 import org.javarosa.core.model.actions.ActionController;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.locale.Localizable;
-import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
@@ -41,16 +23,15 @@ import java.util.Vector;
  *
  * @author Daniel Kayiwa
  */
-public class GroupDef implements IFormElement, Localizable {
+public class GroupDef implements IFormElement {
     // A list of questions on a group.
-    private Vector children;
+    private Vector<IFormElement> children;
     // True if this is a "repeat", false if it is a "group"
     private boolean repeat;
     // The group number.
     private int id;
     // reference to a location in the model to store data in
     private XPathReference binding;
-
 
     private String labelInnerText;
     private String appearanceAttr;
@@ -67,8 +48,6 @@ public class GroupDef implements IFormElement, Localizable {
     public String delHeader;
     public String mainHeader;
 
-    final Vector observers;
-
     /**
      * When set the user can only create as many children as specified by the
      * 'count' reference.
@@ -82,14 +61,9 @@ public class GroupDef implements IFormElement, Localizable {
     public XPathReference count = null;
 
     public GroupDef() {
-        this(Constants.NULL_ID, null, false);
-    }
-
-    public GroupDef(int id, Vector children, boolean repeat) {
-        setID(id);
-        setChildren(children);
-        setRepeat(repeat);
-        observers = new Vector();
+        id = Constants.NULL_ID;
+        children = new Vector<>();
+        repeat = false;
     }
 
     @Override
@@ -112,23 +86,26 @@ public class GroupDef implements IFormElement, Localizable {
     }
 
     @Override
-    public Vector getChildren() {
+    public Vector<IFormElement> getChildren() {
         return children;
     }
 
-    public void setChildren(Vector children) {
-        this.children = (children == null ? new Vector() : children);
+    @Override
+    public void setChildren(Vector<IFormElement> children) {
+        this.children = (children == null ? new Vector<IFormElement>() : children);
     }
 
+    @Override
     public void addChild(IFormElement fe) {
         children.addElement(fe);
     }
 
+    @Override
     public IFormElement getChild(int i) {
         if (children == null || i >= children.size()) {
             return null;
         } else {
-            return (IFormElement)children.elementAt(i);
+            return children.elementAt(i);
         }
     }
 
@@ -151,7 +128,7 @@ public class GroupDef implements IFormElement, Localizable {
         labelInnerText = lit;
     }
 
-
+    @Override
     public String getAppearanceAttr() {
         return appearanceAttr;
     }
@@ -163,12 +140,6 @@ public class GroupDef implements IFormElement, Localizable {
     @Override
     public ActionController getActionController() {
         return null;
-    }
-
-    public void localeChanged(String locale, Localizer localizer) {
-        for (Enumeration e = children.elements(); e.hasMoreElements(); ) {
-            ((IFormElement)e.nextElement()).localeChanged(locale, localizer);
-        }
     }
 
     /**
@@ -194,14 +165,12 @@ public class GroupDef implements IFormElement, Localizable {
         return DataInstance.unpackReference(count).contextualize(context);
     }
 
+    @Override
     public String toString() {
         return "<group>";
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.model.IFormElement#getDeepChildCount()
-     */
+    @Override
     public int getDeepChildCount() {
         int total = 0;
         Enumeration e = children.elements();
@@ -214,6 +183,7 @@ public class GroupDef implements IFormElement, Localizable {
     /**
      * Reads a group definition object from the supplied stream.
      */
+    @Override
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         setID(ExtUtil.readInt(dis));
         setAppearanceAttr((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
@@ -240,6 +210,7 @@ public class GroupDef implements IFormElement, Localizable {
     /**
      * Write the group definition object to the supplied stream.
      */
+    @Override
     public void writeExternal(DataOutputStream dos) throws IOException {
         ExtUtil.writeNumeric(dos, getID());
         ExtUtil.write(dos, new ExtWrapNullable(getAppearanceAttr()));
@@ -264,20 +235,12 @@ public class GroupDef implements IFormElement, Localizable {
 
     }
 
-    public void registerStateObserver(FormElementStateListener qsl) {
-        if (!observers.contains(qsl)) {
-            observers.addElement(qsl);
-        }
-    }
-
-    public void unregisterStateObserver(FormElementStateListener qsl) {
-        observers.removeElement(qsl);
-    }
-
+    @Override
     public String getTextID() {
         return textID;
     }
 
+    @Override
     public void setTextID(String textID) {
         if (textID == null) {
             this.textID = null;

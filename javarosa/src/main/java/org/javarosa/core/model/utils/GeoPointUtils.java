@@ -54,11 +54,7 @@ public class GeoPointUtils {
      * The argument must be in [0, 1], and the result is positive.
      */
     private static double arcHav(double x) {
-        //#if polish.cldc
-        //# return 2 * org.javarosa.core.util.MathUtils.asin(Math.sqrt(x));
-        //#else
         return 2 * Math.asin(Math.sqrt(x));
-        //#endif
     }
 
 

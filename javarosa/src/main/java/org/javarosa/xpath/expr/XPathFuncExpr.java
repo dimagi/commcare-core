@@ -9,6 +9,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.model.utils.GeoPointUtils;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.MathUtils;
@@ -17,6 +18,7 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xform.util.CalendarUtils;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
@@ -441,6 +443,9 @@ public class XPathFuncExpr extends XPathExpression {
             }else if (name.equals("distance")) {
                 checkArity(name, 2, args.length);
                 return distance(argVals[0], argVals[1]);
+            }else if(name.equals("format-date-for-calendar")) {
+                checkArity(name, 2, args.length);
+                return formatDateForCalendar(argVals[0], argVals[1]);
             }else {
                 if (customFuncArityError != null) {
                     throw customFuncArityError;
@@ -455,6 +460,28 @@ public class XPathFuncExpr extends XPathExpression {
             }
 
             throw new XPathException("There was likely an invalid argument to the function '" + name + "'. The final list of arguments were: [" + args + "]" + ". Full error " + cce.getMessage());
+        }
+    }
+
+    /**
+     * Given a date and format, return that date as a string formatted for that calendar
+     * Accepted calendars are Ethiopian and Nepali
+     * @param dateObject The Object (String, Date, or XPath) to be evaluated into a date
+     * @param format The calendar format (nepali or ethiopian)
+     * @return
+     */
+    private String formatDateForCalendar(Object dateObject, Object format) {
+
+        Date date = expandDateSafe(dateObject);
+        if(date == null){
+            return "";
+        }
+        if ("ethiopian".equals(format)) {
+            return CalendarUtils.ConvertToEthiopian(date);
+        } else if ("nepali".equals(format)) {
+            return CalendarUtils.convertToNepaliString(date);
+        } else {
+            throw new XPathUnsupportedException("Unsupported calendar type: " + format);
         }
     }
 
@@ -806,19 +833,22 @@ public class XPathFuncExpr extends XPathExpression {
     }
 
     public static String dateStr(Object od, Object of) {
-        if (od instanceof Date) {
-            //There's no reason to pull out the time info here if
-            //this is already a date (might still have time info
-            //that we want to preserve).
-            //we round at all of the relevant points up to here,
-            //and we only print out the date info when asked anyway.
-        } else {
-            od = toDate(od);
-        }
-        if (od instanceof Date) {
-            return DateUtils.format((Date)od, toString(of));
-        } else {
+        Date expandedDate = expandDateSafe(od);
+        if(expandedDate == null){
             return "";
+        }
+        return DateUtils.format((Date)od, toString(of));
+    }
+
+    private static Date expandDateSafe(Object dateObject){
+        if (!(dateObject instanceof Date)) {
+            // try to expand this out of a nodeset
+            dateObject = toDate(dateObject);
+        }
+        if (dateObject instanceof Date) {
+            return (Date)dateObject;
+        } else {
+            return null;
         }
     }
 
@@ -1125,16 +1155,9 @@ public class XPathFuncExpr extends XPathExpression {
         boolean result;
         try {
             result = regexp.match(str);
-        }
-        //#if polish.cldc
-        //# catch (java.lang.OutOfMemoryError e) {
-        //#     throw new XPathException("The regular expression '" + str + "' took too long or too much memory to process");
-        //# }
-        //#else
-        catch (java.lang.StackOverflowError e) {
+        } catch (java.lang.StackOverflowError e) {
             throw new XPathException("The regular expression '" + str + "' took too long to process.");
-        } 
-        //#endif
+        }
 
         return new Boolean(result);
     }
@@ -1228,180 +1251,92 @@ public class XPathFuncExpr extends XPathExpression {
     /**
      * Implementation of natural logarithm
      *
-     * @param o Value
      * @return Natural log of value
      */
     private Double log(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, logarithms are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.log(value);
-        //#endif
     }
 
     /**
      * Returns the sine of the argument, expressed in radians.
-     *
-     * @param o Value
-     * @return sine of value
      */
     private Double sin(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, sines are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.sin(value);
-        //#endif
     }
 
     /**
      * Returns the cosine of the argument, expressed in radians.
-     *
-     * @param o Value
-     * @return cosine of value
      */
     private Double cosin(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, cosines are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.cos(value);
-        //#endif
     }
 
     /**
      * Returns the tangent of the argument, expressed in radians.
-     *
-     * @param o Value
-     * @return tan of value
      */
     private Double tan(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, tangents are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.tan(value);
-        //#endif
     }
 
     /**
      * Returns the square root of the argument, expressed in radians.
-     *
-     * @param o Value
-     * @return tan of value
      */
     private Double sqrt(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, square roots are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.sqrt(value);
-        //#endif
     }
 
     /**
      * Returns the arc cosine of the argument, expressed in radians.
-     *
-     * @param o Value
-     * @return tan of value
      */
     private Double acos(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, arc cosines are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.acos(value);
-        //#endif
     }
 
     /**
      * Returns the arc sine of the argument, expressed in radians.
-     *
-     * @param o Value
-     * @return tan of value
      */
     private Double asin(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, arc sines are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.asin(value);
-        //#endif
     }
 
     /**
      * Returns the arc tan of the argument, expressed in radians.
-     *
-     * @param o Value
-     * @return tan of value
      */
     private Double atan(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, arc tans are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.atan(value);
-        //#endif
     }
 
     /**
      * Implementation of logarithm with base ten
      *
-     * @param o Value
      * @return Base ten log of value
      */
     private Double log10(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, logarithms are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.log10(value);
-        //#endif
     }
 
-    /**
-     * Implementation of logarithm with base ten
-     *
-     * @return Base ten log of value
-     */
     private Double pi() {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, Pi are not supported on your platform");
-        //#else
         return Math.PI;
-        //#endif
     }
 
-    /**
-     * Implementation of logarithm with base ten
-     *
-     * @param o1, o2 Value
-     * @return Base ten log of value
-     */
     private Double atan2(Object o1, Object o2) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, atan are not supported on your platform");
-        //#else
         double value1 = toDouble(o1).doubleValue();
         double value2 = toDouble(o2).doubleValue();
         return Math.atan2(value1, value2);
-        //#endif
     }
 
-    /**
-     * Implementation of logarithm with base ten
-     *
-     * @param o Value
-     * @return Base ten log of value
-     */
     private Double exp(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, exponentials are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.exp(value);
-        //#endif
     }
 
     /**
@@ -1415,16 +1350,10 @@ public class XPathFuncExpr extends XPathExpression {
      * used otherwise.
      */
     private Double power(Object o1, Object o2) {
-        //#if polish.cldc
-        //# //CLDC doesn't support craziness like "power" functions, so we're on our own.
-        //# return powerApprox(o1, o2);
-        //#else
-        //Just use the native lib! should be available.
         double a = toDouble(o1).doubleValue();
         double b = toDouble(o2).doubleValue();
 
         return Math.pow(a, b);
-        //#endif
     }
 
     @SuppressWarnings("unused")
@@ -1457,17 +1386,6 @@ public class XPathFuncExpr extends XPathExpression {
             ret *= a;
         }
         return new Double(ret);
-    }
-
-    /**
-     * This code is fairly legit, but it not compliant with actual
-     * floating point math reqs. I don't know whether we
-     * should expose the option of using it, exactly.
-     */
-    public static double pow(final double a, final double b) {
-        final long tmp = Double.doubleToLongBits(a);
-        final long tmp2 = (long)(b * (tmp - 4606921280493453312L)) + 4606921280493453312L;
-        return Double.longBitsToDouble(tmp2);
     }
 
     public static final double DOUBLE_TOLERANCE = 1.0e-12;

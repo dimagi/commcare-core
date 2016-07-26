@@ -1,7 +1,6 @@
 package org.javarosa.core.services.storage;
 
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.WrappingStorageUtility.SerializationWrapper;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -67,41 +66,12 @@ public class StorageManager {
         storageRegistry.put(key, storage);
     }
 
-    /**
-     * Used by J2ME
-     */
-    public static void registerWrappedStorage(String key, String storeName, SerializationWrapper wrapper) {
-        StorageManager.registerStorage(key, new WrappingStorageUtility(storeName, wrapper, storageFactory));
-    }
-
     public static IStorageUtility getStorage(String key) {
         if (storageRegistry.containsKey(key)) {
             return storageRegistry.get(key);
         } else {
             throw new RuntimeException("No storage utility has been registered to handle \"" + key + "\"; you must register one first with StorageManager.registerStorage()");
         }
-    }
-
-    /**
-     * Used by J2ME
-     */
-    public static void repairAll() {
-        for (Enumeration e = storageRegistry.elements(); e.hasMoreElements(); ) {
-            ((IStorageUtility)e.nextElement()).repair();
-        }
-    }
-
-    /**
-     * Used by J2ME
-     */
-    public static String[] listRegisteredUtilities() {
-        String[] returnVal = new String[storageRegistry.size()];
-        int i = 0;
-        for (Enumeration e = storageRegistry.keys(); e.hasMoreElements(); ) {
-            returnVal[i] = (String)e.nextElement();
-            i++;
-        }
-        return returnVal;
     }
 
     public static void halt() {
