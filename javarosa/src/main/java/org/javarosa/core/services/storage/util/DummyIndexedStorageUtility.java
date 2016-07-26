@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.services.storage.util;
 
 import org.javarosa.core.services.storage.EntityFilter;
@@ -98,7 +95,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
             throw new InvalidIndexException("Multiple records matching meta index " + fieldName + " with value " + value, fieldName);
         }
 
-        return data.get(matches.elementAt(0));
+        return read(matches.elementAt(0));
     }
 
     @Override
@@ -167,7 +164,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     @Override
     public IStorageIterator<T> iterate() {
         //We should really find a way to invalidate old iterators first here
-        return new DummyStorageIterator<>(data);
+        return new DummyStorageIterator<>(this, data);
     }
 
     @Override
@@ -202,6 +199,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 
     @Override
     public void remove(Persistable p) {
+        // TODO actually remove...
         this.read(p.getID());
     }
 
