@@ -199,8 +199,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 
     @Override
     public void remove(Persistable p) {
-        // TODO actually remove...
-        this.read(p.getID());
+        remove(p.getID());
     }
 
     @Override
