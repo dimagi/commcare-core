@@ -1,9 +1,6 @@
 package org.javarosa.core.services.locale;
 
 import org.javarosa.core.util.NoLocalizedTextException;
-import org.javarosa.core.util.OrderedHashtable;
-import org.javarosa.core.util.PrefixTree;
-import org.javarosa.core.util.PrefixTreeNode;
 import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -18,6 +15,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -30,14 +28,12 @@ import java.util.Vector;
  */
 public class Localizer implements Externalizable {
     private Vector<String> locales;
-    private OrderedHashtable<String, Vector<LocaleDataSource>> localeResources;
-    private OrderedHashtable<String, PrefixTreeNode> currentLocaleData;
-    private final PrefixTree stringTree;
+    private Hashtable<String, Vector<LocaleDataSource>> localeResources;
+    private Hashtable<String, String> currentLocaleData;
     private String defaultLocale;
     private String currentLocale;
     private boolean fallbackDefaultLocale;
     private boolean fallbackDefaultForm;
-    private final Vector<Localizable> observers;
 
     /**
      * Default constructor. Disables all fallback modes.
@@ -47,76 +43,20 @@ public class Localizer implements Externalizable {
     }
 
     /**
-     * Full constructor.
-     *
      * @param fallbackDefaultLocale If true, search the default locale when no translation for a particular text handle
      *                              is found in the current locale.
      * @param fallbackDefaultForm   If true, search the default text form when no translation is available for the
      *                              specified text form ('long', 'short', etc.). Note: form is specified by appending ';[form]' onto the text ID.
      */
     public Localizer(boolean fallbackDefaultLocale, boolean fallbackDefaultForm) {
-        stringTree = new PrefixTree(10);
-        localeResources = new OrderedHashtable<>();
-        currentLocaleData = new OrderedHashtable<>();
+        localeResources = new Hashtable<>();
+        currentLocaleData = new Hashtable<>();
         locales = new Vector<>();
         defaultLocale = null;
         currentLocale = null;
-        observers = new Vector<>();
         this.fallbackDefaultLocale = fallbackDefaultLocale;
         this.fallbackDefaultForm = fallbackDefaultForm;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof Localizer) {
-            Localizer l = (Localizer)o;
-
-            //TODO: Compare all resources
-            return (ExtUtil.equals(locales, l.locales, false) &&
-                    ExtUtil.equals(localeResources, l.localeResources, true) &&
-                    ExtUtil.equals(defaultLocale, l.defaultLocale, false) &&
-                    ExtUtil.equals(currentLocale, l.currentLocale, true) &&
-                    fallbackDefaultLocale == l.fallbackDefaultLocale &&
-                    fallbackDefaultForm == l.fallbackDefaultForm);
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = locales.hashCode() ^
-                localeResources.hashCode() ^
-                (fallbackDefaultLocale ? 0 : 31) ^
-                (fallbackDefaultForm ? 0 : 31);
-        if (defaultLocale != null) {
-            hash ^= defaultLocale.hashCode();
-        }
-        if (currentLocale != null) {
-            hash ^= currentLocale.hashCode();
-        }
-        return hash;
-    }
-
-    /**
-     * Get default locale fallback mode
-     *
-     * @return default locale fallback mode
-     */
-    public boolean getFallbackLocale() {
-        return fallbackDefaultLocale;
-    }
-
-    /**
-     * Get default form fallback mode
-     *
-     * @return default form fallback mode
-     */
-    public boolean getFallbackForm() {
-        return fallbackDefaultForm;
-    }
-    
-    /* === INFORMATION ABOUT AVAILABLE LOCALES === */
 
     /**
      * Create a new locale (with no mappings). Do nothing if the locale is already defined.
@@ -157,22 +97,6 @@ public class Localizer implements Externalizable {
     }
 
     /**
-     * Return the next locale in order, for cycling through locales.
-     *
-     * @return Next locale following the current locale (if the current locale is the last, cycle back to the beginning).
-     * If the current locale is not set, return the default locale. If the default locale is not set, return null.
-     */
-    public String getNextLocale() {
-        if (currentLocale == null) {
-            return defaultLocale;
-        } else {
-            return locales.elementAt((locales.indexOf(currentLocale) + 1) % locales.size());
-        }
-    }
-    
-    /* === MANAGING CURRENT AND DEFAULT LOCALES === */
-
-    /**
      * Get the current locale.
      *
      * @return Current locale.
@@ -192,15 +116,10 @@ public class Localizer implements Externalizable {
             throw new UnregisteredLocaleException("Attempted to set to a locale that is not defined. Attempted Locale: " + currentLocale);
         }
 
-        boolean alert = false;
         if (!currentLocale.equals(this.currentLocale)) {
             this.currentLocale = currentLocale;
-            alert = true;
         }
         loadCurrentLocaleResources();
-        if (alert) {
-            alertLocalizables();
-        }
     }
 
     public String getDefaultLocale() {
@@ -250,24 +169,8 @@ public class Localizer implements Externalizable {
      * 4. For each resource file for the current locale, load each definition
      */
     private void loadCurrentLocaleResources() {
-        this.currentLocaleData = getLocaleData(currentLocale);
+        currentLocaleData = getLocaleData(currentLocale);
     }
-
-    /**
-     * Moves all relevant entries in the source dictionary into the destination dictionary
-     *
-     * @param destination A dictionary of key/value locale pairs that will be modified
-     * @param source      A dictionary of key/value locale pairs that will be copied into
-     *                    destination
-     */
-    private void loadTable(OrderedHashtable<String, PrefixTreeNode> destination, OrderedHashtable<String, String> source) {
-        for (Enumeration en = source.keys(); en.hasMoreElements(); ) {
-            String key = (String)en.nextElement();
-            destination.put(key, stringTree.addString(source.get(key)));
-        }
-    }
-
-    /* === MANAGING LOCALE DATA (TEXT MAPPINGS) === */
 
     /**
      * Registers a resource file as a source of locale data for the specified
@@ -284,14 +187,17 @@ public class Localizer implements Externalizable {
         if (resource == null) {
             throw new NullPointerException("Attempt to register a null data source in the localizer");
         }
-        Vector<LocaleDataSource> resources = new Vector<>();
         if (localeResources.containsKey(locale)) {
-            resources = localeResources.get(locale);
+            Vector<LocaleDataSource> resources = localeResources.get(locale);
+            resources.addElement(resource);
+        } else {
+            Vector<LocaleDataSource> resources = new Vector<>();
+            resources.addElement(resource);
+            localeResources.put(locale, resources);
         }
-        resources.addElement(resource);
-        localeResources.put(locale, resources);
 
         if (locale.equals(currentLocale) || locale.equals(defaultLocale)) {
+            // Reload locale data if the resource is for a locale in use
             loadCurrentLocaleResources();
         }
     }
@@ -299,44 +205,35 @@ public class Localizer implements Externalizable {
     /**
      * Get the set of mappings for a locale.
      *
-     * @param locale Locale
      * @return Hashtable representing text mappings for this locale. Returns null if locale not defined or null.
      */
-    public OrderedHashtable<String, PrefixTreeNode> getLocaleData(String locale) {
+    public Hashtable<String, String> getLocaleData(String locale) {
         if (locale == null || !this.locales.contains(locale)) {
             return null;
         }
-        stringTree.clear();
 
         //It's very important that any default locale contain the appropriate strings to localize the interface
         //for any possible language. As such, we'll keep around a table with only the default locale keys to
         //ensure that there are no localizations which are only present in another locale, which causes ugly
         //and difficult to trace errors.
-        OrderedHashtable<String, Boolean> defaultLocaleKeys = new OrderedHashtable<>();
+        HashSet<String> defaultLocaleKeys = new HashSet<>();
 
         //This table will be loaded with the default values first (when applicable), and then with any
         //language specific translations overwriting the existing values.
-        OrderedHashtable<String, PrefixTreeNode> data = new OrderedHashtable<>();
+        Hashtable<String, String> data = new Hashtable<>();
 
         // If there's a default locale, we load all of its elements into memory first, then allow
         // the current locale to overwrite any differences between the two.    
         if (fallbackDefaultLocale && defaultLocale != null) {
-            Vector<LocaleDataSource> defaultResources = localeResources.get(defaultLocale);
-            for (int i = 0; i < defaultResources.size(); ++i) {
-                loadTable(data, defaultResources.elementAt(i).getLocalizedText());
+            for (LocaleDataSource defaultResource : localeResources.get(defaultLocale)) {
+                data.putAll(defaultResource.getLocalizedText());
             }
-            for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
-                defaultLocaleKeys.put((String)en.nextElement(), Boolean.TRUE);
-            }
+            defaultLocaleKeys.addAll(data.keySet());
         }
 
-        Vector<LocaleDataSource> resources = localeResources.get(locale);
-        for (int i = 0; i < resources.size(); ++i) {
-            loadTable(data, resources.elementAt(i).getLocalizedText());
+        for (LocaleDataSource resource : localeResources.get(locale)) {
+            data.putAll(resource.getLocalizedText());
         }
-
-        //Strings are now immutable
-        stringTree.seal();
 
         //If we're using a default locale, now we want to make sure that it has all of the keys
         //that the locale we want to use does. Otherwise, the app will crash when we switch to 
@@ -346,7 +243,7 @@ public class Localizer implements Externalizable {
             int keysmissing = 0;
             for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
                 String key = (String)en.nextElement();
-                if (!defaultLocaleKeys.containsKey(key)) {
+                if (!defaultLocaleKeys.contains(key)) {
                     missingKeys += key + ",";
                     keysmissing++;
                 }
@@ -371,8 +268,8 @@ public class Localizer implements Externalizable {
      * @return Text mappings for locale.
      * @throws UnregisteredLocaleException If locale is not defined or null.
      */
-    public OrderedHashtable<String, PrefixTreeNode> getLocaleMap(String locale) {
-        OrderedHashtable<String, PrefixTreeNode> mapping = getLocaleData(locale);
+    public Hashtable<String, String> getLocaleMap(String locale) {
+        Hashtable<String, String> mapping = getLocaleData(locale);
         if (mapping == null) {
             throw new UnregisteredLocaleException("Attempted to access an undefined locale.");
         }
@@ -392,40 +289,14 @@ public class Localizer implements Externalizable {
         if (locale == null || !locales.contains(locale)) {
             throw new UnregisteredLocaleException("Attempted to access an undefined locale (" + locale + ") while checking for a mapping for  " + textID);
         }
-        Vector resources = (Vector)localeResources.get(locale);
-        for (Enumeration en = resources.elements(); en.hasMoreElements(); ) {
-            LocaleDataSource source = (LocaleDataSource)en.nextElement();
+        Vector<LocaleDataSource> resources = localeResources.get(locale);
+        for (LocaleDataSource source : resources) {
             if (source.getLocalizedText().containsKey(textID)) {
                 return true;
             }
         }
         return false;
     }
-
-    /**
-     * Undefine a locale and remove all its data. Cannot be called on the current locale. If called on the default
-     * locale, no default locale will be set afterward.
-     *
-     * @param locale Locale to remove. Must not be null. Need not be defined. Must not be the current locale.
-     * @return Whether the locale existed in the first place.
-     * @throws IllegalArgumentException If locale is the current locale.
-     * @throws NullPointerException     if locale is null
-     */
-    public boolean destroyLocale(String locale) {
-        if (locale.equals(currentLocale))
-            throw new IllegalArgumentException("Attempted to destroy the current locale");
-
-        boolean removed = hasLocale(locale);
-        locales.removeElement(locale);
-        localeResources.remove(locale);
-
-        if (locale.equals(defaultLocale))
-            defaultLocale = null;
-
-        return removed;
-    }
-
-    /* === RETRIEVING LOCALIZED TEXT === */
 
     /**
      * Retrieve the localized text for a text handle in the current locale. See getText(String, String) for details.
@@ -480,23 +351,6 @@ public class Localizer implements Externalizable {
     }
 
     /**
-     * Retrieve localized text for a text handle in the current locale. Like getText(String), however throws exception
-     * if no localized text is found.
-     *
-     * @param textID Text handle (text ID appended with optional text form). Must not be null.
-     * @return Localized text
-     * @throws NoLocalizedTextException    If there is no text for the specified id
-     * @throws UnregisteredLocaleException If current locale is not set
-     * @throws NullPointerException        if textID is null
-     */
-    public String getLocalizedText(String textID) {
-        String text = getText(textID);
-        if (text == null)
-            throw new NoLocalizedTextException("Can't find localized text for current locale! text id: [" + textID + "] locale: [" + currentLocale + "]", textID, currentLocale);
-        return text;
-    }
-
-    /**
      * Retrieve the localized text for a text handle in the given locale. If no mapping is found initially, then,
      * depending on enabled fallback modes, other places will be searched until a mapping is found.
      * <p>
@@ -519,11 +373,13 @@ public class Localizer implements Externalizable {
      */
     public String getText(String textID, String locale) {
         String text = getRawText(locale, textID);
-        if (text == null && fallbackDefaultForm && textID.contains(";"))
+        if (text == null && fallbackDefaultForm && textID.contains(";")) {
             text = getRawText(locale, textID.substring(0, textID.indexOf(";")));
+        }
         //Update: We handle default text without forms without needing to do this. We still need it for default text with default forms, though  
-        if (text == null && fallbackDefaultLocale && !locale.equals(defaultLocale) && defaultLocale != null && fallbackDefaultForm)
+        if (text == null && fallbackDefaultLocale && !locale.equals(defaultLocale) && defaultLocale != null && fallbackDefaultForm) {
             text = getText(textID, defaultLocale);
+        }
         return text;
     }
 
@@ -545,51 +401,12 @@ public class Localizer implements Externalizable {
             throw new UnregisteredLocaleException("Null locale when attempting to fetch text id: " + textID);
         }
         if (locale.equals(currentLocale)) {
-            PrefixTreeNode data = currentLocaleData.get(textID);
-            return data == null ? null : data.render();
+            return currentLocaleData.get(textID);
         } else {
-            PrefixTreeNode data = getLocaleMap(locale).get(textID);
-            return data == null ? null : data.render();
-        }
-    }
-    
-    /* === MANAGING LOCALIZABLE OBSERVERS === */
-
-    /**
-     * Register a Localizable to receive updates when the locale is changed. If the Localizable is already
-     * registered, nothing happens. If a locale is currently set, the new Localizable will receive an
-     * immediate 'locale changed' event.
-     *
-     * @param l Localizable to register.
-     */
-    public void registerLocalizable(Localizable l) {
-        if (!observers.contains(l)) {
-            observers.addElement(l);
-            if (currentLocale != null) {
-                l.localeChanged(currentLocale, this);
-            }
+            return getLocaleMap(locale).get(textID);
         }
     }
 
-    /**
-     * Unregister an Localizable from receiving locale change updates. No effect if the Localizable was never
-     * registered in the first place.
-     *
-     * @param l Localizable to unregister.
-     */
-    public void unregisterLocalizable(Localizable l) {
-        observers.removeElement(l);
-    }
-
-    /**
-     * Send a locale change update to all registered ILocalizables.
-     */
-    private void alertLocalizables() {
-        for (Enumeration e = observers.elements(); e.hasMoreElements(); )
-            ((Localizable)e.nextElement()).localeChanged(currentLocale, this);
-    }
-
-    /* === Managing Arguments === */
     public static Vector getArgs(String text) {
         Vector<String> args = new Vector<>();
         int i = text.indexOf("${");
@@ -653,7 +470,6 @@ public class Localizer implements Externalizable {
     }
 
     public static String processArguments(String text, String[] args, int currentArg) {
-
         if (text.contains("${") && args.length > currentArg) {
             int index = extractNextIndex(text, args);
 
@@ -669,7 +485,6 @@ public class Localizer implements Externalizable {
             return text;
         }
     }
-
 
     public static String clearArguments(String text) {
         Vector v = getArgs(text);
@@ -706,14 +521,12 @@ public class Localizer implements Externalizable {
         return new String[]{text.substring(0, start) + value, text.substring(end + 1, text.length())};
     }
 
-    /* === (DE)SERIALIZATION === */
-
     @Override
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         fallbackDefaultLocale = ExtUtil.readBool(dis);
         fallbackDefaultForm = ExtUtil.readBool(dis);
-        localeResources = (OrderedHashtable)ExtUtil.read(dis, new ExtWrapMap(String.class, new ExtWrapListPoly(), ExtWrapMap.TYPE_ORDERED), pf);
-        locales = (Vector)ExtUtil.read(dis, new ExtWrapList(String.class));
+        localeResources = (Hashtable)ExtUtil.read(dis, new ExtWrapMap(String.class, new ExtWrapListPoly()), pf);
+        locales = (Vector)ExtUtil.read(dis, new ExtWrapList(String.class), pf);
         setDefaultLocale((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         String currentLocale = (String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf);
         if (currentLocale != null) {
@@ -729,5 +542,55 @@ public class Localizer implements Externalizable {
         ExtUtil.write(dos, new ExtWrapList(locales));
         ExtUtil.write(dos, new ExtWrapNullable(defaultLocale));
         ExtUtil.write(dos, new ExtWrapNullable(currentLocale));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Localizer) {
+            Localizer l = (Localizer)o;
+
+            //TODO: Compare all resources
+            return (ExtUtil.equals(locales, l.locales, false) &&
+                    ExtUtil.equals(localeResources, l.localeResources, true) &&
+                    ExtUtil.equals(defaultLocale, l.defaultLocale, false) &&
+                    ExtUtil.equals(currentLocale, l.currentLocale, true) &&
+                    fallbackDefaultLocale == l.fallbackDefaultLocale &&
+                    fallbackDefaultForm == l.fallbackDefaultForm);
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = locales.hashCode() ^
+                localeResources.hashCode() ^
+                (fallbackDefaultLocale ? 0 : 31) ^
+                (fallbackDefaultForm ? 0 : 31);
+        if (defaultLocale != null) {
+            hash ^= defaultLocale.hashCode();
+        }
+        if (currentLocale != null) {
+            hash ^= currentLocale.hashCode();
+        }
+        return hash;
+    }
+
+    /**
+     * For Testing: Get default locale fallback mode
+     *
+     * @return default locale fallback mode
+     */
+    public boolean getFallbackLocale() {
+        return fallbackDefaultLocale;
+    }
+
+    /**
+     * For Testing: Get default form fallback mode
+     *
+     * @return default form fallback mode
+     */
+    public boolean getFallbackForm() {
+        return fallbackDefaultForm;
     }
 }

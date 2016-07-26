@@ -1,11 +1,10 @@
 package org.javarosa.core.services.locale;
 
-import org.javarosa.core.util.Map;
-import org.javarosa.core.util.OrderedHashtable;
-
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Hashtable;
 
 /**
  * @author ctsims
@@ -15,53 +14,22 @@ public class LocalizationUtils {
      * @param is A path to a resource file provided in the current environment
      * @return a dictionary of key/value locale pairs from a file in the resource directory
      */
-    public static Map<String, String> parseLocaleInput(InputStream is) throws IOException {
-        // TODO: This might very well fail. Best way to handle?
-        Map<String, String> locale = new Map<>();
-        int chunk = 100;
-        InputStreamReader isr;
-        isr = new InputStreamReader(is, "UTF-8");
-        char[] cbuf = new char[chunk];
-        int offset = 0;
-        int curline = 0;
+    public static Hashtable<String, String> parseLocaleInput(InputStream is) throws IOException {
+        Hashtable<String, String> locale = new Hashtable<>();
+        InputStreamReader isr = new InputStreamReader(is, "UTF-8");
+        BufferedReader reader = new BufferedReader(isr);
 
-        String line = "";
-        while (true) {
-            int read = isr.read(cbuf, offset, chunk - offset);
-            if (read == -1) {
-                if (!"".equals(line)) {
-                    parseAndAdd(locale, line, curline);
-                }
-                break;
-            }
-            String stringchunk = String.valueOf(cbuf, offset, read);
-
-            int index = 0;
-
-            while (index != -1) {
-                int nindex = stringchunk.indexOf('\n', index);
-                //UTF-8 often doesn't encode with newline, but with CR, so if we
-                //didn't find one, we'll try that
-                if (nindex == -1) {
-                    nindex = stringchunk.indexOf('\r', index);
-                }
-                if (nindex == -1) {
-                    line += stringchunk.substring(index);
-                    break;
-                } else {
-                    line += stringchunk.substring(index, nindex);
-                    //Newline. process our string and start the next one.
-                    curline++;
-                    parseAndAdd(locale, line, curline);
-                    line = "";
-                }
-                index = nindex + 1;
-            }
+        String line = reader.readLine();
+        int lineCount = 0;
+        while (line != null) {
+            parseAndAdd(locale, line, lineCount++);
+            line = reader.readLine();
         }
+
         return locale;
     }
 
-    public static void parseAndAdd(OrderedHashtable locale, String line, int curline) {
+    public static void parseAndAdd(Hashtable<String, String> locale, String line, int curline) {
         line = line.trim();
 
         int i = 0;

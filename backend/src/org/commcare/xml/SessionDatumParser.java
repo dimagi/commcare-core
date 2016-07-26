@@ -14,6 +14,8 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Hashtable;
 
 /**
@@ -75,10 +77,18 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
                 new Hashtable<>();
         this.checkNode("query");
 
-        String queryUrl = parser.getAttributeValue(null, "url");
+        String queryUrlString = parser.getAttributeValue(null, "url");
         String queryResultStorageInstance = parser.getAttributeValue(null, "storage-instance");
-        if (queryUrl == null || queryResultStorageInstance == null) {
+        if (queryUrlString == null || queryResultStorageInstance == null) {
             String errorMsg = "<query> element missing 'url' or 'storage-instance' attribute";
+            throw new InvalidStructureException(errorMsg, parser);
+        }
+        URL queryUrl;
+        try {
+            queryUrl = new URL(queryUrlString);
+        } catch (MalformedURLException e) {
+            String errorMsg =
+                    "<query> element has invalid 'url' attribute (" + queryUrlString + ").";
             throw new InvalidStructureException(errorMsg, parser);
         }
 

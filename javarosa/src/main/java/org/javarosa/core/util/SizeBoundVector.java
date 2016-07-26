@@ -45,17 +45,14 @@ public class SizeBoundVector<E> extends Vector<E> {
         badVideoReferenceCount++;
     }
 
-    @SuppressWarnings("unused")
     public int getBadImageReferenceCount() {
         return badImageReferenceCount;
     }
 
-    @SuppressWarnings("unused")
     public int getBadAudioReferenceCount() {
         return badAudioReferenceCount;
     }
 
-    @SuppressWarnings("unused")
     public int getBadVideoReferenceCount() {
         return badVideoReferenceCount;
     }

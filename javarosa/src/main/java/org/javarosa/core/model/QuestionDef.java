@@ -1,25 +1,7 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model;
 
 import org.javarosa.core.model.actions.ActionController;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.locale.Localizable;
-import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -49,7 +31,7 @@ import java.util.Vector;
  *
  * @author Daniel Kayiwa/Drew Roos
  */
-public class QuestionDef implements IFormElement, Localizable {
+public class QuestionDef implements IFormElement {
     private int id;
 
     // reference to the location in the model from which to load data for the question,
@@ -67,8 +49,6 @@ public class QuestionDef implements IFormElement, Localizable {
 
     Vector<QuestionDataExtension> extensions;
 
-    final Vector observers;
-
     private ActionController actionController;
 
     public QuestionDef() {
@@ -78,7 +58,6 @@ public class QuestionDef implements IFormElement, Localizable {
     public QuestionDef(int id, int controlType) {
         setID(id);
         setControlType(controlType);
-        observers = new Vector();
         mQuestionStrings = new Hashtable<>();
         extensions = new Vector<>();
         
@@ -97,18 +76,17 @@ public class QuestionDef implements IFormElement, Localizable {
         return mQuestionStrings.get(key);
     }
 
-    public boolean hasQuestionString(String key){
-        return (mQuestionStrings.get(key) != null);
-    }
-
+    @Override
     public int getID() {
         return id;
     }
 
+    @Override
     public void setID(int id) {
         this.id = id;
     }
 
+    @Override
     public XPathReference getBind() {
         return binding;
     }
@@ -125,10 +103,12 @@ public class QuestionDef implements IFormElement, Localizable {
         this.controlType = controlType;
     }
 
+    @Override
     public String getAppearanceAttr() {
         return appearanceAttr;
     }
 
+    @Override
     public void setAppearanceAttr(String appearanceAttr) {
         this.appearanceAttr = appearanceAttr;
     }
@@ -137,7 +117,6 @@ public class QuestionDef implements IFormElement, Localizable {
     public ActionController getActionController() {
         return this.actionController;
     }
-
 
     public String getHelpTextID() {
         return mQuestionStrings.get(XFormParser.HELP_ELEMENT) == null ? null : mQuestionStrings.get(XFormParser.HELP_ELEMENT).getTextId();
@@ -203,41 +182,27 @@ public class QuestionDef implements IFormElement, Localizable {
         return (dynamicChoices != null && dynamicChoices.copyMode);
     }
 
-    //Deprecated
-    public void localeChanged(String locale, Localizer localizer) {
-        if (choices != null) {
-            for (int i = 0; i < choices.size(); i++) {
-                choices.elementAt(i).localeChanged(null, localizer);
-            }
-        }
-
-        if (dynamicChoices != null) {
-            dynamicChoices.localeChanged(locale, localizer);
-        }
-
-        alertStateObservers(FormElementStateListener.CHANGE_LOCALE);
-    }
-
-    public Vector getChildren() {
+    @Override
+    public Vector<IFormElement> getChildren() {
         return null;
     }
 
+    @Override
     public void setChildren(Vector v) {
         throw new IllegalStateException("Can't add children to question def");
     }
 
+    @Override
     public void addChild(IFormElement fe) {
         throw new IllegalStateException("Can't add children to question def");
     }
 
+    @Override
     public IFormElement getChild(int i) {
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.Externalizable#readExternal(java.io.DataInputStream)
-     */
+    @Override
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         setID(ExtUtil.readInt(dis));
         binding = (XPathReference)ExtUtil.read(dis, new ExtWrapNullable(new ExtWrapTagged()), pf);
@@ -253,10 +218,7 @@ public class QuestionDef implements IFormElement, Localizable {
         actionController = (ActionController)ExtUtil.read(dis, new ExtWrapNullable(ActionController.class), pf);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream dos) throws IOException {
         ExtUtil.writeNumeric(dos, getID());
         ExtUtil.write(dos, new ExtWrapNullable(binding == null ? null : new ExtWrapTagged(binding)));
@@ -269,39 +231,22 @@ public class QuestionDef implements IFormElement, Localizable {
         ExtUtil.write(dos, new ExtWrapNullable(actionController));
     }
 
-    /* === MANAGING OBSERVERS === */
-
-    public void registerStateObserver(FormElementStateListener qsl) {
-        if (!observers.contains(qsl)) {
-            observers.addElement(qsl);
-        }
-    }
-
-    public void unregisterStateObserver(FormElementStateListener qsl) {
-        observers.removeElement(qsl);
-    }
-
-    public void alertStateObservers(int changeFlags) {
-        for (Enumeration e = observers.elements(); e.hasMoreElements(); )
-            ((FormElementStateListener)e.nextElement()).formElementStateChanged(this, changeFlags);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.model.IFormElement#getDeepChildCount()
-     */
+    @Override
     public int getDeepChildCount() {
         return 1;
     }
 
+    @Override
     public String getTextID() {
         return this.getQuestionString(XFormParser.LABEL_ELEMENT).getTextId();
     }
 
+    @Override
     public String getLabelInnerText() {
         return this.getQuestionString(XFormParser.LABEL_ELEMENT).getTextInner();
     }
 
+    @Override
     public void setTextID(String textID) {
         if (DateUtils.stringContains(textID, ";")) {
             System.err.println("Warning: TextID contains ;form modifier:: \"" + textID.substring(textID.indexOf(";")) + "\"... will be stripped.");
