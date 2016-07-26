@@ -57,7 +57,6 @@ public class RestoreUtils {
         return dataType;
     }
 
-    @SuppressWarnings("unused")
     public static Object getValue(String xpath, FormInstance tree) {
         TreeReference context = topRef(tree);
         TreeElement node = tree.resolveReference(ref(xpath).contextualize(context));

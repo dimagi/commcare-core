@@ -77,4 +77,8 @@ public class Localization {
             throw new LocaleTextException("There are no locales defined for the application. Please make sure to register locale text using the Locale.register() method");
         }
     }
+
+    public static String[] getArray(String key) {
+        return Localization.get(key).split(",");
+    }
 }

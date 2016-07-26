@@ -1,7 +1,7 @@
 package org.javarosa.core.model;
 
 import org.javarosa.core.model.actions.ActionController;
-import org.javarosa.core.services.locale.Localizable;
+import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.model.xform.XPathReference;
 
@@ -14,17 +14,7 @@ import java.util.Vector;
  *
  * @author Drew Roos
  */
-public interface IFormElement extends Localizable, Externalizable {
-
-    /**
-     * @return The unique ID of this element
-     */
-    int getID();
-
-    /**
-     * @param id The new unique ID of this element
-     */
-    void setID(int id);
+public interface IFormElement extends Persistable, Externalizable {
 
     /**
      * get the TextID for this element used for localization purposes
@@ -39,7 +29,6 @@ public interface IFormElement extends Localizable, Externalizable {
      * @param id the plain TextID WITHOUT any form specification (e.g. ;long)
      */
     void setTextID(String id);
-
 
     /**
      * @return A vector containing any children that this element
@@ -74,16 +63,6 @@ public interface IFormElement extends Localizable, Externalizable {
      * @return The data reference for this element
      */
     XPathReference getBind();
-
-    /**
-     * Registers a state observer for this element.
-     */
-    void registerStateObserver(FormElementStateListener qsl);
-
-    /**
-     * Unregisters a state observer for this element.
-     */
-    void unregisterStateObserver(FormElementStateListener qsl);
 
     /**
      * This method returns the regular

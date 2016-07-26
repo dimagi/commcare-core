@@ -4,7 +4,6 @@ import org.javarosa.core.model.condition.IConditionExpr;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
-import org.javarosa.core.services.locale.Localizable;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -18,7 +17,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
-public class ItemsetBinding implements Externalizable, Localizable {
+public class ItemsetBinding implements Externalizable {
 
     /**
      * note that storing both the ref and expr for everything is kind of redundant, but we're forced
@@ -55,26 +54,10 @@ public class ItemsetBinding implements Externalizable, Localizable {
             clearChoices();
         }
         this.choices = choices;
-
-        //init localization
-        if (localizer != null) {
-            String curLocale = localizer.getLocale();
-            if (curLocale != null) {
-                localeChanged(curLocale, localizer);
-            }
-        }
     }
 
     public void clearChoices() {
         this.choices = null;
-    }
-
-    public void localeChanged(String locale, Localizer localizer) {
-        if (choices != null) {
-            for (int i = 0; i < choices.size(); i++) {
-                choices.elementAt(i).localeChanged(locale, localizer);
-            }
-        }
     }
 
     public void setDestRef(QuestionDef q) {

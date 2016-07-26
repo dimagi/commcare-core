@@ -1654,7 +1654,6 @@ public class XFormParser {
     private void parseIText(Element itext) {
         Localizer l = new Localizer(true, true);
         _f.setLocalizer(l);
-        l.registerLocalizable(_f);
 
         Vector<String> usedAtts = new Vector<>(); //used for warning message
 

@@ -83,7 +83,7 @@
   </entry>
 
   <sync-request>
-    <post url="fake.com/claim_patient/">
+    <post url="http://fake.com/claim_patient/">
       <data key="selected_name" ref="instance('patients')/case/name"/>
       <data key="selected_case_id" ref="instance('patients')/case/@case_id"/>
     </post>
@@ -94,7 +94,7 @@
       </display>
     </command>
     <session>
-      <query url="fake.com/patient_search/" storage-instance="patients">
+      <query url="http://fake.com/patient_search/" storage-instance="patients">
         <data key="device_id" ref="instance('session')/session/data/uuid"/>
         <data key="device_case_count" ref="instance('session')/session/data/case_count"/>
         <prompt key="name">

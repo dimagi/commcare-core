@@ -13,6 +13,7 @@ import java.io.IOException;
 public class XPathStringLiteral extends XPathExpression {
     public String s;
 
+    @SuppressWarnings("unused")
     public XPathStringLiteral() {
     } //for deserialization
 

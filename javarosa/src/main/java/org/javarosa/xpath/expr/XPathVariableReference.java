@@ -13,6 +13,7 @@ import java.io.IOException;
 public class XPathVariableReference extends XPathExpression {
     public XPathQName id;
 
+    @SuppressWarnings("unused")
     public XPathVariableReference() {
     } //for deserialization
 
