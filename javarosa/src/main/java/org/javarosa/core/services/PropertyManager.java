@@ -197,17 +197,6 @@ public class PropertyManager implements IPropertyManager {
     }
 
     /**
-     * Sets the rules that should be used by this PropertyManager, removing any other
-     * existing rules sets.
-     *
-     * @param rules The rules to be used.
-     */
-    public void setRules(IPropertyRules rules) {
-        this.rulesList.removeAllElements();
-        this.rulesList.addElement(rules);
-    }
-
-    /**
      * Adds a set of rules to be used by this PropertyManager.
      * Note that rules sets are inclusive, they add new possible
      * values, never remove possible values.

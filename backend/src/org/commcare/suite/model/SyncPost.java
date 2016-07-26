@@ -14,6 +14,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -24,7 +25,7 @@ import java.util.Hashtable;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class SyncPost implements Externalizable {
-    private String url;
+    private URL url;
     private XPathExpression relevantExpr;
     private Hashtable<String, XPathExpression> params;
 
@@ -32,14 +33,14 @@ public class SyncPost implements Externalizable {
     public SyncPost() {
     }
 
-    public SyncPost(String url, XPathExpression relevantExpr,
+    public SyncPost(URL url, XPathExpression relevantExpr,
                     Hashtable<String, XPathExpression> params) {
-        this.url = (url == null) ? "" : url;
+        this.url = url;
         this.params = params;
         this.relevantExpr = relevantExpr;
     }
 
-    public String getUrl() {
+    public URL getUrl() {
         return url;
     }
 
@@ -66,14 +67,14 @@ public class SyncPost implements Externalizable {
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         params = (Hashtable<String, XPathExpression>)ExtUtil.read(in, new ExtWrapMapPoly(String.class), pf);
-        url = ExtUtil.readString(in);
+        url = new URL(ExtUtil.readString(in));
         relevantExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapMapPoly(params));
-        ExtUtil.writeString(out, url);
+        ExtUtil.writeString(out, url.toString());
         ExtUtil.write(out, new ExtWrapNullable(relevantExpr == null ? null : new ExtWrapTagged(relevantExpr)));
     }
 }

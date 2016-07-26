@@ -39,20 +39,6 @@ public class Localization {
         }
     }
 
-    /**
-     * Used by J2ME
-     */
-    public static void registerLanguageFile(String localeName, String resourceFileURI) {
-        init(false);
-        if (!globalLocalizer.hasLocale(localeName)) {
-            globalLocalizer.addAvailableLocale(localeName);
-        }
-        globalLocalizer.registerLocaleResource(localeName, new ResourceFileDataSource(resourceFileURI));
-        if (globalLocalizer.getDefaultLocale() == null) {
-            globalLocalizer.setDefaultLocale(localeName);
-        }
-    }
-
     public static void registerLanguageReference(String localeName, String referenceUri) {
         init(false);
         if (!globalLocalizer.hasLocale(localeName)) {
@@ -90,5 +76,9 @@ public class Localization {
         if (globalLocalizer.getAvailableLocales().length == 0) {
             throw new LocaleTextException("There are no locales defined for the application. Please make sure to register locale text using the Locale.register() method");
         }
+    }
+
+    public static String[] getArray(String key) {
+        return Localization.get(key).split(",");
     }
 }

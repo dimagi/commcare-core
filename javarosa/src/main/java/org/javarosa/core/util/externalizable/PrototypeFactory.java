@@ -2,9 +2,9 @@ package org.javarosa.core.util.externalizable;
 
 import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.model.data.UncastData;
-import org.javarosa.core.util.PrefixTree;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Vector;
 
 /**
@@ -20,14 +20,14 @@ public class PrototypeFactory {
     private Vector<byte[]> hashes;
 
     //lazy evaluation
-    private PrefixTree classNames;
+    private HashSet<String> classNames;
     protected boolean initialized;
 
     public PrototypeFactory() {
         this(null, null);
     }
 
-    public PrototypeFactory(PrefixTree classNames) {
+    public PrototypeFactory(HashSet<String> classNames) {
         this.classNames = classNames;
         initialized = false;
         if (mStaticHasher == null) {
@@ -39,7 +39,7 @@ public class PrototypeFactory {
         this(hasher, null);
     }
 
-    public PrototypeFactory(Hasher hasher, PrefixTree classNames) {
+    public PrototypeFactory(Hasher hasher, HashSet<String> classNames) {
         this.classNames = classNames;
         initialized = false;
         if (mStaticHasher == null) {
@@ -61,7 +61,7 @@ public class PrototypeFactory {
         addMigratedClasses();
 
         if (classNames != null) {
-            for (String name : classNames.getStrings()) {
+            for (String name : classNames) {
                 try {
                     addClass(Class.forName(name));
                 } catch (ClassNotFoundException cnfe) {

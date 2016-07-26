@@ -39,11 +39,6 @@ public abstract class ASTNode {
         System.out.println(s);
     }
 
-    public void print() {
-        indent = -1;
-        print(this);
-    }
-
     public void print(Object o) {
         indent += 1;
 

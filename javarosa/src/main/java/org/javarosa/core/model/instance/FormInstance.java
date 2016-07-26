@@ -270,7 +270,9 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         return new String[]{META_XMLNS, META_ID};
     }
 
-    // used by TouchForms
+    /**
+     * used by TouchForms
+     */
     @SuppressWarnings("unused")
     public Hashtable getMetaData() {
         Hashtable data = new Hashtable();

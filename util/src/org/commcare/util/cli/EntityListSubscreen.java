@@ -1,5 +1,6 @@
 package org.commcare.util.cli;
 
+import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
@@ -18,7 +19,7 @@ import java.util.Vector;
  */
 public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
-    private final int SCREEN_WIDTH = 100;
+    private static final int SCREEN_WIDTH = 100;
 
     private final TreeReference[] mChoices;
     private final String[] rows;
@@ -82,6 +83,35 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         return row.toString();
     }
 
+    public static Pair<String[], int[]> getHeaders(Detail shortDetail, EvaluationContext context){
+        DetailField[] fields = shortDetail.getFields();
+        String[] headers = new String[fields.length];
+        int[] widthHints = new int[fields.length];
+
+        StringBuilder row = new StringBuilder();
+        int i = 0;
+        for (DetailField field : fields) {
+            String s = field.getHeader().evaluate(context);
+
+            int widthHint = SCREEN_WIDTH / fields.length;
+            try {
+                widthHint = Integer.parseInt(field.getHeaderWidthHint());
+            } catch (Exception e) {
+                //Really don't care if it didn't work
+            }
+            CliUtils.addPaddedStringToBuilder(row, s, widthHint);
+
+            headers[i] = s;
+            widthHints[i] = widthHint;
+
+            i++;
+            if (i != fields.length) {
+                row.append(" | ");
+            }
+        }
+        return new Pair<>(headers, widthHints);
+    }
+
     //So annoying how identical this is...
     private String createHeader(Detail shortDetail, EvaluationContext context) {
         DetailField[] fields = shortDetail.getFields();
@@ -98,6 +128,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                 //Really don't care if it didn't work
             }
             CliUtils.addPaddedStringToBuilder(row, s, widthHint);
+
             i++;
             if (i != fields.length) {
                 row.append(" | ");
@@ -153,7 +184,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
             host.setHighlightedEntity(this.mChoices[i]);
 
-            return !host.setCurrentScreenToDetail();
+            return true;
         } catch (NumberFormatException e) {
             //This will result in things just executing again, which is fine.
         }

@@ -13,6 +13,10 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
+
 /**
  * Compound Screen to select an entity from a list and then display the one or more details that
  * are associated with the entity.
@@ -58,11 +62,13 @@ public class EntityScreen extends CompoundScreenHost {
         }
 
         EvaluationContext ec = session.getEvaluationContext();
-        mCurrentScreen = new EntityListSubscreen(mShortDetail, ec.expandReference(mNeededDatum.getNodeset()), ec);
+        Vector<TreeReference> references = ec.expandReference(mNeededDatum.getNodeset());
+        mCurrentScreen = new EntityListSubscreen(mShortDetail, references, ec);
+        initDetailScreens();
     }
 
     @Override
-    protected String getScreenTitle() {
+    public String getScreenTitle() {
         try {
             return mShortDetail.getTitle().evaluate(mSession.getEvaluationContext()).getName();
         }catch (NoLocalizedTextException nlte) {
@@ -125,17 +131,6 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
-    public boolean setCurrentScreenToDetail() throws CommCareSessionException {
-        initDetailScreens();
-
-        if(mLongDetailList == null) {
-            return false;
-        }
-
-        setCurrentScreenToDetail(0);
-        return true;
-    }
-
     public void setCurrentScreenToDetail(int index) throws CommCareSessionException {
         EvaluationContext subContext = new EvaluationContext(mSession.getEvaluationContext(), this.mCurrentSelection);
 
@@ -149,7 +144,11 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
-    private String[] getDetailListTitles(EvaluationContext subContext) {
+    public Detail[] getLongDetailList(){
+        return mLongDetailList;
+    }
+
+    public String[] getDetailListTitles(EvaluationContext subContext) {
         String[] titles = new String[mLongDetailList.length];
         for(int i = 0 ; i < mLongDetailList.length ; ++i) {
             titles[i] = this.mLongDetailList[i].getTitle().getText().evaluate(subContext);
@@ -159,5 +158,11 @@ public class EntityScreen extends CompoundScreenHost {
 
     public void setPendingAction(Action pendingAction) {
         this.mPendingAction = pendingAction;
+    }
+    public Detail getShortDetail(){
+        return mShortDetail;
+    }
+    public SessionWrapper getSession(){
+        return mSession;
     }
 }

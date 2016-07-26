@@ -2,8 +2,6 @@ package org.javarosa.core.model;
 
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.core.services.locale.Localizable;
-import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -14,7 +12,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class SelectChoice implements Externalizable, Localizable {
+public class SelectChoice implements Externalizable {
 
     private String labelInnerText;
     private String textID;
@@ -81,12 +79,6 @@ public class SelectChoice implements Externalizable, Localizable {
 
     public boolean isLocalizable() {
         return this.isLocalizable;
-    }
-
-    public void localeChanged(String locale, Localizer localizer) {
-//        if (captionLocalizable) {
-//            caption = localizer.getLocalizedText(captionID);
-//        }
     }
 
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {

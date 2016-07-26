@@ -202,20 +202,21 @@ public class TreeUtilities {
 
         // otherwise, remove all of the predicates we've already evaluated
         for (int i = toRemove.size() - 1; i >= 0; i--) {
-            predicates.removeElementAt(toRemove.elementAt(i).intValue());
+            predicates.removeElementAt(toRemove.elementAt(i));
         }
 
         return allSelectedChildren;
     }
 
 
-    private static Vector<TreeReference> merge(Vector<TreeReference> allSelectedChildren, Vector<TreeReference> predicateMatches, int i, Vector<Integer> toRemove) {
+    private static Vector<TreeReference> merge(Vector<TreeReference> allSelectedChildren,
+                                               Vector<TreeReference> predicateMatches,
+                                               int i, Vector<Integer> toRemove) {
         toRemove.addElement(DataUtil.integer(i));
         if (allSelectedChildren == null) {
             return predicateMatches;
         }
-        DataUtil.union(allSelectedChildren, predicateMatches);
-        return allSelectedChildren;
+        return DataUtil.intersection(allSelectedChildren, predicateMatches);
     }
 
 
