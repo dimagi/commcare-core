@@ -22,6 +22,10 @@ public class SqlSandboxUtils {
         return new UserSqlSandbox(username);
     }
 
+    public static void deleteDatabaseFolder(){
+        deleteDatabaseFolder(UserSqlSandbox.DEFAULT_DATBASE_PATH);
+    }
+
     public static void deleteDatabaseFolder(String path) {
         File databaseFolder = new File(path);
         if (databaseFolder.exists()) {
