@@ -5,20 +5,33 @@ package org.commcare.suite.model;
  */
 public class Alert {
 
-    private String condition;
-    private String caseType;
+    private String xPathCondition;
+    private String db;
+    private String dbPath;
+    private String xPathReference;
 
-    public Alert(String type, String exp){
-        caseType = type;
-        condition = exp;
+
+    public Alert(String condition, String db, String path, String xPathRef){
+        this.xPathCondition = condition;
+        this.db = db;
+        this.dbPath = path;
+        this.xPathReference = xPathRef;
     }
 
-    public String getCondition(){
-        return condition;
+    public String getxPathCondition(){
+        return xPathCondition;
     }
 
-    public String getCaseType(){
-        return caseType;
+    public String getDb(){
+        return db;
+    }
+
+    public String getDbPath(){
+        return dbPath;
+    }
+
+    public String getXPathRef(){
+        return xPathReference;
     }
 
 }
