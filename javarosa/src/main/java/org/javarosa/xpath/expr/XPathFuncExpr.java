@@ -9,6 +9,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.model.utils.GeoPointUtils;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.MathUtils;
@@ -17,6 +18,7 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xform.util.CalendarUtils;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
@@ -441,6 +443,9 @@ public class XPathFuncExpr extends XPathExpression {
             }else if (name.equals("distance")) {
                 checkArity(name, 2, args.length);
                 return distance(argVals[0], argVals[1]);
+            }else if(name.equals("format-date-for-calendar")) {
+                checkArity(name, 2, args.length);
+                return formatDateForCalendar(argVals[0], argVals[1]);
             }else {
                 if (customFuncArityError != null) {
                     throw customFuncArityError;
@@ -455,6 +460,28 @@ public class XPathFuncExpr extends XPathExpression {
             }
 
             throw new XPathException("There was likely an invalid argument to the function '" + name + "'. The final list of arguments were: [" + args + "]" + ". Full error " + cce.getMessage());
+        }
+    }
+
+    /**
+     * Given a date and format, return that date as a string formatted for that calendar
+     * Accepted calendars are Ethiopian and Nepali
+     * @param dateObject The Object (String, Date, or XPath) to be evaluated into a date
+     * @param format The calendar format (nepali or ethiopian)
+     * @return
+     */
+    private String formatDateForCalendar(Object dateObject, Object format) {
+
+        Date date = expandDateSafe(dateObject);
+        if(date == null){
+            return "";
+        }
+        if ("ethiopian".equals(format)) {
+            return CalendarUtils.ConvertToEthiopian(date);
+        } else if ("nepali".equals(format)) {
+            return CalendarUtils.convertToNepaliString(date);
+        } else {
+            throw new XPathUnsupportedException("Unsupported calendar type: " + format);
         }
     }
 
@@ -806,19 +833,22 @@ public class XPathFuncExpr extends XPathExpression {
     }
 
     public static String dateStr(Object od, Object of) {
-        if (od instanceof Date) {
-            //There's no reason to pull out the time info here if
-            //this is already a date (might still have time info
-            //that we want to preserve).
-            //we round at all of the relevant points up to here,
-            //and we only print out the date info when asked anyway.
-        } else {
-            od = toDate(od);
-        }
-        if (od instanceof Date) {
-            return DateUtils.format((Date)od, toString(of));
-        } else {
+        Date expandedDate = expandDateSafe(od);
+        if(expandedDate == null){
             return "";
+        }
+        return DateUtils.format((Date)od, toString(of));
+    }
+
+    private static Date expandDateSafe(Object dateObject){
+        if (!(dateObject instanceof Date)) {
+            // try to expand this out of a nodeset
+            dateObject = toDate(dateObject);
+        }
+        if (dateObject instanceof Date) {
+            return (Date)dateObject;
+        } else {
+            return null;
         }
     }
 
@@ -1356,17 +1386,6 @@ public class XPathFuncExpr extends XPathExpression {
             ret *= a;
         }
         return new Double(ret);
-    }
-
-    /**
-     * This code is fairly legit, but it not compliant with actual
-     * floating point math reqs. I don't know whether we
-     * should expose the option of using it, exactly.
-     */
-    public static double pow(final double a, final double b) {
-        final long tmp = Double.doubleToLongBits(a);
-        final long tmp2 = (long)(b * (tmp - 4606921280493453312L)) + 4606921280493453312L;
-        return Double.longBitsToDouble(tmp2);
     }
 
     public static final double DOUBLE_TOLERANCE = 1.0e-12;

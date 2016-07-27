@@ -32,20 +32,6 @@ public class ArrayUtilities {
         return true;
     }
 
-
-    public static boolean arraysEqual(char[] array1, int a1start, char[] array2, int a2start) {
-        if (array1.length - a1start != array2.length - a2start) {
-            return false;
-        }
-
-        for (int i = 0; i < array1.length - a1start; ++i) {
-            if (array1[i + a1start] != array2[i + a2start]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     /**
      * Find a single intersecting element common to two lists, or null if none
      * exists. Note that no unique condition will be reported if there are multiple
