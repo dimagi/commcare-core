@@ -37,7 +37,7 @@ public class ExtUtil {
         } catch (EOFException eofe) {
             throw new DeserializationException("Unexpectedly reached end of stream when deserializing");
         } catch (UTFDataFormatException udfe) {
-            throw new DeserializationException("Unexpectedly reached end of stream when deserializing");
+            throw new DeserializationException("Tried to read malformed UTF-8 string while deserializing");
         } catch (IOException e) {
             throw new RuntimeException("Unknown IOException reading from ByteArrayInputStream; shouldn't happen!");
         } finally {
@@ -56,7 +56,7 @@ public class ExtUtil {
         } catch (EOFException eofe) {
             throw new DeserializationException("Unexpectedly reached end of stream when deserializing");
         } catch (UTFDataFormatException udfe) {
-            throw new DeserializationException("Unexpectedly reached end of stream when deserializing");
+            throw new DeserializationException("Tried to read malformed UTF-8 string while deserializing");
         } catch (IOException e) {
             throw new RuntimeException("Unknown IOException reading from ByteArrayInputStream; shouldn't happen!");
         } finally {
@@ -80,21 +80,21 @@ public class ExtUtil {
         if (data instanceof Externalizable) {
             ((Externalizable)data).writeExternal(out);
         } else if (data instanceof Byte) {
-            writeNumeric(out, ((Byte)data).byteValue());
+            writeNumeric(out, (Byte)data);
         } else if (data instanceof Short) {
-            writeNumeric(out, ((Short)data).shortValue());
+            writeNumeric(out, (Short)data);
         } else if (data instanceof Integer) {
-            writeNumeric(out, ((Integer)data).intValue());
+            writeNumeric(out, (Integer)data);
         } else if (data instanceof Long) {
-            writeNumeric(out, ((Long)data).longValue());
+            writeNumeric(out, (Long)data);
         } else if (data instanceof Character) {
-            writeChar(out, ((Character)data).charValue());
+            writeChar(out, (Character)data);
         } else if (data instanceof Float) {
-            writeDecimal(out, ((Float)data).floatValue());
+            writeDecimal(out, (Float)data);
         } else if (data instanceof Double) {
-            writeDecimal(out, ((Double)data).doubleValue());
+            writeDecimal(out, (Double)data);
         } else if (data instanceof Boolean) {
-            writeBool(out, ((Boolean)data).booleanValue());
+            writeBool(out, (Boolean)data);
         } else if (data instanceof String) {
             writeString(out, (String)data);
         } else if (data instanceof Date) {
@@ -111,7 +111,7 @@ public class ExtUtil {
     }
 
     public static void writeNumeric(DataOutputStream out, long val, ExtWrapIntEncoding encoding) throws IOException {
-        write(out, encoding.clone(new Long(val)));
+        write(out, encoding.clone(val));
     }
 
     public static void writeChar(DataOutputStream out, char val) throws IOException {
@@ -152,21 +152,21 @@ public class ExtUtil {
             ext.readExternal(in, pf == null ? defaultPrototypes() : pf);
             return ext;
         } else if (type == Byte.class) {
-            return new Byte(readByte(in));
+            return readByte(in);
         } else if (type == Short.class) {
-            return new Short(readShort(in));
+            return readShort(in);
         } else if (type == Integer.class) {
-            return new Integer(readInt(in));
+            return readInt(in);
         } else if (type == Long.class) {
-            return new Long(readNumeric(in));
+            return readNumeric(in);
         } else if (type == Character.class) {
-            return new Character(readChar(in));
+            return readChar(in);
         } else if (type == Float.class) {
-            return new Float((float)readDecimal(in));
+            return (float)readDecimal(in);
         } else if (type == Double.class) {
-            return new Double(readDecimal(in));
+            return readDecimal(in);
         } else if (type == Boolean.class) {
-            return new Boolean(readBool(in));
+            return readBool(in);
         } else if (type == String.class) {
             return readString(in);
         } else if (type == Date.class) {
@@ -193,7 +193,7 @@ public class ExtUtil {
 
     public static long readNumeric(DataInputStream in, ExtWrapIntEncoding encoding) throws IOException {
         try {
-            return ((Long)read(in, encoding)).longValue();
+            return (Long)read(in, encoding);
         } catch (DeserializationException de) {
             throw new RuntimeException("Shouldn't happen: Base-type encoding wrappers should never touch prototypes");
         }
@@ -265,15 +265,15 @@ public class ExtUtil {
 
     public static long toLong(Object o) {
         if (o instanceof Byte) {
-            return ((Byte)o).byteValue();
+            return (Byte)o;
         } else if (o instanceof Short) {
-            return ((Short)o).shortValue();
+            return (Short)o;
         } else if (o instanceof Integer) {
-            return ((Integer)o).intValue();
+            return (Integer)o;
         } else if (o instanceof Long) {
-            return ((Long)o).longValue();
+            return (Long)o;
         } else if (o instanceof Character) {
-            return ((Character)o).charValue();
+            return (Character)o;
         } else {
             throw new ClassCastException();
         }
