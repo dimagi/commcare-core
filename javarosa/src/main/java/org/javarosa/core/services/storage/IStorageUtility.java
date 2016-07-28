@@ -110,22 +110,6 @@ public interface IStorageUtility<E extends Externalizable> {
     boolean exists(int id);
 
     /**
-     * Return total size of device storage consumed by this StorageUtility
-     *
-     * @return total size (bytes)
-     */
-    int getTotalSize();
-
-    /**
-     * Get the size of a record
-     *
-     * @param id record ID
-     * @return size of that record, in bytes
-     * @throws IllegalArgumentException if no record exists for that ID
-     */
-    int getRecordSize(int id);
-
-    /**
      * Return an iterator to iterate through all records in this store
      *
      * @return record iterator
@@ -140,29 +124,10 @@ public interface IStorageUtility<E extends Externalizable> {
     void close();
 
     /**
-     * Delete the storage utility itself, along with all stored records and meta-data
-     */
-    void destroy();
-
-    /**
-     * Perform any clean-up/consolidation of the StorageUtility's underlying datastructures that is too expensive to do during
-     * normal usage (e.g., if all the records are scattered among 10 half-empty RMSes, repack them into 5 full RMSes)
-     */
-    void repack();
-
-    /**
-     * If the StorageUtility has been left in a corrupt/inconsistent state, restore it to a non-corrupt state, even if it results
-     * in data loss. If the integrity is intact, do nothing
-     */
-    void repair();
-
-    /**
      * Fetch the object that acts as the synchronization lock for this StorageUtility
      *
      * @return lock object
      */
     Object getAccessLock();
-
-    void setReadOnly();
 }
 
