@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.services.storage.util;
 
 import org.javarosa.core.services.storage.EntityFilter;
@@ -30,14 +27,11 @@ import java.util.Vector;
 public class DummyIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T> {
 
     private final Hashtable<String, Hashtable<Object, Vector<Integer>>> meta;
-
     private final Hashtable<Integer, T> data;
-
-    int curCount;
-
-    final Class<T> prototype;
-    
-    final PrototypeFactory mFactory;
+    private int curCount;
+    private final Class<T> prototype;
+    private final PrototypeFactory mFactory;
+    private final Vector<String> dynamicIndices = new Vector<>();
 
     public DummyIndexedStorageUtility(Class<T> prototype, PrototypeFactory factory) {
         meta = new Hashtable<>();
@@ -52,9 +46,9 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         Persistable p;
         try {
             p = prototype.newInstance();
-        } catch (java.lang.InstantiationException e) {
+        } catch (InstantiationException e) {
             throw new RuntimeException("Couldn't create a serializable class for storage!" + prototype.getName());
-        } catch (java.lang.IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             throw new RuntimeException("Couldn't create a serializable class for storage!" + prototype.getName());
         }
 
@@ -74,10 +68,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         }
     }
 
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getIDsForValue(java.lang.String, java.lang.Object)
-     */
+    @Override
     public Vector getIDsForValue(String fieldName, Object value) {
         //We don't support all index types
         if(meta.get(fieldName) == null) {
@@ -89,9 +80,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         return meta.get(fieldName).get(value);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
-     */
+    @Override
     public T getRecordForValue(String fieldName, Object value) throws NoSuchElementException, InvalidIndexException {
         if (meta.get(fieldName) == null) {
             throw new NoSuchElementException("No record matching meta index " + fieldName + " with value " + value);
@@ -106,12 +95,10 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
             throw new InvalidIndexException("Multiple records matching meta index " + fieldName + " with value " + value, fieldName);
         }
 
-        return data.get(matches.elementAt(0));
+        return read(matches.elementAt(0));
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#add(org.javarosa.core.util.externalizable.Externalizable)
-     */
+    @Override
     public int add(T e) {
         data.put(DataUtil.integer(curCount), e);
 
@@ -131,70 +118,46 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#exists(int)
-     */
+    @Override
     public boolean exists(int id) {
         return data.containsKey(DataUtil.integer(id));
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#getAccessLock()
-     */
+    @Override
     public Object getAccessLock() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#getNumRecords()
-     */
+    @Override
     public int getNumRecords() {
         return data.size();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#isEmpty()
-     */
+    @Override
     public boolean isEmpty() {
         return data.size() > 0;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#iterate()
-     */
+    @Override
     public IStorageIterator<T> iterate() {
         //We should really find a way to invalidate old iterators first here
-        return new DummyStorageIterator<>(data);
+        return new DummyStorageIterator<>(this, data);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#read(int)
-     */
+    @Override
     public T read(int id) {
-        //return data.get(DataUtil.integer(id));
         try {
             T t = prototype.newInstance();
             t.readExternal(new DataInputStream(new ByteArrayInputStream(readBytes(id))), mFactory);
             return t;
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
-        } catch (DeserializationException e) {
+        } catch (IllegalAccessException | InstantiationException | IOException | DeserializationException e) {
             e.printStackTrace();
             throw new RuntimeException(e.getMessage());
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#readBytes(int)
-     */
+    @Override
     public byte[] readBytes(int id) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         try {
@@ -205,25 +168,19 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#remove(int)
-     */
+    @Override
     public void remove(int id) {
         data.remove(DataUtil.integer(id));
 
         syncMeta();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#remove(org.javarosa.core.services.storage.Persistable)
-     */
+    @Override
     public void remove(Persistable p) {
-        this.read(p.getID());
+        remove(p.getID());
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#removeAll()
-     */
+    @Override
     public void removeAll() {
         data.clear();
 
@@ -231,9 +188,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         initMeta();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#removeAll(org.javarosa.core.services.storage.EntityFilter)
-     */
+    @Override
     public Vector<Integer> removeAll(EntityFilter ef) {
         Vector<Integer> removed = new Vector<>();
         for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
@@ -258,17 +213,13 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         return removed;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#update(int, org.javarosa.core.util.externalizable.Externalizable)
-     */
+    @Override
     public void update(int id, T e) {
         data.put(DataUtil.integer(id), e);
         syncMeta();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#write(org.javarosa.core.services.storage.Persistable)
-     */
+    @Override
     public void write(Persistable p) {
         if (p.getID() != -1) {
             this.data.put(DataUtil.integer(p.getID()), (T)p);
@@ -308,8 +259,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         }
     }
 
-    final Vector<String> dynamicIndices = new Vector<>();
-
+    @Override
     public void registerIndex(String filterIndex) {
         dynamicIndices.addElement(filterIndex);
         syncMeta();
