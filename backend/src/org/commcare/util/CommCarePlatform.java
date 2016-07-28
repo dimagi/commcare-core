@@ -102,9 +102,9 @@ public class CommCarePlatform implements CommCareInstance {
      *
      * @param global Table with fully-installed resources
      */
-    public void initialize(ResourceTable global) {
+    public void initialize(ResourceTable global, boolean isUpgrade) {
         try {
-            global.initializeResources(this);
+            global.initializeResources(this, isUpgrade);
         } catch (ResourceInitializationException e) {
             e.printStackTrace();
             throw new RuntimeException("Error initializing Resource! " + e.getMessage());

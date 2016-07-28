@@ -33,6 +33,7 @@ public class ProfileInstaller extends CacheInstaller {
     private static Hashtable<String, Profile> localTable;
     private boolean forceVersion;
 
+    @SuppressWarnings("unused")
     public ProfileInstaller() {
         forceVersion = false;
     }
@@ -48,10 +49,8 @@ public class ProfileInstaller extends CacheInstaller {
         return localTable;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInitializer#initializeResource(org.commcare.resources.model.Resource)
-     */
-    public boolean initialize(CommCareInstance instance) throws ResourceInitializationException {
+    @Override
+    public boolean initialize(CommCareInstance instance, boolean isUpgrade) throws ResourceInitializationException {
         //Certain properties may not have been able to set during install, so we'll make sure they're
         //set here.
         Profile p = (Profile)storage().read(cacheLocation);
@@ -61,17 +60,17 @@ public class ProfileInstaller extends CacheInstaller {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInitializer#requiresRuntimeInitialization()
-     */
+    @Override
     public boolean requiresRuntimeInitialization() {
         return true;
     }
 
+    @Override
     protected String getCacheKey() {
         return Profile.STORAGE_KEY;
     }
 
+    @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
                            CommCareInstance instance, boolean upgrade)
@@ -159,6 +158,7 @@ public class ProfileInstaller extends CacheInstaller {
         cacheLocation = profile.getID();
     }
 
+    @Override
     public boolean upgrade(Resource r) throws UnresolvedResourceException {
         //TODO: Hm... how to do this property setting for reverting?
 
@@ -178,16 +178,19 @@ public class ProfileInstaller extends CacheInstaller {
         }
     }
 
+    @Override
     public boolean unstage(Resource r, int newStatus) {
         //Nothing to do. Cache location is clear.
         return true;
     }
 
+    @Override
     public boolean revert(Resource r, ResourceTable table) {
         //Possibly re-set this profile's default property setters.
         return true;
     }
 
+    @Override
     public void cleanup() {
         super.cleanup();
         if (localTable != null) {
@@ -196,12 +199,14 @@ public class ProfileInstaller extends CacheInstaller {
         }
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
         forceVersion = ExtUtil.readBool(in);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
         ExtUtil.writeBool(out, forceVersion);

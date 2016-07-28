@@ -232,7 +232,10 @@ public class ResourceManager {
                 //everything here? Locale files are registered elsewhere, and we
                 //can't guarantee we're the only thing in there, so we can't
                 //straight up clear it...
-                platform.initialize(masterTable);
+                // NOTE PLM: if the upgrade is successful but crashes before
+                // reaching this point, any suite fixture updates won't be
+                // applied
+                platform.initialize(masterTable, true);
             }
         }
     }
