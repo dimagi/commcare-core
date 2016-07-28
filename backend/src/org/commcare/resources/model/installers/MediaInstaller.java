@@ -1,10 +1,6 @@
-/**
- *
- */
 package org.commcare.resources.model.installers;
 
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
@@ -23,10 +19,7 @@ public class MediaInstaller extends BasicInstaller {
 
     }
 
-    public MediaInstaller(String path) {
-
-    }
-
+    @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException {
         boolean result = super.install(r, location, ref, table, instance, upgrade);
         if (result) {
@@ -36,17 +29,7 @@ public class MediaInstaller extends BasicInstaller {
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#initialize()
-     */
-    public boolean initialize() throws ResourceInitializationException {
-        //Tell the login screen where to get this?
-        return true;
-    }
-
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
-     */
+    @Override
     public boolean requiresRuntimeInitialization() {
         return true;
     }

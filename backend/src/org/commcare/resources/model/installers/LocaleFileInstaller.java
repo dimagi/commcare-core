@@ -45,6 +45,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
     /**
      * Serialization only!
      */
+    @SuppressWarnings("unused")
     public LocaleFileInstaller() {
 
     }
@@ -55,7 +56,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
     }
 
     @Override
-    public boolean initialize(CommCareInstance instance) throws ResourceInitializationException {
+    public boolean initialize(CommCareInstance instance, boolean isUpgrade) throws ResourceInitializationException {
         if (cache == null) {
             Localization.registerLanguageReference(locale, localReference);
         } else {

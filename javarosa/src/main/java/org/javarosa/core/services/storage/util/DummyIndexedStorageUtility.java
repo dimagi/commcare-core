@@ -118,14 +118,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#destroy()
-     */
-    public void destroy() {
-        // TODO Auto-generated method stub
-
-    }
-
     @Override
     public boolean exists(int id) {
         return data.containsKey(DataUtil.integer(id));
@@ -140,20 +132,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     @Override
     public int getNumRecords() {
         return data.size();
-    }
-
-    @Override
-    public int getRecordSize(int id) {
-        //serialize and test blah blah.
-        return 0;
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#getTotalSize()
-     */
-    public int getTotalSize() {
-        //serialize and test blah blah.
-        return 0;
     }
 
     @Override
@@ -235,20 +213,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         return removed;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#repack()
-     */
-    public void repack() {
-        //Unecessary!
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#repair()
-     */
-    public void repair() {
-        //Unecessary!
-    }
-
     @Override
     public void update(int id, T e) {
         data.put(DataUtil.integer(id), e);
@@ -293,11 +257,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
                 }
             }
         }
-    }
-
-
-    public void setReadOnly() {
-        //TODO: This should have a clear contract.
     }
 
     @Override

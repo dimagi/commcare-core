@@ -25,7 +25,7 @@ import java.util.Vector;
 public class FixtureXmlParser extends TransactionParser<FormInstance> {
 
     IStorageUtilityIndexed<FormInstance> storage;
-    boolean overwrite = true;
+    private final boolean overwrite;
 
     public FixtureXmlParser(KXmlParser parser) {
         this(parser, true, null);
