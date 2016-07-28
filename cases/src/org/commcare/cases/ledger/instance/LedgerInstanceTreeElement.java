@@ -43,7 +43,6 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     public LedgerInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage) {
         this.instanceRoot = instanceRoot;
         this.storage = storage;
-        storage.setReadOnly();
     }
 
     /**
