@@ -37,7 +37,14 @@ public class SuiteParser extends ElementParser<Suite> {
     private ResourceTable table;
     private String resourceGuid;
     private int maximumResourceAuthority = -1;
-    private boolean skipResources = false;
+
+    /**
+     * If set to true, the parser won't process adding incoming resources to the resource table.
+     * This is helpful if the suite is being processed during a non-install phase
+     */
+    private final boolean skipResources;
+    private final boolean isValidationPass;
+    private final boolean isUpgrade;
 
     public SuiteParser(InputStream suiteStream,
                        ResourceTable table,
@@ -45,18 +52,26 @@ public class SuiteParser extends ElementParser<Suite> {
         super(ElementParser.instantiateParser(suiteStream));
         this.table = table;
         this.resourceGuid = resourceGuid;
-        this.fixtureStorage = (IStorageUtilityIndexed<FormInstance>)StorageManager.getStorage(FormInstance.STORAGE_KEY);
+        this.fixtureStorage =
+                (IStorageUtilityIndexed<FormInstance>)StorageManager.getStorage(FormInstance.STORAGE_KEY);
+        this.skipResources = false;
+        this.isValidationPass = false;
+        this.isUpgrade = false;
     }
 
-    public SuiteParser(InputStream suiteStream,
-                       ResourceTable table,
-                       String resourceGuid,
-                       IStorageUtilityIndexed<FormInstance> fixtureStorage) throws IOException {
+    protected SuiteParser(InputStream suiteStream,
+                          ResourceTable table, String resourceGuid,
+                          IStorageUtilityIndexed<FormInstance> fixtureStorage,
+                          boolean skipResources, boolean isValidationPass,
+                          boolean isUpgrade) throws IOException {
         super(ElementParser.instantiateParser(suiteStream));
 
         this.table = table;
         this.resourceGuid = resourceGuid;
         this.fixtureStorage = fixtureStorage;
+        this.skipResources = skipResources;
+        this.isValidationPass = isValidationPass;
+        this.isUpgrade = isUpgrade;
     }
 
     public Suite parse() throws InvalidStructureException, IOException,
@@ -118,9 +133,10 @@ public class SuiteParser extends ElementParser<Suite> {
                         Menu m = new MenuParser(parser).parse();
                         menus.addElement(m);
                     } else if (parser.getName().toLowerCase().equals("fixture")) {
-                        //this one automatically commits the fixture to the global memory
-                        if (!inValidationMode()) {
-                            new FixtureXmlParser(parser, false, fixtureStorage).parse();
+                        if (!isValidationPass) {
+                            // commit fixture to the memory, overwriting existing
+                            // fixture only during first init after app upgrade
+                            new FixtureXmlParser(parser, isUpgrade, fixtureStorage).parse();
                         }
                     } else {
                         System.out.println("Unrecognized Tag: " + parser.getName());
@@ -143,18 +159,6 @@ public class SuiteParser extends ElementParser<Suite> {
 
     public void setMaximumAuthority(int authority) {
         maximumResourceAuthority = authority;
-    }
-
-    protected boolean inValidationMode() {
-        return false;
-    }
-
-    /**
-     * If set to true, the parser won't process adding incoming resources to the resource table.
-     * This is helpful if the suite is being processed during a non-install phase
-     */
-    public void setSkipResources(boolean skipResources) {
-        this.skipResources = skipResources;
     }
 
     protected DetailParser getDetailParser() {
