@@ -370,7 +370,6 @@ public class CalendarUtils {
     }
 
     public static String[] getMonthsArray(String key){
-        System.out.println("Getting months array with key: " + key + ", source: " + arrayDataSource);
         return arrayDataSource.getArray(key);
     }
 
