@@ -232,12 +232,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
     }
 
     @Override
-    public void destroy() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public boolean exists(int id) {
         PreparedStatement preparedStatement = null;
         Connection c = null;
@@ -299,11 +293,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
     }
 
     @Override
-    public int getRecordSize(int id) {
-        return 0;
-    }
-
-    @Override
     public JdbcSqlStorageIterator<T> iterate() {
         Connection connection;
         ResultSet resultSet = null;
@@ -318,12 +307,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             throw new RuntimeException(e);
         }
         return new JdbcSqlStorageIterator<>(preparedStatement, resultSet, this.getNumRecords(), this, connection);
-    }
-
-    @Override
-    public int getTotalSize() {
-        //serialize and test blah blah.
-        return 0;
     }
 
     @Override
@@ -428,21 +411,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
     @Override
     public Vector<Integer> removeAll(EntityFilter ef) {
         return null;
-    }
-
-    @Override
-    public void repack() {
-        //Unecessary!
-    }
-
-    @Override
-    public void repair() {
-        //Unecessary!
-    }
-
-    @Override
-    public void setReadOnly() {
-        //TODO: This should have a clear contract.
     }
 
     @Override
