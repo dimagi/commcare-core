@@ -1,6 +1,7 @@
 package org.javarosa.xform.util;
 
-import org.javarosa.core.services.locale.Localization;
+import org.commcare.util.ArrayDataSource;
+import org.commcare.util.LocaleArrayDataSource;
 import org.joda.time.Chronology;
 import org.joda.time.DateTime;
 import org.joda.time.chrono.EthiopicChronology;
@@ -16,12 +17,14 @@ import java.util.TimeZone;
  */
 public class CalendarUtils {
 
+    private static ArrayDataSource arrayDataSource = new LocaleArrayDataSource();
+
     private static String ConvertToEthiopian(int gregorianYear, int gregorianMonth, int gregorianDay) {
         Chronology chron_eth = EthiopicChronology.getInstance();
         Chronology chron_greg = GregorianChronology.getInstance();
         DateTime jodaDateTime = new DateTime(gregorianYear, gregorianMonth, gregorianDay, 0, 0, 0, chron_greg);
         DateTime dtEthiopic = jodaDateTime.withChronology(chron_eth);
-        String[] monthsArray = Localization.getArray("ethiopian.months.list");
+        String[] monthsArray = getMonthsArray("ethiopian_months");
         return dtEthiopic.getDayOfMonth() + " "
                 + monthsArray[dtEthiopic.getMonthOfYear() - 1] + " "
                 + dtEthiopic.getYear();
@@ -220,7 +223,7 @@ public class CalendarUtils {
      */
     public static String convertToNepaliString(Date date) {
         UniversalDate dateUniv = CalendarUtils.fromMillis(date.getTime());
-        String[] monthsArray = Localization.getArray("nepali.months.list");
+        String[] monthsArray = getMonthsArray("nepali_months");
         return dateUniv.day + " " + monthsArray[dateUniv.month - 1] + " " + dateUniv.year;
     }
 
@@ -366,4 +369,11 @@ public class CalendarUtils {
         return millisFromMinDay + MIN_MILLIS_FROM_JAVA_EPOCH + millisOffset;
     }
 
+    public static String[] getMonthsArray(String key){
+        return arrayDataSource.getArray(key);
+    }
+
+    public static void setArrayDataSource(ArrayDataSource arrayDataSource) {
+        CalendarUtils.arrayDataSource = arrayDataSource;
+    }
 }
