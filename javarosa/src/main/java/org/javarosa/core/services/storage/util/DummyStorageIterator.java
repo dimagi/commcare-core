@@ -1,11 +1,7 @@
-/**
- *
- */
 package org.javarosa.core.services.storage.util;
 
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.util.DataUtil;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -14,13 +10,13 @@ import java.util.Hashtable;
  * @author ctsims
  */
 public class DummyStorageIterator<T extends Persistable> implements IStorageIterator<T> {
-    final Hashtable<Integer, T> data;
-    int count;
-    final Integer[] keys;
+    private int count;
+    private final Integer[] keys;
+    private final DummyIndexedStorageUtility<T> dummyStorage;
 
-
-    public DummyStorageIterator(Hashtable<Integer, T> data) {
-        this.data = data;
+    public DummyStorageIterator(DummyIndexedStorageUtility<T> dummyStorage,
+                                Hashtable<Integer, T> data) {
+        this.dummyStorage = dummyStorage;
         keys = new Integer[data.size()];
         int i = 0;
         for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
@@ -30,37 +26,29 @@ public class DummyStorageIterator<T extends Persistable> implements IStorageIter
         count = 0;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageIterator#hasMore()
-     */
+    @Override
     public boolean hasMore() {
         return count < keys.length;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageIterator#nextID()
-     */
+    @Override
     public int nextID() {
         count++;
-        return keys[count - 1].intValue();
+        return keys[count - 1];
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageIterator#nextRecord()
-     */
+    @Override
     public T nextRecord() {
-        return data.get(DataUtil.integer(nextID()));
+        return dummyStorage.read(nextID());
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageIterator#numRecords()
-     */
+    @Override
     public int numRecords() {
-        return data.size();
+        return dummyStorage.getNumRecords();
     }
 
+    @Override
     public int peekID() {
         return keys[count];
     }
-
 }
