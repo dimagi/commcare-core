@@ -17,9 +17,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import javax.xml.xpath.XPath;
-
-
 /**
  * @author ctsims
  */
