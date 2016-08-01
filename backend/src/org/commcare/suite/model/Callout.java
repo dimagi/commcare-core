@@ -97,7 +97,7 @@ public class Callout implements Externalizable, DetailTemplate {
         extras = (Hashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
         responses = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
         responseDetail = (DetailField)ExtUtil.read(in, new ExtWrapNullable(DetailField.class), pf);
-        type = ExtUtil.readString(in);
+        type = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         isAutoLaunching = ExtUtil.readBool(in);
     }
 
@@ -109,7 +109,7 @@ public class Callout implements Externalizable, DetailTemplate {
         ExtUtil.write(out, new ExtWrapMap(extras));
         ExtUtil.write(out, new ExtWrapList(responses));
         ExtUtil.write(out, new ExtWrapNullable(responseDetail));
-        ExtUtil.writeString(out, type);
+        ExtUtil.write(out, new ExtWrapNullable(type));
         ExtUtil.writeBool(out, isAutoLaunching);
     }
 
