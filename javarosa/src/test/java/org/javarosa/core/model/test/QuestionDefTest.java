@@ -168,12 +168,4 @@ public class QuestionDefTest {
     public void setQ(QuestionDef q) {
         this.q = q;
     }
-
-    public FormEntryPrompt getFep() {
-        return fep;
-    }
-
-    public void setFep(FormEntryPrompt fep) {
-        this.fep = fep;
-    }
 }
