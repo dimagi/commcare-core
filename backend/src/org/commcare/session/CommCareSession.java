@@ -344,7 +344,13 @@ public class CommCareSession {
     }
 
     public void stepBack(EvaluationContext evalContext) {
-        // Pop the first thing off of the stack frame, no matter what
+        // First peel off any data pushed onto the stack by the previous command
+        while(frame.getSteps().size() > 0 &&
+                frame.getSteps().lastElement().getType().equals(SessionFrame.STATE_DATUM_VAL)){
+            popSessionFrameStack();
+        }
+
+        // Then, pop the previous command
         popSessionFrameStack();
 
         // Keep popping things off until the value of needed data indicates that we are back to
