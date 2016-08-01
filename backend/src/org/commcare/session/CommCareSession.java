@@ -22,6 +22,7 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -64,12 +65,12 @@ public class CommCareSession {
     /**
      * The current session frame data
      */
-    private SessionFrame frame;
+    protected SessionFrame frame;
 
     /**
      * The stack of pending Frames
      */
-    private final Stack<SessionFrame> frameStack;
+    private Stack<SessionFrame> frameStack;
 
     /**
      * Used by touchforms
@@ -830,6 +831,14 @@ public class CommCareSession {
 
         CommCareSession restoredSession = new CommCareSession(ccPlatform);
         restoredSession.frame = restoredFrame;
+        Vector<SessionFrame> frames = (Vector<SessionFrame>) ExtUtil.read(inputStream, new ExtWrapList(SessionFrame.class));
+        Stack<SessionFrame> stackFrames = new Stack<>();
+        while(!frames.isEmpty()){
+            SessionFrame lastElement = frames.lastElement();
+            frames.remove(lastElement);
+            stackFrames.push(lastElement);
+        }
+        restoredSession.setFrameStack(stackFrames);
         restoredSession.syncState();
 
         return restoredSession;
@@ -837,5 +846,14 @@ public class CommCareSession {
 
     public void serializeSessionState(DataOutputStream outputStream) throws IOException {
         frame.writeExternal(outputStream);
+        ExtUtil.write(outputStream, new ExtWrapList(frameStack));
+    }
+
+    public void setFrameStack(Stack<SessionFrame> frameStack) {
+        this.frameStack = frameStack;
+    }
+
+    public Stack<SessionFrame> getFrameStack(){
+        return this.frameStack;
     }
 }
