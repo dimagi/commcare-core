@@ -3,7 +3,6 @@ package org.commcare.util;
 import org.commcare.modern.reference.ArchiveFileRoot;
 import org.commcare.modern.reference.JavaFileRoot;
 import org.commcare.modern.reference.JavaHttpRoot;
-import org.commcare.modern.reference.JavaResourceRoot;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
@@ -26,6 +25,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageFactory;
 import org.javarosa.core.services.storage.IStorageUtility;
@@ -88,6 +88,7 @@ public class CommCareConfigEngine {
         //per device.
         StorageManager.forceClear();
         StorageManager.setStorageFactory(new IStorageFactory() {
+            @Override
             public IStorageUtility newStorage(String name, Class type) {
                 return new DummyIndexedStorageUtility(type, mLiveFactory);
             }
@@ -106,8 +107,7 @@ public class CommCareConfigEngine {
         this.mArchiveRoot = new ArchiveFileRoot();
 
         ReferenceManager._().addReferenceFactory(mArchiveRoot);
-
-        ReferenceManager._().addReferenceFactory(new JavaResourceRoot(this.getClass()));
+        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
     }
 
     public void initFromArchive(String archiveURL) {
