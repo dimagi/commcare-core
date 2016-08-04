@@ -26,6 +26,7 @@ def submit_build(environ, host):
                        '-F "version={VERSION}" {target_url}')
     else:
         raw_command = ('curl -v -H "Expect:" -F "username={USERNAME}" ' +
+                       '-F "build_number={BUILD_NUMBER}" ' +
                        '-F "password={PASSWORD}" ' +
                        '-F "version={VERSION}" {target_url}')
     command = raw_command.format(target_url=target_url, **environ)
