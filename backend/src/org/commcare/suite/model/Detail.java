@@ -317,19 +317,16 @@ public class Detail implements Externalizable {
         }.go();
     }
 
-    public boolean usesGridView() {
-
-        boolean usesGrid = false;
-
+    public boolean usesEntityTileView() {
+        boolean usingEntityTile = false;
         for (int i = 0; i < fields.length; i++) {
             DetailField currentField = fields[i];
             if (currentField.getGridX() >= 0 && currentField.getGridY() >= 0 &&
                     currentField.getGridWidth() >= 0 && currentField.getGridHeight() > 0) {
-                usesGrid = true;
+                usingEntityTile = true;
             }
         }
-
-        return usesGrid;
+        return usingEntityTile;
     }
 
     public GridCoordinate[] getGridCoordinates() {
