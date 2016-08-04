@@ -5,6 +5,7 @@ import org.commcare.resources.model.installers.LoginImageInstaller;
 import org.commcare.resources.model.installers.MediaInstaller;
 import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.resources.model.installers.SuiteInstaller;
+import org.commcare.resources.model.installers.UserRestoreInstaller;
 import org.commcare.resources.model.installers.XFormInstaller;
 
 /**
@@ -18,6 +19,10 @@ public class InstallerFactory {
 
     public ResourceInstaller getXFormInstaller() {
         return new XFormInstaller();
+    }
+
+    public ResourceInstaller getUserRestoreInstaller() {
+        return new UserRestoreInstaller();
     }
 
     public ResourceInstaller getSuiteInstaller() {

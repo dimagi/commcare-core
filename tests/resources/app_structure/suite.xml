@@ -6,6 +6,12 @@
     </resource>
   </xform>
 
+  <user-restore>
+    <resource id="foo" version="1" descriptor="demo user restore">
+      <location authority="local">./user_restore.xml</location>
+    </resource>
+  </user-restore>
+
   <detail id="m0_case_short">
     <title>
       <text>Case List</text>
