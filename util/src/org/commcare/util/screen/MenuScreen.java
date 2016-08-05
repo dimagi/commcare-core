@@ -1,13 +1,13 @@
 package org.commcare.util.screen;
 
-import org.commcare.modern.session.SessionWrapper;
 import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.modern.session.SessionWrapper;
+import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
