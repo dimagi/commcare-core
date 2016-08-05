@@ -28,7 +28,7 @@ import java.util.Hashtable;
 /**
  * @author ctsims
  */
-public class ProfileInstaller extends CacheInstaller {
+public class ProfileInstaller extends CacheInstaller<Profile> {
 
     private static Hashtable<String, Profile> localTable;
     private boolean forceVersion;
@@ -53,7 +53,7 @@ public class ProfileInstaller extends CacheInstaller {
     public boolean initialize(CommCareInstance instance, boolean isUpgrade) throws ResourceInitializationException {
         //Certain properties may not have been able to set during install, so we'll make sure they're
         //set here.
-        Profile p = (Profile)storage().read(cacheLocation);
+        Profile p = storage().read(cacheLocation);
         p.initializeProperties(false);
 
         instance.setProfile(p);
