@@ -160,8 +160,6 @@ task cliJar(type: Jar, dependsOn: cliClasses) {
 task apiJar(type: Jar, dependsOn: apiClasses) {
     baseName = "commcare-api"
     from sourceSets.api.output
-    from sourceSets.main.output
-    from sourceSets.cli.output
     from {
         configurations.apiCompile.collect {
             it.isDirectory() ? it : zipTree(it)
