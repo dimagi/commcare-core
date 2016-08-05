@@ -1,14 +1,10 @@
 package org.commcare.util.cli;
 
-import org.commcare.modern.session.SessionWrapper;
 import org.commcare.core.interfaces.UserSandbox;
-import org.commcare.suite.model.FormEntry;
-import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.Menu;
-import org.commcare.suite.model.MenuDisplayable;
-import org.commcare.suite.model.Suite;
-import org.commcare.util.CommCarePlatform;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
+import org.commcare.suite.model.*;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
@@ -19,7 +15,6 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.PrintStream;
-import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Vector;
 
