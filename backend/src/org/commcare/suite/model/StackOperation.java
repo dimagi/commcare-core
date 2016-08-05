@@ -43,8 +43,6 @@ public class StackOperation implements Externalizable {
 
     }
 
-    //  Constructors
-
     public static StackOperation CreateFrame(String frameId, String ifCondition, Vector<StackFrameStep> elements) throws XPathSyntaxException {
         return new StackOperation(OPERATION_CREATE, frameId, ifCondition, elements);
     }
@@ -67,8 +65,6 @@ public class StackOperation implements Externalizable {
         this.elements = elements;
     }
 
-    //retrieval
-
     public int getOp() {
         return opType;
     }
@@ -80,7 +76,7 @@ public class StackOperation implements Externalizable {
     public boolean isOperationTriggered(EvaluationContext ec) {
         if (ifCondition != null) {
             try {
-                return XPathFuncExpr.toBoolean(XPathParseTool.parseXPath(ifCondition).eval(ec)).booleanValue();
+                return XPathFuncExpr.toBoolean(XPathParseTool.parseXPath(ifCondition).eval(ec));
             } catch (XPathSyntaxException e) {
                 //This error makes no sense, since we parse the input for
                 //validation when we create it!
@@ -106,9 +102,7 @@ public class StackOperation implements Externalizable {
     }
 
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         opType = ExtUtil.readInt(in);
         ifCondition = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
@@ -116,9 +110,7 @@ public class StackOperation implements Externalizable {
         elements = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class));
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, opType);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(ifCondition));

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import org.commcare.suite.model.StackFrameStep;
@@ -23,9 +20,7 @@ public class StackOpParser extends ElementParser<StackOperation> {
         super(parser);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.xml.ElementParser#parse()
-     */
+    @Override
     public StackOperation parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String operation = parser.getName();
 
