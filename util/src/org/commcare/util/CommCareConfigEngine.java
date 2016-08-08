@@ -18,6 +18,7 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
+import org.commcare.suite.model.PropertySetter;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.io.BufferedInputStream;
@@ -218,21 +219,28 @@ public class CommCareConfigEngine {
             Localization.setDefaultLocale("default");
 
             print.println("Locales defined: ");
-            String newLocale = null;
             for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
-                if (newLocale == null) {
-                    newLocale = locale;
-                }
                 System.out.println("* " + locale);
             }
 
-            print.println("Setting locale to: " + newLocale);
-            Localization.setLocale(newLocale);
+            setDefaultLocale();
         } catch (ResourceInitializationException e) {
             print.println("Error while initializing one of the resolved resources");
             e.printStackTrace(print);
             System.exit(-1);
         }
+    }
+
+    private void setDefaultLocale() {
+        String defaultLocale = "default";
+        for (PropertySetter prop : platform.getCurrentProfile().getPropertySetters()) {
+            if ("cur_locale".equals(prop.getKey())) {
+                defaultLocale = prop.getValue();
+                break;
+            }
+        }
+        print.println("Setting locale to: " + defaultLocale);
+        Localization.setLocale(defaultLocale);
     }
 
     public void describeApplication() {
