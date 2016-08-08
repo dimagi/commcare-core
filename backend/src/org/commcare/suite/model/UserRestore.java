@@ -12,6 +12,7 @@ import java.io.IOException;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UserRestore implements Persistable {
+    public static final String STORAGE_KEY = "UserRestore";
     @Override
     public void setID(int ID) {
 

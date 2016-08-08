@@ -166,7 +166,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
         if (getlocal().containsKey(r.getRecordGuid())) {
             p = getlocal().get(r.getRecordGuid());
         } else {
-            p = (Profile)storage().read(cacheLocation);
+            p = storage().read(cacheLocation);
         }
         p.initializeProperties(true);
         try {
