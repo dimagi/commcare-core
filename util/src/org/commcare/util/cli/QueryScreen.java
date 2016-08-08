@@ -54,7 +54,7 @@ public class QueryScreen extends Screen {
 
     }
 
-    public void processSuccess(int responseCode, InputStream responseData) {
+    public void processSuccess(InputStream responseData) {
         Pair<ExternalDataInstance, String> instanceOrError =
                 buildExternalDataInstance(responseData,
                         remoteQuerySessionManager.getStorageInstanceName());
