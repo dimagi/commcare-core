@@ -16,7 +16,7 @@ import java.io.OutputStream;
  */
 public class ResourceReference implements Reference {
 
-    final String URI;
+    private final String URI;
 
     /**
      * Creates a new resource reference with URI in the format
@@ -60,11 +60,8 @@ public class ResourceReference implements Reference {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof ResourceReference) {
-            return URI.equals(((ResourceReference)o).URI);
-        } else {
-            return false;
-        }
+        return o instanceof ResourceReference &&
+                URI.equals(((ResourceReference)o).URI);
     }
 
     @Override
@@ -80,13 +77,5 @@ public class ResourceReference implements Reference {
     @Override
     public String getLocalURI() {
         return URI;
-    }
-
-    @Override
-    public Reference[] probeAlternativeReferences() {
-        //We can't poll the JAR for resources, unfortunately. It's possible
-        //we could try to figure out something about the file and poll alternatives
-        //based on type (PNG-> JPG, etc)
-        return new Reference[0];
     }
 }

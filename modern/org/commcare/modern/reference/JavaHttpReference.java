@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.modern.reference;
 
 import org.javarosa.core.reference.Reference;
@@ -13,7 +10,6 @@ import java.net.URL;
 
 /**
  * @author ctsims
- *
  */
 public class JavaHttpReference implements Reference {
 
@@ -23,25 +19,18 @@ public class JavaHttpReference implements Reference {
         this.uri = uri;
     }
 
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.reference.Reference#doesBinaryExist()
-     */
+    @Override
     public boolean doesBinaryExist() throws IOException {
         //For now....
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.reference.Reference#getOutputStream()
-     */
+    @Override
     public OutputStream getOutputStream() throws IOException {
         throw new IOException("Http references are read only!");
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.reference.Reference#getStream()
-     */
+    @Override
     public InputStream getStream() throws IOException {
         URL url = new URL(uri);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -51,35 +40,23 @@ public class JavaHttpReference implements Reference {
         return conn.getInputStream();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.reference.Reference#getURI()
-     */
+    @Override
     public String getURI() {
         return uri;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.reference.Reference#isReadOnly()
-     */
+    @Override
     public boolean isReadOnly() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.reference.Reference#remove()
-     */
+    @Override
     public void remove() throws IOException {
         throw new IOException("Http references are read only!");
     }
 
-
+    @Override
     public String getLocalURI() {
         return uri;
     }
-
-
-    public Reference[] probeAlternativeReferences() {
-        return new Reference[0];
-    }
-
 }
