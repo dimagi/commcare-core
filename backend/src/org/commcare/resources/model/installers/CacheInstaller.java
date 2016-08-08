@@ -36,6 +36,7 @@ import java.util.Vector;
 public abstract class CacheInstaller<T extends Persistable> implements ResourceInstaller<CommCareInstance> {
 
     private IStorageUtility<T> cacheStorage;
+    protected int cacheLocation;
 
     protected abstract String getCacheKey();
 
@@ -46,22 +47,18 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
         return cacheStorage;
     }
 
-    int cacheLocation;
+    @Override
+    public abstract boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException;
 
     @Override
     public boolean initialize(CommCareInstance instance, boolean isUpgrade) throws ResourceInitializationException {
-        //Suites don't need any local initialization (yet).
         return false;
     }
 
     @Override
     public boolean requiresRuntimeInitialization() {
-        //Nope.
         return false;
     }
-
-    @Override
-    public abstract boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException;
 
     @Override
     public boolean upgrade(Resource r) throws UnresolvedResourceException {
