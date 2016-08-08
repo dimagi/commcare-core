@@ -19,6 +19,7 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
+import org.commcare.suite.model.UserRestore;
 import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
@@ -92,13 +93,13 @@ public class CommCareConfigEngine {
             public IStorageUtility newStorage(String name, Class type) {
                 return new DummyIndexedStorageUtility(type, mLiveFactory);
             }
-
         });
 
         StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
         StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
         StorageManager.registerStorage(FormDef.STORAGE_KEY,FormDef.class);
         StorageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
+        StorageManager.registerStorage(UserRestore.STORAGE_KEY, UserRestore.class);
     }
 
     private void setRoots() {
@@ -218,16 +219,11 @@ public class CommCareConfigEngine {
             Localization.setDefaultLocale("default");
 
             print.println("Locales defined: ");
-            String newLocale = null;
             for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
-                if (newLocale == null) {
-                    newLocale = locale;
-                }
                 System.out.println("* " + locale);
             }
 
-            print.println("Setting locale to: " + newLocale);
-            Localization.setLocale(newLocale);
+            Localization.setLocale("default");
         } catch (ResourceInitializationException e) {
             print.println("Error while initializing one of the resolved resources");
             e.printStackTrace(print);

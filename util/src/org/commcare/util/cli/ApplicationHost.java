@@ -86,6 +86,9 @@ public class ApplicationHost {
         mRestoreStrategySet = true;
     }
 
+    public void setRestoreToDemoUser() {
+        mRestoreStrategySet = true;
+    }
 
     public void run() {
         if (!mRestoreStrategySet) {
@@ -358,8 +361,10 @@ public class ApplicationHost {
         mSandbox = sandbox;
         if (mLocalUserCredentials != null) {
             restoreUserToSandbox(mSandbox, mLocalUserCredentials);
-        } else {
+        } else if (mRestoreFile != null) {
             restoreFileToSandbox(mSandbox, mRestoreFile);
+        } else {
+            restoreDemoUserToSandbox(mSandbox);
         }
     }
 
@@ -380,13 +385,16 @@ public class ApplicationHost {
             System.exit(-1);
         }
 
-        //Initialize our User
+        initUser();
+    }
+
+    private void initUser() {
         User u = mSandbox.getUserStorage().read(0);
         mSandbox.setLoggedInUser(u);
         System.out.println("Setting logged in user to: " + u.getUsername());
     }
 
-    private void restoreUserToSandbox(UserSandbox mSandbox, String[] userCredentials) {
+    private static void restoreUserToSandbox(UserSandbox sandbox, String[] userCredentials) {
         final String username = userCredentials[0];
         final String password = userCredentials[1];
 
@@ -413,7 +421,7 @@ public class ApplicationHost {
 
             System.out.println("Restoring user " + username + " to domain " + domain);
 
-            ParseUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), mSandbox);
+            ParseUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), sandbox);
         } catch (InvalidStructureException | IOException e) {
             e.printStackTrace();
             System.exit(-1);
@@ -422,12 +430,24 @@ public class ApplicationHost {
         }
 
         //Initialize our User
-        for (IStorageIterator<User> iterator = mSandbox.getUserStorage().iterate(); iterator.hasMore(); ) {
+        for (IStorageIterator<User> iterator = sandbox.getUserStorage().iterate(); iterator.hasMore(); ) {
             User u = iterator.nextRecord();
             if (username.equalsIgnoreCase(u.getUsername())) {
-                mSandbox.setLoggedInUser(u);
+                sandbox.setLoggedInUser(u);
             }
         }
+    }
+
+    private void restoreDemoUserToSandbox(UserSandbox sandbox) {
+        try {
+            ParseUtils.parseIntoSandbox(mPlatform.getDemoUserRestoreStream(), sandbox, false);
+        } catch (Exception e) {
+            System.out.println("Error parsing demo user restore from app");
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+        initUser();
     }
 
     private void setLocale(String locale) {
