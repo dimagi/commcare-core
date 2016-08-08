@@ -44,9 +44,9 @@ public class UserRestore implements Persistable {
 
     public InputStream getRestoreStream() {
         if (reference == null) {
-            return getStreamFromReference();
-        } else {
             return getInMemeoryStream();
+        } else {
+            return getStreamFromReference();
         }
 
     }
@@ -71,13 +71,15 @@ public class UserRestore implements Persistable {
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         this.recordId = ExtUtil.readInt(in);
-        this.reference = ExtUtil.readString(in);
+        this.reference = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        this.restore = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, recordId);
-        ExtUtil.writeString(out, reference);
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(reference));
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(restore));
     }
 
     @Override
