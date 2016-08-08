@@ -79,9 +79,9 @@ public class CommCareConfigEngine {
 
         setRoots();
 
-        table = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility(Resource.class, mLiveFactory));
-        updateTable = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility(Resource.class, mLiveFactory));
-        recoveryTable = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility(Resource.class, mLiveFactory));
+        table = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility<>(Resource.class, mLiveFactory));
+        updateTable = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility<>(Resource.class, mLiveFactory));
+        recoveryTable = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility<>(Resource.class, mLiveFactory));
 
 
         //All of the below is on account of the fact that the installers
