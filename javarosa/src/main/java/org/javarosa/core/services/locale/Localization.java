@@ -60,6 +60,11 @@ public class Localization {
         globalLocalizer.setLocale(locale);
     }
 
+    public static String getCurrentLocale() {
+        checkRep();
+        return globalLocalizer.getLocale();
+    }
+
     public static void setDefaultLocale(String defaultLocale) {
         checkRep();
         globalLocalizer.setDefaultLocale(defaultLocale);
