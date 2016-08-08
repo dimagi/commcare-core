@@ -218,16 +218,11 @@ public class CommCareConfigEngine {
             Localization.setDefaultLocale("default");
 
             print.println("Locales defined: ");
-            String newLocale = null;
             for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
-                if (newLocale == null) {
-                    newLocale = locale;
-                }
                 System.out.println("* " + locale);
             }
 
-            print.println("Setting locale to: " + newLocale);
-            Localization.setLocale(newLocale);
+            Localization.setLocale("default");
         } catch (ResourceInitializationException e) {
             print.println("Error while initializing one of the resolved resources");
             e.printStackTrace(print);
