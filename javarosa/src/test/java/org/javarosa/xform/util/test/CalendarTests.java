@@ -61,7 +61,7 @@ public class CalendarTests {
         mexicoCal.set(2007, Calendar.JULY, 7, 18, 46);
 
         UniversalDate mexicanDate = CalendarUtils.fromMillis(mexicoCal.getTimeInMillis(), mexicanTimeZone);
-        long time = CalendarUtils.toMillisFromJavaEpoch(mexicanDate.year, mexicanDate.month, mexicanDate.day, 0);
+        long time = CalendarUtils.toMillisFromJavaEpoch(mexicanDate.year, mexicanDate.month, mexicanDate.day, mexicanTimeZone);
         UniversalDate rebuiltDateInUsingDifferentTimezone = CalendarUtils.fromMillis(time, nepaliTimeZone);
         assertSameDate(rebuiltDateInUsingDifferentTimezone, mexicanDate);
     }
@@ -74,12 +74,11 @@ public class CalendarTests {
         dayInNewYork.set(2007, Calendar.JULY, 7);
         UniversalDate nycTime = CalendarUtils.fromMillis(dayInNewYork.getTimeInMillis(), nycTimeZone);
 
-        long millisOfDayOffset = dayInNewYork.getTimeInMillis() % UniversalDate.MILLIS_IN_DAY;
-        long time = CalendarUtils.toMillisFromJavaEpoch(nycTime.year, nycTime.month, nycTime.day, millisOfDayOffset);
+        long time = CalendarUtils.toMillisFromJavaEpoch(nycTime.year, nycTime.month, nycTime.day, nycTimeZone);
         UniversalDate unpackedNycTime = CalendarUtils.fromMillis(time, nycTimeZone);
         assertSameDate(nycTime, unpackedNycTime);
 
-        time = CalendarUtils.toMillisFromJavaEpoch(nycTime.year, nycTime.month, nycTime.day, 0);
+        time = CalendarUtils.toMillisFromJavaEpoch(nycTime.year, nycTime.month, nycTime.day, nycTimeZone);
         unpackedNycTime = CalendarUtils.fromMillis(time, nycTimeZone);
         assertSameDate(nycTime, unpackedNycTime);
     }

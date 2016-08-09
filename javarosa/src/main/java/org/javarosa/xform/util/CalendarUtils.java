@@ -250,7 +250,7 @@ public class CalendarUtils {
                 year,
                 month,
                 day,
-                toMillisFromJavaEpoch(year, month, day, date.millisFromJavaEpoch % UniversalDate.MILLIS_IN_DAY)
+                toMillisFromJavaEpoch(year, month, day)
         );
     }
 
@@ -272,7 +272,7 @@ public class CalendarUtils {
                 year,
                 month,
                 day,
-                toMillisFromJavaEpoch(year, month, day, date.millisFromJavaEpoch % UniversalDate.MILLIS_IN_DAY)
+                toMillisFromJavaEpoch(year, month, day)
         );
     }
 
@@ -337,7 +337,7 @@ public class CalendarUtils {
                 year,
                 month,
                 day,
-                toMillisFromJavaEpoch(year, month, day, date.millisFromJavaEpoch % UniversalDate.MILLIS_IN_DAY)
+                toMillisFromJavaEpoch(year, month, day)
         );
     }
 
@@ -359,14 +359,19 @@ public class CalendarUtils {
                 year,
                 month,
                 day,
-                toMillisFromJavaEpoch(year, month, day, date.millisFromJavaEpoch % UniversalDate.MILLIS_IN_DAY)
+                toMillisFromJavaEpoch(year, month, day)
         );
     }
 
-    public static long toMillisFromJavaEpoch(int year, int month, int day, long millisOffset) {
+    public static long toMillisFromJavaEpoch(int year, int month, int day) {
+        return toMillisFromJavaEpoch(year, month, day, TimeZone.getDefault());
+    }
+
+    public static long toMillisFromJavaEpoch(int year, int month, int day, TimeZone currentTimeZone) {
         int daysFromMinDay = countDaysFromMinDay(year, month, day);
         long millisFromMinDay = daysFromMinDay * UniversalDate.MILLIS_IN_DAY;
-        return millisFromMinDay + MIN_MILLIS_FROM_JAVA_EPOCH + millisOffset;
+        int timezoneOffsetFromGMT = currentTimeZone.getOffset(millisFromMinDay);
+        return millisFromMinDay + MIN_MILLIS_FROM_JAVA_EPOCH - timezoneOffsetFromGMT;
     }
 
     public static String[] getMonthsArray(String key){
