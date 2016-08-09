@@ -350,7 +350,8 @@ public class CommCareSession {
         // Keep popping things off until the value of needed data indicates that we are back to
         // somewhere where we are waiting for user-provided input
         while (this.getNeededData(evalContext) == null ||
-                this.getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED)) {
+                this.getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED) ||
+                popped.getType().equals(SessionFrame.STATE_DATUM_COMPUTED)) {
             popSessionFrameStack();
         }
     }
