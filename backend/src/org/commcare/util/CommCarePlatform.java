@@ -172,8 +172,8 @@ public class CommCarePlatform implements CommCareInstance {
         return commonDisplayStyle;
     }
 
-    public InputStream getDemoUserRestoreStream() {
-        return userRestore.getRestoreStream();
+    public UserRestore getDemoUserRestore() {
+        return userRestore;
     }
 
     @Override

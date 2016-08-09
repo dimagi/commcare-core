@@ -27,12 +27,16 @@ public class UserRestore implements Persistable {
     private int recordId = -1;
     private String restore;
     private String reference;
+    private String username;
+    private String password;
 
     public UserRestore() {
     }
 
-    public UserRestore(String reference) {
+    public UserRestore(String reference, String username, String password) {
         this.reference = reference;
+        this.username = username;
+        this.password = password;
     }
 
     public static UserRestore buildInMemoryUserRestore(InputStream restoreStream) throws IOException {
@@ -48,8 +52,8 @@ public class UserRestore implements Persistable {
         } else {
             return getStreamFromReference();
         }
-
     }
+
     private InputStream getStreamFromReference() {
         try {
             Reference local = ReferenceManager._().DeriveReference(reference);
@@ -65,6 +69,18 @@ public class UserRestore implements Persistable {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String getReference() {
+        return reference;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     @Override

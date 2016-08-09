@@ -440,7 +440,7 @@ public class ApplicationHost {
 
     private void restoreDemoUserToSandbox(UserSandbox sandbox) {
         try {
-            ParseUtils.parseIntoSandbox(mPlatform.getDemoUserRestoreStream(), sandbox, false);
+            ParseUtils.parseIntoSandbox(mPlatform.getDemoUserRestore().getRestoreStream(), sandbox, false);
         } catch (Exception e) {
             System.out.println("Error parsing demo user restore from app");
             e.printStackTrace();
