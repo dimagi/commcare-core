@@ -59,8 +59,11 @@ public class Detail implements Externalizable {
     OrderedHashtable<String, String> variables;
     OrderedHashtable<String, XPathExpression> variablesCompiled;
 
-    //This will probably be a list sooner rather than later?
+    // This will probably be a list sooner rather than later?
     Vector<Action> actions;
+
+    // Only used if this detail is a case tile that is being shown in a grid layout
+    private int numEntitiesToDisplayPerRow;
 
     /**
      * Serialization Only
@@ -70,31 +73,12 @@ public class Detail implements Externalizable {
     }
 
     public Detail(String id, DisplayUnit title, String nodeset,
-                  Vector<Detail> details,
-                  Vector<DetailField> fields,
+                  Vector<Detail> detailsVector,
+                  Vector<DetailField> fieldsVector,
                   OrderedHashtable<String, String> variables,
-                  Vector<Action> actions, Callout callout) {
-        this(id, title, nodeset, details, fields, variables, actions);
+                  Vector<Action> actions, Callout callout, String fitAcross) {
 
-        this.callout = callout;
-    }
-
-    public Detail(String id, DisplayUnit title, String nodeset,
-                  Vector<Detail> details,
-                  Vector<DetailField> fields,
-                  OrderedHashtable<String, String> variables, Vector<Action> actions) {
-        this(id, title, nodeset,
-                ArrayUtilities.copyIntoArray(details, new Detail[details.size()]),
-                ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]),
-                variables, actions);
-    }
-
-    public Detail(String id, DisplayUnit title, String nodeset,
-                  Detail[] details,
-                  DetailField[] fields,
-                  OrderedHashtable<String, String> variables,
-                  Vector<Action> actions) {
-        if (details.length > 0 && fields.length > 0) {
+        if (detailsVector.size() > 0 && fieldsVector.size() > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
         }
 
@@ -103,10 +87,20 @@ public class Detail implements Externalizable {
         if (nodeset != null) {
             this.nodeset = XPathReference.getPathExpr(nodeset).getReference();
         }
-        this.details = details;
-        this.fields = fields;
+        this.details = ArrayUtilities.copyIntoArray(detailsVector, new Detail[detailsVector.size()]);
+        this.fields = ArrayUtilities.copyIntoArray(fieldsVector, new DetailField[fieldsVector.size()]);
         this.variables = variables;
         this.actions = actions;
+        if (fitAcross != null) {
+            try {
+                this.numEntitiesToDisplayPerRow = Integer.parseInt(fitAcross);
+            } catch (NumberFormatException e) {
+                numEntitiesToDisplayPerRow = 1;
+            }
+        } else {
+            numEntitiesToDisplayPerRow = 1;
+        }
+        this.callout = callout;
     }
 
     /**
@@ -327,6 +321,14 @@ public class Detail implements Externalizable {
             }
         }
         return usingEntityTile;
+    }
+
+    public boolean shouldBeLaidOutInGrid() {
+        return numEntitiesToDisplayPerRow > 1 && usesEntityTileView();
+    }
+
+    public int getNumEntitiesToDisplayPerRow() {
+        return numEntitiesToDisplayPerRow;
     }
 
     public GridCoordinate[] getGridCoordinates() {
