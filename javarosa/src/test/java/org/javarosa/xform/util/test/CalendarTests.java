@@ -78,8 +78,9 @@ public class CalendarTests {
         UniversalDate unpackedNycTime = CalendarUtils.fromMillis(time, nycTimeZone);
         assertSameDate(nycTime, unpackedNycTime);
 
-        time = CalendarUtils.toMillisFromJavaEpoch(nycTime.year, nycTime.month, nycTime.day, nycTimeZone);
-        unpackedNycTime = CalendarUtils.fromMillis(time, nycTimeZone);
-        assertSameDate(nycTime, unpackedNycTime);
+        TimeZone nepaliTimeZone = TimeZone.getTimeZone("GMT+05:45");
+        time = CalendarUtils.toMillisFromJavaEpoch(nycTime.year, nycTime.month, nycTime.day, nepaliTimeZone);
+        UniversalDate unpackedNepaliTime = CalendarUtils.fromMillis(time, nepaliTimeZone);
+        assertSameDate(nycTime, unpackedNepaliTime);
     }
 }
