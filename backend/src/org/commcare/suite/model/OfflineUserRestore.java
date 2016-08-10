@@ -22,28 +22,28 @@ import java.io.UnsupportedEncodingException;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class UserRestore implements Persistable {
-    public static final String STORAGE_KEY = "UserRestore";
+public class OfflineUserRestore implements Persistable {
+    public static final String STORAGE_KEY = "OfflineUserRestore";
     private int recordId = -1;
     private String restore;
     private String reference;
     private String username;
     private String password;
 
-    public UserRestore() {
+    public OfflineUserRestore() {
     }
 
-    public UserRestore(String reference, String username, String password) {
+    public OfflineUserRestore(String reference, String username, String password) {
         this.reference = reference;
         this.username = username;
         this.password = password;
     }
 
-    public static UserRestore buildInMemoryUserRestore(InputStream restoreStream) throws IOException {
-        UserRestore userRestore = new UserRestore();
-        userRestore.restore = new String(StreamsUtil.inputStreamToByteArray(restoreStream));
+    public static OfflineUserRestore buildInMemoryUserRestore(InputStream restoreStream) throws IOException {
+        OfflineUserRestore offlineUserRestore = new OfflineUserRestore();
+        offlineUserRestore.restore = new String(StreamsUtil.inputStreamToByteArray(restoreStream));
 
-        return userRestore;
+        return offlineUserRestore;
     }
 
     public InputStream getRestoreStream() {

@@ -16,10 +16,10 @@ import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
-import org.commcare.suite.model.UserRestore;
 import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
@@ -99,7 +99,7 @@ public class CommCareConfigEngine {
         StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
         StorageManager.registerStorage(FormDef.STORAGE_KEY,FormDef.class);
         StorageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
-        StorageManager.registerStorage(UserRestore.STORAGE_KEY, UserRestore.class);
+        StorageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
     }
 
     private void setRoots() {

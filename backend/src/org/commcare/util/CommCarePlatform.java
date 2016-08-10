@@ -6,14 +6,13 @@ import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
-import org.commcare.suite.model.UserRestore;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageManager;
 
-import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -34,7 +33,7 @@ public class CommCarePlatform implements CommCareInstance {
     // TODO: We should make this unique using the parser to invalidate this ID or something
     public static final String APP_PROFILE_RESOURCE_ID = "commcare-application-profile";
     private int profile;
-    private UserRestore userRestore;
+    private OfflineUserRestore offlineUserRestore;
 
     private final int majorVersion;
     private final int minorVersion;
@@ -172,12 +171,12 @@ public class CommCarePlatform implements CommCareInstance {
         return commonDisplayStyle;
     }
 
-    public UserRestore getDemoUserRestore() {
-        return userRestore;
+    public OfflineUserRestore getDemoUserRestore() {
+        return offlineUserRestore;
     }
 
     @Override
-    public void registerDemoUserRestore(UserRestore userRestore) {
-        this.userRestore = userRestore;
+    public void registerDemoUserRestore(OfflineUserRestore offlineUserRestore) {
+        this.offlineUserRestore = offlineUserRestore;
     }
 }

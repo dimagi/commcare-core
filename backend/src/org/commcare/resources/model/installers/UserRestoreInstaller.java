@@ -5,7 +5,7 @@ import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.suite.model.UserRestore;
+import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.util.CommCareInstance;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -18,10 +18,10 @@ import java.io.IOException;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class UserRestoreInstaller extends CacheInstaller<UserRestore> {
+public class UserRestoreInstaller extends CacheInstaller<OfflineUserRestore> {
     @Override
     protected String getCacheKey() {
-        return UserRestore.STORAGE_KEY;
+        return OfflineUserRestore.STORAGE_KEY;
     }
 
     @Override
@@ -42,14 +42,14 @@ public class UserRestoreInstaller extends CacheInstaller<UserRestore> {
                            CommCareInstance instance, boolean upgrade)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
-            UserRestore userRestore = UserRestore.buildInMemoryUserRestore(ref.getStream());
-            storage().write(userRestore);
+            OfflineUserRestore offlineUserRestore = OfflineUserRestore.buildInMemoryUserRestore(ref.getStream());
+            storage().write(offlineUserRestore);
             if (upgrade) {
                 table.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
             } else {
                 table.commit(r, Resource.RESOURCE_STATUS_UPGRADE);
             }
-            cacheLocation = userRestore.getID();
+            cacheLocation = offlineUserRestore.getID();
         } catch (IOException e) {
             throw new UnresolvedResourceException(r, e.getMessage());
         }
