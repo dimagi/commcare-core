@@ -125,4 +125,9 @@ public class StackOperation implements Externalizable {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
         ExtUtil.write(out, new ExtWrapList(elements));
     }
+
+    @Override
+    public String toString(){
+        return "StackOperation id= " + id + ", elements: " + elements;
+    }
 }

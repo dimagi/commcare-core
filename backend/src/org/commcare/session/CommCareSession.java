@@ -583,6 +583,7 @@ public class CommCareSession {
                     //Otherwise, create our new frame (we'll only manipulate it
                     //and add it if it is triggered)
                     matchingFrame = new SessionFrame(frameId);
+                    System.out.println("STack op create: " + frameId);
 
                     //Ok, now fall through to the push case using that frame,
                     //as the push operations are ~identical
@@ -684,6 +685,7 @@ public class CommCareSession {
      */
     public boolean finishExecuteAndPop(EvaluationContext ec) {
         Vector<StackOperation> ops = getCurrentEntry().getPostEntrySessionOperations();
+        System.out.println("Popped ops: " + ops);
 
         //Let the session know that the current frame shouldn't work its way back onto the stack
         markCurrentFrameForDeath();

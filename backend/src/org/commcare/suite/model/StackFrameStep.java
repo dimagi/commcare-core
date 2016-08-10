@@ -154,6 +154,7 @@ public class StackFrameStep implements Externalizable {
         } else if (elementType.equals(SessionFrame.STATE_COMMAND_ID)) {
             return new StackFrameStep(SessionFrame.STATE_COMMAND_ID, finalValue, null);
         } else if (elementType.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
+            System.out.println("Create new computed with id: " + id + " value: " + finalValue);
             return new StackFrameStep(SessionFrame.STATE_DATUM_COMPUTED, id, finalValue);
         } else if (elementType.equals(SessionFrame.STATE_FORM_XMLNS)) {
             throw new RuntimeException("Form Definitions in Steps are not yet supported!");

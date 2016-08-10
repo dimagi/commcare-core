@@ -124,6 +124,7 @@ public class XPathNodeset {
     }
 
     protected XPathTypeMismatchException getInvalidNodesetException() {
+        System.out.println("Path evaluated " + pathEvaluated + " original: " + originalPath);
         if (!pathEvaluated.equals(originalPath)) {
             // use indexOf instead of contains due to not having 1.5
             if (!originalPath.contains("/data")) {
