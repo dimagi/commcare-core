@@ -202,6 +202,13 @@ public class CommCareSession {
         Vector<Entry> entries = getEntriesForCommand(currentCmd, collectedDatums);
         String needDatum = getDataNeededByAllEntries(entries);
 
+        if (needDatum == null &&
+                entries != null &&
+                entries.size() == 1 && entries.elementAt(0) instanceof SyncEntry) {
+            System.out.println("Getting needed data relevent: " +
+                    ((SyncEntry)entries.elementAt(0)).getSyncPost().isRelevant(evalContext));
+        }
+
         if (needDatum != null) {
             return needDatum;
         } else if (entries.isEmpty()) {
