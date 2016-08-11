@@ -550,22 +550,17 @@ public class CommCareSession {
             String frameId = op.getFrameId();
             SessionFrame matchingFrame = updateMatchingFrame(frameId);
 
-            boolean newFrame = false;
+            boolean isNewFrame = false;
 
             switch (op.getOp()) {
                 case StackOperation.OPERATION_CREATE:
-                    //First make sure we have no existing frames with this ID
+                    // ensure no frames exist with this ID
                     if (matchingFrame != null) {
-                        //If we do, just bail.
                         continue;
                     }
-                    //Otherwise, create our new frame (we'll only manipulate it
-                    //and add it if it is triggered)
-                    matchingFrame = new SessionFrame(frameId);
 
-                    //Ok, now fall through to the push case using that frame,
-                    //as the push operations are ~identical
-                    newFrame = true;
+                    matchingFrame = new SessionFrame(frameId);
+                    isNewFrame = true;
 
                     // NOTE: falling through to 'push' case on purpose
                 case StackOperation.OPERATION_PUSH:
@@ -580,7 +575,7 @@ public class CommCareSession {
                             matchingFrame.pushStep(step.defineStep(ec));
                         }
 
-                        currentFramePushed = pushNewFrame(matchingFrame, newFrame, currentFramePushed);
+                        currentFramePushed = pushNewFrame(matchingFrame, isNewFrame, currentFramePushed);
                     }
                     break;
                 case StackOperation.OPERATION_CLEAR:
