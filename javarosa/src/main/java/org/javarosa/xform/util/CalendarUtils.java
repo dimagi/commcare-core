@@ -250,7 +250,7 @@ public class CalendarUtils {
                 year,
                 month,
                 day,
-                toMillisFromJavaEpoch(year, month, day, date.millisFromJavaEpoch % UniversalDate.MILLIS_IN_DAY)
+                toMillisFromJavaEpoch(year, month, day)
         );
     }
 
@@ -272,16 +272,24 @@ public class CalendarUtils {
                 year,
                 month,
                 day,
-                toMillisFromJavaEpoch(year, month, day, date.millisFromJavaEpoch % UniversalDate.MILLIS_IN_DAY)
+                toMillisFromJavaEpoch(year, month, day)
         );
     }
 
+    /**
+     * @param millisFromJavaEpoch Argument must be normalized to UTC to prevent
+     *                            timezone issues when casting to a calendar date
+     */
     public static UniversalDate fromMillis(long millisFromJavaEpoch, TimeZone currentTimeZone) {
-        // Since epoch calculations are relative to GMT, take current timezone
+        // Since epoch calculations are relative to UTC, take current timezone
         // into account. This prevents two time values that lie on the same day
         // in the given timezone from falling on different GMT days.
-        int timezoneOffsetFromGMT = currentTimeZone.getOffset(millisFromJavaEpoch);
-        long millisFromMinDay = timezoneOffsetFromGMT + millisFromJavaEpoch - MIN_MILLIS_FROM_JAVA_EPOCH;
+        int timezoneOffsetFromUTC = currentTimeZone.getOffset(millisFromJavaEpoch);
+        // The 'millis since epoch' will be converted into a date in the
+        // context of the current timezone, so add that offset in, ensuring
+        // the date lies on the correct day
+        long millisWithTimezoneOffset = timezoneOffsetFromUTC + millisFromJavaEpoch;
+        long millisFromMinDay = millisWithTimezoneOffset - MIN_MILLIS_FROM_JAVA_EPOCH;
         long daysFromMinDay = millisFromMinDay / UniversalDate.MILLIS_IN_DAY;
 
         int days = -1;
@@ -337,7 +345,7 @@ public class CalendarUtils {
                 year,
                 month,
                 day,
-                toMillisFromJavaEpoch(year, month, day, date.millisFromJavaEpoch % UniversalDate.MILLIS_IN_DAY)
+                toMillisFromJavaEpoch(year, month, day)
         );
     }
 
@@ -359,14 +367,20 @@ public class CalendarUtils {
                 year,
                 month,
                 day,
-                toMillisFromJavaEpoch(year, month, day, date.millisFromJavaEpoch % UniversalDate.MILLIS_IN_DAY)
+                toMillisFromJavaEpoch(year, month, day)
         );
     }
 
-    public static long toMillisFromJavaEpoch(int year, int month, int day, long millisOffset) {
+    public static long toMillisFromJavaEpoch(int year, int month, int day) {
+        return toMillisFromJavaEpoch(year, month, day, TimeZone.getDefault());
+    }
+
+    public static long toMillisFromJavaEpoch(int year, int month, int day, TimeZone currentTimeZone) {
         int daysFromMinDay = countDaysFromMinDay(year, month, day);
         long millisFromMinDay = daysFromMinDay * UniversalDate.MILLIS_IN_DAY;
-        return millisFromMinDay + MIN_MILLIS_FROM_JAVA_EPOCH + millisOffset;
+        int timezoneOffsetFromUTC = currentTimeZone.getOffset(millisFromMinDay);
+        long millisNormalizedToUTC = millisFromMinDay - timezoneOffsetFromUTC;
+        return millisNormalizedToUTC + MIN_MILLIS_FROM_JAVA_EPOCH;
     }
 
     public static String[] getMonthsArray(String key){
