@@ -21,9 +21,7 @@ public class MenuParser extends CommCareElementParser<Menu> {
         super(parser);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.xml.ElementParser#parse()
-     */
+    @Override
     public Menu parse() throws InvalidStructureException, IOException, XmlPullParserException {
         checkNode("menu");
 
