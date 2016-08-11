@@ -35,6 +35,7 @@ public class SessionFrame implements Externalizable {
      * CommCare needs any piece of information coming from a datum val (other than a computed datum)
      */
     public static final String STATE_DATUM_VAL = "CASE_ID";
+    public static final String STATE_RETURN = "RETURN";
 
     /**
      * CommCare needs a computed xpath value to proceed

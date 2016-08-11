@@ -17,6 +17,7 @@
         <stack>
             <copy-create>
                 <command value="'m1'"/>
+                <next value="'billy'"/>
             </copy-create>
         </stack>
     </entry>
@@ -27,6 +28,7 @@
             <text>Module 0 Form 1</text>
         </command>
         <instance id="casedb" src="jr://instance/casedb"/>
+        <instance id="session" src="jr://instance/session"/>
         <session>
             <datum detail-confirm="m0_case_long"
                    detail-select="m0_case_short"

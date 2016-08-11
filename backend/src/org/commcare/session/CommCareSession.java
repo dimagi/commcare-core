@@ -65,6 +65,7 @@ public class CommCareSession {
      * The current session frame data
      */
     private SessionFrame frame;
+    private String nextDatumValue;
 
     /**
      * The stack of pending Frames
@@ -316,7 +317,12 @@ public class CommCareSession {
                                               Vector<SessionDatum> allDatumsNeeded) {
         for (SessionDatum datum : allDatumsNeeded) {
             if (!datumsCollectedSoFar.containsKey(datum.getDataId())) {
-                return datum;
+                if (nextDatumValue != null) {
+                    setDatum(datum.getDataId(), nextDatumValue);
+                    nextDatumValue = null;
+                } else {
+                    return datum;
+                }
             }
         }
         return null;
@@ -740,6 +746,7 @@ public class CommCareSession {
             return false;
         } else {
             frame = frameStack.pop();
+            nextDatumValue = getReturnFromFrame(frame);
             //Ok, so if _after_ popping from the stack, we still have
             //stack members, we need to be careful about making sure
             //that they won't get triggered if we abandon the current
@@ -751,6 +758,16 @@ public class CommCareSession {
             syncState();
             return true;
         }
+    }
+
+    private static String getReturnFromFrame(SessionFrame poppedFrame) {
+        if (!poppedFrame.getSteps().isEmpty()) {
+            StackFrameStep step = poppedFrame.getSteps().lastElement();
+            if (SessionFrame.STATE_RETURN.equals(step.getType())) {
+                return step.getId();
+            }
+        }
+        return null;
     }
 
     /**

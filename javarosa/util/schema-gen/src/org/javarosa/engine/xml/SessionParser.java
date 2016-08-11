@@ -10,9 +10,9 @@ import java.io.IOException;
 /**
  * @author ctsims
  */
-public class SessionParser extends ElementParser<Session> {
+class SessionParser extends ElementParser<Session> {
 
-    public SessionParser(KXmlParser parser) throws IOException {
+    SessionParser(KXmlParser parser) throws IOException {
         super(parser);
     }
 

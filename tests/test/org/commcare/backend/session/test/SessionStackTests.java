@@ -293,7 +293,12 @@ public class SessionStackTests {
 
         session.finishExecuteAndPop(session.getEvaluationContext());
 
-        Assert.assertEquals("child_case_1", session.getNeededDatum().getDataId());
+        Assert.assertEquals(null, session.getNeededData());
+
+        CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
+                "instance('session')/session/data/child_case_1", "billy");
+
+        // make sure commands weren't included when copying over session frames
         Assert.assertNotEquals("m0", session.getFrame().getSteps().get(0).getId());
     }
 }
