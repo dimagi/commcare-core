@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import org.commcare.suite.model.StackFrameStep;
@@ -17,38 +14,34 @@ import java.util.Vector;
 /**
  * @author ctsims
  */
-public class StackOpParser extends ElementParser<StackOperation> {
+class StackOpParser extends ElementParser<StackOperation> {
 
-    public StackOpParser(KXmlParser parser) {
+    StackOpParser(KXmlParser parser) {
         super(parser);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.xml.ElementParser#parse()
-     */
+    @Override
     public StackOperation parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String operation = parser.getName();
 
         String ifConditional = parser.getAttributeValue(null, "if");
-        //XPath check
 
         try {
-            if ("create".equals(operation)) {
-                String id = parser.getAttributeValue(null, "id");
-                Vector<StackFrameStep> children = getChildren(operation);
-                return StackOperation.CreateFrame(id, ifConditional, children);
-            } else if ("push".equals(operation)) {
-                Vector<StackFrameStep> children = getChildren(operation);
-                return StackOperation.PushData(ifConditional, children);
-            } else if ("clear".equals(operation)) {
-                String id = parser.getAttributeValue(null, "frame");
-                if (this.nextTagInBlock("clear")) {
-                    //This means there are children of the clear, no good!
-                    throw new InvalidStructureException("The <clear> operation does not support children", this.parser);
-                }
-                return StackOperation.ClearFrame(id, ifConditional);
-            } else {
-                throw new InvalidStructureException("<" + operation + "> is not a valid stack operation!", this.parser);
+            switch (operation) {
+                case "create":
+                    String id = parser.getAttributeValue(null, "id");
+                    return StackOperation.CreateFrame(id, ifConditional, getChildren(operation));
+                case "push":
+                    return StackOperation.PushData(ifConditional, getChildren(operation));
+                case "clear":
+                    String clearId = parser.getAttributeValue(null, "frame");
+                    if (nextTagInBlock("clear")) {
+                        //This means there are children of the clear, no good!
+                        throw new InvalidStructureException("The <clear> operation does not support children", this.parser);
+                    }
+                    return StackOperation.ClearFrame(clearId, ifConditional);
+                default:
+                    throw new InvalidStructureException("<" + operation + "> is not a valid stack operation!", this.parser);
             }
         } catch (XPathSyntaxException e) {
             throw new InvalidStructureException("Invalid condition expression for " + operation + " operation: " + ifConditional + ".\n" + e.getMessage(), parser);
