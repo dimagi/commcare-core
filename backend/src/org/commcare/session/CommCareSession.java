@@ -1,6 +1,5 @@
 package org.commcare.session;
 
-import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
@@ -551,6 +550,18 @@ public class CommCareSession {
             SessionFrame matchingFrame = updateMatchingFrame(frameId);
 
             switch (op.getOp()) {
+                case StackOperation.OPERATION_COPY_CREATE:
+                    // Ensure no frames exist with this ID
+                    if (matchingFrame == null) {
+                        SessionFrame newFrame = new SessionFrame(frameId);
+                        copyDatumsOver(frame, newFrame);
+                        Boolean currentFramePushedOrNull =
+                                performPush(op, newFrame, true, currentFramePushed, onDeck, ec);
+                        if (currentFramePushedOrNull != null) {
+                            currentFramePushed = currentFramePushedOrNull;
+                        }
+                    }
+                    break;
                 case StackOperation.OPERATION_CREATE:
                     // Ensure no frames exist with this ID
                     if (matchingFrame == null) {
@@ -569,6 +580,16 @@ public class CommCareSession {
         }
 
         return popOrSync(onDeck);
+    }
+
+    private void copyDatumsOver(SessionFrame sourceFrame, SessionFrame targetFrame) {
+        for (StackFrameStep step : sourceFrame.getSteps()) {
+            String stepType = step.getType();
+            if (SessionFrame.STATE_DATUM_VAL.equals(stepType)
+                    || SessionFrame.STATE_DATUM_COMPUTED.equals(stepType)) {
+                targetFrame.pushStep(new StackFrameStep(step));
+            }
+        }
     }
 
     private boolean performPush(StackOperation op, SessionFrame matchingFrame,
@@ -672,11 +693,11 @@ public class CommCareSession {
      * only be relevant to the existing frames)
      */
     private void cleanStack() {
-        //See whether the current frame was incompatible with its start
-        //state.
+        // See whether the current frame was incompatible with its start
+        // state.
         if (frame.isSnapshotIncompatible()) {
-            //If it is, our frames can no longer make sense.
-            this.frameStack.removeAllElements();
+            // If it is, our frames can no longer make sense.
+            frameStack.removeAllElements();
             frame.clearSnapshot();
         }
     }

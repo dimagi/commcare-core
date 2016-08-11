@@ -27,6 +27,7 @@ public class StackOperation implements Externalizable {
     public static final int OPERATION_CREATE = 0;
     public static final int OPERATION_PUSH = 1;
     public static final int OPERATION_CLEAR = 2;
+    public static final int OPERATION_COPY_CREATE = 3;
 
     private int opType;
     private String ifCondition;
@@ -43,6 +44,11 @@ public class StackOperation implements Externalizable {
     public static StackOperation buildCreateFrame(String frameId, String ifCondition,
                                                   Vector<StackFrameStep> elements) throws XPathSyntaxException {
         return new StackOperation(OPERATION_CREATE, frameId, ifCondition, elements);
+    }
+
+    public static StackOperation buildCopyCreateFrame(String frameId, String ifCondition,
+                                                  Vector<StackFrameStep> elements) throws XPathSyntaxException {
+        return new StackOperation(OPERATION_COPY_CREATE, frameId, ifCondition, elements);
     }
 
     public static StackOperation buildPushFrame(String ifCondition,

@@ -275,4 +275,25 @@ public class SessionStackTests {
             // expected
         }
     }
+
+    /**
+     * Test copying stack frame on create
+     */
+    @Test
+    public void testStackFrameCopy() throws Exception {
+        mApp = new MockApp("/stack-frame-copy-app/");
+        SessionWrapper session = mApp.getSession();
+
+        session.setCommand("m0");
+        Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
+
+        Assert.assertEquals("mother_case_1", session.getNeededDatum().getDataId());
+
+        session.setDatum("mother_case_1", "nancy");
+
+        session.finishExecuteAndPop(session.getEvaluationContext());
+
+        Assert.assertEquals("child_case_1", session.getNeededDatum().getDataId());
+        Assert.assertNotEquals("m0", session.getFrame().getSteps().get(0).getId());
+    }
 }
