@@ -569,24 +569,19 @@ public class CommCareSession {
 
                     // NOTE: falling through to 'push' case on purpose
                 case StackOperation.OPERATION_PUSH:
-                    //Ok, first, see if we need to execute this op
-                    if (!op.isOperationTriggered(ec)) {
-                        //Otherwise, we're done.
-                        continue;
-                    }
+                    if (op.isOperationTriggered(ec)) {
+                        //If we don't have a frame yet, this push is targeting the
+                        //frame on deck
+                        if (matchingFrame == null) {
+                            matchingFrame = onDeck;
+                        }
 
-                    //If we don't have a frame yet, this push is targeting the
-                    //frame on deck
-                    if (matchingFrame == null) {
-                        matchingFrame = onDeck;
-                    }
+                        for (StackFrameStep step : op.getStackFrameSteps()) {
+                            matchingFrame.pushStep(step.defineStep(ec));
+                        }
 
-                    //Now, execute the steps in this operation
-                    for (StackFrameStep step : op.getStackFrameSteps()) {
-                        matchingFrame.pushStep(step.defineStep(ec));
+                        currentFramePushed = pushNewFrame(matchingFrame, newFrame, currentFramePushed);
                     }
-
-                    currentFramePushed = pushNewFrame(matchingFrame, newFrame, currentFramePushed);
                     break;
                 case StackOperation.OPERATION_CLEAR:
                     performClearOperation(matchingFrame, op, ec);
