@@ -36,6 +36,7 @@ public class QueryScreen extends Screen {
     SessionWrapper sessionWrapper;
     String[] fields;
     String mTitle;
+    String currentMessage;
 
     @Override
     public void init(SessionWrapper sessionWrapper) throws CommCareSessionException {
@@ -54,16 +55,19 @@ public class QueryScreen extends Screen {
 
     }
 
-    public void processSuccess(InputStream responseData) {
+    public boolean processSuccess(InputStream responseData) {
         Pair<ExternalDataInstance, String> instanceOrError =
                 buildExternalDataInstance(responseData,
                         remoteQuerySessionManager.getStorageInstanceName());
         if (instanceOrError.first == null) {
-            throw new RuntimeException("Query response format error: " + instanceOrError.second);
+            currentMessage = "Query response format error: " + instanceOrError.second;
+            return false;
         } else if (isResponseEmpty(instanceOrError.first)) {
-            throw new RuntimeException("Query response was empty");
+            currentMessage = "Query response was empty";
+            return false;
         } else {
             sessionWrapper.setQueryDatum(instanceOrError.first);
+            return true;
         }
     }
 
@@ -122,5 +126,9 @@ public class QueryScreen extends Screen {
 
     public Hashtable<String, DisplayUnit> getUserInputDisplays(){
         return userInputDisplays;
+    }
+
+    public String getCurrentMessage(){
+        return currentMessage;
     }
 }
