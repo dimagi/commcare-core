@@ -1,5 +1,6 @@
 package org.commcare.session;
 
+import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
@@ -550,32 +551,22 @@ public class CommCareSession {
             String frameId = op.getFrameId();
             SessionFrame matchingFrame = updateMatchingFrame(frameId);
 
-            boolean isNewFrame = false;
-
             switch (op.getOp()) {
                 case StackOperation.OPERATION_CREATE:
                     // ensure no frames exist with this ID
-                    if (matchingFrame != null) {
-                        continue;
+                    if (matchingFrame == null) {
+                        Boolean currentFramePushedOrNull =
+                                performPush(op, new SessionFrame(frameId), true, currentFramePushed, onDeck, ec);
+                        if (currentFramePushedOrNull != null) {
+                            currentFramePushed = currentFramePushedOrNull;
+                        }
                     }
-
-                    matchingFrame = new SessionFrame(frameId);
-                    isNewFrame = true;
-
-                    // NOTE: falling through to 'push' case on purpose
+                    break;
                 case StackOperation.OPERATION_PUSH:
-                    if (op.isOperationTriggered(ec)) {
-                        //If we don't have a frame yet, this push is targeting the
-                        //frame on deck
-                        if (matchingFrame == null) {
-                            matchingFrame = onDeck;
-                        }
-
-                        for (StackFrameStep step : op.getStackFrameSteps()) {
-                            matchingFrame.pushStep(step.defineStep(ec));
-                        }
-
-                        currentFramePushed = pushNewFrame(matchingFrame, isNewFrame, currentFramePushed);
+                    Boolean currentFramePushedOrNull =
+                            performPush(op, matchingFrame, false, currentFramePushed, onDeck, ec);
+                    if (currentFramePushedOrNull != null) {
+                        currentFramePushed = currentFramePushedOrNull;
                     }
                     break;
                 case StackOperation.OPERATION_CLEAR:
@@ -601,6 +592,25 @@ public class CommCareSession {
 
         syncState();
         return false;
+    }
+
+    private Boolean performPush(StackOperation op, SessionFrame matchingFrame,
+                                boolean isNewFrame, boolean currentFramePushed,
+                                SessionFrame onDeck, EvaluationContext ec) {
+        if (op.isOperationTriggered(ec)) {
+            //If we don't have a frame yet, this push is targeting the
+            //frame on deck
+            if (matchingFrame == null) {
+                matchingFrame = onDeck;
+            }
+
+            for (StackFrameStep step : op.getStackFrameSteps()) {
+                matchingFrame.pushStep(step.defineStep(ec));
+            }
+
+            return pushNewFrame(matchingFrame, isNewFrame, currentFramePushed);
+        }
+        return null;
     }
 
     private SessionFrame updateMatchingFrame(String frameId) {
