@@ -25,7 +25,7 @@ public class LivePrototypeFactory extends PrototypeFactory {
         this(new ClassNameHasher());
     }
 
-    public LivePrototypeFactory(Hasher hasher) {
+    private LivePrototypeFactory(Hasher hasher) {
         this.mLiveHasher = new LiveHasher(this, hasher);
         PrototypeFactory.setStaticHasher(this.mLiveHasher);
     }
@@ -51,14 +51,14 @@ public class LivePrototypeFactory extends PrototypeFactory {
         return PrototypeFactory.getInstance(getClass(hash));
     }
 
-    public LiveHasher getLiveHasher(){
+    private LiveHasher getLiveHasher(){
         return this.mLiveHasher;
     }
 
-    public class LiveHasher extends Hasher{
+    private class LiveHasher extends Hasher{
         final LivePrototypeFactory pf;
         final Hasher mHasher;
-        public LiveHasher(LivePrototypeFactory pf, Hasher mHasher){
+        LiveHasher(LivePrototypeFactory pf, Hasher mHasher){
             this.pf = pf;
             this.mHasher = mHasher;
         }
@@ -75,7 +75,7 @@ public class LivePrototypeFactory extends PrototypeFactory {
             return ret;
         }
 
-        public Hasher getHasher(){
+        Hasher getHasher(){
             return mHasher;
         }
     }

@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.util.externalizable;
 
 import java.io.DataInputStream;
@@ -25,7 +9,7 @@ public class ExtWrapIntEncodingUniform extends ExtWrapIntEncoding {
     /* serialization */
 
     public ExtWrapIntEncodingUniform(long l) {
-        val = new Long(l);
+        val = l;
     }
 
     /* deserialization */
@@ -34,10 +18,12 @@ public class ExtWrapIntEncodingUniform extends ExtWrapIntEncoding {
 
     }
 
+    @Override
     public ExternalizableWrapper clone(Object val) {
         return new ExtWrapIntEncodingUniform(ExtUtil.toLong(val));
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException {
         long l = 0;
         byte b;
@@ -54,7 +40,7 @@ public class ExtWrapIntEncodingUniform extends ExtWrapIntEncoding {
             l = (l << 7) | (b & 0x7f);
         } while (((b >> 7) & 0x01) == 1);
 
-        val = new Long(l);
+        val = l;
     }
 
     /**
@@ -63,8 +49,9 @@ public class ExtWrapIntEncodingUniform extends ExtWrapIntEncoding {
      * chunk is serialized as a single byte, where the most-significant bit is set to 1 to indicate
      * there are more bytes to follow, or 0 to indicate the last byte
      */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        long l = ((Long)val).longValue();
+        long l = ((Long)val);
 
         int sig = -1;
         long k;
@@ -80,10 +67,12 @@ public class ExtWrapIntEncodingUniform extends ExtWrapIntEncoding {
         }
     }
 
+    @Override
     public void metaReadExternal(DataInputStream in, PrototypeFactory pf) {
         //do nothing
     }
 
+    @Override
     public void metaWriteExternal(DataOutputStream out) {
         //do nothing
     }

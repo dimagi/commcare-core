@@ -146,11 +146,11 @@ public class PrototypeFactory {
         }
     }
 
-    public static byte[] getClassHash(Class type) {
+    static byte[] getClassHash(Class type) {
         return mStaticHasher.getClassHashValue(type);
     }
 
-    public static boolean compareHash(byte[] a, byte[] b) {
+    static boolean compareHash(byte[] a, byte[] b) {
         if (a.length != b.length) {
             return false;
         }
@@ -168,7 +168,7 @@ public class PrototypeFactory {
         mStaticHasher = staticHasher;
     }
 
-    public static int getClassHashSize(){
+    static int getClassHashSize(){
         return mStaticHasher.getHashSize();
     }
 
@@ -177,7 +177,7 @@ public class PrototypeFactory {
         hashes.addElement(hash);
     }
 
-    public static byte[] getWrapperTag(){
+    static byte[] getWrapperTag(){
         byte[] bytes = new byte[getClassHashSize()];
         for(int i=0; i< bytes.length; i++){
             bytes[i] = (byte)0xff;
