@@ -1,14 +1,13 @@
 package org.commcare.util.cli;
 
-import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.DisplayUnit;
+import org.commcare.suite.model.MenuDisplayable;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.TreeElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -16,18 +15,20 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
-import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
 import java.util.Hashtable;
 import java.util.Map;
 
 /**
- * Screen to allow users to choose items from session menus.
+ * Screen that displays user configurable entry texts and makes
+ * a case query to the server with these fields.
  *
- * @author ctsims
+ * @author wspride
  */
 public class QueryScreen extends Screen {
 
@@ -54,6 +55,11 @@ public class QueryScreen extends Screen {
         mTitle = "Case Claim";
 
     }
+    public InputStream makeQueryRequestReturnStream() {
+        // TODO Implement this
+        return null;
+    }
+
 
     public boolean processSuccess(InputStream responseData) {
         Pair<ExternalDataInstance, String> instanceOrError =
@@ -111,7 +117,9 @@ public class QueryScreen extends Screen {
 
     @Override
     public void prompt(PrintStream out) {
-
+        for (int i=0; i< fields.length; i++) {
+            out.println(i + ") " + fields[i]);
+        }
     }
 
     @Override
@@ -121,7 +129,16 @@ public class QueryScreen extends Screen {
 
     @Override
     public boolean handleInputAndUpdateSession(CommCareSession session, String input) {
-        return true;
+        String[] answers = input.split(",");
+        Hashtable<String, String> userAnswers = new Hashtable<>();
+        int count = 0;
+        for (Map.Entry<String, DisplayUnit> displayEntry : userInputDisplays.entrySet()) {
+            userAnswers.put(displayEntry.getKey(), answers[count]);
+            count ++;
+        }
+        answerPrompts(userAnswers);
+        InputStream response = makeQueryRequestReturnStream();
+        return processSuccess(response);
     }
 
     public Hashtable<String, DisplayUnit> getUserInputDisplays(){
