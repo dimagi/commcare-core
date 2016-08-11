@@ -536,24 +536,23 @@ public class CommCareSession {
      * will happen against the newly pushed frame)
      */
     public boolean executeStackOperations(Vector<StackOperation> ops, EvaluationContext ec) {
-        //the on deck frame is the frame that is the target of operations that execute
-        //as part of this stack update. If at the end of the stack ops the frame on deck
-        //doesn't match the current (living) frame, it will become the the current frame
+        // The on deck frame is the frame that is the target of operations that execute
+        // as part of this stack update. If at the end of the stack ops the frame on deck
+        // doesn't match the current (living) frame, it will become the the current frame
         SessionFrame onDeck = frame;
 
-        //Whether the current frame is on the stack (we wanna treat it as a "phantom" bottom element
-        //at first, basically.
+        // Whether the current frame is on the stack (we wanna treat it as a "phantom" bottom element
+        // at first, basically.
         boolean currentFramePushed = false;
 
         for (StackOperation op : ops) {
-            //First, see if there is a frame with a matching ID for this op
-            //(relevant for a couple reasons, and possibly prevents a costly XPath lookup)
+            // Is there a frame with a matching ID for this op?
             String frameId = op.getFrameId();
             SessionFrame matchingFrame = updateMatchingFrame(frameId);
 
             switch (op.getOp()) {
                 case StackOperation.OPERATION_CREATE:
-                    // ensure no frames exist with this ID
+                    // Ensure no frames exist with this ID
                     if (matchingFrame == null) {
                         Boolean currentFramePushedOrNull =
                                 performPush(op, new SessionFrame(frameId), true, currentFramePushed, onDeck, ec);
@@ -584,8 +583,8 @@ public class CommCareSession {
                                 boolean isNewFrame, boolean currentFramePushed,
                                 SessionFrame onDeck, EvaluationContext ec) {
         if (op.isOperationTriggered(ec)) {
-            //If we don't have a frame yet, this push is targeting the
-            //frame on deck
+            // If we don't have a frame yet, this push is targeting the
+            // frame on deck
             if (matchingFrame == null) {
                 matchingFrame = onDeck;
             }
@@ -601,15 +600,15 @@ public class CommCareSession {
 
     private SessionFrame updateMatchingFrame(String frameId) {
         if (frameId != null) {
-            //TODO: This is correct, right? We want to treat the current frame
-            //as part of the "environment" and not let people create a new frame
-            //with the same id? Possibly this should only be true if the current
-            //frame is live?
+            // TODO: This is correct, right? We want to treat the current frame
+            // as part of the "environment" and not let people create a new frame
+            // with the same id? Possibly this should only be true if the current
+            // frame is live?
             if (frameId.equals(frame.getFrameId())) {
                 return frame;
             } else {
-                //Otherwise, peruse the stack looking for another
-                //frame with a matching ID.
+                // Otherwise, peruse the stack looking for another
+                // frame with a matching ID.
                 for (Enumeration e = frameStack.elements(); e.hasMoreElements(); ) {
                     SessionFrame stackFrame = (SessionFrame)e.nextElement();
                     if (frameId.equals(stackFrame.getFrameId())) {
@@ -622,22 +621,22 @@ public class CommCareSession {
     }
 
     private boolean pushNewFrame(SessionFrame matchingFrame, boolean newFrame, boolean currentFramePushed) {
-        //ok, frame should be appropriately modified now.
-        //we also need to push this frame if it's new
+        // ok, frame should be appropriately modified now.
+        // we also need to push this frame if it's new
         if (newFrame) {
-            //Before we can push a frame onto the stack, we need to
-            //make sure the stack is clean. This means that if the
-            //current frame has a snapshot, we've gotta make sure
-            //the existing frames are still valid.
+            // Before we can push a frame onto the stack, we need to
+            // make sure the stack is clean. This means that if the
+            // current frame has a snapshot, we've gotta make sure
+            // the existing frames are still valid.
 
-            //TODO: We might want to handle this differently in the future,
-            //so that we can account for the invalidated frames in the ui
-            //somehow.
+            // TODO: We might want to handle this differently in the future,
+            // so that we can account for the invalidated frames in the ui
+            // somehow.
             cleanStack();
 
-            //OK, now we want to take the current frame and put it up on the frame stack unless
-            //this frame is dead (IE: We're closing it out). then we'll push the new frame
-            //on top of it.
+            // OK, now we want to take the current frame and put it up on the frame stack unless
+            // this frame is dead (IE: We're closing it out). then we'll push the new frame
+            // on top of it.
             if (!frame.isDead() && !currentFramePushed) {
                 frameStack.push(frame);
                 return true;
@@ -660,12 +659,12 @@ public class CommCareSession {
 
     private boolean popOrSync(SessionFrame onDeck) {
         if (!frame.isDead() && frame != onDeck) {
-            //If the current frame isn't dead, and isn't on deck, that means we've pushed
-            //in new frames and need to load up the correct one
+            // If the current frame isn't dead, and isn't on deck, that means we've pushed
+            // in new frames and need to load up the correct one
 
             if (!finishAndPop()) {
-                //Somehow we didn't end up with any frames after that? that's incredibly weird, I guess
-                //we should just start over.
+                // Somehow we didn't end up with any frames after that? that's incredibly weird, I guess
+                // we should just start over.
                 clearAllState();
             }
             return true;
