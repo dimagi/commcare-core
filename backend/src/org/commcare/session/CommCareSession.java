@@ -548,28 +548,10 @@ public class CommCareSession {
             //First, see if there is a frame with a matching ID for this op
             //(relevant for a couple reasons, and possibly prevents a costly XPath lookup)
             String frameId = op.getFrameId();
-            SessionFrame matchingFrame = null;
-            if (frameId != null) {
-                //TODO: This is correct, right? We want to treat the current frame
-                //as part of the "environment" and not let people create a new frame
-                //with the same id? Possibly this should only be true if the current
-                //frame is live?
-                if (frameId.equals(frame.getFrameId())) {
-                    matchingFrame = frame;
-                } else {
-                    //Otherwise, peruse the stack looking for another
-                    //frame with a matching ID.
-                    for (Enumeration e = frameStack.elements(); e.hasMoreElements(); ) {
-                        SessionFrame stackFrame = (SessionFrame)e.nextElement();
-                        if (frameId.equals(stackFrame.getFrameId())) {
-                            matchingFrame = stackFrame;
-                            break;
-                        }
-                    }
-                }
-            }
+            SessionFrame matchingFrame = updateMatchingFrame(frameId);
 
             boolean newFrame = false;
+
             switch (op.getOp()) {
                 //Note: the Create step and Push step utilize the same code,
                 //and the create step does some setup first
@@ -641,20 +623,42 @@ public class CommCareSession {
         }
 
         //All stack ops executed. Now we need to see if we're on the right frame.
-        if (!this.frame.isDead() && frame != onDeck) {
+        if (!frame.isDead() && frame != onDeck) {
             //If the current frame isn't dead, and isn't on deck, that means we've pushed
             //in new frames and need to load up the correct one
 
             if (!finishAndPop()) {
                 //Somehow we didn't end up with any frames after that? that's incredibly weird, I guess
                 //we should just start over.
-                this.clearAllState();
+                clearAllState();
             }
             return true;
         }
-        //otherwise we still want to make sure we sync
-        this.syncState();
+
+        syncState();
         return false;
+    }
+
+    private SessionFrame updateMatchingFrame(String frameId) {
+        if (frameId != null) {
+            //TODO: This is correct, right? We want to treat the current frame
+            //as part of the "environment" and not let people create a new frame
+            //with the same id? Possibly this should only be true if the current
+            //frame is live?
+            if (frameId.equals(frame.getFrameId())) {
+                return frame;
+            } else {
+                //Otherwise, peruse the stack looking for another
+                //frame with a matching ID.
+                for (Enumeration e = frameStack.elements(); e.hasMoreElements(); ) {
+                    SessionFrame stackFrame = (SessionFrame)e.nextElement();
+                    if (frameId.equals(stackFrame.getFrameId())) {
+                        return stackFrame;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /**
