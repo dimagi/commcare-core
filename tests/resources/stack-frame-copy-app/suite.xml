@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite descriptor="Suite File" version="36">
+    <xform>
+        <resource descriptor="Placeholder" id="1662072614e4dc0c3808d095c5b1cc826be7c1ec"
+                  version="28">
+            <location authority="local">./placeholder_form.xml</location>
+        </resource>
+    </xform>
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="m0-f0">
+            <text>Register mother</text>
+        </command>
+        <session>
+            <datum id="mother_case_1" function="uuid()"/>
+        </session>
+        <stack>
+            <copy-create>
+                <command value="'m1'"/>
+            </copy-create>
+        </stack>
+    </entry>
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="m1-f0">
+            <text>Module 0 Form 1</text>
+        </command>
+        <instance id="casedb" src="jr://instance/casedb"/>
+        <session>
+            <datum detail-confirm="m0_case_long"
+                   detail-select="m0_case_short"
+                   id="mother_case_1" nodeset="instance('casedb')/casedb/case[@case_type='pregnancy'][@status='open']" value="./@case_id"/>
+            <datum detail-confirm="m0_case_long"
+                   detail-select="m0_case_short"
+                   id="child_case_1" nodeset="instance('casedb')/casedb/case[@case_type='child'][@status='open']" value="./@case_id"/>
+        </session>
+    </entry>
+
+    <menu id="m0">
+        <text>
+            <locale id="modules.m0"/>
+        </text>
+        <command id="m0-f0"/>
+    </menu>
+    <menu id="m1">
+        <text>
+            <locale id="modules.m1"/>
+        </text>
+        <command id="m1-f0"/>
+    </menu>
+</suite>
