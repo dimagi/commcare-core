@@ -553,8 +553,6 @@ public class CommCareSession {
             boolean newFrame = false;
 
             switch (op.getOp()) {
-                //Note: the Create step and Push step utilize the same code,
-                //and the create step does some setup first
                 case StackOperation.OPERATION_CREATE:
                     //First make sure we have no existing frames with this ID
                     if (matchingFrame != null) {
@@ -568,6 +566,8 @@ public class CommCareSession {
                     //Ok, now fall through to the push case using that frame,
                     //as the push operations are ~identical
                     newFrame = true;
+
+                    // NOTE: falling through to 'push' case on purpose
                 case StackOperation.OPERATION_PUSH:
                     //Ok, first, see if we need to execute this op
                     if (!op.isOperationTriggered(ec)) {
@@ -586,36 +586,10 @@ public class CommCareSession {
                         matchingFrame.pushStep(step.defineStep(ec));
                     }
 
-                    //ok, frame should be appropriately modified now.
-                    //we also need to push this frame if it's new
-                    if (newFrame) {
-                        //Before we can push a frame onto the stack, we need to
-                        //make sure the stack is clean. This means that if the
-                        //current frame has a snapshot, we've gotta make sure
-                        //the existing frames are still valid.
-
-                        //TODO: We might want to handle this differently in the future,
-                        //so that we can account for the invalidated frames in the ui
-                        //somehow.
-                        cleanStack();
-
-                        //OK, now we want to take the current frame and put it up on the frame stack unless
-                        //this frame is dead (IE: We're closing it out). then we'll push the new frame
-                        //on top of it.
-                        if (!frame.isDead() && !currentFramePushed) {
-                            frameStack.push(frame);
-                            currentFramePushed = true;
-                        }
-
-                        frameStack.push(matchingFrame);
-                    }
+                    currentFramePushed = pushNewFrame(matchingFrame, newFrame, currentFramePushed);
                     break;
                 case StackOperation.OPERATION_CLEAR:
-                    if (matchingFrame != null) {
-                        if (op.isOperationTriggered(ec)) {
-                            frameStack.removeElement(matchingFrame);
-                        }
-                    }
+                    performClearOperation(matchingFrame, op, ec);
                     break;
                 default:
                     throw new RuntimeException("Undefined stack operation: " + op.getOp());
@@ -659,6 +633,43 @@ public class CommCareSession {
             }
         }
         return null;
+    }
+
+    private boolean pushNewFrame(SessionFrame matchingFrame, boolean newFrame, boolean currentFramePushed) {
+        //ok, frame should be appropriately modified now.
+        //we also need to push this frame if it's new
+        if (newFrame) {
+            //Before we can push a frame onto the stack, we need to
+            //make sure the stack is clean. This means that if the
+            //current frame has a snapshot, we've gotta make sure
+            //the existing frames are still valid.
+
+            //TODO: We might want to handle this differently in the future,
+            //so that we can account for the invalidated frames in the ui
+            //somehow.
+            cleanStack();
+
+            //OK, now we want to take the current frame and put it up on the frame stack unless
+            //this frame is dead (IE: We're closing it out). then we'll push the new frame
+            //on top of it.
+            if (!frame.isDead() && !currentFramePushed) {
+                frameStack.push(frame);
+                return true;
+            }
+
+            frameStack.push(matchingFrame);
+        }
+        return currentFramePushed;
+    }
+
+    private void performClearOperation(SessionFrame matchingFrame,
+                                       StackOperation op,
+                                       EvaluationContext ec) {
+        if (matchingFrame != null) {
+            if (op.isOperationTriggered(ec)) {
+                frameStack.removeElement(matchingFrame);
+            }
+        }
     }
 
     /**
