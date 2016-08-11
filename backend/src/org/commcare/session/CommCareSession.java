@@ -577,21 +577,7 @@ public class CommCareSession {
             }
         }
 
-        //All stack ops executed. Now we need to see if we're on the right frame.
-        if (!frame.isDead() && frame != onDeck) {
-            //If the current frame isn't dead, and isn't on deck, that means we've pushed
-            //in new frames and need to load up the correct one
-
-            if (!finishAndPop()) {
-                //Somehow we didn't end up with any frames after that? that's incredibly weird, I guess
-                //we should just start over.
-                clearAllState();
-            }
-            return true;
-        }
-
-        syncState();
-        return false;
+        return popOrSync(onDeck);
     }
 
     private Boolean performPush(StackOperation op, SessionFrame matchingFrame,
@@ -669,6 +655,23 @@ public class CommCareSession {
             if (op.isOperationTriggered(ec)) {
                 frameStack.removeElement(matchingFrame);
             }
+        }
+    }
+
+    private boolean popOrSync(SessionFrame onDeck) {
+        if (!frame.isDead() && frame != onDeck) {
+            //If the current frame isn't dead, and isn't on deck, that means we've pushed
+            //in new frames and need to load up the correct one
+
+            if (!finishAndPop()) {
+                //Somehow we didn't end up with any frames after that? that's incredibly weird, I guess
+                //we should just start over.
+                clearAllState();
+            }
+            return true;
+        } else {
+            syncState();
+            return false;
         }
     }
 
