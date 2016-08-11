@@ -746,7 +746,7 @@ public class CommCareSession {
             return false;
         } else {
             frame = frameStack.pop();
-            nextDatumValue = getReturnFromFrame(frame);
+            nextDatumValue = popReturnFromFrame(frame);
             //Ok, so if _after_ popping from the stack, we still have
             //stack members, we need to be careful about making sure
             //that they won't get triggered if we abandon the current
@@ -760,11 +760,11 @@ public class CommCareSession {
         }
     }
 
-    private static String getReturnFromFrame(SessionFrame poppedFrame) {
+    private static String popReturnFromFrame(SessionFrame poppedFrame) {
         if (!poppedFrame.getSteps().isEmpty()) {
             StackFrameStep step = poppedFrame.getSteps().lastElement();
             if (SessionFrame.STATE_RETURN.equals(step.getType())) {
-                return step.getId();
+                return poppedFrame.popStep().getId();
             }
         }
         return null;

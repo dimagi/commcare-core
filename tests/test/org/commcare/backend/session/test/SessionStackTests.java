@@ -293,7 +293,7 @@ public class SessionStackTests {
 
         session.finishExecuteAndPop(session.getEvaluationContext());
 
-        Assert.assertEquals(null, session.getNeededData());
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
         CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
                 "instance('session')/session/data/child_case_1", "billy");
