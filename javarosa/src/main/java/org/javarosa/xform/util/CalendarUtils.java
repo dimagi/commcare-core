@@ -370,8 +370,9 @@ public class CalendarUtils {
     public static long toMillisFromJavaEpoch(int year, int month, int day, TimeZone currentTimeZone) {
         int daysFromMinDay = countDaysFromMinDay(year, month, day);
         long millisFromMinDay = daysFromMinDay * UniversalDate.MILLIS_IN_DAY;
-        int timezoneOffsetFromGMT = currentTimeZone.getOffset(millisFromMinDay);
-        return millisFromMinDay + MIN_MILLIS_FROM_JAVA_EPOCH - timezoneOffsetFromGMT;
+        int timezoneOffsetFromUTC = currentTimeZone.getOffset(millisFromMinDay);
+        long millisNormalizedToUTC = millisFromMinDay - timezoneOffsetFromUTC;
+        return millisNormalizedToUTC + MIN_MILLIS_FROM_JAVA_EPOCH;
     }
 
     public static String[] getMonthsArray(String key){
