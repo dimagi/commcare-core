@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.util;
 
 import java.util.Enumeration;
@@ -33,17 +17,19 @@ public class OrderedHashtable<K, V> extends Hashtable<K, V> {
         orderedKeys = new Vector<>(initialCapacity);
     }
 
+    @Override
     public void clear() {
         orderedKeys.removeAllElements();
         super.clear();
     }
 
-    public Object elementAt(int index) {
+    public V elementAt(int index) {
         return get(keyAt(index));
     }
 
-    public Enumeration elements() {
-        Vector elements = new Vector();
+    @Override
+    public Enumeration<V> elements() {
+        Vector<V> elements = new Vector<>();
         for (int i = 0; i < size(); i++) {
             elements.addElement(elementAt(i));
         }
@@ -58,10 +44,12 @@ public class OrderedHashtable<K, V> extends Hashtable<K, V> {
         return orderedKeys.elementAt(index);
     }
 
-    public Enumeration keys() {
+    @Override
+    public Enumeration<K> keys() {
         return orderedKeys.elements();
     }
 
+    @Override
     public V put(K key, V value) {
         if (key == null) {
             throw new NullPointerException();
@@ -77,8 +65,9 @@ public class OrderedHashtable<K, V> extends Hashtable<K, V> {
         return v;
     }
 
+    @Override
     public V remove(Object key) {
-        orderedKeys.removeElement((K)key);
+        orderedKeys.removeElement(key);
         return super.remove(key);
     }
 
@@ -87,6 +76,7 @@ public class OrderedHashtable<K, V> extends Hashtable<K, V> {
         orderedKeys.removeElementAt(i);
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("[");
