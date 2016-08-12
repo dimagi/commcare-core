@@ -11,10 +11,10 @@ import java.util.Hashtable;
 //map of objects where key and data are all of single (non-polymorphic) type (key and value can be of separate types)
 public class ExtWrapMap extends ExternalizableWrapper {
 
-    public static final int TYPE_NORMAL = 0;
+    private static final int TYPE_NORMAL = 0;
     public static final int TYPE_ORDERED = 1;
 
-    public ExternalizableWrapper keyType;
+    private ExternalizableWrapper keyType;
     public ExternalizableWrapper dataType;
     public int type;
 
@@ -71,22 +71,24 @@ public class ExtWrapMap extends ExternalizableWrapper {
         this.type = type;
     }
 
+    @Override
     public ExternalizableWrapper clone(Object val) {
         return new ExtWrapMap((Hashtable)val, keyType, dataType);
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        Hashtable h;
+        Hashtable<Object, Object> h;
         long size = ExtUtil.readNumeric(in);
         switch (type) {
             case (TYPE_NORMAL):
-                h = new Hashtable((int)size);
+                h = new Hashtable<>((int)size);
                 break;
             case (TYPE_ORDERED):
-                h = new OrderedHashtable((int)size);
+                h = new OrderedHashtable<>((int)size);
                 break;
             default:
-                h = new Hashtable((int)size);
+                h = new Hashtable<>((int)size);
         }
 
         for (int i = 0; i < size; i++) {
@@ -97,6 +99,7 @@ public class ExtWrapMap extends ExternalizableWrapper {
         val = h;
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         Hashtable h = (Hashtable)val;
 
@@ -110,12 +113,14 @@ public class ExtWrapMap extends ExternalizableWrapper {
         }
     }
 
+    @Override
     public void metaReadExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         type = ExtUtil.readInt(in);
         keyType = ExtWrapTagged.readTag(in, pf);
         dataType = ExtWrapTagged.readTag(in, pf);
     }
 
+    @Override
     public void metaWriteExternal(DataOutputStream out) throws IOException {
         Hashtable h = (Hashtable)val;
         Object keyTagObj, elemTagObj;
