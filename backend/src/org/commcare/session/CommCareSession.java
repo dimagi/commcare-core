@@ -548,10 +548,6 @@ public class CommCareSession {
         // doesn't match the current (living) frame, it will become the the current frame
         SessionFrame onDeck = frame;
 
-        // Whether the current frame is on the stack (we wanna treat it as a "phantom" bottom element
-        // at first, basically.
-        boolean currentFramePushed = false;
-
         for (StackOperation op : ops) {
             // Is there a frame with a matching ID for this op?
             String frameId = op.getFrameId();
@@ -562,17 +558,17 @@ public class CommCareSession {
                     // Ensure no frames exist with this ID
                     if (matchingFrame == null) {
                         SessionFrame newFrame = new SessionFrame(frame);
-                        currentFramePushed = performPush(op, newFrame, true, currentFramePushed, onDeck, ec);
+                        performPush(op, newFrame, true, onDeck, ec);
                     }
                     break;
                 case StackOperation.OPERATION_CREATE:
                     // Ensure no frames exist with this ID
                     if (matchingFrame == null) {
-                        currentFramePushed = performPush(op, new SessionFrame(frameId), true, currentFramePushed, onDeck, ec);
+                        performPush(op, new SessionFrame(frameId), true, onDeck, ec);
                     }
                     break;
                 case StackOperation.OPERATION_PUSH:
-                    currentFramePushed = performPush(op, matchingFrame, false, currentFramePushed, onDeck, ec);
+                    performPush(op, matchingFrame, false, onDeck, ec);
                     break;
                 case StackOperation.OPERATION_CLEAR:
                     performClearOperation(matchingFrame, op, ec);
@@ -585,8 +581,8 @@ public class CommCareSession {
         return popOrSync(onDeck);
     }
 
-    private boolean performPush(StackOperation op, SessionFrame matchingFrame,
-                                boolean isNewFrame, boolean currentFramePushed,
+    private void performPush(StackOperation op, SessionFrame matchingFrame,
+                                boolean isNewFrame,
                                 SessionFrame onDeck, EvaluationContext ec) {
         if (op.isOperationTriggered(ec)) {
             // If we don't have a frame yet, this push is targeting the
@@ -599,9 +595,8 @@ public class CommCareSession {
                 matchingFrame.pushStep(step.defineStep(ec));
             }
 
-            return pushNewFrame(matchingFrame, isNewFrame, currentFramePushed);
+            pushNewFrame(matchingFrame, isNewFrame);
         }
-        return currentFramePushed;
     }
 
     private SessionFrame updateMatchingFrame(String frameId) {
@@ -626,7 +621,7 @@ public class CommCareSession {
         return null;
     }
 
-    private boolean pushNewFrame(SessionFrame matchingFrame, boolean newFrame, boolean currentFramePushed) {
+    private void pushNewFrame(SessionFrame matchingFrame, boolean newFrame) {
         // ok, frame should be appropriately modified now.
         // we also need to push this frame if it's new
         if (newFrame) {
@@ -640,17 +635,8 @@ public class CommCareSession {
             // somehow.
             cleanStack();
 
-            // OK, now we want to take the current frame and put it up on the frame stack unless
-            // this frame is dead (IE: We're closing it out). then we'll push the new frame
-            // on top of it.
-            if (!frame.isDead() && !currentFramePushed) {
-                frameStack.push(frame);
-                return true;
-            }
-
             frameStack.push(matchingFrame);
         }
-        return currentFramePushed;
     }
 
     private void performClearOperation(SessionFrame matchingFrame,
