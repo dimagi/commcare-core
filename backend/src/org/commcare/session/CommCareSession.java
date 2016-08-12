@@ -558,17 +558,22 @@ public class CommCareSession {
                     // Ensure no frames exist with this ID
                     if (matchingFrame == null) {
                         SessionFrame newFrame = new SessionFrame(frame);
-                        performPush(op, newFrame, true, onDeck, ec);
+                        if (performPush(op, newFrame, onDeck, ec)) {
+                            pushNewFrame(newFrame);
+                        }
                     }
                     break;
                 case StackOperation.OPERATION_CREATE:
                     // Ensure no frames exist with this ID
                     if (matchingFrame == null) {
-                        performPush(op, new SessionFrame(frameId), true, onDeck, ec);
+                        SessionFrame newFrame = new SessionFrame(frameId);
+                        if (performPush(op, newFrame, onDeck, ec)) {
+                            pushNewFrame(newFrame);
+                        }
                     }
                     break;
                 case StackOperation.OPERATION_PUSH:
-                    performPush(op, matchingFrame, false, onDeck, ec);
+                    performPush(op, matchingFrame, onDeck, ec);
                     break;
                 case StackOperation.OPERATION_CLEAR:
                     performClearOperation(matchingFrame, op, ec);
@@ -581,9 +586,8 @@ public class CommCareSession {
         return popOrSync(onDeck);
     }
 
-    private void performPush(StackOperation op, SessionFrame matchingFrame,
-                                boolean isNewFrame,
-                                SessionFrame onDeck, EvaluationContext ec) {
+    private static boolean performPush(StackOperation op, SessionFrame matchingFrame,
+                                    SessionFrame onDeck, EvaluationContext ec) {
         if (op.isOperationTriggered(ec)) {
             // If we don't have a frame yet, this push is targeting the
             // frame on deck
@@ -594,9 +598,9 @@ public class CommCareSession {
             for (StackFrameStep step : op.getStackFrameSteps()) {
                 matchingFrame.pushStep(step.defineStep(ec));
             }
-
-            pushNewFrame(matchingFrame, isNewFrame);
+            return true;
         }
+        return false;
     }
 
     private SessionFrame updateMatchingFrame(String frameId) {
@@ -621,22 +625,18 @@ public class CommCareSession {
         return null;
     }
 
-    private void pushNewFrame(SessionFrame matchingFrame, boolean newFrame) {
-        // ok, frame should be appropriately modified now.
-        // we also need to push this frame if it's new
-        if (newFrame) {
-            // Before we can push a frame onto the stack, we need to
-            // make sure the stack is clean. This means that if the
-            // current frame has a snapshot, we've gotta make sure
-            // the existing frames are still valid.
+    private void pushNewFrame(SessionFrame matchingFrame) {
+        // Before we can push a frame onto the stack, we need to
+        // make sure the stack is clean. This means that if the
+        // current frame has a snapshot, we've gotta make sure
+        // the existing frames are still valid.
 
-            // TODO: We might want to handle this differently in the future,
-            // so that we can account for the invalidated frames in the ui
-            // somehow.
-            cleanStack();
+        // TODO: We might want to handle this differently in the future,
+        // so that we can account for the invalidated frames in the ui
+        // somehow.
+        cleanStack();
 
-            frameStack.push(matchingFrame);
-        }
+        frameStack.push(matchingFrame);
     }
 
     private void performClearOperation(SessionFrame matchingFrame,
