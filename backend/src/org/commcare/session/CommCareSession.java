@@ -169,6 +169,7 @@ public class CommCareSession {
     public OrderedHashtable<String, String> getData() {
         return collectedDatums;
     }
+
     private static boolean entryRequirementsSatsified(Entry entry,
                                                       OrderedHashtable<String, String> currentSessionData) {
         Vector<SessionDatum> requirements = entry.getSessionDataReqs();
@@ -228,7 +229,7 @@ public class CommCareSession {
         String neededDatumId = null;
         for (Entry e : entries) {
             SessionDatum datumNeededForThisEntry =
-                getFirstMissingDatum(collectedDatums, e.getSessionDataReqs());
+                    getFirstMissingDatum(collectedDatums, e.getSessionDataReqs());
             if (datumNeededForThisEntry != null) {
                 if (neededDatumId == null) {
                     neededDatumId = datumNeededForThisEntry.getDataId();
@@ -320,6 +321,8 @@ public class CommCareSession {
         for (SessionDatum datum : allDatumsNeeded) {
             if (!datumsCollectedSoFar.containsKey(datum.getDataId())) {
                 if (nextDatumValue != null) {
+                    // set the needed datum to the return value from the last
+                    // popped frame and continue looking for needed datums
                     setDatum(datum.getDataId(), nextDatumValue);
                     nextDatumValue = null;
                 } else {
@@ -554,23 +557,11 @@ public class CommCareSession {
             SessionFrame matchingFrame = updateMatchingFrame(frameId);
 
             switch (op.getOp()) {
-                case StackOperation.OPERATION_COPY_CREATE:
-                    // Ensure no frames exist with this ID
-                    if (matchingFrame == null) {
-                        SessionFrame newFrame = new SessionFrame(frame);
-                        if (performPush(op, newFrame, onDeck, ec)) {
-                            pushNewFrame(newFrame);
-                        }
-                    }
+                case StackOperation.OPERATION_COPY:
+                    createFrame(new SessionFrame(frame), matchingFrame, op, onDeck, ec);
                     break;
                 case StackOperation.OPERATION_CREATE:
-                    // Ensure no frames exist with this ID
-                    if (matchingFrame == null) {
-                        SessionFrame newFrame = new SessionFrame(frameId);
-                        if (performPush(op, newFrame, onDeck, ec)) {
-                            pushNewFrame(newFrame);
-                        }
-                    }
+                    createFrame(new SessionFrame(frameId), matchingFrame, op, onDeck, ec);
                     break;
                 case StackOperation.OPERATION_PUSH:
                     performPush(op, matchingFrame, onDeck, ec);
@@ -586,8 +577,18 @@ public class CommCareSession {
         return popOrSync(onDeck);
     }
 
+    private void createFrame(SessionFrame createdFrame, SessionFrame matchingFrame,
+                             StackOperation op, SessionFrame onDeck, EvaluationContext ec) {
+        // Ensure no frames exist with this ID
+        if (matchingFrame == null) {
+            if (performPush(op, createdFrame, onDeck, ec)) {
+                pushNewFrame(createdFrame);
+            }
+        }
+    }
+
     private static boolean performPush(StackOperation op, SessionFrame matchingFrame,
-                                    SessionFrame onDeck, EvaluationContext ec) {
+                                       SessionFrame onDeck, EvaluationContext ec) {
         if (op.isOperationTriggered(ec)) {
             // If we don't have a frame yet, this push is targeting the
             // frame on deck
@@ -697,7 +698,7 @@ public class CommCareSession {
         markCurrentFrameForDeath();
 
         //First, see if we have operations to run
-        if(ops.size() > 0) {
+        if (ops.size() > 0) {
             executeStackOperations(ops, ec);
         }
         return finishAndPop();
@@ -733,9 +734,11 @@ public class CommCareSession {
         }
     }
 
+    /**
+     * Get the value of the first 'return' step from the popped frame
+     */
     private static String popReturnFromFrame(SessionFrame poppedFrame) {
-        if (!poppedFrame.getSteps().isEmpty()) {
-            StackFrameStep step = poppedFrame.getSteps().lastElement();
+        for (StackFrameStep step : poppedFrame.getSteps()) {
             if (SessionFrame.STATE_RETURN.equals(step.getType())) {
                 return poppedFrame.popStep().getId();
             }

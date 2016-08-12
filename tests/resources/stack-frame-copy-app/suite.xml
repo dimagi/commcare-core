@@ -17,7 +17,7 @@
         </session>
         <stack>
             <push>
-                <next value="'billy'"/>
+                <return value="'billy'"/>
             </push>
             <create>
                 <command value="'m1'"/>
@@ -86,9 +86,9 @@
                 </text>
             </display>
             <stack>
-                <copy-create>
+                <copy>
                     <command value="'child-visit'"/>
-                </copy-create>
+                </copy>
                 <push>
                     <command value="'claim'"/>
                 </push>
@@ -133,7 +133,7 @@
         </session>
         <stack>
             <push>
-                <next value="'billy'"/>
+                <return value="'billy'"/>
             </push>
         </stack>
     </sync-request>
