@@ -37,12 +37,12 @@ public class RemoteRequestEntry extends Entry {
         this.post = post;
     }
 
-    public PostRequest getSyncPost() {
+    public PostRequest getPostRequest() {
         return post;
     }
 
     @Override
-    public boolean isSync() {
+    public boolean isRemoteRequest() {
         return true;
     }
 

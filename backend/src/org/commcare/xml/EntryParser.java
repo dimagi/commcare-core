@@ -30,7 +30,7 @@ import java.util.Vector;
 public class EntryParser extends CommCareElementParser<Entry> {
     private static final String FORM_ENTRY_TAG = "entry";
     private static final String VIEW_ENTRY_TAG = "view";
-    private static final String SYNC_REQUEST_TAG = "sync-request";
+    protected static final String SYNC_REQUEST_TAG = "remote-request";
     private final String parserBlockTag;
 
     private EntryParser(KXmlParser parser, String parserBlockTag) {
