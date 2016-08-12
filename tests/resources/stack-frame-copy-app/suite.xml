@@ -1,11 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <suite descriptor="Suite File" version="36">
-    <xform>
-        <resource descriptor="Placeholder" id="1662072614e4dc0c3808d095c5b1cc826be7c1ec"
-                  version="28">
-            <location authority="local">./placeholder_form.xml</location>
-        </resource>
-    </xform>
     <entry>
         <form>http://commcarehq.org/test/placeholder</form>
         <command id="m0-f0">
