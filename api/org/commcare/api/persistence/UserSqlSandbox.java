@@ -31,6 +31,7 @@ public class UserSqlSandbox extends UserSandbox {
         userStorage = new SqliteIndexedStorageUtility<>(User.class, username, User.STORAGE_KEY, path);
         userFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, "UserFixture", path);
         appFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, "AppFixture", path);
+        setLoggedInUser(userStorage.read(0));
     }
 
     public UserSqlSandbox(String username) {
