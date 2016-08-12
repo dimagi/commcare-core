@@ -2,6 +2,7 @@ package org.commcare.backend.session.test;
 
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.suite.model.Action;
+import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.test.utilities.CaseTestUtils;
@@ -277,22 +278,29 @@ public class SessionStackTests {
     }
 
     /**
-     * Test copying stack frame on create
+     * Test returning values from one stack frame and setting it as the next
+     * needed datum value of the top frame on the frame stack
      */
     @Test
-    public void testStackFrameCopy() throws Exception {
+    public void testReturningValuesFromFrames() throws Exception {
         mApp = new MockApp("/stack-frame-copy-app/");
         SessionWrapper session = mApp.getSession();
 
+        // start with the registration
         session.setCommand("m0");
         Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
 
         Assert.assertEquals("mother_case_1", session.getNeededDatum().getDataId());
 
+        // manually set the needed datum instead of computing it
         session.setDatum("mother_case_1", "nancy");
 
+        // execute the stack ops for the m0-f0 entry
+        session.setCommand("m0-f0");
         session.finishExecuteAndPop(session.getEvaluationContext());
 
+        // check that for the 'm1' command we don't need any more data because the
+        // child datum got set via a 'next'
         Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
         CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
@@ -300,5 +308,33 @@ public class SessionStackTests {
 
         // make sure commands weren't included when copying over session frames
         Assert.assertNotEquals("m0", session.getFrame().getSteps().get(0).getId());
+    }
+
+    /**
+     * Test copying stack frames and setting datums via popped frames
+     */
+    @Test
+    public void testFrameCopyAndReturn() throws Exception {
+        mApp = new MockApp("/stack-frame-copy-app/");
+        SessionWrapper session = mApp.getSession();
+
+        session.setCommand("child-visit");
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        Assert.assertEquals("mother_case_1", session.getNeededDatum().getDataId());
+        session.setDatum("mother_case_1", "nancy");
+
+        // perform 'claim' action
+        Detail shortDetail = session.getPlatform().getDetail("case-list");
+        Action action = shortDetail.getCustomActions().firstElement();
+        // queue up action
+        session.executeStackOperations(action.getStackOperations(), session.getEvaluationContext());
+        // finish action
+        session.finishExecuteAndPop(session.getEvaluationContext());
+
+        // ensure we don't need any more data to perform the visit
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+
+        CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
+                "instance('session')/session/data/child_case_1", "billy");
     }
 }

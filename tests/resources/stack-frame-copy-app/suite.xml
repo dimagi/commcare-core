@@ -11,14 +11,18 @@
         <command id="m0-f0">
             <text>Register mother</text>
         </command>
+        <instance id="session" src="jr://instance/session"/>
         <session>
-            <datum id="mother_case_1" function="uuid()"/>
+            <datum function="uuid()" id="mother_case_1"/>
         </session>
         <stack>
-            <copy-create>
-                <command value="'m1'"/>
+            <push>
                 <next value="'billy'"/>
-            </copy-create>
+            </push>
+            <create>
+                <command value="'m1'"/>
+                <datum id="mother_case_1" value="instance('session')/session/data/mother_case_1"/>
+            </create>
         </stack>
     </entry>
 
@@ -32,10 +36,14 @@
         <session>
             <datum detail-confirm="m0_case_long"
                    detail-select="m0_case_short"
-                   id="mother_case_1" nodeset="instance('casedb')/casedb/case[@case_type='pregnancy'][@status='open']" value="./@case_id"/>
+                   id="mother_case_1"
+                   nodeset="instance('casedb')/casedb/case[@case_type='pregnancy'][@status='open']"
+                   value="./@case_id"/>
             <datum detail-confirm="m0_case_long"
                    detail-select="m0_case_short"
-                   id="child_case_1" nodeset="instance('casedb')/casedb/case[@case_type='child'][@status='open']" value="./@case_id"/>
+                   id="child_case_1"
+                   nodeset="instance('casedb')/casedb/case[@case_type='child'][@status='open']"
+                   value="./@case_id"/>
         </session>
     </entry>
 
@@ -50,5 +58,90 @@
             <locale id="modules.m1"/>
         </text>
         <command id="m1-f0"/>
+    </menu>
+
+
+    <detail id="case-list">
+        <title>
+            <text>
+                <locale id="m1.case_short.title"/>
+            </text>
+        </title>
+        <field>
+            <header>
+                <text>
+                    <locale id="m1.case_short.case_name_1.header"/>
+                </text>
+            </header>
+            <template>
+                <text>
+                    <xpath function="case_name"/>
+                </text>
+            </template>
+        </field>
+        <action>
+            <display>
+                <text>
+                    <locale id="case_search.m1"/>
+                </text>
+            </display>
+            <stack>
+                <copy-create>
+                    <command value="'child-visit'"/>
+                </copy-create>
+                <push>
+                    <command value="'claim'"/>
+                </push>
+            </stack>
+        </action>
+    </detail>
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="visit-form">
+            <text>perform a visit that needs mother and child cases</text>
+        </command>
+        <instance id="session" src="jr://instance/session"/>
+        <session>
+            <datum detail-confirm="m0_case_long"
+                   detail-select="case-list"
+                   id="mother_case_1"
+                   nodeset="instance('casedb')/casedb/case[@case_type='pregnancy'][@status='open']"
+                   value="./@case_id"/>
+            <datum detail-confirm="m0_case_long"
+                   detail-select="case-list"
+                   id="child_case_1"
+                   nodeset="instance('casedb')/casedb/case[@case_type='child'][@status='open']"
+                   value="./@case_id"/>
+        </session>
+        <stack>
+        </stack>
+    </entry>
+
+    <sync-request>
+        <post relevant="false()"
+              url="https://india.commcarehq.org/a/enikshay-test/phone/claim-case/">
+        </post>
+        <command id="claim">
+            <display>
+                <text>
+                    <locale id="case_search.m1"/>
+                </text>
+            </display>
+        </command>
+        <session>
+        </session>
+        <stack>
+            <push>
+                <next value="'billy'"/>
+            </push>
+        </stack>
+    </sync-request>
+
+    <menu id="child-visit">
+        <text>
+            <locale id="modules.m1"/>
+        </text>
+        <command id="visit-form"/>
     </menu>
 </suite>
