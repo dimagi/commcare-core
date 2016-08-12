@@ -14,9 +14,9 @@ import java.util.Vector;
 /**
  * @author ctsims
  */
-class StackOpParser extends ElementParser<StackOperation> {
+public class StackOpParser extends ElementParser<StackOperation> {
 
-    StackOpParser(KXmlParser parser) {
+    public StackOpParser(KXmlParser parser) {
         super(parser);
     }
 
