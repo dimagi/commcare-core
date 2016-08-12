@@ -554,19 +554,11 @@ public class CommCareSession {
                 case StackOperation.OPERATION_CREATE:
                     // Ensure no frames exist with this ID
                     if (matchingFrame == null) {
-                        Boolean currentFramePushedOrNull =
-                                performPush(op, new SessionFrame(frameId), true, currentFramePushed, onDeck, ec);
-                        if (currentFramePushedOrNull != null) {
-                            currentFramePushed = currentFramePushedOrNull;
-                        }
+                        currentFramePushed = performPush(op, new SessionFrame(frameId), true, currentFramePushed, onDeck, ec);
                     }
                     break;
                 case StackOperation.OPERATION_PUSH:
-                    Boolean currentFramePushedOrNull =
-                            performPush(op, matchingFrame, false, currentFramePushed, onDeck, ec);
-                    if (currentFramePushedOrNull != null) {
-                        currentFramePushed = currentFramePushedOrNull;
-                    }
+                    currentFramePushed = performPush(op, matchingFrame, false, currentFramePushed, onDeck, ec);
                     break;
                 case StackOperation.OPERATION_CLEAR:
                     performClearOperation(matchingFrame, op, ec);
@@ -579,7 +571,7 @@ public class CommCareSession {
         return popOrSync(onDeck);
     }
 
-    private Boolean performPush(StackOperation op, SessionFrame matchingFrame,
+    private boolean performPush(StackOperation op, SessionFrame matchingFrame,
                                 boolean isNewFrame, boolean currentFramePushed,
                                 SessionFrame onDeck, EvaluationContext ec) {
         if (op.isOperationTriggered(ec)) {
@@ -595,7 +587,7 @@ public class CommCareSession {
 
             return pushNewFrame(matchingFrame, isNewFrame, currentFramePushed);
         }
-        return null;
+        return currentFramePushed;
     }
 
     private SessionFrame updateMatchingFrame(String frameId) {
