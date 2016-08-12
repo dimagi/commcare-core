@@ -203,6 +203,8 @@ public class CommCareSession {
 
         if (needDatum != null) {
             return needDatum;
+        } else if (entries.isEmpty()) {
+            throw new RuntimeException("Collected datums don't match required datums for entries at command " + currentCmd);
         } else if (entries.size() == 1
                 && entries.elementAt(0) instanceof SyncEntry
                 && ((SyncEntry)entries.elementAt(0)).getSyncPost().isRelevant(evalContext)) {
