@@ -12,7 +12,11 @@ public class SizeBoundVector<E> extends Vector<E> {
     int limit = -1;
     int additional = 0;
 
-    SizeBoundVector(int sizeLimit) {
+    int badImageReferenceCount = 0;
+    int badAudioReferenceCount = 0;
+    int badVideoReferenceCount = 0;
+
+    public SizeBoundVector(int sizeLimit) {
         this.limit = sizeLimit;
     }
 
@@ -30,14 +34,26 @@ public class SizeBoundVector<E> extends Vector<E> {
     }
 
     public void addBadImageReference() {
-        // TODO: remove this
+        badImageReferenceCount++;
     }
 
     public void addBadAudioReference() {
-        // TODO: remove this
+        badAudioReferenceCount++;
     }
 
     public void addBadVideoReference() {
-        // TODO: remove this
+        badVideoReferenceCount++;
+    }
+
+    public int getBadImageReferenceCount() {
+        return badImageReferenceCount;
+    }
+
+    public int getBadAudioReferenceCount() {
+        return badAudioReferenceCount;
+    }
+
+    public int getBadVideoReferenceCount() {
+        return badVideoReferenceCount;
     }
 }
