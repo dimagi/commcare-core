@@ -561,13 +561,8 @@ public class CommCareSession {
                 case StackOperation.OPERATION_COPY_CREATE:
                     // Ensure no frames exist with this ID
                     if (matchingFrame == null) {
-                        SessionFrame newFrame = new SessionFrame(frameId);
-                        copyDatumsOver(frame, newFrame);
-                        Boolean currentFramePushedOrNull =
-                                performPush(op, newFrame, true, currentFramePushed, onDeck, ec);
-                        if (currentFramePushedOrNull != null) {
-                            currentFramePushed = currentFramePushedOrNull;
-                        }
+                        SessionFrame newFrame = new SessionFrame(frame);
+                        currentFramePushed = performPush(op, newFrame, true, currentFramePushed, onDeck, ec);
                     }
                     break;
                 case StackOperation.OPERATION_CREATE:
@@ -588,16 +583,6 @@ public class CommCareSession {
         }
 
         return popOrSync(onDeck);
-    }
-
-    private void copyDatumsOver(SessionFrame sourceFrame, SessionFrame targetFrame) {
-        for (StackFrameStep step : sourceFrame.getSteps()) {
-            String stepType = step.getType();
-            if (SessionFrame.STATE_DATUM_VAL.equals(stepType)
-                    || SessionFrame.STATE_DATUM_COMPUTED.equals(stepType)) {
-                targetFrame.pushStep(new StackFrameStep(step));
-            }
-        }
     }
 
     private boolean performPush(StackOperation op, SessionFrame matchingFrame,
