@@ -65,6 +65,10 @@ public class Detail implements Externalizable {
     // Only used if this detail is a case tile that is being shown in a grid layout
     private int numEntitiesToDisplayPerRow;
 
+    // Only used if this detail is a case tile; indicates that the height of a single cell
+    // in the tile's grid layout should be equal to its width, rather than being computed independently
+    private boolean useUniformUnitsInCaseTile;
+
     /**
      * Serialization Only
      */
@@ -76,7 +80,8 @@ public class Detail implements Externalizable {
                   Vector<Detail> detailsVector,
                   Vector<DetailField> fieldsVector,
                   OrderedHashtable<String, String> variables,
-                  Vector<Action> actions, Callout callout, String fitAcross) {
+                  Vector<Action> actions, Callout callout, String fitAcross,
+                  String uniformUnitsString) {
 
         if (detailsVector.size() > 0 && fieldsVector.size() > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
@@ -91,6 +96,9 @@ public class Detail implements Externalizable {
         this.fields = ArrayUtilities.copyIntoArray(fieldsVector, new DetailField[fieldsVector.size()]);
         this.variables = variables;
         this.actions = actions;
+        this.callout = callout;
+        this.useUniformUnitsInCaseTile = "true".equals(uniformUnitsString);
+
         if (fitAcross != null) {
             try {
                 this.numEntitiesToDisplayPerRow = Integer.parseInt(fitAcross);
@@ -100,7 +108,6 @@ public class Detail implements Externalizable {
         } else {
             numEntitiesToDisplayPerRow = 1;
         }
-        this.callout = callout;
     }
 
     /**
@@ -329,6 +336,10 @@ public class Detail implements Externalizable {
 
     public int getNumEntitiesToDisplayPerRow() {
         return numEntitiesToDisplayPerRow;
+    }
+
+    public boolean useUniformUnitsInCaseTile() {
+        return useUniformUnitsInCaseTile;
     }
 
     public GridCoordinate[] getGridCoordinates() {
