@@ -12,16 +12,16 @@ import java.io.IOException;
 import java.util.Vector;
 
 /**
- * <p>An action defines a user interface element that can be
+ * An action defines a user interface element that can be
  * triggered by the user to fire off one or more stack operations
- * in the current session</p>
+ * in the current session
  *
  * @author ctsims
  */
 public class Action implements Externalizable {
 
-    DisplayUnit display;
-    Vector<StackOperation> stackOps;
+    private DisplayUnit display;
+    private Vector<StackOperation> stackOps;
 
     /**
      * Serialization only!!!
@@ -55,17 +55,13 @@ public class Action implements Externalizable {
         return stackOps;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
         this.stackOps = (Vector<StackOperation>)ExtUtil.read(in, new ExtWrapList(StackOperation.class), pf);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapList(stackOps));
