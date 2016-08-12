@@ -24,17 +24,17 @@ import java.util.Hashtable;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class SyncPost implements Externalizable {
+public class PostRequest implements Externalizable {
     private URL url;
     private XPathExpression relevantExpr;
     private Hashtable<String, XPathExpression> params;
 
     @SuppressWarnings("unused")
-    public SyncPost() {
+    public PostRequest() {
     }
 
-    public SyncPost(URL url, XPathExpression relevantExpr,
-                    Hashtable<String, XPathExpression> params) {
+    public PostRequest(URL url, XPathExpression relevantExpr,
+                       Hashtable<String, XPathExpression> params) {
         this.url = url;
         this.params = params;
         this.relevantExpr = relevantExpr;

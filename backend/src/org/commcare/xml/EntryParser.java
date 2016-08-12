@@ -6,8 +6,8 @@ import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
-import org.commcare.suite.model.SyncEntry;
-import org.commcare.suite.model.SyncPost;
+import org.commcare.suite.model.RemoteRequestEntry;
+import org.commcare.suite.model.PostRequest;
 import org.commcare.suite.model.ViewEntry;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
@@ -63,7 +63,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
         DisplayUnit display = null;
         Vector<StackOperation> stackOps = new Vector<>();
         AssertionSet assertions = null;
-        SyncPost post = null;
+        PostRequest post = null;
 
         while (nextTagInBlock(parserBlockTag)) {
             String tagName = parser.getName();
@@ -110,7 +110,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
             if (post == null) {
                 throw new RuntimeException(SYNC_REQUEST_TAG + " must contain a <post> element");
             } else {
-                return new SyncEntry(commandId, display, data, instances, stackOps, assertions, post);
+                return new RemoteRequestEntry(commandId, display, data, instances, stackOps, assertions, post);
             }
         }
 
@@ -153,7 +153,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
         instances.put(instanceId, new ExternalDataInstance(location, instanceId));
     }
 
-    private SyncPost parsePost() throws InvalidStructureException, IOException, XmlPullParserException {
+    private PostRequest parsePost() throws InvalidStructureException, IOException, XmlPullParserException {
         String urlString = parser.getAttributeValue(null, "url");
         if (urlString == null) {
             throw new InvalidStructureException("Expected 'url' attribute in a <post> structure.",
@@ -194,6 +194,6 @@ public class EntryParser extends CommCareElementParser<Entry> {
                         parser);
             }
         }
-        return new SyncPost(url, relevantExpr, postData);
+        return new PostRequest(url, relevantExpr, postData);
     }
 }
