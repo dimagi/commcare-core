@@ -718,8 +718,8 @@ public class CommCareSession {
         if (frameStack.empty()) {
             return false;
         } else {
-            frame = frameStack.pop();
             nextDatumValue = popReturnFromFrame(frame);
+            frame = frameStack.pop();
             //Ok, so if _after_ popping from the stack, we still have
             //stack members, we need to be careful about making sure
             //that they won't get triggered if we abandon the current
