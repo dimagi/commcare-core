@@ -69,6 +69,8 @@ public class Detail implements Externalizable {
     // in the tile's grid layout should be equal to its width, rather than being computed independently
     private boolean useUniformUnitsInCaseTile;
 
+    private boolean forceLandscapeView;
+
     /**
      * Serialization Only
      */
@@ -81,7 +83,7 @@ public class Detail implements Externalizable {
                   Vector<DetailField> fieldsVector,
                   OrderedHashtable<String, String> variables,
                   Vector<Action> actions, Callout callout, String fitAcross,
-                  String uniformUnitsString) {
+                  String uniformUnitsString, String forceLandscape) {
 
         if (detailsVector.size() > 0 && fieldsVector.size() > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
@@ -98,6 +100,7 @@ public class Detail implements Externalizable {
         this.actions = actions;
         this.callout = callout;
         this.useUniformUnitsInCaseTile = "true".equals(uniformUnitsString);
+        this.forceLandscapeView = "true".equals(forceLandscape);
 
         if (fitAcross != null) {
             try {
@@ -340,6 +343,10 @@ public class Detail implements Externalizable {
 
     public boolean useUniformUnitsInCaseTile() {
         return useUniformUnitsInCaseTile;
+    }
+
+    public boolean forcesLandscape() {
+        return forceLandscapeView;
     }
 
     public GridCoordinate[] getGridCoordinates() {
