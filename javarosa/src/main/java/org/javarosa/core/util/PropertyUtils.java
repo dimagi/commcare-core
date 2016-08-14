@@ -4,8 +4,6 @@ import java.util.Random;
 
 public class PropertyUtils {
 
-    //need 'addpropery' too.
-
     /**
      * Generate an RFC 1422 Version 4 UUID.
      *
@@ -30,7 +28,7 @@ public class PropertyUtils {
         return guid.toUpperCase();
     }
 
-    public static String randHex(int len) {
+    private static String randHex(int len) {
         String ret = "";
         Random r = MathUtils.getRand();
         for (int i = 0; i < len; ++i) {
