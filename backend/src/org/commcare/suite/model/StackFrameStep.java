@@ -79,9 +79,8 @@ public class StackFrameStep implements Externalizable {
 
     public StackFrameStep(String type, String id,
                           String value, boolean valueIsXpath) throws XPathSyntaxException {
-        this.elementType = type;
-        this.id = id;
-        this.value = value;
+        this(type, id, value);
+
         this.valueIsXpath = valueIsXpath;
 
         if (valueIsXpath) {
@@ -101,10 +100,6 @@ public class StackFrameStep implements Externalizable {
 
     public String getValue() {
         return value;
-    }
-
-    public boolean getValueIsXPath() {
-        return valueIsXpath;
     }
 
     public boolean hasXmlInstance() {
@@ -191,17 +186,17 @@ public class StackFrameStep implements Externalizable {
 
         StackFrameStep that = (StackFrameStep)o;
 
-        return ((propertiesEqual(this.getType(), that.getType())) &&
-                (propertiesEqual(this.getId(), that.getId())) &&
-                (propertiesEqual(this.getValue(), that.getValue())) &&
-                (this.getValueIsXPath() == that.getValueIsXPath()));
+        return ((propertiesEqual(this.elementType, that.elementType)) &&
+                (propertiesEqual(this.id, that.id)) &&
+                (propertiesEqual(this.value, that.value)) &&
+                (this.valueIsXpath == that.valueIsXpath));
     }
 
     @Override
     public int hashCode() {
-        final int valueIsXPathHash = getValueIsXPath() ? 1231 : 1237;
-        return (getType().hashCode() ^ getId().hashCode() ^
-                getValue().hashCode() ^ valueIsXPathHash);
+        final int valueIsXPathHash = valueIsXpath ? 1231 : 1237;
+        return (elementType.hashCode() ^ id.hashCode() ^
+                value.hashCode() ^ valueIsXPathHash);
     }
 
     private boolean propertiesEqual(String a, String b) {
