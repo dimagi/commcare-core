@@ -31,12 +31,12 @@ public class Suite implements Persistable {
     private int recordId = -1;
 
     /**
-     * String(detail id) -> Detail Object *
+     * Detail id -> Detail Object *
      */
     private Hashtable<String, Detail> details;
 
     /**
-     * String(Entry id (also the same for menus) ) -> Entry Object *
+     * Entry id (also the same for menus) ) -> Entry Object *
      */
     private Hashtable<String, Entry> entries;
     private Vector<Menu> menus;

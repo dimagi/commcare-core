@@ -15,9 +15,9 @@ import java.io.IOException;
 import java.util.Vector;
 
 /**
- * <p>A Menu definition describes the structure of how
+ * A Menu definition describes the structure of how
  * actions should be provided to the user in a CommCare
- * application.</p>
+ * application.
  *
  * @author ctsims
  */
@@ -40,7 +40,9 @@ public class Menu implements Externalizable, MenuDisplayable {
 
     }
 
-    public Menu(String id, String root, String rawRelevance, XPathExpression relevance, DisplayUnit display, Vector<String> commandIds, String[] commandExprs, String style) {
+    public Menu(String id, String root, String rawRelevance,
+                XPathExpression relevance, DisplayUnit display,
+                Vector<String> commandIds, String[] commandExprs, String style) {
         this.id = id;
         this.root = root;
         this.rawRelevance = rawRelevance;
