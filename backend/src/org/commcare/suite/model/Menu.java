@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.suite.model;
 
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -27,14 +24,14 @@ import java.util.Vector;
 public class Menu implements Externalizable, MenuDisplayable {
     public static final String ROOT_MENU_ID = "root";
 
-    DisplayUnit display;
-    Vector<String> commandIds;
-    String[] commandExprs;
-    String id;
-    String root;
-    String rawRelevance;
-    String style;
-    XPathExpression relevance;
+    private DisplayUnit display;
+    private Vector<String> commandIds;
+    private String[] commandExprs;
+    private String id;
+    private String root;
+    private String rawRelevance;
+    private String style;
+    private XPathExpression relevance;
 
     /**
      * Serialization only!!!
@@ -128,9 +125,7 @@ public class Menu implements Externalizable, MenuDisplayable {
         return commandExprs[index];
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
@@ -147,9 +142,7 @@ public class Menu implements Externalizable, MenuDisplayable {
         style = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
         ExtUtil.writeString(out, root);
@@ -157,12 +150,12 @@ public class Menu implements Externalizable, MenuDisplayable {
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapList(commandIds));
         ExtUtil.writeNumeric(out, commandExprs.length);
-        for (int i = 0; i < commandExprs.length; ++i) {
-            if (commandExprs[i] == null) {
+        for (String commandExpr : commandExprs) {
+            if (commandExpr == null) {
                 ExtUtil.writeBool(out, false);
             } else {
                 ExtUtil.writeBool(out, true);
-                ExtUtil.writeString(out, commandExprs[i]);
+                ExtUtil.writeString(out, commandExpr);
             }
         }
 
@@ -170,6 +163,7 @@ public class Menu implements Externalizable, MenuDisplayable {
     }
 
 
+    @Override
     public String getImageURI() {
         if (display.getImageURI() == null) {
             return null;
@@ -177,6 +171,7 @@ public class Menu implements Externalizable, MenuDisplayable {
         return display.getImageURI().evaluate();
     }
 
+    @Override
     public String getAudioURI() {
         if (display.getAudioURI() == null) {
             return null;
@@ -184,6 +179,7 @@ public class Menu implements Externalizable, MenuDisplayable {
         return display.getAudioURI().evaluate();
     }
 
+    @Override
     public String getDisplayText() {
         if (display.getText() == null) {
             return null;
