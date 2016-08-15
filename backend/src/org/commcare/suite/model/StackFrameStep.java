@@ -149,16 +149,17 @@ public class StackFrameStep implements Externalizable {
         }
 
         //figure out how to structure the step
-        if (elementType.equals(SessionFrame.STATE_DATUM_VAL)) {
-            return new StackFrameStep(SessionFrame.STATE_DATUM_VAL, id, finalValue);
-        } else if (elementType.equals(SessionFrame.STATE_COMMAND_ID)) {
-            return new StackFrameStep(SessionFrame.STATE_COMMAND_ID, finalValue, null);
-        } else if (elementType.equals(SessionFrame.STATE_RETURN)) {
-            return new StackFrameStep(SessionFrame.STATE_RETURN, finalValue, null);
-        } else if (elementType.equals(SessionFrame.STATE_FORM_XMLNS)) {
-            throw new RuntimeException("Form Definitions in Steps are not yet supported!");
-        } else {
-            throw new RuntimeException("Invalid step [" + elementType + "] declared when constructing a new frame step");
+        switch (elementType) {
+            case SessionFrame.STATE_DATUM_VAL:
+                return new StackFrameStep(SessionFrame.STATE_DATUM_VAL, id, finalValue);
+            case SessionFrame.STATE_COMMAND_ID:
+                return new StackFrameStep(SessionFrame.STATE_COMMAND_ID, finalValue, null);
+            case SessionFrame.STATE_RETURN:
+                return new StackFrameStep(SessionFrame.STATE_RETURN, finalValue, null);
+            case SessionFrame.STATE_FORM_XMLNS:
+                throw new RuntimeException("Form Definitions in Steps are not yet supported!");
+            default:
+                throw new RuntimeException("Invalid step [" + elementType + "] declared when constructing a new frame step");
         }
     }
 
