@@ -30,7 +30,7 @@ import java.util.Vector;
 public class EntryParser extends CommCareElementParser<Entry> {
     private static final String FORM_ENTRY_TAG = "entry";
     private static final String VIEW_ENTRY_TAG = "view";
-    protected static final String SYNC_REQUEST_TAG = "remote-request";
+    protected static final String REMOTE_REQUEST_TAG = "remote-request";
     private final String parserBlockTag;
 
     private EntryParser(KXmlParser parser, String parserBlockTag) {
@@ -48,7 +48,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
     }
 
     public static EntryParser buildRemoteSyncParser(KXmlParser parser) {
-        return new EntryParser(parser, SYNC_REQUEST_TAG);
+        return new EntryParser(parser, REMOTE_REQUEST_TAG);
     }
 
     @Override
@@ -106,9 +106,9 @@ public class EntryParser extends CommCareElementParser<Entry> {
             return new ViewEntry(commandId, display, data, instances, stackOps, assertions);
         } else if (FORM_ENTRY_TAG.equals(parserBlockTag)) {
             return new FormEntry(commandId, display, data, xFormNamespace, instances, stackOps, assertions);
-        } else if (SYNC_REQUEST_TAG.equals(parserBlockTag)) {
+        } else if (REMOTE_REQUEST_TAG.equals(parserBlockTag)) {
             if (post == null) {
-                throw new RuntimeException(SYNC_REQUEST_TAG + " must contain a <post> element");
+                throw new RuntimeException(REMOTE_REQUEST_TAG + " must contain a <post> element");
             } else {
                 return new RemoteRequestEntry(commandId, display, data, instances, stackOps, assertions, post);
             }

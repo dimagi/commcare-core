@@ -99,7 +99,7 @@ public class SuiteParser extends ElementParser<Suite> {
                     } else if (parser.getName().toLowerCase().equals("view")) {
                         Entry e = EntryParser.buildViewParser(parser).parse();
                         entries.put(e.getCommandId(), e);
-                    } else if (parser.getName().toLowerCase().equals(EntryParser.SYNC_REQUEST_TAG)) {
+                    } else if (parser.getName().toLowerCase().equals(EntryParser.REMOTE_REQUEST_TAG)) {
                         Entry syncEntry = EntryParser.buildRemoteSyncParser(parser).parse();
                         entries.put(syncEntry.getCommandId(), syncEntry);
                     } else if (parser.getName().toLowerCase().equals("locale")) {
