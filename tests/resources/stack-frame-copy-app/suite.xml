@@ -209,20 +209,54 @@
     <entry>
         <form>http://commcarehq.org/test/placeholder</form>
         <command id="push-rewind-to-non-current-id-frame">
-            <text>test stack create/rewind</text>
+            <text></text>
         </command>
         <session/>
         <stack>
+            <create id="some-other-frame">
+                <command value="'child-visit'"/>
+                <mark/>
+            </create>
+            <push id="some-other-frame">
+                <rewind value="'the mother case id'"/>
+                <datum id="child_case_1" value="'billy'"/>
+            </push>
+            <push>
+                <!-- this will be run, due to ID'd rewind -->
+                <command value="'m0'"/>
+            </push>
         </stack>
     </entry>
 
     <entry>
         <form>http://commcarehq.org/test/placeholder</form>
-        <command id="push-rewind-to-current-id-frame">
-            <text>test stack create/rewind</text>
+        <command id="push-rewind-to-current-id-frame-part-i">
+            <text></text>
         </command>
         <session/>
         <stack>
+            <create id="main-frame">
+                <command value="'child-visit'"/>
+                <mark/>
+                <datum id="mother_case_1" value="'should be overwritten'"/>
+            </create>
+        </stack>
+    </entry>
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="push-rewind-to-current-id-frame-part-ii">
+            <text></text>
+        </command>
+        <session/>
+        <stack>
+            <push id="main-frame">
+                <rewind value="'the mother case id'"/>
+            </push>
+            <push>
+                <!-- this will not be run, due to rewind on the current frame, even though it is IDd -->
+                <command value="'m0'"/>
+            </push>
         </stack>
     </entry>
 </suite>

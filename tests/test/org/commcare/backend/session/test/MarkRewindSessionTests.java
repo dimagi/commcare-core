@@ -16,14 +16,13 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-
 public class MarkRewindSessionTests {
 
     /**
      * Test rewinding and set needed datum occurs correctly
      */
     @Test
-    public void testFrameCopyAndReturn() throws Exception {
+    public void FrameCopyAndReturnTest() throws Exception {
         MockApp mockApp = new MockApp("/stack-frame-copy-app/");
         SessionWrapper session = mockApp.getSession();
 
@@ -37,6 +36,15 @@ public class MarkRewindSessionTests {
         Action action = shortDetail.getCustomActions().firstElement();
         // queue up action
         session.executeStackOperations(action.getStackOperations(), session.getEvaluationContext());
+
+        // test backing out of action
+        session.stepBack();
+        assertEquals("child_case_1", session.getNeededDatum().getDataId());
+        assertEquals(SessionFrame.STATE_DATUM_VAL, session.getFrame().getSteps().lastElement().getType());
+
+        // queue up action again
+        session.executeStackOperations(action.getStackOperations(), session.getEvaluationContext());
+
         // finish action
         session.finishExecuteAndPop(session.getEvaluationContext());
 
@@ -88,7 +96,7 @@ public class MarkRewindSessionTests {
      * Test that rewinding without a mark in the stack is a null op
      */
     @Test
-    public void testReturningValuesFromFrames() throws Exception {
+    public void returningValuesFromFramesTest() throws Exception {
         MockApp mockApp = new MockApp("/stack-frame-copy-app/");
         SessionWrapper session = mockApp.getSession();
 
@@ -113,11 +121,10 @@ public class MarkRewindSessionTests {
      * Test nested mark/rewinds
      */
     @Test
-    public void testNestedMarkRewinds() throws Exception {
+    public void nestedMarkRewindTest() throws Exception {
         MockApp mockApp = new MockApp("/stack-frame-copy-app/");
         SessionWrapper session = mockApp.getSession();
 
-        // start with the registration
         session.setCommand("nested-mark-and-rewinds-part-i");
         session.finishExecuteAndPop(session.getEvaluationContext());
         assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
@@ -131,5 +138,42 @@ public class MarkRewindSessionTests {
         CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
                 "instance('session')/session/data/mother_case_1", "the mother case id");
 
+    }
+
+    @Test
+    public void pushRewindToNonCurrentFrame() throws Exception {
+        MockApp mockApp = new MockApp("/stack-frame-copy-app/");
+        SessionWrapper session = mockApp.getSession();
+
+        session.setCommand("push-rewind-to-non-current-id-frame");
+        session.finishExecuteAndPop(session.getEvaluationContext());
+        assertEquals("m0", session.getCommand());
+
+        session.finishExecuteAndPop(session.getEvaluationContext());
+
+        assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
+                "instance('session')/session/data/mother_case_1", "the mother case id");
+        CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
+                "instance('session')/session/data/child_case_1", "billy");
+    }
+
+    @Test
+    public void pushIdRewindToCurrentFrame() throws Exception {
+        MockApp mockApp = new MockApp("/stack-frame-copy-app/");
+        SessionWrapper session = mockApp.getSession();
+
+        session.setCommand("push-rewind-to-current-id-frame-part-i");
+        session.finishExecuteAndPop(session.getEvaluationContext());
+        assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+
+        session.setCommand("push-rewind-to-current-id-frame-part-ii");
+        session.finishExecuteAndPop(session.getEvaluationContext());
+
+        assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        assertEquals("child_case_1", session.getNeededDatum().getDataId());
+
+        CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
+                "instance('session')/session/data/mother_case_1", "the mother case id");
     }
 }

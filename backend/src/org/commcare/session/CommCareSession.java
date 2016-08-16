@@ -65,7 +65,6 @@ public class CommCareSession {
      * The current session frame data
      */
     private SessionFrame frame;
-    private String nextDatumValue;
 
     /**
      * The stack of pending Frames
@@ -320,14 +319,7 @@ public class CommCareSession {
                                               Vector<SessionDatum> allDatumsNeeded) {
         for (SessionDatum datum : allDatumsNeeded) {
             if (!datumsCollectedSoFar.containsKey(datum.getDataId())) {
-                if (nextDatumValue != null) {
-                    // set the needed datum to the return value from the last
-                    // popped frame and continue looking for needed datums
-                    setDatum(datum.getDataId(), nextDatumValue);
-                    nextDatumValue = null;
-                } else {
-                    return datum;
-                }
+                return datum;
             }
         }
         return null;
@@ -356,26 +348,34 @@ public class CommCareSession {
 
     public void stepBack(EvaluationContext evalContext) {
         // Pop the first thing off of the stack frame, no matter what
-        popSessionFrameStack();
+        popStepInCurrentSessionFrame();
 
         // Keep popping things off until the value of needed data indicates that we are back to
         // somewhere where we are waiting for user-provided input
-        while (this.getNeededData(evalContext) == null ||
-                this.getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED)) {
-            popSessionFrameStack();
+        while (getNeededData(evalContext) == null
+                || getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED)
+                || topStepIsMark()) {
+            popStepInCurrentSessionFrame();
         }
+    }
+
+    private boolean topStepIsMark() {
+        return !frame.getSteps().isEmpty()
+                && SessionFrame.STATE_MARK.equals(frame.getSteps().lastElement().getType());
     }
 
     public void popStep(EvaluationContext evalContext) {
-        popSessionFrameStack();
+        popStepInCurrentSessionFrame();
 
-        while (getNeededData(evalContext) == null) {
-            popSessionFrameStack();
+        while (getNeededData(evalContext) == null
+                || topStepIsMark()) {
+            popStepInCurrentSessionFrame();
         }
     }
 
-    private void popSessionFrameStack() {
+    private void popStepInCurrentSessionFrame() {
         StackFrameStep recentPop = frame.popStep();
+
         //TODO: Check the "base state" of the frame after popping to see if we invalidated the stack
         syncState();
         popped = recentPop;
@@ -611,9 +611,7 @@ public class CommCareSession {
 
         for (StackFrameStep step : op.getStackFrameSteps()) {
             if (SessionFrame.STATE_REWIND.equals(step.getType())) {
-                if (matchingFrame.rewindToMark()) {
-                    // found a 'mark', so the rewind occurred
-                    nextDatumValue = step.getValue();
+                if (matchingFrame.rewindToMarkAndSet(step.getValue())) {
                     return false;
                 }
                 // otherwise ignore the rewind and continue
