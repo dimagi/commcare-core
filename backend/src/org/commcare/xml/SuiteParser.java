@@ -104,9 +104,9 @@ public class SuiteParser extends ElementParser<Suite> {
                             Entry viewEntry = EntryParser.buildViewParser(parser).parse();
                             entries.put(viewEntry.getCommandId(), viewEntry);
                             break;
-                        case "sync-request":
-                            Entry syncEntry = EntryParser.buildRemoteSyncParser(parser).parse();
-                            entries.put(syncEntry.getCommandId(), syncEntry);
+                        case EntryParser.REMOTE_REQUEST_TAG:
+                            Entry remoteRequestEntry = EntryParser.buildRemoteSyncParser(parser).parse();
+                            entries.put(remoteRequestEntry.getCommandId(), remoteRequestEntry);
                             break;
                         case "locale":
                             String localeKey = parser.getAttributeValue(null, "language");
