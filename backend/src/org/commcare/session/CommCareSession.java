@@ -556,58 +556,83 @@ public class CommCareSession {
             String frameId = op.getFrameId();
             SessionFrame matchingFrame = updateMatchingFrame(frameId);
 
-            switch (op.getOp()) {
-                case StackOperation.OPERATION_CREATE:
-                    createFrame(new SessionFrame(frameId), matchingFrame, op, onDeck, ec);
-                    break;
-                case StackOperation.OPERATION_PUSH:
-                    performPush(op, matchingFrame, onDeck, ec);
-                    break;
-                case StackOperation.OPERATION_CLEAR:
-                    performClearOperation(matchingFrame, op, ec);
-                    break;
-                default:
-                    throw new RuntimeException("Undefined stack operation: " + op.getOp());
+            if (!processStackOp(op, frameId, matchingFrame, onDeck, ec)) {
+                // rewind occurred, stop processing futher ops.
+                break;
             }
         }
 
         return popOrSync(onDeck);
     }
 
+    /**
+     * @return false if current frame was rewound
+     */
+    private boolean processStackOp(StackOperation op, String frameId, SessionFrame matchingFrame,
+                                   SessionFrame onDeck, EvaluationContext ec) {
+        switch (op.getOp()) {
+            case StackOperation.OPERATION_CREATE:
+                createFrame(new SessionFrame(frameId), matchingFrame, op, onDeck, ec);
+                break;
+            case StackOperation.OPERATION_PUSH:
+                if (!performPush(op, matchingFrame, onDeck, ec)) {
+                    return false;
+                }
+                break;
+            case StackOperation.OPERATION_CLEAR:
+                performClearOperation(matchingFrame, op, ec);
+                break;
+            default:
+                throw new RuntimeException("Undefined stack operation: " + op.getOp());
+        }
+
+        return true;
+    }
+
     private void createFrame(SessionFrame createdFrame, SessionFrame matchingFrame,
                              StackOperation op, SessionFrame onDeck, EvaluationContext ec) {
         // Ensure no frames exist with this ID
-        if (matchingFrame == null) {
-            if (performPush(op, createdFrame, onDeck, ec)) {
-                pushNewFrame(createdFrame);
-            }
+        if (matchingFrame == null && op.isOperationTriggered(ec)) {
+            performPushInner(op, createdFrame, onDeck, ec);
+            pushNewFrame(createdFrame);
         }
     }
 
+    /**
+     * @return false if push was terminated early by a 'rewind'
+     */
+    private boolean performPushInner(StackOperation op, SessionFrame matchingFrame,
+                                     SessionFrame onDeck, EvaluationContext ec) {
+        // If we don't have a frame yet, this push is targeting the
+        // frame on deck
+        if (matchingFrame == null) {
+            matchingFrame = onDeck;
+        }
+
+        for (StackFrameStep step : op.getStackFrameSteps()) {
+            if (SessionFrame.STATE_REWIND.equals(step.getType())) {
+                if (matchingFrame.rewindToMark()) {
+                    // found a 'mark', so the rewind occurred
+                    nextDatumValue = step.getValue();
+                    return false;
+                }
+                // otherwise ignore the rewind and continue
+            } else {
+                matchingFrame.pushStep(step.defineStep(ec));
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @return false if push was terminated early by a 'rewind'
+     */
     private boolean performPush(StackOperation op, SessionFrame matchingFrame,
                                 SessionFrame onDeck, EvaluationContext ec) {
         if (op.isOperationTriggered(ec)) {
-            // If we don't have a frame yet, this push is targeting the
-            // frame on deck
-            if (matchingFrame == null) {
-                matchingFrame = onDeck;
-            }
-
-            for (StackFrameStep step : op.getStackFrameSteps()) {
-                if (SessionFrame.STATE_REWIND.equals(step.getType())) {
-                    if (matchingFrame.rewindToMark()) {
-                        // found a 'mark', so the rewind occurred
-                        nextDatumValue = step.getId();
-                        return true;
-                    }
-                    // otherwise ignore the rewind and continue
-                } else {
-                    matchingFrame.pushStep(step.defineStep(ec));
-                }
-            }
-            return true;
+            return performPushInner(op, matchingFrame, onDeck, ec);
         }
-        return false;
+        return true;
     }
 
     private SessionFrame updateMatchingFrame(String frameId) {

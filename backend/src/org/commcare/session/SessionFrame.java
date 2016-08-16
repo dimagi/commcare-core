@@ -110,7 +110,7 @@ public class SessionFrame implements Externalizable {
         return recentPop;
     }
 
-    public boolean rewindToMark() {
+    protected boolean rewindToMark() {
         int index = 0;
         for (StackFrameStep step : steps) {
             if (SessionFrame.STATE_MARK.equals(step.getType())) {
@@ -118,11 +118,8 @@ public class SessionFrame implements Externalizable {
             }
             index++;
         }
-        if (index > 0) {
-            while (index > 0) {
-                steps.removeElementAt(index);
-                index--;
-            }
+        if (index > 0 && index != steps.size()) {
+            steps = new Vector<>(steps.subList(0, index));
             return true;
         } else {
             return false;

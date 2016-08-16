@@ -46,7 +46,7 @@ public class MarkRewindSessionTests {
         CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
                 "instance('session')/session/data/child_case_1", "billy");
         session.finishExecuteAndPop(session.getEvaluationContext());
-        assertTrue(session.getFrame().getSteps().isEmpty());
+        assertTrue(session.getFrame().isDead());
     }
 
     @Test
