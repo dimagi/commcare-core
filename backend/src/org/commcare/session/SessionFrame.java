@@ -35,7 +35,8 @@ public class SessionFrame implements Externalizable {
      * CommCare needs any piece of information coming from a datum val (other than a computed datum)
      */
     public static final String STATE_DATUM_VAL = "CASE_ID";
-    public static final String STATE_RETURN = "RETURN";
+    public static final String STATE_REWIND = "REWIND";
+    public static final String STATE_MARK = "MARK";
 
     /**
      * CommCare needs a computed xpath value to proceed
@@ -107,6 +108,25 @@ public class SessionFrame implements Externalizable {
             steps.removeElementAt(steps.size() - 1);
         }
         return recentPop;
+    }
+
+    public boolean rewindToMark() {
+        int index = 0;
+        for (StackFrameStep step : steps) {
+            if (SessionFrame.STATE_MARK.equals(step.getType())) {
+                break;
+            }
+            index++;
+        }
+        if (index > 0) {
+            while (index > 0) {
+                steps.removeElementAt(index);
+                index--;
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void pushStep(StackFrameStep step) {

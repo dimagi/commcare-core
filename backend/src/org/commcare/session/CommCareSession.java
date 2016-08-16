@@ -584,8 +584,8 @@ public class CommCareSession {
         }
     }
 
-    private static boolean performPush(StackOperation op, SessionFrame matchingFrame,
-                                       SessionFrame onDeck, EvaluationContext ec) {
+    private boolean performPush(StackOperation op, SessionFrame matchingFrame,
+                                SessionFrame onDeck, EvaluationContext ec) {
         if (op.isOperationTriggered(ec)) {
             // If we don't have a frame yet, this push is targeting the
             // frame on deck
@@ -594,7 +594,16 @@ public class CommCareSession {
             }
 
             for (StackFrameStep step : op.getStackFrameSteps()) {
-                matchingFrame.pushStep(step.defineStep(ec));
+                if (SessionFrame.STATE_REWIND.equals(step.getType())) {
+                    if (matchingFrame.rewindToMark()) {
+                        // found a 'mark', so the rewind occurred
+                        nextDatumValue = step.getId();
+                        return true;
+                    }
+                    // otherwise ignore the rewind and continue
+                } else {
+                    matchingFrame.pushStep(step.defineStep(ec));
+                }
             }
             return true;
         }
@@ -716,7 +725,6 @@ public class CommCareSession {
         if (frameStack.empty()) {
             return false;
         } else {
-            nextDatumValue = popReturnFromFrame(frame);
             frame = frameStack.pop();
             //Ok, so if _after_ popping from the stack, we still have
             //stack members, we need to be careful about making sure
@@ -729,18 +737,6 @@ public class CommCareSession {
             syncState();
             return true;
         }
-    }
-
-    /**
-     * Get the value of the first 'return' step from the popped frame
-     */
-    private static String popReturnFromFrame(SessionFrame poppedFrame) {
-        for (StackFrameStep step : poppedFrame.getSteps()) {
-            if (SessionFrame.STATE_RETURN.equals(step.getType())) {
-                return poppedFrame.popStep().getId();
-            }
-        }
-        return null;
     }
 
     /**

@@ -11,7 +11,7 @@
         </session>
         <stack>
             <push>
-                <return value="'billy'"/>
+                <rewind value="'billy'"/>
             </push>
             <create>
                 <command value="'m1'"/>
@@ -80,10 +80,8 @@
                 </text>
             </display>
             <stack>
-                <copy>
-                    <command value="'child-visit'"/>
-                </copy>
                 <push>
+                    <mark/>
                     <command value="'claim'"/>
                 </push>
             </stack>
@@ -127,8 +125,13 @@
         </session>
         <stack>
             <push>
-                <return value="'billy'"/>
+                <rewind value="'billy'"/>
             </push>
+            <!-- this should never get run because we have a mark to rewind to -->
+            <create>
+                <command value="'child-visit'"/>
+                <datum id="mother_case_1" value="instance('session')/session/data/mother_case_1"/>
+            </create>
         </stack>
     </sync-request>
 
@@ -138,4 +141,38 @@
         </text>
         <command id="visit-form"/>
     </menu>
+
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="create-rewind-behavior">
+            <text>test stack create/rewind</text>
+        </command>
+        <session/>
+        <stack>
+            <create>
+                <command value="'child-visit'"/>
+                <mark/>
+                <datum id="mother_case_1" value="'should never be stored'"/>
+                <rewind value="'real mother'"/>
+                <datum id="child_case_1" value="'billy'"/>
+            </create>
+        </stack>
+    </entry>
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="create-rewind-without-mark">
+            <text>test stack create/rewind</text>
+        </command>
+        <session/>
+        <stack>
+            <create>
+                <command value="'child-visit'"/>
+                <datum id="mother_case_1" value="'real mother'"/>
+                <rewind value="'should never be stored'"/>
+                <datum id="child_case_1" value="'billy'"/>
+            </create>
+        </stack>
+    </entry>
 </suite>

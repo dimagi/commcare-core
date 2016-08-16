@@ -27,8 +27,10 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
             case "datum":
                 String id = parser.getAttributeValue(null, "id");
                 return parseValue(SessionFrame.STATE_DATUM_VAL, id);
-            case "return":
-                return parseValue(SessionFrame.STATE_RETURN, null);
+            case "rewind":
+                return parseValue(SessionFrame.STATE_REWIND, null);
+            case "mark":
+                return parseValue(SessionFrame.STATE_MARK, null);
             case "command":
                 return parseValue(SessionFrame.STATE_COMMAND_ID, null);
             default:

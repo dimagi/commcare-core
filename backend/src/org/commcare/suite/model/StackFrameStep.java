@@ -149,8 +149,10 @@ public class StackFrameStep implements Externalizable {
                 return new StackFrameStep(SessionFrame.STATE_DATUM_VAL, id, finalValue);
             case SessionFrame.STATE_COMMAND_ID:
                 return new StackFrameStep(SessionFrame.STATE_COMMAND_ID, finalValue, null);
-            case SessionFrame.STATE_RETURN:
-                return new StackFrameStep(SessionFrame.STATE_RETURN, finalValue, null);
+            case SessionFrame.STATE_REWIND:
+                throw new RuntimeException("Rewinds should either be skipped or trigger a rewind");
+            case SessionFrame.STATE_MARK:
+                return new StackFrameStep(SessionFrame.STATE_MARK, null, null);
             case SessionFrame.STATE_FORM_XMLNS:
                 throw new RuntimeException("Form Definitions in Steps are not yet supported!");
             default:
