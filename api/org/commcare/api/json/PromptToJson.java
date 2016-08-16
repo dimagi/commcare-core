@@ -95,8 +95,9 @@ public class PromptToJson {
                 break;
             case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
                 // we're in a subgroup
-                parseCaption(model.getCaptionPrompt(), obj);
-                obj.put("type", "sub-group");
+                System.out.println("Event Prompt New Repeat");
+                parseRepeatJuncture(model, obj, ix);
+                obj.put("type", "repeat-juncture");
                 obj.put("repeatable", true);
                 obj.put("exists", false);
                 break;
