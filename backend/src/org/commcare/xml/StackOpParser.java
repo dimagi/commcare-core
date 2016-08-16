@@ -31,9 +31,6 @@ public class StackOpParser extends ElementParser<StackOperation> {
                 case "create":
                     String id = parser.getAttributeValue(null, "id");
                     return StackOperation.buildCreateFrame(id, ifConditional, getChildren(operation));
-                case "copy":
-                    String copyId = parser.getAttributeValue(null, "id");
-                    return StackOperation.buildCopyFrame(copyId, ifConditional, getChildren(operation));
                 case "push":
                     return StackOperation.buildPushFrame(ifConditional, getChildren(operation));
                 case "clear":

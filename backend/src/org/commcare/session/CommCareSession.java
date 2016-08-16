@@ -557,9 +557,6 @@ public class CommCareSession {
             SessionFrame matchingFrame = updateMatchingFrame(frameId);
 
             switch (op.getOp()) {
-                case StackOperation.OPERATION_COPY:
-                    createFrame(new SessionFrame(frame), matchingFrame, op, onDeck, ec);
-                    break;
                 case StackOperation.OPERATION_CREATE:
                     createFrame(new SessionFrame(frameId), matchingFrame, op, onDeck, ec);
                     break;
