@@ -100,8 +100,8 @@ public class SuiteParser extends ElementParser<Suite> {
                         Entry e = EntryParser.buildViewParser(parser).parse();
                         entries.put(e.getCommandId(), e);
                     } else if (parser.getName().toLowerCase().equals(EntryParser.REMOTE_REQUEST_TAG)) {
-                        Entry syncEntry = EntryParser.buildRemoteSyncParser(parser).parse();
-                        entries.put(syncEntry.getCommandId(), syncEntry);
+                        Entry remoteRequestEntry = EntryParser.buildRemoteSyncParser(parser).parse();
+                        entries.put(remoteRequestEntry.getCommandId(), remoteRequestEntry);
                     } else if (parser.getName().toLowerCase().equals("locale")) {
                         String localeKey = parser.getAttributeValue(null, "language");
                         //resource def
