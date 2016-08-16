@@ -212,8 +212,8 @@ public class QuestionDef implements IFormElement {
         for (int i = 0; i < getNumChoices(); i++) {
             choices.elementAt(i).setIndex(i);
         }
-        setDynamicChoices((ItemsetBinding)ExtUtil.read(dis, new ExtWrapNullable(ItemsetBinding.class)));
-        mQuestionStrings = (Hashtable<String, QuestionString>)ExtUtil.read(dis, new ExtWrapMap(String.class, QuestionString.class));
+        setDynamicChoices((ItemsetBinding)ExtUtil.read(dis, new ExtWrapNullable(ItemsetBinding.class), pf));
+        mQuestionStrings = (Hashtable<String, QuestionString>)ExtUtil.read(dis, new ExtWrapMap(String.class, QuestionString.class), pf);
         extensions = (Vector)ExtUtil.read(dis, new ExtWrapListPoly(), pf);
         actionController = (ActionController)ExtUtil.read(dis, new ExtWrapNullable(ActionController.class), pf);
     }
