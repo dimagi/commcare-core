@@ -103,7 +103,7 @@
     </session>
   </entry>
 
-  <sync-request>
+  <remote-request>
     <post url="http://fake.com/claim_patient/"
           relevant="count(instance('casedb')/casedb/case[@case_id=instance('session')/session/data/case_id]) = 0">
       <data key="selected_case_id" ref="instance('session')/session/data/case_id"/>
@@ -138,37 +138,37 @@
         <datum id="case_id" value="instance('patients')/patients/patient/bolivar"/>
       </create>
     </stack>
-  </sync-request>
+  </remote-request>
 
-  <sync-request>
+  <remote-request>
     <post url="http://fake.com/claim_patient/"/>
-    <command id="empty-sync-request">
+    <command id="empty-remote-request">
       <display>
         <text>Global search for person</text>
       </display>
     </command>
     <session/>
-  </sync-request>
+  </remote-request>
 
-  <sync-request>
+  <remote-request>
     <post url="http://fake.com/claim_patient/" relevant="false()"/>
-    <command id="irrelevant-sync-request">
+    <command id="irrelevant-remote-request">
       <display>
         <text>Global search for person</text>
       </display>
     </command>
     <session/>
-  </sync-request>
+  </remote-request>
 
-  <sync-request>
+  <remote-request>
     <post url="http://fake.com/claim_patient/" relevant="true()"/>
-    <command id="relevant-sync-request">
+    <command id="relevant-remote-request">
       <display>
         <text>Global search for person</text>
       </display>
     </command>
     <session/>
-  </sync-request>
+  </remote-request>
 
   <menu id="m0">
     <text>
