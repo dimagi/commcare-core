@@ -8,11 +8,11 @@ import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.RemoteQueryDatum;
+import org.commcare.suite.model.RemoteRequestEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
-import org.commcare.suite.model.SyncEntry;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
@@ -203,8 +203,8 @@ public class CommCareSession {
         if (needDatum != null) {
             return needDatum;
         } else if (entries.size() == 1
-                && entries.elementAt(0) instanceof SyncEntry
-                && ((SyncEntry)entries.elementAt(0)).getSyncPost().isRelevant(evalContext)) {
+                && entries.elementAt(0) instanceof RemoteRequestEntry
+                && ((RemoteRequestEntry)entries.elementAt(0)).getPostRequest().isRelevant(evalContext)) {
             return SessionFrame.STATE_SYNC_REQUEST;
         } else if (entries.size() > 1 || !entries.elementAt(0).getCommandId().equals(currentCmd)) {
             //the only other thing we can need is a form command. If there's
@@ -456,7 +456,7 @@ public class CommCareSession {
         }
 
         Entry e = platform.getMenuMap().get(command);
-        if (e.isView() || e.isSync()) {
+        if (e.isView() || e.isRemoteRequest()) {
             return null;
         } else {
             return ((FormEntry)e).getXFormNamespace();
@@ -805,9 +805,9 @@ public class CommCareSession {
         return entries.size() == 1 && entries.elementAt(0).isView();
     }
 
-    public boolean isSyncCommand(String command) {
+    public boolean isRemoteRequestCommand(String command) {
         Vector<Entry> entries = this.getEntriesForCommand(command);
-        return entries.size() == 1 && entries.elementAt(0).isSync();
+        return entries.size() == 1 && entries.elementAt(0).isRemoteRequest();
     }
 
     public void addExtraToCurrentFrameStep(String key, Object value) {
