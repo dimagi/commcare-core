@@ -616,10 +616,26 @@ public class CommCareSession {
                 }
                 // otherwise ignore the rewind and continue
             } else {
-                matchingFrame.pushStep(step.defineStep(ec));
+                if (SessionFrame.STATE_MARK.equals(step.getType())) {
+                    SessionDatum neededDatum = getNeededDatumForFrame(matchingFrame);
+                    if (neededDatum == null) {
+                        throw new RuntimeException("Can't add a mark in a place where there is no needed datum");
+                    }
+                    StackFrameStep markStep = new StackFrameStep(SessionFrame.STATE_MARK, neededDatum.getDataId(), null);
+                    matchingFrame.pushStep(markStep);
+                } else {
+                    matchingFrame.pushStep(step.defineStep(ec));
+                }
             }
         }
         return true;
+    }
+
+    private SessionDatum getNeededDatumForFrame(SessionFrame targetFrame) {
+        CommCareSession sessionCopy = new CommCareSession(this);
+        sessionCopy.frame = targetFrame;
+        sessionCopy.syncState();
+        return sessionCopy.getNeededDatum();
     }
 
     /**

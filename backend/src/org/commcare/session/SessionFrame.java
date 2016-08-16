@@ -112,9 +112,9 @@ public class SessionFrame implements Externalizable {
 
     protected boolean rewindToMarkAndSet(String value) {
         int markIndex = getLatestMarkPosition(steps);
-         String markDatumId = steps.get(markIndex).getValue();
 
         if (markIndex >= 0) {
+            String markDatumId = steps.get(markIndex).getId();
             steps = new Vector<>(steps.subList(0, markIndex));
             steps.addElement(new StackFrameStep(SessionFrame.STATE_DATUM_VAL, markDatumId, value));
             return true;

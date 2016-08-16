@@ -152,7 +152,7 @@ public class StackFrameStep implements Externalizable {
             case SessionFrame.STATE_REWIND:
                 throw new RuntimeException("Rewinds should either be skipped or trigger a rewind");
             case SessionFrame.STATE_MARK:
-                return new StackFrameStep(SessionFrame.STATE_MARK, neededDatumId, null);
+                throw new RuntimeException("TODO implementation elsewhere");
             case SessionFrame.STATE_FORM_XMLNS:
                 throw new RuntimeException("Form Definitions in Steps are not yet supported!");
             default:
