@@ -108,4 +108,28 @@ public class MarkRewindSessionTests {
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         assertEquals("child_case_1", session.getNeededDatum().getDataId());
     }
+
+    /**
+     * Test nested mark/rewinds
+     */
+    @Test
+    public void testNestedMarkRewinds() throws Exception {
+        MockApp mockApp = new MockApp("/stack-frame-copy-app/");
+        SessionWrapper session = mockApp.getSession();
+
+        // start with the registration
+        session.setCommand("nested-mark-and-rewinds-part-i");
+        session.finishExecuteAndPop(session.getEvaluationContext());
+        assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+
+        session.setCommand("nested-mark-and-rewinds-part-ii");
+        session.finishExecuteAndPop(session.getEvaluationContext());
+
+        assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        assertEquals("child_case_1", session.getNeededDatum().getDataId());
+
+        CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
+                "instance('session')/session/data/mother_case_1", "the mother case id");
+
+    }
 }

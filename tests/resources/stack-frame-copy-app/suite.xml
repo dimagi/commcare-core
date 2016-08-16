@@ -175,4 +175,54 @@
             </create>
         </stack>
     </entry>
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="nested-mark-and-rewinds-part-i">
+            <text>test nested mark/rewind I</text>
+        </command>
+        <session/>
+        <stack>
+            <create>
+                <command value="'child-visit'"/>
+                <mark/>
+                <datum id="mother_case_1" value="'should never be stored'"/>
+                <mark/>
+                <rewind value="'the child case id'"/>
+            </create>
+        </stack>
+    </entry>
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="nested-mark-and-rewinds-part-ii">
+            <text>test nested mark/rewind II</text>
+        </command>
+        <session/>
+        <stack>
+            <push>
+                <rewind value="'the mother case id'"/>
+            </push>
+        </stack>
+    </entry>
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="push-rewind-to-non-current-id-frame">
+            <text>test stack create/rewind</text>
+        </command>
+        <session/>
+        <stack>
+        </stack>
+    </entry>
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="push-rewind-to-current-id-frame">
+            <text>test stack create/rewind</text>
+        </command>
+        <session/>
+        <stack>
+        </stack>
+    </entry>
 </suite>
