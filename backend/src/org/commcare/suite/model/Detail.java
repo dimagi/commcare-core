@@ -62,14 +62,19 @@ public class Detail implements Externalizable {
     // This will probably be a list sooner rather than later?
     Vector<Action> actions;
 
-    // Only used if this detail is a case tile that is being shown in a grid layout
+    // Force the activity that is showing this detail to show itself in landscape view only
+    private boolean forceLandscapeView;
+
+    // region -- These fields are only used if this detail is a case tile
+
+    // Allows for the possibility of case tiles being displayed in a grid
     private int numEntitiesToDisplayPerRow;
 
-    // Only used if this detail is a case tile; indicates that the height of a single cell
-    // in the tile's grid layout should be equal to its width, rather than being computed independently
+    // Indicates that the height of a single cell in the tile's grid layout should be treated as
+    // equal to its width, rather than being computed independently
     private boolean useUniformUnitsInCaseTile;
 
-    private boolean forceLandscapeView;
+    // endregion
 
     /**
      * Serialization Only
