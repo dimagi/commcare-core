@@ -151,8 +151,9 @@ public class MenuScreen extends Screen {
         try {
             int i = Integer.parseInt(input);
             String commandId;
-            if (mChoices[i] instanceof FormEntry) {
-                commandId = ((FormEntry)mChoices[i]).getCommandId();
+            MenuDisplayable menuDisplayable = mChoices[i];
+            if (menuDisplayable instanceof Entry) {
+                commandId = ((Entry)menuDisplayable).getCommandId();
             } else {
                 commandId = ((Menu)mChoices[i]).getId();
             }
