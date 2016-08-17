@@ -345,12 +345,14 @@ public class CommCareSession {
     }
 
     /**
-     * When parsing we will mark certain steps as of "unknown" type and then
-     * try to determine whether these should be interpreted as STATE_DATUM_COMPUTED
-     * or STATE_COMMAND_ID runtime. This affects primarily the stepBack() behavior.
+     * When StackFrameSteps are parsed, those that are "datum" operations will be marked as type
+     * "unknown". When we encounter a StackFrameStep of unknown type at runtime, we need to
+     * determine whether it should be interpreted as STATE_DATUM_COMPUTED or STATE_COMMAND_ID.
+     * This primarily affects the behavior of stepBack().
      *
-     * If we have a previous step who's entries would add this command, interpret as a command.
-     * Otherwise, interpret as a computed.
+     * The logic being employed is: If there is a previous step on the stack whose entries would
+     * have added this command, interpret it as a command. Otherwise, interpret it as a computed
+     * datum.
      */
     private String guessUnknownType(StackFrameStep popped){
         String poppedId = popped.getId();
