@@ -356,12 +356,12 @@ public class CommCareSession {
      */
     private String guessUnknownType(StackFrameStep popped){
         String poppedId = popped.getId();
-        for(StackFrameStep stackFrameStep: frame.getSteps()){
+        for (StackFrameStep stackFrameStep: frame.getSteps()){
             String commandId = stackFrameStep.getId();
             Vector<Entry> entries = getEntriesForCommand(commandId);
-            for(Entry entry: entries){
+            for (Entry entry: entries){
                 String childCommand = entry.getCommandId();
-                if(childCommand.equals(poppedId)) {
+                if (childCommand.equals(poppedId)) {
                     return SessionFrame.STATE_COMMAND_ID;
                 }
             }
@@ -370,13 +370,13 @@ public class CommCareSession {
     }
 
     private boolean popNext(EvaluationContext evalContext){
-        if(this.getNeededData(evalContext) == null ||
+        if (this.getNeededData(evalContext) == null ||
                 this.getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED) ||
                 popped.getType().equals(SessionFrame.STATE_DATUM_COMPUTED)){
             return true;
         }
 
-        if(popped.getType().equals(SessionFrame.STATE_UNKNOWN)){
+        if (popped.getType().equals(SessionFrame.STATE_UNKNOWN)){
             return guessUnknownType(popped).equals(SessionFrame.STATE_DATUM_COMPUTED);
         }
         return false;
