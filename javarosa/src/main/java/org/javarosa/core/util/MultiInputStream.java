@@ -16,16 +16,12 @@ import java.util.Vector;
  * the first read.
  *
  * @author Clayton Sims
- * @date Dec 18, 2008
  */
 public class MultiInputStream extends InputStream {
 
-    /**
-     * InputStream *
-     */
-    final Vector streams = new Vector();
+    private final Vector<InputStream> streams = new Vector<>();
 
-    int currentStream = -1;
+    private int currentStream = -1;
 
     public void addStream(InputStream stream) {
         streams.addElement(stream);
@@ -48,14 +44,12 @@ public class MultiInputStream extends InputStream {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see java.io.InputStream#read()
-     */
+    @Override
     public int read() throws IOException {
         if (currentStream == -1) {
             throw new IOException("Cannot read from unprepared MultiInputStream!");
         }
-        InputStream cur = ((InputStream)streams.elementAt(currentStream));
+        InputStream cur = streams.elementAt(currentStream);
         int next = cur.read();
 
         if (next != -1) {
@@ -68,7 +62,7 @@ public class MultiInputStream extends InputStream {
         //an end of stream
         while (next == -1 && currentStream + 1 < streams.size()) {
             currentStream++;
-            cur = ((InputStream)streams.elementAt(currentStream));
+            cur = streams.elementAt(currentStream);
             next = cur.read();
         }
 
@@ -76,19 +70,15 @@ public class MultiInputStream extends InputStream {
         return next;
     }
 
-    /* (non-Javadoc)
-     * @see java.io.InputStream#available()
-     */
+    @Override
     public int available() throws IOException {
         if (currentStream == -1) {
             throw new IOException("Cannot read from unprepared MultiInputStream!");
         }
-        return ((InputStream)streams.elementAt(currentStream)).available();
+        return streams.elementAt(currentStream).available();
     }
 
-    /* (non-Javadoc)
-     * @see java.io.InputStream#close()
-     */
+    @Override
     public void close() throws IOException {
         if (currentStream == -1) {
             throw new IOException("Cannot read from unprepared MultiInputStream!");

@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.util;
 
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -29,10 +13,10 @@ import java.util.Vector;
 
 //maintain an array of integers in sorted order. no duplicates allowed.
 public class SortedIntSet implements Externalizable {
-    Vector v;
+    Vector<Integer> v;
 
     public SortedIntSet() {
-        v = new Vector();
+        v = new Vector<>();
     }
 
     //add new value; return index inserted at if value was not already present, -1 if it was
@@ -41,7 +25,7 @@ public class SortedIntSet implements Externalizable {
         if (i != -1 && get(i) == n) {
             return -1;
         } else {
-            v.insertElementAt(new Integer(n), i + 1);
+            v.insertElementAt(n, i + 1);
             return i + 1;
         }
     }
@@ -56,7 +40,7 @@ public class SortedIntSet implements Externalizable {
 
     //return value at index
     public int get(int i) {
-        return ((Integer)v.elementAt(i)).intValue();
+        return v.elementAt(i);
     }
 
     //return whether value is present

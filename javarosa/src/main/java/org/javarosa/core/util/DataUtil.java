@@ -7,10 +7,10 @@ import java.util.Vector;
  * @author ctsims
  */
 public class DataUtil {
-    static final int offset = 10;
-    static final int low = -10;
-    static final int high = 400;
-    static Integer[] iarray;
+    private static final int offset = 10;
+    private static final int low = -10;
+    private static final int high = 400;
+    private static Integer[] iarray;
 
     /**
      * Get Integer object that corresponds to int argument from a
@@ -23,14 +23,14 @@ public class DataUtil {
         if (iarray == null) {
             iarray = new Integer[high - low];
             for (int i = 0; i < iarray.length; ++i) {
-                iarray[i] = new Integer(i + low);
+                iarray[i] = i + low;
             }
         }
 
         if (ivalue < high && ivalue >= low) {
             return iarray[ivalue + offset];
         } else {
-            return new Integer(ivalue);
+            return ivalue;
         }
     }
 
