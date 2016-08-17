@@ -357,7 +357,7 @@ public class CommCareSession {
                 }
                 for(StackOperation stackOperation: stackOperations) {
                     for(StackFrameStep step: stackOperation.getStackFrameSteps()){
-                        if(step.getValue().equals(poppedId)){
+                        if(poppedId.equals(step.getId())) {
                             return SessionFrame.STATE_DATUM_COMPUTED;
                         }
                     }
@@ -373,14 +373,9 @@ public class CommCareSession {
                 popped.getType().equals(SessionFrame.STATE_DATUM_COMPUTED)){
             return true;
         }
-        if(this.getNeededData(evalContext).equals(SessionFrame.STATE_UNKNOWN)){
-            System.out.println("Get needed data unknown");
-        }
 
         if(popped.getType().equals(SessionFrame.STATE_UNKNOWN)){
-            String guessedType = guessUnknownType(popped);
-            System.out.println("Guessed type: " + guessedType);
-            return guessedType.equals(SessionFrame.STATE_DATUM_COMPUTED);
+            return guessUnknownType(popped).equals(SessionFrame.STATE_DATUM_COMPUTED);
         }
         return false;
 
@@ -740,7 +735,6 @@ public class CommCareSession {
      */
     public boolean finishExecuteAndPop(EvaluationContext ec) {
         Vector<StackOperation> ops = getCurrentEntry().getPostEntrySessionOperations();
-        System.out.println("Popped ops: " + ops);
 
         //Let the session know that the current frame shouldn't work its way back onto the stack
         markCurrentFrameForDeath();

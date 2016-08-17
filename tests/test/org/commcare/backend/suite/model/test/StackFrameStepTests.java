@@ -1,14 +1,20 @@
 package org.commcare.backend.suite.model.test;
 
+import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.modern.session.SessionWrapper;
+import org.commcare.session.SessionDescriptorUtil;
 import org.commcare.suite.model.StackFrameStep;
+import org.commcare.test.utilities.MockApp;
 import org.commcare.test.utilities.PersistableSandbox;
 import org.commcare.session.SessionFrame;
 
+import org.commcare.util.FormDataUtil;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -102,5 +108,27 @@ public class StackFrameStepTests {
             failed = true;
         }
         assertTrue(failed);
+    }
+
+    /**
+     * Load form title from session where the case id is computed, not
+     * selected, and the case name is loaded from detail referenced by m0-f0,
+     * which is implicitly referenced
+     */
+    @Test
+    public void loadRegistrationFormTitleFromSessionTest() throws Exception {
+        MockApp mockApp = new MockApp("/case_title_form_loading/");
+        SessionWrapper session = mockApp.getSession();
+        UserSandbox sandbox = session.getSandbox();
+        SessionWrapper blankSession = new SessionWrapper(session.getPlatform(), sandbox);
+        String descriptor = "COMMAND_ID m0 "
+                + "COMMAND_ID m3-f0 "
+                + "CASE_ID case_id_new_adult_0 case_one "
+                + "CASE_ID usercase_id 05c0fb7a77a54eed9872fc1b72a21826 "
+                + "CASE_ID return_to m0";
+        SessionDescriptorUtil.loadSessionFromDescriptor(descriptor, blankSession);
+        blankSession.stepBack();
+        assertEquals(SessionFrame.STATE_DATUM_VAL, blankSession.getNeededData());
+        assertEquals(SessionFrame.STATE_COMMAND_ID, blankSession.getPoppedStep().getType());
     }
 }
