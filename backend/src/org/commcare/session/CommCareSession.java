@@ -614,7 +614,7 @@ public class CommCareSession {
                 if (matchingFrame.rewindToMarkAndSet(step.getValue())) {
                     return false;
                 }
-                // otherwise ignore the rewind and continue
+                // if no mark is found ignore the rewind and continue
             } else {
                 if (SessionFrame.STATE_MARK.equals(step.getType())) {
                     SessionDatum neededDatum = getNeededDatumForFrame(matchingFrame);

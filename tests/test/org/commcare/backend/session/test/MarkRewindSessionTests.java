@@ -141,31 +141,13 @@ public class MarkRewindSessionTests {
     }
 
     @Test
-    public void pushRewindToNonCurrentFrame() throws Exception {
-        MockApp mockApp = new MockApp("/stack-frame-copy-app/");
-        SessionWrapper session = mockApp.getSession();
-
-        session.setCommand("push-rewind-to-non-current-id-frame");
-        session.finishExecuteAndPop(session.getEvaluationContext());
-        assertEquals("m0", session.getCommand());
-
-        session.finishExecuteAndPop(session.getEvaluationContext());
-
-        assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
-        CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
-                "instance('session')/session/data/mother_case_1", "the mother case id");
-        CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
-                "instance('session')/session/data/child_case_1", "billy");
-    }
-
-    @Test
     public void pushIdRewindToCurrentFrame() throws Exception {
         MockApp mockApp = new MockApp("/stack-frame-copy-app/");
         SessionWrapper session = mockApp.getSession();
 
         session.setCommand("push-rewind-to-current-id-frame-part-i");
         session.finishExecuteAndPop(session.getEvaluationContext());
-        assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
 
         session.setCommand("push-rewind-to-current-id-frame-part-ii");
         session.finishExecuteAndPop(session.getEvaluationContext());

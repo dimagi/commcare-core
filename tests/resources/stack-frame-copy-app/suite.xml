@@ -110,7 +110,7 @@
         </stack>
     </entry>
 
-    <sync-request>
+    <remote-request>
         <post relevant="false()"
               url="https://india.commcarehq.org/a/enikshay-test/phone/claim-case/">
         </post>
@@ -133,7 +133,7 @@
                 <datum id="mother_case_1" value="instance('session')/session/data/mother_case_1"/>
             </create>
         </stack>
-    </sync-request>
+    </remote-request>
 
     <menu id="child-visit">
         <text>
@@ -208,28 +208,6 @@
 
     <entry>
         <form>http://commcarehq.org/test/placeholder</form>
-        <command id="push-rewind-to-non-current-id-frame">
-            <text></text>
-        </command>
-        <session/>
-        <stack>
-            <create id="some-other-frame">
-                <command value="'child-visit'"/>
-                <mark/>
-            </create>
-            <push id="some-other-frame">
-                <rewind value="'the mother case id'"/>
-                <datum id="child_case_1" value="'billy'"/>
-            </push>
-            <push>
-                <!-- this will be run, due to ID'd rewind -->
-                <command value="'m0'"/>
-            </push>
-        </stack>
-    </entry>
-
-    <entry>
-        <form>http://commcarehq.org/test/placeholder</form>
         <command id="push-rewind-to-current-id-frame-part-i">
             <text></text>
         </command>
@@ -250,7 +228,7 @@
         </command>
         <session/>
         <stack>
-            <push id="main-frame">
+            <push>
                 <rewind value="'the mother case id'"/>
             </push>
             <push>
