@@ -563,8 +563,8 @@ public class CommCareSession {
 
     public SessionFrame getFrame() {
         SessionFrame copyFrame = new SessionFrame(frame);
-        for(StackFrameStep step: copyFrame.getSteps()) {
-            if(step.getType().equals(SessionFrame.STATE_UNKNOWN)){
+        for (StackFrameStep step: copyFrame.getSteps()) {
+            if (step.getType().equals(SessionFrame.STATE_UNKNOWN)){
                 step.setType(guessUnknownType(step));
             }
         }
