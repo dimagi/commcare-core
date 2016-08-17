@@ -3,16 +3,20 @@ package org.commcare.backend.suite.model.test;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.SessionDescriptorUtil;
+import org.commcare.suite.model.Action;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.test.utilities.PersistableSandbox;
 import org.commcare.session.SessionFrame;
 
 import org.commcare.util.FormDataUtil;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.util.Vector;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -111,24 +115,25 @@ public class StackFrameStepTests {
     }
 
     /**
-     * Load form title from session where the case id is computed, not
-     * selected, and the case name is loaded from detail referenced by m0-f0,
-     * which is implicitly referenced
+     * Confirm that when stepping after a stack push we remove all pushed data
      */
     @Test
-    public void loadRegistrationFormTitleFromSessionTest() throws Exception {
-        MockApp mockApp = new MockApp("/case_title_form_loading/");
-        SessionWrapper session = mockApp.getSession();
-        UserSandbox sandbox = session.getSandbox();
-        SessionWrapper blankSession = new SessionWrapper(session.getPlatform(), sandbox);
-        String descriptor = "COMMAND_ID m0 "
-                + "COMMAND_ID m3-f0 "
-                + "CASE_ID case_id_new_adult_0 case_one "
-                + "CASE_ID usercase_id 05c0fb7a77a54eed9872fc1b72a21826 "
-                + "CASE_ID return_to m0";
-        SessionDescriptorUtil.loadSessionFromDescriptor(descriptor, blankSession);
-        blankSession.stepBack();
-        assertEquals(SessionFrame.STATE_DATUM_VAL, blankSession.getNeededData());
-        assertEquals(SessionFrame.STATE_COMMAND_ID, blankSession.getPoppedStep().getType());
+    public void stepBackFromStackPush() throws Exception {
+        MockApp mApp = new MockApp("/case_title_form_loading/");
+        SessionWrapper session = mApp.getSession();
+        session.setCommand("m0");
+        session.setComputedDatum();
+        EntityDatum entityDatum = (EntityDatum) session.getNeededDatum();
+        Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions();
+        if (actions == null || actions.isEmpty()) {
+            Assert.fail("Detail screen stack action was missing from app!");
+        }
+        //We're using the second action for this screen which requires us to still need another datum
+        Action dblManagement = actions.elementAt(1);
+        assertEquals(1, session.getFrame().getSteps().size());
+        session.executeStackOperations(dblManagement.getStackOperations(), session.getEvaluationContext());
+        assertEquals(5, session.getFrame().getSteps().size());
+        session.stepBack();
+        assertEquals(1, session.getFrame().getSteps().size());
     }
 }
