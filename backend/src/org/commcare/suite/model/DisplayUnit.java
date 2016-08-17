@@ -12,16 +12,16 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
- * <p>A display unit element contains text and a set of potential image/audio
- * references for menus or other UI elements</p>
+ * A display unit element contains text and a set of potential image/audio
+ * references for menus or other UI elements
  *
  * @author ctsims
  */
 public class DisplayUnit implements Externalizable, DetailTemplate {
 
-    Text name;
-    Text imageReference;
-    Text audioReference;
+    private Text name;
+    private Text imageReference;
+    private Text audioReference;
 
     /**
      * Serialization only!!!
@@ -66,9 +66,7 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
         return audioReference;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         name = (Text)ExtUtil.read(in, Text.class, pf);
@@ -76,9 +74,7 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
         audioReference = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class));
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, name);
         ExtUtil.write(out, new ExtWrapNullable(imageReference));
