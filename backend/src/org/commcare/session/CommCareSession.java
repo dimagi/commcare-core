@@ -344,6 +344,14 @@ public class CommCareSession {
         return null;
     }
 
+    /**
+     * When parsing we will mark certain steps as of "unknown" type and then
+     * try to determine whether these should be interpreted as STATE_DATUM_COMPUTED
+     * or STATE_COMMAND_ID runtime. This affects primarily the stepBack() behavior.
+     *
+     * If we have a previous step who's entries would add this command, interpret as a command.
+     * Otherwise, interpret as a computed.
+     */
     private String guessUnknownType(StackFrameStep popped){
         String poppedId = popped.getId();
         for(StackFrameStep stackFrameStep: frame.getSteps()){
@@ -351,16 +359,8 @@ public class CommCareSession {
             Vector<Entry> entries = getEntriesForCommand(commandId);
             for(Entry entry: entries){
                 String childCommand = entry.getCommandId();
-                Vector<StackOperation> stackOperations = entry.getPostEntrySessionOperations();
                 if(childCommand.equals(poppedId)) {
                     return SessionFrame.STATE_COMMAND_ID;
-                }
-                for(StackOperation stackOperation: stackOperations) {
-                    for(StackFrameStep step: stackOperation.getStackFrameSteps()){
-                        if(poppedId.equals(step.getId())) {
-                            return SessionFrame.STATE_DATUM_COMPUTED;
-                        }
-                    }
                 }
             }
         }
