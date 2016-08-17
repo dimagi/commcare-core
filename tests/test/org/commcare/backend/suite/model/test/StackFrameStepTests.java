@@ -115,7 +115,7 @@ public class StackFrameStepTests {
     }
 
     /**
-     * Confirm that when stepping after a stack push we remove all pushed data
+     * Confirm that when stepping back after a stack push, we remove all pushed data
      */
     @Test
     public void stepBackFromStackPush() throws Exception {

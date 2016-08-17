@@ -118,7 +118,7 @@ public class StackOperation implements Externalizable {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "StackOperation id= " + id + ", elements: " + elements;
     }
 }
