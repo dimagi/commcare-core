@@ -354,12 +354,12 @@ public class CommCareSession {
      * have added this command, interpret it as a command. Otherwise, interpret it as a computed
      * datum.
      */
-    private String guessUnknownType(StackFrameStep popped){
+    private String guessUnknownType(StackFrameStep popped) {
         String poppedId = popped.getId();
-        for (StackFrameStep stackFrameStep: frame.getSteps()){
+        for (StackFrameStep stackFrameStep: frame.getSteps()) {
             String commandId = stackFrameStep.getId();
             Vector<Entry> entries = getEntriesForCommand(commandId);
-            for (Entry entry: entries){
+            for (Entry entry: entries) {
                 String childCommand = entry.getCommandId();
                 if (childCommand.equals(poppedId)) {
                     return SessionFrame.STATE_COMMAND_ID;
@@ -369,10 +369,10 @@ public class CommCareSession {
         return SessionFrame.STATE_DATUM_COMPUTED;
     }
 
-    private boolean popNext(EvaluationContext evalContext){
+    private boolean popNext(EvaluationContext evalContext) {
         if (this.getNeededData(evalContext) == null ||
                 this.getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED) ||
-                popped.getType().equals(SessionFrame.STATE_DATUM_COMPUTED)){
+                popped.getType().equals(SessionFrame.STATE_DATUM_COMPUTED)) {
             return true;
         }
 
@@ -564,7 +564,7 @@ public class CommCareSession {
     public SessionFrame getFrame() {
         SessionFrame copyFrame = new SessionFrame(frame);
         for (StackFrameStep step: copyFrame.getSteps()) {
-            if (step.getType().equals(SessionFrame.STATE_UNKNOWN)){
+            if (step.getType().equals(SessionFrame.STATE_UNKNOWN)) {
                 step.setType(guessUnknownType(step));
             }
         }
