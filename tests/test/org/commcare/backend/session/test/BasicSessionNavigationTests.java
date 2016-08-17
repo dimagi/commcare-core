@@ -168,16 +168,16 @@ public class BasicSessionNavigationTests {
     public void testInvokeEmptySyncRequest() {
         SessionWrapper session = mApp.getSession();
 
-        session.setCommand("empty-sync-request");
+        session.setCommand("empty-remote-request");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SYNC_REQUEST);
     }
 
     @Test
     public void testStepToSyncRequestRelevancy() {
-        session.setCommand("irrelevant-sync-request");
+        session.setCommand("irrelevant-remote-request");
         Assert.assertEquals(session.getNeededData(), null);
 
-        session.setCommand("relevant-sync-request");
+        session.setCommand("relevant-remote-request");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SYNC_REQUEST);
     }
 }

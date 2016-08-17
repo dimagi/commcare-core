@@ -18,31 +18,31 @@ import java.util.Vector;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class SyncEntry extends Entry {
-    private SyncPost post;
+public class RemoteRequestEntry extends Entry {
+    private PostRequest post;
 
     @SuppressWarnings("unused")
-    public SyncEntry() {
+    public RemoteRequestEntry() {
 
     }
 
-    public SyncEntry(String commandId, DisplayUnit display,
-                     Vector<SessionDatum> data,
-                     Hashtable<String, DataInstance> instances,
-                     Vector<StackOperation> stackOperations,
-                     AssertionSet assertions,
-                     SyncPost post) {
+    public RemoteRequestEntry(String commandId, DisplayUnit display,
+                              Vector<SessionDatum> data,
+                              Hashtable<String, DataInstance> instances,
+                              Vector<StackOperation> stackOperations,
+                              AssertionSet assertions,
+                              PostRequest post) {
         super(commandId, display, data, instances, stackOperations, assertions);
 
         this.post = post;
     }
 
-    public SyncPost getSyncPost() {
+    public PostRequest getPostRequest() {
         return post;
     }
 
     @Override
-    public boolean isSync() {
+    public boolean isRemoteRequest() {
         return true;
     }
 
@@ -51,7 +51,7 @@ public class SyncEntry extends Entry {
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
 
-        post = (SyncPost)ExtUtil.read(in, SyncPost.class, pf);
+        post = (PostRequest)ExtUtil.read(in, PostRequest.class, pf);
     }
 
     @Override
