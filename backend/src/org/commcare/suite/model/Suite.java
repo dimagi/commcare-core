@@ -36,7 +36,7 @@ public class Suite implements Persistable {
     private Hashtable<String, Detail> details;
 
     /**
-     * Entry id (also the same for menus) ) -> Entry Object *
+     * Entry id (also the same for menus) -> Entry Object *
      */
     private Hashtable<String, Entry> entries;
     private Vector<Menu> menus;
