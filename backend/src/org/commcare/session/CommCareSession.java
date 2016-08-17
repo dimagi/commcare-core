@@ -616,23 +616,23 @@ public class CommCareSession {
                 }
                 // if no mark is found ignore the rewind and continue
             } else {
-                if (SessionFrame.STATE_MARK.equals(step.getType())) {
-                    SessionDatum neededDatum = getNeededDatumForFrame(matchingFrame);
-                    if (neededDatum == null) {
-                        throw new RuntimeException("Can't add a mark in a place where there is no needed datum");
-                    }
-                    StackFrameStep markStep = new StackFrameStep(SessionFrame.STATE_MARK, neededDatum.getDataId(), null);
-                    matchingFrame.pushStep(markStep);
-                } else {
-                    matchingFrame.pushStep(step.defineStep(ec));
-                }
+                pushFrameStep(step, matchingFrame, ec);
             }
         }
         return true;
     }
 
-    private SessionDatum getNeededDatumForFrame(SessionFrame targetFrame) {
-        CommCareSession sessionCopy = new CommCareSession(this);
+    private void pushFrameStep(StackFrameStep step, SessionFrame frame, EvaluationContext ec) {
+        SessionDatum neededDatum = null;
+        if (SessionFrame.STATE_MARK.equals(step.getType())) {
+            neededDatum = getNeededDatumForFrame(this, frame);
+        }
+        frame.pushStep(step.defineStep(ec, neededDatum));
+    }
+
+    private static SessionDatum getNeededDatumForFrame(CommCareSession session,
+                                                       SessionFrame targetFrame) {
+        CommCareSession sessionCopy = new CommCareSession(session);
         sessionCopy.frame = targetFrame;
         sessionCopy.syncState();
         return sessionCopy.getNeededDatum();

@@ -126,37 +126,42 @@ public class StackFrameStep implements Externalizable {
     /**
      * Get a performed step to pass on to an actual frame
      *
-     * @param ec Context to evaluate any parameters with
+     * @param ec          Context to evaluate any parameters with
+     * @param neededDatum The current datum needed by the session, used by
+     *                    'mark' to know what datum to set in a 'rewind'
      * @return A step that can be added to a session frame
      */
-    public StackFrameStep defineStep(EvaluationContext ec) {
-        String finalValue;
+    public StackFrameStep defineStep(EvaluationContext ec, SessionDatum neededDatum) {
+        switch (elementType) {
+            case SessionFrame.STATE_DATUM_VAL:
+                return new StackFrameStep(SessionFrame.STATE_DATUM_VAL, id, evaluateValue(ec));
+            case SessionFrame.STATE_COMMAND_ID:
+                return new StackFrameStep(SessionFrame.STATE_COMMAND_ID, evaluateValue(ec), null);
+            case SessionFrame.STATE_REWIND:
+                return new StackFrameStep(SessionFrame.STATE_REWIND, null, evaluateValue(ec));
+            case SessionFrame.STATE_MARK:
+                if (neededDatum == null) {
+                    throw new RuntimeException("Can't add a mark in a place where there is no needed datum");
+                }
+                return new StackFrameStep(SessionFrame.STATE_MARK, neededDatum.getDataId(), null);
+            case SessionFrame.STATE_FORM_XMLNS:
+                throw new RuntimeException("Form Definitions in Steps are not yet supported!");
+            default:
+                throw new RuntimeException("Invalid step [" + elementType + "] declared when constructing a new frame step");
+        }
+    }
+
+    private String evaluateValue(EvaluationContext ec) {
         if (!valueIsXpath) {
-            finalValue = value;
+            return value;
         } else {
             try {
-                finalValue = XPathFuncExpr.toString(XPathParseTool.parseXPath(value).eval(ec));
+                return XPathFuncExpr.toString(XPathParseTool.parseXPath(value).eval(ec));
             } catch (XPathSyntaxException e) {
                 //This error makes no sense, since we parse the input for
                 //validation when we create it!
                 throw new XPathException(e.getMessage());
             }
-        }
-
-        //figure out how to structure the step
-        switch (elementType) {
-            case SessionFrame.STATE_DATUM_VAL:
-                return new StackFrameStep(SessionFrame.STATE_DATUM_VAL, id, finalValue);
-            case SessionFrame.STATE_COMMAND_ID:
-                return new StackFrameStep(SessionFrame.STATE_COMMAND_ID, finalValue, null);
-            case SessionFrame.STATE_REWIND:
-                return new StackFrameStep(SessionFrame.STATE_REWIND, null, finalValue);
-            case SessionFrame.STATE_MARK:
-                throw new RuntimeException("TODO implementation elsewhere");
-            case SessionFrame.STATE_FORM_XMLNS:
-                throw new RuntimeException("Form Definitions in Steps are not yet supported!");
-            default:
-                throw new RuntimeException("Invalid step [" + elementType + "] declared when constructing a new frame step");
         }
     }
 
