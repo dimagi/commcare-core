@@ -54,7 +54,7 @@ public class StackOperation implements Externalizable {
         return new StackOperation(OPERATION_CLEAR, frameId, ifCondition, null);
     }
 
-    private StackOperation(int opType, String frameId, String ifCondition,
+        private StackOperation(int opType, String frameId, String ifCondition,
                            Vector<StackFrameStep> elements) throws XPathSyntaxException {
         this.opType = opType;
         this.id = frameId;

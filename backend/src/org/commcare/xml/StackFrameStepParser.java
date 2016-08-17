@@ -25,7 +25,7 @@ public class StackFrameStepParser extends ElementParser<StackFrameStep> {
 
         if ("datum".equals(operation)) {
             String id = parser.getAttributeValue(null, "id");
-            return parseValue(SessionFrame.STATE_DATUM_COMPUTED, id);
+            return parseValue(SessionFrame.STATE_UNKNOWN, id);
         } else if ("command".equals(operation)) {
             return parseValue(SessionFrame.STATE_COMMAND_ID, null);
         } else {

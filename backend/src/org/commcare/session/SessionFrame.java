@@ -52,6 +52,11 @@ public class SessionFrame implements Externalizable {
     public static final String STATE_QUERY_REQUEST = "QUERY_REQUEST";
 
     /**
+     * Unknown at parse time - this could be a computed or a command
+     */
+    public static final String STATE_UNKNOWN = "STATE_UNKNOWN";
+
+    /**
      * CommCare needs the XMLNS of the form to be entered to proceed
      */
     public static final String STATE_FORM_XMLNS = "FORM_XMLNS";

@@ -344,15 +344,55 @@ public class CommCareSession {
         return null;
     }
 
+    private String guessUnknownType(StackFrameStep popped){
+        String poppedId = popped.getId();
+        for(StackFrameStep stackFrameStep: frame.getSteps()){
+            String commandId = stackFrameStep.getId();
+            Vector<Entry> entries = getEntriesForCommand(commandId);
+            for(Entry entry: entries){
+                String childCommand = entry.getCommandId();
+                Vector<StackOperation> stackOperations = entry.getPostEntrySessionOperations();
+                if(childCommand.equals(poppedId)) {
+                    return SessionFrame.STATE_COMMAND_ID;
+                }
+                for(StackOperation stackOperation: stackOperations) {
+                    for(StackFrameStep step: stackOperation.getStackFrameSteps()){
+                        if(step.getValue().equals(poppedId)){
+                            return SessionFrame.STATE_DATUM_COMPUTED;
+                        }
+                    }
+                }
+            }
+        }
+        return SessionFrame.STATE_DATUM_COMPUTED;
+    }
+
+    private boolean popNext(EvaluationContext evalContext){
+        if(this.getNeededData(evalContext) == null ||
+                this.getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED) ||
+                popped.getType().equals(SessionFrame.STATE_DATUM_COMPUTED)){
+            return true;
+        }
+        if(this.getNeededData(evalContext).equals(SessionFrame.STATE_UNKNOWN)){
+            System.out.println("Get needed data unknown");
+        }
+
+        if(popped.getType().equals(SessionFrame.STATE_UNKNOWN)){
+            String guessedType = guessUnknownType(popped);
+            System.out.println("Guessed type: " + guessedType);
+            return guessedType.equals(SessionFrame.STATE_DATUM_COMPUTED);
+        }
+        return false;
+
+    }
+
     public void stepBack(EvaluationContext evalContext) {
         // Pop the first thing off of the stack frame, no matter what
         popSessionFrameStack();
 
         // Keep popping things off until the value of needed data indicates that we are back to
         // somewhere where we are waiting for user-provided input
-        while (this.getNeededData(evalContext) == null ||
-                this.getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED) ||
-                popped.getType().equals(SessionFrame.STATE_DATUM_COMPUTED)) {
+        while (popNext(evalContext)) {
             popSessionFrameStack();
         }
     }
@@ -428,7 +468,9 @@ public class CommCareSession {
         this.popped = null;
 
         for (StackFrameStep step : frame.getSteps()) {
-            if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
+            if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) ||
+                    SessionFrame.STATE_UNKNOWN.equals(step.getType()) &&
+                    guessUnknownType(step).equals(SessionFrame.STATE_DATUM_COMPUTED)) {
                 String key = step.getId();
                 String value = step.getValue();
                 if (key != null && value != null) {
@@ -523,8 +565,13 @@ public class CommCareSession {
     }
 
     public SessionFrame getFrame() {
-        //TODO: Type safe copy
-        return frame;
+        SessionFrame copyFrame = new SessionFrame(frame);
+        for(StackFrameStep step: copyFrame.getSteps()) {
+            if(step.getType().equals(SessionFrame.STATE_UNKNOWN)){
+                step.setType(guessUnknownType(step));
+            }
+        }
+        return copyFrame;
     }
 
     /**

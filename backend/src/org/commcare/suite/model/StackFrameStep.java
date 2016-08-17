@@ -153,9 +153,8 @@ public class StackFrameStep implements Externalizable {
             return new StackFrameStep(SessionFrame.STATE_DATUM_VAL, id, finalValue);
         } else if (elementType.equals(SessionFrame.STATE_COMMAND_ID)) {
             return new StackFrameStep(SessionFrame.STATE_COMMAND_ID, finalValue, null);
-        } else if (elementType.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
-            System.out.println("Create new computed with id: " + id + " value: " + finalValue);
-            return new StackFrameStep(SessionFrame.STATE_DATUM_COMPUTED, id, finalValue);
+        } else if (elementType.equals(SessionFrame.STATE_UNKNOWN)) {
+            return new StackFrameStep(SessionFrame.STATE_UNKNOWN, id, finalValue);
         } else if (elementType.equals(SessionFrame.STATE_FORM_XMLNS)) {
             throw new RuntimeException("Form Definitions in Steps are not yet supported!");
         } else {
@@ -219,5 +218,9 @@ public class StackFrameStep implements Externalizable {
         } else {
             return "(" + elementType + " " + id + " : " + value + ")";
         }
+    }
+
+    public void setType(String elementType) {
+        this.elementType = elementType;
     }
 }
