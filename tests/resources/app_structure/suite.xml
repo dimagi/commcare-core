@@ -6,7 +6,7 @@
     </resource>
   </xform>
 
-  <user-restore>
+  <user-restore username="test" password="123">
     <resource id="foo" version="1" descriptor="demo user restore">
       <location authority="local">./user_restore.xml</location>
     </resource>
