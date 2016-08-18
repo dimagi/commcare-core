@@ -4,17 +4,14 @@ import org.commcare.util.ArrayDataSource;
 import org.commcare.util.LocaleArrayDataSource;
 import org.joda.time.Chronology;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.chrono.EthiopicChronology;
 import org.joda.time.chrono.GregorianChronology;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.TimeZone;
 
-/**
- * Created by willpride on 7/15/16.
- */
 public class CalendarUtils {
 
     private static ArrayDataSource arrayDataSource = new LocaleArrayDataSource();
@@ -280,7 +277,7 @@ public class CalendarUtils {
      * @param millisFromJavaEpoch Argument must be normalized to UTC to prevent
      *                            timezone issues when casting to a calendar date
      */
-    public static UniversalDate fromMillis(long millisFromJavaEpoch, TimeZone currentTimeZone) {
+    public static UniversalDate fromMillis(long millisFromJavaEpoch, DateTimeZone currentTimeZone) {
         // Since epoch calculations are relative to UTC, take current timezone
         // into account. This prevents two time values that lie on the same day
         // in the given timezone from falling on different GMT days.
@@ -319,7 +316,7 @@ public class CalendarUtils {
     }
 
     public static UniversalDate fromMillis(long millisFromJavaEpoch) {
-        return fromMillis(millisFromJavaEpoch, TimeZone.getDefault());
+        return fromMillis(millisFromJavaEpoch, DateTimeZone.getDefault());
     }
 
     public static UniversalDate incrementMonth(UniversalDate date) {
@@ -372,10 +369,10 @@ public class CalendarUtils {
     }
 
     public static long toMillisFromJavaEpoch(int year, int month, int day) {
-        return toMillisFromJavaEpoch(year, month, day, TimeZone.getDefault());
+        return toMillisFromJavaEpoch(year, month, day, DateTimeZone.getDefault());
     }
 
-    public static long toMillisFromJavaEpoch(int year, int month, int day, TimeZone currentTimeZone) {
+    public static long toMillisFromJavaEpoch(int year, int month, int day, DateTimeZone currentTimeZone) {
         int daysFromMinDay = countDaysFromMinDay(year, month, day);
         long millisFromMinDay = daysFromMinDay * UniversalDate.MILLIS_IN_DAY;
         int timezoneOffsetFromUTC = currentTimeZone.getOffset(millisFromMinDay);
