@@ -33,7 +33,7 @@ public class StackFrameStep implements Externalizable {
 
     /**
      * XML instance collected during session navigation that is made available
-     * in the session's evaulation context. For instance, useful to store
+     * in the session's evaluation context. For instance, useful to store
      * results of a query command during case search and claim workflow
      */
     private ExternalDataInstance xmlInstance;
@@ -137,6 +137,8 @@ public class StackFrameStep implements Externalizable {
                 return new StackFrameStep(SessionFrame.STATE_DATUM_VAL, id, evaluateValue(ec));
             case SessionFrame.STATE_COMMAND_ID:
                 return new StackFrameStep(SessionFrame.STATE_COMMAND_ID, evaluateValue(ec), null);
+            case SessionFrame.STATE_UNKNOWN:
+                return new StackFrameStep(SessionFrame.STATE_UNKNOWN, id, evaluateValue(ec));
             case SessionFrame.STATE_REWIND:
                 return new StackFrameStep(SessionFrame.STATE_REWIND, null, evaluateValue(ec));
             case SessionFrame.STATE_MARK:
@@ -221,5 +223,9 @@ public class StackFrameStep implements Externalizable {
         } else {
             return "(" + elementType + " " + id + " : " + value + ")";
         }
+    }
+
+    public void setType(String elementType) {
+        this.elementType = elementType;
     }
 }

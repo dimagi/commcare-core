@@ -26,7 +26,7 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
         switch (operation) {
             case "datum":
                 String id = parser.getAttributeValue(null, "id");
-                return parseValue(SessionFrame.STATE_DATUM_VAL, id);
+                return parseValue(SessionFrame.STATE_UNKNOWN, id);
             case "rewind":
                 return parseValue(SessionFrame.STATE_REWIND, null);
             case "mark":
