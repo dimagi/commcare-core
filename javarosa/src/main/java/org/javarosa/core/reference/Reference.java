@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.reference;
 
 import java.io.IOException;
