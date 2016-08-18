@@ -1,6 +1,5 @@
 package org.commcare.session;
 
-import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
@@ -367,7 +366,7 @@ public class CommCareSession {
         return SessionFrame.STATE_DATUM_COMPUTED;
     }
 
-    private boolean popNext(EvaluationContext evalContext){
+    private boolean shouldPopNext(EvaluationContext evalContext){
         if(this.getNeededData(evalContext) == null ||
                 this.getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED) ||
                 popped.getType().equals(SessionFrame.STATE_DATUM_COMPUTED)){
@@ -387,7 +386,7 @@ public class CommCareSession {
 
         // Keep popping things off until the value of needed data indicates that we are back to
         // somewhere where we are waiting for user-provided input
-        while (popNext(evalContext)) {
+        while (shouldPopNext(evalContext)) {
             popSessionFrameStack();
         }
     }
