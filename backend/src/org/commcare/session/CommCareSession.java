@@ -367,7 +367,7 @@ public class CommCareSession {
         }
         return SessionFrame.STATE_DATUM_COMPUTED;
     }
-    
+
     private boolean shouldPopNext(EvaluationContext evalContext) {
         if (this.getNeededData(evalContext) == null ||
                 this.getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED) ||
@@ -560,6 +560,9 @@ public class CommCareSession {
         }
     }
 
+    /**
+     * @return A copy of the current frame with UNKNOWN types evaluated to their best guess
+     */
     public SessionFrame getFrame() {
         SessionFrame copyFrame = new SessionFrame(frame);
         for (StackFrameStep step: copyFrame.getSteps()) {
