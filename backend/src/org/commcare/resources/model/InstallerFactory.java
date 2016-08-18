@@ -5,7 +5,7 @@ import org.commcare.resources.model.installers.LoginImageInstaller;
 import org.commcare.resources.model.installers.MediaInstaller;
 import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.resources.model.installers.SuiteInstaller;
-import org.commcare.resources.model.installers.UserRestoreInstaller;
+import org.commcare.resources.model.installers.OfflineUserRestoreInstaller;
 import org.commcare.resources.model.installers.XFormInstaller;
 
 /**
@@ -22,7 +22,7 @@ public class InstallerFactory {
     }
 
     public ResourceInstaller getUserRestoreInstaller(String username, String password) {
-        return new UserRestoreInstaller();
+        return new OfflineUserRestoreInstaller();
     }
 
     public ResourceInstaller getSuiteInstaller() {

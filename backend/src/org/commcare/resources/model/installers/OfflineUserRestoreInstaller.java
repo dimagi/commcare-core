@@ -18,7 +18,7 @@ import java.io.IOException;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class UserRestoreInstaller extends CacheInstaller<OfflineUserRestore> {
+public class OfflineUserRestoreInstaller extends CacheInstaller<OfflineUserRestore> {
     @Override
     protected String getCacheKey() {
         return OfflineUserRestore.STORAGE_KEY;
