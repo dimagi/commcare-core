@@ -29,10 +29,13 @@ public class DetailParser extends CommCareElementParser<Detail> {
 
         String id = parser.getAttributeValue(null, "id");
         String nodeset = parser.getAttributeValue(null, "nodeset");
+        String fitAcross = parser.getAttributeValue(null, "fit-across");
+        String useUniformUnits = parser.getAttributeValue(null, "uniform-units");
+        String forceLandscapeView = parser.getAttributeValue(null, "force-landscape");
 
-        //First fetch the title
+        // First fetch the title
         getNextTagInBlock("detail");
-        //inside title, should be a text node or a display node as the child
+        // inside title, should be a text node or a display node as the child
         checkNode("title");
         getNextTagInBlock("title");
         DisplayUnit title;
@@ -89,7 +92,8 @@ public class DetailParser extends CommCareElementParser<Detail> {
             }
         }
 
-        return new Detail(id, title, nodeset, subdetails, fields, variables, actions, callout);
+        return new Detail(id, title, nodeset, subdetails, fields, variables, actions, callout,
+                fitAcross, useUniformUnits, forceLandscapeView);
     }
 
     protected DetailParser getDetailParser() {
