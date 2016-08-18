@@ -344,36 +344,38 @@ public class CommCareSession {
     }
 
     /**
-     * When parsing we will mark certain steps as of "unknown" type and then
-     * try to determine whether these should be interpreted as STATE_DATUM_COMPUTED
-     * or STATE_COMMAND_ID runtime. This affects primarily the stepBack() behavior.
+     * When StackFrameSteps are parsed, those that are "datum" operations will be marked as type
+     * "unknown". When we encounter a StackFrameStep of unknown type at runtime, we need to
+     * determine whether it should be interpreted as STATE_DATUM_COMPUTED or STATE_COMMAND_ID.
+     * This primarily affects the behavior of stepBack().
      *
-     * If we have a previous step who's entries would add this command, interpret as a command.
-     * Otherwise, interpret as a computed.
+     * The logic being employed is: If there is a previous step on the stack whose entries would
+     * have added this command, interpret it as a command. Otherwise, interpret it as a computed
+     * datum.
      */
-    private String guessUnknownType(StackFrameStep popped){
+    private String guessUnknownType(StackFrameStep popped) {
         String poppedId = popped.getId();
-        for(StackFrameStep stackFrameStep: frame.getSteps()){
+        for (StackFrameStep stackFrameStep: frame.getSteps()) {
             String commandId = stackFrameStep.getId();
             Vector<Entry> entries = getEntriesForCommand(commandId);
-            for(Entry entry: entries){
+            for (Entry entry: entries) {
                 String childCommand = entry.getCommandId();
-                if(childCommand.equals(poppedId)) {
+                if (childCommand.equals(poppedId)) {
                     return SessionFrame.STATE_COMMAND_ID;
                 }
             }
         }
         return SessionFrame.STATE_DATUM_COMPUTED;
     }
-
-    private boolean shouldPopNext(EvaluationContext evalContext){
-        if(this.getNeededData(evalContext) == null ||
+    
+    private boolean shouldPopNext(EvaluationContext evalContext) {
+        if (this.getNeededData(evalContext) == null ||
                 this.getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED) ||
-                popped.getType().equals(SessionFrame.STATE_DATUM_COMPUTED)){
+                popped.getType().equals(SessionFrame.STATE_DATUM_COMPUTED)) {
             return true;
         }
 
-        if(popped.getType().equals(SessionFrame.STATE_UNKNOWN)){
+        if (popped.getType().equals(SessionFrame.STATE_UNKNOWN)){
             return guessUnknownType(popped).equals(SessionFrame.STATE_DATUM_COMPUTED);
         }
         return false;
@@ -560,8 +562,8 @@ public class CommCareSession {
 
     public SessionFrame getFrame() {
         SessionFrame copyFrame = new SessionFrame(frame);
-        for(StackFrameStep step: copyFrame.getSteps()) {
-            if(step.getType().equals(SessionFrame.STATE_UNKNOWN)){
+        for (StackFrameStep step: copyFrame.getSteps()) {
+            if (step.getType().equals(SessionFrame.STATE_UNKNOWN)) {
                 step.setType(guessUnknownType(step));
             }
         }
