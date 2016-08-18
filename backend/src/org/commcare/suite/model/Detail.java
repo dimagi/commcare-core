@@ -52,15 +52,15 @@ public class Detail implements Externalizable {
      */
     private String titleForm;
 
-    Detail[] details;
-    DetailField[] fields;
-    Callout callout;
+    private Detail[] details;
+    private DetailField[] fields;
+    private Callout callout;
 
-    OrderedHashtable<String, String> variables;
-    OrderedHashtable<String, XPathExpression> variablesCompiled;
+    private OrderedHashtable<String, String> variables;
+    private OrderedHashtable<String, XPathExpression> variablesCompiled;
 
-    // This will probably be a list sooner rather than later?
-    Vector<Action> actions;
+
+    private Vector<Action> actions;
 
     // Force the activity that is showing this detail to show itself in landscape view only
     private boolean forceLandscapeView;

@@ -54,7 +54,7 @@ public class StackOperation implements Externalizable {
         return new StackOperation(OPERATION_CLEAR, frameId, ifCondition, null);
     }
 
-    private StackOperation(int opType, String frameId, String ifCondition,
+        private StackOperation(int opType, String frameId, String ifCondition,
                            Vector<StackFrameStep> elements) throws XPathSyntaxException {
         this.opType = opType;
         this.id = frameId;
@@ -115,5 +115,10 @@ public class StackOperation implements Externalizable {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(ifCondition));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
         ExtUtil.write(out, new ExtWrapList(elements));
+    }
+
+    @Override
+    public String toString() {
+        return "StackOperation id= " + id + ", elements: " + elements;
     }
 }
