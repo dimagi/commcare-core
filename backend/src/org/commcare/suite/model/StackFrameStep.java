@@ -33,7 +33,7 @@ public class StackFrameStep implements Externalizable {
 
     /**
      * XML instance collected during session navigation that is made available
-     * in the session's evaulation context. For instance, useful to store
+     * in the session's evaluation context. For instance, useful to store
      * results of a query command during case search and claim workflow
      */
     private ExternalDataInstance xmlInstance;
@@ -153,6 +153,8 @@ public class StackFrameStep implements Externalizable {
             return new StackFrameStep(SessionFrame.STATE_DATUM_VAL, id, finalValue);
         } else if (elementType.equals(SessionFrame.STATE_COMMAND_ID)) {
             return new StackFrameStep(SessionFrame.STATE_COMMAND_ID, finalValue, null);
+        } else if (elementType.equals(SessionFrame.STATE_UNKNOWN)) {
+            return new StackFrameStep(SessionFrame.STATE_UNKNOWN, id, finalValue);
         } else if (elementType.equals(SessionFrame.STATE_FORM_XMLNS)) {
             throw new RuntimeException("Form Definitions in Steps are not yet supported!");
         } else {
@@ -216,5 +218,9 @@ public class StackFrameStep implements Externalizable {
         } else {
             return "(" + elementType + " " + id + " : " + value + ")";
         }
+    }
+
+    public void setType(String elementType) {
+        this.elementType = elementType;
     }
 }
