@@ -837,7 +837,7 @@ public class XPathFuncExpr extends XPathExpression {
         if(expandedDate == null){
             return "";
         }
-        return DateUtils.format((Date)od, toString(of));
+        return DateUtils.format(expandedDate, toString(of));
     }
 
     private static Date expandDateSafe(Object dateObject){
