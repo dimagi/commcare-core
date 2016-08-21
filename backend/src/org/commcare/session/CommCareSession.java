@@ -33,6 +33,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -127,10 +128,10 @@ public class CommCareSession {
                                                OrderedHashtable<String, String> currentSessionData) {
         Vector<Entry> entries = new Vector<>();
         for (Suite s : platform.getInstalledSuites()) {
-            for (Menu m : s.getMenus()) {
-                // We need to see if everything in this menu can be matched
-                if (commandId.equals(m.getId())) {
-                    entries.addAll(getEntriesFromMenu(m, currentSessionData));
+            List<Menu> menusWithId = s.getMenusWithId(commandId);
+            if (menusWithId != null) {
+                for (Menu menu : menusWithId) {
+                    entries.addAll(getEntriesFromMenu(menu, currentSessionData));
                 }
             }
 
