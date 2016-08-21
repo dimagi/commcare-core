@@ -125,22 +125,21 @@ public class CommCareSession {
      */
     private Vector<Entry> getEntriesForCommand(String commandId,
                                                OrderedHashtable<String, String> currentSessionData) {
+        Vector<Entry> entries = new Vector<>();
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
                 // We need to see if everything in this menu can be matched
                 if (commandId.equals(m.getId())) {
-                    return getEntriesFromMenu(m, currentSessionData);
+                    entries.addAll(getEntriesFromMenu(m, currentSessionData));
                 }
             }
 
             if (s.getEntries().containsKey(commandId)) {
-                Vector<Entry> entries = new Vector<>();
                 entries.addElement(s.getEntries().get(commandId));
-                return entries;
             }
         }
 
-        return new Vector<>();
+        return entries;
     }
 
     /**
@@ -327,17 +326,6 @@ public class CommCareSession {
             Detail d = s.getDetail(id);
             if (d != null) {
                 return d;
-            }
-        }
-        return null;
-    }
-
-    public Menu getMenu(String id) {
-        for (Suite suite : platform.getInstalledSuites()) {
-            for (Menu m : suite.getMenus()) {
-                if (id.equals(m.getId())) {
-                    return m;
-                }
             }
         }
         return null;
