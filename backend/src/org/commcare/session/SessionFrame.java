@@ -35,7 +35,18 @@ public class SessionFrame implements Externalizable {
      * CommCare needs any piece of information coming from a datum val (other than a computed datum)
      */
     public static final String STATE_DATUM_VAL = "CASE_ID";
+
+    /**
+     * Signifies that the frame should be rewound to the last MARK, setting the
+     * MARK's datum id (which is the next needed datum at that point in the frame)
+     * to the value carried in the rewind.
+     */
     public static final String STATE_REWIND = "REWIND";
+
+    /**
+     * Deliniates a rewind point. Contains a datum id, which corresponds to
+     * the next needed datum at that point in the frame.
+     */
     public static final String STATE_MARK = "MARK";
 
     /**
