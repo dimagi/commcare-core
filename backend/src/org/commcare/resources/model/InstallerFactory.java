@@ -21,7 +21,7 @@ public class InstallerFactory {
         return new XFormInstaller();
     }
 
-    public ResourceInstaller getUserRestoreInstaller(String username, String password) {
+    public ResourceInstaller getUserRestoreInstaller() {
         return new OfflineUserRestoreInstaller();
     }
 
