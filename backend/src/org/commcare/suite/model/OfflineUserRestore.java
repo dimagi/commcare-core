@@ -48,7 +48,7 @@ public class OfflineUserRestore implements Persistable {
 
     public InputStream getRestoreStream() {
         if (reference == null) {
-            return getInMemeoryStream();
+            return getInMemoryStream();
         } else {
             return getStreamFromReference();
         }
@@ -63,7 +63,7 @@ public class OfflineUserRestore implements Persistable {
         }
     }
 
-    private InputStream getInMemeoryStream() {
+    private InputStream getInMemoryStream() {
         try {
             return new ByteArrayInputStream(restore.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
