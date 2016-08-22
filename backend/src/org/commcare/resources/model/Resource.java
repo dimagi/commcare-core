@@ -111,7 +111,7 @@ public class Resource implements Persistable, IMetaData {
     // Not sure if we want this persisted just yet...
     protected String parent;
 
-    protected String descriptor;
+    private String descriptor;
 
     /**
      * For serialization only
@@ -252,13 +252,8 @@ public class Resource implements Persistable, IMetaData {
      * is newer until it is.)
      */
     public boolean isNewer(Resource peer) {
-        if (version == RESOURCE_VERSION_UNKNOWN) {
-            return true;
-        } else if (!peer.id.equals(this.id)) {
-            return false;
-        } else {
-            return this.version > peer.getVersion();
-        }
+        return version == RESOURCE_VERSION_UNKNOWN ||
+                (peer.id.equals(this.id) && version > peer.getVersion());
     }
 
     /**
@@ -310,14 +305,15 @@ public class Resource implements Persistable, IMetaData {
 
     @Override
     public Object getMetaData(String fieldName) {
-        if (fieldName.equals(META_INDEX_RESOURCE_ID)) {
-            return id;
-        } else if (fieldName.equals(META_INDEX_RESOURCE_GUID)) {
-            return guid;
-        } else if (fieldName.equals(META_INDEX_PARENT_GUID)) {
-            return parent == null ? "" : parent;
-        } else if (fieldName.equals(META_INDEX_VERSION)) {
-            return new Integer(version);
+        switch (fieldName) {
+            case META_INDEX_RESOURCE_ID:
+                return id;
+            case META_INDEX_RESOURCE_GUID:
+                return guid;
+            case META_INDEX_PARENT_GUID:
+                return parent == null ? "" : parent;
+            case META_INDEX_VERSION:
+                return version;
         }
         throw new IllegalArgumentException("No Field w/name " + fieldName + " is relevant for resources");
     }

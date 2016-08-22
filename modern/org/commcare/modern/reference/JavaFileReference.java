@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.modern.reference;
 
 import org.javarosa.core.reference.Reference;
@@ -14,7 +11,6 @@ import java.io.OutputStream;
 
 /**
  * @author ctsims
- *
  */
 public class JavaFileReference implements Reference {
 
@@ -32,14 +28,17 @@ public class JavaFileReference implements Reference {
         this.authority = authority;
     }
 
+    @Override
     public boolean doesBinaryExist() throws IOException {
         return file().exists();
     }
 
+    @Override
     public OutputStream getOutputStream() throws IOException {
         return new FileOutputStream(file());
     }
 
+    @Override
     public InputStream getStream() throws IOException {
         File file = file();
         if(!file.exists()) {
@@ -50,14 +49,17 @@ public class JavaFileReference implements Reference {
         return new FileInputStream(file);
     }
 
+    @Override
     public String getURI() {
         return "jr://" + authority + "/" + uri;
     }
 
+    @Override
     public boolean isReadOnly() {
         return false;
     }
 
+    @Override
     public void remove() throws IOException {
         File file = file();
         if(!file.delete()) {
@@ -69,11 +71,8 @@ public class JavaFileReference implements Reference {
         return new File(getLocalURI());
     }
 
+    @Override
     public String getLocalURI() {
         return localPart + File.separator + uri;
-    }
-
-    public Reference[] probeAlternativeReferences() {
-        return new Reference[0];
     }
 }
