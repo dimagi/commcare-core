@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+    <h:head>
+        <h:title>Format Date</h:title>
+        <model>
+            <instance>
+                <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/5391E3E1-CF78-4AA0-897B-45F7E46E7314" uiVersion="1" version="1" name="Format Date">
+                    <date />
+                    <display_format_unwrapped />
+                    <display_format_wrapped />
+                    <date_wrapped />
+                    <date_unwrapped />
+                </data>
+            </instance>
+            <bind nodeset="/data/date" type="xsd:date" />
+            <bind nodeset="/data/display_format_unwrapped" />
+            <bind nodeset="/data/display_format_wrapped" />
+            <bind nodeset="/data/date_wrapped" calculate="format-date(date(/data/date), '%e %b, %Y')" />
+            <bind nodeset="/data/date_unwrapped" calculate="format-date(/data/date, '%e %b, %Y')" />
+            <itext>
+                <translation lang="en" default="">
+                    <text id="display_format_unwrapped-label">
+                        <value><output value="/data/date_unwrapped" /></value>
+                    </text>
+                    <text id="display_format_wrapped-label">
+                        <value><output value="/data/date_wrapped" /></value>
+                    </text>
+                </translation>
+            </itext>
+        </model>
+    </h:head>
+    <h:body>
+        <input ref="/data/date" />
+        <trigger ref="/data/display_format_unwrapped" appearance="minimal">
+            <label ref="jr:itext('display_format_unwrapped-label')" />
+        </trigger>
+        <trigger ref="/data/display_format_wrapped" appearance="minimal">
+            <label ref="jr:itext('display_format_wrapped-label')" />
+        </trigger>
+    </h:body>
+</h:html>
