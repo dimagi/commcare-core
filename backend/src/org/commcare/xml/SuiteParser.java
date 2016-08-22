@@ -136,14 +136,12 @@ public class SuiteParser extends ElementParser<Suite> {
                             }
                             break;
                         case "user-restore":
-                            String username = parser.getAttributeValue(null, "username");
-                            String password = parser.getAttributeValue(null, "password");
                             parser.nextTag();
                             Resource userRestoreResource =
                                     new ResourceParser(parser, maximumResourceAuthority).parse();
                             if (!skipResources) {
                                 table.addResource(userRestoreResource,
-                                        table.getInstallers().getUserRestoreInstaller(username, password),
+                                        table.getInstallers().getUserRestoreInstaller(),
                                         resourceGuid);
                             }
                             break;
