@@ -64,7 +64,7 @@ public class RemoteQueryDatum extends SessionDatum {
                 (Hashtable<String, XPathExpression>) ExtUtil.read(in, new ExtWrapMapPoly(String.class), pf);
         userQueryPrompts =
                 (OrderedHashtable<String, DisplayUnit>) ExtUtil.read(in,
-                        new ExtWrapMap(String.class, DisplayUnit.class), pf);
+                        new ExtWrapMap(String.class, DisplayUnit.class, ExtWrapMap.TYPE_ORDERED), pf);
     }
 
     @Override
