@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -46,29 +47,22 @@ public class FormatDateTest {
         Localizer l = fpi.getFormDef().getLocalizer();
         l.setDefaultLocale(l.getAvailableLocales()[0]);
         l.setLocale(l.getAvailableLocales()[0]);
+        fec.stepToNextEvent();
 
-        do {
-            QuestionDef q = fpi.getCurrentQuestion();
-            if (q == null) {
-                continue;
-            }
+        ans = new DateData(new Date());
+        fec.answerQuestion(ans);
+        fec.stepToNextEvent();
 
-            ans = new DateData(new Date());
-            fec.answerQuestion(ans);
-            fec.stepToNextEvent();
+        prompt = fpi.getFormEntryModel().getQuestionPrompt();
+        String unwrappedDateString = prompt.getLongText();
+        String javaDateString = new SimpleDateFormat("dd MMM, yyyy", Locale.US).format(new Date());
+        assertEquals(javaDateString, unwrappedDateString);
 
-            prompt = fpi.getFormEntryModel().getQuestionPrompt();
-            String unwrappedDateString = prompt.getLongText();
-            String javaDateString = new SimpleDateFormat("dd MMM, yyyy").format(new Date());
-            assertEquals(javaDateString, unwrappedDateString);
-
-            fec.stepToNextEvent();
-            prompt = fpi.getFormEntryModel().getQuestionPrompt();
-            unwrappedDateString = prompt.getLongText();
-            javaDateString = new SimpleDateFormat("dd MMM, yyyy").format(new Date());
-            assertEquals(javaDateString, unwrappedDateString);
-
-        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+        fec.stepToNextEvent();
+        prompt = fpi.getFormEntryModel().getQuestionPrompt();
+        unwrappedDateString = prompt.getLongText();
+        javaDateString = new SimpleDateFormat("dd MMM, yyyy", Locale.US).format(new Date());
+        assertEquals(javaDateString, unwrappedDateString);
     }
 
 

@@ -23,7 +23,7 @@
                         <value><output value="/data/date_unwrapped" /></value>
                     </text>
                     <text id="display_format_wrapped-label">
-                        <value><output value="/data/date_unwrapped" /></value>
+                        <value><output value="/data/date_wrapped" /></value>
                     </text>
                 </translation>
             </itext>
