@@ -82,7 +82,7 @@
     </session>
   </entry>
 
-  <sync-request>
+  <remote-request>
     <post url="http://fake.com/claim_patient/">
       <data key="selected_name" ref="instance('patients')/case/name"/>
       <data key="selected_case_id" ref="instance('patients')/case/@case_id"/>
@@ -116,7 +116,7 @@
         <datum id="calculated_data" value="'claimed'"/>
       </push>
     </stack>
-  </sync-request>
+  </remote-request>
 
   <menu id="m0">
     <text>Menu</text>

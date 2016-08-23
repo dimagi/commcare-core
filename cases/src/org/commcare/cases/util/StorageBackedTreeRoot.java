@@ -17,7 +17,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-
 /**
  * @author ctsims
  */
@@ -76,7 +75,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
             XPathExpression xpe = predicates.elementAt(i);
             //what we want here is a static evaluation of the expression to see if it consists of evaluating
             //something we index with something static.
-            if (xpe instanceof XPathEqExpr) {
+            if (xpe instanceof XPathEqExpr && ((XPathEqExpr)xpe).op == XPathEqExpr.EQ) {
                 XPathExpression left = ((XPathEqExpr)xpe).a;
                 if (left instanceof XPathPathExpr) {
                     for (Enumeration en = indices.keys(); en.hasMoreElements(); ) {

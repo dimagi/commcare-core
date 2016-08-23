@@ -52,15 +52,29 @@ public class Detail implements Externalizable {
      */
     private String titleForm;
 
-    Detail[] details;
-    DetailField[] fields;
-    Callout callout;
+    private Detail[] details;
+    private DetailField[] fields;
+    private Callout callout;
 
-    OrderedHashtable<String, String> variables;
-    OrderedHashtable<String, XPathExpression> variablesCompiled;
+    private OrderedHashtable<String, String> variables;
+    private OrderedHashtable<String, XPathExpression> variablesCompiled;
 
-    //This will probably be a list sooner rather than later?
-    Vector<Action> actions;
+
+    private Vector<Action> actions;
+
+    // Force the activity that is showing this detail to show itself in landscape view only
+    private boolean forceLandscapeView;
+
+    // region -- These fields are only used if this detail is a case tile
+
+    // Allows for the possibility of case tiles being displayed in a grid
+    private int numEntitiesToDisplayPerRow;
+
+    // Indicates that the height of a single cell in the tile's grid layout should be treated as
+    // equal to its width, rather than being computed independently
+    private boolean useUniformUnitsInCaseTile;
+
+    // endregion
 
     /**
      * Serialization Only
@@ -70,31 +84,13 @@ public class Detail implements Externalizable {
     }
 
     public Detail(String id, DisplayUnit title, String nodeset,
-                  Vector<Detail> details,
-                  Vector<DetailField> fields,
+                  Vector<Detail> detailsVector,
+                  Vector<DetailField> fieldsVector,
                   OrderedHashtable<String, String> variables,
-                  Vector<Action> actions, Callout callout) {
-        this(id, title, nodeset, details, fields, variables, actions);
+                  Vector<Action> actions, Callout callout, String fitAcross,
+                  String uniformUnitsString, String forceLandscape) {
 
-        this.callout = callout;
-    }
-
-    public Detail(String id, DisplayUnit title, String nodeset,
-                  Vector<Detail> details,
-                  Vector<DetailField> fields,
-                  OrderedHashtable<String, String> variables, Vector<Action> actions) {
-        this(id, title, nodeset,
-                ArrayUtilities.copyIntoArray(details, new Detail[details.size()]),
-                ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]),
-                variables, actions);
-    }
-
-    public Detail(String id, DisplayUnit title, String nodeset,
-                  Detail[] details,
-                  DetailField[] fields,
-                  OrderedHashtable<String, String> variables,
-                  Vector<Action> actions) {
-        if (details.length > 0 && fields.length > 0) {
+        if (detailsVector.size() > 0 && fieldsVector.size() > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
         }
 
@@ -103,10 +99,23 @@ public class Detail implements Externalizable {
         if (nodeset != null) {
             this.nodeset = XPathReference.getPathExpr(nodeset).getReference();
         }
-        this.details = details;
-        this.fields = fields;
+        this.details = ArrayUtilities.copyIntoArray(detailsVector, new Detail[detailsVector.size()]);
+        this.fields = ArrayUtilities.copyIntoArray(fieldsVector, new DetailField[fieldsVector.size()]);
         this.variables = variables;
         this.actions = actions;
+        this.callout = callout;
+        this.useUniformUnitsInCaseTile = "true".equals(uniformUnitsString);
+        this.forceLandscapeView = "true".equals(forceLandscape);
+
+        if (fitAcross != null) {
+            try {
+                this.numEntitiesToDisplayPerRow = Integer.parseInt(fitAcross);
+            } catch (NumberFormatException e) {
+                numEntitiesToDisplayPerRow = 1;
+            }
+        } else {
+            numEntitiesToDisplayPerRow = 1;
+        }
     }
 
     /**
@@ -317,19 +326,32 @@ public class Detail implements Externalizable {
         }.go();
     }
 
-    public boolean usesGridView() {
-
-        boolean usesGrid = false;
-
+    public boolean usesEntityTileView() {
+        boolean usingEntityTile = false;
         for (int i = 0; i < fields.length; i++) {
             DetailField currentField = fields[i];
             if (currentField.getGridX() >= 0 && currentField.getGridY() >= 0 &&
                     currentField.getGridWidth() >= 0 && currentField.getGridHeight() > 0) {
-                usesGrid = true;
+                usingEntityTile = true;
             }
         }
+        return usingEntityTile;
+    }
 
-        return usesGrid;
+    public boolean shouldBeLaidOutInGrid() {
+        return numEntitiesToDisplayPerRow > 1 && usesEntityTileView();
+    }
+
+    public int getNumEntitiesToDisplayPerRow() {
+        return numEntitiesToDisplayPerRow;
+    }
+
+    public boolean useUniformUnitsInCaseTile() {
+        return useUniformUnitsInCaseTile;
+    }
+
+    public boolean forcesLandscape() {
+        return forceLandscapeView;
     }
 
     public GridCoordinate[] getGridCoordinates() {

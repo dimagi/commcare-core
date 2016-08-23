@@ -19,6 +19,7 @@ public class ResourceParser extends ElementParser<Resource> {
         this.maximumAuthority = maximumAuthority;
     }
 
+    @Override
     public Resource parse() throws InvalidStructureException, IOException, XmlPullParserException {
         checkNode("resource");
 

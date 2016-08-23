@@ -83,6 +83,7 @@ public class ItemsetBinding implements Externalizable {
         return relRef != null ? RestoreUtils.refToPathExpr(relRef) : null;
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         nodesetRef = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
         nodesetExpr = (IConditionExpr)ExtUtil.read(in, new ExtWrapTagged(), pf);
@@ -96,6 +97,7 @@ public class ItemsetBinding implements Externalizable {
         copyMode = ExtUtil.readBool(in);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, nodesetRef);
         ExtUtil.write(out, new ExtWrapTagged(nodesetExpr));

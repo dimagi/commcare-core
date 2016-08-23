@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.suite.model;
 
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -31,10 +28,10 @@ public class StackOperation implements Externalizable {
     public static final int OPERATION_PUSH = 1;
     public static final int OPERATION_CLEAR = 2;
 
-    int opType;
-    String ifCondition;
-    String id;
-    Vector<StackFrameStep> elements;
+    private int opType;
+    private String ifCondition;
+    private String id;
+    private Vector<StackFrameStep> elements;
 
     /**
      * Deserialization Only!
@@ -43,21 +40,22 @@ public class StackOperation implements Externalizable {
 
     }
 
-    //  Constructors
-
-    public static StackOperation CreateFrame(String frameId, String ifCondition, Vector<StackFrameStep> elements) throws XPathSyntaxException {
+    public static StackOperation buildCreateFrame(String frameId, String ifCondition,
+                                                  Vector<StackFrameStep> elements) throws XPathSyntaxException {
         return new StackOperation(OPERATION_CREATE, frameId, ifCondition, elements);
     }
 
-    public static StackOperation PushData(String ifCondition, Vector<StackFrameStep> elements) throws XPathSyntaxException {
+    public static StackOperation buildPushFrame(String ifCondition,
+                                                Vector<StackFrameStep> elements) throws XPathSyntaxException {
         return new StackOperation(OPERATION_PUSH, null, ifCondition, elements);
     }
 
-    public static StackOperation ClearFrame(String frameId, String ifCondition) throws XPathSyntaxException {
+    public static StackOperation buildClearFrame(String frameId, String ifCondition) throws XPathSyntaxException {
         return new StackOperation(OPERATION_CLEAR, frameId, ifCondition, null);
     }
 
-    private StackOperation(int opType, String frameId, String ifCondition, Vector<StackFrameStep> elements) throws XPathSyntaxException {
+        private StackOperation(int opType, String frameId, String ifCondition,
+                           Vector<StackFrameStep> elements) throws XPathSyntaxException {
         this.opType = opType;
         this.id = frameId;
         this.ifCondition = ifCondition;
@@ -66,8 +64,6 @@ public class StackOperation implements Externalizable {
         }
         this.elements = elements;
     }
-
-    //retrieval
 
     public int getOp() {
         return opType;
@@ -80,7 +76,7 @@ public class StackOperation implements Externalizable {
     public boolean isOperationTriggered(EvaluationContext ec) {
         if (ifCondition != null) {
             try {
-                return XPathFuncExpr.toBoolean(XPathParseTool.parseXPath(ifCondition).eval(ec)).booleanValue();
+                return XPathFuncExpr.toBoolean(XPathParseTool.parseXPath(ifCondition).eval(ec));
             } catch (XPathSyntaxException e) {
                 //This error makes no sense, since we parse the input for
                 //validation when we create it!
@@ -90,7 +86,6 @@ public class StackOperation implements Externalizable {
             return true;
         }
     }
-
 
     /**
      * Get the actual steps to be added (un-processed) to a frame.
@@ -105,24 +100,25 @@ public class StackOperation implements Externalizable {
         return elements;
     }
 
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+    @Override
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
         opType = ExtUtil.readInt(in);
         ifCondition = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         elements = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class));
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, opType);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(ifCondition));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
         ExtUtil.write(out, new ExtWrapList(elements));
+    }
+
+    @Override
+    public String toString() {
+        return "StackOperation id= " + id + ", elements: " + elements;
     }
 }

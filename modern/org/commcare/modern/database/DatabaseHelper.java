@@ -8,6 +8,7 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -104,13 +105,20 @@ public class DatabaseHelper {
     public static HashMap<String, Object> getNonDataMetaEntries(Externalizable e) {
         HashMap<String, Object> values = new HashMap<>();
 
-        if(e instanceof IMetaData) {
+        if (e instanceof IMetaData) {
             IMetaData m = (IMetaData)e;
-            for(String key : m.getMetaDataFields()) {
+            for (String key : m.getMetaDataFields()) {
                 Object o = m.getMetaData(key);
-                if(o == null ) { continue;}
-                String value = o.toString();
-                values.put(TableBuilder.scrubName(key), value);
+                if (o == null) {
+                    continue;
+                }
+                String scrubbedKey = TableBuilder.scrubName(key);
+                if (o instanceof Date) {
+                    // store date as seconds since epoch
+                    values.put(scrubbedKey, ((Date)o).getTime());
+                } else {
+                    values.put(scrubbedKey, o.toString());
+                }
             }
         }
         return values;

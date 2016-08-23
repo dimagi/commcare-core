@@ -57,7 +57,7 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
         return false;
     }
 
-    public boolean isSync() {
+    public boolean isRemoteRequest() {
         return false;
     }
 

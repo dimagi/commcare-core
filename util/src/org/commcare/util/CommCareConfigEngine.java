@@ -3,7 +3,6 @@ package org.commcare.util;
 import org.commcare.modern.reference.ArchiveFileRoot;
 import org.commcare.modern.reference.JavaFileRoot;
 import org.commcare.modern.reference.JavaHttpRoot;
-import org.commcare.modern.reference.JavaResourceRoot;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
@@ -18,6 +17,7 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
+import org.commcare.suite.model.PropertySetter;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.io.BufferedInputStream;
@@ -26,6 +26,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageFactory;
 import org.javarosa.core.services.storage.IStorageUtility;
@@ -72,15 +73,15 @@ public class CommCareConfigEngine {
 
     public CommCareConfigEngine(OutputStream output, PrototypeFactory prototypeFactory) {
         this.print = new PrintStream(output);
-        this.platform = new CommCarePlatform(2, 29);
+        this.platform = new CommCarePlatform(2, 30);
 
         this.mLiveFactory = prototypeFactory;
 
         setRoots();
 
-        table = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility(Resource.class, mLiveFactory));
-        updateTable = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility(Resource.class, mLiveFactory));
-        recoveryTable = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility(Resource.class, mLiveFactory));
+        table = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility<>(Resource.class, mLiveFactory));
+        updateTable = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility<>(Resource.class, mLiveFactory));
+        recoveryTable = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility<>(Resource.class, mLiveFactory));
 
 
         //All of the below is on account of the fact that the installers
@@ -88,6 +89,7 @@ public class CommCareConfigEngine {
         //per device.
         StorageManager.forceClear();
         StorageManager.setStorageFactory(new IStorageFactory() {
+            @Override
             public IStorageUtility newStorage(String name, Class type) {
                 return new DummyIndexedStorageUtility(type, mLiveFactory);
             }
@@ -106,8 +108,7 @@ public class CommCareConfigEngine {
         this.mArchiveRoot = new ArchiveFileRoot();
 
         ReferenceManager._().addReferenceFactory(mArchiveRoot);
-
-        ReferenceManager._().addReferenceFactory(new JavaResourceRoot(this.getClass()));
+        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
     }
 
     public void initFromArchive(String archiveURL) {
@@ -210,7 +211,7 @@ public class CommCareConfigEngine {
     public void initEnvironment() {
         try {
             Localization.init(true);
-            table.initializeResources(platform);
+            table.initializeResources(platform, false);
             //Make sure there's a default locale, since the app doesn't necessarily use the
             //localization engine
             Localization.getGlobalLocalizerAdvanced().addAvailableLocale("default");
@@ -218,21 +219,28 @@ public class CommCareConfigEngine {
             Localization.setDefaultLocale("default");
 
             print.println("Locales defined: ");
-            String newLocale = null;
             for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
-                if (newLocale == null) {
-                    newLocale = locale;
-                }
                 System.out.println("* " + locale);
             }
 
-            print.println("Setting locale to: " + newLocale);
-            Localization.setLocale(newLocale);
+            setDefaultLocale();
         } catch (ResourceInitializationException e) {
             print.println("Error while initializing one of the resolved resources");
             e.printStackTrace(print);
             System.exit(-1);
         }
+    }
+
+    private void setDefaultLocale() {
+        String defaultLocale = "default";
+        for (PropertySetter prop : platform.getCurrentProfile().getPropertySetters()) {
+            if ("cur_locale".equals(prop.getKey())) {
+                defaultLocale = prop.getValue();
+                break;
+            }
+        }
+        print.println("Setting locale to: " + defaultLocale);
+        Localization.setLocale(defaultLocale);
     }
 
     public void describeApplication() {

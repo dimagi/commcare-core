@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.util;
 
 import java.lang.ref.WeakReference;
@@ -22,7 +19,7 @@ import java.util.Vector;
  * @author ctsims
  */
 public class CacheTable<T, K> {
-    int totalAdditions = 0;
+    private int totalAdditions = 0;
 
     private Hashtable<T, WeakReference> currentTable;
 

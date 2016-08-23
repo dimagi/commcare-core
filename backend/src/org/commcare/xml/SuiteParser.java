@@ -22,13 +22,13 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * Parses a suite file resource and creates the associated object 
+ * Parses a suite file resource and creates the associated object
  * containing the menu, detail, entry, etc definitions. This parser
  * will also create models for any resource installers that are defined
  * by the suite file and add them to the resource table provided
  * with the suite resource as the parent, that behavior can be skipped
  * by setting a flag if the resources have already been promised.
- * 
+ *
  * @author ctsims
  */
 public class SuiteParser extends ElementParser<Suite> {
@@ -37,7 +37,14 @@ public class SuiteParser extends ElementParser<Suite> {
     private ResourceTable table;
     private String resourceGuid;
     private int maximumResourceAuthority = -1;
-    private boolean skipResources = false;
+
+    /**
+     * If set to true, the parser won't process adding incoming resources to the resource table.
+     * This is helpful if the suite is being processed during a non-install phase
+     */
+    private final boolean skipResources;
+    private final boolean isValidationPass;
+    private final boolean isUpgrade;
 
     public SuiteParser(InputStream suiteStream,
                        ResourceTable table,
@@ -45,20 +52,29 @@ public class SuiteParser extends ElementParser<Suite> {
         super(ElementParser.instantiateParser(suiteStream));
         this.table = table;
         this.resourceGuid = resourceGuid;
-        this.fixtureStorage = (IStorageUtilityIndexed<FormInstance>)StorageManager.getStorage(FormInstance.STORAGE_KEY);
+        this.fixtureStorage =
+                (IStorageUtilityIndexed<FormInstance>)StorageManager.getStorage(FormInstance.STORAGE_KEY);
+        this.skipResources = false;
+        this.isValidationPass = false;
+        this.isUpgrade = false;
     }
 
-    public SuiteParser(InputStream suiteStream,
-                       ResourceTable table,
-                       String resourceGuid,
-                       IStorageUtilityIndexed<FormInstance> fixtureStorage) throws IOException {
+    protected SuiteParser(InputStream suiteStream,
+                          ResourceTable table, String resourceGuid,
+                          IStorageUtilityIndexed<FormInstance> fixtureStorage,
+                          boolean skipResources, boolean isValidationPass,
+                          boolean isUpgrade) throws IOException {
         super(ElementParser.instantiateParser(suiteStream));
 
         this.table = table;
         this.resourceGuid = resourceGuid;
         this.fixtureStorage = fixtureStorage;
+        this.skipResources = skipResources;
+        this.isValidationPass = isValidationPass;
+        this.isUpgrade = isUpgrade;
     }
 
+    @Override
     public Suite parse() throws InvalidStructureException, IOException,
             XmlPullParserException, UnfullfilledRequirementsException {
         checkNode("suite");
@@ -78,52 +94,65 @@ public class SuiteParser extends ElementParser<Suite> {
             int eventType = parser.getEventType();
             do {
                 if (eventType == KXmlParser.START_TAG) {
-                    if (parser.getName().toLowerCase().equals("entry")) {
-                        Entry e = EntryParser.buildEntryParser(parser).parse();
-                        entries.put(e.getCommandId(), e);
-                    } else if (parser.getName().toLowerCase().equals("view")) {
-                        Entry e = EntryParser.buildViewParser(parser).parse();
-                        entries.put(e.getCommandId(), e);
-                    } else if (parser.getName().toLowerCase().equals("sync-request")) {
-                        Entry syncEntry = EntryParser.buildRemoteSyncParser(parser).parse();
-                        entries.put(syncEntry.getCommandId(), syncEntry);
-                    } else if (parser.getName().toLowerCase().equals("locale")) {
-                        String localeKey = parser.getAttributeValue(null, "language");
-                        //resource def
-                        parser.nextTag();
-                        Resource r = new ResourceParser(parser, maximumResourceAuthority).parse();
-                        if(!skipResources) {
-                            table.addResource(r, table.getInstallers().getLocaleFileInstaller(localeKey), resourceGuid);
-                        }
-                    } else if (parser.getName().toLowerCase().equals("media")) {
-                        String path = parser.getAttributeValue(null, "path");
-                        //Can be an arbitrary number of resources inside of a media block.
-                        while (this.nextTagInBlock("media")) {
-                            Resource r = new ResourceParser(parser, maximumResourceAuthority).parse();
-                            if(!skipResources) {
-                                table.addResource(r, table.getInstallers().getMediaInstaller(path), resourceGuid);
+                    String tagName = parser.getName().toLowerCase();
+                    switch (tagName) {
+                        case "entry":
+                            Entry entry = EntryParser.buildEntryParser(parser).parse();
+                            entries.put(entry.getCommandId(), entry);
+                            break;
+                        case "view":
+                            Entry viewEntry = EntryParser.buildViewParser(parser).parse();
+                            entries.put(viewEntry.getCommandId(), viewEntry);
+                            break;
+                        case EntryParser.REMOTE_REQUEST_TAG:
+                            Entry syncEntry = EntryParser.buildRemoteSyncParser(parser).parse();
+                            entries.put(syncEntry.getCommandId(), syncEntry);
+                            break;
+                        case "locale":
+                            String localeKey = parser.getAttributeValue(null, "language");
+                            //resource def
+                            parser.nextTag();
+                            Resource localeResource = new ResourceParser(parser, maximumResourceAuthority).parse();
+                            if (!skipResources) {
+                                table.addResource(localeResource, table.getInstallers().getLocaleFileInstaller(localeKey), resourceGuid);
                             }
-                        }
-                    } else if (parser.getName().toLowerCase().equals("xform")) {
-                        //skip xform stuff for now
-                        parser.nextTag();
-                        Resource r = new ResourceParser(parser, maximumResourceAuthority).parse();
-                        if(!skipResources) {
-                            table.addResource(r, table.getInstallers().getXFormInstaller(), resourceGuid);
-                        }
-                    } else if (parser.getName().toLowerCase().equals("detail")) {
-                        Detail d = getDetailParser().parse();
-                        details.put(d.getId(), d);
-                    } else if (parser.getName().toLowerCase().equals("menu")) {
-                        Menu m = new MenuParser(parser).parse();
-                        menus.addElement(m);
-                    } else if (parser.getName().toLowerCase().equals("fixture")) {
-                        //this one automatically commits the fixture to the global memory
-                        if (!inValidationMode()) {
-                            new FixtureXmlParser(parser, false, fixtureStorage).parse();
-                        }
-                    } else {
-                        System.out.println("Unrecognized Tag: " + parser.getName());
+                            break;
+                        case "media":
+                            String path = parser.getAttributeValue(null, "path");
+                            //Can be an arbitrary number of resources inside of a media block.
+                            while (this.nextTagInBlock("media")) {
+                                Resource mediaResource = new ResourceParser(parser, maximumResourceAuthority).parse();
+                                if (!skipResources) {
+                                    table.addResource(mediaResource, table.getInstallers().getMediaInstaller(path), resourceGuid);
+                                }
+                            }
+                            break;
+                        case "xform":
+                            //skip xform stuff for now
+                            parser.nextTag();
+                            Resource r = new ResourceParser(parser, maximumResourceAuthority).parse();
+                            if (!skipResources) {
+                                table.addResource(r, table.getInstallers().getXFormInstaller(), resourceGuid);
+                            }
+                            break;
+                        case "detail":
+                            Detail d = getDetailParser().parse();
+                            details.put(d.getId(), d);
+                            break;
+                        case "menu":
+                            Menu m = new MenuParser(parser).parse();
+                            menus.addElement(m);
+                            break;
+                        case "fixture":
+                            if (!isValidationPass) {
+                                // commit fixture to the memory, overwriting existing
+                                // fixture only during first init after app upgrade
+                                new FixtureXmlParser(parser, isUpgrade, fixtureStorage).parse();
+                            }
+                            break;
+                        default:
+                            System.out.println("Unrecognized Tag: " + parser.getName());
+                            break;
                     }
                 }
                 eventType = parser.next();
@@ -143,18 +172,6 @@ public class SuiteParser extends ElementParser<Suite> {
 
     public void setMaximumAuthority(int authority) {
         maximumResourceAuthority = authority;
-    }
-
-    protected boolean inValidationMode() {
-        return false;
-    }
-
-    /**
-     * If set to true, the parser won't process adding incoming resources to the resource table.
-     * This is helpful if the suite is being processed during a non-install phase
-     */
-    public void setSkipResources(boolean skipResources) {
-        this.skipResources = skipResources;
     }
 
     protected DetailParser getDetailParser() {

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.resources.model;
 
 import org.commcare.resources.model.installers.LocaleFileInstaller;
@@ -36,6 +33,6 @@ public class InstallerFactory {
     }
 
     public ResourceInstaller getMediaInstaller(String path) {
-        return new MediaInstaller(path);
+        return new MediaInstaller();
     }
 }

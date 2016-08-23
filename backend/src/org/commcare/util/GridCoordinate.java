@@ -2,7 +2,7 @@ package org.commcare.util;
 
 /**
  * @author wspride
- *         Represents a rectangle in a GridView via the coordinate of the top
+ *         Represents a rectangle in a Detail's EntityViewTile, via the coordinate of the top
  *         left corner (gridX and gridY) and the height down (gridHeight) and
  *         width right (gridWidth) from there.
  */

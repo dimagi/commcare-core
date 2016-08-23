@@ -26,7 +26,7 @@ import java.util.Vector;
 public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
 
     @Override
-    public boolean initialize(CommCareInstance instance) throws ResourceInitializationException {
+    public boolean initialize(CommCareInstance instance, boolean isUpgrade) throws ResourceInitializationException {
         return true;
     }
 
@@ -103,8 +103,6 @@ public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        // TODO Auto-generated method stub
-
     }
 
     @Override

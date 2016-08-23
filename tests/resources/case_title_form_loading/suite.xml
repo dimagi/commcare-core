@@ -53,6 +53,24 @@
         </push>
       </stack>
     </action>
+    <action>
+      <display>
+        <text>
+          <locale id="case_list_form.m0"/>
+        </text>
+        <text form="image">
+          <locale id="case_list_form.m0.icon"/>
+        </text>
+      </display>
+      <stack>
+        <push>
+          <command value="'m0-f0'"/>
+          <datum id="case_id_new_adult_0" value="uuid()"/>
+          <datum id="usercase_id" value="instance('casedb')/casedb/case[@case_type='commcare-user'][hq_user_id=instance('commcaresession')/session/context/userid][1]/@case_id"/>
+          <datum id="return_to" value="'m0'"/>
+        </push>
+      </stack>
+    </action>
   </detail>
 
   <detail id="m0_case_long">

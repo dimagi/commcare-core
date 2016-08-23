@@ -12,6 +12,7 @@ import org.javarosa.core.model.condition.Recalculate;
 import org.javarosa.core.model.condition.Triggerable;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
+import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
@@ -1083,6 +1084,11 @@ public class FormDef implements IFormElement, IMetaData,
     }
 
     public boolean evaluateConstraint(TreeReference ref, IAnswerData data) {
+
+        if (data instanceof InvalidData) {
+            return false;
+        }
+
         if (data == null) {
             return true;
         }

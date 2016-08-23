@@ -275,7 +275,7 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
      */
     @SuppressWarnings("unused")
     public Hashtable getMetaData() {
-        Hashtable data = new Hashtable();
+        Hashtable<String, Object> data = new Hashtable<>();
         for (String key : getMetaDataFields()) {
             data.put(key, getMetaData(key));
         }
@@ -291,7 +291,6 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         }
         throw new IllegalArgumentException("No metadata field " + fieldName + " in the form instance storage system");
     }
-
 
     /**
      * Custom deserializer for migrating fixtures off of CommCare 2.24.

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.resources.model.installers;
 
 import org.commcare.resources.model.MissingMediaException;
@@ -20,7 +17,6 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.LocalizationUtils;
 import org.javarosa.core.services.locale.TableLocaleSource;
-import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
@@ -49,6 +45,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
     /**
      * Serialization only!
      */
+    @SuppressWarnings("unused")
     public LocaleFileInstaller() {
 
     }
@@ -59,7 +56,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
     }
 
     @Override
-    public boolean initialize(CommCareInstance instance) throws ResourceInitializationException {
+    public boolean initialize(CommCareInstance instance, boolean isUpgrade) throws ResourceInitializationException {
         if (cache == null) {
             Localization.registerLanguageReference(locale, localReference);
         } else {
