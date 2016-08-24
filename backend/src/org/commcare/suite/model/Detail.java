@@ -204,6 +204,8 @@ public class Detail implements Externalizable {
         actions = (Vector<Action>)ExtUtil.read(in, new ExtWrapList(Action.class), pf);
         callout = (Callout)ExtUtil.read(in, new ExtWrapNullable(Callout.class), pf);
         numEntitiesToDisplayPerRow = ExtUtil.readInt(in);
+        forceLandscapeView = ExtUtil.readBool(in);
+        useUniformUnitsInCaseTile = ExtUtil.readBool(in);
     }
 
     @Override
@@ -218,6 +220,8 @@ public class Detail implements Externalizable {
         ExtUtil.write(out, new ExtWrapList(actions));
         ExtUtil.write(out, new ExtWrapNullable(callout));
         ExtUtil.writeNumeric(out, numEntitiesToDisplayPerRow);
+        ExtUtil.writeBool(out, forceLandscapeView);
+        ExtUtil.writeBool(out, useUniformUnitsInCaseTile);
     }
 
     public OrderedHashtable<String, XPathExpression> getVariableDeclarations() {
