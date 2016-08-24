@@ -204,9 +204,7 @@ public class CommCareSession {
 
         if (needDatum == null &&
                 entries != null &&
-                entries.size() == 1 && entries.elementAt(0) instanceof SyncEntry) {
-            System.out.println("Getting needed data relevent: " +
-                    ((SyncEntry)entries.elementAt(0)).getSyncPost().isRelevant(evalContext));
+                entries.size() == 1 && entries.elementAt(0) instanceof RemoteRequestEntry) {
         }
 
         if (needDatum != null) {
