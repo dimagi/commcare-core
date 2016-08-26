@@ -47,7 +47,7 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
             }
         }
         if (nextTagInBlock("field")) {
-            parseStyle(builder);
+            parseGridStyle(builder);
             checkNode("header");
 
             builder.setHeaderWidthHint(parser.getAttributeValue(null, "width"));
@@ -69,7 +69,7 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
             throw new InvalidStructureException("detail <field> with no <template>!", parser);
         }
         if (nextTagInBlock("field")) {
-            //sort details
+
             checkNode(new String[]{"sort", "background"});
 
             String name = parser.getName().toLowerCase();
@@ -84,16 +84,15 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
         return builder.build();
     }
 
-    private void parseStyle(DetailField.Builder builder) throws InvalidStructureException, IOException, XmlPullParserException {
-        //style
-        if (parser.getName().toLowerCase().equals("style")) {
-            StyleParser styleParser = new StyleParser(builder, parser);
-            styleParser.parse();
-            //Header
+    private void parseGridStyle(DetailField.Builder builder) throws InvalidStructureException, IOException, XmlPullParserException {
+        if (parser.getName().toLowerCase().equals("style") ||
+                parser.getName().toLowerCase().equals("grid-style")) {
+            GridStyleParser gridStyleParser = new GridStyleParser(builder, parser);
+            gridStyleParser.parse();
+
             GridParser gridParser = new GridParser(builder, parser);
             gridParser.parse();
 
-            //exit style block
             parser.nextTag();
             parser.nextTag();
         }

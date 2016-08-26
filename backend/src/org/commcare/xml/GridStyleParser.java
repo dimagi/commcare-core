@@ -15,11 +15,11 @@ import java.io.IOException;
  * @author wspride
  */
 
-public class StyleParser extends ElementParser<Integer> {
+public class GridStyleParser extends ElementParser<Integer> {
 
     final Builder builder;
 
-    public StyleParser(Builder builder, KXmlParser parser) {
+    public GridStyleParser(Builder builder, KXmlParser parser) {
         super(parser);
         this.builder = builder;
     }
