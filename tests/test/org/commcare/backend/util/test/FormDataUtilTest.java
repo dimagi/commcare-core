@@ -57,6 +57,24 @@ public class FormDataUtilTest {
     }
 
     /**
+     * Load form title from session where the case list doesn't have a detail screen
+     */
+    @Test
+    public void loadCaseListFormWithoutCaseDetail() throws Exception {
+        MockApp mockApp = new MockApp("/case_title_form_loading/");
+        SessionWrapper session = mockApp.getSession();
+        UserSandbox sandbox = session.getSandbox();
+        SessionWrapper blankSession = new SessionWrapper(session.getPlatform(), sandbox);
+        String descriptor = "COMMAND_ID m4 "
+                + "CASE_ID case_id case_one "
+                + "COMMAND_ID m4-f0";
+        SessionDescriptorUtil.loadSessionFromDescriptor(descriptor, blankSession);
+        String title = FormDataUtil.getTitleFromSession(sandbox,
+                blankSession, blankSession.getEvaluationContext());
+        assertEquals("Saul", title);
+    }
+
+    /**
      * Load form title from session in standard manner, where the case id
      * selected by user
      */

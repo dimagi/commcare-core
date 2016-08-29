@@ -48,12 +48,16 @@ public class FormDataUtil {
                 // the 1st computed datum... another good heuristic would be
                 // session.getPoppedStep().getId().startsWith("case_id")
                 datumValue = session.getPoppedStep().getValue();
-            } else if (datum instanceof EntityDatum && ((EntityDatum)datum).getLongDetail() != null) {
+            } else if (datum instanceof EntityDatum) {
                 String tmpDatumValue = session.getPoppedStep().getValue();
                 if (tmpDatumValue != null) {
                     datumValue = tmpDatumValue;
                 }
-                return new Pair<>((EntityDatum)datum, datumValue);
+                if (((EntityDatum)datum).getLongDetail() == null) {
+                    return new Pair<>(null, datumValue);
+                } else {
+                    return new Pair<>((EntityDatum)datum, datumValue);
+                }
             }
             session.popStep(evaluationContext);
         }
