@@ -14,6 +14,7 @@ import org.javarosa.core.services.storage.StorageManager;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -155,10 +156,11 @@ public class CommCarePlatform implements CommCareInstance {
         Vector<Suite> installed = getInstalledSuites();
         String commonDisplayStyle = null;
         for(Suite s : installed) {
-            for(Menu m : s.getMenus()) {
-                if(menuId.equals(m.getId())) {
-                    if(m.getStyle() != null) {
-                        if(commonDisplayStyle != null && !m.getStyle().equals(commonDisplayStyle)){
+            List<Menu> menusWithId = s.getMenusWithId(menuId);
+            if (menusWithId != null) {
+                for (Menu m : menusWithId) {
+                    if (m.getStyle() != null) {
+                        if (commonDisplayStyle != null && !m.getStyle().equals(commonDisplayStyle)) {
                             return null;
                         }
                         commonDisplayStyle = m.getStyle();
