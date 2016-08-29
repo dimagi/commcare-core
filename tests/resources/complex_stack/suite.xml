@@ -60,6 +60,17 @@
         <title>
             <text>Case List</text>
         </title>
+        <action>
+            <display>
+                <text>Jump to Menu 2 Form 1</text>
+            </display>
+            <stack>
+                <push>
+                    <command value="'m1-f0'"/>
+                    <datum id="calculated_data" value="'new'"/>
+                </push>
+            </stack>
+        </action>
         <action relevant="true()">
             <display>
                 <text>Jump to Menu 2 Form 1</text>

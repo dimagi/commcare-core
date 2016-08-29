@@ -272,7 +272,7 @@ public class SessionStackTests {
 
         EvaluationContext ec = session.getEvaluationContext();
         Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(ec);
-        assertEquals(1, actions.size());
+        assertEquals(2, actions.size());
     }
 
     protected static TreeElement buildExampleInstanceRoot(String bolivarsId) {
