@@ -124,7 +124,7 @@ public class StackFrameStepTests {
         session.setCommand("m0");
         session.setComputedDatum();
         EntityDatum entityDatum = (EntityDatum) session.getNeededDatum();
-        Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions();
+        Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(session.getEvaluationContext());
         if (actions == null || actions.isEmpty()) {
             Assert.fail("Detail screen stack action was missing from app!");
         }

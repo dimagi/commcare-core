@@ -1,10 +1,15 @@
 package org.commcare.suite.model;
 
+import org.commcare.session.RemoteQuerySessionManager;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
+import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.expr.XPathExpression;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -22,10 +27,12 @@ public class Action implements Externalizable {
 
     private DisplayUnit display;
     private Vector<StackOperation> stackOps;
+    private XPathExpression relevantExpr;
 
     /**
      * Serialization only!!!
      */
+    @SuppressWarnings("unused")
     public Action() {
 
     }
@@ -34,9 +41,10 @@ public class Action implements Externalizable {
      * Creates an Action model with the associated display details and stack
      * operations set.
      */
-    public Action(DisplayUnit display, Vector<StackOperation> stackOps) {
+    public Action(DisplayUnit display, Vector<StackOperation> stackOps, XPathExpression relevantExpr) {
         this.display = display;
         this.stackOps = stackOps;
+        this.relevantExpr = relevantExpr;
     }
 
     /**
@@ -55,15 +63,26 @@ public class Action implements Externalizable {
         return stackOps;
     }
 
+    public boolean isRelevant(EvaluationContext evalContext) {
+        if (relevantExpr == null) {
+            return true;
+        } else {
+            String result = RemoteQuerySessionManager.evalXpathExpression(relevantExpr, evalContext);
+            return "true".equals(result);
+        }
+    }
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        this.display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
-        this.stackOps = (Vector<StackOperation>)ExtUtil.read(in, new ExtWrapList(StackOperation.class), pf);
+        display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
+        stackOps = (Vector<StackOperation>)ExtUtil.read(in, new ExtWrapList(StackOperation.class), pf);
+        relevantExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapList(stackOps));
+        ExtUtil.write(out, new ExtWrapNullable(relevantExpr == null ? null : new ExtWrapTagged(relevantExpr)));
     }
 }

@@ -13,7 +13,6 @@ import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
-import org.junit.Assert;
 
 import org.commcare.session.SessionFrame;
 import org.junit.Test;
@@ -22,6 +21,8 @@ import java.util.Vector;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 /**
  * This is a super basic test just to make sure the test infrastructure is working correctly
@@ -48,17 +49,17 @@ public class SessionStackTests {
         EntityDatum entityDatum = (EntityDatum)session.getNeededDatum();
         assertEquals("case_id", entityDatum.getDataId());
 
-        Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions();
+        Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(session.getEvaluationContext());
 
         if(actions == null || actions.isEmpty()) {
-            Assert.fail("Detail screen stack action was missing from app!");
+            fail("Detail screen stack action was missing from app!");
         }
         Action dblManagement = actions.firstElement();
 
         session.executeStackOperations(dblManagement.getStackOperations(), session.getEvaluationContext());
 
         if(session.getNeededData() != null) {
-            Assert.fail("After executing stack frame steps, session should be redirected");
+            fail("After executing stack frame steps, session should be redirected");
         }
 
         assertEquals("http://commcarehq.org/test/placeholder_destination", session.getForm());
@@ -83,7 +84,7 @@ public class SessionStackTests {
 
         assertEquals("case_id_to_send", session.getNeededDatum().getDataId());
 
-        Assert.assertFalse("Session incorrectly determined a view command", session.isViewCommand(session.getCommand()));
+        assertFalse("Session incorrectly determined a view command", session.isViewCommand(session.getCommand()));
 
         session.setDatum("case_id_to_send", "case_one");
 
@@ -257,6 +258,22 @@ public class SessionStackTests {
                 bolivarsId);
     }
 
+    @Test
+    public void testIrrelevantActions() throws Exception {
+        MockApp mApp = new MockApp("/complex_stack/");
+        SessionWrapper session = mApp.getSession();
+
+        session.setCommand("test-actions");
+
+        assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        EntityDatum entityDatum = (EntityDatum)session.getNeededDatum();
+        assertEquals("case_id", entityDatum.getDataId());
+
+        EvaluationContext ec = session.getEvaluationContext();
+        Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(ec);
+        assertEquals(2, actions.size());
+    }
+
     protected static TreeElement buildExampleInstanceRoot(String bolivarsId) {
         TreeElement root = new TreeElement("patients");
         TreeElement data = new TreeElement("patient");
@@ -272,7 +289,7 @@ public class SessionStackTests {
             throws XPathSyntaxException {
         try {
             ExprEvalUtils.xpathEval(session.getEvaluationContext(), xpath);
-            Assert.fail("instance('patients') should not be available");
+            fail("instance('patients') should not be available");
         } catch (XPathMissingInstanceException e) {
             // expected
         }
