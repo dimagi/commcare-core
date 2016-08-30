@@ -1,5 +1,6 @@
 package org.commcare.suite.model;
 
+import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
@@ -22,7 +23,7 @@ import java.util.Hashtable;
  */
 public class RemoteQueryDatum extends SessionDatum {
     private Hashtable<String, XPathExpression> hiddenQueryValues;
-    private Hashtable<String, DisplayUnit> userQueryPrompts;
+    private OrderedHashtable<String, DisplayUnit> userQueryPrompts;
 
     @SuppressWarnings("unused")
     public RemoteQueryDatum() {
@@ -30,13 +31,13 @@ public class RemoteQueryDatum extends SessionDatum {
 
     public RemoteQueryDatum(URL url, String storageInstance,
                             Hashtable<String, XPathExpression> hiddenQueryValues,
-                            Hashtable<String, DisplayUnit> userQueryPrompts) {
+                            OrderedHashtable<String, DisplayUnit> userQueryPrompts) {
         super(storageInstance, url.toString());
         this.hiddenQueryValues = hiddenQueryValues;
         this.userQueryPrompts = userQueryPrompts;
     }
 
-    public Hashtable<String, DisplayUnit> getUserQueryPrompts() {
+    public OrderedHashtable<String, DisplayUnit> getUserQueryPrompts() {
         return userQueryPrompts;
     }
 
@@ -62,8 +63,8 @@ public class RemoteQueryDatum extends SessionDatum {
         hiddenQueryValues =
                 (Hashtable<String, XPathExpression>) ExtUtil.read(in, new ExtWrapMapPoly(String.class), pf);
         userQueryPrompts =
-                (Hashtable<String, DisplayUnit>) ExtUtil.read(in,
-                        new ExtWrapMap(String.class, DisplayUnit.class), pf);
+                (OrderedHashtable<String, DisplayUnit>) ExtUtil.read(in,
+                        new ExtWrapMap(String.class, DisplayUnit.class, ExtWrapMap.TYPE_ORDERED), pf);
     }
 
     @Override

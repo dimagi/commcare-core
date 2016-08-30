@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- *
  * Tests navigating through a CommCareSession (setting datum values and commands, using stepBack(),
  * etc.) for a sample app
  *
@@ -18,8 +17,8 @@ import org.junit.Test;
  */
 public class BasicSessionNavigationTests {
 
-    MockApp mApp;
-    SessionWrapper session;
+    private MockApp mApp;
+    private SessionWrapper session;
 
     @Before
     public void setUp() throws Exception {
