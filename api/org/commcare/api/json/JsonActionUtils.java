@@ -257,4 +257,14 @@ public class JsonActionUtils {
         walker.walk();
         return ret;
     }
+
+    public static JSONArray walkToSingleQuestionJSON(FormEntryModel fem, FormEntryController fec, FormIndex formIndex) {
+        JSONArray ret = new JSONArray();
+        FormIndex nextIndex = fec.getAdjacentIndex(formIndex, true, true);
+        fem.setQuestionIndex(nextIndex);
+        Walker walker = new Walker(ret, nextIndex, fec, fem, true);
+        walker.walk();
+        return ret;
+
+    }
 }

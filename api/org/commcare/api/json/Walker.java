@@ -22,12 +22,24 @@ public class Walker {
     private final FormIndex parentIndex;
     private final FormEntryController fec;
     private final FormEntryModel fem;
+    private boolean fullTree = true;
+    private FormIndex currentIndex;
 
     public Walker(JSONArray compiler, FormIndex parentIndex, FormEntryController fec, FormEntryModel fem) {
         this.compiler = compiler;
         this.parentIndex = parentIndex;
         this.fec = fec;
         this.fem = fem;
+        this.currentIndex = step(parentIndex, true);
+    }
+
+    public Walker(JSONArray compiler, FormIndex currentIndex, FormEntryController fec, FormEntryModel fem, boolean fullTree) {
+        this.compiler = compiler;
+        this.currentIndex = currentIndex;
+        this.parentIndex = FormIndex.createBeginningOfFormIndex();
+        this.fec = fec;
+        this.fem = fem;
+        this.fullTree = fullTree;
     }
 
     private FormIndex step(FormIndex formIndex, boolean descend) {
@@ -47,7 +59,6 @@ public class Walker {
     }
 
     public FormIndex walk() {
-        FormIndex currentIndex = step(parentIndex, true);
         while (indexInScope(currentIndex)) {
             boolean relevant = fem.isIndexRelevant(currentIndex);
 
@@ -90,9 +101,15 @@ public class Walker {
                 obj.put("children", children);
                 compiler.put(obj);
                 currentIndex = step(currentIndex, true);
+                if (!fullTree) {
+                    break;
+                }
             } else {
                 compiler.put(obj);
                 currentIndex = step(currentIndex, true);
+                if (!fullTree) {
+                    break;
+                }
             }
         }
         return currentIndex;
