@@ -33,6 +33,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -125,22 +126,21 @@ public class CommCareSession {
      */
     private Vector<Entry> getEntriesForCommand(String commandId,
                                                OrderedHashtable<String, String> currentSessionData) {
+        Vector<Entry> entries = new Vector<>();
         for (Suite s : platform.getInstalledSuites()) {
-            for (Menu m : s.getMenus()) {
-                // We need to see if everything in this menu can be matched
-                if (commandId.equals(m.getId())) {
-                    return getEntriesFromMenu(m, currentSessionData);
+            List<Menu> menusWithId = s.getMenusWithId(commandId);
+            if (menusWithId != null) {
+                for (Menu menu : menusWithId) {
+                    entries.addAll(getEntriesFromMenu(menu, currentSessionData));
                 }
             }
 
             if (s.getEntries().containsKey(commandId)) {
-                Vector<Entry> entries = new Vector<>();
                 entries.addElement(s.getEntries().get(commandId));
-                return entries;
             }
         }
 
-        return new Vector<>();
+        return entries;
     }
 
     /**
@@ -327,17 +327,6 @@ public class CommCareSession {
             Detail d = s.getDetail(id);
             if (d != null) {
                 return d;
-            }
-        }
-        return null;
-    }
-
-    public Menu getMenu(String id) {
-        for (Suite suite : platform.getInstalledSuites()) {
-            for (Menu m : suite.getMenus()) {
-                if (id.equals(m.getId())) {
-                    return m;
-                }
             }
         }
         return null;
