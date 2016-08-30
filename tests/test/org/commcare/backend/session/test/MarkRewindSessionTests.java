@@ -33,7 +33,7 @@ public class MarkRewindSessionTests {
 
         // perform 'claim' action
         Detail shortDetail = session.getPlatform().getDetail("case-list");
-        Action action = shortDetail.getCustomActions().firstElement();
+        Action action = shortDetail.getCustomActions(session.getEvaluationContext()).firstElement();
         // queue up action
         session.executeStackOperations(action.getStackOperations(), session.getEvaluationContext());
 
