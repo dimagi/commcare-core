@@ -2,7 +2,6 @@ package org.commcare.util;
 
 import org.commcare.cases.model.Case;
 import org.commcare.core.interfaces.UserSandbox;
-import org.commcare.modern.util.Pair;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.EntityDatum;
@@ -13,6 +12,9 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 
 /**
+ * Use the session state descriptor attached to saved forms to load case
+ * information, such as the case name.
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class FormDataUtil {
@@ -20,44 +22,36 @@ public class FormDataUtil {
                                              CommCareSession session,
                                              EvaluationContext evalContext) {
         CommCareSession sessionCopy = new CommCareSession(session);
-
-        Pair<EntityDatum, String> datumEntityAndValue =
-                getDatumAndCaseId(sessionCopy, evalContext);
-        EntityDatum entityDatum = datumEntityAndValue.first;
-        String value = datumEntityAndValue.second;
-
-        if (entityDatum == null) {
-            if (value == null) {
-                return null;
-            } else {
-                return getCaseName(userSandbox, value);
-            }
-        } else {
-            return loadTitleFromEntity(entityDatum, value, evalContext, sessionCopy, userSandbox);
-        }
-    }
-
-    private static Pair<EntityDatum, String> getDatumAndCaseId(CommCareSession session,
-                                                               EvaluationContext evaluationContext) {
         String datumValue = null;
-        while (session.getFrame().getSteps().size() > 0) {
-            SessionDatum datum = session.getNeededDatum();
-            if (isCaseIdComputedDatum(datum, datumValue, session.getPoppedStep())) {
+
+        while (sessionCopy.getFrame().getSteps().size() > 0) {
+            SessionDatum datum = sessionCopy.getNeededDatum();
+            if (isCaseIdComputedDatum(datum, datumValue, sessionCopy.getPoppedStep())) {
                 // Loads case id for forms that create cases, since case id was
                 // a computed datum injected into the form. Assumes that it was
                 // the 1st computed datum... another good heuristic would be
                 // session.getPoppedStep().getId().startsWith("case_id")
-                datumValue = session.getPoppedStep().getValue();
-            } else if (datum instanceof EntityDatum && ((EntityDatum)datum).getLongDetail() != null) {
-                String tmpDatumValue = session.getPoppedStep().getValue();
+                datumValue = sessionCopy.getPoppedStep().getValue();
+            } else if (datum instanceof EntityDatum) {
+                String tmpDatumValue = sessionCopy.getPoppedStep().getValue();
                 if (tmpDatumValue != null) {
                     datumValue = tmpDatumValue;
                 }
-                return new Pair<>((EntityDatum)datum, datumValue);
+                if (((EntityDatum)datum).getLongDetail() == null) {
+                    // In the absence of a case detail, use the plain case name as the title
+                    break;
+                } else {
+                    return loadTitleFromEntity((EntityDatum)datum, datumValue, evalContext, sessionCopy, userSandbox);
+                }
             }
-            session.popStep(evaluationContext);
+            sessionCopy.popStep(evalContext);
         }
-        return new Pair<>(null, datumValue);
+
+        if (datumValue == null) {
+            return null;
+        } else {
+            return getCaseName(userSandbox, datumValue);
+        }
     }
 
     private static boolean isCaseIdComputedDatum(SessionDatum datum,
