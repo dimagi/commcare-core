@@ -137,6 +137,11 @@ public class ApplicationHost {
                 try {
                     if (!screenIsRedrawing) {
                         s.init(mSession);
+
+                        if (s.shouldBeSkipped()) {
+                            s = getNextScreen();
+                            continue;
+                        }
                     }
 
                     System.out.println("\n\n\n\n\n\n");

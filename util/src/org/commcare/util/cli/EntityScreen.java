@@ -38,6 +38,8 @@ public class EntityScreen extends CompoundScreenHost {
 
     private Subscreen<EntityScreen> mCurrentScreen;
 
+    private boolean readyToSkip = false;
+
     public void init(SessionWrapper session) throws CommCareSessionException {
         SessionDatum datum = session.getNeededDatum();
         if (!(datum instanceof EntityDatum)) {
@@ -66,10 +68,16 @@ public class EntityScreen extends CompoundScreenHost {
             this.setHighlightedEntity(references.firstElement());
             if(!this.setCurrentScreenToDetail()) {
                 this.updateSession(session);
+                readyToSkip = true;
             }
         } else {
             mCurrentScreen = new EntityListSubscreen(mShortDetail, references, ec);
         }
+    }
+
+    @Override
+    public boolean shouldBeSkipped() {
+        return readyToSkip;
     }
 
     @Override
