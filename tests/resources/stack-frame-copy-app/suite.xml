@@ -237,4 +237,18 @@
             </push>
         </stack>
     </entry>
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="rewind-without-value">
+            <text></text>
+        </command>
+        <session/>
+        <stack>
+            <push>
+                <rewind/>
+                <command value="'m0'"/>
+            </push>
+        </stack>
+    </entry>
 </suite>

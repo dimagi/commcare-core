@@ -158,4 +158,20 @@ public class MarkRewindSessionTests {
         CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
                 "instance('session')/session/data/mother_case_1", "the mother case id");
     }
+
+    @Test
+    public void rewindWithoutValue() throws Exception {
+        MockApp mockApp = new MockApp("/stack-frame-copy-app/");
+        SessionWrapper session = mockApp.getSession();
+
+        session.setCommand("push-rewind-to-current-id-frame-part-i");
+        session.finishExecuteAndPop(session.getEvaluationContext());
+        assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+
+        session.setCommand("rewind-without-value");
+        session.finishExecuteAndPop(session.getEvaluationContext());
+
+        assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        assertEquals("mother_case_1", session.getNeededDatum().getDataId());
+    }
 }

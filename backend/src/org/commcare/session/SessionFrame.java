@@ -126,7 +126,9 @@ public class SessionFrame implements Externalizable {
         if (markIndex >= 0) {
             String markDatumId = steps.get(markIndex).getId();
             steps = new Vector<>(steps.subList(0, markIndex));
-            steps.addElement(new StackFrameStep(SessionFrame.STATE_DATUM_VAL, markDatumId, value));
+            if (value != null) {
+                steps.addElement(new StackFrameStep(SessionFrame.STATE_UNKNOWN, markDatumId, value));
+            }
             return true;
         } else {
             return false;
