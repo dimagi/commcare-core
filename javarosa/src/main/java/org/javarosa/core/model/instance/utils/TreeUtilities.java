@@ -169,6 +169,10 @@ public class TreeUtilities {
                             for (int kidI = 0; kidI < kids.size(); ++kidI) {
                                 String attrValue = kids.elementAt(kidI).getAttributeValue(null, attributeName);
 
+                                if(attrValue == null ) {
+                                    attrValue = "";
+                                }
+
                                 // We don't necessarily having typing
                                 // information for these attributes (and if we
                                 // did it's not available here) so we will try
