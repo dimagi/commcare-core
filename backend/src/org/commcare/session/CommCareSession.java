@@ -591,9 +591,7 @@ public class CommCareSession {
         for (StackOperation op : ops) {
             // Is there a frame with a matching ID for this op?
             String frameId = op.getFrameId();
-            SessionFrame matchingFrame = updateMatchingFrame(frameId);
-
-            if (!processStackOp(op, frameId, matchingFrame, onDeck, ec)) {
+            if (!processStackOp(op, frameId, onDeck, ec)) {
                 // rewind occurred, stop processing futher ops.
                 break;
             }
@@ -605,19 +603,19 @@ public class CommCareSession {
     /**
      * @return false if current frame was rewound
      */
-    private boolean processStackOp(StackOperation op, String frameId, SessionFrame matchingFrame,
+    private boolean processStackOp(StackOperation op, String frameId,
                                    SessionFrame onDeck, EvaluationContext ec) {
         switch (op.getOp()) {
             case StackOperation.OPERATION_CREATE:
-                createFrame(new SessionFrame(frameId), matchingFrame, op, onDeck, ec);
+                createFrame(new SessionFrame(frameId), op, ec);
                 break;
             case StackOperation.OPERATION_PUSH:
-                if (!performPush(op, matchingFrame, onDeck, ec)) {
+                if (!performPush(op, onDeck, ec)) {
                     return false;
                 }
                 break;
             case StackOperation.OPERATION_CLEAR:
-                performClearOperation(matchingFrame, op, ec);
+                performClearOperation(op, ec);
                 break;
             default:
                 throw new RuntimeException("Undefined stack operation: " + op.getOp());
@@ -626,11 +624,10 @@ public class CommCareSession {
         return true;
     }
 
-    private void createFrame(SessionFrame createdFrame, SessionFrame matchingFrame,
-                             StackOperation op, SessionFrame onDeck, EvaluationContext ec) {
-        // Ensure no frames exist with this ID
-        if (matchingFrame == null && op.isOperationTriggered(ec)) {
-            performPushInner(op, createdFrame, onDeck, ec);
+    private void createFrame(SessionFrame createdFrame,
+                             StackOperation op, EvaluationContext ec) {
+        if (op.isOperationTriggered(ec)) {
+            performPushInner(op, createdFrame, ec);
             pushNewFrame(createdFrame);
         }
     }
@@ -638,22 +635,15 @@ public class CommCareSession {
     /**
      * @return false if push was terminated early by a 'rewind'
      */
-    private boolean performPushInner(StackOperation op, SessionFrame matchingFrame,
-                                     SessionFrame onDeck, EvaluationContext ec) {
-        // If we don't have a frame yet, this push is targeting the
-        // frame on deck
-        if (matchingFrame == null) {
-            matchingFrame = onDeck;
-        }
-
+    private boolean performPushInner(StackOperation op, SessionFrame frame, EvaluationContext ec) {
         for (StackFrameStep step : op.getStackFrameSteps()) {
             if (SessionFrame.STATE_REWIND.equals(step.getType())) {
-                if (matchingFrame.rewindToMarkAndSet(step.getValue())) {
+                if (frame.rewindToMarkAndSet(step.getValue())) {
                     return false;
                 }
                 // if no mark is found ignore the rewind and continue
             } else {
-                pushFrameStep(step, matchingFrame, ec);
+                pushFrameStep(step, frame, ec);
             }
         }
         return true;
@@ -678,10 +668,10 @@ public class CommCareSession {
     /**
      * @return false if push was terminated early by a 'rewind'
      */
-    private boolean performPush(StackOperation op, SessionFrame matchingFrame,
+    private boolean performPush(StackOperation op,
                                 SessionFrame onDeck, EvaluationContext ec) {
         if (op.isOperationTriggered(ec)) {
-            return performPushInner(op, matchingFrame, onDeck, ec);
+            return performPushInner(op, onDeck, ec);
         }
         return true;
     }
@@ -722,13 +712,10 @@ public class CommCareSession {
         frameStack.push(matchingFrame);
     }
 
-    private void performClearOperation(SessionFrame matchingFrame,
-                                       StackOperation op,
+    private void performClearOperation(StackOperation op,
                                        EvaluationContext ec) {
-        if (matchingFrame != null) {
-            if (op.isOperationTriggered(ec)) {
-                frameStack.removeElement(matchingFrame);
-            }
+        if (op.isOperationTriggered(ec)) {
+            frameStack.removeElement(frame);
         }
     }
 
