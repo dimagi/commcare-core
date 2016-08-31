@@ -5,10 +5,12 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.junit.Assert;
 
 public class CaseTestUtils {
     public static final String CASE_INSTANCE = "jr://instance/casedb";
     public static final String LEDGER_INSTANCE = "jr://instance/ledgerdb";
+    public static final String FIXTURE_INSTANCE_PRODUCT = "jr://fixture/commtrack:products";
 
     public static boolean xpathEvalAndCompare(EvaluationContext evalContext,
                                               String input,
@@ -18,6 +20,16 @@ public class CaseTestUtils {
         expr = XPathParseTool.parseXPath(input);
         Object output = XPathFuncExpr.unpack(expr.eval(evalContext));
         return expectedOutput.equals(output);
+    }
+
+    public static void xpathEvalAndAssert(EvaluationContext evalContext,
+                                              String input,
+                                              Object expectedOutput)
+            throws XPathSyntaxException {
+        XPathExpression expr;
+        expr = XPathParseTool.parseXPath(input);
+        Object output = XPathFuncExpr.unpack(expr.eval(evalContext));
+        Assert.assertEquals("XPath: " + input, expectedOutput,output);
     }
 
     public static void xpathEval(EvaluationContext evalContext,
