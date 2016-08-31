@@ -4,7 +4,6 @@ import org.commcare.suite.model.StackFrameStep;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
-import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -77,7 +76,6 @@ public class SessionFrame implements Externalizable {
 
     // endregion - states
 
-    private String frameId;
     private Vector<StackFrameStep> steps = new Vector<>();
     private Vector<StackFrameStep> snapshot = new Vector<>();
 
@@ -94,15 +92,10 @@ public class SessionFrame implements Externalizable {
 
     }
 
-    public SessionFrame(String frameId) {
-        this.frameId = frameId;
-    }
-
     /**
      * Copy constructor
      */
     public SessionFrame(SessionFrame oldSessionFrame) {
-        this.frameId = oldSessionFrame.frameId;
         for (StackFrameStep step : oldSessionFrame.steps) {
             steps.addElement(new StackFrameStep(step));
         }
@@ -151,10 +144,6 @@ public class SessionFrame implements Externalizable {
 
     public void pushStep(StackFrameStep step) {
         steps.addElement(step);
-    }
-
-    public String getFrameId() {
-        return frameId;
     }
 
     /**
@@ -234,7 +223,6 @@ public class SessionFrame implements Externalizable {
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        frameId = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         steps = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class), pf);
         snapshot = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class), pf);
         dead = ExtUtil.readBool(in);
@@ -242,7 +230,6 @@ public class SessionFrame implements Externalizable {
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.write(out, new ExtWrapNullable(frameId));
         ExtUtil.write(out, new ExtWrapList(steps));
         ExtUtil.write(out, new ExtWrapList(snapshot));
         ExtUtil.writeBool(out, dead);

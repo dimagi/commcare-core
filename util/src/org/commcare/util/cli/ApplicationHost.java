@@ -254,7 +254,7 @@ public class ApplicationHost {
 
     private void printStack(CLISessionWrapper mSession) {
         SessionFrame frame = mSession.getFrame();
-        System.out.println("Live Frame" + (frame.getFrameId() == null ? "" : " [" + frame.getFrameId() + "]"));
+        System.out.println("Live Frame");
         System.out.println("----------");
         for (StackFrameStep step : frame.getSteps()) {
             if (step.getType().equals(SessionFrame.STATE_COMMAND_ID)) {

@@ -29,17 +29,15 @@ public class StackOpParser extends ElementParser<StackOperation> {
         try {
             switch (operation) {
                 case "create":
-                    String id = parser.getAttributeValue(null, "id");
-                    return StackOperation.buildCreateFrame(id, ifConditional, getChildren(operation));
+                    return StackOperation.buildCreateFrame(ifConditional, getChildren(operation));
                 case "push":
                     return StackOperation.buildPushFrame(ifConditional, getChildren(operation));
                 case "clear":
-                    String clearId = parser.getAttributeValue(null, "frame");
                     if (nextTagInBlock("clear")) {
                         //This means there are children of the clear, no good!
                         throw new InvalidStructureException("The <clear> operation does not support children", this.parser);
                     }
-                    return StackOperation.buildClearFrame(clearId, ifConditional);
+                    return StackOperation.buildClearFrame(ifConditional);
                 default:
                     throw new InvalidStructureException("<" + operation + "> is not a valid stack operation!", this.parser);
             }

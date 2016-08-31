@@ -213,7 +213,7 @@
         </command>
         <session/>
         <stack>
-            <create id="main-frame">
+            <create>
                 <command value="'child-visit'"/>
                 <mark/>
                 <datum id="mother_case_1" value="'should be overwritten'"/>

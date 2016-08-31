@@ -589,9 +589,7 @@ public class CommCareSession {
         SessionFrame onDeck = frame;
 
         for (StackOperation op : ops) {
-            // Is there a frame with a matching ID for this op?
-            String frameId = op.getFrameId();
-            if (!processStackOp(op, frameId, onDeck, ec)) {
+            if (!processStackOp(op, ec)) {
                 // rewind occurred, stop processing futher ops.
                 break;
             }
@@ -603,14 +601,14 @@ public class CommCareSession {
     /**
      * @return false if current frame was rewound
      */
-    private boolean processStackOp(StackOperation op, String frameId,
-                                   SessionFrame onDeck, EvaluationContext ec) {
+    private boolean processStackOp(StackOperation op,
+                                   EvaluationContext ec) {
         switch (op.getOp()) {
             case StackOperation.OPERATION_CREATE:
-                createFrame(new SessionFrame(frameId), op, ec);
+                createFrame(new SessionFrame(), op, ec);
                 break;
             case StackOperation.OPERATION_PUSH:
-                if (!performPush(op, onDeck, ec)) {
+                if (!performPush(op, ec)) {
                     return false;
                 }
                 break;
@@ -668,34 +666,11 @@ public class CommCareSession {
     /**
      * @return false if push was terminated early by a 'rewind'
      */
-    private boolean performPush(StackOperation op,
-                                SessionFrame onDeck, EvaluationContext ec) {
+    private boolean performPush(StackOperation op, EvaluationContext ec) {
         if (op.isOperationTriggered(ec)) {
-            return performPushInner(op, onDeck, ec);
+            return performPushInner(op, frame, ec);
         }
         return true;
-    }
-
-    private SessionFrame updateMatchingFrame(String frameId) {
-        if (frameId != null) {
-            // TODO: This is correct, right? We want to treat the current frame
-            // as part of the "environment" and not let people create a new frame
-            // with the same id? Possibly this should only be true if the current
-            // frame is live?
-            if (frameId.equals(frame.getFrameId())) {
-                return frame;
-            } else {
-                // Otherwise, peruse the stack looking for another
-                // frame with a matching ID.
-                for (Enumeration e = frameStack.elements(); e.hasMoreElements(); ) {
-                    SessionFrame stackFrame = (SessionFrame)e.nextElement();
-                    if (frameId.equals(stackFrame.getFrameId())) {
-                        return stackFrame;
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     private void pushNewFrame(SessionFrame matchingFrame) {
