@@ -4,7 +4,6 @@ import org.commcare.suite.model.StackFrameStep;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
-import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -37,6 +36,19 @@ public class SessionFrame implements Externalizable {
     public static final String STATE_DATUM_VAL = "CASE_ID";
 
     /**
+     * Signifies that the frame should be rewound to the last MARK, setting the
+     * MARK's datum id (which is the next needed datum at that point in the frame)
+     * to the value carried in the rewind.
+     */
+    public static final String STATE_REWIND = "REWIND";
+
+    /**
+     * Deliniates a rewind point. Contains a datum id, which corresponds to
+     * the next needed datum at that point in the frame.
+     */
+    public static final String STATE_MARK = "MARK";
+
+    /**
      * CommCare needs a computed xpath value to proceed
      */
     public static final String STATE_DATUM_COMPUTED = "COMPUTED_DATUM";
@@ -64,7 +76,6 @@ public class SessionFrame implements Externalizable {
 
     // endregion - states
 
-    private String frameId;
     private Vector<StackFrameStep> steps = new Vector<>();
     private Vector<StackFrameStep> snapshot = new Vector<>();
 
@@ -81,15 +92,10 @@ public class SessionFrame implements Externalizable {
 
     }
 
-    public SessionFrame(String frameId) {
-        this.frameId = frameId;
-    }
-
     /**
      * Copy constructor
      */
     public SessionFrame(SessionFrame oldSessionFrame) {
-        this.frameId = oldSessionFrame.frameId;
         for (StackFrameStep step : oldSessionFrame.steps) {
             steps.addElement(new StackFrameStep(step));
         }
@@ -114,12 +120,32 @@ public class SessionFrame implements Externalizable {
         return recentPop;
     }
 
-    public void pushStep(StackFrameStep step) {
-        steps.addElement(step);
+    protected boolean rewindToMarkAndSet(String value) {
+        int markIndex = getLatestMarkPosition(steps);
+
+        if (markIndex >= 0) {
+            String markDatumId = steps.get(markIndex).getId();
+            steps = new Vector<>(steps.subList(0, markIndex));
+            if (value != null) {
+                steps.addElement(new StackFrameStep(SessionFrame.STATE_UNKNOWN, markDatumId, value));
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    public String getFrameId() {
-        return frameId;
+    private static int getLatestMarkPosition(Vector<StackFrameStep> steps) {
+        for (int index = steps.size() - 1; index >= 0; index--) {
+            if (SessionFrame.STATE_MARK.equals(steps.get(index).getType())) {
+                return index;
+            }
+        }
+        return -1;
+    }
+
+    public void pushStep(StackFrameStep step) {
+        steps.addElement(step);
     }
 
     /**
@@ -199,7 +225,6 @@ public class SessionFrame implements Externalizable {
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        frameId = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         steps = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class), pf);
         snapshot = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class), pf);
         dead = ExtUtil.readBool(in);
@@ -207,7 +232,6 @@ public class SessionFrame implements Externalizable {
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.write(out, new ExtWrapNullable(frameId));
         ExtUtil.write(out, new ExtWrapList(steps));
         ExtUtil.write(out, new ExtWrapList(snapshot));
         ExtUtil.writeBool(out, dead);

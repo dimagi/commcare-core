@@ -1,0 +1,254 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite descriptor="Suite File" version="36">
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="m0-f0">
+            <text>Register mother</text>
+        </command>
+        <instance id="session" src="jr://instance/session"/>
+        <session>
+            <datum function="uuid()" id="mother_case_1"/>
+        </session>
+        <stack>
+            <push>
+                <rewind value="'billy'"/>
+            </push>
+            <create>
+                <command value="'m1'"/>
+                <datum id="mother_case_1" value="instance('session')/session/data/mother_case_1"/>
+            </create>
+        </stack>
+    </entry>
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="m1-f0">
+            <text>Module 0 Form 1</text>
+        </command>
+        <instance id="casedb" src="jr://instance/casedb"/>
+        <instance id="session" src="jr://instance/session"/>
+        <session>
+            <datum detail-confirm="m0_case_long"
+                   detail-select="m0_case_short"
+                   id="mother_case_1"
+                   nodeset="instance('casedb')/casedb/case[@case_type='pregnancy'][@status='open']"
+                   value="./@case_id"/>
+            <datum detail-confirm="m0_case_long"
+                   detail-select="m0_case_short"
+                   id="child_case_1"
+                   nodeset="instance('casedb')/casedb/case[@case_type='child'][@status='open']"
+                   value="./@case_id"/>
+        </session>
+    </entry>
+
+    <menu id="m0">
+        <text>
+            <locale id="modules.m0"/>
+        </text>
+        <command id="m0-f0"/>
+    </menu>
+    <menu id="m1">
+        <text>
+            <locale id="modules.m1"/>
+        </text>
+        <command id="m1-f0"/>
+    </menu>
+
+
+    <detail id="case-list">
+        <title>
+            <text>
+                <locale id="m1.case_short.title"/>
+            </text>
+        </title>
+        <field>
+            <header>
+                <text>
+                    <locale id="m1.case_short.case_name_1.header"/>
+                </text>
+            </header>
+            <template>
+                <text>
+                    <xpath function="case_name"/>
+                </text>
+            </template>
+        </field>
+        <action>
+            <display>
+                <text>
+                    <locale id="case_search.m1"/>
+                </text>
+            </display>
+            <stack>
+                <push>
+                    <mark/>
+                    <command value="'claim'"/>
+                </push>
+            </stack>
+        </action>
+    </detail>
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="visit-form">
+            <text>perform a visit that needs mother and child cases</text>
+        </command>
+        <instance id="session" src="jr://instance/session"/>
+        <session>
+            <datum detail-confirm="m0_case_long"
+                   detail-select="case-list"
+                   id="mother_case_1"
+                   nodeset="instance('casedb')/casedb/case[@case_type='pregnancy'][@status='open']"
+                   value="./@case_id"/>
+            <datum detail-confirm="m0_case_long"
+                   detail-select="case-list"
+                   id="child_case_1"
+                   nodeset="instance('casedb')/casedb/case[@case_type='child'][@status='open']"
+                   value="./@case_id"/>
+        </session>
+        <stack>
+        </stack>
+    </entry>
+
+    <remote-request>
+        <post relevant="false()"
+              url="https://india.commcarehq.org/a/enikshay-test/phone/claim-case/">
+        </post>
+        <command id="claim">
+            <display>
+                <text>
+                    <locale id="case_search.m1"/>
+                </text>
+            </display>
+        </command>
+        <session>
+        </session>
+        <stack>
+            <push>
+                <rewind value="'billy'"/>
+            </push>
+            <!-- this should never get run because we have a mark to rewind to -->
+            <create>
+                <command value="'child-visit'"/>
+                <datum id="mother_case_1" value="instance('session')/session/data/mother_case_1"/>
+            </create>
+        </stack>
+    </remote-request>
+
+    <menu id="child-visit">
+        <text>
+            <locale id="modules.m1"/>
+        </text>
+        <command id="visit-form"/>
+    </menu>
+
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="create-rewind-behavior">
+            <text>test stack create/rewind</text>
+        </command>
+        <session/>
+        <stack>
+            <create>
+                <command value="'child-visit'"/>
+                <mark/>
+                <datum id="mother_case_1" value="'should never be stored'"/>
+                <rewind value="'real mother'"/>
+                <datum id="child_case_1" value="'billy'"/>
+            </create>
+        </stack>
+    </entry>
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="create-rewind-without-mark">
+            <text>test stack create/rewind</text>
+        </command>
+        <session/>
+        <stack>
+            <create>
+                <command value="'child-visit'"/>
+                <datum id="mother_case_1" value="'real mother'"/>
+                <rewind value="'should never be stored'"/>
+                <datum id="child_case_1" value="'billy'"/>
+            </create>
+        </stack>
+    </entry>
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="nested-mark-and-rewinds-part-i">
+            <text>test nested mark/rewind I</text>
+        </command>
+        <session/>
+        <stack>
+            <create>
+                <command value="'child-visit'"/>
+                <mark/>
+                <datum id="mother_case_1" value="'should never be stored'"/>
+                <mark/>
+                <rewind value="'the child case id'"/>
+            </create>
+        </stack>
+    </entry>
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="nested-mark-and-rewinds-part-ii">
+            <text>test nested mark/rewind II</text>
+        </command>
+        <session/>
+        <stack>
+            <push>
+                <rewind value="'the mother case id'"/>
+            </push>
+        </stack>
+    </entry>
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="push-rewind-to-current-id-frame-part-i">
+            <text></text>
+        </command>
+        <session/>
+        <stack>
+            <create>
+                <command value="'child-visit'"/>
+                <mark/>
+                <datum id="mother_case_1" value="'should be overwritten'"/>
+            </create>
+        </stack>
+    </entry>
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="push-rewind-to-current-id-frame-part-ii">
+            <text></text>
+        </command>
+        <session/>
+        <stack>
+            <push>
+                <rewind value="'the mother case id'"/>
+            </push>
+            <push>
+                <!-- this will not be run, due to rewind on the current frame, even though it is IDd -->
+                <command value="'m0'"/>
+            </push>
+        </stack>
+    </entry>
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="rewind-without-value">
+            <text></text>
+        </command>
+        <session/>
+        <stack>
+            <push>
+                <rewind/>
+                <command value="'m0'"/>
+            </push>
+        </stack>
+    </entry>
+</suite>

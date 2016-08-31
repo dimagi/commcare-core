@@ -19,9 +19,9 @@ import org.junit.Test;
 
 import java.util.Vector;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 /**
@@ -31,12 +31,11 @@ import static org.junit.Assert.fail;
  * Created by ctsims on 8/14/2015.
  */
 public class SessionStackTests {
-    private MockApp mApp;
 
     @Test
     public void testDoubleManagementAndOverlappingStack() throws Exception {
-        mApp = new MockApp("/complex_stack/");
-        SessionWrapper session = mApp.getSession();
+        MockApp mockApp = new MockApp("/complex_stack/");
+        SessionWrapper session = mockApp.getSession();
 
         assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
@@ -74,8 +73,8 @@ public class SessionStackTests {
 
     @Test
     public void testViewNav() throws Exception {
-        mApp = new MockApp("/complex_stack/");
-        SessionWrapper session = mApp.getSession();
+        MockApp mockApp = new MockApp("/complex_stack/");
+        SessionWrapper session = mockApp.getSession();
 
         assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
@@ -104,8 +103,8 @@ public class SessionStackTests {
 
     @Test
     public void testViewNonNav() throws Exception {
-        mApp = new MockApp("/complex_stack/");
-        SessionWrapper session = mApp.getSession();
+        MockApp mockApp = new MockApp("/complex_stack/");
+        SessionWrapper session = mockApp.getSession();
 
         assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
@@ -120,8 +119,8 @@ public class SessionStackTests {
 
     @Test
     public void testOutOfOrderStack() throws Exception {
-        mApp = new MockApp("/session-tests-template/");
-        SessionWrapper session = mApp.getSession();
+        MockApp mockApp = new MockApp("/session-tests-template/");
+        SessionWrapper session = mockApp.getSession();
 
         // Select a form that has 3 datum requirements to enter (in order from suite.xml: case_id,
         // case_id_new_visit_0, usercase_id)
@@ -148,8 +147,8 @@ public class SessionStackTests {
 
     @Test
     public void testOutOfOrderStackComplex() throws Exception {
-        mApp = new MockApp("/session-tests-template/");
-        SessionWrapper session = mApp.getSession();
+        MockApp mockApp = new MockApp("/session-tests-template/");
+        SessionWrapper session = mockApp.getSession();
 
         // Select a form that has 3 datum requirements to enter (in order from suite.xml: case_id,
         // case_id_new_visit_0, usercase_id)
@@ -177,8 +176,8 @@ public class SessionStackTests {
 
     @Test
     public void testUnnecessaryDataOnStack() throws Exception {
-        mApp = new MockApp("/session-tests-template/");
-        SessionWrapper session = mApp.getSession();
+        MockApp mockApp = new MockApp("/session-tests-template/");
+        SessionWrapper session = mockApp.getSession();
 
         // Select a form that has 3 datum requirements to enter (in order from suite.xml: case_id,
         // case_id_new_visit_0, usercase_id)
@@ -220,8 +219,8 @@ public class SessionStackTests {
      */
     @Test
     public void testInstancesOnStack() throws Exception {
-        mApp = new MockApp("/session-tests-template/");
-        SessionWrapper session = mApp.getSession();
+        MockApp mockApp = new MockApp("/session-tests-template/");
+        SessionWrapper session = mockApp.getSession();
 
         session.setCommand("patient-search");
         assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
@@ -261,7 +260,7 @@ public class SessionStackTests {
 
     @Test
     public void testIrrelevantActions() throws Exception {
-        mApp = new MockApp("/complex_stack/");
+        MockApp mApp = new MockApp("/complex_stack/");
         SessionWrapper session = mApp.getSession();
 
         session.setCommand("test-actions");
@@ -295,4 +294,5 @@ public class SessionStackTests {
             // expected
         }
     }
+
 }
