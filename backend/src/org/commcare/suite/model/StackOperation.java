@@ -30,7 +30,6 @@ public class StackOperation implements Externalizable {
 
     private int opType;
     private String ifCondition;
-    private String id;
     private Vector<StackFrameStep> elements;
 
     /**
@@ -40,24 +39,23 @@ public class StackOperation implements Externalizable {
 
     }
 
-    public static StackOperation buildCreateFrame(String frameId, String ifCondition,
+    public static StackOperation buildCreateFrame(String ifCondition,
                                                   Vector<StackFrameStep> elements) throws XPathSyntaxException {
-        return new StackOperation(OPERATION_CREATE, frameId, ifCondition, elements);
+        return new StackOperation(OPERATION_CREATE, ifCondition, elements);
     }
 
     public static StackOperation buildPushFrame(String ifCondition,
                                                 Vector<StackFrameStep> elements) throws XPathSyntaxException {
-        return new StackOperation(OPERATION_PUSH, null, ifCondition, elements);
+        return new StackOperation(OPERATION_PUSH, ifCondition, elements);
     }
 
-    public static StackOperation buildClearFrame(String frameId, String ifCondition) throws XPathSyntaxException {
-        return new StackOperation(OPERATION_CLEAR, frameId, ifCondition, null);
+    public static StackOperation buildClearFrame(String ifCondition) throws XPathSyntaxException {
+        return new StackOperation(OPERATION_CLEAR, ifCondition, null);
     }
 
-        private StackOperation(int opType, String frameId, String ifCondition,
+        private StackOperation(int opType, String ifCondition,
                            Vector<StackFrameStep> elements) throws XPathSyntaxException {
         this.opType = opType;
-        this.id = frameId;
         this.ifCondition = ifCondition;
         if (ifCondition != null) {
             XPathParseTool.parseXPath(ifCondition);
@@ -67,10 +65,6 @@ public class StackOperation implements Externalizable {
 
     public int getOp() {
         return opType;
-    }
-
-    public String getFrameId() {
-        return id;
     }
 
     public boolean isOperationTriggered(EvaluationContext ec) {
@@ -105,7 +99,6 @@ public class StackOperation implements Externalizable {
             throws IOException, DeserializationException {
         opType = ExtUtil.readInt(in);
         ifCondition = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-        id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         elements = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class));
     }
 
@@ -113,12 +106,11 @@ public class StackOperation implements Externalizable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, opType);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(ifCondition));
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
         ExtUtil.write(out, new ExtWrapList(elements));
     }
 
     @Override
     public String toString() {
-        return "StackOperation id= " + id + ", elements: " + elements;
+        return "StackOperation " + elements;
     }
 }

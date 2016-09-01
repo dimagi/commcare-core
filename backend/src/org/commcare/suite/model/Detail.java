@@ -248,8 +248,14 @@ public class Detail implements Externalizable {
      * @return An Action model definition if one is defined for this detail.
      * Null if there is no associated action.
      */
-    public Vector<Action> getCustomActions() {
-        return actions;
+    public Vector<Action> getCustomActions(EvaluationContext evaluationContext) {
+        Vector<Action> relevantActions = new Vector<>();
+        for (Action action : actions) {
+            if (action.isRelevant(evaluationContext)) {
+                relevantActions.addElement(action);
+            }
+        }
+        return relevantActions;
     }
 
     /**

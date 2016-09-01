@@ -6,6 +6,7 @@ import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
+import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -73,8 +74,8 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
             throws InvalidStructureException, IOException, XmlPullParserException {
         Hashtable<String, XPathExpression> hiddenQueryValues =
                 new Hashtable<>();
-        Hashtable<String, DisplayUnit> userQueryPrompts =
-                new Hashtable<>();
+        OrderedHashtable<String, DisplayUnit> userQueryPrompts =
+                new OrderedHashtable<>();
         this.checkNode("query");
 
         String queryUrlString = parser.getAttributeValue(null, "url");

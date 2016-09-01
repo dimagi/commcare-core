@@ -174,6 +174,19 @@
     </session>
   </entry>
 
+  <entry>
+    <form>http://openrosa.org/formdesigner/e1f870ef46c9ec0781806ef24ff0537ad604c816</form>
+    <command id="m4-f0">
+      <text>
+        <locale id="forms.m4f0"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='adult'][@status='closed']" value="./@case_id" detail-select="m0_case_short"/>
+    </session>
+  </entry>
+
   <menu id="m0">
     <display>
       <text>
@@ -191,6 +204,13 @@
       <locale id="modules.m1"/>
     </text>
     <command id="m1-f0"/>
+  </menu>
+
+  <menu id="m4">
+    <text>
+      <locale id="modules.m1"/>
+    </text>
+    <command id="m4-f0"/>
   </menu>
 
   <menu id="m2">

@@ -41,7 +41,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         this.mChoices = new TreeReference[references.size()];
         references.copyInto(mChoices);
 
-        actions = shortDetail.getCustomActions();
+        actions = shortDetail.getCustomActions(context);
     }
 
     private String createRow(TreeReference entity, Detail shortDetail, EvaluationContext ec) {

@@ -1,20 +1,18 @@
 package org.commcare.util.cli;
 
 import org.commcare.modern.session.SessionWrapper;
+import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -40,6 +38,8 @@ public class EntityScreen extends CompoundScreenHost {
 
     private Subscreen<EntityScreen> mCurrentScreen;
 
+    private boolean readyToSkip = false;
+
     public void init(SessionWrapper session) throws CommCareSessionException {
         SessionDatum datum = session.getNeededDatum();
         if (!(datum instanceof EntityDatum)) {
@@ -63,8 +63,22 @@ public class EntityScreen extends CompoundScreenHost {
 
         EvaluationContext ec = session.getEvaluationContext();
         Vector<TreeReference> references = ec.expandReference(mNeededDatum.getNodeset());
-        mCurrentScreen = new EntityListSubscreen(mShortDetail, references, ec);
-        initDetailScreens();
+
+        if(mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
+            this.setHighlightedEntity(references.firstElement());
+            if(!this.setCurrentScreenToDetail()) {
+                this.updateSession(session);
+                readyToSkip = true;
+            }
+        } else {
+            mCurrentScreen = new EntityListSubscreen(mShortDetail, references, ec);
+            initDetailScreens();
+        }
+    }
+
+    @Override
+    public boolean shouldBeSkipped() {
+        return readyToSkip;
     }
 
     @Override
@@ -129,6 +143,17 @@ public class EntityScreen extends CompoundScreenHost {
         if(mLongDetailList == null || mLongDetailList.length == 0) {
             mLongDetailList = new Detail[] {d};
         }
+    }
+
+    public boolean setCurrentScreenToDetail() throws CommCareSessionException {
+        initDetailScreens();
+
+        if(mLongDetailList == null) {
+            return false;
+        }
+
+        setCurrentScreenToDetail(0);
+        return true;
     }
 
     public void setCurrentScreenToDetail(int index) throws CommCareSessionException {

@@ -13,9 +13,9 @@ import java.io.IOException;
 /**
  * @author ctsims
  */
-public class StackFrameStepParser extends ElementParser<StackFrameStep> {
+class StackFrameStepParser extends ElementParser<StackFrameStep> {
 
-    public StackFrameStepParser(KXmlParser parser) {
+    StackFrameStepParser(KXmlParser parser) {
         super(parser);
     }
 
@@ -23,13 +23,18 @@ public class StackFrameStepParser extends ElementParser<StackFrameStep> {
     public StackFrameStep parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String operation = parser.getName();
 
-        if ("datum".equals(operation)) {
-            String id = parser.getAttributeValue(null, "id");
-            return parseValue(SessionFrame.STATE_UNKNOWN, id);
-        } else if ("command".equals(operation)) {
-            return parseValue(SessionFrame.STATE_COMMAND_ID, null);
-        } else {
-            throw new InvalidStructureException("<" + operation + "> is not a valid stack frame element!", this.parser);
+        switch (operation) {
+            case "datum":
+                String id = parser.getAttributeValue(null, "id");
+                return parseValue(SessionFrame.STATE_UNKNOWN, id);
+            case "rewind":
+                return parseValue(SessionFrame.STATE_REWIND, null);
+            case "mark":
+                return parseValue(SessionFrame.STATE_MARK, null);
+            case "command":
+                return parseValue(SessionFrame.STATE_COMMAND_ID, null);
+            default:
+                throw new InvalidStructureException("<" + operation + "> is not a valid stack frame element!", this.parser);
         }
     }
 

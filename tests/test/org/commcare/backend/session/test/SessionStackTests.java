@@ -13,12 +13,16 @@ import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
-import org.junit.Assert;
 
 import org.commcare.session.SessionFrame;
 import org.junit.Test;
 
 import java.util.Vector;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 /**
  * This is a super basic test just to make sure the test infrastructure is working correctly
@@ -27,39 +31,38 @@ import java.util.Vector;
  * Created by ctsims on 8/14/2015.
  */
 public class SessionStackTests {
-    MockApp mApp;
 
     @Test
     public void testDoubleManagementAndOverlappingStack() throws Exception {
-        mApp = new MockApp("/complex_stack/");
-        SessionWrapper session = mApp.getSession();
+        MockApp mockApp = new MockApp("/complex_stack/");
+        SessionWrapper session = mockApp.getSession();
 
-        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
         session.setCommand("m0");
 
-        Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
+        assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
 
         session.setComputedDatum();
 
-        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         EntityDatum entityDatum = (EntityDatum)session.getNeededDatum();
-        Assert.assertEquals("case_id", entityDatum.getDataId());
+        assertEquals("case_id", entityDatum.getDataId());
 
-        Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions();
+        Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(session.getEvaluationContext());
 
         if(actions == null || actions.isEmpty()) {
-            Assert.fail("Detail screen stack action was missing from app!");
+            fail("Detail screen stack action was missing from app!");
         }
         Action dblManagement = actions.firstElement();
 
         session.executeStackOperations(dblManagement.getStackOperations(), session.getEvaluationContext());
 
         if(session.getNeededData() != null) {
-            Assert.fail("After executing stack frame steps, session should be redirected");
+            fail("After executing stack frame steps, session should be redirected");
         }
 
-        Assert.assertEquals("http://commcarehq.org/test/placeholder_destination", session.getForm());
+        assertEquals("http://commcarehq.org/test/placeholder_destination", session.getForm());
 
         EvaluationContext ec = session.getEvaluationContext();
 
@@ -70,24 +73,24 @@ public class SessionStackTests {
 
     @Test
     public void testViewNav() throws Exception {
-        mApp = new MockApp("/complex_stack/");
-        SessionWrapper session = mApp.getSession();
+        MockApp mockApp = new MockApp("/complex_stack/");
+        SessionWrapper session = mockApp.getSession();
 
-        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
         session.setCommand("m3-f0");
 
-        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
 
-        Assert.assertEquals("case_id_to_send", session.getNeededDatum().getDataId());
+        assertEquals("case_id_to_send", session.getNeededDatum().getDataId());
 
-        Assert.assertFalse("Session incorrectly determined a view command", session.isViewCommand(session.getCommand()));
+        assertFalse("Session incorrectly determined a view command", session.isViewCommand(session.getCommand()));
 
         session.setDatum("case_id_to_send", "case_one");
 
         session.finishExecuteAndPop(session.getEvaluationContext());
 
-        Assert.assertEquals("m2", session.getCommand());
+        assertEquals("m2", session.getCommand());
 
         CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
                 "instance('session')/session/data/case_id", "case_one");
@@ -95,36 +98,36 @@ public class SessionStackTests {
         CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
                 "count(instance('session')/session/data/case_id_to_send)", "0");
 
-        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
     }
 
     @Test
     public void testViewNonNav() throws Exception {
-        mApp = new MockApp("/complex_stack/");
-        SessionWrapper session = mApp.getSession();
+        MockApp mockApp = new MockApp("/complex_stack/");
+        SessionWrapper session = mockApp.getSession();
 
-        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
         session.setCommand("m4-f0");
 
-        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
 
-        Assert.assertEquals("case_id_to_view", session.getNeededDatum().getDataId());
+        assertEquals("case_id_to_view", session.getNeededDatum().getDataId());
 
-        Assert.assertTrue("Session incorrectly tagged a view command", session.isViewCommand(session.getCommand()));
+        assertTrue("Session incorrectly tagged a view command", session.isViewCommand(session.getCommand()));
     }
 
     @Test
     public void testOutOfOrderStack() throws Exception {
-        mApp = new MockApp("/session-tests-template/");
-        SessionWrapper session = mApp.getSession();
+        MockApp mockApp = new MockApp("/session-tests-template/");
+        SessionWrapper session = mockApp.getSession();
 
         // Select a form that has 3 datum requirements to enter (in order from suite.xml: case_id,
         // case_id_new_visit_0, usercase_id)
-        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
         session.setCommand("m0");
 
-        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
         session.setCommand("m0-f3");
 
         // Set 2 of the 3 needed datums, but not in order (1st and 3rd)
@@ -132,27 +135,27 @@ public class SessionStackTests {
         session.setDatum("usercase_id", "usercase_id_value");
 
         // Session should now need the case_id_new_visit_0, which is a computed datum
-        Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
+        assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
 
         // The key of the needed datum should be "case_id_new_visit_0"
-        Assert.assertEquals("case_id_new_visit_0", session.getNeededDatum().getDataId());
+        assertEquals("case_id_new_visit_0", session.getNeededDatum().getDataId());
 
         // Add the needed datum to the stack and confirm that the session is now ready to proceed
         session.setDatum("case_id_new_visit_0", "visit_id_value");
-        Assert.assertEquals(null, session.getNeededData());
+        assertEquals(null, session.getNeededData());
     }
 
     @Test
     public void testOutOfOrderStackComplex() throws Exception {
-        mApp = new MockApp("/session-tests-template/");
-        SessionWrapper session = mApp.getSession();
+        MockApp mockApp = new MockApp("/session-tests-template/");
+        SessionWrapper session = mockApp.getSession();
 
         // Select a form that has 3 datum requirements to enter (in order from suite.xml: case_id,
         // case_id_new_visit_0, usercase_id)
-        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
         session.setCommand("m0");
 
-        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
         session.setCommand("m0-f3");
 
         // Set 2 of the 3 needed datums, so that the datum that is actually still needed (case_id)
@@ -161,27 +164,27 @@ public class SessionStackTests {
         session.setDatum("usercase_id", "usercase_id_value");
 
         // Session should now see that it needs a normal datum val (NOT a computed val)
-        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
 
         // The key of the needed datum should be "case_id"
-        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
+        assertEquals("case_id", session.getNeededDatum().getDataId());
 
         // Add the needed datum to the stack and confirm that the session is now ready to proceed
         session.setDatum("case_id", "case_id_value");
-        Assert.assertEquals(null, session.getNeededData());
+        assertEquals(null, session.getNeededData());
     }
 
     @Test
     public void testUnnecessaryDataOnStack() throws Exception {
-        mApp = new MockApp("/session-tests-template/");
-        SessionWrapper session = mApp.getSession();
+        MockApp mockApp = new MockApp("/session-tests-template/");
+        SessionWrapper session = mockApp.getSession();
 
         // Select a form that has 3 datum requirements to enter (in order from suite.xml: case_id,
         // case_id_new_visit_0, usercase_id)
-        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
         session.setCommand("m0");
 
-        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
         session.setCommand("m0-f3");
 
         // Put a bunch of random data on the stack such that there are more datums on the stack
@@ -195,19 +198,19 @@ public class SessionStackTests {
         // and still sees itself as needing each of the datums defined for this form, in the correct
         // order
 
-        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
-        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
+        assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        assertEquals("case_id", session.getNeededDatum().getDataId());
 
         session.setDatum("case_id", "case_id_value");
-        Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
-        Assert.assertEquals("case_id_new_visit_0", session.getNeededDatum().getDataId());
+        assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
+        assertEquals("case_id_new_visit_0", session.getNeededDatum().getDataId());
 
         session.setDatum("case_id_new_visit_0", "visit_id_value");
-        Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
-        Assert.assertEquals("usercase_id", session.getNeededDatum().getDataId());
+        assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
+        assertEquals("usercase_id", session.getNeededDatum().getDataId());
 
         session.setDatum("usercase_id", "usercase_id_value");
-        Assert.assertEquals(null, session.getNeededData());
+        assertEquals(null, session.getNeededData());
     }
 
     /**
@@ -216,11 +219,11 @@ public class SessionStackTests {
      */
     @Test
     public void testInstancesOnStack() throws Exception {
-        mApp = new MockApp("/session-tests-template/");
-        SessionWrapper session = mApp.getSession();
+        MockApp mockApp = new MockApp("/session-tests-template/");
+        SessionWrapper session = mockApp.getSession();
 
         session.setCommand("patient-search");
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
+        assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
 
         SessionDatum datum = session.getNeededDatum();
         String bolivarsId = "123";
@@ -231,8 +234,8 @@ public class SessionStackTests {
                 session.getEvaluationContext(),
                 bolivarsId);
 
-        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
-        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
+        assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        assertEquals("case_id", session.getNeededDatum().getDataId());
         session.setDatum("case_id", "case_id_value");
 
         session.stepBack();
@@ -255,6 +258,22 @@ public class SessionStackTests {
                 bolivarsId);
     }
 
+    @Test
+    public void testIrrelevantActions() throws Exception {
+        MockApp mApp = new MockApp("/complex_stack/");
+        SessionWrapper session = mApp.getSession();
+
+        session.setCommand("test-actions");
+
+        assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        EntityDatum entityDatum = (EntityDatum)session.getNeededDatum();
+        assertEquals("case_id", entityDatum.getDataId());
+
+        EvaluationContext ec = session.getEvaluationContext();
+        Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(ec);
+        assertEquals(2, actions.size());
+    }
+
     protected static TreeElement buildExampleInstanceRoot(String bolivarsId) {
         TreeElement root = new TreeElement("patients");
         TreeElement data = new TreeElement("patient");
@@ -270,9 +289,10 @@ public class SessionStackTests {
             throws XPathSyntaxException {
         try {
             ExprEvalUtils.xpathEval(session.getEvaluationContext(), xpath);
-            Assert.fail("instance('patients') should not be available");
+            fail("instance('patients') should not be available");
         } catch (XPathMissingInstanceException e) {
             // expected
         }
     }
+
 }

@@ -4,6 +4,7 @@ import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
@@ -45,7 +46,7 @@ public class RemoteQuerySessionManager {
         }
     }
 
-    public Hashtable<String, DisplayUnit> getNeededUserInputDisplays() {
+    public OrderedHashtable<String, DisplayUnit> getNeededUserInputDisplays() {
         return queryDatum.getUserQueryPrompts();
     }
 

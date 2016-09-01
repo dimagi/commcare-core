@@ -17,6 +17,15 @@ import java.io.PrintStream;
  * @author ctsims
  */
 public abstract class Screen implements OptionsScreen{
+
+    /**
+     * Fired once per screen when the screen is requested. Should set up all of the state
+     * the screen will need to draw itself and accept user input.
+     *
+     * If, after initializaion, a screen does not need to have a user interaction, the init
+     * method should update the session and ensure that shouldBeSkipped() will return true
+     * for this screen.
+     */
     public abstract void init(SessionWrapper session) throws CommCareSessionException;
     public abstract void prompt(PrintStream out) throws CommCareSessionException;
 
@@ -58,5 +67,14 @@ public abstract class Screen implements OptionsScreen{
      */
     public String getScreenTitle() {
         return null;
+    }
+
+    /**
+     * @return true if this screen finished any necessary actions during init() and shouldn't
+     * be displayed to the user, false otherwise. NOTE: init() needs to have changed the
+     * session such that this screen won't be displayed again
+     */
+    public boolean shouldBeSkipped() {
+        return false;
     }
 }
