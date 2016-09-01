@@ -61,13 +61,9 @@ public class Walker {
 
             if (obj.get("type").equals("sub-group")) {
                 Walker walker;
-                if (obj.has("caption") && obj.get("caption") != JSONObject.NULL) {
-                    JSONArray childObject = new JSONArray();
-                    walker = new Walker(childObject, currentIndex, fec, fem);
-                    obj.put("children", childObject);
-                } else {
-                    walker = new Walker(compiler, currentIndex, fec, fem);
-                }
+                JSONArray childObject = new JSONArray();
+                walker = new Walker(childObject, currentIndex, fec, fem);
+                obj.put("children", childObject);
                 compiler.put(obj);
                 currentIndex = walker.walk();
             } else if (obj.get("type").equals("repeat-juncture")) {
