@@ -32,6 +32,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -660,6 +661,20 @@ public class XPathFuncExpr extends XPathExpression {
         }
     }
 
+    private static Double convertToValidMaxOrMinValue(Object o) {
+        Double d = toNumeric(o);
+        if (Double.isNaN(d.doubleValue())) {
+            o = unpack(o);
+            if (o instanceof String) {
+                Date dateFromString = DateUtils.parseDate((String)o);
+                if (dateFromString != null) {
+                    return new Double(DateUtils.daysSinceEpoch(dateFromString));
+                }
+            }
+        }
+        return d;
+    }
+
     /**
      * convert a value to a number using xpath's type conversion rules (note that xpath itself makes
      * no distinction between integer and floating point numbers)
@@ -948,7 +963,7 @@ public class XPathFuncExpr extends XPathExpression {
     private static Object max(Object[] argVals) {
         double max = Double.MIN_VALUE;
         for (int i = 0; i < argVals.length; i++) {
-            max = Math.max(max, toNumeric(argVals[i]).doubleValue());
+            max = Math.max(max, convertToValidMaxOrMinValue(argVals[i]).doubleValue());
         }
         return new Double(max);
     }
@@ -956,7 +971,7 @@ public class XPathFuncExpr extends XPathExpression {
     private static Object min(Object[] argVals) {
         double min = Double.MAX_VALUE;
         for (int i = 0; i < argVals.length; i++) {
-            min = Math.min(min, toNumeric(argVals[i]).doubleValue());
+            min = Math.min(min, convertToValidMaxOrMinValue(argVals[i]).doubleValue());
         }
         return new Double(min);
     }
