@@ -13,6 +13,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
 
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -40,6 +41,8 @@ public class EntityScreen extends CompoundScreenHost {
 
     private boolean readyToSkip = false;
 
+    private Hashtable<String, TreeReference> referenceMap;
+
     public void init(SessionWrapper session) throws CommCareSessionException {
         SessionDatum datum = session.getNeededDatum();
         if (!(datum instanceof EntityDatum)) {
@@ -63,6 +66,11 @@ public class EntityScreen extends CompoundScreenHost {
 
         EvaluationContext ec = session.getEvaluationContext();
         Vector<TreeReference> references = ec.expandReference(mNeededDatum.getNodeset());
+
+        referenceMap = new Hashtable<>();
+        for(TreeReference reference: references) {
+            referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), ec), reference);
+        }
 
         if(mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
             this.setHighlightedEntity(references.firstElement());
@@ -95,7 +103,7 @@ public class EntityScreen extends CompoundScreenHost {
         return mCurrentScreen;
     }
 
-    private String getReturnValueFromSelection(TreeReference contextRef, EntityDatum needed, EvaluationContext context) {
+    public String getReturnValueFromSelection(TreeReference contextRef, EntityDatum needed, EvaluationContext context) {
         // grab the session's (form) element reference, and load it.
         TreeReference elementRef =
                 XPathReference.getPathExpr(needed.getValue()).getReference();
@@ -126,6 +134,10 @@ public class EntityScreen extends CompoundScreenHost {
 
     public void setHighlightedEntity(TreeReference selection) {
         this.mCurrentSelection = selection;
+    }
+
+    public void setHighlightedEntity(String id) {
+        this.mCurrentSelection = referenceMap.get(id);
     }
 
     private void initDetailScreens() {
