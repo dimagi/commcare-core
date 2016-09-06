@@ -1,5 +1,6 @@
 (ns commcare-cli.app_host
   (:require [clojure.tools.cli :as cli]
+            [clojure.string :as string]
             [commcare-cli.dispatch :as dispatch])
   (:import [java.io FileInputStream BufferedInputStream FileNotFoundException]
            [org.commcare.util CommCareConfigEngine]
@@ -49,15 +50,22 @@
 (defn clear-view []
   (map (fn [x] (println "\n")) (range 5)))
 
+(defn process-command [command]
+  (cond
+    ((= command ":exit") 
 (defn process-screen [screen app] 
   (clear-view)
   (.getWrappedDisplaytitle screen (:sandbox app) (.getPlatform (:engine app)))
   (.prompt screen System/out)
   (let [user-input (read-line)]
-    (when 
-      ; TODO: handle commands
-      (.handleInputAndUpdateSession screen (:session app) user-input)
-      (recur screen app))))
+    (if (string/starts-with? user-input ":")
+      (if (process-command user-input)
+        true ;;; XXX I'm here
+        (recur screen app))
+      (when 
+        ; TODO: handle commands
+        (.handleInputAndUpdateSession screen (:session app) user-input)
+        (recur screen app))))
 
 (defn form-entry []
   (println "TODO form entry"))
@@ -70,6 +78,5 @@
         (.init next-screen (:session app))
         (if (.shouldBeSkipped next-screen)
           (recur app)
-          (do 
-            (process-screen next-screen app)
+          (when (process-screen next-screen app)
             (recur app)))))))
