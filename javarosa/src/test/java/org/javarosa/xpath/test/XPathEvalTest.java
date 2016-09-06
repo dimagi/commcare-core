@@ -66,6 +66,8 @@ public class XPathEvalTest {
                 Double t = ((Double)expected).doubleValue();
                 if (Math.abs(o - t) > tolerance) {
                     fail("Doubles outside of tolerance [" + o + "," + t + " ]");
+                } else if (Double.isNaN(o) && !Double.isNaN(t)) {
+                    fail("Result was NaN when not expected");
                 }
             } else if (!expected.equals(result)) {
                 fail("Expected " + expected + ", got " + result);
