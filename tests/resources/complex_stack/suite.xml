@@ -179,8 +179,21 @@
         <instance id="casedb" src="jr://instance/casedb"/>
         <instance id="session" src="jr://instance/session"/>
         <session>
-            <datum id="case_id_to_view" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+            <datum detail-confirm="m0_case_long"
+                   detail-select="m0_case_short"
+                   id="datum_one" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id"/>
+            <datum detail-confirm="m0_case_long"
+                   detail-select="m0_case_short"
+                   id="datum_two" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id"/>
         </session>
+        <stack>
+            <create>
+                <command value="'m5-f0'"/>
+                <datum id="datum_one" value="'foo'"/>
+                <datum id="datum_two"
+                       value="instance('session')/session/data/datum_one"/>
+            </create>
+        </stack>
     </entry>
 
     <entry>

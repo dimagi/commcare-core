@@ -12,6 +12,7 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.XPathMissingInstanceException;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import org.commcare.session.SessionFrame;
@@ -115,6 +116,28 @@ public class SessionStackTests {
         assertEquals("case_id_to_view", session.getNeededDatum().getDataId());
 
         assertTrue("Session incorrectly tagged a view command", session.isViewCommand(session.getCommand()));
+    }
+
+    @Test(expected=XPathTypeMismatchException.class)
+    public void testSessionInstanceNotRefreshedInStackCreate() throws Exception {
+        MockApp mockApp = new MockApp("/complex_stack/");
+        SessionWrapper session = mockApp.getSession();
+
+        assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+
+        session.setCommand("m5-f0");
+
+        // The stack action has 2 datums, 'datum_one' and 'datum_two'. The
+        // value of 'datum_two' references
+        // instance(session)/session/data/datum_one, defined directly above.
+        // Since we don't refresh the evaluation context / session instance at
+        // each step, this reference should not valid, resulting in a
+        // XPathTypeMismatchException.
+        // If at any point we decide we want to support this behavior, this
+        // test should be adapted to reflect that. The test is left here to
+        // demonstrate the current limitation and allow TDD if the behavior is
+        // modified.
+        session.finishExecuteAndPop(session.getEvaluationContext());
     }
 
     @Test
