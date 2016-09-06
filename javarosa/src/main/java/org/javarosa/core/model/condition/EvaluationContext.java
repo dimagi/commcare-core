@@ -3,6 +3,7 @@ package org.javarosa.core.model.condition;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
@@ -15,6 +16,7 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -137,8 +139,12 @@ public class EvaluationContext {
         }
     }
 
+    public EvaluationContext copy() {
+        return new EvaluationContext(this, this.contextNode);
+    }
+
     public DataInstance getInstance(String id) {
-        return formInstances.containsKey(id) ? formInstances.get(id) : null;
+        return formInstances.get(id);
     }
 
     public TreeReference getContextRef() {
@@ -549,5 +555,13 @@ public class EvaluationContext {
      */
     public EvaluationTrace getEvaluationTrace() {
         return mTraceRoot;
+    }
+
+    public void copyOverInstances(EvaluationContext evalContext) {
+        for (Map.Entry<String, DataInstance> idAndInstance : evalContext.formInstances.entrySet()) {
+            if (!formInstances.containsKey(idAndInstance.getKey())) {
+                formInstances.put(idAndInstance.getKey(), idAndInstance.getValue());
+            }
+        }
     }
 }

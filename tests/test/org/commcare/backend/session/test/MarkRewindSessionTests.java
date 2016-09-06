@@ -35,7 +35,7 @@ public class MarkRewindSessionTests {
         Detail shortDetail = session.getPlatform().getDetail("case-list");
         Action action = shortDetail.getCustomActions(session.getEvaluationContext()).firstElement();
         // queue up action
-        session.executeStackOperations(action.getStackOperations(), session.getEvaluationContext());
+        session.executeStackOperations(action.getStackOperations(), session.getIIF());
 
         // test backing out of action
         session.stepBack();
@@ -43,17 +43,17 @@ public class MarkRewindSessionTests {
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getFrame().getSteps().lastElement().getType());
 
         // queue up action again
-        session.executeStackOperations(action.getStackOperations(), session.getEvaluationContext());
+        session.executeStackOperations(action.getStackOperations(), session.getIIF());
 
         // finish action
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        session.finishExecuteAndPop(session.getIIF());
 
         // ensure we don't need any more data to perform the visit
         assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
         CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
                 "instance('session')/session/data/child_case_1", "billy");
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        session.finishExecuteAndPop(session.getIIF());
         assertTrue(session.getFrame().isDead());
     }
 
@@ -65,7 +65,7 @@ public class MarkRewindSessionTests {
         session.setCommand("create-rewind-behavior");
         assertNull(session.getNeededData());
 
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        session.finishExecuteAndPop(session.getIIF());
 
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         assertEquals("child_case_1", session.getNeededDatum().getDataId());
@@ -82,7 +82,7 @@ public class MarkRewindSessionTests {
         session.setCommand("create-rewind-without-mark");
         assertNull(session.getNeededData());
 
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        session.finishExecuteAndPop(session.getIIF());
 
         assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
@@ -111,7 +111,7 @@ public class MarkRewindSessionTests {
 
         // execute the stack ops for the m0-f0 entry
         session.setCommand("m0-f0");
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        session.finishExecuteAndPop(session.getIIF());
 
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         assertEquals("child_case_1", session.getNeededDatum().getDataId());
@@ -126,11 +126,11 @@ public class MarkRewindSessionTests {
         SessionWrapper session = mockApp.getSession();
 
         session.setCommand("nested-mark-and-rewinds-part-i");
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        session.finishExecuteAndPop(session.getIIF());
         assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
         session.setCommand("nested-mark-and-rewinds-part-ii");
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        session.finishExecuteAndPop(session.getIIF());
 
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         assertEquals("child_case_1", session.getNeededDatum().getDataId());
@@ -146,11 +146,11 @@ public class MarkRewindSessionTests {
         SessionWrapper session = mockApp.getSession();
 
         session.setCommand("push-rewind-to-current-id-frame-part-i");
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        session.finishExecuteAndPop(session.getIIF());
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
 
         session.setCommand("push-rewind-to-current-id-frame-part-ii");
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        session.finishExecuteAndPop(session.getIIF());
 
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         assertEquals("child_case_1", session.getNeededDatum().getDataId());
@@ -165,11 +165,11 @@ public class MarkRewindSessionTests {
         SessionWrapper session = mockApp.getSession();
 
         session.setCommand("push-rewind-to-current-id-frame-part-i");
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        session.finishExecuteAndPop(session.getIIF());
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
 
         session.setCommand("rewind-without-value");
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        session.finishExecuteAndPop(session.getIIF());
 
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         assertEquals("mother_case_1", session.getNeededDatum().getDataId());

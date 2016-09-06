@@ -4,6 +4,7 @@ import org.commcare.modern.session.SessionWrapper;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.StackFrameStep;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -12,6 +13,7 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.XPathMissingInstanceException;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import org.commcare.session.SessionFrame;
@@ -20,6 +22,7 @@ import org.junit.Test;
 import java.util.Vector;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
@@ -56,7 +59,7 @@ public class SessionStackTests {
         }
         Action dblManagement = actions.firstElement();
 
-        session.executeStackOperations(dblManagement.getStackOperations(), session.getEvaluationContext());
+        session.executeStackOperations(dblManagement.getStackOperations(), session.getIIF());
 
         if(session.getNeededData() != null) {
             fail("After executing stack frame steps, session should be redirected");
@@ -88,7 +91,7 @@ public class SessionStackTests {
 
         session.setDatum("case_id_to_send", "case_one");
 
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        session.finishExecuteAndPop(session.getIIF());
 
         assertEquals("m2", session.getCommand());
 
@@ -115,6 +118,34 @@ public class SessionStackTests {
         assertEquals("case_id_to_view", session.getNeededDatum().getDataId());
 
         assertTrue("Session incorrectly tagged a view command", session.isViewCommand(session.getCommand()));
+    }
+
+    @Test
+    public void testSessionInstanceNotRefreshedInStackCreate() throws Exception {
+        MockApp mockApp = new MockApp("/complex_stack/");
+        SessionWrapper session = mockApp.getSession();
+
+        session.setCommand("m5-f0");
+        assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
+        session.setComputedDatum();
+        session.setComputedDatum();
+        session.setComputedDatum();
+        assertNull(session.getNeededData());
+
+        session.finishExecuteAndPop(session.getIIF());
+        assertNull(session.getNeededData());
+        Vector<StackFrameStep> steps = session.getFrame().getSteps();
+        assertEquals("datum_one", steps.get(steps.size() - 2).getId());
+        assertEquals("second id", steps.get(steps.size() - 2).getValue());
+
+        int datumOneCount = 0;
+        for (StackFrameStep step : steps) {
+            if ("datum_one".equals(step.getId())) {
+                datumOneCount++;
+                assertEquals("second id", step.getValue());
+            }
+        }
+        assertEquals(1, datumOneCount);
     }
 
     @Test
@@ -251,7 +282,7 @@ public class SessionStackTests {
                 session.getEvaluationContext(),
                 bolivarsId);
 
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        session.finishExecuteAndPop(session.getIIF());
         assertInstanceMissing(session, "instance('patients')/patients/patient/bolivar");
         ExprEvalUtils.testEval("instance('session')/session/data/case_id",
                 session.getEvaluationContext(),
