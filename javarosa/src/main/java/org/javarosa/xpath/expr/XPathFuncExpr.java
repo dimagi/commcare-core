@@ -666,7 +666,7 @@ public class XPathFuncExpr extends XPathExpression {
             if (o instanceof String) {
                 Date dateFromString = DateUtils.parseDate((String)o);
                 if (dateFromString != null) {
-                    return new Double(DateUtils.daysSinceEpoch(dateFromString));
+                    return toNumeric(dateFromString);
                 }
             }
         }
