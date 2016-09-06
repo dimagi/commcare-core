@@ -18,7 +18,6 @@ import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -642,10 +641,9 @@ public class CommCareSession {
      */
     private boolean performPushInner(StackOperation op, SessionFrame frame,
                                      CommCareInstanceInitializer iif) {
-        CommCareSession sessionCopy = new CommCareSession(this);
-        sessionCopy.frame = frame;
-        sessionCopy.syncState();
-        CommCareInstanceInitializer iifCopy = iif.copyWithNewSession(sessionCopy);
+        CommCareSession sessionUsingPushedFrame = buildSessionUsingPushedFrame(this);
+        CommCareInstanceInitializer iifWithNewFrameSession = iif.copyWithNewSession(sessionUsingPushedFrame);
+
         for (StackFrameStep step : op.getStackFrameSteps()) {
             if (SessionFrame.STATE_REWIND.equals(step.getType())) {
                 if (frame.rewindToMarkAndSet(step.getValue())) {
@@ -653,10 +651,17 @@ public class CommCareSession {
                 }
                 // if no mark is found ignore the rewind and continue
             } else {
-                pushFrameStep(step, frame, sessionCopy, iifCopy);
+                pushFrameStep(step, frame, sessionUsingPushedFrame, iifWithNewFrameSession);
             }
         }
         return true;
+    }
+
+    private static CommCareSession buildSessionUsingPushedFrame(CommCareSession session) {
+        CommCareSession sessionCopy = new CommCareSession(session);
+        sessionCopy.frame = session.frame;
+        sessionCopy.syncState();
+        return sessionCopy;
     }
 
     private void pushFrameStep(StackFrameStep step, SessionFrame frame,
@@ -665,16 +670,49 @@ public class CommCareSession {
         if (SessionFrame.STATE_MARK.equals(step.getType())) {
             neededDatum = session.getNeededDatum();
         }
-        session.frame = new SessionFrame(this.frame);
-        for (StackFrameStep newStep : frame.getSteps()) {
-            session.frame.pushStep(newStep);
-        }
-        EvaluationContext frameEvaluationContext = session.getEvaluationContext(iif);
-        EvaluationContext currentEvaluationContext = session.getEvaluationContext(iif, getCommand());
-        frameEvaluationContext.copyOverInstances(currentEvaluationContext);
+        copyFrameData(frame, this, session);
+
+        EvaluationContext frameEvaluationContext =
+                newFrameEvaluationContextWithCurrentInstances(this, session, iif);
+
         session.frame = frame;
         frame.pushStep(step.defineStep(frameEvaluationContext, neededDatum));
         session.syncState();
+    }
+
+    /**
+     * @return Evaluation context using the command from target session, with
+     * data instances from current session included
+     */
+    private static EvaluationContext newFrameEvaluationContextWithCurrentInstances(CommCareSession sourceSession,
+                                                                                   CommCareSession targetSession,
+                                                                                   CommCareInstanceInitializer iif) {
+        EvaluationContext targetEvaluationContext = targetSession.getEvaluationContext(iif);
+        if (targetSession.getCommand() != null &&
+                !targetSession.getCommand().equals(sourceSession.getCommand())) {
+            EvaluationContext sourceEvaluationContext =
+                    sourceSession.getEvaluationContext(iif, sourceSession.getCommand());
+            // Merge instances so that stack operations have access to
+            // instances defined in the current entry as well as any entry
+            // associated with any command added to the frame being pushed. If
+            // the same instance is defined in both entries (i.e.
+            // "instance('session')"), the instance from pushed frame will be
+            // used (but note that the data from the current frame should be
+            // available via some sneaky copying)
+            targetEvaluationContext.copyOverInstances(sourceEvaluationContext);
+        }
+        return targetEvaluationContext;
+    }
+
+    /**
+     * Copy data from current frame to the pushed frame. Needed so that the
+     * data will be available in the instance('commcaresession')/session/data/...
+     */
+    private static void copyFrameData(SessionFrame newFrame, CommCareSession sourceSession, CommCareSession targetSession) {
+        targetSession.frame = new SessionFrame(sourceSession.frame);
+        for (StackFrameStep newStep : newFrame.getSteps()) {
+            targetSession.frame.pushStep(newStep);
+        }
     }
 
     /**

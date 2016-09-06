@@ -179,6 +179,7 @@
         <instance id="casedb" src="jr://instance/casedb"/>
         <instance id="session" src="jr://instance/session"/>
         <session>
+            <datum id="datum_one" function="'base value'"/>
             <datum id="case_id_one" function="'first id'"/>
             <datum id="case_id_two" function="'second id'"/>
         </session>

@@ -129,6 +129,7 @@ public class SessionStackTests {
         assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
         session.setComputedDatum();
         session.setComputedDatum();
+        session.setComputedDatum();
         assertNull(session.getNeededData());
 
         session.finishExecuteAndPop(session.getIIF());
@@ -136,6 +137,15 @@ public class SessionStackTests {
         Vector<StackFrameStep> steps = session.getFrame().getSteps();
         assertEquals("datum_one", steps.get(steps.size() - 2).getId());
         assertEquals("second id", steps.get(steps.size() - 2).getValue());
+
+        int datumOneCount = 0;
+        for (StackFrameStep step : steps) {
+            if ("datum_one".equals(step.getId())) {
+                datumOneCount++;
+                assertEquals("second id", step.getValue());
+            }
+        }
+        assertEquals(1, datumOneCount);
     }
 
     @Test
