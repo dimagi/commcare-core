@@ -113,7 +113,7 @@ public class EntityScreen extends CompoundScreenHost {
     @Override
     protected void updateSession(CommCareSession session) {
         if(mPendingAction != null) {
-            session.executeStackOperations(mPendingAction.getStackOperations(), mSession.getEvaluationContext());
+            session.executeStackOperations(mPendingAction.getStackOperations(), mSession.getIIF());
             return;
         }
 

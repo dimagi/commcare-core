@@ -272,7 +272,7 @@ public class ApplicationHost {
 
     private void finishSession() {
         mSession.clearVolitiles();
-        if (mSession.finishExecuteAndPop(mSession.getEvaluationContext())) {
+        if (mSession.finishExecuteAndPop(mSession.getIIF())) {
             mSessionHasNextFrameReady = true;
         }
     }

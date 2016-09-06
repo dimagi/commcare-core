@@ -1,5 +1,6 @@
 package org.commcare.session;
 
+import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
@@ -465,6 +466,7 @@ public class CommCareSession {
 
         for (StackFrameStep step : frame.getSteps()) {
             if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) ||
+                    SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType()) ||
                     SessionFrame.STATE_UNKNOWN.equals(step.getType()) &&
                     guessUnknownType(step).equals(SessionFrame.STATE_DATUM_COMPUTED)) {
                 String key = step.getId();
@@ -524,7 +526,7 @@ public class CommCareSession {
      * @param iif the instance initailzier for the current platform
      * @return Evaluation context for current session state
      */
-    public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif) {
+    public EvaluationContext getEvaluationContext(CommCareInstanceInitializer iif) {
         return this.getEvaluationContext(iif, getCommand());
     }
 
@@ -535,7 +537,7 @@ public class CommCareSession {
      * @param iif the instance initializer for the current platform
      * @return Evaluation context for a command in the installed app
      */
-    public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif, String command) {
+    public EvaluationContext getEvaluationContext(CommCareInstanceInitializer iif, String command) {
         if (command == null) {
             return new EvaluationContext(null);
         }
@@ -552,6 +554,10 @@ public class CommCareSession {
         return new EvaluationContext(null, instancesInScope);
     }
 
+    /**
+     * Session frame steps may define xml instances where they store their data
+     * (i.e. the 'query' step)
+     */
     private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap) {
         for (StackFrameStep step : frame.getSteps()) {
             if (step.hasXmlInstance()) {
@@ -582,14 +588,15 @@ public class CommCareSession {
      * calculated within it will be evaluated against the starting, but <push> actions
      * will happen against the newly pushed frame)
      */
-    public boolean executeStackOperations(Vector<StackOperation> ops, EvaluationContext ec) {
+    public boolean executeStackOperations(Vector<StackOperation> ops,
+                                          CommCareInstanceInitializer iif) {
         // The on deck frame is the frame that is the target of operations that execute
         // as part of this stack update. If at the end of the stack ops the frame on deck
         // doesn't match the current (living) frame, it will become the the current frame
         SessionFrame onDeck = frame;
 
         for (StackOperation op : ops) {
-            if (!processStackOp(op, ec)) {
+            if (!processStackOp(op, iif)) {
                 // rewind occurred, stop processing futher ops.
                 break;
             }
@@ -602,18 +609,18 @@ public class CommCareSession {
      * @return false if current frame was rewound
      */
     private boolean processStackOp(StackOperation op,
-                                   EvaluationContext ec) {
+                                   CommCareInstanceInitializer iif) {
         switch (op.getOp()) {
             case StackOperation.OPERATION_CREATE:
-                createFrame(new SessionFrame(), op, ec);
+                createFrame(new SessionFrame(), op, iif);
                 break;
             case StackOperation.OPERATION_PUSH:
-                if (!performPush(op, ec)) {
+                if (!performPush(op, iif)) {
                     return false;
                 }
                 break;
             case StackOperation.OPERATION_CLEAR:
-                performClearOperation(op, ec);
+                performClearOperation(op, getEvaluationContext(iif));
                 break;
             default:
                 throw new RuntimeException("Undefined stack operation: " + op.getOp());
@@ -623,9 +630,9 @@ public class CommCareSession {
     }
 
     private void createFrame(SessionFrame createdFrame,
-                             StackOperation op, EvaluationContext ec) {
-        if (op.isOperationTriggered(ec)) {
-            performPushInner(op, createdFrame, ec);
+                             StackOperation op, CommCareInstanceInitializer iif) {
+        if (op.isOperationTriggered(getEvaluationContext(iif))) {
+            performPushInner(op, createdFrame, iif);
             pushNewFrame(createdFrame);
         }
     }
@@ -633,7 +640,12 @@ public class CommCareSession {
     /**
      * @return false if push was terminated early by a 'rewind'
      */
-    private boolean performPushInner(StackOperation op, SessionFrame frame, EvaluationContext ec) {
+    private boolean performPushInner(StackOperation op, SessionFrame frame,
+                                     CommCareInstanceInitializer iif) {
+        CommCareSession sessionCopy = new CommCareSession(this);
+        sessionCopy.frame = frame;
+        sessionCopy.syncState();
+        CommCareInstanceInitializer iifCopy = iif.copyWithNewSession(sessionCopy);
         for (StackFrameStep step : op.getStackFrameSteps()) {
             if (SessionFrame.STATE_REWIND.equals(step.getType())) {
                 if (frame.rewindToMarkAndSet(step.getValue())) {
@@ -641,34 +653,36 @@ public class CommCareSession {
                 }
                 // if no mark is found ignore the rewind and continue
             } else {
-                pushFrameStep(step, frame, ec);
+                pushFrameStep(step, frame, sessionCopy, iifCopy);
             }
         }
         return true;
     }
 
-    private void pushFrameStep(StackFrameStep step, SessionFrame frame, EvaluationContext ec) {
+    private void pushFrameStep(StackFrameStep step, SessionFrame frame,
+                               CommCareSession session, CommCareInstanceInitializer iif) {
         SessionDatum neededDatum = null;
         if (SessionFrame.STATE_MARK.equals(step.getType())) {
-            neededDatum = getNeededDatumForFrame(this, frame);
+            neededDatum = session.getNeededDatum();
         }
-        frame.pushStep(step.defineStep(ec, neededDatum));
-    }
-
-    private static SessionDatum getNeededDatumForFrame(CommCareSession session,
-                                                       SessionFrame targetFrame) {
-        CommCareSession sessionCopy = new CommCareSession(session);
-        sessionCopy.frame = targetFrame;
-        sessionCopy.syncState();
-        return sessionCopy.getNeededDatum();
+        session.frame = new SessionFrame(this.frame);
+        for (StackFrameStep newStep : frame.getSteps()) {
+            session.frame.pushStep(newStep);
+        }
+        EvaluationContext frameEvaluationContext = session.getEvaluationContext(iif);
+        EvaluationContext currentEvaluationContext = session.getEvaluationContext(iif, getCommand());
+        frameEvaluationContext.copyOverInstances(currentEvaluationContext);
+        session.frame = frame;
+        frame.pushStep(step.defineStep(frameEvaluationContext, neededDatum));
+        session.syncState();
     }
 
     /**
      * @return false if push was terminated early by a 'rewind'
      */
-    private boolean performPush(StackOperation op, EvaluationContext ec) {
-        if (op.isOperationTriggered(ec)) {
-            return performPushInner(op, frame, ec);
+    private boolean performPush(StackOperation op, CommCareInstanceInitializer iif) {
+        if (op.isOperationTriggered(getEvaluationContext(iif))) {
+            return performPushInner(op, frame, iif);
         }
         return true;
     }
@@ -735,7 +749,7 @@ public class CommCareSession {
      * popped into the current session. False if the stack was empty
      * and the session is over.
      */
-    public boolean finishExecuteAndPop(EvaluationContext ec) {
+    public boolean finishExecuteAndPop(CommCareInstanceInitializer iif) {
         Vector<StackOperation> ops = getCurrentEntry().getPostEntrySessionOperations();
 
         //Let the session know that the current frame shouldn't work its way back onto the stack
@@ -743,7 +757,7 @@ public class CommCareSession {
 
         //First, see if we have operations to run
         if (ops.size() > 0) {
-            executeStackOperations(ops, ec);
+            executeStackOperations(ops, iif);
         }
         return finishAndPop();
     }

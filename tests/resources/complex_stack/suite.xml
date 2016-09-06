@@ -179,6 +179,31 @@
         <instance id="casedb" src="jr://instance/casedb"/>
         <instance id="session" src="jr://instance/session"/>
         <session>
+            <datum id="case_id_one" function="'first id'"/>
+            <datum id="case_id_two" function="'second id'"/>
+        </session>
+        <stack>
+            <create>
+                <command value="'m6-f0'"/>
+                <datum id="datum_one" value="instance('session')/session/data/case_id_one"/>
+                <datum id="datum_two"
+                       value="instance('session')/session/data/datum_one"/>
+            </create>
+            <create>
+                <command value="'m6-f0'"/>
+                <datum id="datum_one" value="instance('session')/session/data/case_id_two"/>
+                <datum id="datum_two"
+                       value="instance('session')/session/data/datum_one"/>
+            </create>
+        </stack>
+    </entry>
+
+    <entry>
+        <command id="m6-f0">
+            <text>Terminal Detail</text>
+        </command>
+        <instance id="casedb" src="jr://instance/casedb"/>
+        <session>
             <datum detail-confirm="m0_case_long"
                    detail-select="m0_case_short"
                    id="datum_one" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id"/>
@@ -186,14 +211,6 @@
                    detail-select="m0_case_short"
                    id="datum_two" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id"/>
         </session>
-        <stack>
-            <create>
-                <command value="'m5-f0'"/>
-                <datum id="datum_one" value="'foo'"/>
-                <datum id="datum_two"
-                       value="instance('session')/session/data/datum_one"/>
-            </create>
-        </stack>
     </entry>
 
     <entry>

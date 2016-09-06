@@ -4,6 +4,7 @@ import org.commcare.modern.session.SessionWrapper;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.StackFrameStep;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -21,6 +22,7 @@ import org.junit.Test;
 import java.util.Vector;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
@@ -57,7 +59,7 @@ public class SessionStackTests {
         }
         Action dblManagement = actions.firstElement();
 
-        session.executeStackOperations(dblManagement.getStackOperations(), session.getEvaluationContext());
+        session.executeStackOperations(dblManagement.getStackOperations(), session.getIIF());
 
         if(session.getNeededData() != null) {
             fail("After executing stack frame steps, session should be redirected");
@@ -89,7 +91,7 @@ public class SessionStackTests {
 
         session.setDatum("case_id_to_send", "case_one");
 
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        session.finishExecuteAndPop(session.getIIF());
 
         assertEquals("m2", session.getCommand());
 
@@ -118,26 +120,22 @@ public class SessionStackTests {
         assertTrue("Session incorrectly tagged a view command", session.isViewCommand(session.getCommand()));
     }
 
-    @Test(expected=XPathTypeMismatchException.class)
+    @Test
     public void testSessionInstanceNotRefreshedInStackCreate() throws Exception {
         MockApp mockApp = new MockApp("/complex_stack/");
         SessionWrapper session = mockApp.getSession();
 
-        assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
-
         session.setCommand("m5-f0");
+        assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
+        session.setComputedDatum();
+        session.setComputedDatum();
+        assertNull(session.getNeededData());
 
-        // The stack action has 2 datums, 'datum_one' and 'datum_two'. The
-        // value of 'datum_two' references
-        // instance(session)/session/data/datum_one, defined directly above.
-        // Since we don't refresh the evaluation context / session instance at
-        // each step, this reference should not valid, resulting in a
-        // XPathTypeMismatchException.
-        // If at any point we decide we want to support this behavior, this
-        // test should be adapted to reflect that. The test is left here to
-        // demonstrate the current limitation and allow TDD if the behavior is
-        // modified.
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        session.finishExecuteAndPop(session.getIIF());
+        assertNull(session.getNeededData());
+        Vector<StackFrameStep> steps = session.getFrame().getSteps();
+        assertEquals("datum_one", steps.get(steps.size() - 2).getId());
+        assertEquals("second id", steps.get(steps.size() - 2).getValue());
     }
 
     @Test
@@ -274,7 +272,7 @@ public class SessionStackTests {
                 session.getEvaluationContext(),
                 bolivarsId);
 
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        session.finishExecuteAndPop(session.getIIF());
         assertInstanceMissing(session, "instance('patients')/patients/patient/bolivar");
         ExprEvalUtils.testEval("instance('session')/session/data/case_id",
                 session.getEvaluationContext(),
