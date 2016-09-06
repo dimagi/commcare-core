@@ -9,7 +9,6 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.model.utils.GeoPointUtils;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.MathUtils;
@@ -32,7 +31,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -661,7 +659,7 @@ public class XPathFuncExpr extends XPathExpression {
         }
     }
 
-    private static Double convertToValidMaxOrMinValue(Object o) {
+    private static Double toNumeric_inclusiveOfDatestrings(Object o) {
         Double d = toNumeric(o);
         if (Double.isNaN(d.doubleValue())) {
             o = unpack(o);
@@ -963,7 +961,7 @@ public class XPathFuncExpr extends XPathExpression {
     private static Object max(Object[] argVals) {
         double max = Double.MIN_VALUE;
         for (int i = 0; i < argVals.length; i++) {
-            max = Math.max(max, convertToValidMaxOrMinValue(argVals[i]).doubleValue());
+            max = Math.max(max, toNumeric_inclusiveOfDatestrings(argVals[i]).doubleValue());
         }
         return new Double(max);
     }
@@ -971,7 +969,7 @@ public class XPathFuncExpr extends XPathExpression {
     private static Object min(Object[] argVals) {
         double min = Double.MAX_VALUE;
         for (int i = 0; i < argVals.length; i++) {
-            min = Math.min(min, convertToValidMaxOrMinValue(argVals[i]).doubleValue());
+            min = Math.min(min, toNumeric_inclusiveOfDatestrings(argVals[i]).doubleValue());
         }
         return new Double(min);
     }
