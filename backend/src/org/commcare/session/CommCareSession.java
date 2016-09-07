@@ -168,6 +168,7 @@ public class CommCareSession {
     public OrderedHashtable<String, String> getData() {
         return collectedDatums;
     }
+
     private static boolean entryRequirementsSatsified(Entry entry,
                                                       OrderedHashtable<String, String> currentSessionData) {
         Vector<SessionDatum> requirements = entry.getSessionDataReqs();
@@ -202,6 +203,8 @@ public class CommCareSession {
 
         if (needDatum != null) {
             return needDatum;
+        } else if (entries.isEmpty()) {
+            throw new RuntimeException("Collected datums don't match required datums for entries at command " + currentCmd);
         } else if (entries.size() == 1
                 && entries.elementAt(0) instanceof RemoteRequestEntry
                 && ((RemoteRequestEntry)entries.elementAt(0)).getPostRequest().isRelevant(evalContext)) {
@@ -225,7 +228,7 @@ public class CommCareSession {
         String neededDatumId = null;
         for (Entry e : entries) {
             SessionDatum datumNeededForThisEntry =
-                getFirstMissingDatum(collectedDatums, e.getSessionDataReqs());
+                    getFirstMissingDatum(collectedDatums, e.getSessionDataReqs());
             if (datumNeededForThisEntry != null) {
                 if (neededDatumId == null) {
                     neededDatumId = datumNeededForThisEntry.getDataId();
@@ -360,7 +363,8 @@ public class CommCareSession {
     private boolean shouldPopNext(EvaluationContext evalContext) {
         if (this.getNeededData(evalContext) == null ||
                 this.getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED) ||
-                popped.getType().equals(SessionFrame.STATE_DATUM_COMPUTED)) {
+                popped.getType().equals(SessionFrame.STATE_DATUM_COMPUTED) ||
+                topStepIsMark()) {
             return true;
         }
 
@@ -373,25 +377,32 @@ public class CommCareSession {
 
     public void stepBack(EvaluationContext evalContext) {
         // Pop the first thing off of the stack frame, no matter what
-        popSessionFrameStack();
+        popStepInCurrentSessionFrame();
 
         // Keep popping things off until the value of needed data indicates that we are back to
         // somewhere where we are waiting for user-provided input
         while (shouldPopNext(evalContext)) {
-            popSessionFrameStack();
+            popStepInCurrentSessionFrame();
         }
+    }
+
+    private boolean topStepIsMark() {
+        return !frame.getSteps().isEmpty()
+                && SessionFrame.STATE_MARK.equals(frame.getSteps().lastElement().getType());
     }
 
     public void popStep(EvaluationContext evalContext) {
-        popSessionFrameStack();
+        popStepInCurrentSessionFrame();
 
-        while (getNeededData(evalContext) == null) {
-            popSessionFrameStack();
+        while (getNeededData(evalContext) == null
+                || topStepIsMark()) {
+            popStepInCurrentSessionFrame();
         }
     }
 
-    private void popSessionFrameStack() {
+    private void popStepInCurrentSessionFrame() {
         StackFrameStep recentPop = frame.popStep();
+
         //TODO: Check the "base state" of the frame after popping to see if we invalidated the stack
         syncState();
         popped = recentPop;
@@ -577,111 +588,109 @@ public class CommCareSession {
         // doesn't match the current (living) frame, it will become the the current frame
         SessionFrame onDeck = frame;
 
-        // Whether the current frame is on the stack (we wanna treat it as a "phantom" bottom element
-        // at first, basically.
-        boolean currentFramePushed = false;
-
         for (StackOperation op : ops) {
-            // Is there a frame with a matching ID for this op?
-            String frameId = op.getFrameId();
-            SessionFrame matchingFrame = updateMatchingFrame(frameId);
-
-            switch (op.getOp()) {
-                case StackOperation.OPERATION_CREATE:
-                    // Ensure no frames exist with this ID
-                    if (matchingFrame == null) {
-                        currentFramePushed = performPush(op, new SessionFrame(frameId), true, currentFramePushed, onDeck, ec);
-                    }
-                    break;
-                case StackOperation.OPERATION_PUSH:
-                    currentFramePushed = performPush(op, matchingFrame, false, currentFramePushed, onDeck, ec);
-                    break;
-                case StackOperation.OPERATION_CLEAR:
-                    performClearOperation(matchingFrame, op, ec);
-                    break;
-                default:
-                    throw new RuntimeException("Undefined stack operation: " + op.getOp());
+            if (!processStackOp(op, ec)) {
+                // rewind occurred, stop processing futher ops.
+                break;
             }
         }
 
         return popOrSync(onDeck);
     }
 
-    private boolean performPush(StackOperation op, SessionFrame matchingFrame,
-                                boolean isNewFrame, boolean currentFramePushed,
-                                SessionFrame onDeck, EvaluationContext ec) {
-        if (op.isOperationTriggered(ec)) {
-            // If we don't have a frame yet, this push is targeting the
-            // frame on deck
-            if (matchingFrame == null) {
-                matchingFrame = onDeck;
-            }
-
-            for (StackFrameStep step : op.getStackFrameSteps()) {
-                matchingFrame.pushStep(step.defineStep(ec));
-            }
-
-            return pushNewFrame(matchingFrame, isNewFrame, currentFramePushed);
-        }
-        return currentFramePushed;
-    }
-
-    private SessionFrame updateMatchingFrame(String frameId) {
-        if (frameId != null) {
-            // TODO: This is correct, right? We want to treat the current frame
-            // as part of the "environment" and not let people create a new frame
-            // with the same id? Possibly this should only be true if the current
-            // frame is live?
-            if (frameId.equals(frame.getFrameId())) {
-                return frame;
-            } else {
-                // Otherwise, peruse the stack looking for another
-                // frame with a matching ID.
-                for (Enumeration e = frameStack.elements(); e.hasMoreElements(); ) {
-                    SessionFrame stackFrame = (SessionFrame)e.nextElement();
-                    if (frameId.equals(stackFrame.getFrameId())) {
-                        return stackFrame;
-                    }
+    /**
+     * @return false if current frame was rewound
+     */
+    private boolean processStackOp(StackOperation op,
+                                   EvaluationContext ec) {
+        switch (op.getOp()) {
+            case StackOperation.OPERATION_CREATE:
+                createFrame(new SessionFrame(), op, ec);
+                break;
+            case StackOperation.OPERATION_PUSH:
+                if (!performPush(op, ec)) {
+                    return false;
                 }
-            }
+                break;
+            case StackOperation.OPERATION_CLEAR:
+                performClearOperation(op, ec);
+                break;
+            default:
+                throw new RuntimeException("Undefined stack operation: " + op.getOp());
         }
-        return null;
+
+        return true;
     }
 
-    private boolean pushNewFrame(SessionFrame matchingFrame, boolean newFrame, boolean currentFramePushed) {
-        // ok, frame should be appropriately modified now.
-        // we also need to push this frame if it's new
-        if (newFrame) {
-            // Before we can push a frame onto the stack, we need to
-            // make sure the stack is clean. This means that if the
-            // current frame has a snapshot, we've gotta make sure
-            // the existing frames are still valid.
-
-            // TODO: We might want to handle this differently in the future,
-            // so that we can account for the invalidated frames in the ui
-            // somehow.
-            cleanStack();
-
-            // OK, now we want to take the current frame and put it up on the frame stack unless
-            // this frame is dead (IE: We're closing it out). then we'll push the new frame
-            // on top of it.
-            if (!frame.isDead() && !currentFramePushed) {
-                frameStack.push(frame);
-                return true;
-            }
-
-            frameStack.push(matchingFrame);
+    private void createFrame(SessionFrame createdFrame,
+                             StackOperation op, EvaluationContext ec) {
+        if (op.isOperationTriggered(ec)) {
+            performPushInner(op, createdFrame, ec);
+            pushNewFrame(createdFrame);
         }
-        return currentFramePushed;
     }
 
-    private void performClearOperation(SessionFrame matchingFrame,
-                                       StackOperation op,
+    /**
+     * @return false if push was terminated early by a 'rewind'
+     */
+    private boolean performPushInner(StackOperation op, SessionFrame frame, EvaluationContext ec) {
+        for (StackFrameStep step : op.getStackFrameSteps()) {
+            if (SessionFrame.STATE_REWIND.equals(step.getType())) {
+                if (frame.rewindToMarkAndSet(step.getValue())) {
+                    return false;
+                }
+                // if no mark is found ignore the rewind and continue
+            } else {
+                pushFrameStep(step, frame, ec);
+            }
+        }
+        return true;
+    }
+
+    private void pushFrameStep(StackFrameStep step, SessionFrame frame, EvaluationContext ec) {
+        SessionDatum neededDatum = null;
+        if (SessionFrame.STATE_MARK.equals(step.getType())) {
+            neededDatum = getNeededDatumForFrame(this, frame);
+        }
+        frame.pushStep(step.defineStep(ec, neededDatum));
+    }
+
+    private static SessionDatum getNeededDatumForFrame(CommCareSession session,
+                                                       SessionFrame targetFrame) {
+        CommCareSession sessionCopy = new CommCareSession(session);
+        sessionCopy.frame = targetFrame;
+        sessionCopy.syncState();
+        return sessionCopy.getNeededDatum();
+    }
+
+    /**
+     * @return false if push was terminated early by a 'rewind'
+     */
+    private boolean performPush(StackOperation op, EvaluationContext ec) {
+        if (op.isOperationTriggered(ec)) {
+            return performPushInner(op, frame, ec);
+        }
+        return true;
+    }
+
+    private void pushNewFrame(SessionFrame matchingFrame) {
+        // Before we can push a frame onto the stack, we need to
+        // make sure the stack is clean. This means that if the
+        // current frame has a snapshot, we've gotta make sure
+        // the existing frames are still valid.
+
+        // TODO: We might want to handle this differently in the future,
+        // so that we can account for the invalidated frames in the ui
+        // somehow.
+        cleanStack();
+
+        frameStack.push(matchingFrame);
+    }
+
+    private void performClearOperation(StackOperation op,
                                        EvaluationContext ec) {
-        if (matchingFrame != null) {
-            if (op.isOperationTriggered(ec)) {
-                frameStack.removeElement(matchingFrame);
-            }
+        if (op.isOperationTriggered(ec)) {
+            frameStack.removeElement(frame);
         }
     }
 
@@ -708,11 +717,11 @@ public class CommCareSession {
      * only be relevant to the existing frames)
      */
     private void cleanStack() {
-        //See whether the current frame was incompatible with its start
-        //state.
+        // See whether the current frame was incompatible with its start
+        // state.
         if (frame.isSnapshotIncompatible()) {
-            //If it is, our frames can no longer make sense.
-            this.frameStack.removeAllElements();
+            // If it is, our frames can no longer make sense.
+            frameStack.removeAllElements();
             frame.clearSnapshot();
         }
     }
@@ -733,7 +742,7 @@ public class CommCareSession {
         markCurrentFrameForDeath();
 
         //First, see if we have operations to run
-        if(ops.size() > 0) {
+        if (ops.size() > 0) {
             executeStackOperations(ops, ec);
         }
         return finishAndPop();

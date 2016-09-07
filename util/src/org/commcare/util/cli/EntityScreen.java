@@ -13,6 +13,8 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
 
+import java.util.Vector;
+
 /**
  * Compound Screen to select an entity from a list and then display the one or more details that
  * are associated with the entity.
@@ -36,6 +38,8 @@ public class EntityScreen extends CompoundScreenHost {
 
     private Subscreen<EntityScreen> mCurrentScreen;
 
+    private boolean readyToSkip = false;
+
     public void init(SessionWrapper session) throws CommCareSessionException {
         SessionDatum datum = session.getNeededDatum();
         if (!(datum instanceof EntityDatum)) {
@@ -58,7 +62,22 @@ public class EntityScreen extends CompoundScreenHost {
         }
 
         EvaluationContext ec = session.getEvaluationContext();
-        mCurrentScreen = new EntityListSubscreen(mShortDetail, ec.expandReference(mNeededDatum.getNodeset()), ec);
+        Vector<TreeReference> references = ec.expandReference(mNeededDatum.getNodeset());
+
+        if(mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
+            this.setHighlightedEntity(references.firstElement());
+            if(!this.setCurrentScreenToDetail()) {
+                this.updateSession(session);
+                readyToSkip = true;
+            }
+        } else {
+            mCurrentScreen = new EntityListSubscreen(mShortDetail, references, ec);
+        }
+    }
+
+    @Override
+    public boolean shouldBeSkipped() {
+        return readyToSkip;
     }
 
     @Override
