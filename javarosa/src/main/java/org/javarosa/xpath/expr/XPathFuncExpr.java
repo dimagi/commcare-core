@@ -659,22 +659,8 @@ public class XPathFuncExpr extends XPathExpression {
         }
     }
 
-    private static Double toNumeric_inclusiveOfDatestrings(Object o) {
-        Double d = toNumeric(o);
-        if (Double.isNaN(d.doubleValue())) {
-            o = unpack(o);
-            if (o instanceof String) {
-                Date dateFromString = DateUtils.parseDate((String)o);
-                if (dateFromString != null) {
-                    return toNumeric(dateFromString);
-                }
-            }
-        }
-        return d;
-    }
-
     /**
-     * convert a value to a number using xpath's type conversion rules (note that xpath itself makes
+     * Convert a value to a number using xpath's type conversion rules (note that xpath itself makes
      * no distinction between integer and floating point numbers)
      */
     public static Double toNumeric(Object o) {
@@ -687,22 +673,16 @@ public class XPathFuncExpr extends XPathExpression {
         } else if (o instanceof Double) {
             val = (Double)o;
         } else if (o instanceof String) {
-            /* annoying, but the xpath spec doesn't recognize scientific notation, or +/-Infinity
-             * when converting a string to a number
-             */
-
-            String s = (String)o;
+            String s = ((String)o).trim();
             double d;
             try {
-                s = s.trim();
-                for (int i = 0; i < s.length(); i++) {
-                    char c = s.charAt(i);
-                    if (c != '-' && c != '.' && (c < '0' || c > '9'))
-                        throw new NumberFormatException();
+                checkForInvalidNumericCharacters(s);
+                try {
+                    val = attemptDateConversion(s);
+                } catch (XPathTypeMismatchException e) {
+                    d = Double.parseDouble(s);
+                    val = new Double(d);
                 }
-
-                d = Double.parseDouble(s);
-                val = new Double(d);
             } catch (NumberFormatException nfe) {
                 val = new Double(Double.NaN);
             }
@@ -717,6 +697,26 @@ public class XPathFuncExpr extends XPathExpression {
         } else {
             throw new XPathTypeMismatchException("converting '" + (o == null ? "null" : o.toString()) + "' to numeric");
         }
+    }
+
+    /**
+     * The xpath spec doesn't recognize scientific notation, or +/-Infinity when converting a
+     * string to a number
+     */
+    private static void checkForInvalidNumericCharacters(String s) {
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c != '-' && c != '.' && (c < '0' || c > '9')) {
+                throw new NumberFormatException();
+            }
+        }
+    }
+
+    private static Double attemptDateConversion(String s) {
+        if (s.length() == 0) {
+            throw new XPathTypeMismatchException();
+        }
+        return toNumeric(toDate(s));
     }
 
     /**
@@ -961,7 +961,7 @@ public class XPathFuncExpr extends XPathExpression {
     private static Object max(Object[] argVals) {
         double max = Double.MIN_VALUE;
         for (int i = 0; i < argVals.length; i++) {
-            max = Math.max(max, toNumeric_inclusiveOfDatestrings(argVals[i]).doubleValue());
+            max = Math.max(max, toNumeric(argVals[i]).doubleValue());
         }
         return new Double(max);
     }
@@ -969,7 +969,7 @@ public class XPathFuncExpr extends XPathExpression {
     private static Object min(Object[] argVals) {
         double min = Double.MAX_VALUE;
         for (int i = 0; i < argVals.length; i++) {
-            min = Math.min(min, toNumeric_inclusiveOfDatestrings(argVals[i]).doubleValue());
+            min = Math.min(min, toNumeric(argVals[i]).doubleValue());
         }
         return new Double(min);
     }
