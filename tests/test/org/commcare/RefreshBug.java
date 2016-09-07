@@ -68,10 +68,14 @@ public class RefreshBug {
 
                 ExprEvalUtils.testEval("count(/data/invoice/item/close-invoice)",
                         fpi.getFormDef().getInstance(), null, 5.0);
+
+                // the following two lines are equivalent, but the second one
+                // isn't updated upon answering the question
                 ExprEvalUtils.testEval("sum(/data/invoice/item/close-invoice/amount-owed-to-teuk-saat)",
                         fpi.getFormDef().getInstance(), null, 3100.0);
                 ExprEvalUtils.testEval("/data/entrepreneur-owes-teuk-saat/invoice-total-to-pay",
                         fpi.getFormDef().getInstance(), null, 3100.0);
+
                 ExprEvalUtils.testEval("/data/entrepreneur-owes-teuk-saat/remaining-funds",
                         fpi.getFormDef().getInstance(), null, -300.0);
             }
