@@ -10,6 +10,7 @@ import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
+import org.javarosa.test_utils.ExprEvalUtils;
 import org.junit.Test;
 
 import java.util.Vector;
@@ -46,12 +47,24 @@ public class RefreshBug {
                 fec.answerQuestion(ans);
             } else if (q.getTextID().equals("entrepreneur-owes-teuk-saat/question2/invoices_to_pay-label")) {
                 Vector<Selection> selections = new Vector<>();
-                selections.add(new Selection("1000"));
-                selections.add(new Selection("700"));
-                selections.add(new Selection("600"));
-                selections.add(new Selection("800"));
+
+                selections.add(new Selection("9b47f2c2e56546979a97f8324c12ee41"));
+                selections.add(new Selection("0bd358897258408888cdaec6f36fc424"));
+                selections.add(new Selection("a6c58e5d7ec44367bc264962778b38ac"));
+                selections.add(new Selection("dfeb3969979e4cfdbb68f0d2d95baad4"));
                 ans = new SelectMultiData(selections);
                 fec.answerQuestion(ans);
+                fec.answerQuestion(ans);
+
+                // the sum of all the 'invoice' cases
+                ExprEvalUtils.testEval("/data/total-amount-owed-to-teuk-saat",
+                        fpi.getFormDef().getInstance(), null, 3100.0);
+                ExprEvalUtils.testEval("sum(/data/invoice/item/amount-owed-to-teuk-saat)",
+                        fpi.getFormDef().getInstance(), null, 3100.0);
+                ExprEvalUtils.testEval("data/entrepreneur-owes-teuk-saat/total-to-pay",
+                        fpi.getFormDef().getInstance(), null, 2800.0);
+                ExprEvalUtils.testEval("/data/entrepreneur-owes-teuk-saat/remaining-funds",
+                        fpi.getFormDef().getInstance(), null, -300.0);
             }
         } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
     }
