@@ -66,6 +66,8 @@ public class XPathEvalTest {
                 Double t = ((Double)expected).doubleValue();
                 if (Math.abs(o - t) > tolerance) {
                     fail("Doubles outside of tolerance [" + o + "," + t + " ]");
+                } else if (Double.isNaN(o) && !Double.isNaN(t)) {
+                    fail("Result was NaN when not expected");
                 }
             } else if (!expected.equals(result)) {
                 fail("Expected " + expected + ", got " + result);
@@ -251,6 +253,25 @@ public class XPathEvalTest {
         testEval("min(5.5, 0.5)", null, null, new Double(0.5));
         testEval("min(5.5)", null, null, new Double(5.5));
         testEval("date(min(date('2012-02-05'), date('2012-01-01')))", null, null, DateUtils.parseDate("2012-01-01"));
+
+        testEval("max(5.5, 0.5)", null, null, new Double(5.5));
+        testEval("max(0.5)", null, null, new Double(0.5));
+        testEval("date(max(date('2012-02-05'), date('2012-01-01')))", null, null, DateUtils.parseDate("2012-02-05"));
+
+
+        // Test that taking the min or max of date-strings works, but still fails properly for
+        // numeric strings that are not dates
+        testEval("min('2012-02-05', '2012-01-01', '2012-04-20')", null, null,
+                new Double(DateUtils.daysSinceEpoch(DateUtils.parseDate("2012-01-01"))));
+        testEval("max('2012-02-05', '2012-01-01', '2012-04-20')", null, null,
+                new Double(DateUtils.daysSinceEpoch(DateUtils.parseDate("2012-04-20"))));
+        testEval("max('-1-02-05', '2012-01-01', '2012-04-20')", null, null,
+                new Double(Double.NaN));
+        testEval("max('02-05', '2012-01-01', '2012-04-20')", null, null,
+                new Double(Double.NaN));
+        testEval("max('2012-02-05-', '2012-01-01', '2012-04-20')", null, null,
+                new Double(Double.NaN));
+
 
         testEval("5.5 + 5.5", null, null, new Double(11.0));
         testEval("0 + 0", null, null, new Double(0.0));
