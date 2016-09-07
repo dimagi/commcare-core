@@ -48,7 +48,7 @@ public class Condition extends Triggerable {
     @Override
     public Object eval(FormInstance model, EvaluationContext evalContext) {
         try {
-            return new Boolean(expr.eval(model, evalContext));
+            return expr.eval(model, evalContext);
         } catch (XPathException e) {
             e.setSource("Relevant expression for " + contextRef.toString(true));
             throw e;
@@ -56,12 +56,12 @@ public class Condition extends Triggerable {
     }
 
     public boolean evalBool(FormInstance model, EvaluationContext evalContext) {
-        return ((Boolean)eval(model, evalContext)).booleanValue();
+        return (Boolean)eval(model, evalContext);
     }
 
     @Override
     public void apply(TreeReference ref, Object rawResult, FormInstance model, FormDef f) {
-        boolean result = ((Boolean)rawResult).booleanValue();
+        boolean result = (Boolean)rawResult;
         performAction(model.resolveReference(ref), result ? trueAction : falseAction);
     }
 

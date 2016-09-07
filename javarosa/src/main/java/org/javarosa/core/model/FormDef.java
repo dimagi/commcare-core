@@ -746,7 +746,7 @@ public class FormDef implements IFormElement, IMetaData,
         if (t.canCascade()) {
             for (TreeReference target : t.getTargets()) {
                 Vector<TreeReference> updatedNodes = new Vector<>();
-                updatedNodes.addElement(target);
+                updatedNodes.add(target);
 
                 // Repeat sub-elements have already been added to 'destination'
                 // when we grabbed all triggerables that target children of the
@@ -870,7 +870,7 @@ public class FormDef implements IFormElement, IMetaData,
                 for (Triggerable triggerable : triggered) {
                     //And add them to the queue if they aren't there already
                     if (!destination.contains(triggerable)) {
-                        destination.addElement(triggerable);
+                        destination.add(triggerable);
                     }
                 }
             }
@@ -1075,7 +1075,6 @@ public class FormDef implements IFormElement, IMetaData,
     }
 
     public boolean evaluateConstraint(TreeReference ref, IAnswerData data) {
-
         if (data instanceof InvalidData) {
             return false;
         }
