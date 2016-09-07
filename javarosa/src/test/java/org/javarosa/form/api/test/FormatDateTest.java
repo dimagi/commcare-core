@@ -55,13 +55,13 @@ public class FormatDateTest {
 
         prompt = fpi.getFormEntryModel().getQuestionPrompt();
         String unwrappedDateString = prompt.getLongText();
-        String javaDateString = new SimpleDateFormat("dd MMM, yyyy", Locale.US).format(new Date());
+        String javaDateString = new SimpleDateFormat("d MMM, yyyy", Locale.US).format(new Date());
         assertEquals(javaDateString, unwrappedDateString);
 
         fec.stepToNextEvent();
         prompt = fpi.getFormEntryModel().getQuestionPrompt();
         unwrappedDateString = prompt.getLongText();
-        javaDateString = new SimpleDateFormat("dd MMM, yyyy", Locale.US).format(new Date());
+        javaDateString = new SimpleDateFormat("d MMM, yyyy", Locale.US).format(new Date());
         assertEquals(javaDateString, unwrappedDateString);
     }
 
