@@ -172,6 +172,14 @@ public class XPathEvalTest {
         testEval("number(date('1969-12-31'))", null, null, new Double(-1.0));
         testEval("number(date('2008-09-05'))", null, null, new Double(14127.0));
         testEval("number(date('1941-12-07'))", null, null, new Double(-10252.0));
+        testEval("number('1970-01-01')", null, null, new Double(0.0));
+        testEval("number('1970-01-02')", null, null, new Double(1.0));
+        testEval("number('1969-12-31')", null, null, new Double(-1.0));
+        testEval("number('2008-09-05')", null, null, new Double(14127.0));
+        testEval("number('1941-12-07')", null, null, new Double(-10252.0));
+        testEval("number('1970-01')", null, null, new Double(Double.NaN));
+        testEval("number('-1970-01-02')", null, null, new Double(Double.NaN));
+        testEval("number('12-31')", null, null, new Double(Double.NaN));
         testEval("number(convertible())", null, ec, new Double(5.0));
         testEval("number(inconvertible())", null, ec, new XPathTypeMismatchException());
         testEval("string(true())", null, null, "true");
