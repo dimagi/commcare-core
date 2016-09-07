@@ -1003,26 +1003,17 @@ public class FormDef implements IFormElement, IMetaData,
      *            changed.
      */
     public void triggerTriggerables(TreeReference ref) {
-
-        //turn unambiguous ref into a generic ref
-        //to identify what nodes should be triggered by this
-        //reference changing
+        // turn unambiguous ref into a generic ref to identify what nodes
+        // should be triggered by this reference changing
         TreeReference genericRef = ref.genericize();
 
-        //get triggerables which are activated by the generic reference
+        // get triggerables which are activated by the generic reference
         Vector<Triggerable> triggered = triggerIndex.get(genericRef);
-        if (triggered == null) {
-            return;
-        }
+        if (triggered != null) {
+            Vector<Triggerable> triggeredCopy = new Vector<>(triggered);
 
-        //Our vector doesn't have a shallow copy op, so make one
-        Vector<Triggerable> triggeredCopy = new Vector<>();
-        for (int i = 0; i < triggered.size(); i++) {
-            triggeredCopy.addElement(triggered.elementAt(i));
+            evaluateTriggerables(triggeredCopy, ref, false);
         }
-
-        //Evaluate all of the triggerables in our new vector
-        evaluateTriggerables(triggeredCopy, ref, false);
     }
 
     /**

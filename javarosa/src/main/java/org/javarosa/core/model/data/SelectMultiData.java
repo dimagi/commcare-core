@@ -20,7 +20,7 @@ import java.util.Vector;
  * @author Drew Roos
  */
 public class SelectMultiData implements IAnswerData {
-    Vector<Selection> vs; //vector of Selection
+    private Vector<Selection> vs; //vector of Selection
 
     /**
      * Empty Constructor, necessary for dynamic construction during deserialization.
@@ -30,60 +30,34 @@ public class SelectMultiData implements IAnswerData {
 
     }
 
-    public SelectMultiData(Vector vs) {
+    public SelectMultiData(Vector<Selection> vs) {
         setValue(vs);
     }
 
+    @Override
     public IAnswerData clone() {
-        Vector v = new Vector();
+        Vector<Selection> v = new Vector<>();
         for (int i = 0; i < vs.size(); i++) {
             v.addElement(vs.elementAt(i).clone());
         }
         return new SelectMultiData(v);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.model.data.IAnswerData#setValue(java.lang.Object)
-     */
+    @Override
     public void setValue(Object o) {
         if (o == null) {
             throw new NullPointerException("Attempt to set an IAnswerData class to null.");
         }
 
-        vs = vectorCopy((Vector)o);
+        vs = new Vector<>((Vector<Selection>)o);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.model.data.IAnswerData#getValue()
-     */
+    @Override
     public Vector<Selection> getValue() {
-        return vectorCopy(vs);
+        return new Vector<>(vs);
     }
 
-    /**
-     * @return A type checked vector containing all of the elements
-     * contained in the vector input
-     * TODO: move to utility class
-     */
-    private Vector vectorCopy(Vector input) {
-        Vector output = new Vector();
-        //validate type
-        for (int i = 0; i < input.size(); i++) {
-            Selection s = (Selection)input.elementAt(i);
-            output.addElement(s);
-        }
-        return output;
-    }
-
-    /**
-     * @return THE XMLVALUE!!
-     */
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.model.data.IAnswerData#getDisplayText()
-     */
+    @Override
     public String getDisplayText() {
         String str = "";
 
@@ -97,20 +71,17 @@ public class SelectMultiData implements IAnswerData {
         return str;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         vs = (Vector)ExtUtil.read(in, new ExtWrapList(Selection.class), pf);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.utilities.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapList(vs));
     }
 
+    @Override
     public UncastData uncast() {
         Enumeration en = vs.elements();
         StringBuffer selectString = new StringBuffer();
@@ -126,8 +97,9 @@ public class SelectMultiData implements IAnswerData {
         return new UncastData(selectString.toString());
     }
 
+    @Override
     public SelectMultiData cast(UncastData data) throws IllegalArgumentException {
-        Vector v = new Vector();
+        Vector<Selection> v = new Vector<>();
         String[] choices = DataUtil.splitOnSpaces(data.value);
         for (String s : choices) {
             v.addElement(new Selection(s));
@@ -137,7 +109,9 @@ public class SelectMultiData implements IAnswerData {
 
     public boolean isInSelection(String value) {
         for(Selection s : vs) {
-            if(s.getValue().equals(value)) {return true;}
+            if (s.getValue().equals(value)) {
+                return true;
+            }
         }
         return false;
     }
