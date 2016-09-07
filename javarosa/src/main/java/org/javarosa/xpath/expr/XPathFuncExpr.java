@@ -714,6 +714,7 @@ public class XPathFuncExpr extends XPathExpression {
 
     private static Double attemptDateConversion(String s) {
         if (s.length() == 0) {
+            // This check is needed because toDate() returns a string if given the empty string
             throw new XPathTypeMismatchException();
         }
         return toNumeric(toDate(s));
