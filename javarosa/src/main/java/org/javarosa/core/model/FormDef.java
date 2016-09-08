@@ -1,5 +1,6 @@
 package org.javarosa.core.model;
 
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.actions.Action;
 import org.javarosa.core.model.actions.ActionController;
@@ -109,7 +110,7 @@ public class FormDef implements IFormElement, IMetaData,
      * Associates repeatable nodes with the Condition that determines their
      * relevancy.
      */
-    private Hashtable<TreeReference, Condition> conditionRepeatTargetIndex;
+    private HashMap<TreeReference, Condition> conditionRepeatTargetIndex;
 
     public EvaluationContext exprEvalContext;
 
@@ -645,7 +646,7 @@ public class FormDef implements IFormElement, IMetaData,
      *                               triggers can't be laid out appropriately
      */
     public void finalizeTriggerables() throws IllegalStateException {
-        ArrayList<Triggerable[]> partialOrdering = new ArrayList<>();
+        ArrayList<Pair<Triggerable, Triggerable>> partialOrdering = new ArrayList<>();
         buildPartialOrdering(partialOrdering);
 
         ArrayList<Triggerable> vertices = new ArrayList<>(triggerables);
@@ -668,27 +669,24 @@ public class FormDef implements IFormElement, IMetaData,
         buildConditionRepeatTargetIndex();
     }
 
-    private void buildPartialOrdering(List<Triggerable[]> partialOrdering) {
+    private void buildPartialOrdering(List<Pair<Triggerable, Triggerable>> partialOrdering) {
         for (Triggerable t : triggerables) {
             ArrayList<Triggerable> deps = new ArrayList<>();
             fillTriggeredElements(t, deps, false);
 
             for (Triggerable u : deps) {
-                Triggerable[] edge = {t, u};
-                partialOrdering.add(edge);
+                partialOrdering.add(new Pair<>(t, u));
             }
         }
     }
 
     private static List<Triggerable> buildRootNodes(List<Triggerable> vertices,
-                                                    List<Triggerable[]> partialOrdering) {
-        ArrayList<Triggerable> roots = new ArrayList<>();
-        for (Triggerable vertex : vertices) {
-            roots.add(vertex);
-        }
-        for (Triggerable[] edge : partialOrdering) {
-            edge[1].updateStopContextualizingAtFromDominator(edge[0]);
-            roots.remove(edge[1]);
+                                                    List<Pair<Triggerable, Triggerable>> partialOrdering) {
+        ArrayList<Triggerable> roots = new ArrayList<>(vertices);
+
+        for (Pair<Triggerable, Triggerable> edge : partialOrdering) {
+            edge.second.updateStopContextualizingAtFromDominator(edge.first);
+            roots.remove(edge.second);
         }
         return roots;
     }
@@ -709,20 +707,21 @@ public class FormDef implements IFormElement, IMetaData,
 
     private void setOrderOfTriggerable(List<Triggerable> roots,
                                        List<Triggerable> vertices,
-                                       List<Triggerable[]> partialOrdering) {
+                                       List<Pair<Triggerable, Triggerable>> partialOrdering) {
         for (Triggerable root : roots) {
             triggerables.add(root);
             vertices.remove(root);
         }
         for (int i = partialOrdering.size() - 1; i >= 0; i--) {
-            Triggerable[] edge = partialOrdering.get(i);
-            if (roots.contains(edge[0]))
+            Pair<Triggerable, Triggerable> edge = partialOrdering.get(i);
+            if (roots.contains(edge.first)) {
                 partialOrdering.remove(i);
+            }
         }
     }
 
     private void buildConditionRepeatTargetIndex() {
-        conditionRepeatTargetIndex = new Hashtable<>();
+        conditionRepeatTargetIndex = new HashMap<>();
         for (Triggerable t : triggerables) {
             if (t instanceof Condition) {
                 for (TreeReference target : t.getTargets()) {

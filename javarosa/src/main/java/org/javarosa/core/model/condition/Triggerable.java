@@ -52,20 +52,20 @@ public abstract class Triggerable implements Externalizable {
     /**
      * The first context provided to this triggerable before reducing to the common root.
      */
-    public TreeReference originalContextRef;
+    private TreeReference originalContextRef;
 
     private int stopContextualizingAt;
 
     /**
      * Whether this trigger is collecting debug traces *
      */
-    boolean mIsDebugOn = false;
+    private boolean mIsDebugOn = false;
 
     /**
      * Debug traces collecting during trigger execution. See the
      * getTriggerTraces method for details.
      */
-    Hashtable<TreeReference, EvaluationTrace> mTriggerDebugs;
+    private Hashtable<TreeReference, EvaluationTrace> mTriggerDebugs;
 
 
     public Triggerable() {
