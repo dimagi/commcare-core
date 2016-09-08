@@ -192,7 +192,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
             caseForBlock = retrieve(caseId);
         }
         if (errorIfMissing && caseForBlock == null) {
-            throw InvalidStructureException.readableInvalidStructureException("Unable to update case " + caseId + ", it wasn't found", parser);
+            throw InvalidStructureException.readableInvalidStructureException("Unable to update or close case " + caseId + ", it wasn't found", parser);
         }
         return caseForBlock;
     }
