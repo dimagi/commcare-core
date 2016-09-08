@@ -36,6 +36,12 @@
             <bind nodeset="/data/prices/relevant_price"
                   relevant="/data/some_group/list/update_prices = 'yes'"/>
             <bind calculate="/data/prices/base_value" nodeset="/data/prices/relevant_price/price"/>
+
+            <!--
+            the addition of 'or /data/total_sum > 0' exposes a bug where a
+            relevancy condition of a group in a repeat doesn't get
+            considered in the triggerable DAG calculation
+            -->
             <bind nodeset="/data/some_group" relevant="true() or /data/total_sum &gt; 0"/>
             <bind nodeset="/data/some_group/list"/>
             <bind nodeset="/data/some_group/list/update_prices"/>
