@@ -786,7 +786,7 @@ public class FormDef implements IFormElement, IMetaData,
                 // contextualization
                 cachedCascadingChildren.register(target, updatedNodes);
             } else {
-                Vector<TreeReference> expandedRefs = exprEvalContext.expandReference(target);
+                Vector<TreeReference> expandedRefs = exprEvalContext.expandReference(target, true);
                 if (expandedRefs.size() > 0) {
                     AbstractTreeElement template = mainInstance.getTemplatePath(target);
                     if (template != null) {
