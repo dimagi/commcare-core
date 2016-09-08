@@ -59,7 +59,7 @@ import java.util.Vector;
 public class FormDef implements IFormElement, IMetaData,
         ActionController.ActionResultProcessor {
     public static final String STORAGE_KEY = "FORMDEF";
-    public static final int TEMPLATING_RECURSION_LIMIT = 10;
+    private static final int TEMPLATING_RECURSION_LIMIT = 10;
 
     /**
      * Hierarchy of questions, groups and repeats in the form
@@ -123,7 +123,7 @@ public class FormDef implements IFormElement, IMetaData,
 
     private FormInstance mainInstance = null;
 
-    boolean mDebugModeEnabled = false;
+    private boolean mDebugModeEnabled = false;
 
     private final Vector<Triggerable> triggeredDuringInsert = new Vector<>();
 
@@ -197,10 +197,12 @@ public class FormDef implements IFormElement, IMetaData,
     }
 
     // ---------- child elements
+    @Override
     public void addChild(IFormElement fe) {
         this.children.addElement(fe);
     }
 
+    @Override
     public IFormElement getChild(int i) {
         if (i < this.children.size())
             return this.children.elementAt(i);
@@ -290,6 +292,7 @@ public class FormDef implements IFormElement, IMetaData,
     }
 
     // don't think this should ever be called(!)
+    @Override
     public XPathReference getBind() {
         throw new RuntimeException("method not implemented");
     }
@@ -1689,6 +1692,7 @@ public class FormDef implements IFormElement, IMetaData,
         return children;
     }
 
+    @Override
     public void setChildren(Vector<IFormElement> children) {
         this.children = (children == null ? new Vector<IFormElement>() : children);
     }
@@ -1731,6 +1735,7 @@ public class FormDef implements IFormElement, IMetaData,
         this.outputFragments = outputFragments;
     }
 
+    @Override
     public Object getMetaData(String fieldName) {
         if (fieldName.equals("DESCRIPTOR")) {
             return name;
@@ -1742,6 +1747,7 @@ public class FormDef implements IFormElement, IMetaData,
         }
     }
 
+    @Override
     public String[] getMetaDataFields() {
         return new String[]{"DESCRIPTOR", "XMLNS"};
     }
@@ -1761,12 +1767,12 @@ public class FormDef implements IFormElement, IMetaData,
         }
 
         IAnswerData val = node.getValue();
-        Vector selections = null;
+        Vector<Object> selections = null;
         if (val instanceof SelectOneData) {
-            selections = new Vector();
+            selections = new Vector<>();
             selections.addElement(val.getValue());
         } else if (val instanceof SelectMultiData) {
-            selections = (Vector)val.getValue();
+            selections = (Vector<Object>)val.getValue();
         }
 
         if (selections != null) {
@@ -1809,11 +1815,11 @@ public class FormDef implements IFormElement, IMetaData,
         }
     }
 
-
     /**
      * Appearance isn't a valid attribute for form, but this method must be included
      * as a result of conforming to the IFormElement interface.
      */
+    @Override
     public String getAppearanceAttr() {
         throw new RuntimeException("This method call is not relevant for FormDefs getAppearanceAttr ()");
     }
@@ -1822,6 +1828,7 @@ public class FormDef implements IFormElement, IMetaData,
      * Appearance isn't a valid attribute for form, but this method must be included
      * as a result of conforming to the IFormElement interface.
      */
+    @Override
     public void setAppearanceAttr(String appearanceAttr) {
         throw new RuntimeException("This method call is not relevant for FormDefs setAppearanceAttr()");
     }
@@ -1834,6 +1841,7 @@ public class FormDef implements IFormElement, IMetaData,
     /**
      * Not applicable here.
      */
+    @Override
     public String getLabelInnerText() {
         return null;
     }
@@ -1841,6 +1849,7 @@ public class FormDef implements IFormElement, IMetaData,
     /**
      * Not applicable
      */
+    @Override
     public String getTextID() {
         return null;
     }
@@ -1848,6 +1857,7 @@ public class FormDef implements IFormElement, IMetaData,
     /**
      * Not applicable
      */
+    @Override
     public void setTextID(String textID) {
         throw new RuntimeException("This method call is not relevant for FormDefs [setTextID()]");
     }
