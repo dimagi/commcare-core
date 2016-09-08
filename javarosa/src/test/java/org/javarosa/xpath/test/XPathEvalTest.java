@@ -68,6 +68,8 @@ public class XPathEvalTest {
                     fail("Doubles outside of tolerance [" + o + "," + t + " ]");
                 } else if (Double.isNaN(o) && !Double.isNaN(t)) {
                     fail("Result was NaN when not expected");
+                } else if (Double.isNaN(t) && !Double.isNaN(o)) {
+                    fail("Result was supposed to be NaN, but got " + o);
                 }
             } else if (!expected.equals(result)) {
                 fail("Expected " + expected + ", got " + result);
@@ -180,6 +182,9 @@ public class XPathEvalTest {
         testEval("number('1970-01')", null, null, new Double(Double.NaN));
         testEval("number('-1970-01-02')", null, null, new Double(Double.NaN));
         testEval("number('12-31')", null, null, new Double(Double.NaN));
+        testEval("number('2016-13-13')", null, null, new Double(Double.NaN));
+        testEval("number('2017-01-45')", null, null, new Double(Double.NaN));
+
         testEval("number(convertible())", null, ec, new Double(5.0));
         testEval("number(inconvertible())", null, ec, new XPathTypeMismatchException());
         testEval("string(true())", null, null, "true");
@@ -277,7 +282,7 @@ public class XPathEvalTest {
                 new Double(Double.NaN));
         testEval("max('02-05', '2012-01-01', '2012-04-20')", null, null,
                 new Double(Double.NaN));
-        testEval("max('2012-02-05-', '2012-01-01', '2012-04-20')", null, null,
+        testEval("max('2012-14-05', '2012-01-01', '2012-04-20')", null, null,
                 new Double(Double.NaN));
 
 

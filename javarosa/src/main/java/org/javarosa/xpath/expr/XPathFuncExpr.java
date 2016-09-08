@@ -676,15 +676,15 @@ public class XPathFuncExpr extends XPathExpression {
             String s = ((String)o).trim();
             double d;
             try {
-                checkForInvalidNumericCharacters(s);
+                checkForInvalidNumericOrDatestringCharacters(s);
+                d = Double.parseDouble(s);
+                val = new Double(d);
+            } catch (NumberFormatException nfe) {
                 try {
                     val = attemptDateConversion(s);
                 } catch (XPathTypeMismatchException e) {
-                    d = Double.parseDouble(s);
-                    val = new Double(d);
+                    val = new Double(Double.NaN);
                 }
-            } catch (NumberFormatException nfe) {
-                val = new Double(Double.NaN);
             }
         } else if (o instanceof Date) {
             val = new Double(DateUtils.daysSinceEpoch((Date)o));
@@ -703,7 +703,7 @@ public class XPathFuncExpr extends XPathExpression {
      * The xpath spec doesn't recognize scientific notation, or +/-Infinity when converting a
      * string to a number
      */
-    private static void checkForInvalidNumericCharacters(String s) {
+    private static void checkForInvalidNumericOrDatestringCharacters(String s) {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             if (c != '-' && c != '.' && (c < '0' || c > '9')) {
