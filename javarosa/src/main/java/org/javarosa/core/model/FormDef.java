@@ -45,8 +45,10 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -88,7 +90,7 @@ public class FormDef implements IFormElement, IMetaData,
     // This list is topologically ordered, meaning for any tA
     // and tB in the list, where tA comes before tB, evaluating tA cannot
     // depend on any result from evaluating tB
-    private Vector<Triggerable> triggerables;
+    private ArrayList<Triggerable> triggerables;
 
     // <IConditionExpr> contents of <output> tags that serve as parameterized
     // arguments to captions
@@ -142,7 +144,7 @@ public class FormDef implements IFormElement, IMetaData,
     public FormDef() {
         setID(-1);
         setChildren(null);
-        triggerables = new Vector<>();
+        triggerables = new ArrayList<>();
         triggerIndex = new Hashtable<>();
         //This is kind of a wreck...
         setEvaluationContext(new EvaluationContext(null));
@@ -572,7 +574,7 @@ public class FormDef implements IFormElement, IMetaData,
             // the two), otherwise we can end up failing to trigger when the
             // ignored context exists and the used one doesn't
 
-            Triggerable existingTriggerable = triggerables.elementAt(existingIx);
+            Triggerable existingTriggerable = triggerables.get(existingIx);
 
             existingTriggerable.contextRef = existingTriggerable.contextRef.intersect(t.contextRef);
 
@@ -585,7 +587,7 @@ public class FormDef implements IFormElement, IMetaData,
         } else {
             // The triggerable isn't being added in any order, so topological
             // sorting has been disrupted
-            triggerables.addElement(t);
+            triggerables.add(t);
 
             for (TreeReference trigger : t.getTriggers()) {
                 TreeReference predicatelessTrigger = t.widenContextToAndClearPredicates(trigger);
@@ -608,8 +610,8 @@ public class FormDef implements IFormElement, IMetaData,
      * @return Enumerator of triggerables such that when an element X precedes
      * Y then X doesn't have any references that are dependent on Y.
      */
-    public Enumeration getTriggerables() {
-        return triggerables.elements();
+    public Iterator<Triggerable> getTriggerables() {
+        return triggerables.iterator();
     }
 
     /**
@@ -648,7 +650,7 @@ public class FormDef implements IFormElement, IMetaData,
         for (Triggerable triggerable : triggerables) {
             vertices.addElement(triggerable);
         }
-        triggerables.removeAllElements();
+        triggerables.clear();
 
         while (vertices.size() > 0) {
             Vector<Triggerable> roots = buildRootNodes(vertices, partialOrdering);
@@ -710,7 +712,7 @@ public class FormDef implements IFormElement, IMetaData,
                                        Vector<Triggerable> vertices,
                                        Vector<Triggerable[]> partialOrdering) {
         for (Triggerable root : roots) {
-            triggerables.addElement(root);
+            triggerables.add(root);
             vertices.removeElement(root);
         }
         for (int i = partialOrdering.size() - 1; i >= 0; i--) {
@@ -892,8 +894,7 @@ public class FormDef implements IFormElement, IMetaData,
      */
     public void enableDebugTraces() {
         if (!mDebugModeEnabled) {
-            for (int i = 0; i < triggerables.size(); i++) {
-                Triggerable t = triggerables.elementAt(i);
+            for (Triggerable t : triggerables) {
                 t.setDebug(true);
             }
 
@@ -909,8 +910,7 @@ public class FormDef implements IFormElement, IMetaData,
      */
     public void disableDebugTraces() {
         if (mDebugModeEnabled) {
-            for (int i = 0; i < triggerables.size(); i++) {
-                Triggerable t = triggerables.elementAt(i);
+            for (Triggerable t : triggerables) {
                 t.setDebug(false);
             }
             mDebugModeEnabled = false;
@@ -939,9 +939,7 @@ public class FormDef implements IFormElement, IMetaData,
         Hashtable<TreeReference, Hashtable<String, EvaluationTrace>> debugInfo =
                 new Hashtable<>();
 
-        for (int i = 0; i < triggerables.size(); i++) {
-            Triggerable t = triggerables.elementAt(i);
-
+        for (Triggerable t : triggerables) {
             Hashtable<TreeReference, EvaluationTrace> triggerOutputs = t.getEvaluationTraces();
 
             for (Enumeration e = triggerOutputs.keys(); e.hasMoreElements(); ) {
@@ -1564,8 +1562,7 @@ public class FormDef implements IFormElement, IMetaData,
 
         Vector<Condition> conditions = new Vector<>();
         Vector<Recalculate> recalcs = new Vector<>();
-        for (int i = 0; i < triggerables.size(); i++) {
-            Triggerable t = triggerables.elementAt(i);
+        for (Triggerable t : triggerables) {
             if (t instanceof Condition) {
                 conditions.addElement((Condition)t);
             } else if (t instanceof Recalculate) {
