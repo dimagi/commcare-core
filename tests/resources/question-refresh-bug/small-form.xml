@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<h:html xmlns="http://www.w3.org/2002/xforms" xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:jr="http://openrosa.org/javarosa" xmlns:orx="http://openrosa.org/jr/xforms"
+        xmlns:vellum="http://commcarehq.org/xforms/vellum" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <h:head>
+        <h:title>Group relevancy refresh</h:title>
+        <model>
+            <instance>
+                <data name="Group relevancy refresh"
+                      uiVersion="1"
+                      version="1" xmlns="http://openrosa.org/formdesigner/AE5CCEFB-4F76-45E8-9ACE-00E28926EEFD" xmlns:jrm="http://dev.commcarehq.org/jr/xforms">
+                    <repeat_count/>
+                    <total_sum/>
+                    <total_owe/>
+                    <prices jr:template="">
+                        <base_value/>
+                        <relevant_price>
+                            <price/>
+                        </relevant_price>
+                    </prices>
+                    <some_group>
+                        <list>
+                            <update_prices/>
+                            <copy-1-of-place/>
+                        </list>
+                        <repeat_sum/>
+                    </some_group>
+                    <copy-1-of-place/>
+                </data>
+            </instance>
+            <bind nodeset="/data/repeat_count"/>
+            <bind calculate="sum(/data/prices/base_value)" nodeset="/data/total_sum"/>
+            <bind calculate="30" nodeset="/data/total_owe"/>
+            <bind nodeset="/data/prices"/>
+            <bind calculate="5" nodeset="/data/prices/base_value"/>
+            <bind nodeset="/data/prices/relevant_price"
+                  relevant="/data/some_group/list/update_prices = 'yes'"/>
+            <bind calculate="/data/prices/base_value" nodeset="/data/prices/relevant_price/price"/>
+            <bind nodeset="/data/some_group" relevant="true() or true()"/>
+            <bind nodeset="/data/some_group/list"/>
+            <bind nodeset="/data/some_group/list/update_prices"/>
+            <bind nodeset="/data/some_group/list/copy-1-of-place"/>
+            <bind calculate="sum(/data/prices/relevant_price/price)"
+                  nodeset="/data/some_group/repeat_sum"/>
+            <bind nodeset="/data/copy-1-of-place"/>
+            <setvalue event="xforms-ready" ref="/data/repeat_count" value="5"/>
+            <setvalue event="xforms-ready" ref="/data/some_group/list/update_prices" value="'no'"/>
+            <itext>
+                <translation default="" lang="en">
+                    <text id="prices-label">
+                        <value>prices</value>
+                    </text>
+                    <text id="some_group/list/update_prices-yes-label">
+                        <value>yes</value>
+                    </text>
+                    <text id="some_group/list/update_prices-no-label">
+                        <value>no</value>
+                    </text>
+                    <text id="some_group/list/copy-1-of-place-label">
+                        <value>hv:
+                            <output value="/data/some_group/repeat_sum"/>
+                        </value>
+                    </text>
+                    <text id="copy-1-of-place-label">
+                        <value>manual:
+                            <output value="sum(/data/prices/relevant_price/price)"/>
+                            count:
+                            <output value="count(/data/prices)"/>
+                            hv:
+                            <output value="/data/some_group/repeat_sum"/>
+                        </value>
+                    </text>
+                </translation>
+                <translation lang="es">
+                    <text id="prices-label">
+                        <value>prices</value>
+                    </text>
+                    <text id="some_group/list/update_prices-yes-label">
+                        <value>yes</value>
+                    </text>
+                    <text id="some_group/list/update_prices-no-label">
+                        <value>no</value>
+                    </text>
+                    <text id="some_group/list/copy-1-of-place-label">
+                        <value>hv:
+                            <output value="/data/some_group/repeat_sum"/>
+                        </value>
+                    </text>
+                    <text id="copy-1-of-place-label">
+                        <value>manual:
+                            <output value="sum(/data/prices/relevant_price/price)"/>
+                            count:
+                            <output value="count(/data/prices)"/>
+                            hv:
+                            <output value="/data/some_group/repeat_sum"/>
+                        </value>
+                    </text>
+                </translation>
+            </itext>
+        </model>
+    </h:head>
+    <h:body>
+        <group>
+            <label ref="jr:itext('prices-label')"/>
+            <repeat nodeset="/data/prices" jr:count="/data/repeat_count" jr:noAddRemove="true()">
+                <group ref="/data/prices/relevant_price"/>
+            </repeat>
+        </group>
+        <group ref="/data/some_group">
+            <group appearance="field-list" ref="/data/some_group/list">
+                <select1 ref="/data/some_group/list/update_prices">
+                    <item>
+                        <label ref="jr:itext('some_group/list/update_prices-yes-label')"/>
+                        <value>yes</value>
+                    </item>
+                    <item>
+                        <label ref="jr:itext('some_group/list/update_prices-no-label')"/>
+                        <value>no</value>
+                    </item>
+                </select1>
+                <trigger appearance="minimal" ref="/data/some_group/list/copy-1-of-place">
+                    <label ref="jr:itext('some_group/list/copy-1-of-place-label')"/>
+                </trigger>
+            </group>
+        </group>
+        <trigger appearance="minimal" ref="/data/copy-1-of-place">
+            <label ref="jr:itext('copy-1-of-place-label')"/>
+        </trigger>
+    </h:body>
+</h:html>

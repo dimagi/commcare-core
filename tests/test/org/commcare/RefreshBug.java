@@ -2,6 +2,7 @@ package org.commcare;
 
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.test.utilities.MockApp;
+import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
@@ -23,6 +24,49 @@ public class RefreshBug {
     @Test
     public void testload() throws Exception  {
         FormParseInit fpi = new FormParseInit("/question-refresh-bug/other.xml");
+    }
+
+    @Test
+    public void testCompareSmall() throws Exception  {
+        MockApp mockApp = new MockApp("/question-refresh-bug/");
+        SessionWrapper session = mockApp.getSession();
+        session.setCommand("small");
+
+        FormParseInit fpi = mockApp.loadAndInitForm("small-form.xml");
+        FormParseInit broken = mockApp.loadAndInitForm("small-broken-form.xml");
+        String dag = fpi.getFormDef().printTriggerDAG();
+        String brokenDag = broken.getFormDef().printTriggerDAG();
+        System.out.println(dag);
+        System.out.println(brokenDag);
+        FormEntryController fec = fpi.getFormEntryController();
+        IAnswerData ans;
+
+        do {
+            // get current question
+            QuestionDef q = fpi.getCurrentQuestion();
+
+            if (q != null && q.getControlType() == Constants.CONTROL_SELECT_ONE) {
+                ans = new SelectOneData(new Selection("yes"));
+                fec.answerQuestion(ans);
+                ExprEvalUtils.testEval("/data/some_group/repeat_sum",
+                        fpi.getFormDef().getInstance(), null, 25.0);
+            }
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+    }
+
+    @Test
+    public void testCompare() throws Exception  {
+        MockApp mockApp = new MockApp("/question-refresh-bug/");
+        SessionWrapper session = mockApp.getSession();
+        session.setCommand("m0-f0");
+        session.setDatum("case_id", "44beba8cca3847808d83e0e47fce192b");
+
+        FormParseInit fpi = mockApp.loadAndInitForm("form.xml");
+        FormParseInit broken = mockApp.loadAndInitForm("broken-form.xml");
+        String dag = fpi.getFormDef().printTriggerDAG();
+        String brokenDag = broken.getFormDef().printTriggerDAG();
+        System.out.println(dag);
+        System.out.println(brokenDag);
     }
 
     @Test

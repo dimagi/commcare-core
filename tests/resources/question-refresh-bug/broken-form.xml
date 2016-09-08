@@ -109,7 +109,7 @@
       <bind nodeset="/data/balance-summary/invoices/invoice-label"/>
       <bind nodeset="/data/balance-summary/invoices/invoice_id" calculate="selected-at(/data/invoice_ids, position(..))"/>
       <bind nodeset="/data/teuk-saat-pays-entrepreneur" constraint=". = 'confirm'" jr:constraintMsg="jr:itext('teuk-saat-pays-entrepreneur-constraintMsg')" relevant="/data/total-amount-owed-to-entrepreneur &gt;= /data/total-amount-owed-to-teuk-saat"/>
-      <bind nodeset="/data/entrepreneur-owes-teuk-saat" relevant="true()"/>
+      <bind nodeset="/data/entrepreneur-owes-teuk-saat" relevant="/data/total-amount-owed-to-teuk-saat > 0"/>
       <bind nodeset="/data/entrepreneur-owes-teuk-saat/pay-in-full"/>
       <bind nodeset="/data/entrepreneur-owes-teuk-saat/amount-to-pay" type="xsd:int" constraint=". &lt; /data/outstanding-balance" jr:constraintMsg="jr:itext('entrepreneur-owes-teuk-saat/amount-to-pay-constraintMsg')" relevant="/data/entrepreneur-owes-teuk-saat/pay-in-full = 'no'"/>
       <bind nodeset="/data/entrepreneur-owes-teuk-saat/total-to-pay" calculate="/data/entrepreneur-owes-teuk-saat/amount-to-pay + /data/total-amount-owed-to-entrepreneur"/>

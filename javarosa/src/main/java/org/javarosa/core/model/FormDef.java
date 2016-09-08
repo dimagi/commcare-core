@@ -1907,4 +1907,12 @@ public class FormDef implements IFormElement, IMetaData,
         //We may need ths one, actually
         exprEvalContext = null;
     }
+
+    public String printTriggerDAG() {
+        StringBuilder dagStringBuilder = new StringBuilder();
+        for (Triggerable triggerable : triggerables) {
+            dagStringBuilder.append(triggerable.toString()).append("\n");
+        }
+        return dagStringBuilder.toString();
+    }
 }
