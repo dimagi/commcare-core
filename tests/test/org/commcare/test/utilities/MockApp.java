@@ -6,8 +6,6 @@ import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.model.User;
-import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.form.api.FormEntryController;
@@ -50,6 +48,10 @@ public class MockApp {
         mSessionWrapper = new SessionWrapper(mEngine.getPlatform(), mSandbox);
     }
 
+    /**
+     * Loads the provided form and properly initializes external data instances,
+     * such as the casedb and commcare session.
+     */
     public FormParseInit loadAndInitForm(String formFileInApp) {
         FormParseInit fpi = new FormParseInit(APP_BASE + formFileInApp);
         FormEntryController fec = fpi.getFormEntryController();
