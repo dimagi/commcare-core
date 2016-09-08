@@ -50,6 +50,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -139,7 +140,7 @@ public class FormDef implements IFormElement, IMetaData,
      * calculations that determine what needs to be triggered when a value
      * changes.
      */
-    private final CacheTable<TreeReference, Vector<TreeReference>> cachedCascadingChildren =
+    private final CacheTable<TreeReference, ArrayList<TreeReference>> cachedCascadingChildren =
             new CacheTable<>();
 
     public FormDef() {
@@ -644,19 +645,16 @@ public class FormDef implements IFormElement, IMetaData,
      *                               triggers can't be laid out appropriately
      */
     public void finalizeTriggerables() throws IllegalStateException {
-        Vector<Triggerable[]> partialOrdering = new Vector<>();
+        ArrayList<Triggerable[]> partialOrdering = new ArrayList<>();
         buildPartialOrdering(partialOrdering);
 
-        Vector<Triggerable> vertices = new Vector<>();
-        for (Triggerable triggerable : triggerables) {
-            vertices.addElement(triggerable);
-        }
+        ArrayList<Triggerable> vertices = new ArrayList<>(triggerables);
         triggerables.clear();
 
-        while (vertices.size() > 0) {
-            Vector<Triggerable> roots = buildRootNodes(vertices, partialOrdering);
+        while (!vertices.isEmpty()) {
+            List<Triggerable> roots = buildRootNodes(vertices, partialOrdering);
 
-            if (roots.size() == 0) {
+            if (roots.isEmpty()) {
                 // if no root nodes while graph still has nodes, graph has cycles
                 throwGraphCyclesException(vertices);
             }
@@ -670,32 +668,32 @@ public class FormDef implements IFormElement, IMetaData,
         buildConditionRepeatTargetIndex();
     }
 
-    private void buildPartialOrdering(Vector<Triggerable[]> partialOrdering) {
+    private void buildPartialOrdering(List<Triggerable[]> partialOrdering) {
         for (Triggerable t : triggerables) {
-            Vector<Triggerable> deps = new Vector<>();
+            ArrayList<Triggerable> deps = new ArrayList<>();
             fillTriggeredElements(t, deps, false);
 
             for (Triggerable u : deps) {
                 Triggerable[] edge = {t, u};
-                partialOrdering.addElement(edge);
+                partialOrdering.add(edge);
             }
         }
     }
 
-    private static Vector<Triggerable> buildRootNodes(Vector<Triggerable> vertices,
-                                                      Vector<Triggerable[]> partialOrdering) {
-        Vector<Triggerable> roots = new Vector<>();
+    private static List<Triggerable> buildRootNodes(List<Triggerable> vertices,
+                                                    List<Triggerable[]> partialOrdering) {
+        ArrayList<Triggerable> roots = new ArrayList<>();
         for (Triggerable vertex : vertices) {
-            roots.addElement(vertex);
+            roots.add(vertex);
         }
         for (Triggerable[] edge : partialOrdering) {
             edge[1].updateStopContextualizingAtFromDominator(edge[0]);
-            roots.removeElement(edge[1]);
+            roots.remove(edge[1]);
         }
         return roots;
     }
 
-    private void throwGraphCyclesException(Vector<Triggerable> vertices) {
+    private void throwGraphCyclesException(List<Triggerable> vertices) {
         String hints = "";
         for (Triggerable t : vertices) {
             for (TreeReference r : t.getTargets()) {
@@ -709,17 +707,17 @@ public class FormDef implements IFormElement, IMetaData,
         throw new IllegalStateException(message);
     }
 
-    private void setOrderOfTriggerable(Vector<Triggerable> roots,
-                                       Vector<Triggerable> vertices,
-                                       Vector<Triggerable[]> partialOrdering) {
+    private void setOrderOfTriggerable(List<Triggerable> roots,
+                                       List<Triggerable> vertices,
+                                       List<Triggerable[]> partialOrdering) {
         for (Triggerable root : roots) {
             triggerables.add(root);
-            vertices.removeElement(root);
+            vertices.remove(root);
         }
         for (int i = partialOrdering.size() - 1; i >= 0; i--) {
-            Triggerable[] edge = partialOrdering.elementAt(i);
+            Triggerable[] edge = partialOrdering.get(i);
             if (roots.contains(edge[0]))
-                partialOrdering.removeElementAt(i);
+                partialOrdering.remove(i);
         }
     }
 
@@ -747,11 +745,11 @@ public class FormDef implements IFormElement, IMetaData,
      *                          triggered.
      */
     private void fillTriggeredElements(Triggerable t,
-                                       Vector<Triggerable> destination,
+                                       List<Triggerable> destination,
                                        boolean isRepeatEntryInit) {
         if (t.canCascade()) {
             for (TreeReference target : t.getTargets()) {
-                Vector<TreeReference> updatedNodes = new Vector<>();
+                ArrayList<TreeReference> updatedNodes = new ArrayList<>();
                 updatedNodes.add(target);
 
                 // Repeat sub-elements have already been added to 'destination'
@@ -780,9 +778,9 @@ public class FormDef implements IFormElement, IMetaData,
      * contains the target and generic references to the children it might
      * cascade to.
      */
-    private Vector<TreeReference> findCascadeReferences(TreeReference target,
-                                                        Vector<TreeReference> updatedNodes) {
-        Vector<TreeReference> cachedNodes = cachedCascadingChildren.retrieve(target);
+    private ArrayList<TreeReference> findCascadeReferences(TreeReference target,
+                                                           ArrayList<TreeReference> updatedNodes) {
+        ArrayList<TreeReference> cachedNodes = cachedCascadingChildren.retrieve(target);
         if (cachedNodes == null) {
             if (target.getMultLast() == TreeReference.INDEX_ATTRIBUTE) {
                 // attributes don't have children that might change under
@@ -819,8 +817,8 @@ public class FormDef implements IFormElement, IMetaData,
      * Resolve the expanded references and gather their generic children and
      * attributes into the genericRefs list.
      */
-    private void addChildrenOfReference(Vector<TreeReference> expandedRefs,
-                                        Vector<TreeReference> genericRefs) {
+    private void addChildrenOfReference(List<TreeReference> expandedRefs,
+                                        List<TreeReference> genericRefs) {
         for (TreeReference ref : expandedRefs) {
             addChildrenOfElement(exprEvalContext.resolveReference(ref), genericRefs);
         }
@@ -831,13 +829,13 @@ public class FormDef implements IFormElement, IMetaData,
      * element into the genericRefs list.
      */
     private static void addChildrenOfElement(AbstractTreeElement treeElem,
-                                             Vector<TreeReference> genericRefs) {
+                                             List<TreeReference> genericRefs) {
         // recursively add children of element
         for (int i = 0; i < treeElem.getNumChildren(); ++i) {
             AbstractTreeElement child = treeElem.getChildAt(i);
             TreeReference genericChild = child.getRef().genericize();
             if (!genericRefs.contains(genericChild)) {
-                genericRefs.addElement(genericChild);
+                genericRefs.add(genericChild);
             }
             addChildrenOfElement(child, genericRefs);
         }
@@ -849,13 +847,13 @@ public class FormDef implements IFormElement, IMetaData,
                             treeElem.getAttributeName(i));
             TreeReference genericChild = child.getRef().genericize();
             if (!genericRefs.contains(genericChild)) {
-                genericRefs.addElement(genericChild);
+                genericRefs.add(genericChild);
             }
         }
     }
 
-    private void addTriggerablesTargetingNodes(Vector<TreeReference> updatedNodes,
-                                               Vector<Triggerable> destination) {
+    private void addTriggerablesTargetingNodes(List<TreeReference> updatedNodes,
+                                               List<Triggerable> destination) {
         //Now go through each of these updated nodes (generally just 1 for a normal calculation,
         //multiple nodes if there's a relevance cascade.
         for (TreeReference ref : updatedNodes) {
@@ -1034,13 +1032,13 @@ public class FormDef implements IFormElement, IMetaData,
      *                          children have already been queued to be
      *                          triggered.
      */
-    private void evaluateTriggerables(Vector<Triggerable> tv,
+    private void evaluateTriggerables(List<Triggerable> tv,
                                       TreeReference anchorRef,
                                       boolean isRepeatEntryInit) {
         // Update the list of triggerables that need to be evaluated.
         for (int i = 0; i < tv.size(); i++) {
             // NOTE PLM: tv may grow in size through iteration.
-            Triggerable t = tv.elementAt(i);
+            Triggerable t = tv.get(i);
             fillTriggeredElements(t, tv, isRepeatEntryInit);
         }
 
