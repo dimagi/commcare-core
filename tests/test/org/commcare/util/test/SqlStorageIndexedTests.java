@@ -150,13 +150,13 @@ public class SqlStorageIndexedTests {
             ledgerStorage.write(l2);
             ledgerStorage.write(l3);
 
-            Vector ids = ledgerStorage.getIDsForValue("entity_id", "ledger_entity_id");
+            Vector ids = ledgerStorage.getIDsForValue("entity-id", "ledger_entity_id");
 
             assertEquals(2, ids.size());
             assertTrue(ids.contains(1));
             assertTrue(ids.contains(2));
 
-            Ledger readLedger2 = ledgerStorage.getRecordForValue("entity_id", "ledger_entity_id_3");
+            Ledger readLedger2 = ledgerStorage.getRecordForValue("entity-id", "ledger_entity_id_3");
             assertEquals(readLedger2.getID(), 3);
 
             int count = ledgerStorage.getNumRecords();
