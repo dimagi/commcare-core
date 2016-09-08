@@ -47,6 +47,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -101,7 +102,7 @@ public class FormDef implements IFormElement, IMetaData,
      * reference's value. Used to trigger re-evaluation of those conditionals
      * when the reference is updated.
      */
-    private Hashtable<TreeReference, Vector<Triggerable>> triggerIndex;
+    private HashMap<TreeReference, Vector<Triggerable>> triggerIndex;
 
     /**
      * Associates repeatable nodes with the Condition that determines their
@@ -145,7 +146,7 @@ public class FormDef implements IFormElement, IMetaData,
         setID(-1);
         setChildren(null);
         triggerables = new ArrayList<>();
-        triggerIndex = new Hashtable<>();
+        triggerIndex = new HashMap<>();
         //This is kind of a wreck...
         setEvaluationContext(new EvaluationContext(null));
         outputFragments = new Vector();
@@ -618,8 +619,8 @@ public class FormDef implements IFormElement, IMetaData,
      * @return All references in the form that are depended on by
      * calculate/relevancy conditions.
      */
-    public Enumeration refWithTriggerDependencies() {
-        return triggerIndex.keys();
+    public Iterator<TreeReference> refWithTriggerDependencies() {
+        return triggerIndex.keySet().iterator();
     }
 
     /**
