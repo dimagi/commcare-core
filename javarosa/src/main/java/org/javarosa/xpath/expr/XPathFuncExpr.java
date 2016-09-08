@@ -659,6 +659,20 @@ public class XPathFuncExpr extends XPathExpression {
         }
     }
 
+    private static Double toNumeric_inclusiveOfDatestrings(Object o) {
+        Double d = toNumeric(o);
+        if (Double.isNaN(d.doubleValue())) {
+            o = unpack(o);
+            if (o instanceof String) {
+                Date dateFromString = DateUtils.parseDate((String)o);
+                if (dateFromString != null) {
+                    return toNumeric(dateFromString);
+                }
+            }
+        }
+        return d;
+    }
+
     /**
      * convert a value to a number using xpath's type conversion rules (note that xpath itself makes
      * no distinction between integer and floating point numbers)
@@ -947,7 +961,7 @@ public class XPathFuncExpr extends XPathExpression {
     private static Object max(Object[] argVals) {
         double max = Double.MIN_VALUE;
         for (Object argVal : argVals) {
-            max = Math.max(max, toNumeric(argVal));
+            max = Math.max(max, toNumeric_inclusiveOfDatestrings(argVal]).doubleValue());
         }
         return max;
     }
@@ -955,7 +969,7 @@ public class XPathFuncExpr extends XPathExpression {
     private static Object min(Object[] argVals) {
         double min = Double.MAX_VALUE;
         for (Object argVal : argVals) {
-            min = Math.min(min, toNumeric(argVal));
+            min = Math.min(min, toNumeric_inclusiveOfDatestrings(argVal).doubleValue());
         }
         return min;
     }
