@@ -49,6 +49,13 @@ public class SelectMultiData implements IAnswerData {
             throw new NullPointerException("Attempt to set an IAnswerData class to null.");
         }
 
+        // ensure elements are all instances of Selection
+        for (Object elem : (Vector)o) {
+            if (!(elem instanceof Selection)) {
+                throw new RuntimeException(elem + " is not an instance of Selection");
+            }
+        }
+
         vs = new Vector<>((Vector<Selection>)o);
     }
 
