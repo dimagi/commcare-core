@@ -7,6 +7,7 @@
            [org.commcare.util.cli MenuScreen EntityScreen]
            [org.commcare.core.parse ParseUtils]
            [org.javarosa.core.util.externalizable LivePrototypeFactory]
+           [org.javarosa.core.services.locale Localization]
            [org.javarosa.core.services.storage StorageManager]
            [org.javarosa.core.model.instance FormInstance]
            [org.commcare.session SessionFrame]
@@ -14,10 +15,20 @@
 
 (defrecord App [session engine sandbox])
 
+(defn long-str [& strings] (string/join "\n" strings))
+(def ^:const
+  HELP_MESSAGE
+  (long-str
+    ":exit / :quit - Terminate the session and close the CLI app"
+    ":update (-f) - Update the application live against the newest version on the server. -f optional flag to grab the newest build instead of the newest starred build"
+    ":home - Navigate to the home menu of the app"
+    ":lang <lang> - change the language to <lang> (e.g. :lang en)"
+    ":stack - Show the current session frame stack"))
+
 (defn build-user-sandbox [prototype-factory restore-file]
   (let [sandbox (MockUserDataSandbox. prototype-factory)
         restore (try (BufferedInputStream. (FileInputStream. restore-file))
-                     (catch FileNotFoundException e 
+                     (catch FileNotFoundException e
                        (println "No restore file found at " restore-file)))]
     (.setAppFixtureStorageLocation sandbox (StorageManager/getStorage FormInstance/STORAGE_KEY))
     (ParseUtils/parseIntoSandbox restore sandbox, false)
@@ -29,7 +40,7 @@
         engine (CommCareConfigEngine. System/out prototype-factory)
         user-sandbox (build-user-sandbox prototype-factory restore-file)]
     (App. (CLISessionWrapper. (.getPlatform engine) user-sandbox)
-          (doto engine 
+          (doto engine
             (.initFromArchive ccz)
             (.initEnvironment))
           user-sandbox)))
@@ -37,35 +48,85 @@
 (defn get-next-screen [session]
   (let [eval-context (.getEvaluationContext session)
         needed (.getNeededData session eval-context)]
-    (cond 
+    (cond
       (nil? needed) nil
       (= needed SessionFrame/STATE_COMMAND_ID) (MenuScreen.)
       (= needed SessionFrame/STATE_DATUM_VAL) (EntityScreen.)
       (= needed SessionFrame/STATE_DATUM_COMPUTED)
-      (do 
+      (do
         (.setComputedDatum session)
         (recur session))
       :else (throw (RuntimeException. "Unexpected frame request")))))
 
 (defn clear-view []
-  (map (fn [x] (println "\n")) (range 5)))
+  (doall
+    (map (fn [x] (println " ")) (range 5))))
 
-(defn process-command [command]
-  (cond
-    ((= command ":exit") 
-(defn process-screen [screen app] 
+(defn print-stack [session]
+  (let
+    [frame (.getFrame session)
+     steps (.getSteps frame)]
+    (doall
+      (map
+        (fn [step] (if (= (.getType step) SessionFrame/STATE_COMMAND_ID)
+                     (println "COMMAND: " (.getId step))
+                     (println "DATUM: " (.getId step) " - " (.getValue step))))
+        steps))))
+
+(defn set-locale [locale]
+  (if (string/blank? locale)
+    (println "Command format\n:lang [langcode]")
+    (let [localizer (Localization/getGlobalLocalizerAdvanced)
+          available-locales (.getAvailableLocales localizer)]
+      (if (nil? (some #{locale} available-locales))
+        (println "Locale '" locale "' is undefined. Available locales:")
+        (map (fn [l] (println "* " l)) available-locales)))))
+
+;; String App Screen -> Action
+;; where Action is one of [:quit :refresh :stay]
+(defn process-command [user-input app]
+  (if (= user-input ":exit")
+    :quit
+      (let [session (:session app)
+            args (string/split user-input #" ")
+            command (nth args 0)
+            arg (if (> (count args) 1) (nth args 1) nil)]
+        (cond
+          (= command ":update")
+          (do (println "TODO: app implement update")
+              :stay)
+          (= command ":home")
+          (do (.clearAllState session)
+              :refresh)
+          (= command ":back")
+           (do (.stepBack session (.getEvaluationContext session))
+               :refresh)
+          (= command ":stack")
+           (do (print-stack session)
+               :stay)
+          (= command ":lang")
+           (do (set-locale arg)
+               :stay)
+          (= command ":help")
+          (do
+            (println HELP_MESSAGE)
+            :stay)))))
+
+(defn process-screen [screen app]
   (clear-view)
-  (.getWrappedDisplaytitle screen (:sandbox app) (.getPlatform (:engine app)))
+  (println (.getWrappedDisplaytitle screen (:sandbox app) (.getPlatform (:engine app))))
+  (println "==================")
   (.prompt screen System/out)
   (let [user-input (read-line)]
     (if (string/starts-with? user-input ":")
-      (if (process-command user-input)
-        true ;;; XXX I'm here
-        (recur screen app))
-      (when 
-        ; TODO: handle commands
+      (let [action (process-command user-input app)]
+        (cond (= action :quit) false
+              (= action :refresh) true
+              (= action :stay) (recur screen app)))
+      (if
         (.handleInputAndUpdateSession screen (:session app) user-input)
-        (recur screen app))))
+        (recur screen app)
+        true))))
 
 (defn form-entry []
   (println "TODO form entry"))
