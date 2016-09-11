@@ -12,6 +12,7 @@ import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -143,7 +144,7 @@ public class PromptToJson {
                 obj.put("answer", answerValue.getDisplayText());
                 return;
             case Constants.DATATYPE_DATE_TIME:
-                obj.put("answer", ((Date) answerValue.getValue()).getTime());
+                obj.put("answer", new DateTime((Date) answerValue.getValue()).toString("yyyy-MM-dd'T'HH:mm:ssZZ"));
                 return;
             case Constants.DATATYPE_CHOICE:
                 Selection singleSelection = ((Selection) answerValue.getValue());
