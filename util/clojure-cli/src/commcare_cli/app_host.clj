@@ -1,7 +1,9 @@
 (ns commcare-cli.app_host
   (:require [clojure.tools.cli :as cli]
             [clojure.string :as string]
-            [commcare-cli.dispatch :as dispatch])
+            [commcare-cli.dispatch :as dispatch]
+            [commcare-cli.form_player :as form-player]
+            [commcare-cli.helpers :as helpers])
   (:import [java.io FileInputStream BufferedInputStream FileNotFoundException]
            [org.commcare.util CommCareConfigEngine]
            [org.commcare.util.cli MenuScreen EntityScreen]
@@ -23,7 +25,8 @@
     ":update (-f) - Update the application live against the newest version on the server. -f optional flag to grab the newest build instead of the newest starred build"
     ":home - Navigate to the home menu of the app"
     ":lang <lang> - change the language to <lang> (e.g. :lang en)"
-    ":stack - Show the current session frame stack"))
+    ":stack - Show the current session frame stack"
+    ":help - Show this message"))
 
 (defn build-user-sandbox [prototype-factory restore-file]
   (let [sandbox (MockUserDataSandbox. prototype-factory)
@@ -57,10 +60,6 @@
         (.setComputedDatum session)
         (recur session))
       :else (throw (RuntimeException. "Unexpected frame request")))))
-
-(defn clear-view []
-  (doall
-    (map (fn [x] (println " ")) (range 5))))
 
 (defn print-stack [session]
   (let
@@ -113,7 +112,7 @@
             :stay)))))
 
 (defn process-screen [screen app]
-  (clear-view)
+  (helpers/clear-view)
   (println (.getWrappedDisplaytitle screen (:sandbox app) (.getPlatform (:engine app))))
   (println "==================")
   (.prompt screen System/out)
@@ -128,13 +127,27 @@
         (recur screen app)
         true))))
 
-(defn form-entry []
-  (println "TODO form entry"))
+;; Session -> Boolean
+(defn finish-session [session]
+  (.clearVolitiles session)
+  (finishExecuteAndPop session (.getEvaluationContext session)))
+
+;; App -> Boolean
+(defn form-entry [app]
+  (let [session (:session app)
+        form-xmlns (getForm session)
+        locale nil] ; TODO: pass in locale
+    (if (nil? form-xmlns)
+      (finish-session)
+      (form-player/play
+        (.loadFormByXmlns (:engine app) form-xmlns)
+        session
+        locale))))
 
 (defn nav-loop [app]
   (let [next-screen (get-next-screen (:session app))]
     (if (nil? next-screen)
-      (form-entry)
+      (form-entry app)
       (do
         (.init next-screen (:session app))
         (if (.shouldBeSkipped next-screen)
