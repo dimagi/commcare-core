@@ -15,6 +15,7 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -67,7 +68,9 @@ public class Detail implements Externalizable {
 
     // If this detail is being shown in an entity list, set focus to the LAST item in the list
     // when it is loaded, instead of the first
-    private boolean focusToBottomOfEntityList;
+    //private boolean focusToBottomOfEntityList;
+
+    private XPathExpression focusFunction;
 
     // region -- These fields are only used if this detail is a case tile
 
@@ -92,7 +95,7 @@ public class Detail implements Externalizable {
                   Vector<DetailField> fieldsVector,
                   OrderedHashtable<String, String> variables,
                   Vector<Action> actions, Callout callout, String fitAcross,
-                  String uniformUnitsString, String forceLandscape, String focusToBottom) {
+                  String uniformUnitsString, String forceLandscape, String focusFunction) {
 
         if (detailsVector.size() > 0 && fieldsVector.size() > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
@@ -110,7 +113,16 @@ public class Detail implements Externalizable {
         this.callout = callout;
         this.useUniformUnitsInCaseTile = "true".equals(uniformUnitsString);
         this.forceLandscapeView = "true".equals(forceLandscape);
-        this.focusToBottomOfEntityList = "true".equals(focusToBottom);
+        //this.focusToBottomOfEntityList = "true".equals(focusToBottom);
+
+        if (focusFunction != null) {
+            try {
+                this.focusFunction = XPathParseTool.parseXPath(focusFunction);
+            } catch (XPathSyntaxException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e.getMessage());
+            }
+        }
 
         if (fitAcross != null) {
             try {
@@ -365,9 +377,9 @@ public class Detail implements Externalizable {
         return forceLandscapeView;
     }
 
-    public boolean shouldFocusToBottomOfEntityList() {
+    /*public boolean shouldFocusToBottomOfEntityList() {
         return focusToBottomOfEntityList;
-    }
+    }*/
 
     public GridCoordinate[] getGridCoordinates() {
         GridCoordinate[] mGC = new GridCoordinate[fields.length];
@@ -429,5 +441,15 @@ public class Detail implements Externalizable {
             String key = (String)en.nextElement();
             ec.setVariable(key, XPathFuncExpr.unpack(variables.get(key).eval(ec)));
         }
+    }
+
+    public boolean evaluateFocusFunction(EvaluationContext ec) {
+        if (focusFunction != null) {
+            Object value = XPathFuncExpr.unpack(focusFunction.eval(ec));
+            if (value instanceof Boolean) {
+                return ((Boolean)value).booleanValue();
+            }
+        }
+        return false;
     }
 }
