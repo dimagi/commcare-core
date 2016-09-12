@@ -66,10 +66,6 @@ public class Detail implements Externalizable {
     // Force the activity that is showing this detail to show itself in landscape view only
     private boolean forceLandscapeView;
 
-    // If this detail is being shown in an entity list, set focus to the LAST item in the list
-    // when it is loaded, instead of the first
-    //private boolean focusToBottomOfEntityList;
-
     private XPathExpression focusFunction;
 
     // region -- These fields are only used if this detail is a case tile
@@ -113,7 +109,6 @@ public class Detail implements Externalizable {
         this.callout = callout;
         this.useUniformUnitsInCaseTile = "true".equals(uniformUnitsString);
         this.forceLandscapeView = "true".equals(forceLandscape);
-        //this.focusToBottomOfEntityList = "true".equals(focusToBottom);
 
         if (focusFunction != null) {
             try {
@@ -376,10 +371,6 @@ public class Detail implements Externalizable {
     public boolean forcesLandscape() {
         return forceLandscapeView;
     }
-
-    /*public boolean shouldFocusToBottomOfEntityList() {
-        return focusToBottomOfEntityList;
-    }*/
 
     public GridCoordinate[] getGridCoordinates() {
         GridCoordinate[] mGC = new GridCoordinate[fields.length];
