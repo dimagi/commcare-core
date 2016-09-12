@@ -34,7 +34,8 @@ public class PromptToJson {
         questionJson.put("help", jsonNullIfNull(prompt.getHelpText()));
         questionJson.put("binding", jsonNullIfNull(prompt.getQuestion().getBind().getReference().toString()));
         questionJson.put("style", jsonNullIfNull(parseStyle(prompt)));
-        questionJson.put("datatype", jsonNullIfNull(parseControlType(prompt)));
+        questionJson.put("datatype", jsonNullIfNull(parseDataType(prompt)));
+        questionJson.put("control", jsonNullIfNull(prompt.getControlType()));
         questionJson.put("required", prompt.isRequired() ? 1 : 0);
         parseQuestionAnswer(questionJson, prompt);
         questionJson.put("ix", jsonNullIfNull(prompt.getIndex()));
@@ -189,7 +190,7 @@ public class PromptToJson {
     }
 
 
-    private static String parseControlType(FormEntryPrompt prompt) {
+    private static String parseDataType(FormEntryPrompt prompt) {
         if (prompt.getControlType() == Constants.CONTROL_TRIGGER) {
             return "info";
         }
