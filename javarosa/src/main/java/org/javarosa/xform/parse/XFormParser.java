@@ -1934,8 +1934,12 @@ public class XFormParser {
             } catch (XPathSyntaxException xpse) {
                 throw buildParseException(nodeset, xpse.getMessage(), xpathCalc, "calculate");
             }
-            r = (Recalculate)_f.addTriggerable(r);
-            binding.calculate = r;
+            try {
+                r = (Recalculate)_f.addTriggerable(r);
+                binding.calculate = r;
+            }catch(Exception re) {
+                throw buildParseException(nodeset, re.getMessage(), xpathCalc, "calculate");
+            }
         }
 
         binding.setPreload(e.getAttributeValue(NAMESPACE_JAVAROSA, "preload"));

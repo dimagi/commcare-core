@@ -1,4 +1,4 @@
-package org.commcare.util;
+package org.javarosa.xform.util;
 
 /**
  * Define where to get localized array values from

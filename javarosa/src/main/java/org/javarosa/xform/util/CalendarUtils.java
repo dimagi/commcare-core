@@ -1,7 +1,5 @@
 package org.javarosa.xform.util;
 
-import org.commcare.util.ArrayDataSource;
-import org.commcare.util.LocaleArrayDataSource;
 import org.joda.time.Chronology;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;

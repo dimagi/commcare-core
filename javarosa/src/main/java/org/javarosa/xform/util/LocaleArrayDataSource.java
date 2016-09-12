@@ -1,4 +1,4 @@
-package org.commcare.util;
+package org.javarosa.xform.util;
 
 import org.javarosa.core.services.locale.Localization;
 

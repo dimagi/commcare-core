@@ -436,6 +436,10 @@ public class TreeReference implements Externalizable {
         }
 
         TreeReference newRef = anchor(contextRef);
+        if(newRef == null) {
+            throw new RuntimeException("Unable to contextualize the reference |" + this.toString() +
+                    "| against the provided context |" + contextRef + "|");
+        }
         newRef.hashCode = -1;
         newRef.contextType = contextRef.getContext();
 
