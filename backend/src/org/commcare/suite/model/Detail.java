@@ -215,6 +215,10 @@ public class Detail implements Externalizable {
         variables = (OrderedHashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, ExtWrapMap.TYPE_ORDERED), pf);
         actions = (Vector<Action>)ExtUtil.read(in, new ExtWrapList(Action.class), pf);
         callout = (Callout)ExtUtil.read(in, new ExtWrapNullable(Callout.class), pf);
+        forceLandscapeView = ExtUtil.readBool(in);
+        focusToBottomOfEntityList = ExtUtil.readBool(in);
+        numEntitiesToDisplayPerRow = (int)ExtUtil.readNumeric(in);
+        useUniformUnitsInCaseTile = ExtUtil.readBool(in);
     }
 
     @Override
@@ -228,6 +232,10 @@ public class Detail implements Externalizable {
         ExtUtil.write(out, new ExtWrapMap(variables));
         ExtUtil.write(out, new ExtWrapList(actions));
         ExtUtil.write(out, new ExtWrapNullable(callout));
+        ExtUtil.writeBool(out, forceLandscapeView);
+        ExtUtil.writeBool(out, focusToBottomOfEntityList);
+        ExtUtil.writeNumeric(out, numEntitiesToDisplayPerRow);
+        ExtUtil.writeBool(out, useUniformUnitsInCaseTile);
     }
 
     public OrderedHashtable<String, XPathExpression> getVariableDeclarations() {
