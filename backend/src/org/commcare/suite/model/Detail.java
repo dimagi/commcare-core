@@ -450,4 +450,8 @@ public class Detail implements Externalizable {
         Object value = XPathFuncExpr.unpack(focusFunction.eval(ec));
         return XPathFuncExpr.toBoolean(value).booleanValue();
     }
+
+    public XPathExpression getFocusFunction() {
+        return focusFunction;
+    }
 }
