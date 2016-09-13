@@ -65,6 +65,10 @@ public class Detail implements Externalizable {
     // Force the activity that is showing this detail to show itself in landscape view only
     private boolean forceLandscapeView;
 
+    // If this detail is being shown in an entity list, set focus to the LAST item in the list
+    // when it is loaded, instead of the first
+    private boolean focusToBottomOfEntityList;
+
     // region -- These fields are only used if this detail is a case tile
 
     // Allows for the possibility of case tiles being displayed in a grid
@@ -88,7 +92,7 @@ public class Detail implements Externalizable {
                   Vector<DetailField> fieldsVector,
                   OrderedHashtable<String, String> variables,
                   Vector<Action> actions, Callout callout, String fitAcross,
-                  String uniformUnitsString, String forceLandscape) {
+                  String uniformUnitsString, String forceLandscape, String focusToBottom) {
 
         if (detailsVector.size() > 0 && fieldsVector.size() > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
@@ -106,6 +110,7 @@ public class Detail implements Externalizable {
         this.callout = callout;
         this.useUniformUnitsInCaseTile = "true".equals(uniformUnitsString);
         this.forceLandscapeView = "true".equals(forceLandscape);
+        this.focusToBottomOfEntityList = "true".equals(focusToBottom);
 
         if (fitAcross != null) {
             try {
@@ -203,6 +208,10 @@ public class Detail implements Externalizable {
         variables = (OrderedHashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, ExtWrapMap.TYPE_ORDERED), pf);
         actions = (Vector<Action>)ExtUtil.read(in, new ExtWrapList(Action.class), pf);
         callout = (Callout)ExtUtil.read(in, new ExtWrapNullable(Callout.class), pf);
+        forceLandscapeView = ExtUtil.readBool(in);
+        focusToBottomOfEntityList = ExtUtil.readBool(in);
+        numEntitiesToDisplayPerRow = (int)ExtUtil.readNumeric(in);
+        useUniformUnitsInCaseTile = ExtUtil.readBool(in);
     }
 
     @Override
@@ -216,6 +225,10 @@ public class Detail implements Externalizable {
         ExtUtil.write(out, new ExtWrapMap(variables));
         ExtUtil.write(out, new ExtWrapList(actions));
         ExtUtil.write(out, new ExtWrapNullable(callout));
+        ExtUtil.writeBool(out, forceLandscapeView);
+        ExtUtil.writeBool(out, focusToBottomOfEntityList);
+        ExtUtil.writeNumeric(out, numEntitiesToDisplayPerRow);
+        ExtUtil.writeBool(out, useUniformUnitsInCaseTile);
     }
 
     public OrderedHashtable<String, XPathExpression> getVariableDeclarations() {
@@ -358,6 +371,10 @@ public class Detail implements Externalizable {
 
     public boolean forcesLandscape() {
         return forceLandscapeView;
+    }
+
+    public boolean shouldFocusToBottomOfEntityList() {
+        return focusToBottomOfEntityList;
     }
 
     public GridCoordinate[] getGridCoordinates() {
