@@ -10,7 +10,7 @@
                       uiVersion="1"
                       version="1" xmlns="http://openrosa.org/formdesigner/06DE7FA6-35F7-46EF-9DB0-AD09AAF40438" xmlns:jrm="http://dev.commcarehq.org/jr/xforms">
                     <begin/>
-                    <number>2</number>
+                    <number>6</number>
                     <outer_repeat jr:template="">
                         <iterator count="" current_index="" ids="" vellum:role="Repeat">
                             <item id="" jr:template="">
@@ -35,7 +35,7 @@
             </instance>
 
             <bind nodeset="/data/begin"/>
-            <bind calculate="3" nodeset="/data/number"/>
+            <bind calculate="6" nodeset="/data/number"/>
             <bind nodeset="/data/outer_repeat"/>
             <bind calculate="count(/data/outer_repeat/iterator/item)"
                   nodeset="/data/outer_repeat/iterator/@current_index"/>
