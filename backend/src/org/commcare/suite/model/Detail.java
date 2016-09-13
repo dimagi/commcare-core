@@ -444,12 +444,10 @@ public class Detail implements Externalizable {
     }
 
     public boolean evaluateFocusFunction(EvaluationContext ec) {
-        if (focusFunction != null) {
-            Object value = XPathFuncExpr.unpack(focusFunction.eval(ec));
-            if (value instanceof Boolean) {
-                return ((Boolean)value).booleanValue();
-            }
+        if (focusFunction == null) {
+            return false;
         }
-        return false;
+        Object value = XPathFuncExpr.unpack(focusFunction.eval(ec));
+        return XPathFuncExpr.toBoolean(value).booleanValue();
     }
 }
