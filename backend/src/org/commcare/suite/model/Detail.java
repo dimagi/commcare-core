@@ -11,6 +11,7 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
+import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
@@ -216,7 +217,7 @@ public class Detail implements Externalizable {
         actions = (Vector<Action>)ExtUtil.read(in, new ExtWrapList(Action.class), pf);
         callout = (Callout)ExtUtil.read(in, new ExtWrapNullable(Callout.class), pf);
         forceLandscapeView = ExtUtil.readBool(in);
-        focusToBottomOfEntityList = ExtUtil.readBool(in);
+        focusFunction = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
         numEntitiesToDisplayPerRow = (int)ExtUtil.readNumeric(in);
         useUniformUnitsInCaseTile = ExtUtil.readBool(in);
     }
@@ -233,7 +234,7 @@ public class Detail implements Externalizable {
         ExtUtil.write(out, new ExtWrapList(actions));
         ExtUtil.write(out, new ExtWrapNullable(callout));
         ExtUtil.writeBool(out, forceLandscapeView);
-        ExtUtil.writeBool(out, focusToBottomOfEntityList);
+        ExtUtil.write(out, new ExtWrapNullable(focusFunction == null ? null : new ExtWrapTagged(focusFunction)));
         ExtUtil.writeNumeric(out, numEntitiesToDisplayPerRow);
         ExtUtil.writeBool(out, useUniformUnitsInCaseTile);
     }
