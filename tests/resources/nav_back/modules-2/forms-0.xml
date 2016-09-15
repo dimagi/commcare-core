@@ -1,0 +1,58 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Household Member Follow-up Visit</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/0B68A30D-C8A9-4048-AEB8-71100589B44F" uiVersion="1" version="114" name="Household Member Follow-up Visit">
+					<clinic_visit_adherence/>
+					<member_types_with_dups/>
+					<member_type_icons/>
+					<sched>
+						<is_adolescent/>
+						<is_child/>
+						<age/>
+						<next_visit_date/>
+					</sched>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><clinic_visit_adherence/><member_type_icons/><next_visit_date/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance>
+			<instance src="jr://instance/casedb" id="casedb"/>
+			<instance src="jr://instance/session" id="commcaresession"/>
+			<bind nodeset="/data/clinic_visit_adherence"/>
+			<bind nodeset="/data/member_types_with_dups" calculate="join(' ', instance('casedb')/casedb/case[index/parent = instance('commcaresession')/session/data/case_id][@case_type = 'household_member'][@status = 'open']/member_type)"/>
+			<bind nodeset="/data/member_type_icons" calculate="concat(if(contains(/data/member_types_with_dups, 'infant'), '&#128700;', ''), if(contains(/data/member_types_with_dups, 'child'), '&#128102;', ''), if(contains(/data/member_types_with_dups, 'male_partner'), '&#128697;', ''))"/>
+			<bind nodeset="/data/sched"/>
+			<bind nodeset="/data/sched/is_adolescent" calculate="instance('casedb')/casedb/case[@case_id = instance('commcaresession')/session/data/case_id_household_member]/member_type = 'child_adolescent' and /data/sched/age &gt; 10 and /data/sched/age &lt;= 19"/>
+			<bind nodeset="/data/sched/is_child" calculate="instance('casedb')/casedb/case[@case_id = instance('commcaresession')/session/data/case_id_household_member]/member_type = 'child_adolescent' and /data/sched/age &lt;= 10"/>
+			<bind nodeset="/data/sched/age" calculate="int((today() - date(instance('casedb')/casedb/case[@case_id = instance('commcaresession')/session/data/case_id_household_member]/dob)) div 365.25)"/>
+			<bind nodeset="/data/sched/next_visit_date" calculate="date(today() + 14)"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="clinic_visit_adherence-label">
+						<value>Is going to the clinic on time?</value>
+					</text>
+					<text id="clinic_visit_adherence-yes-label">
+						<value>yes</value>
+					</text>
+					<text id="clinic_visit_adherence-no-label">
+						<value>no</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id_household_member" nodeset="/data/case/@case_id"/><bind calculate="/data/clinic_visit_adherence" nodeset="/data/case/update/clinic_visit_adherence" relevant="count(/data/clinic_visit_adherence) &gt; 0"/><bind calculate="/data/member_type_icons" nodeset="/data/case/update/member_type_icons" relevant="count(/data/member_type_icons) &gt; 0"/><bind calculate="/data/sched/next_visit_date" nodeset="/data/case/update/next_visit_date" relevant="count(/data/sched/next_visit_date) &gt; 0"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+		<vellum:hashtags>{"#case/member_type":null,"#case/dob":null}</vellum:hashtags>
+	</h:head>
+	<h:body>
+		<select1 ref="/data/clinic_visit_adherence">
+			<label ref="jr:itext('clinic_visit_adherence-label')"/>
+			<item>
+				<label ref="jr:itext('clinic_visit_adherence-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('clinic_visit_adherence-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<group ref="/data/sched"/>
+	</h:body>
+</h:html>

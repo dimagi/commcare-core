@@ -21,12 +21,12 @@ public class StackRegressionTests {
      */
     @Test
     public void testGoBackAfterEndOfFormNavigation() throws Exception {
-        MockApp mockApp = new MockApp("/m2m/");
+        MockApp mockApp = new MockApp("/nav_back/");
         SessionWrapper session = mockApp.getSession();
         UserSandbox sandbox = session.getSandbox();
         SessionWrapper blankSession = new SessionWrapper(session.getPlatform(), sandbox);
         String descriptor = "COMMAND_ID m1 " +
-                "STATE_UNKNOWN case_id a38e1d98-25af-47ba-8d82-6aec7682f2ad";
+                "STATE_UNKNOWN case_id test_id";
         SessionDescriptorUtil.loadSessionFromDescriptor(descriptor, blankSession);
         assertEquals(SessionFrame.STATE_COMMAND_ID, blankSession.getNeededData());
         blankSession.stepBack();
