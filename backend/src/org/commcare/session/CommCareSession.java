@@ -466,7 +466,6 @@ public class CommCareSession {
 
         for (StackFrameStep step : frame.getSteps()) {
             if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) ||
-                    SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType()) ||
                     SessionFrame.STATE_UNKNOWN.equals(step.getType()) &&
                     guessUnknownType(step).equals(SessionFrame.STATE_DATUM_COMPUTED)) {
                 String key = step.getId();
