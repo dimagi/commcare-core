@@ -355,6 +355,12 @@ public class CommCareSession {
                 if (childCommand.equals(poppedId)) {
                     return SessionFrame.STATE_COMMAND_ID;
                 }
+                Vector<SessionDatum> data = entry.getSessionDataReqs();
+                for(SessionDatum datum: data) {
+                    if(datum.getDataId().equals(poppedId)) {
+                        return SessionFrame.STATE_DATUM_VAL;
+                    }
+                }
             }
         }
         return SessionFrame.STATE_DATUM_COMPUTED;
@@ -466,7 +472,8 @@ public class CommCareSession {
         for (StackFrameStep step : frame.getSteps()) {
             if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) ||
                     SessionFrame.STATE_UNKNOWN.equals(step.getType()) &&
-                    guessUnknownType(step).equals(SessionFrame.STATE_DATUM_COMPUTED)) {
+                            (guessUnknownType(step).equals(SessionFrame.STATE_DATUM_COMPUTED)
+                            || guessUnknownType(step).equals(SessionFrame.STATE_DATUM_VAL))) {
                 String key = step.getId();
                 String value = step.getValue();
                 if (key != null && value != null) {
