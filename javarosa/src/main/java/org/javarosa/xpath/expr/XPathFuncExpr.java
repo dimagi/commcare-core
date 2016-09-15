@@ -963,7 +963,7 @@ public class XPathFuncExpr extends XPathExpression {
      */
     private static Object max(Object[] argVals) {
         double max = Double.MIN_VALUE;
-        for (int i = 0; i < argVals.length; i++) {
+        for (Object argVal : argVals) {
             max = Math.max(max, toNumeric(argVal));
         }
         return max;
@@ -971,7 +971,7 @@ public class XPathFuncExpr extends XPathExpression {
 
     private static Object min(Object[] argVals) {
         double min = Double.MAX_VALUE;
-        for (int i = 0; i < argVals.length; i++) {
+        for (Object argVal : argVals) {
             min = Math.min(min, toNumeric(argVal));
         }
         return min;
