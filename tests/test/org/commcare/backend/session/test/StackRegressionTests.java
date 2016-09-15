@@ -26,7 +26,7 @@ public class StackRegressionTests {
         UserSandbox sandbox = session.getSandbox();
         SessionWrapper blankSession = new SessionWrapper(session.getPlatform(), sandbox);
         String descriptor = "COMMAND_ID m1 " +
-                "CASE_ID case_id a38e1d98-25af-47ba-8d82-6aec7682f2ad";
+                "STATE_UNKNOWN case_id a38e1d98-25af-47ba-8d82-6aec7682f2ad";
         SessionDescriptorUtil.loadSessionFromDescriptor(descriptor, blankSession);
         assertEquals(SessionFrame.STATE_COMMAND_ID, blankSession.getNeededData());
         blankSession.stepBack();
