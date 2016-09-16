@@ -1449,7 +1449,7 @@ public class XPathFuncExpr extends XPathExpression {
         }
 
         try {
-            Double ret = new Double(Double.parseDouble(attrValue));
+            Double ret = MathUtils.parseDoubleSafe(attrValue);
             mDoubleParseCache.register(attrValue, ret);
             return ret;
         } catch (NumberFormatException ife) {
