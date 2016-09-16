@@ -27,6 +27,8 @@ public class MathUtils {
         return r;
     }
 
+    // double parsing from http://stackoverflow.com/questions/8564896/fastest-way-to-check-if-a-string-can-be-parsed-to-double-in-java
+
     final static String Digits     = "(\\p{Digit}+)";
     final static String HexDigits  = "(\\p{XDigit}+)";
 
