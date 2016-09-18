@@ -233,7 +233,7 @@ public class ApplicationHost {
                 return true;
             } else {
                 XFormPlayer player = new XFormPlayer(System.in, System.out, null);
-                player.setmPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
+                player.setPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
                 player.setSessionIIF(mSession.getIIF());
                 player.start(mEngine.loadFormByXmlns(formXmlns));
 
