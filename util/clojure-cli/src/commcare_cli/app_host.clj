@@ -130,12 +130,12 @@
 ;; Session -> Boolean
 (defn finish-session [session]
   (.clearVolitiles session)
-  (finishExecuteAndPop session (.getEvaluationContext session)))
+  (.finishExecuteAndPop session (.getEvaluationContext session)))
 
 ;; App -> Boolean
 (defn form-entry [app]
   (let [session (:session app)
-        form-xmlns (getForm session)
+        form-xmlns (.getForm session)
         locale nil] ; TODO: pass in locale
     (if (nil? form-xmlns)
       (finish-session)
