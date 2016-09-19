@@ -1446,7 +1446,12 @@ public class XPathFuncExpr extends XPathExpression {
         }
 
         try {
-            Double ret = MathUtils.parseDoubleSafe(attrValue);
+            // Don't process strings with scientific notation or +/- Infinity as doubles
+            if (checkForInvalidNumericOrDatestringCharacters(attrValue)) {
+                mDoubleParseCache.register(attrValue, new Double(Double.NaN));
+                return attrValue;
+            }
+            Double ret = Double.parseDouble(attrValue);
             mDoubleParseCache.register(attrValue, ret);
             return ret;
         } catch (NumberFormatException ife) {

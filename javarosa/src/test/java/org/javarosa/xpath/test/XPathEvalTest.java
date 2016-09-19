@@ -17,6 +17,7 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnhandledException;
 import org.javarosa.xpath.XPathUnsupportedException;
+import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathNumericLiteral;
@@ -538,6 +539,13 @@ public class XPathEvalTest {
         testEval("count(/data/strtest[@val = 'a'])", instance, null, new Double(1));
         testEval("count(/data/strtest[@val = 2])", instance, null, new Double(0));
         testEval("count(/data/strtest[@val = /data/string])", instance, null, new Double(1));
+    }
+
+    @Test
+    public void testDoNotInferScientificNotationAsDouble() {
+        Object dbl = XPathFuncExpr.InferType("100E5");
+        Assert.assertTrue("We should not evaluate strings with scientific notation as doubles",
+                XPathEqExpr.testEquality(dbl, "100E5"));
     }
 
     protected void addDataRef(FormInstance dm, String ref, IAnswerData data) {
