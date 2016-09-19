@@ -374,6 +374,13 @@ public class FormEntryController {
     public String getFormEntrySessionString() {
         return formEntrySession.toString();
     }
+    
+    /**
+     * getQuestionPrompts for the current index
+     */
+    public FormEntryPrompt[] getQuestionPrompts() throws RuntimeException {
+        return getQuestionPrompts(getModel().getFormIndex());
+    }
 
     /**
      * Returns an array of relevant question prompts that should be displayed as a single screen.
