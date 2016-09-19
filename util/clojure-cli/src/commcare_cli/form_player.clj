@@ -11,17 +11,14 @@
            [org.javarosa.core.services.locale Localization]
            [org.javarosa.core.services.storage StorageManager]
            [org.javarosa.core.model Constants]
-           [org.javarosa.core.model.data SelectMultiData]
+           [org.javarosa.core.model.data AnswerDataFactory SelectMultiData UncastData]
            [org.javarosa.core.model.condition EvaluationContext]
            [org.javarosa.core.model.instance FormInstance]
            [org.javarosa.core.model.trace StringEvaluationTraceSerializer]
            [org.javarosa.engine XFormEnvironment]
-           [org.javarosa.form.api FormEntrySession]
-           [org.javarosa.form.api FormEntryController]
-           [org.javarosa.form.api FormEntrySessionReplayer]
-           [org.javarosa.form.api FormEntrySessionReplayer$ReplayError]
-           [org.javarosa.xpath XPathNodeset]
-           [org.javarosa.xpath XPathParseTool]
+           [org.javarosa.form.api FormEntrySession FormEntryController 
+            FormEntrySessionReplayer FormEntrySessionReplayer$ReplayError]
+           [org.javarosa.xpath XPathNodeset XPathParseTool]
            [org.javarosa.xpath.expr XPathFuncExpr]
            [org.javarosa.xpath.parser XPathSyntaxException]
            [org.commcare.session SessionFrame]
@@ -58,7 +55,7 @@
         choices-text))))
 
 (defn show-question [entry-prompt]
-  (println (.getQuestionPrompt entry-prompt))
+  (println entry-prompt)
   (let [choices (.getSelectChoices entry-prompt)]
     (when (not (nil? choices))
       (show-choices entry-prompt choices))
@@ -75,17 +72,17 @@
 (defn show-event [entry-controller step-func]
   (helpers/clear-view)
   (let [event (.getEvent (.getModel entry-controller))]
-  (cond
-    (= event FormEntryController/EVENT_BEGINNING_OF_FORM) (println "Form Start: Press Return to proceed")
-    (= event FormEntryController/EVENT_END_OF_FORM) (println "Form End: Press Return to Complete Entry")
-                ;;mProcessOnExit = true;
-    (= event FormEntryController/EVENT_GROUP) (do (step-func entry-controller)
-                                        (show-event entry-controller step-func))
-    (= event FormEntryController/EVENT_QUESTION) (show-question (.getQuestionPrompt (.getModel entry-controller)))
-    (= event FormEntryController/EVENT_REPEAT) (do (step-func entry-controller)
-                                         (show-event entry-controller step-func))
-    (= event FormEntryController/EVENT_REPEAT_JUNCTURE) (println "Repeats Not Implemented, press return to exit")
-    (= event FormEntryController/EVENT_PROMPT_NEW_REPEAT) (new-repeat-question))))
+    (cond
+      (= event FormEntryController/EVENT_BEGINNING_OF_FORM) (println "Form Start: Press Return to proceed")
+      (= event FormEntryController/EVENT_END_OF_FORM) (println "Form End: Press Return to Complete Entry")
+      ;;mProcessOnExit = true;
+      (= event FormEntryController/EVENT_GROUP) (do (step-func entry-controller)
+                                                    (show-event entry-controller step-func))
+      (= event FormEntryController/EVENT_QUESTION) (show-question (.getQuestionPrompt (.getModel entry-controller)))
+      (= event FormEntryController/EVENT_REPEAT) (do (step-func entry-controller)
+                                                     (show-event entry-controller step-func))
+      (= event FormEntryController/EVENT_REPEAT_JUNCTURE) (println "Repeats Not Implemented, press return to exit")
+      (= event FormEntryController/EVENT_PROMPT_NEW_REPEAT) (new-repeat-question))))
 
 (defn display-relevant [entry-model]
   (let [debug-info
@@ -167,8 +164,73 @@
     :else (println "Invalid command: " command)
   ))
 
-(defn answer-question [user-input]
-  "TODO")
+(defn validate-number-input [user-input max-number]
+  (try
+    (let [i (Integer/parseInt user-input)]
+      (if (or (< i 1) (> i max-number))
+        (doall
+          (println "Enter a number between 1 and " max-number)
+          -1)
+        (- i 1)))
+    (catch NumberFormatException e
+      (doall
+        (println "Enter a number between 1 and " max-number)
+        -1))))
+
+(defn set-question-answer [entry-controller string-value]
+  (try
+    (let [entry-prompt (.getQuestionPrompt (.getModel entry-controller))
+          value (.cast (AnswerDataFactory/template
+                         (.getControlType entry-prompt)
+                         (.getDataType entry-prompt))
+                       (UncastData. string-value))
+          response (.answerQuestion entry-controller value)]
+      (cond
+        (= response FormEntryController/ANSWER_OK) (.stepToNextEvent entry-controller)
+        (= response FormEntryController/ANSWER_REQUIRED_BUT_EMPTY) (println "Answer is required")
+        (= response FormEntryController/ANSWER_CONSTRAINT_VIOLATED) (println (.getConstraintText entry-controller))))
+    (catch Exception e
+      (println (.getMessage e)))))
+
+(defn get-selected-choices-string [entry-prompt]
+  (let [choices (.getSelectChoices entry-prompt)
+        selections (get-selected-choices entry-prompt choices)]
+    (.getString (.uncast (SelectMultiData. selections)))))
+
+(defn process-input [entry-controller user-input]
+  (let [entry-prompt (.getQuestionPrompt (.getModel entry-controller))
+        question-type (.getControlType entry-prompt)
+        choices (.getSelectChoices entry-prompt)]
+    (if (not (nil? choices))
+      (if (and (string/blank? user-input) (= Constants/CONTROL_SELECT_MULTI question-type))
+        (get-selected-choices-string entry-prompt)
+        (let [index (validate-number-input user-input choices)]
+          (cond (= Constants/CONTROL_SELECT_ONE question-type) (.getValue (nth choices index))
+                ;; TODO: does this let you select multiple things?
+                (= Constants/CONTROL_SELECT_MULTI question-type) (.getValue (nth choices index)))))
+      user-input)))
+
+(defn answer-question-event [entry-controller user-input]
+    (let [string-value (process-input entry-controller user-input)]
+      (set-question-answer entry-controller string-value)
+      true))
+
+(defn create-new-repeat [entry-controller user-input]
+  (let [i (validate-number-input user-input 2)]
+    (cond
+      (= 1 i) (doto entry-controller (.newRepeat) (.stepToNextEvent))
+      (= 2 i) (.stepToNextEvent entry-controller))))
+
+(defn answer-question [entry-controller user-input]
+  (let [event (.getEvent (.getModel entry-controller))]
+    (cond
+      (= event FormEntryController/EVENT_BEGINNING_OF_FORM) (do (.stepToNextEvent entry-controller) true)
+      (= event FormEntryController/EVENT_END_OF_FORM) false ;; TODO mProcessOnExit = true;
+      (= event FormEntryController/EVENT_QUESTION) (answer-question-event entry-controller user-input)
+      (= event FormEntryController/EVENT_REPEAT) false 
+      (= event FormEntryController/EVENT_REPEAT_JUNCTURE) false
+      (= event FormEntryController/EVENT_PROMPT_NEW_REPEAT) (do (create-new-repeat entry-controller user-input) true)
+      :else (doall (println "Bad state; quitting") false))))
 
 (defn process-loop [entry-controller]
   (show-event entry-controller
@@ -177,7 +239,7 @@
   (let [user-input (read-line)]
     (when (if (string/starts-with? user-input ":")
             (process-command entry-controller (subs user-input 1))
-            (answer-question user-input))
+            (answer-question entry-controller user-input))
       (recur entry-controller))))
 
 ;; FormDef CommCareSession String String -> None
