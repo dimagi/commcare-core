@@ -108,7 +108,7 @@
           (= command ":lang")
            (do (set-locale arg)
                :stay)
-          (string/starts-with? command ":today")
+          (= command ":today")
            (do (reset! today-date arg)
                :stay)
           (= command ":help")
