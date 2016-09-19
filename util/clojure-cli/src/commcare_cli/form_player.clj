@@ -1,5 +1,6 @@
 (ns commcare-cli.form_player
   (:require [commcare-cli.helpers :as helpers]
+            [commcare-cli.repl :as repl]
             [clojure.stacktrace :as st]
             [clojure.string :as string])
   (:import [java.io FileInputStream BufferedInputStream FileNotFoundException]
@@ -127,7 +128,7 @@
                (StringEvaluationTraceSerializer.)
                (.getEvaluationTrace eval-ctx)))))
 
-(defn eval-expr [entry-controller raw-expr in-debug-mode?]
+(defn eval-expr [entry-controller in-debug-mode? raw-expr]
   (try
     (let [expr (XPathParseTool/parseXPath raw-expr)
           eval-ctx (get-eval-ctx (.getModel entry-controller) in-debug-mode?)]
@@ -138,17 +139,10 @@
       (st/print-stack-trace e)
       (println "Eval error: " (.getMessage e)))))
 
-(defn eval-mode-loop [entry-controller]
-  (let [input (string/trim (read-line))]
-    (if (string/blank? input)
-      (println "Exiting eval mode")
-      (do (eval-expr entry-controller input @debug-mode?)
-          (recur entry-controller)))))
-
 (defn eval-mode [entry-controller command]
   (let [input (string/trim command)]
     (if (string/blank? input)
-      (eval-mode-loop entry-controller)
+      (repl/start-repl (partial eval-expr entry-controller @debug-mode?))
       (eval-expr entry-controller input @debug-mode?))))
 
 (defn process-command [entry-controller command]
@@ -186,11 +180,14 @@
             (answer-question user-input))
       (recur entry-controller))))
 
-;; FormDef CommCareSession String -> None
-(defn play [form-def session locale]
+;; FormDef CommCareSession String String -> None
+(defn play [form-def session locale today-date]
   (let [env (XFormEnvironment. form-def)]
     (when (not (nil? locale))
       (.setLocale env locale))
+    (when (not (nil? today-date))
+      (println today-date)
+      (.setToday env today-date))
     (let [entry-controller (.setup env (.getIIF session))]
       (process-loop entry-controller))))
 

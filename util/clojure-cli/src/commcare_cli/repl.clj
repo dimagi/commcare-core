@@ -9,6 +9,7 @@
   ((done-commands eof) expression))
 
 (defn run-repl [{:keys [prompt subsequent-prompt history-file
+                        process-func
                         input-stream output-stream read-line-fn]
                  :as options}]
   (loop []
@@ -22,9 +23,19 @@
                    :output-stream output-stream})]
       (if (done? eof (first forms))
         nil
-        (let [x ""]
-          (println forms)
+        (do
+          (process-func (first forms))
           (recur))))))
+
+(defn start-repl [process-func]
+  (let [options {:read-input-line-fn
+                 (fn [] (simple-jline/safe-read-line
+                          {:no-jline true
+                           :prompt-string ""}))
+                 :read-line-fn (partial simple-jline/safe-read-line println)
+                 :process-func process-func}]
+    (run-repl options)
+    (simple-jline/shutdown)))
 
 (defn main [options]
   (let [options (assoc options :read-input-line-fn
@@ -35,6 +46,7 @@
         options (assoc options
                        :read-line-fn
                        (partial
-                         simple-jline/safe-read-line println))]
+                         simple-jline/safe-read-line println))
+        options (assoc options :process-func println)]
     (run-repl options)
     (simple-jline/shutdown)))

@@ -4,6 +4,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.engine.models.Action;
 import org.javarosa.engine.models.Mockup;
 import org.javarosa.engine.models.Session;
@@ -32,6 +33,7 @@ public class XFormEnvironment {
 
     private Session session;
     private Mockup mockup;
+    private Date hardCodedDate;
     boolean recording = true;
 
     public XFormEnvironment(FormDef form) {
@@ -43,7 +45,6 @@ public class XFormEnvironment {
         this.session = session;
         recording = false;
     }
-
 
     public XFormEnvironment(FormDef form, Mockup mockup) {
         this(form);
@@ -93,8 +94,12 @@ public class XFormEnvironment {
 
     private EvaluationContext getEC() {
         EvaluationContext ec = new EvaluationContext(null);
-        ec.addFunctionHandler(new TodayFunc("today"));
-        ec.addFunctionHandler(new TodayFunc("now"));
+        Date customDate = hardCodedDate;
+        if (mockup != null) {
+            customDate = mockup.getDate();
+        }
+        ec.addFunctionHandler(new TodayFunc("today", customDate));
+        ec.addFunctionHandler(new TodayFunc("now", customDate));
         return ec;
     }
 
@@ -107,36 +112,45 @@ public class XFormEnvironment {
         }
     }
 
-    private class TodayFunc implements IFunctionHandler {
+    public void setToday(String dateString) {
+        hardCodedDate = DateUtils.parseDate(dateString);
+        System.out.println(hardCodedDate);
+    }
 
-        final String name;
+    private static class TodayFunc implements IFunctionHandler {
+        private final String name;
+        private final Date date;
 
-        public TodayFunc(String name) {
+        public TodayFunc(String name, Date date) {
             this.name = name;
+            this.date = date;
         }
 
+        @Override
         public String getName() {
             return name;
         }
 
+        @Override
         public Vector getPrototypes() {
-            Vector p = new Vector();
+            Vector<Class[]> p = new Vector<>();
             p.addElement(new Class[0]);
             return p;
         }
 
+        @Override
         public boolean rawArgs() {
             return false;
         }
 
+        @Override
         public Object eval(Object[] args, EvaluationContext ec) {
-            if(mockup != null && mockup.getDate() != null) {
-                return mockup.getDate();
+            if (date != null) {
+                return date;
             } else {
                 return new Date();
             }
         }
-
     }
 
     public void commitStep() {
@@ -145,7 +159,6 @@ public class XFormEnvironment {
             currentStep = new Step();
         }
     }
-
 
     public void recordAction(Action action) {
         if(recording) {

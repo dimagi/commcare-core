@@ -17,6 +17,8 @@
 
 (defrecord App [session engine sandbox])
 
+(def today-date (atom nil))
+
 (defn long-str [& strings] (string/join "\n" strings))
 (def ^:const
   HELP_MESSAGE
@@ -106,6 +108,9 @@
           (= command ":lang")
            (do (set-locale arg)
                :stay)
+          (string/starts-with? command ":today")
+           (do (reset! today-date arg)
+               :stay)
           (= command ":help")
           (do
             (println HELP_MESSAGE)
@@ -142,7 +147,8 @@
       (form-player/play
         (.loadFormByXmlns (:engine app) form-xmlns)
         session
-        locale))))
+        locale
+        @today-date))))
 
 (defn nav-loop [app]
   (let [next-screen (get-next-screen (:session app))]

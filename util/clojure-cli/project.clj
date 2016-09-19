@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [jline "2.14.2"]
                  [org.clojure/tools.cli "0.3.5"]
-                 [org.commcare/commcare "2.30.0"]]
+                 [org.commcare/commcare "2.31.0"]]
   :aot [commcare-cli.reader.jline.JlineInputReader]
   :plugins [[lein-localrepo "0.5.3"]]
   :main ^{:skip-aot true} commcare-cli.core
