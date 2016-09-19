@@ -4,6 +4,8 @@ import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
 import org.commcare.test.utilities.MockApp;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.xpath.expr.XPathExpression;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,5 +68,19 @@ public class AppStructureTests {
         // values, so each entity who's template evalutates to a key will have
         // the associated result data attached to it.
         Assert.assertTrue(lookupCalloutDetailField.getTemplate() instanceof Text);
+    }
+
+    @Test
+    public void testDetailWithFocusFunction() {
+        XPathExpression focusFunction =
+                mApp.getSession().getPlatform().getDetail("m1_case_short").getFocusFunction();
+        Assert.assertTrue(focusFunction != null);
+    }
+
+    @Test
+    public void testDetailWithoutFocusFunction() {
+        XPathExpression focusFunction =
+                mApp.getSession().getPlatform().getDetail("m0_case_short").getFocusFunction();
+        Assert.assertTrue(focusFunction == null);
     }
 }
