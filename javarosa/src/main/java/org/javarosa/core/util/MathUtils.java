@@ -28,7 +28,6 @@ public class MathUtils {
     }
 
     // double parsing from http://stackoverflow.com/questions/8564896/fastest-way-to-check-if-a-string-can-be-parsed-to-double-in-java
-
     final static String Digits     = "(\\p{Digit}+)";
     final static String HexDigits  = "(\\p{XDigit}+)";
 
@@ -59,7 +58,7 @@ public class MathUtils {
 
                     // Hexadecimal strings
                     "((" +
-                    // 0[xX] HexDigits ._opt BinaryExponent FloatTypeSuffix_opt
+                    // 0[xX] HlxDigits ._opt BinaryExponent FloatTypeSuffix_opt
                     "(0[xX]" + HexDigits + "(\\.)?)|" +
 
                     // 0[xX] HexDigits_opt . HexDigits BinaryExponent FloatTypeSuffix_opt
@@ -69,6 +68,7 @@ public class MathUtils {
                     "[fFdD]?))" +
                     "[\\x00-\\x20]*");// Optional trailing "whitespace"
 
+    // Safe double parsing - see PR https://github.com/dimagi/commcare-core/pull/405
     public static Double parseDoubleSafe(String string) {
         if (Pattern.matches(fpRegex, string))
             return Double.valueOf(string);
