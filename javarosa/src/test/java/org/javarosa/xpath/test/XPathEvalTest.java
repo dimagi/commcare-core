@@ -17,6 +17,7 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnhandledException;
 import org.javarosa.xpath.XPathUnsupportedException;
+import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathNumericLiteral;
@@ -68,6 +69,8 @@ public class XPathEvalTest {
                     fail("Doubles outside of tolerance [" + o + "," + t + " ]");
                 } else if (Double.isNaN(o) && !Double.isNaN(t)) {
                     fail("Result was NaN when not expected");
+                } else if (Double.isNaN(t) && !Double.isNaN(o)) {
+                    fail("Result was supposed to be NaN, but got " + o);
                 }
             } else if (!expected.equals(result)) {
                 fail("Expected " + expected + ", got " + result);
@@ -172,6 +175,17 @@ public class XPathEvalTest {
         testEval("number(date('1969-12-31'))", null, null, new Double(-1.0));
         testEval("number(date('2008-09-05'))", null, null, new Double(14127.0));
         testEval("number(date('1941-12-07'))", null, null, new Double(-10252.0));
+        testEval("number('1970-01-01')", null, null, new Double(0.0));
+        testEval("number('1970-01-02')", null, null, new Double(1.0));
+        testEval("number('1969-12-31')", null, null, new Double(-1.0));
+        testEval("number('2008-09-05')", null, null, new Double(14127.0));
+        testEval("number('1941-12-07')", null, null, new Double(-10252.0));
+        testEval("number('1970-01')", null, null, new Double(Double.NaN));
+        testEval("number('-1970-01-02')", null, null, new Double(Double.NaN));
+        testEval("number('12-31')", null, null, new Double(Double.NaN));
+        testEval("number('2016-13-13')", null, null, new Double(Double.NaN));
+        testEval("number('2017-01-45')", null, null, new Double(Double.NaN));
+
         testEval("number(convertible())", null, ec, new Double(5.0));
         testEval("number(inconvertible())", null, ec, new XPathTypeMismatchException());
         testEval("string(true())", null, null, "true");
@@ -269,7 +283,7 @@ public class XPathEvalTest {
                 new Double(Double.NaN));
         testEval("max('02-05', '2012-01-01', '2012-04-20')", null, null,
                 new Double(Double.NaN));
-        testEval("max('2012-02-05-', '2012-01-01', '2012-04-20')", null, null,
+        testEval("max('2012-14-05', '2012-01-01', '2012-04-20')", null, null,
                 new Double(Double.NaN));
 
 
@@ -538,6 +552,13 @@ public class XPathEvalTest {
         testEval("count(/data/strtest[@val = 'a'])", instance, null, new Double(1));
         testEval("count(/data/strtest[@val = 2])", instance, null, new Double(0));
         testEval("count(/data/strtest[@val = /data/string])", instance, null, new Double(1));
+    }
+
+    @Test
+    public void testDoNotInferScientificNotationAsDouble() {
+        Object dbl = XPathFuncExpr.InferType("100E5");
+        Assert.assertTrue("We should not evaluate strings with scientific notation as doubles",
+                XPathEqExpr.testEquality(dbl, "100E5"));
     }
 
     protected void addDataRef(FormInstance dm, String ref, IAnswerData data) {

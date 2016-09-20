@@ -139,7 +139,17 @@ public class SetValueAction extends Action {
         if (val == null) {
             model.setValue(null, targetReference);
         } else {
-            model.setValue(AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()),
+            IAnswerData targetData;
+            try {
+                targetData = AnswerDataFactory.templateByDataType(dataType).cast(val.uncast());
+            } catch(IllegalArgumentException e) {
+                XPathTypeMismatchException ne = new XPathTypeMismatchException("Invalid data type in " +
+                        "setvalue event targetting |" +
+                        targetReference.toString() + "|\nError: " + e.toString());
+                ne.initCause(e);
+                throw ne;
+            }
+            model.setValue(targetData,
                     targetReference);
         }
         return targetReference;

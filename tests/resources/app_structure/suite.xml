@@ -66,6 +66,29 @@
       </template>
     </field>
   </detail>
+
+  <detail id="m1_case_short">
+    <title>
+      <text>With focus function</text>
+    </title>
+    <focus function="case_name = 'Fake Case Name'"/>
+    <field>
+      <header>
+        <text>Name</text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+
   <entry>
     <form>http://commcarehq.org/test/placeholder</form>
     <command id="m0-f0">
