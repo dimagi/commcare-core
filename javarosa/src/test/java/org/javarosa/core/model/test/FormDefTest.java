@@ -1,10 +1,12 @@
 package org.javarosa.core.model.test;
 
+import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.DateData;
+import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.StringData;
@@ -525,6 +527,28 @@ public class FormDefTest {
         EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
         ExprEvalUtils.assertEqualsXpathEval("IText calculation contained the wrong value",
                 "right", "/data/calculation", evalCtx);
+    }
+
+    /**
+     * Ensures that the relevancy condition for a group insided of a repeat is
+     * properly accounted for when building the triggerables DAG
+     */
+    @Test
+    public void testGroupRelevancyInsideRepeat() throws XPathSyntaxException {
+        FormParseInit fpi = new FormParseInit("/xform_tests/group_relevancy_in_repeat.xml");
+        FormEntryController fec =  initFormEntry(fpi);
+
+        do {
+            QuestionDef q = fpi.getCurrentQuestion();
+
+            if (q != null && q.getControlType() == Constants.CONTROL_SELECT_ONE) {
+                IAnswerData ans = new SelectOneData(new Selection("yes"));
+                fec.answerQuestion(ans);
+                // test that a value that should be updated has been updated
+                ExprEvalUtils.testEval("/data/some_group/repeat_sum",
+                        fpi.getFormDef().getInstance(), null, 25.0);
+            }
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
     }
 
     private static void stepThroughEntireForm(FormEntryController fec) {

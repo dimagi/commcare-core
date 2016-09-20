@@ -14,19 +14,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class SelectMultiDataTests {
-    static QuestionDef question;
+    private static QuestionDef question;
 
-    static Selection one;
-    static Selection two;
-    static Selection three;
+    private static Selection one;
+    private static Selection two;
+    private static Selection three;
 
-    static Vector firstTwo;
-    static Vector lastTwo;
-    static Vector invalid;
+    private static Vector<Selection> firstTwo;
+    private static Vector<Selection> lastTwo;
+    private static Vector invalid;
 
     @BeforeClass
     public static void setUp() {
-
         question = new QuestionDef();
 
         for (int i = 0; i < 4; i++) {
@@ -40,17 +39,17 @@ public class SelectMultiDataTests {
         three = new Selection("Selection 3");
         three.attachChoice(question);
 
-        firstTwo = new Vector();
+        firstTwo = new Vector<>();
         firstTwo.addElement(one);
         firstTwo.addElement(two);
 
-        lastTwo = new Vector();
+        lastTwo = new Vector<>();
         lastTwo.addElement(two);
         lastTwo.addElement(three);
 
         invalid = new Vector();
         invalid.addElement(three);
-        invalid.addElement(new Integer(12));
+        invalid.addElement(12);
         invalid.addElement(one);
     }
 
@@ -71,7 +70,6 @@ public class SelectMultiDataTests {
         data.setValue(firstTwo);
         assertTrue("SelectMultiData did not set value properly. Maintained old value.", !(data.getValue().equals(lastTwo)));
         assertEquals("SelectMultiData did not properly reset value ", data.getValue(), firstTwo);
-
     }
 
     @Test
@@ -101,7 +99,7 @@ public class SelectMultiDataTests {
         assertVectorIdentity("External Reference: ", internal, copy);
 
         data.setValue(lastTwo);
-        Vector start = (Vector)data.getValue();
+        Vector<Selection> start = data.getValue();
 
         Selection[] external = new Selection[start.size()];
         start.copyInto(external);
@@ -113,7 +111,6 @@ public class SelectMultiDataTests {
     }
 
     private void assertVectorIdentity(String messageHeader, Vector v, Selection[] a) {
-
         assertEquals(messageHeader + "SelectMultiData's internal representation was violated. Vector size changed.", v.size(), a.length);
 
         for (int i = 0; i < v.size(); ++i) {
