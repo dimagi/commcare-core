@@ -1,7 +1,6 @@
 (ns commcare-cli.app_host
   (:require [clojure.tools.cli :as cli]
             [clojure.string :as string]
-            [commcare-cli.dispatch :as dispatch]
             [commcare-cli.form_player :as form-player]
             [commcare-cli.helpers :as helpers])
   (:import [java.io FileInputStream BufferedInputStream FileNotFoundException]

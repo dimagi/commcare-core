@@ -1,7 +1,6 @@
 (ns commcare-cli.core
   (:require [clojure.tools.cli :as cli]
             [commcare-cli.app_host :as app_host]
-            [commcare-cli.dispatch :as dispatch])
   (:gen-class))
 
 (defn parse-args [args]
@@ -18,9 +17,7 @@
   (let [username (if (:username options) (:username options) (do (println "username: ") (read-line)))
         password (if (:password options) (:password options) (do (println "password: ") (read-line)))
         app (app_host/install-app (:app options) (:restore options) username password)]
-    (app_host/nav-loop app)
-    ; (dispatch/main options)
-    ))
+    (app_host/nav-loop app)))
 
 (defn -main [& args]
   (let [[options args banner]
