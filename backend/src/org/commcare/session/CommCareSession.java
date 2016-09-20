@@ -348,17 +348,17 @@ public class CommCareSession {
      */
     private String guessUnknownType(StackFrameStep popped) {
         String poppedId = popped.getId();
-        for (StackFrameStep stackFrameStep: frame.getSteps()) {
+        for (StackFrameStep stackFrameStep : frame.getSteps()) {
             String commandId = stackFrameStep.getId();
             Vector<Entry> entries = getEntriesForCommand(commandId);
-            for (Entry entry: entries) {
+            for (Entry entry : entries) {
                 String childCommand = entry.getCommandId();
                 if (childCommand.equals(poppedId)) {
                     return SessionFrame.STATE_COMMAND_ID;
                 }
                 Vector<SessionDatum> data = entry.getSessionDataReqs();
-                for(SessionDatum datum: data) {
-                    if(datum instanceof EntityDatum &&
+                for (SessionDatum datum : data) {
+                    if (datum instanceof EntityDatum &&
                             datum.getDataId().equals(poppedId)) {
                         return SessionFrame.STATE_DATUM_VAL;
                     }
