@@ -88,6 +88,35 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         return row.toString();
     }
 
+    public static Pair<String[], int[]> getHeaders(Detail shortDetail, EvaluationContext context){
+        DetailField[] fields = shortDetail.getFields();
+        String[] headers = new String[fields.length];
+        int[] widthHints = new int[fields.length];
+
+        StringBuilder row = new StringBuilder();
+        int i = 0;
+        for (DetailField field : fields) {
+            String s = field.getHeader().evaluate(context);
+
+            int widthHint = SCREEN_WIDTH / fields.length;
+            try {
+                widthHint = Integer.parseInt(field.getHeaderWidthHint());
+            } catch (Exception e) {
+                //Really don't care if it didn't work
+            }
+            CliUtils.addPaddedStringToBuilder(row, s, widthHint);
+
+            headers[i] = s;
+            widthHints[i] = widthHint;
+
+            i++;
+            if (i != fields.length) {
+                row.append(" | ");
+            }
+        }
+        return new Pair<>(headers, widthHints);
+    }
+
     //So annoying how identical this is...
     private String createHeader(Detail shortDetail, EvaluationContext context) {
         DetailField[] fields = shortDetail.getFields();
