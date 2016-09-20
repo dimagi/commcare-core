@@ -16,7 +16,7 @@
       (cond
         (= response FormEntryController/ANSWER_OK) (.stepToNextEvent entry-controller)
         (= response FormEntryController/ANSWER_REQUIRED_BUT_EMPTY) (println "Answer is required")
-        (= response FormEntryController/ANSWER_CONSTRAINT_VIOLATED) (println (.getConstraintText entry-controller))))
+        (= response FormEntryController/ANSWER_CONSTRAINT_VIOLATED) (println (.getConstraintText entry-prompt))))
     (catch Exception e
       (println (.getMessage e)))))
 

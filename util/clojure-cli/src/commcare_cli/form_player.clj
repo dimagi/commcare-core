@@ -138,7 +138,7 @@
   (let [input (string/trim command)]
     (if (string/blank? input)
       (repl/start-repl (partial eval-expr entry-controller @debug-mode?))
-      (eval-expr entry-controller input @debug-mode?))))
+      (eval-expr entry-controller @debug-mode? input))))
 
 ;; FormEntryController String -> NavAction
 ;; where NavAction is one of [:forward :back :exit :finish]
@@ -156,19 +156,20 @@
                                                (subs command 4))
                                              :forward)
     (string/starts-with? command "replay") (replay-entry-session
+                                             entry-controller
                                              (string/trim (subs command 6)))
-    (= command "entry-session") (doall
+    (= command "entry-session") (do
                                   (println (.getFormEntrySessionString entry-controller))
                                   :forward)
-    (= command "relevant") (doall
+    (= command "relevant") (do
                              (display-relevant (.getModel entry-controller))
                              :forward)
-    (= command "debug") (doall
+    (= command "debug") (do
                           (swap! debug-mode? not @debug-mode?)
                           (println "Expression debuggion: "
                                    (if @debug-mode? "ENABLED" "DISABLED"))
                           :forward)
-    :else (doall (println "Invalid command: " command) :forward)))
+    :else (do (println "Invalid command: " command) :forward)))
 
 ;; FormEntryController -> (or Byte[] Nil)
 (defn process-form [entry-controller]
