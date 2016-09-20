@@ -47,10 +47,11 @@
                 (= Constants/CONTROL_SELECT_MULTI question-type) (.getValue (nth choices index)))))
       user-input)))
 
+;; FormEntryController String -> NavAction
 (defn answer-question-event [entry-controller user-input]
     (let [string-value (process-input entry-controller user-input)]
       (set-question-answer entry-controller string-value)
-      true))
+      :forward))
 
 (defn create-new-repeat [entry-controller user-input]
   (let [i (helpers/validate-number-input user-input 2)]
@@ -58,13 +59,14 @@
       (= 1 i) (doto entry-controller (.newRepeat) (.stepToNextEvent))
       (= 2 i) (.stepToNextEvent entry-controller))))
 
+;; FormEntryController String -> NavAction
 (defn answer-question [entry-controller user-input]
   (let [event (.getEvent (.getModel entry-controller))]
     (cond
-      (= event FormEntryController/EVENT_BEGINNING_OF_FORM) (do (.stepToNextEvent entry-controller) true)
-      (= event FormEntryController/EVENT_END_OF_FORM) false ;; TODO mProcessOnExit = true;
+      (= event FormEntryController/EVENT_BEGINNING_OF_FORM) (do (.stepToNextEvent entry-controller) :forward)
+      (= event FormEntryController/EVENT_END_OF_FORM) :finish
       (= event FormEntryController/EVENT_QUESTION) (answer-question-event entry-controller user-input)
-      (= event FormEntryController/EVENT_REPEAT) false 
-      (= event FormEntryController/EVENT_REPEAT_JUNCTURE) false
-      (= event FormEntryController/EVENT_PROMPT_NEW_REPEAT) (do (create-new-repeat entry-controller user-input) true)
+      (= event FormEntryController/EVENT_REPEAT) :exit
+      (= event FormEntryController/EVENT_REPEAT_JUNCTURE) :exit
+      (= event FormEntryController/EVENT_PROMPT_NEW_REPEAT) (do (create-new-repeat entry-controller user-input) :forward)
       :else (doall (println "Bad state; quitting") false))))

@@ -40,7 +40,7 @@
         choices-text))))
 
 (defn show-question [entry-prompt]
-  (println entry-prompt)
+  (println (.getQuestionText entry-prompt))
   (let [choices (.getSelectChoices entry-prompt)]
     (when (not (nil? choices))
       (show-choices entry-prompt choices))
@@ -156,19 +156,19 @@
                           :forward)
     :else (doall (println "Invalid command: " command) :forward)))
 
-;; FormEntryController -> (or String Nil)
+;; FormEntryController -> (or Byte[] Nil)
 (defn process-form [entry-controller]
   (let [form (.getForm (.getModel entry-controller))]
     (.postProcessInstance form)
     (helpers/clear-view)
     (try (let [instance (.serializeInstance (XFormSerializingVisitor.) (.getInstance form))]
-           (println instance)
+           (helpers/ppxml (String. instance))
            instance)
          (catch IOException e 
            (doall (println "Error serializing XForm")
                   nil)))))
 
-;; FormEntryController Boolean -> (or String Nil)
+;; FormEntryController Boolean -> (or Byte[] Nil)
 (defn process-loop [entry-controller forward?]
   (show-event entry-controller
               (fn [entry-controller] (if forward? 
@@ -183,7 +183,7 @@
           (= next-action :exit) (doall (println "Exit without saving")
                                        nil))))
 
-;; FormDef CommCareSession String String -> (or String Nil)
+;; FormDef CommCareSession String String -> (or Byte[] Nil)
 (defn play [form-def session locale today-date]
   (let [env (XFormEnvironment. form-def)]
     (when (not (nil? locale))

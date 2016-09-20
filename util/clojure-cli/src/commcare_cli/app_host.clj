@@ -135,15 +135,16 @@
         (recur screen app)
         true))))
 
-;; Session -> Boolean
+;; Session -> None
 (defn finish-session [session]
   (.clearVolitiles session)
-  (.finishExecuteAndPop session (.getEvaluationContext session)))
+  (when (not (.finishExecuteAndPop session (.getEvaluationContext session)))
+    (.clearAllState session)))
 
-;; Sandbox String -> Boolean
+;; Sandbox Byte[] -> Boolean
 (defn process-form-result [sandbox form-instance]
   (try
-    (let [stream (ByteArrayInputStream. (.getBytes form-instance))]
+    (let [stream (ByteArrayInputStream. form-instance)]
       (.parse (DataModelPullParser. stream (CommCareTransactionParserFactory. sandbox) true true)))
     (catch Exception e (doall 
                          (println "Error processing the form result: " (.getMessage e))
@@ -154,8 +155,10 @@
   (let [session (:session app)
         form-xmlns (.getForm session)
         locale nil] ; TODO: pass in locale
+    (println "Starting form entry with the following stack frame")
+    (print-stack session)
     (if (nil? form-xmlns)
-      (finish-session)
+      (do (finish-session session) true)
       (let [form-result (form-player/play
                           (.loadFormByXmlns (:engine app) form-xmlns)
                           session
@@ -164,7 +167,7 @@
             form-not-cancelled? (not (nil? form-result))]
         (when (and form-not-cancelled?
                    (process-form-result (:sandbox app) form-result))
-          (finish-session))
+          (finish-session session))
         form-not-cancelled?))))
 
 (defn nav-loop [app]
