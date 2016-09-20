@@ -25,6 +25,7 @@ import java.io.UnsupportedEncodingException;
  * Used for offline (demo user) logins.
  *
  * @author Phillip Mates (pmates@dimagi.com)
+ * @author Aliza Stone (astone@dimagi.com)
  */
 public class OfflineUserRestore implements Persistable {
     public static final String STORAGE_KEY = "OfflineUserRestore";
@@ -46,7 +47,6 @@ public class OfflineUserRestore implements Persistable {
     public static OfflineUserRestore buildInMemoryUserRestore(InputStream restoreStream) throws IOException {
         OfflineUserRestore offlineUserRestore = new OfflineUserRestore();
         offlineUserRestore.restore = new String(StreamsUtil.inputStreamToByteArray(restoreStream));
-
         return offlineUserRestore;
     }
 
