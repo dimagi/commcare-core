@@ -17,7 +17,9 @@ public class StackRegressionTests {
     /**
      * Load form title from session where the case id is computed, not
      * selected, and the case name is loaded from detail referenced by m0-f0,
-     * which is implicitly referenced
+     * which is implicitly referenced. This is the stack state we would be in
+     * after end of form navigation - this test ensures that we correctly 
+     * resolve the unknown state in this case. 
      */
     @Test
     public void testGoBackAfterEndOfFormNavigation() throws Exception {
