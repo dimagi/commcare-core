@@ -28,7 +28,7 @@ public class Action implements Externalizable {
     private DisplayUnit display;
     private Vector<StackOperation> stackOps;
     private XPathExpression relevantExpr;
-    private String iconForActionBarReference;
+    private String iconReferenceForActionBar;
 
     /**
      * Serialization only!!!
@@ -47,7 +47,7 @@ public class Action implements Externalizable {
         this.display = display;
         this.stackOps = stackOps;
         this.relevantExpr = relevantExpr;
-        this.iconForActionBarReference = iconForActionBar == null ? "" : iconForActionBar;
+        this.iconReferenceForActionBar = iconForActionBar == null ? "" : iconForActionBar;
     }
 
     /**
@@ -76,11 +76,11 @@ public class Action implements Externalizable {
     }
 
     public boolean hasActionBarIcon() {
-        return !"".equals(iconForActionBarReference);
+        return !"".equals(iconReferenceForActionBar);
     }
 
     public String getActionBarIconReference() {
-        return iconForActionBarReference;
+        return iconReferenceForActionBar;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class Action implements Externalizable {
         display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
         stackOps = (Vector<StackOperation>)ExtUtil.read(in, new ExtWrapList(StackOperation.class), pf);
         relevantExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
-        iconForActionBarReference = ExtUtil.readString(in);
+        iconReferenceForActionBar = ExtUtil.readString(in);
     }
 
     @Override
@@ -96,6 +96,6 @@ public class Action implements Externalizable {
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapList(stackOps));
         ExtUtil.write(out, new ExtWrapNullable(relevantExpr == null ? null : new ExtWrapTagged(relevantExpr)));
-        ExtUtil.writeString(out, iconForActionBarReference);
+        ExtUtil.writeString(out, iconReferenceForActionBar);
     }
 }
