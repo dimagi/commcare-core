@@ -19,11 +19,25 @@
 
 (def debug-mode? (atom false))
 
+(def ^:const
+  HELP_MESSAGE
+  (helpers/long-str
+    ":next - Move to next question"
+    ":back - Move to previous question"
+    ":quit / :cancel - Exit form without processing it"
+    ":finish - Finish and process form"
+    ":print <instance> - Print xml of a data instance. e.g. ':print jr://instance/casedb'"
+    ":eval <expr> - Evaluate an xpath expression. If empty, enter eval mode"
+    ":entry-session - Shows current form entry session. You can copy this string and restore to that spot in form entry using the ':replay' command."
+    ":replay <sesssion-string> - Replays the form entry session provided, which should be acquired by the 'entry-session' command. Safest to run this command right when you open the form."
+    ":relevant - Prints the evaluation trace of the expression for the current question's display condition"
+    ":debug - Toggles debug mode off/on. When debug mode is enabled, the evaluation trace for any xpath expressions requested will be printed after the value is printed."))
+
 (defn print-choice [is-multi-select? is-selected? index choice-text]
   (println
-    (when is-multi-select? (string/join "[" (if is-selected? "X" " ") "]"))
+    (if is-multi-select? (string/join "[" (if is-selected? "X" " ") "]") "")
     (+ 1 index)
-    ") "
+    ")"
     choice-text))
 
 (defn show-choices [entry-prompt choices]
@@ -59,7 +73,6 @@
     (cond
       (= event FormEntryController/EVENT_BEGINNING_OF_FORM) (println "Form Start: Press Return to proceed")
       (= event FormEntryController/EVENT_END_OF_FORM) (println "Form End: Press Return to Complete Entry")
-      ;;mProcessOnExit = true;
       (= event FormEntryController/EVENT_GROUP) (do (step-func entry-controller)
                                                     (show-event entry-controller step-func))
       (= event FormEntryController/EVENT_QUESTION) (show-question (.getQuestionPrompt (.getModel entry-controller)))
@@ -131,12 +144,13 @@
 ;; where NavAction is one of [:forward :back :exit :finish]
 (defn process-command [entry-controller command]
   (cond
+    (= command "help") (do (println HELP_MESSAGE) :forward)
     (= command "next") (do (.stepToNextEvent entry-controller) :forward)
     (= command "back") (do (.stepToPreviousEvent entry-controller) :back)
     (= command "quit") :exit
     (= command "cancel") :exit
     (= command "finish") :finish
-    (= command "print") :forward
+    (= command "print") :forward ;; TODO
     (string/starts-with? command "eval") (do (eval-mode
                                                entry-controller
                                                (subs command 4))

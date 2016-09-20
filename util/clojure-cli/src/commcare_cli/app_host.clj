@@ -20,10 +20,9 @@
 
 (def today-date (atom nil))
 
-(defn long-str [& strings] (string/join "\n" strings))
 (def ^:const
   HELP_MESSAGE
-  (long-str
+  (helpers/long-str
     ":exit / :quit - Terminate the session and close the CLI app"
     ":update (-f) - Update the application live against the newest version on the server. -f optional flag to grab the newest build instead of the newest starred build"
     ":home - Navigate to the home menu of the app"

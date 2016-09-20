@@ -1,9 +1,13 @@
-(ns commcare-cli.helpers)
+(ns commcare-cli.helpers
+  (:require [clojure.string :as string]))
+
+(defn long-str [& strings] (string/join "\n" strings))
 
 (defn clear-view []
   (doall
     (map (fn [x] (println " ")) (range 5))))
 
+;; String Integer -> Boolean
 (defn validate-number-input [user-input max-number]
   (try
     (let [i (Integer/parseInt user-input)]
@@ -22,13 +26,14 @@
              (java.io.StringReader. xml))
         writer (java.io.StringWriter.)
         out (javax.xml.transform.stream.StreamResult. writer)
-        transformer (.newTransformer 
+        transformer (.newTransformer
                       (javax.xml.transform.TransformerFactory/newInstance))]
-    (.setOutputProperty transformer 
+    (.setOutputProperty transformer
                         javax.xml.transform.OutputKeys/INDENT "yes")
-    (.setOutputProperty transformer 
+    ;; is the following needed?
+    (.setOutputProperty transformer
                         "{http://xml.apache.org/xslt}indent-amount" "2")
-    (.setOutputProperty transformer 
+    (.setOutputProperty transformer
                         javax.xml.transform.OutputKeys/METHOD "xml")
     (.transform transformer in out)
     (println (-> out .getWriter .toString))))

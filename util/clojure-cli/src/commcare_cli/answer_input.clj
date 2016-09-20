@@ -41,7 +41,7 @@
     (if (not (nil? choices))
       (if (and (string/blank? user-input) (= Constants/CONTROL_SELECT_MULTI question-type))
         (get-selected-choices-string entry-prompt)
-        (let [index (helpers/validate-number-input user-input choices)]
+        (let [index (helpers/validate-number-input user-input (count choices))]
           (cond (= Constants/CONTROL_SELECT_ONE question-type) (.getValue (nth choices index))
                 ;; TODO: does this let you select multiple things?
                 (= Constants/CONTROL_SELECT_MULTI question-type) (.getValue (nth choices index)))))
