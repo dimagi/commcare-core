@@ -31,9 +31,10 @@ public class JsonActionUtils {
      * @return The JSON representation of the updated form tree
      */
     public static JSONObject deleteRepeatToJson(FormEntryController controller,
-                                                FormEntryModel model, String formIndexString) {
+                                                FormEntryModel model, String repeatIndexString, String formIndexString) {
         FormIndex formIndex = indexFromString(formIndexString, model.getForm());
-        controller.deleteRepeat(formIndex);
+        controller.jumpToIndex(formIndex);
+        controller.deleteRepeat(Integer.parseInt(repeatIndexString));
         return getCurrentJson(controller, model);
     }
 
@@ -95,11 +96,11 @@ public class JsonActionUtils {
         }
         int result = controller.answerQuestion(prompt.getIndex(), answerData);
         if (result == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY) {
-            ret.put(ApiConstants.RESPONSE_STATUS_KEY, "error");
+            ret.put(ApiConstants.RESPONSE_STATUS_KEY, "validation-error");
             ret.put(ApiConstants.ERROR_TYPE_KEY, "required");
         } else if (result == FormEntryController.ANSWER_CONSTRAINT_VIOLATED) {
-            ret.put(ApiConstants.RESPONSE_STATUS_KEY, "error");
-            ret.put(ApiConstants.ERROR_TYPE_KEY, "restraint");
+            ret.put(ApiConstants.RESPONSE_STATUS_KEY, "validation-error");
+            ret.put(ApiConstants.ERROR_TYPE_KEY, "constraint");
             ret.put(ApiConstants.ERROR_REASON_KEY, prompt.getConstraintText());
         } else if (result == FormEntryController.ANSWER_OK) {
             ret.put(ApiConstants.QUESTION_TREE_KEY, walkToJSON(model, controller));
@@ -119,9 +120,7 @@ public class JsonActionUtils {
      */
     public static JSONObject questionAnswerToJson(FormEntryController controller,
                                                   FormEntryModel model, String answer, String index) {
-
         FormIndex formIndex = indexFromString(index, model.getForm());
-
         FormEntryPrompt prompt = model.getQuestionPrompt(formIndex);
         return questionAnswerToJson(controller, model, answer, prompt);
     }
@@ -179,6 +178,11 @@ public class JsonActionUtils {
         FormIndex ret = reduceFormIndex(list, null);
         ret.assignRefs(form);
         return ret;
+    }
+
+    public static int getQuestionType(FormEntryModel model, String stringIndex, FormDef form){
+        FormIndex index = indexFromString(stringIndex, form);
+        return model.getEvent(index);
     }
 
     /**
