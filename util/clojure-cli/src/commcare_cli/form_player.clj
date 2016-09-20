@@ -1,28 +1,21 @@
 (ns commcare-cli.form_player
   (:require [commcare-cli.helpers :as helpers]
             [commcare-cli.repl :as repl]
+            [commcare-cli.answer_input :as answer]
             [clojure.stacktrace :as st]
             [clojure.string :as string])
-  (:import [java.io FileInputStream BufferedInputStream FileNotFoundException]
-           [org.commcare.util CommCareConfigEngine]
-           [org.commcare.util.cli MenuScreen EntityScreen]
-           [org.commcare.core.parse ParseUtils]
-           [org.javarosa.core.util.externalizable LivePrototypeFactory]
-           [org.javarosa.core.services.locale Localization]
-           [org.javarosa.core.services.storage StorageManager]
+  (:import [java.io IOException]
            [org.javarosa.core.model Constants]
-           [org.javarosa.core.model.data AnswerDataFactory SelectMultiData UncastData]
+           [org.javarosa.core.model.data SelectMultiData]
            [org.javarosa.core.model.condition EvaluationContext]
-           [org.javarosa.core.model.instance FormInstance]
            [org.javarosa.core.model.trace StringEvaluationTraceSerializer]
            [org.javarosa.engine XFormEnvironment]
-           [org.javarosa.form.api FormEntrySession FormEntryController 
+           [org.javarosa.form.api FormEntrySession FormEntryController
             FormEntrySessionReplayer FormEntrySessionReplayer$ReplayError]
+           [org.javarosa.model.xform XFormSerializingVisitor]
            [org.javarosa.xpath XPathNodeset XPathParseTool]
            [org.javarosa.xpath.expr XPathFuncExpr]
-           [org.javarosa.xpath.parser XPathSyntaxException]
-           [org.commcare.session SessionFrame]
-           [org.commcare.util.mocks CLISessionWrapper MockUserDataSandbox]))
+           [org.javarosa.xpath.parser XPathSyntaxException]))
 
 (def debug-mode? (atom false))
 
@@ -33,19 +26,11 @@
     ") "
     choice-text))
 
-;; FormEntryPrompt [List-of SelectChoice] -> [List-of SelectChoice]
-(defn get-selected-choices [entry-prompt choices]
-  (let [raw-answer-data (.getAnswerValue entry-prompt)]
-    (if (nil? raw-answer-data)
-      '()
-      (let [selections (.cast (SelectMultiData.) (.uncast raw-answer-data))]
-        (filter (fn [choice] (.isInSelection selections (.getValue choice))) choices)))))
-
 (defn show-choices [entry-prompt choices]
   (let [is-multi-select? (= Constants/CONTROL_SELECT_MULTI (.getControlType entry-prompt))
         indices (range (count choices))
         choices-text (map (fn [c] (.getSelectChoiceText entry-prompt c)) choices)
-        selected-choices (get-selected-choices entry-prompt choices)
+        selected-choices (answer/get-selected-choices entry-prompt choices)
         is-selected? (map (fn [c] (some #{c} selected-choices)) choices)]
     (doall
       (map
@@ -66,7 +51,6 @@
   (println "Add new repeat?")
   (println "1) Yes, add a new repeat group")
   (println "2) No, continue to the next question"))
-
 
 ;; FormEntryController [FormEntryController -> None] -> None
 (defn show-event [entry-controller step-func]
@@ -94,6 +78,7 @@
       (println "No display logic defined")
       (println debug-info))))
 
+;; FormEntryController String -> NavAction
 (defn replay-entry-session [entry-controller command]
   (if (string/blank? command)
     (println "Invalid command, please provide session string to replay")
@@ -101,11 +86,11 @@
       (do (FormEntrySessionReplayer/tryReplayingFormEntry
             entry-controller
             (FormEntrySession/fromString command))
-          false)
+          :forward)
       (catch FormEntrySessionReplayer$ReplayError e
         (println "Error replaying form: " (.getMessage e))
         (println "Aborting form entry")
-        true))))
+        :exit))))
 
 (defn get-eval-ctx [entry-model in-debug-mode?]
   (let [pre-eval-ctx (.getEvaluationContext (.getForm entry-model))
@@ -142,107 +127,63 @@
       (repl/start-repl (partial eval-expr entry-controller @debug-mode?))
       (eval-expr entry-controller input @debug-mode?))))
 
+;; FormEntryController String -> NavAction
+;; where NavAction is one of [:forward :back :exit :finish]
 (defn process-command [entry-controller command]
   (cond
-    (= command "next") (do (.stepToNextEvent entry-controller) true)
-    (= command "back") (do (.stepToPreviousEvent entry-controller) true)
-    (= command "quit") false ;; TODO
-    (= command "cancel") false ;; TODO
-    (= command "finish") false ;; TODO
-    (= command "print") false ;; TODO
+    (= command "next") (do (.stepToNextEvent entry-controller) :forward)
+    (= command "back") (do (.stepToPreviousEvent entry-controller) :back)
+    (= command "quit") :exit
+    (= command "cancel") :exit
+    (= command "finish") :finish
+    (= command "print") :forward
     (string/starts-with? command "eval") (do (eval-mode
                                                entry-controller
                                                (subs command 4))
-                                             true)
+                                             :forward)
     (string/starts-with? command "replay") (replay-entry-session
                                              (string/trim (subs command 6)))
-    (= command "entry-session") (println (.getFormEntrySessionString entry-controller))
-    (= command "relevant") (display-relevant (.getModel entry-controller))
-    (= command "debug") (do (swap! debug-mode? not @debug-mode?)
-                            (println "Expression debuggion: "
-                                     (if @debug-mode? "ENABLED" "DISABLED")))
-    :else (println "Invalid command: " command)
-  ))
+    (= command "entry-session") (doall
+                                  (println (.getFormEntrySessionString entry-controller))
+                                  :forward)
+    (= command "relevant") (doall
+                             (display-relevant (.getModel entry-controller))
+                             :forward)
+    (= command "debug") (doall
+                          (swap! debug-mode? not @debug-mode?)
+                          (println "Expression debuggion: "
+                                   (if @debug-mode? "ENABLED" "DISABLED"))
+                          :forward)
+    :else (doall (println "Invalid command: " command) :forward)))
 
-(defn validate-number-input [user-input max-number]
-  (try
-    (let [i (Integer/parseInt user-input)]
-      (if (or (< i 1) (> i max-number))
-        (doall
-          (println "Enter a number between 1 and " max-number)
-          -1)
-        (- i 1)))
-    (catch NumberFormatException e
-      (doall
-        (println "Enter a number between 1 and " max-number)
-        -1))))
+;; FormEntryController -> (or String Nil)
+(defn process-form [entry-controller]
+  (let [form (.getForm (.getModel entry-controller))]
+    (.postProcessInstance form)
+    (helpers/clear-view)
+    (try (let [instance (.serializeInstance (XFormSerializingVisitor.) (.getInstance form))]
+           (println instance)
+           instance)
+         (catch IOException e 
+           (doall (println "Error serializing XForm")
+                  nil)))))
 
-(defn set-question-answer [entry-controller string-value]
-  (try
-    (let [entry-prompt (.getQuestionPrompt (.getModel entry-controller))
-          value (.cast (AnswerDataFactory/template
-                         (.getControlType entry-prompt)
-                         (.getDataType entry-prompt))
-                       (UncastData. string-value))
-          response (.answerQuestion entry-controller value)]
-      (cond
-        (= response FormEntryController/ANSWER_OK) (.stepToNextEvent entry-controller)
-        (= response FormEntryController/ANSWER_REQUIRED_BUT_EMPTY) (println "Answer is required")
-        (= response FormEntryController/ANSWER_CONSTRAINT_VIOLATED) (println (.getConstraintText entry-controller))))
-    (catch Exception e
-      (println (.getMessage e)))))
-
-(defn get-selected-choices-string [entry-prompt]
-  (let [choices (.getSelectChoices entry-prompt)
-        selections (get-selected-choices entry-prompt choices)]
-    (.getString (.uncast (SelectMultiData. selections)))))
-
-(defn process-input [entry-controller user-input]
-  (let [entry-prompt (.getQuestionPrompt (.getModel entry-controller))
-        question-type (.getControlType entry-prompt)
-        choices (.getSelectChoices entry-prompt)]
-    (if (not (nil? choices))
-      (if (and (string/blank? user-input) (= Constants/CONTROL_SELECT_MULTI question-type))
-        (get-selected-choices-string entry-prompt)
-        (let [index (validate-number-input user-input choices)]
-          (cond (= Constants/CONTROL_SELECT_ONE question-type) (.getValue (nth choices index))
-                ;; TODO: does this let you select multiple things?
-                (= Constants/CONTROL_SELECT_MULTI question-type) (.getValue (nth choices index)))))
-      user-input)))
-
-(defn answer-question-event [entry-controller user-input]
-    (let [string-value (process-input entry-controller user-input)]
-      (set-question-answer entry-controller string-value)
-      true))
-
-(defn create-new-repeat [entry-controller user-input]
-  (let [i (validate-number-input user-input 2)]
-    (cond
-      (= 1 i) (doto entry-controller (.newRepeat) (.stepToNextEvent))
-      (= 2 i) (.stepToNextEvent entry-controller))))
-
-(defn answer-question [entry-controller user-input]
-  (let [event (.getEvent (.getModel entry-controller))]
-    (cond
-      (= event FormEntryController/EVENT_BEGINNING_OF_FORM) (do (.stepToNextEvent entry-controller) true)
-      (= event FormEntryController/EVENT_END_OF_FORM) false ;; TODO mProcessOnExit = true;
-      (= event FormEntryController/EVENT_QUESTION) (answer-question-event entry-controller user-input)
-      (= event FormEntryController/EVENT_REPEAT) false 
-      (= event FormEntryController/EVENT_REPEAT_JUNCTURE) false
-      (= event FormEntryController/EVENT_PROMPT_NEW_REPEAT) (do (create-new-repeat entry-controller user-input) true)
-      :else (doall (println "Bad state; quitting") false))))
-
-(defn process-loop [entry-controller]
+;; FormEntryController Boolean -> (or String Nil)
+(defn process-loop [entry-controller forward?]
   (show-event entry-controller
-              ;; TODO: detect when user steps back w/ ':back'
-              (fn [entry-controller] (.stepToNextEvent entry-controller)))
-  (let [user-input (read-line)]
-    (when (if (string/starts-with? user-input ":")
-            (process-command entry-controller (subs user-input 1))
-            (answer-question entry-controller user-input))
-      (recur entry-controller))))
+              (fn [entry-controller] (if forward? 
+                                       (.stepToNextEvent entry-controller)
+                                       (.stepToPreviousEvent entry-controller))))
+  (let [user-input (read-line)
+        next-action (if (string/starts-with? user-input ":")
+                      (process-command entry-controller (subs user-input 1))
+                      (answer/answer-question entry-controller user-input))]
+    (cond (or (= next-action :forward) (= next-action :back)) (recur entry-controller (= next-action :forward))
+          (= next-action :finish) (process-form entry-controller)
+          (= next-action :exit) (doall (println "Exit without saving")
+                                       nil))))
 
-;; FormDef CommCareSession String String -> None
+;; FormDef CommCareSession String String -> (or String Nil)
 (defn play [form-def session locale today-date]
   (let [env (XFormEnvironment. form-def)]
     (when (not (nil? locale))
@@ -251,5 +192,5 @@
       (println today-date)
       (.setToday env today-date))
     (let [entry-controller (.setup env (.getIIF session))]
-      (process-loop entry-controller))))
+      (process-loop entry-controller true))))
 

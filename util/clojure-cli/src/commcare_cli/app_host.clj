@@ -1,18 +1,20 @@
 (ns commcare-cli.app_host
   (:require [clojure.tools.cli :as cli]
             [clojure.string :as string]
+            [clojure.stacktrace :as st]
             [commcare-cli.form_player :as form-player]
             [commcare-cli.helpers :as helpers])
-  (:import [java.io FileInputStream BufferedInputStream FileNotFoundException]
+  (:import [java.io ByteArrayInputStream BufferedInputStream FileInputStream FileNotFoundException]
+           [org.commcare.core.parse CommCareTransactionParserFactory ParseUtils]
+           [org.commcare.data.xml DataModelPullParser]
+           [org.commcare.session SessionFrame]
            [org.commcare.util CommCareConfigEngine]
            [org.commcare.util.cli MenuScreen EntityScreen]
-           [org.commcare.core.parse ParseUtils]
+           [org.commcare.util.mocks CLISessionWrapper MockUserDataSandbox]
            [org.javarosa.core.util.externalizable LivePrototypeFactory]
            [org.javarosa.core.services.locale Localization]
            [org.javarosa.core.services.storage StorageManager]
-           [org.javarosa.core.model.instance FormInstance]
-           [org.commcare.session SessionFrame]
-           [org.commcare.util.mocks CLISessionWrapper MockUserDataSandbox]))
+           [org.javarosa.core.model.instance FormInstance]))
 
 (defrecord App [session engine sandbox])
 
@@ -26,6 +28,7 @@
     ":update (-f) - Update the application live against the newest version on the server. -f optional flag to grab the newest build instead of the newest starred build"
     ":home - Navigate to the home menu of the app"
     ":lang <lang> - change the language to <lang> (e.g. :lang en)"
+    ":today <date> - change the date returned by today()/now() (e.g. :today 2015-07-25). ':today' resets to today's date"
     ":stack - Show the current session frame stack"
     ":help - Show this message"))
 
@@ -115,6 +118,7 @@
             (println HELP_MESSAGE)
             :stay)))))
 
+;; Screen App -> Boolean
 (defn process-screen [screen app]
   (helpers/clear-view)
   (println (.getWrappedDisplaytitle screen (:sandbox app) (.getPlatform (:engine app))))
@@ -136,6 +140,15 @@
   (.clearVolitiles session)
   (.finishExecuteAndPop session (.getEvaluationContext session)))
 
+;; Sandbox String -> Boolean
+(defn process-form-result [sandbox form-instance]
+  (try
+    (let [stream (ByteArrayInputStream. (.getBytes form-instance))]
+      (.parse (DataModelPullParser. stream (CommCareTransactionParserFactory. sandbox) true true)))
+    (catch Exception e (doall 
+                         (println "Error processing the form result: " (.getMessage e))
+                         (st/print-stack-trace e)))))
+
 ;; App -> Boolean
 (defn form-entry [app]
   (let [session (:session app)
@@ -143,16 +156,25 @@
         locale nil] ; TODO: pass in locale
     (if (nil? form-xmlns)
       (finish-session)
-      (form-player/play
-        (.loadFormByXmlns (:engine app) form-xmlns)
-        session
-        locale
-        @today-date))))
+      (let [form-result (form-player/play
+                          (.loadFormByXmlns (:engine app) form-xmlns)
+                          session
+                          locale
+                          @today-date)
+            form-not-cancelled? (not (nil? form-result))]
+        (when (and form-not-cancelled?
+                   (process-form-result (:sandbox app) form-result))
+          (finish-session))
+        form-not-cancelled?))))
 
 (defn nav-loop [app]
-  (let [next-screen (get-next-screen (:session app))]
+  (let [session (:session app)
+        next-screen (get-next-screen session)]
     (if (nil? next-screen)
-      (form-entry app)
+      (do (when (not (form-entry app))
+            ;; form cancelled or errored out
+            (.stepBack session (.getEvaluationContext session)))
+          (recur app))
       (do
         (.init next-screen (:session app))
         (if (.shouldBeSkipped next-screen)
