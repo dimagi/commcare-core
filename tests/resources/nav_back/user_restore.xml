@@ -1,0 +1,34 @@
+<OpenRosaResponse xmlns="http://openrosa.org/http/response">
+    <message nature="ota_restore_success">Successfully restored account pm!</message>
+    <Sync xmlns="http://commcarehq.org/sync">
+        <restore_id>restoreid</restore_id>
+    </Sync>
+    <Registration xmlns="http://openrosa.org/user/registration">
+        <username>test</username>
+        <password>
+            test
+        </password>
+        <uuid>458e910da195dfe0ffd40980273bab5e</uuid>
+        <date>2016-09-15</date>
+        <user_data>
+            <data key="commcare_first_name">Will</data>
+            <data key="commcare_last_name">Pride</data>
+            <data key="commcare_phone_number"/>
+        </user_data>
+    </Registration>
+    <fixture id="user-groups" user_id="test_user_id">
+        <groups/>
+    </fixture>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="test_id" date_modified="2016-09-15T11:25:46.491000Z" user_id="test_user_id">
+        <create>
+            <case_type>test</case_type>
+            <case_name>Will</case_name>
+            <owner_id>test_owner_id</owner_id>
+        </create>
+        <update>
+            <date_opened>2016-09-15</date_opened>
+            <member_type_icons>🚼</member_type_icons>
+            <next_visit_date>2016-09-30</next_visit_date>
+        </update>
+    </case>
+</OpenRosaResponse>

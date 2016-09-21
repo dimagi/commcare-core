@@ -31,10 +31,17 @@ public class InvalidStructureException extends Exception {
         super(message);
     }
 
-
     public static InvalidStructureException readableInvalidStructureException(String message, KXmlParser parser) {
-        String humanReadableMessage =
-                message + InvalidStorageStructureException.buildParserMessage(parser);
+        String humanReadableMessage = message + buildParserMessage(parser);
         return new InvalidStructureException(humanReadableMessage);
+    }
+
+    private static String buildParserMessage(KXmlParser parser) {
+        String prefix = parser.getPrefix();
+        if (prefix != null) {
+            return ". Source: <" + prefix + ":" + parser.getName() + "> tag in namespace: " + parser.getNamespace();
+        } else {
+            return ". Source: <" + parser.getName() + ">";
+        }
     }
 }

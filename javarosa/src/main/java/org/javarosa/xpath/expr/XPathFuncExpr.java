@@ -9,7 +9,6 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.model.utils.GeoPointUtils;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.MathUtils;
@@ -661,7 +660,7 @@ public class XPathFuncExpr extends XPathExpression {
     }
 
     /**
-     * convert a value to a number using xpath's type conversion rules (note that xpath itself makes
+     * Convert a value to a number using xpath's type conversion rules (note that xpath itself makes
      * no distinction between integer and floating point numbers)
      */
     public static Double toNumeric(Object o) {
@@ -674,24 +673,18 @@ public class XPathFuncExpr extends XPathExpression {
         } else if (o instanceof Double) {
             val = (Double)o;
         } else if (o instanceof String) {
-            /* annoying, but the xpath spec doesn't recognize scientific notation, or +/-Infinity
-             * when converting a string to a number
-             */
-
-            String s = (String)o;
-            double d;
+            String s = ((String)o).trim();
+            if (checkForInvalidNumericOrDatestringCharacters(s)) {
+                return new Double(Double.NaN);
+            }
             try {
-                s = s.trim();
-                for (int i = 0; i < s.length(); i++) {
-                    char c = s.charAt(i);
-                    if (c != '-' && c != '.' && (c < '0' || c > '9'))
-                        throw new NumberFormatException();
-                }
-
-                d = Double.parseDouble(s);
-                val = new Double(d);
+                val = new Double(Double.parseDouble(s));
             } catch (NumberFormatException nfe) {
-                val = new Double(Double.NaN);
+                try {
+                    val = attemptDateConversion(s);
+                } catch (XPathTypeMismatchException e) {
+                    val = new Double(Double.NaN);
+                }
             }
         } else if (o instanceof Date) {
             val = new Double(DateUtils.daysSinceEpoch((Date)o));
@@ -703,6 +696,29 @@ public class XPathFuncExpr extends XPathExpression {
             return val;
         } else {
             throw new XPathTypeMismatchException("converting '" + (o == null ? "null" : o.toString()) + "' to numeric");
+        }
+    }
+
+    /**
+     * The xpath spec doesn't recognize scientific notation, or +/-Infinity when converting a
+     * string to a number
+     */
+    private static boolean checkForInvalidNumericOrDatestringCharacters(String s) {
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c != '-' && c != '.' && (c < '0' || c > '9')) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static Double attemptDateConversion(String s) {
+        Object o = toDate(s);
+        if (o instanceof Date) {
+            return toNumeric(o);
+        } else {
+            throw new XPathTypeMismatchException();
         }
     }
 
@@ -877,7 +893,7 @@ public class XPathFuncExpr extends XPathExpression {
         String s1 = (String)unpack(o1);
         String s2 = ((String)o2).trim();
 
-        return new Boolean((" " + s1 + " ").contains(" " + s2 + " "));
+        return (" " + s1 + " ").contains(" " + s2 + " ");
     }
 
     public static XPathException generateBadArgumentMessage(String functionName, int argNumber, String type, Object endValue) {
@@ -934,12 +950,12 @@ public class XPathFuncExpr extends XPathExpression {
     /**
      * sum the values in a nodeset; each element is coerced to a numeric value
      */
-    public static Double sum(Object argVals[]) {
+    private static Double sum(Object argVals[]) {
         double sum = 0.0;
-        for (int i = 0; i < argVals.length; i++) {
-            sum += toNumeric(argVals[i]).doubleValue();
+        for (Object argVal : argVals) {
+            sum += toNumeric(argVal);
         }
-        return new Double(sum);
+        return sum;
     }
 
     /**
@@ -947,18 +963,18 @@ public class XPathFuncExpr extends XPathExpression {
      */
     private static Object max(Object[] argVals) {
         double max = Double.MIN_VALUE;
-        for (int i = 0; i < argVals.length; i++) {
-            max = Math.max(max, toNumeric(argVals[i]).doubleValue());
+        for (Object argVal : argVals) {
+            max = Math.max(max, toNumeric(argVal));
         }
-        return new Double(max);
+        return max;
     }
 
     private static Object min(Object[] argVals) {
         double min = Double.MAX_VALUE;
-        for (int i = 0; i < argVals.length; i++) {
-            min = Math.min(min, toNumeric(argVals[i]).doubleValue());
+        for (Object argVal : argVals) {
+            min = Math.min(min, toNumeric(argVal));
         }
-        return new Double(min);
+        return min;
     }
 
     /**
@@ -1433,7 +1449,12 @@ public class XPathFuncExpr extends XPathExpression {
         }
 
         try {
-            Double ret = new Double(Double.parseDouble(attrValue));
+            // Don't process strings with scientific notation or +/- Infinity as doubles
+            if (checkForInvalidNumericOrDatestringCharacters(attrValue)) {
+                mDoubleParseCache.register(attrValue, new Double(Double.NaN));
+                return attrValue;
+            }
+            Double ret = Double.parseDouble(attrValue);
             mDoubleParseCache.register(attrValue, ret);
             return ret;
         } catch (NumberFormatException ife) {

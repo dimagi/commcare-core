@@ -39,6 +39,7 @@ import org.javarosa.xform.util.XFormAnswerDataSerializer;
 import org.javarosa.xpath.XPathConditional;
 
 import java.util.Enumeration;
+import java.util.Iterator;
 
 public class FormOverview {
     public static String overview (FormDef f) {
@@ -200,8 +201,8 @@ public class FormOverview {
         IConditionExpr expr = null;
 
         triggerLoop:
-        for (Enumeration<Triggerable> e = f.getTriggerables(); e.hasMoreElements();) {
-            Triggerable trig = e.nextElement();
+        for (Iterator<Triggerable> e = f.getTriggerables(); e.hasNext();) {
+            Triggerable trig = e.next();
             // Clayton Sims - Jun 1, 2009 : Not sure how legitimate this
             // cast is. It might work now, but break later.
             // Clayton Sims - Jun 24, 2009 : Yeah, that change broke things.

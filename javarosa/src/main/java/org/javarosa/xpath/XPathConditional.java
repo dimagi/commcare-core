@@ -25,7 +25,7 @@ import java.util.Vector;
 public class XPathConditional implements IConditionExpr {
     private XPathExpression expr;
     public String xpath; //not serialized!
-    public boolean hasNow; //indicates whether this XpathConditional contains the now() function (used for timestamping)
+    private boolean hasNow; //indicates whether this XpathConditional contains the now() function (used for timestamping)
 
     public XPathConditional(String xpath) throws XPathSyntaxException {
         hasNow = xpath.contains("now()");
@@ -41,6 +41,7 @@ public class XPathConditional implements IConditionExpr {
 
     }
 
+    @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         try {
             return XPathFuncExpr.unpack(expr.eval(model, evalContext));
@@ -55,14 +56,17 @@ public class XPathConditional implements IConditionExpr {
         }
     }
 
+    @Override
     public boolean eval(DataInstance model, EvaluationContext evalContext) {
         return XPathFuncExpr.toBoolean(evalRaw(model, evalContext)).booleanValue();
     }
 
+    @Override
     public String evalReadable(DataInstance model, EvaluationContext evalContext) {
         return XPathFuncExpr.toString(evalRaw(model, evalContext));
     }
 
+    @Override
     public Vector<TreeReference> evalNodeset(DataInstance model, EvaluationContext evalContext) {
         if (expr instanceof XPathPathExpr) {
             return ((XPathPathExpr)expr).evalRaw(model, evalContext).getReferences();
@@ -153,10 +157,12 @@ public class XPathConditional implements IConditionExpr {
         }
     }
 
+    @Override
     public int hashCode() {
         return expr.hashCode();
     }
 
+    @Override
     public boolean equals(Object o) {
         if (o instanceof XPathConditional) {
             XPathConditional cond = (XPathConditional)o;
@@ -166,20 +172,24 @@ public class XPathConditional implements IConditionExpr {
         }
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         expr = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged(), pf);
         hasNow = ExtUtil.readBool(in);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapTagged(expr));
         ExtUtil.writeBool(out, hasNow);
     }
 
+    @Override
     public String toString() {
         return "xpath[" + expr.toString() + "]";
     }
 
+    @Override
     public Vector<Object> pivot(DataInstance model, EvaluationContext evalContext) throws UnpivotableExpressionException {
         return expr.pivot(model, evalContext);
     }

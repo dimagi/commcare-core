@@ -4,9 +4,11 @@ import org.commcare.modern.session.SessionWrapper;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.mocks.MockUserDataSandbox;
-import org.javarosa.core.model.User;
-import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.test.FormParseInit;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
+import org.javarosa.form.api.FormEntryController;
 
 /**
  * A mock app is a quick test wrapper that makes it easy to start playing with a live instance
@@ -19,6 +21,7 @@ import org.javarosa.core.util.externalizable.LivePrototypeFactory;
  */
 public class MockApp {
     private final SessionWrapper mSessionWrapper;
+    private final String APP_BASE;
 
     /**
      * Creates and initializes a mockapp that is located at the provided Java Resource path.
@@ -30,21 +33,35 @@ public class MockApp {
         if(!(resourcePath.startsWith("/") && resourcePath.endsWith("/"))) {
             throw new IllegalArgumentException("Invalid resource path for a mock app " + resourcePath);
         }
+        APP_BASE = resourcePath;
         LivePrototypeFactory mPrototypeFactory = setupStaticStorage();
         MockUserDataSandbox mSandbox = new MockUserDataSandbox(mPrototypeFactory);
         CommCareConfigEngine mEngine = new CommCareConfigEngine(mPrototypeFactory);
 
-        mEngine.installAppFromReference("jr://resource" + resourcePath + "profile.ccpr");
+        mEngine.installAppFromReference("jr://resource" + APP_BASE + "profile.ccpr");
         mEngine.initEnvironment();
-        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream(resourcePath + "user_restore.xml"), mSandbox);
+        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream(APP_BASE + "user_restore.xml"), mSandbox);
 
         //If we parsed in a user, arbitrarily log one in.
-        for(IStorageIterator<User> iterator = mSandbox.getUserStorage().iterate(); iterator.hasMore();) {
-            mSandbox.setLoggedInUser(iterator.nextRecord());
-            break;
-        }
+        mSandbox.setLoggedInUser(mSandbox.getUserStorage().read(0));
 
         mSessionWrapper = new SessionWrapper(mEngine.getPlatform(), mSandbox);
+    }
+
+    /**
+     * Loads the provided form and properly initializes external data instances,
+     * such as the casedb and commcare session.
+     */
+    public FormParseInit loadAndInitForm(String formFileInApp) {
+        FormParseInit fpi = new FormParseInit(APP_BASE + formFileInApp);
+        FormEntryController fec = fpi.getFormEntryController();
+        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+
+        FormDef fd = fpi.getFormDef();
+        // run initialization to ensure xforms-ready event and binds are
+        // triggered.
+        fd.initialize(true, mSessionWrapper.getIIF());
+        return fpi;
     }
 
 

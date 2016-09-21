@@ -52,6 +52,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
         Vector<Detail> subdetails = new Vector<>();
         Vector<DetailField> fields = new Vector<>();
         OrderedHashtable<String, String> variables = new OrderedHashtable<>();
+        String focusFunction = null;
 
         while (nextTagInBlock("detail")) {
             if ("lookup".equals(parser.getName().toLowerCase())) {
@@ -80,6 +81,19 @@ public class DetailParser extends CommCareElementParser<Detail> {
                 }
                 continue;
             }
+            if ("focus".equals(parser.getName().toLowerCase())) {
+                focusFunction = parser.getAttributeValue(null, "function");
+                if (focusFunction == null) {
+                    throw new InvalidStructureException("No function in focus declaration " + parser.getName(), parser);
+                }
+                try {
+                    XPathParseTool.parseXPath(focusFunction);
+                } catch (XPathSyntaxException e) {
+                    e.printStackTrace();
+                    throw new InvalidStructureException("Invalid XPath function " + focusFunction + ". " + e.getMessage(), parser);
+                }
+                continue;
+            }
             if (ActionParser.NAME_ACTION.equalsIgnoreCase(parser.getName())) {
                 actions.addElement(new ActionParser(parser).parse());
                 continue;
@@ -93,7 +107,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
         }
 
         return new Detail(id, title, nodeset, subdetails, fields, variables, actions, callout,
-                fitAcross, useUniformUnits, forceLandscapeView);
+                fitAcross, useUniformUnits, forceLandscapeView, focusFunction);
     }
 
     protected DetailParser getDetailParser() {

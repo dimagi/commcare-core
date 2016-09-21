@@ -98,11 +98,6 @@ public class PropertyManager implements IPropertyManager {
                 retVal = (String)value.elementAt(0);
             }
         }
-        if (retVal == null) {
-            //#if debug.output==verbose
-            System.out.println("Warning: Singular property request failed for property " + propertyName);
-            //#endif
-        }
         return retVal;
     }
 

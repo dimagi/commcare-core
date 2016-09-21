@@ -58,6 +58,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -2799,8 +2800,8 @@ public class XFormParser {
         Vector edges = new Vector();
 
         //build graph
-        for (Enumeration e = _f.refWithTriggerDependencies(); e.hasMoreElements(); ) {
-            TreeReference trigger = (TreeReference)e.nextElement();
+        for (Iterator<TreeReference> it = _f.refWithTriggerDependencies(); it.hasNext(); ) {
+            TreeReference trigger = it.next();
             if (!vertices.contains(trigger))
                 vertices.addElement(trigger);
 
