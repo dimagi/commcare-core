@@ -2,8 +2,7 @@
   (:require [commcare-cli.reader.simple-jline :as simple-jline]))
 
 (defn done-commands [eof]
-  #{eof 'quit 'exit '(quit) '(exit)
-    "quit" "(quit)" "exit" "(exit)"})
+  #{eof "" "quit" "(quit)" "exit" "(exit)"})
 
 (defn done? [eof expression]
   ((done-commands eof) expression))
@@ -27,13 +26,15 @@
           (process-func (first forms))
           (recur))))))
 
-(defn start-repl [process-func]
+;; [String -> None] String -> None
+(defn start-repl [process-func repl-name]
   (let [options {:read-input-line-fn
                  (fn [] (simple-jline/safe-read-line
                           {:no-jline true
                            :prompt-string ""}))
                  :read-line-fn (partial simple-jline/safe-read-line println)
-                 :process-func process-func}]
+                 :process-func process-func
+                 :history-file repl-name}]
     (run-repl options)
     (simple-jline/shutdown)))
 

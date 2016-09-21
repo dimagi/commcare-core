@@ -137,7 +137,7 @@
 (defn eval-mode [entry-controller command]
   (let [input (string/trim command)]
     (if (string/blank? input)
-      (repl/start-repl (partial eval-expr entry-controller @debug-mode?))
+      (repl/start-repl (partial eval-expr entry-controller @debug-mode?) ".eval")
       (eval-expr entry-controller @debug-mode? input))))
 
 ;; FormEntryController String -> NavAction
