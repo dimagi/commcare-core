@@ -180,7 +180,7 @@ public class TableBuilder {
 
     //sqlite doesn't like dashes
     public static String scrubName(String input) {
-        return input.replace("-", "_dash_").replace(".", "_dot_").replace("+", "_plus_");
+        return input.replace("-", "_");
     }
 
     public static byte[] toBlob(Externalizable externalizable){

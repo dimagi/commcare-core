@@ -81,7 +81,6 @@ sourceSets {
 }
 
 dependencies {
-
       compile 'kxml2:kxml2:2.3.0'
       compile group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0.1'
       compile files('javarosa/lib/regexp-me.jar')

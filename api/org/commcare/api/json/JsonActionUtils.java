@@ -62,9 +62,19 @@ public class JsonActionUtils {
      * @return The JSON representation of the question tree
      */
     public static JSONObject getCurrentJson(FormEntryController controller,
-                                            FormEntryModel model) {
+                                                 FormEntryModel model) {
         JSONObject ret = new JSONObject();
-        ret.put(ApiConstants.QUESTION_TREE_KEY, walkToJSON(model, controller));
+        ret.put(ApiConstants.QUESTION_TREE_KEY, getFullFormJSON(model, controller));
+        return ret;
+    }
+
+    // Similar to above, but get the questions for only one formIndex (OQPS)
+    public static JSONObject getCurrentJson(FormEntryController controller,
+                                            FormEntryModel model,
+                                            int formIndex) {
+        JSONObject ret = new JSONObject();
+        ret.put(ApiConstants.QUESTION_TREE_KEY, getOneQuestionPerScreenJSON(model, controller,
+                JsonActionUtils.indexFromString("" + formIndex, model.getForm())));
         return ret;
     }
 
@@ -103,7 +113,7 @@ public class JsonActionUtils {
             ret.put(ApiConstants.ERROR_TYPE_KEY, "constraint");
             ret.put(ApiConstants.ERROR_REASON_KEY, prompt.getConstraintText());
         } else if (result == FormEntryController.ANSWER_OK) {
-            ret.put(ApiConstants.QUESTION_TREE_KEY, walkToJSON(model, controller));
+            ret.put(ApiConstants.QUESTION_TREE_KEY, getFullFormJSON(model, controller));
             ret.put(ApiConstants.RESPONSE_STATUS_KEY, "accepted");
         }
         return ret;
@@ -250,11 +260,22 @@ public class JsonActionUtils {
         return ret;
     }
 
-    public static JSONArray walkToJSON(FormEntryModel fem, FormEntryController fec) {
+    public static JSONArray getFullFormJSON(FormEntryModel fem, FormEntryController fec) {
         JSONArray ret = new JSONArray();
-        FormIndex formIndex = FormIndex.createBeginningOfFormIndex();
-        Walker walker = new Walker(ret, formIndex, fec, fem);
+        Walker walker = new Walker(ret, FormIndex.createBeginningOfFormIndex(), fec, fem);
         walker.walk();
+        return ret;
+    }
+
+    public static JSONArray getOneQuestionPerScreenJSON(FormEntryModel fem, FormEntryController fec, FormIndex formIndex) {
+        FormEntryPrompt[] prompts = fec.getQuestionPrompts(formIndex);
+        JSONArray ret = new JSONArray();
+        for (FormEntryPrompt prompt: prompts) {
+            fem.setQuestionIndex(prompt.getIndex());
+            JSONObject obj = new JSONObject();
+            PromptToJson.parseQuestionType(fem, obj);
+            ret.put(obj);
+        }
         return ret;
     }
 }
