@@ -81,6 +81,7 @@ public class SelectChoice implements Externalizable {
         return this.isLocalizable;
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         isLocalizable = ExtUtil.readBool(in);
         setLabelInnerText(ExtUtil.nullIfEmpty(ExtUtil.readString(in)));
@@ -89,6 +90,7 @@ public class SelectChoice implements Externalizable {
         //index will be set by questiondef
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeBool(out, isLocalizable);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(labelInnerText));

@@ -893,7 +893,7 @@ public class XPathFuncExpr extends XPathExpression {
         String s1 = (String)unpack(o1);
         String s2 = ((String)o2).trim();
 
-        return new Boolean((" " + s1 + " ").contains(" " + s2 + " "));
+        return (" " + s1 + " ").contains(" " + s2 + " ");
     }
 
     public static XPathException generateBadArgumentMessage(String functionName, int argNumber, String type, Object endValue) {
@@ -950,12 +950,12 @@ public class XPathFuncExpr extends XPathExpression {
     /**
      * sum the values in a nodeset; each element is coerced to a numeric value
      */
-    public static Double sum(Object argVals[]) {
+    private static Double sum(Object argVals[]) {
         double sum = 0.0;
-        for (int i = 0; i < argVals.length; i++) {
-            sum += toNumeric(argVals[i]).doubleValue();
+        for (Object argVal : argVals) {
+            sum += toNumeric(argVal);
         }
-        return new Double(sum);
+        return sum;
     }
 
     /**
@@ -963,18 +963,18 @@ public class XPathFuncExpr extends XPathExpression {
      */
     private static Object max(Object[] argVals) {
         double max = Double.MIN_VALUE;
-        for (int i = 0; i < argVals.length; i++) {
-            max = Math.max(max, toNumeric(argVals[i]).doubleValue());
+        for (Object argVal : argVals) {
+            max = Math.max(max, toNumeric(argVal));
         }
-        return new Double(max);
+        return max;
     }
 
     private static Object min(Object[] argVals) {
         double min = Double.MAX_VALUE;
-        for (int i = 0; i < argVals.length; i++) {
-            min = Math.min(min, toNumeric(argVals[i]).doubleValue());
+        for (Object argVal : argVals) {
+            min = Math.min(min, toNumeric(argVal));
         }
-        return new Double(min);
+        return min;
     }
 
     /**
@@ -1449,7 +1449,12 @@ public class XPathFuncExpr extends XPathExpression {
         }
 
         try {
-            Double ret = new Double(Double.parseDouble(attrValue));
+            // Don't process strings with scientific notation or +/- Infinity as doubles
+            if (checkForInvalidNumericOrDatestringCharacters(attrValue)) {
+                mDoubleParseCache.register(attrValue, new Double(Double.NaN));
+                return attrValue;
+            }
+            Double ret = Double.parseDouble(attrValue);
             mDoubleParseCache.register(attrValue, ret);
             return ret;
         } catch (NumberFormatException ife) {
