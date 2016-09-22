@@ -22,6 +22,7 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -65,12 +66,12 @@ public class CommCareSession {
     /**
      * The current session frame data
      */
-    private SessionFrame frame;
+    protected SessionFrame frame;
 
     /**
      * The stack of pending Frames
      */
-    private final Stack<SessionFrame> frameStack;
+    private Stack<SessionFrame> frameStack;
 
     /**
      * Used by touchforms
@@ -338,22 +339,30 @@ public class CommCareSession {
     /**
      * When StackFrameSteps are parsed, those that are "datum" operations will be marked as type
      * "unknown". When we encounter a StackFrameStep of unknown type at runtime, we need to
-     * determine whether it should be interpreted as STATE_DATUM_COMPUTED or STATE_COMMAND_ID.
-     * This primarily affects the behavior of stepBack().
+     * determine whether it should be interpreted as STATE_DATUM_COMPUTED, STATE_COMMAND_ID,
+     * or STATE_DATUM_VAL This primarily affects the behavior of stepBack().
      *
      * The logic being employed is: If there is a previous step on the stack whose entries would
-     * have added this command, interpret it as a command. Otherwise, interpret it as a computed
-     * datum.
+     * have added this command, interpret it as a command. If there is an EntityDatum that
+     * was have added this as an entity selection, interpret this as a datum_val. O
+     * Otherwise, interpret it as a computed datum.
      */
     private String guessUnknownType(StackFrameStep popped) {
         String poppedId = popped.getId();
-        for (StackFrameStep stackFrameStep: frame.getSteps()) {
+        for (StackFrameStep stackFrameStep : frame.getSteps()) {
             String commandId = stackFrameStep.getId();
             Vector<Entry> entries = getEntriesForCommand(commandId);
-            for (Entry entry: entries) {
+            for (Entry entry : entries) {
                 String childCommand = entry.getCommandId();
                 if (childCommand.equals(poppedId)) {
                     return SessionFrame.STATE_COMMAND_ID;
+                }
+                Vector<SessionDatum> data = entry.getSessionDataReqs();
+                for (SessionDatum datum : data) {
+                    if (datum instanceof EntityDatum &&
+                            datum.getDataId().equals(poppedId)) {
+                        return SessionFrame.STATE_DATUM_VAL;
+                    }
                 }
             }
         }
@@ -466,7 +475,8 @@ public class CommCareSession {
         for (StackFrameStep step : frame.getSteps()) {
             if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) ||
                     SessionFrame.STATE_UNKNOWN.equals(step.getType()) &&
-                    guessUnknownType(step).equals(SessionFrame.STATE_DATUM_COMPUTED)) {
+                            (guessUnknownType(step).equals(SessionFrame.STATE_DATUM_COMPUTED)
+                            || guessUnknownType(step).equals(SessionFrame.STATE_DATUM_VAL))) {
                 String key = step.getId();
                 String value = step.getValue();
                 if (key != null && value != null) {
@@ -884,6 +894,14 @@ public class CommCareSession {
 
         CommCareSession restoredSession = new CommCareSession(ccPlatform);
         restoredSession.frame = restoredFrame;
+        Vector<SessionFrame> frames = (Vector<SessionFrame>) ExtUtil.read(inputStream, new ExtWrapList(SessionFrame.class));
+        Stack<SessionFrame> stackFrames = new Stack<>();
+        while(!frames.isEmpty()){
+            SessionFrame lastElement = frames.lastElement();
+            frames.remove(lastElement);
+            stackFrames.push(lastElement);
+        }
+        restoredSession.setFrameStack(stackFrames);
         restoredSession.syncState();
 
         return restoredSession;
@@ -891,5 +909,14 @@ public class CommCareSession {
 
     public void serializeSessionState(DataOutputStream outputStream) throws IOException {
         frame.writeExternal(outputStream);
+        ExtUtil.write(outputStream, new ExtWrapList(frameStack));
+    }
+
+    public void setFrameStack(Stack<SessionFrame> frameStack) {
+        this.frameStack = frameStack;
+    }
+
+    public Stack<SessionFrame> getFrameStack(){
+        return this.frameStack;
     }
 }
