@@ -90,9 +90,7 @@
   (if (= user-input ":exit")
     :quit
       (let [session (:session app)
-            args (string/split user-input #" ")
-            command (nth args 0)
-            arg (if (> (count args) 1) (nth args 1) nil)]
+           [command arg] (map string/trim (string/split user-input #" " 2))]
         (cond
           (= command ":update")
           (do (println "TODO: app implement update")

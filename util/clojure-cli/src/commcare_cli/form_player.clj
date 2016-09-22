@@ -134,64 +134,68 @@
       (st/print-stack-trace e)
       (println "Eval error: " (.getMessage e)))))
 
-(defn eval-mode [entry-controller command]
-  (let [input (string/trim command)]
-    (if (string/blank? input)
-      (repl/start-repl (partial eval-expr entry-controller @debug-mode?) ".eval")
-      (eval-expr entry-controller @debug-mode? input))))
+(defn eval-mode [entry-controller input]
+  (if (string/blank? input)
+    (repl/start-repl (partial eval-expr entry-controller @debug-mode?) ".eval")
+    (eval-expr entry-controller @debug-mode? input)))
+
+;; FormDef -> (or Byte[] Nil)
+(defn get-main-instance [form-def]
+  (try (let [instance (.serializeInstance (XFormSerializingVisitor.) (.getInstance form-def))]
+         (helpers/ppxml (String. instance))
+         instance)
+       (catch IOException e
+         (doall (println "Error serializing XForm")
+                nil))))
+
+(defn print-instance [entry-controller instance]
+  (if (nil? instance)
+    (get-main-instance (.getForm (.getModel entry-controller)))
+    (println "TODO: implement print instance for non-main instance")))
 
 ;; FormEntryController String -> NavAction
 ;; where NavAction is one of [:forward :back :exit :finish]
-(defn process-command [entry-controller command]
-  (cond
-    (= command "help") (do (println HELP_MESSAGE) :forward)
-    (= command "next") (do (.stepToNextEvent entry-controller) :forward)
-    (= command "back") (do (.stepToPreviousEvent entry-controller) :back)
-    (= command "quit") :exit
-    (= command "cancel") :exit
-    (= command "finish") :finish
-    (= command "print") :forward ;; TODO
-    (string/starts-with? command "eval") (do (eval-mode
-                                               entry-controller
-                                               (subs command 4))
-                                             :forward)
-    (string/starts-with? command "replay") (replay-entry-session
-                                             entry-controller
-                                             (string/trim (subs command 6)))
-    (= command "entry-session") (do
-                                  (println (.getFormEntrySessionString entry-controller))
-                                  :forward)
-    (= command "relevant") (do
-                             (display-relevant (.getModel entry-controller))
+(defn process-command [entry-controller user-input]
+  (let [[command arg] (map string/trim (string/split user-input #" " 2))]
+    (cond
+      (= command ":help") (do (println HELP_MESSAGE) :forward)
+      (= command ":next") (do (.stepToNextEvent entry-controller) :forward)
+      (= command ":back") (do (.stepToPreviousEvent entry-controller) :back)
+      (= command ":quit") :exit
+      (= command ":cancel") :exit
+      (= command ":finish") :finish
+      (= command ":print") (do (print-instance entry-controller arg) :forward)
+      (= command ":eval") (do (eval-mode entry-controller arg) :forward)
+      (= command ":replay") (replay-entry-session entry-controller arg)
+      (= command ":entry-session") (do
+                                     (println (.getFormEntrySessionString entry-controller))
+                                     :forward)
+      (= command ":relevant") (do
+                                (display-relevant (.getModel entry-controller))
+                                :forward)
+      (= command ":debug") (do
+                             (swap! debug-mode? not @debug-mode?)
+                             (println "Expression debuggion: "
+                                      (if @debug-mode? "ENABLED" "DISABLED"))
                              :forward)
-    (= command "debug") (do
-                          (swap! debug-mode? not @debug-mode?)
-                          (println "Expression debuggion: "
-                                   (if @debug-mode? "ENABLED" "DISABLED"))
-                          :forward)
-    :else (do (println "Invalid command: " command) :forward)))
+      :else (do (println "Invalid command: " command) :forward))))
 
 ;; FormEntryController -> (or Byte[] Nil)
 (defn process-form [entry-controller]
   (let [form (.getForm (.getModel entry-controller))]
     (.postProcessInstance form)
     (helpers/clear-view)
-    (try (let [instance (.serializeInstance (XFormSerializingVisitor.) (.getInstance form))]
-           (helpers/ppxml (String. instance))
-           instance)
-         (catch IOException e 
-           (doall (println "Error serializing XForm")
-                  nil)))))
+    (get-main-instance form)))
 
 ;; FormEntryController Boolean -> (or Byte[] Nil)
 (defn process-loop [entry-controller forward?]
   (show-event entry-controller
-              (fn [entry-controller] (if forward? 
+              (fn [entry-controller] (if forward?
                                        (.stepToNextEvent entry-controller)
                                        (.stepToPreviousEvent entry-controller))))
   (let [user-input (read-line)
         next-action (if (string/starts-with? user-input ":")
-                      (process-command entry-controller (subs user-input 1))
+                      (process-command entry-controller user-input)
                       (answer/answer-question entry-controller user-input))]
     (cond (or (= next-action :forward) (= next-action :back)) (recur entry-controller (= next-action :forward))
           (= next-action :finish) (process-form entry-controller)

@@ -34,6 +34,7 @@
         selections (get-selected-choices entry-prompt choices)]
     (.getString (.uncast (SelectMultiData. selections)))))
 
+;; FormEntryController String -> (or String Nil)
 (defn process-input [entry-controller user-input]
   (let [entry-prompt (.getQuestionPrompt (.getModel entry-controller))
         question-type (.getControlType entry-prompt)
@@ -42,15 +43,18 @@
       (if (and (string/blank? user-input) (= Constants/CONTROL_SELECT_MULTI question-type))
         (get-selected-choices-string entry-prompt)
         (let [index (helpers/validate-number-input user-input (count choices))]
-          (cond (= Constants/CONTROL_SELECT_ONE question-type) (.getValue (nth choices index))
-                ;; TODO: does this let you select multiple things?
-                (= Constants/CONTROL_SELECT_MULTI question-type) (.getValue (nth choices index)))))
+          (cond
+            (= index -1) nil
+            (= Constants/CONTROL_SELECT_ONE question-type) (.getValue (nth choices index))
+            ;; TODO: does this let you select multiple things?
+            (= Constants/CONTROL_SELECT_MULTI question-type) (.getValue (nth choices index)))))
       user-input)))
 
 ;; FormEntryController String -> NavAction
 (defn answer-question-event [entry-controller user-input]
     (let [string-value (process-input entry-controller user-input)]
-      (set-question-answer entry-controller string-value)
+      (when (not (nil? string-value))
+        (set-question-answer entry-controller string-value))
       :forward))
 
 (defn create-new-repeat [entry-controller user-input]

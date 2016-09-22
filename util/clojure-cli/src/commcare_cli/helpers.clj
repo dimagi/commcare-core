@@ -12,12 +12,12 @@
   (try
     (let [i (Integer/parseInt user-input)]
       (if (or (< i 1) (> i max-number))
-        (doall
+        (do
           (println "Enter a number between 1 and " max-number)
           -1)
         (- i 1)))
     (catch NumberFormatException e
-      (doall
+      (do
         (println "Enter a number between 1 and " max-number)
         -1))))
 
