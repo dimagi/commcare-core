@@ -28,7 +28,7 @@ import java.util.Vector;
  */
 public class XPathLazyNodeset extends XPathNodeset {
 
-    Boolean evaluated = Boolean.FALSE;
+    private Boolean evaluated = Boolean.FALSE;
     private final TreeReference unExpandedRef;
 
     /**
@@ -65,6 +65,7 @@ public class XPathLazyNodeset extends XPathNodeset {
      * reference, or when it represents 0 references after a filtering operation (a reference which _could_ have
      * existed, but didn't, rather than a reference which could not represent a real node).
      */
+    @Override
     public Object unpack() {
         synchronized (evaluated) {
             if (evaluated.booleanValue()) {
@@ -107,31 +108,37 @@ public class XPathLazyNodeset extends XPathNodeset {
         }
     }
 
+    @Override
     public Object[] toArgList() {
         performEvaluation();
         return super.toArgList();
     }
 
+    @Override
     protected Vector<TreeReference> getReferences() {
         performEvaluation();
         return super.getReferences();
     }
 
+    @Override
     public int size() {
         performEvaluation();
         return super.size();
     }
 
+    @Override
     public TreeReference getRefAt(int i) {
         performEvaluation();
         return super.getRefAt(i);
     }
 
+    @Override
     protected Object getValAt(int i) {
         performEvaluation();
         return super.getValAt(i);
     }
 
+    @Override
     protected String nodeContents() {
         performEvaluation();
         return super.nodeContents();

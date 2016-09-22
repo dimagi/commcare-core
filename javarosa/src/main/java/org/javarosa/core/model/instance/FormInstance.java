@@ -70,7 +70,6 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
 
     @Override
     public TreeElement getRoot() {
-
         if (root.getNumChildren() == 0)
             throw new RuntimeException("root node has no children");
 

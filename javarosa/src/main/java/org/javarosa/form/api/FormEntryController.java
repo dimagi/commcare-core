@@ -29,6 +29,8 @@ public class FormEntryController {
     public static final int EVENT_REPEAT = 16;
     public static final int EVENT_REPEAT_JUNCTURE = 32;
 
+    public final static String FIELD_LIST = "field-list";
+
     private final FormEntryModel model;
     private final FormEntrySessionRecorder formEntrySession;
 
@@ -374,6 +376,13 @@ public class FormEntryController {
     public String getFormEntrySessionString() {
         return formEntrySession.toString();
     }
+    
+    /**
+     * getQuestionPrompts for the current index
+     */
+    public FormEntryPrompt[] getQuestionPrompts() throws RuntimeException {
+        return getQuestionPrompts(getModel().getFormIndex());
+    }
 
     /**
      * Returns an array of relevant question prompts that should be displayed as a single screen.
@@ -427,7 +436,7 @@ public class FormEntryController {
      * displayed as a multi-question view of all of its descendants. This is useful for returning
      * from the formhierarchy view to a selected index.
      */
-    private boolean isFieldListHost(FormIndex index) {
+    public boolean isFieldListHost(FormIndex index) {
         // if this isn't a group, return right away
         if (!(this.getModel().getForm().getChild(index) instanceof GroupDef)) {
             return false;
@@ -438,6 +447,6 @@ public class FormEntryController {
         //descendant group
 
         GroupDef gd = (GroupDef)this.getModel().getForm().getChild(index); // exceptions?
-        return ("field-list".equalsIgnoreCase(gd.getAppearanceAttr()));
+        return (FIELD_LIST.equalsIgnoreCase(gd.getAppearanceAttr()));
     }
 }

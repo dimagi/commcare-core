@@ -16,7 +16,8 @@ public class SessionDescriptorUtil {
             if (action.equals(SessionFrame.STATE_COMMAND_ID)) {
                 session.setCommand(tokenStream[++current]);
             } else if (action.equals(SessionFrame.STATE_DATUM_VAL) ||
-                    action.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
+                    action.equals(SessionFrame.STATE_DATUM_COMPUTED) ||
+                    action.equals(SessionFrame.STATE_UNKNOWN)) {
                 session.setDatum(tokenStream[++current], tokenStream[++current]);
             }
             current++;

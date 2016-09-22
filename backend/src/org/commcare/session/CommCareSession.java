@@ -339,26 +339,28 @@ public class CommCareSession {
     /**
      * When StackFrameSteps are parsed, those that are "datum" operations will be marked as type
      * "unknown". When we encounter a StackFrameStep of unknown type at runtime, we need to
-     * determine whether it should be interpreted as STATE_DATUM_COMPUTED or STATE_COMMAND_ID.
-     * This primarily affects the behavior of stepBack().
+     * determine whether it should be interpreted as STATE_DATUM_COMPUTED, STATE_COMMAND_ID,
+     * or STATE_DATUM_VAL This primarily affects the behavior of stepBack().
      *
      * The logic being employed is: If there is a previous step on the stack whose entries would
-     * have added this command, interpret it as a command. Otherwise, interpret it as a computed
-     * datum.
+     * have added this command, interpret it as a command. If there is an EntityDatum that
+     * was have added this as an entity selection, interpret this as a datum_val. O
+     * Otherwise, interpret it as a computed datum.
      */
     private String guessUnknownType(StackFrameStep popped) {
         String poppedId = popped.getId();
-        for (StackFrameStep stackFrameStep: frame.getSteps()) {
+        for (StackFrameStep stackFrameStep : frame.getSteps()) {
             String commandId = stackFrameStep.getId();
             Vector<Entry> entries = getEntriesForCommand(commandId);
-            for (Entry entry: entries) {
+            for (Entry entry : entries) {
                 String childCommand = entry.getCommandId();
                 if (childCommand.equals(poppedId)) {
                     return SessionFrame.STATE_COMMAND_ID;
                 }
                 Vector<SessionDatum> data = entry.getSessionDataReqs();
-                for(SessionDatum datum: data) {
-                    if(datum.getDataId().equals(poppedId)) {
+                for (SessionDatum datum : data) {
+                    if (datum instanceof EntityDatum &&
+                            datum.getDataId().equals(poppedId)) {
                         return SessionFrame.STATE_DATUM_VAL;
                     }
                 }
