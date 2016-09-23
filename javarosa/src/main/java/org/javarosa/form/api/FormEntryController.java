@@ -1,11 +1,16 @@
 package org.javarosa.form.api;
 
+import org.javarosa.core.model.GroupDef;
+import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.actions.Action;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.InvalidReferenceException;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.model.instance.TreeReference;
+
+import java.util.ArrayList;
 
 /**
  * This class is used to navigate through an xform and appropriately manipulate
@@ -23,6 +28,8 @@ public class FormEntryController {
     public static final int EVENT_GROUP = 8;
     public static final int EVENT_REPEAT = 16;
     public static final int EVENT_REPEAT_JUNCTURE = 32;
+
+    public final static String FIELD_LIST = "field-list";
 
     private final FormEntryModel model;
     private final FormEntrySessionRecorder formEntrySession;
@@ -368,5 +375,78 @@ public class FormEntryController {
 
     public String getFormEntrySessionString() {
         return formEntrySession.toString();
+    }
+    
+    /**
+     * getQuestionPrompts for the current index
+     */
+    public FormEntryPrompt[] getQuestionPrompts() throws RuntimeException {
+        return getQuestionPrompts(getModel().getFormIndex());
+    }
+
+    /**
+     * Returns an array of relevant question prompts that should be displayed as a single screen.
+     * If the given form index is a question, it is returned. Otherwise if the
+     * given index is a field list (and _only_ when it is a field list)
+     */
+    public FormEntryPrompt[] getQuestionPrompts(FormIndex currentIndex) throws RuntimeException {
+
+        IFormElement element = this.getModel().getForm().getChild(currentIndex);
+
+        //If we're in a group, we will collect of the questions in this group
+        if (element instanceof GroupDef) {
+            //Assert that this is a valid condition (only field lists return prompts)
+            if (!this.isFieldListHost(currentIndex)) {
+                throw new RuntimeException("Cannot get question prompts from a non-field-list group");
+            }
+
+            // Questions to collect
+            ArrayList<FormEntryPrompt> questionList = new ArrayList<>();
+
+            //Step over all events in this field list and collect them
+            FormIndex walker = currentIndex;
+
+            int event = this.getModel().getEvent(currentIndex);
+            while (FormIndex.isSubElement(currentIndex, walker)) {
+                if (event == FormEntryController.EVENT_QUESTION) {
+                    questionList.add(this.getModel().getQuestionPrompt(walker));
+                }
+
+                if (event == FormEntryController.EVENT_PROMPT_NEW_REPEAT) {
+                    //TODO: What if there is a non-deterministic repeat up in the field list?
+                }
+
+                //this handles relevance for us
+                walker = this.getNextIndex(walker);
+                event = this.getModel().getEvent(walker);
+            }
+
+            FormEntryPrompt[] questions = new FormEntryPrompt[questionList.size()];
+            //Populate the array with the collected questions
+            questionList.toArray(questions);
+            return questions;
+        } else {
+            // We have a question, so just get the one prompt
+            return new FormEntryPrompt[]{this.getModel().getQuestionPrompt(currentIndex)};
+        }
+    }
+
+    /**
+     * A convenience method for determining if the current FormIndex is a group that is/should be
+     * displayed as a multi-question view of all of its descendants. This is useful for returning
+     * from the formhierarchy view to a selected index.
+     */
+    public boolean isFieldListHost(FormIndex index) {
+        // if this isn't a group, return right away
+        if (!(this.getModel().getForm().getChild(index) instanceof GroupDef)) {
+            return false;
+        }
+
+        //TODO: Is it possible we need to make sure this group isn't inside of another group which
+        //is itself a field list? That would make the top group the field list host, not the
+        //descendant group
+
+        GroupDef gd = (GroupDef)this.getModel().getForm().getChild(index); // exceptions?
+        return (FIELD_LIST.equalsIgnoreCase(gd.getAppearanceAttr()));
     }
 }
