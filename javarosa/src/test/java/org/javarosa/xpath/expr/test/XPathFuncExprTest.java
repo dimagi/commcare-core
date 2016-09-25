@@ -48,4 +48,11 @@ public class XPathFuncExprTest {
         }
         Assert.fail("form entry should fail on bad `position` usage before getting here");
     }
+
+    @Test
+    public void testCond() {
+        FormInstance instance = ExprEvalUtils.loadInstance("/test_xpathpathexpr.xml");
+        ExprEvalUtils.testEval("cond(true(), 0, :else, 1)", instance, null, 0.0);
+        ExprEvalUtils.testEval("cond(false(), 0, :else, 1)", instance, null, 1.0);
+    }
 }
