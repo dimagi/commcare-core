@@ -40,8 +40,9 @@ public class XPathPathExpr extends XPathExpression {
     public static final int INIT_CONTEXT_ROOT = 0;
     public static final int INIT_CONTEXT_RELATIVE = 1;
     public static final int INIT_CONTEXT_EXPR = 2;
+    public static final int INIT_CONTEXT_HASH_REF = 3;
 
-    public int init_context;
+    public int initContext;
     public XPathStep[] steps;
     private TreeReference cachedReference;
 
@@ -51,14 +52,22 @@ public class XPathPathExpr extends XPathExpression {
     public XPathPathExpr() {
     } //for deserialization
 
-    public XPathPathExpr(int init_context, XPathStep[] steps) {
-        this.init_context = init_context;
+    private XPathPathExpr(int initContext, XPathStep[] steps, XPathFilterExpr filterExpr) {
+        this.initContext = initContext;
         this.steps = steps;
+        this.filtExpr = filterExpr;
     }
 
-    public XPathPathExpr(XPathFilterExpr filtExpr, XPathStep[] steps) {
-        this(INIT_CONTEXT_EXPR, steps);
-        this.filtExpr = filtExpr;
+    public static XPathPathExpr buildRelativePath(XPathStep[] steps) {
+        return new XPathPathExpr(INIT_CONTEXT_RELATIVE, steps, null);
+    }
+
+    public static XPathPathExpr buildAbsolutePath(XPathStep[] steps) {
+        return new XPathPathExpr(INIT_CONTEXT_ROOT, steps, null);
+    }
+
+    public static XPathPathExpr buildFilterPath(XPathFilterExpr filterExpr, XPathStep[] steps) {
+        return new XPathPathExpr(INIT_CONTEXT_EXPR, steps, filterExpr);
     }
 
     /**
@@ -76,7 +85,7 @@ public class XPathPathExpr extends XPathExpression {
         TreeReference ref = new TreeReference();
         boolean parentsAllowed;
         // process the beginning of the reference
-        switch (init_context) {
+        switch (initContext) {
             case XPathPathExpr.INIT_CONTEXT_ROOT:
                 ref.setRefLevel(TreeReference.REF_ABSOLUTE);
                 parentsAllowed = false;
@@ -86,8 +95,8 @@ public class XPathPathExpr extends XPathExpression {
                 parentsAllowed = true;
                 break;
             case XPathPathExpr.INIT_CONTEXT_EXPR:
-                if (this.filtExpr.x != null && this.filtExpr.x instanceof XPathFuncExpr) {
-                    XPathFuncExpr func = (XPathFuncExpr)(this.filtExpr.x);
+                if (filtExpr.x != null && filtExpr.x instanceof XPathFuncExpr) {
+                    XPathFuncExpr func = (XPathFuncExpr)(filtExpr.x);
                     if (func.id.toString().equals("instance")) {
                         // i assume when refering the non main instance you have to be absolute
                         parentsAllowed = false;
@@ -239,9 +248,9 @@ public class XPathPathExpr extends XPathExpression {
         } else if (val instanceof UncastData) {
             return val.getValue();
         } else if (val instanceof IntegerData) {
-            return new Double(((Integer)val.getValue()).doubleValue());
+            return ((Integer)val.getValue()).doubleValue();
         } else if (val instanceof LongData) {
-            return new Double(((Long)val.getValue()).doubleValue());
+            return ((Long)val.getValue()).doubleValue();
         } else if (val instanceof DecimalData) {
             return val.getValue();
         } else if (val instanceof StringData) {
@@ -271,7 +280,7 @@ public class XPathPathExpr extends XPathExpression {
         StringBuffer sb = new StringBuffer();
 
         sb.append("{path-expr:");
-        switch (init_context) {
+        switch (initContext) {
             case INIT_CONTEXT_ROOT:
                 sb.append("abs");
                 break;
@@ -299,11 +308,11 @@ public class XPathPathExpr extends XPathExpression {
             XPathPathExpr x = (XPathPathExpr)o;
 
             //Shortcuts for easily comparable values
-            if (init_context != x.init_context || steps.length != x.steps.length) {
+            if (initContext != x.initContext || steps.length != x.steps.length) {
                 return false;
             }
 
-            return ExtUtil.arrayEquals(steps, x.steps, false) && (init_context != INIT_CONTEXT_EXPR || filtExpr.equals(x.filtExpr));
+            return ExtUtil.arrayEquals(steps, x.steps, false) && (initContext != INIT_CONTEXT_EXPR || filtExpr.equals(x.filtExpr));
         } else {
             return false;
         }
@@ -316,10 +325,10 @@ public class XPathPathExpr extends XPathExpression {
             stepsHash ^= step.hashCode();
         }
 
-        if (init_context == INIT_CONTEXT_EXPR) {
-            return init_context ^ stepsHash ^ filtExpr.hashCode();
+        if (initContext == INIT_CONTEXT_EXPR) {
+            return initContext ^ stepsHash ^ filtExpr.hashCode();
         }
-        return init_context ^ stepsHash;
+        return initContext ^ stepsHash;
     }
 
     /**
@@ -346,7 +355,7 @@ public class XPathPathExpr extends XPathExpression {
             XPathPathExpr x = (XPathPathExpr)o;
 
             //Shortcuts for easily comparable values
-            if (init_context != x.init_context || steps.length != x.steps.length) {
+            if (initContext != x.initContext || steps.length != x.steps.length) {
                 return false;
             }
 
@@ -358,7 +367,7 @@ public class XPathPathExpr extends XPathExpression {
 
             // If all steps match, we still need to make sure we're in the same "context" if this
             // is a normal expression.
-            return (init_context != INIT_CONTEXT_EXPR || filtExpr.equals(x.filtExpr));
+            return (initContext != INIT_CONTEXT_EXPR || filtExpr.equals(x.filtExpr));
         } else {
             return false;
         }
@@ -366,8 +375,8 @@ public class XPathPathExpr extends XPathExpression {
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        init_context = ExtUtil.readInt(in);
-        if (init_context == INIT_CONTEXT_EXPR) {
+        initContext = ExtUtil.readInt(in);
+        if (initContext == INIT_CONTEXT_EXPR) {
             filtExpr = (XPathFilterExpr)ExtUtil.read(in, XPathFilterExpr.class, pf);
         }
 
@@ -379,8 +388,8 @@ public class XPathPathExpr extends XPathExpression {
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeNumeric(out, init_context);
-        if (init_context == INIT_CONTEXT_EXPR) {
+        ExtUtil.writeNumeric(out, initContext);
+        if (initContext == INIT_CONTEXT_EXPR) {
             ExtUtil.write(out, filtExpr);
         }
 
@@ -393,7 +402,7 @@ public class XPathPathExpr extends XPathExpression {
 
     public static XPathPathExpr fromRef(TreeReference ref) {
         XPathPathExpr path = new XPathPathExpr();
-        path.init_context = (ref.isAbsolute() ? INIT_CONTEXT_ROOT : INIT_CONTEXT_RELATIVE);
+        path.initContext = (ref.isAbsolute() ? INIT_CONTEXT_ROOT : INIT_CONTEXT_RELATIVE);
         path.steps = new XPathStep[ref.size()];
         for (int i = 0; i < path.steps.length; i++) {
             if (ref.getName(i).equals(TreeReference.NAME_WILDCARD)) {
@@ -405,7 +414,9 @@ public class XPathPathExpr extends XPathExpression {
         return path;
     }
 
-    public Object pivot(DataInstance model, EvaluationContext evalContext, Vector<Object> pivots, Object sentinal) throws UnpivotableExpressionException {
+    @Override
+    public Object pivot(DataInstance model, EvaluationContext evalContext,
+                        Vector<Object> pivots, Object sentinal) throws UnpivotableExpressionException {
         TreeReference ref = this.getReference();
         //Either concretely the sentinal, or "."
         if (ref.equals(sentinal) || (ref.getRefLevel() == 0)) {

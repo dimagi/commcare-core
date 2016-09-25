@@ -8,6 +8,7 @@ import org.javarosa.xpath.parser.Parser;
 import org.javarosa.xpath.parser.Token;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 public class ASTNodeLocPath extends ASTNode {
@@ -28,13 +29,13 @@ public class ASTNodeLocPath extends ASTNode {
     }
 
     public XPathExpression build() throws XPathSyntaxException {
-        Vector<XPathStep> steps = new Vector<>();
+        ArrayList<XPathStep> steps = new ArrayList<>();
         XPathExpression filtExpr = null;
         int offset = isAbsolute() ? 1 : 0;
         for (int i = 0; i < clauses.size() + offset; i++) {
             if (offset == 0 || i > 0) {
                 if (clauses.elementAt(i - offset) instanceof ASTNodePathStep) {
-                    steps.addElement(((ASTNodePathStep)clauses.elementAt(i - offset)).getStep());
+                    steps.add(((ASTNodePathStep)clauses.elementAt(i - offset)).getStep());
                 } else {
                     filtExpr = clauses.elementAt(i - offset).build();
                 }
@@ -42,22 +43,23 @@ public class ASTNodeLocPath extends ASTNode {
 
             if (i < separators.size()) {
                 if (Parser.vectInt(separators, i) == Token.DBL_SLASH) {
-                    steps.addElement(XPathStep.ABBR_DESCENDANTS());
+                    steps.add(XPathStep.ABBR_DESCENDANTS());
                 }
             }
         }
 
-        XPathStep[] stepArr = new XPathStep[steps.size()];
-        for (int i = 0; i < stepArr.length; i++)
-            stepArr[i] = steps.elementAt(i);
-
+        XPathStep[] stepArr = steps.toArray(new XPathStep[]{});
         if (filtExpr == null) {
-            return new XPathPathExpr(isAbsolute() ? XPathPathExpr.INIT_CONTEXT_ROOT : XPathPathExpr.INIT_CONTEXT_RELATIVE, stepArr);
+            if (isAbsolute()) {
+                return XPathPathExpr.buildAbsolutePath(stepArr);
+            } else {
+                return XPathPathExpr.buildRelativePath(stepArr);
+            }
         } else {
             if (filtExpr instanceof XPathFilterExpr) {
-                return new XPathPathExpr((XPathFilterExpr)filtExpr, stepArr);
+                return XPathPathExpr.buildFilterPath((XPathFilterExpr)filtExpr, stepArr);
             } else {
-                return new XPathPathExpr(new XPathFilterExpr(filtExpr, new XPathExpression[0]), stepArr);
+                return XPathPathExpr.buildFilterPath(new XPathFilterExpr(filtExpr, new XPathExpression[0]), stepArr);
             }
         }
     }

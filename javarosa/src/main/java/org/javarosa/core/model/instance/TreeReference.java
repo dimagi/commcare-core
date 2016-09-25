@@ -71,7 +71,7 @@ public class TreeReference implements Externalizable {
 
     // This value will be computed lazily during calls to size(); every time
     // 'data' changes size, set it to -1 and compute it on demand.
-    int size = -1;
+    private int size = -1;
 
     public TreeReference() {
         instanceName = null;
