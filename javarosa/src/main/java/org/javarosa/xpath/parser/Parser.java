@@ -24,8 +24,9 @@ public class Parser {
 
     private static ASTNode buildParseTree(Vector tokens) throws XPathSyntaxException {
         ASTNodeAbstractExpr root = new ASTNodeAbstractExpr();
-        for (int i = 0; i < tokens.size(); i++)
+        for (int i = 0; i < tokens.size(); i++) {
             root.content.addElement(tokens.elementAt(i));
+        }
 
         parseFuncCalls(root);
         parseParens(root);
@@ -63,8 +64,9 @@ public class Parser {
 
             int i = 0;
             while (i < absNode.content.size() - 1) {
-                if (absNode.getTokenType(i + 1) == Token.LPAREN && absNode.getTokenType(i) == Token.QNAME)
+                if (absNode.getTokenType(i + 1) == Token.LPAREN && absNode.getTokenType(i) == Token.QNAME) {
                     condenseFuncCall(absNode, i);
+                }
                 i++;
             }
         }
@@ -342,7 +344,7 @@ public class Parser {
         return filt;
     }
 
-    public static void verifyBaseExpr(ASTNode node) throws XPathSyntaxException {
+    private static void verifyBaseExpr(ASTNode node) throws XPathSyntaxException {
         if (node instanceof ASTNodeAbstractExpr) {
             ASTNodeAbstractExpr absNode = (ASTNodeAbstractExpr)node;
 

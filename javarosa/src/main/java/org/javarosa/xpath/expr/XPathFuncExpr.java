@@ -136,15 +136,17 @@ public class XPathFuncExpr extends XPathExpression {
         Vector v = (Vector)ExtUtil.read(in, new ExtWrapListPoly(), pf);
 
         args = new XPathExpression[v.size()];
-        for (int i = 0; i < args.length; i++)
+        for (int i = 0; i < args.length; i++) {
             args[i] = (XPathExpression)v.elementAt(i);
+        }
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        Vector v = new Vector();
-        for (int i = 0; i < args.length; i++)
-            v.addElement(args[i]);
+        Vector<XPathExpression> v = new Vector<>();
+        for (XPathExpression arg : args) {
+            v.addElement(arg);
+        }
 
         ExtUtil.write(out, id);
         ExtUtil.write(out, new ExtWrapListPoly(v));
