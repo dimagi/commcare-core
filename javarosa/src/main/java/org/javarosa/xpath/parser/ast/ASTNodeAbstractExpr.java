@@ -22,6 +22,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
         content = new Vector<>();
     }
 
+    @Override
     public Vector getChildren() {
         Vector<Object> children = new Vector<>();
         for (int i = 0; i < content.size(); i++) {
@@ -32,6 +33,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
         return children;
     }
 
+    @Override
     public XPathExpression build() throws XPathSyntaxException {
         if (content.size() == 1) {
             if (getType(0) == CHILD) {
@@ -153,8 +155,8 @@ public class ASTNodeAbstractExpr extends ASTNode {
         for (int i = start; i < end; i++) {
             for (int j = 0; j < separators.length; j++) {
                 if (getTokenType(i) == separators[j]) {
-                    part.separators.addElement(new Integer(separators[j]));
-                    sepIdxs.addElement(new Integer(i));
+                    part.separators.addElement(separators[j]);
+                    sepIdxs.addElement(i);
                     break;
                 }
             }
@@ -182,8 +184,8 @@ public class ASTNodeAbstractExpr extends ASTNode {
         do {
             k = indexOfBalanced(k, sep, leftPush, rightPop);
             if (k != -1) {
-                sepIdxs.addElement(new Integer(k));
-                part.separators.addElement(new Integer(sep));
+                sepIdxs.addElement(k);
+                part.separators.addElement(sep);
             }
         } while (k != -1);
 
