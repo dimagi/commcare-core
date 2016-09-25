@@ -35,7 +35,7 @@
 
 (defn print-choice [is-multi-select? is-selected? index choice-text]
   (println
-    (if is-multi-select? (string/join "[" (if is-selected? "X" " ") "]") "")
+    (if is-multi-select? (string/join `("[" ~(if is-selected? "X" " ") "]")) "")
     (+ 1 index)
     ")"
     choice-text))

@@ -89,31 +89,31 @@
 (defn process-command [user-input app]
   (if (= user-input ":exit")
     :quit
-      (let [session (:session app)
-           [command arg] (map string/trim (string/split user-input #" " 2))]
-        (cond
-          (= command ":update")
-          (do (println "TODO: app implement update")
-              :stay)
-          (= command ":home")
-          (do (.clearAllState session)
-              :refresh)
-          (= command ":back")
-           (do (.stepBack session (.getEvaluationContext session))
-               :refresh)
-          (= command ":stack")
-           (do (print-stack session)
-               :stay)
-          (= command ":lang")
-           (do (set-locale arg)
-               :stay)
-          (= command ":today")
-           (do (reset! today-date arg)
-               :stay)
-          (= command ":help")
-          (do
-            (println HELP_MESSAGE)
-            :stay)))))
+    (let [session (:session app)
+          [command arg] (map string/trim (string/split user-input #" " 2))]
+      (cond
+        (= command ":update")
+        (do (println "TODO: app implement update")
+            :stay)
+        (= command ":home")
+        (do (.clearAllState session)
+            :refresh)
+        (= command ":back")
+        (do (.stepBack session (.getEvaluationContext session))
+            :refresh)
+        (= command ":stack")
+        (do (print-stack session)
+            :stay)
+        (= command ":lang")
+        (do (set-locale arg)
+            :stay)
+        (= command ":today")
+        (do (reset! today-date arg)
+            :stay)
+        (= command ":help")
+        (do
+          (println HELP_MESSAGE)
+          :stay)))))
 
 ;; Screen App -> Boolean
 (defn process-screen [screen app]
