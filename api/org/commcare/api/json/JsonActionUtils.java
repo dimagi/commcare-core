@@ -114,7 +114,13 @@ public class JsonActionUtils {
             ret.put(ApiConstants.ERROR_TYPE_KEY, "constraint");
             ret.put(ApiConstants.ERROR_REASON_KEY, prompt.getConstraintText());
         } else if (result == FormEntryController.ANSWER_OK) {
-            ret.put(ApiConstants.QUESTION_TREE_KEY, getFullFormJSON(model, controller));
+            if (controller.getOneQuestionPerScreen()) {
+                ret.put(ApiConstants.QUESTION_TREE_KEY, getOneQuestionPerScreenJSON(
+                    model, controller, controller.getCurrentIndex()));
+            } else {
+                ret.put(ApiConstants.QUESTION_TREE_KEY, getFullFormJSON(model, controller));
+            }
+
             ret.put(ApiConstants.RESPONSE_STATUS_KEY, "accepted");
         }
         return ret;
