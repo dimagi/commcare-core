@@ -8,8 +8,9 @@ import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.fail;
 
 /**
  * Tests for xpath functions
@@ -46,6 +47,6 @@ public class XPathFuncExprTest {
         } catch (XPathTypeMismatchException e) {
             return;
         }
-        Assert.fail("form entry should fail on bad `position` usage before getting here");
+        fail("form entry should fail on bad `position` usage before getting here");
     }
 }

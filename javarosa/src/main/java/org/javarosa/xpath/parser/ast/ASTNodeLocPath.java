@@ -34,10 +34,11 @@ public class ASTNodeLocPath extends ASTNode {
         int offset = isAbsolute() ? 1 : 0;
         for (int i = 0; i < clauses.size() + offset; i++) {
             if (offset == 0 || i > 0) {
-                if (clauses.elementAt(i - offset) instanceof ASTNodePathStep) {
-                    steps.add(((ASTNodePathStep)clauses.elementAt(i - offset)).getStep());
+                ASTNode currentClause = clauses.elementAt(i - offset);
+                if (currentClause instanceof ASTNodePathStep) {
+                    steps.add(((ASTNodePathStep)currentClause).getStep());
                 } else {
-                    filtExpr = clauses.elementAt(i - offset).build();
+                    filtExpr = currentClause.build();
                 }
             }
 

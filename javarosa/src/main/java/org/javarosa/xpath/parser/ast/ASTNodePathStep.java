@@ -64,10 +64,11 @@ public class ASTNodePathStep extends ASTNode {
         } else {
             XPathStep step;
 
-            if (axisType == AXIS_TYPE_NULL)
+            if (axisType == AXIS_TYPE_NULL) {
                 axisVal = XPathStep.AXIS_CHILD;
-            else if (axisType == AXIS_TYPE_ABBR)
+            } else if (axisType == AXIS_TYPE_ABBR) {
                 axisVal = XPathStep.AXIS_ATTRIBUTE;
+            }
 
             if (nodeTestType == NODE_TEST_TYPE_QNAME)
                 step = new XPathStep(axisVal, nodeTestQName);
@@ -78,12 +79,17 @@ public class ASTNodePathStep extends ASTNode {
             else {
                 String funcName = nodeTestFunc.name.toString();
                 int type;
-                if (funcName.equals("node")) type = XPathStep.TEST_TYPE_NODE;
-                else if (funcName.equals("text")) type = XPathStep.TEST_TYPE_TEXT;
-                else if (funcName.equals("comment")) type = XPathStep.TEST_TYPE_COMMENT;
-                else if (funcName.equals("processing-instruction"))
+                if (funcName.equals("node")) {
+                    type = XPathStep.TEST_TYPE_NODE;
+                } else if (funcName.equals("text")) {
+                    type = XPathStep.TEST_TYPE_TEXT;
+                } else if (funcName.equals("comment")) {
+                    type = XPathStep.TEST_TYPE_COMMENT;
+                } else if (funcName.equals("processing-instruction")) {
                     type = XPathStep.TEST_TYPE_PROCESSING_INSTRUCTION;
-                else throw new RuntimeException();
+                } else {
+                    throw new RuntimeException();
+                }
 
                 step = new XPathStep(axisVal, type);
                 if (nodeTestFunc.args.size() > 0) {
@@ -92,8 +98,9 @@ public class ASTNodePathStep extends ASTNode {
             }
 
             XPathExpression[] preds = new XPathExpression[predicates.size()];
-            for (int i = 0; i < preds.length; i++)
+            for (int i = 0; i < preds.length; i++) {
                 preds[i] = ((ASTNode)predicates.elementAt(i)).build();
+            }
             step.predicates = preds;
 
             return step;
