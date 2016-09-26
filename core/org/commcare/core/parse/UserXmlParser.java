@@ -18,7 +18,11 @@ import java.util.NoSuchElementException;
  */
 public class UserXmlParser extends TransactionParser<User> {
 
-    final IStorageUtilityIndexed<User> storage;
+    private IStorageUtilityIndexed<User> storage;
+
+    public UserXmlParser(KXmlParser parser) {
+        super(parser);
+    }
 
     public UserXmlParser(KXmlParser parser, IStorageUtilityIndexed<User> storage) {
         super(parser);
@@ -80,7 +84,9 @@ public class UserXmlParser extends TransactionParser<User> {
 
         addCustomData(u);
 
-        commit(u);
+        if (storage != null) {
+            commit(u);
+        }
         return u;
     }
 
