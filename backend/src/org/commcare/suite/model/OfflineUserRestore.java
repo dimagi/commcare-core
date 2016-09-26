@@ -44,7 +44,7 @@ public class OfflineUserRestore implements Persistable {
     }
 
     public OfflineUserRestore(String reference) throws UnfullfilledRequirementsException, IOException, InvalidStructureException,
-            XmlPullParserException {
+            XmlPullParserException, InvalidReferenceException {
         this.reference = reference;
         this.username = parseUsernameAndCheckUserType(reference);
         this.password = PropertyUtils.genUUID();
@@ -54,8 +54,8 @@ public class OfflineUserRestore implements Persistable {
             throws UnfullfilledRequirementsException, IOException, InvalidStructureException,
             XmlPullParserException {
         OfflineUserRestore offlineUserRestore = new OfflineUserRestore();
+        offlineUserRestore.username = parseUsernameAndCheckUserType(restoreStream);
         offlineUserRestore.restore = new String(StreamsUtil.inputStreamToByteArray(restoreStream));
-        offlineUserRestore.username = parseUsernameAndCheckUserType(offlineUserRestore.restore);
         offlineUserRestore.password = PropertyUtils.genUUID();
         return offlineUserRestore;
     }
@@ -124,13 +124,9 @@ public class OfflineUserRestore implements Persistable {
 
     private static String parseUsernameAndCheckUserType(String localRestoreReference)
             throws UnfullfilledRequirementsException, IOException, InvalidStructureException,
-            XmlPullParserException {
-        try {
-            InputStream is = ReferenceManager._().DeriveReference(localRestoreReference).getStream();
-            return parseUsernameAndCheckUserType(is);
-        } catch (IOException | InvalidReferenceException e) {
-            return null;
-        }
+            XmlPullParserException, InvalidReferenceException {
+        InputStream is = ReferenceManager._().DeriveReference(localRestoreReference).getStream();
+        return parseUsernameAndCheckUserType(is);
     }
 
     private static String parseUsernameAndCheckUserType(InputStream restoreStream)
