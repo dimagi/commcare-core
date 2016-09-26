@@ -35,6 +35,7 @@ public class ASTNodePathStep extends ASTNode {
     public static final int NODE_TEST_TYPE_ABBR_DOT = 4;
     public static final int NODE_TEST_TYPE_ABBR_DBL_DOT = 5;
     public static final int NODE_TEST_TYPE_FUNC = 6;
+    public static final int NODE_TEST_TYPE_HASH_REF = 7;
 
     public int axisType;
     public int axisVal;
@@ -70,13 +71,13 @@ public class ASTNodePathStep extends ASTNode {
                 axisVal = XPathStep.AXIS_ATTRIBUTE;
             }
 
-            if (nodeTestType == NODE_TEST_TYPE_QNAME)
+            if (nodeTestType == NODE_TEST_TYPE_QNAME || nodeTestType == NODE_TEST_TYPE_HASH_REF) {
                 step = new XPathStep(axisVal, nodeTestQName);
-            else if (nodeTestType == NODE_TEST_TYPE_WILDCARD)
+            } else if (nodeTestType == NODE_TEST_TYPE_WILDCARD) {
                 step = new XPathStep(axisVal, XPathStep.TEST_NAME_WILDCARD);
-            else if (nodeTestType == NODE_TEST_TYPE_NSWILDCARD)
+            } else if (nodeTestType == NODE_TEST_TYPE_NSWILDCARD) {
                 step = new XPathStep(axisVal, nodeTestNamespace);
-            else {
+            } else {
                 String funcName = nodeTestFunc.name.toString();
                 int type;
                 if (funcName.equals("node")) {

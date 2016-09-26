@@ -251,6 +251,7 @@ public class Parser {
                     type == Token.NSWILDCARD ||
                     type == Token.AT ||
                     type == Token.DOT ||
+                    type == Token.HASH_REF ||
                     type == Token.DBL_DOT) {
                 return true;
             } else if (node.content.elementAt(0) instanceof ASTNodeFunctionCall) {
@@ -297,6 +298,9 @@ public class Parser {
                 step.nodeTestNamespace = (String)node.getToken(i).val;
             } else if (node.content.size() > i && node.getTokenType(i) == Token.QNAME) {
                 step.nodeTestType = ASTNodePathStep.NODE_TEST_TYPE_QNAME;
+                step.nodeTestQName = (XPathQName)node.getToken(i).val;
+            } else if (node.content.size() > i && node.getTokenType(i) == Token.HASH_REF) {
+                step.nodeTestType = ASTNodePathStep.NODE_TEST_TYPE_HASH_REF;
                 step.nodeTestQName = (XPathQName)node.getToken(i).val;
             } else if (node.content.size() > i && node.content.elementAt(i) instanceof ASTNodeFunctionCall) {
                 if (!ASTNodePathStep.validateNodeTypeTest((ASTNodeFunctionCall)node.content.elementAt(i))) {

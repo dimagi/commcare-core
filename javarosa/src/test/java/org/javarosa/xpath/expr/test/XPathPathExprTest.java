@@ -3,10 +3,17 @@ package org.javarosa.xpath.expr.test;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.test_utils.ExprEvalUtils;
+import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathPathExpr;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Phillip Mates
@@ -82,5 +89,24 @@ public class XPathPathExprTest {
 
         ExprEvalUtils.testEval("if(count(instance('groups')/root/groups/group/group_data/data) > 0 and count(instance('groups')/root/groups/group[count(group_data/data[@key = 'all_field_staff' and . ='yes']) > 0]) = 1, instance('groups')/root/groups/group[count(group_data/data[@key = 'all_field_staff' and . ='yes']) > 0]/@id, '')",
                 groupsInstance, ec, "inc");
+    }
+
+    @Test
+    public void hashRefResolution() {
+        FormInstance instance = ExprEvalUtils.loadInstance("/test_xpathpathexpr.xml");
+
+        ExprEvalUtils.testEval("/data/places/country[@id = 'one']/name", instance, null, "Singapore");
+        // TODO PLM: make this pass:
+        ExprEvalUtils.testEval("#form/places/country[@id = 'one']/name", instance, null, "Singapore");
+    }
+
+    @Test
+    public void hashRefConstruction() throws XPathSyntaxException {
+        String rawRef = "#form/places/country/name";
+        XPathExpression xpe = XPathParseTool.parseXPath(rawRef);
+        XPathPathExpr pathExpr = ((XPathPathExpr)xpe);
+        TreeReference ref = pathExpr.getReference();
+        XPathPathExpr unpackedExpr = XPathPathExpr.fromRef(ref);
+        assertEquals(pathExpr, unpackedExpr);
     }
 }

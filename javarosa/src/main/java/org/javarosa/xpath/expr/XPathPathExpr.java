@@ -66,6 +66,10 @@ public class XPathPathExpr extends XPathExpression {
         return new XPathPathExpr(INIT_CONTEXT_ROOT, steps, null);
     }
 
+    public static XPathPathExpr buildHashRefPath(XPathStep[] steps) {
+        return new XPathPathExpr(INIT_CONTEXT_HASH_REF, steps, null);
+    }
+
     public static XPathPathExpr buildFilterPath(XPathFilterExpr filterExpr, XPathStep[] steps) {
         return new XPathPathExpr(INIT_CONTEXT_EXPR, steps, filterExpr);
     }
@@ -123,6 +127,10 @@ public class XPathPathExpr extends XPathExpression {
                     // refs, everything else is an illegal filter
                     throw new XPathUnsupportedException("filter expression");
                 }
+                break;
+            case XPathPathExpr.INIT_CONTEXT_HASH_REF:
+                ref.setHasHashRef();
+                parentsAllowed = false;
                 break;
             default:
                 throw new XPathUnsupportedException("filter expression");
@@ -287,6 +295,9 @@ public class XPathPathExpr extends XPathExpression {
             case INIT_CONTEXT_RELATIVE:
                 sb.append("rel");
                 break;
+            case INIT_CONTEXT_HASH_REF:
+                sb.append("hash");
+                break;
             case INIT_CONTEXT_EXPR:
                 sb.append(filtExpr.toString());
                 break;
@@ -402,7 +413,15 @@ public class XPathPathExpr extends XPathExpression {
 
     public static XPathPathExpr fromRef(TreeReference ref) {
         XPathPathExpr path = new XPathPathExpr();
-        path.initContext = (ref.isAbsolute() ? INIT_CONTEXT_ROOT : INIT_CONTEXT_RELATIVE);
+        if (ref.isAbsolute()) {
+            if (ref.isHashRef()) {
+                path.initContext = INIT_CONTEXT_HASH_REF;
+            } else {
+                path.initContext = INIT_CONTEXT_ROOT;
+            }
+        } else {
+            path.initContext = INIT_CONTEXT_RELATIVE;
+        }
         path.steps = new XPathStep[ref.size()];
         for (int i = 0; i < path.steps.length; i++) {
             if (ref.getName(i).equals(TreeReference.NAME_WILDCARD)) {

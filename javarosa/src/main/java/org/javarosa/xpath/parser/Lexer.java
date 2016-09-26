@@ -57,6 +57,8 @@ public class Lexer {
                 if (d == '/') {
                     token = new Token(Token.DBL_SLASH);
                     skip = 2;
+                } else if (d == '#') {
+                    badParse(expr, i, (char)c);
                 } else {
                     token = new Token(Token.SLASH);
                 }
@@ -105,6 +107,14 @@ public class Lexer {
                     token = new Token(Token.VAR, new XPathQName(expr.substring(i + 1, i + len + 1)));
                     skip = len + 1;
                 }
+            } else if (c == '#') {
+                int len = matchQName(expr, i + 1);
+                if (len == 0) {
+                    badParse(expr, i, (char)c);
+                } else {
+                    token = new Token(Token.HASH_REF, new XPathQName(expr.substring(i + 1, i + len + 1)));
+                    skip = len + 1;
+                }
             } else if (c == '\'' || c == '\"') {
                 int end = expr.indexOf(c, i + 1);
                 if (end == -1) {
@@ -134,6 +144,7 @@ public class Lexer {
                         token.type == Token.NSWILDCARD ||
                         token.type == Token.QNAME ||
                         token.type == Token.VAR ||
+                        token.type == Token.HASH_REF ||
                         token.type == Token.NUM ||
                         token.type == Token.STR ||
                         token.type == Token.RBRACK ||

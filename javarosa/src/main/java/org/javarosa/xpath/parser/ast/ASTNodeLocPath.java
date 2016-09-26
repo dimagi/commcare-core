@@ -25,7 +25,15 @@ public class ASTNodeLocPath extends ASTNode {
     }
 
     public boolean isAbsolute() {
-        return (clauses.size() == separators.size()) || (clauses.size() == 0 && separators.size() == 1);
+        return clauses.size() == separators.size()
+                || (clauses.size() == 0 && separators.size() == 1)
+                || isHashRef();
+    }
+
+    private boolean isHashRef() {
+        return !clauses.isEmpty()
+                && clauses.firstElement() instanceof ASTNodePathStep
+                && ((ASTNodePathStep)clauses.firstElement()).nodeTestType == ASTNodePathStep.NODE_TEST_TYPE_HASH_REF;
     }
 
     public XPathExpression build() throws XPathSyntaxException {
@@ -52,7 +60,11 @@ public class ASTNodeLocPath extends ASTNode {
         XPathStep[] stepArr = steps.toArray(new XPathStep[]{});
         if (filtExpr == null) {
             if (isAbsolute()) {
-                return XPathPathExpr.buildAbsolutePath(stepArr);
+                if (isHashRef()) {
+                    return XPathPathExpr.buildHashRefPath(stepArr);
+                } else {
+                    return XPathPathExpr.buildAbsolutePath(stepArr);
+                }
             } else {
                 return XPathPathExpr.buildRelativePath(stepArr);
             }
