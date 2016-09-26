@@ -83,4 +83,9 @@ public class AppStructureTests {
                 mApp.getSession().getPlatform().getDetail("m0_case_short").getFocusFunction();
         Assert.assertTrue(focusFunction == null);
     }
+
+    @Test
+    public void testDemoUserRestoreParsing() {
+
+    }
 }
