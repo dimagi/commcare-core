@@ -71,7 +71,7 @@
                 </push>
             </stack>
         </action>
-        <action relevant="true()">
+        <action relevant="true()" action-bar-icon="jr://fake-image-ref">
             <display>
                 <text>Jump to Menu 2 Form 1</text>
             </display>

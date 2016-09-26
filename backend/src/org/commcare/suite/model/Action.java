@@ -28,6 +28,7 @@ public class Action implements Externalizable {
     private DisplayUnit display;
     private Vector<StackOperation> stackOps;
     private XPathExpression relevantExpr;
+    private String iconReferenceForActionBar;
 
     /**
      * Serialization only!!!
@@ -41,10 +42,12 @@ public class Action implements Externalizable {
      * Creates an Action model with the associated display details and stack
      * operations set.
      */
-    public Action(DisplayUnit display, Vector<StackOperation> stackOps, XPathExpression relevantExpr) {
+    public Action(DisplayUnit display, Vector<StackOperation> stackOps,
+                  XPathExpression relevantExpr, String iconForActionBar) {
         this.display = display;
         this.stackOps = stackOps;
         this.relevantExpr = relevantExpr;
+        this.iconReferenceForActionBar = iconForActionBar == null ? "" : iconForActionBar;
     }
 
     /**
@@ -72,11 +75,20 @@ public class Action implements Externalizable {
         }
     }
 
+    public boolean hasActionBarIcon() {
+        return !"".equals(iconReferenceForActionBar);
+    }
+
+    public String getActionBarIconReference() {
+        return iconReferenceForActionBar;
+    }
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
         stackOps = (Vector<StackOperation>)ExtUtil.read(in, new ExtWrapList(StackOperation.class), pf);
         relevantExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
+        iconReferenceForActionBar = ExtUtil.readString(in);
     }
 
     @Override
@@ -84,5 +96,6 @@ public class Action implements Externalizable {
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapList(stackOps));
         ExtUtil.write(out, new ExtWrapNullable(relevantExpr == null ? null : new ExtWrapTagged(relevantExpr)));
+        ExtUtil.writeString(out, iconReferenceForActionBar);
     }
 }
