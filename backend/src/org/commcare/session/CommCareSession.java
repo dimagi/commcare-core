@@ -598,14 +598,17 @@ public class CommCareSession {
         // doesn't match the current (living) frame, it will become the the current frame
         SessionFrame onDeck = frame;
 
+        boolean didRewind = false;
         for (StackOperation op : ops) {
             if (!processStackOp(op, ec)) {
                 // rewind occurred, stop processing futher ops.
+                didRewind = true;
                 break;
             }
         }
 
-        return popOrSync(onDeck);
+        popOrSync(onDeck, didRewind);
+        return didRewind;
     }
 
     /**
@@ -704,12 +707,12 @@ public class CommCareSession {
         }
     }
 
-    private boolean popOrSync(SessionFrame onDeck) {
+    private boolean popOrSync(SessionFrame onDeck, boolean didRewind) {
         if (!frame.isDead() && frame != onDeck) {
             // If the current frame isn't dead, and isn't on deck, that means we've pushed
             // in new frames and need to load up the correct one
 
-            if (!finishAndPop()) {
+            if (!finishAndPop(didRewind)) {
                 // Somehow we didn't end up with any frames after that? that's incredibly weird, I guess
                 // we should just start over.
                 clearAllState();
@@ -752,10 +755,11 @@ public class CommCareSession {
         markCurrentFrameForDeath();
 
         //First, see if we have operations to run
+        boolean didRewind = false;
         if (ops.size() > 0) {
-            executeStackOperations(ops, ec);
+            didRewind = executeStackOperations(ops, ec);
         }
-        return finishAndPop();
+        return finishAndPop(didRewind);
     }
 
     /**
@@ -767,11 +771,11 @@ public class CommCareSession {
      * popped into the current session. False if the stack was empty
      * and the session is over.
      */
-    private boolean finishAndPop() {
+    private boolean finishAndPop(boolean didRewind) {
         cleanStack();
 
         if (frameStack.empty()) {
-            return false;
+            return didRewind;
         } else {
             frame = frameStack.pop();
             //Ok, so if _after_ popping from the stack, we still have
