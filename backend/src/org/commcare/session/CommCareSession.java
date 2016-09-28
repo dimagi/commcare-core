@@ -591,6 +591,8 @@ public class CommCareSession {
      * against the most recent frame. (IE: If a new frame is pushed here, xpath expressions
      * calculated within it will be evaluated against the starting, but <push> actions
      * will happen against the newly pushed frame)
+     *
+     * @return True if stack ops triggered a rewind, used for determining stack clean-up logic
      */
     public boolean executeStackOperations(Vector<StackOperation> ops, EvaluationContext ec) {
         // The on deck frame is the frame that is the target of operations that execute
@@ -766,6 +768,9 @@ public class CommCareSession {
      * Complete the current session (and perform any cleanup), then
      * check the stack for any pending frames, and load the top one
      * into the current session if so.
+     *
+     * @param didRewind True if rewind occurred during stack pop.
+     *                  Helps determine post-pop stack cleanup logic
      *
      * @return True if there was a pending frame and it has been
      * popped into the current session. False if the stack was empty
