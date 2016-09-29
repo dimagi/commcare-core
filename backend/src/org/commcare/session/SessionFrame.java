@@ -1,6 +1,7 @@
 package org.commcare.session;
 
 import org.commcare.suite.model.StackFrameStep;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -122,14 +123,15 @@ public class SessionFrame implements Externalizable {
         return recentPop;
     }
 
-    protected boolean rewindToMarkAndSet(String value) {
+    protected boolean rewindToMarkAndSet(StackFrameStep step, EvaluationContext evalContext) {
         int markIndex = getLatestMarkPosition(steps);
 
         if (markIndex >= 0) {
             String markDatumId = steps.get(markIndex).getId();
             steps = new Vector<>(steps.subList(0, markIndex));
-            if (value != null) {
-                steps.addElement(new StackFrameStep(SessionFrame.STATE_UNKNOWN, markDatumId, value));
+            if (step.getValue() != null) {
+                String evaluatedStepValue = step.evaluateValue(evalContext);
+                steps.addElement(new StackFrameStep(SessionFrame.STATE_UNKNOWN, markDatumId, evaluatedStepValue));
             }
             return true;
         } else {

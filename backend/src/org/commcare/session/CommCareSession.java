@@ -654,7 +654,7 @@ public class CommCareSession {
     private boolean performPushInner(StackOperation op, SessionFrame frame, EvaluationContext ec) {
         for (StackFrameStep step : op.getStackFrameSteps()) {
             if (SessionFrame.STATE_REWIND.equals(step.getType())) {
-                if (frame.rewindToMarkAndSet(step.getValue())) {
+                if (frame.rewindToMarkAndSet(step, ec)) {
                     return false;
                 }
                 // if no mark is found ignore the rewind and continue

@@ -153,7 +153,7 @@ public class StackFrameStep implements Externalizable {
         }
     }
 
-    private String evaluateValue(EvaluationContext ec) {
+    public String evaluateValue(EvaluationContext ec) {
         if (!valueIsXpath) {
             return value;
         } else {

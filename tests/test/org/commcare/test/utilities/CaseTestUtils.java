@@ -23,19 +23,19 @@ public class CaseTestUtils {
     }
 
     public static void xpathEvalAndAssert(EvaluationContext evalContext,
-                                              String input,
-                                              Object expectedOutput)
+                                          String input,
+                                          Object expectedOutput)
             throws XPathSyntaxException {
         XPathExpression expr;
         expr = XPathParseTool.parseXPath(input);
         Object output = XPathFuncExpr.unpack(expr.eval(evalContext));
-        Assert.assertEquals("XPath: " + input, expectedOutput,output);
+        Assert.assertEquals("XPath: " + input, expectedOutput, output);
     }
 
-    public static void xpathEval(EvaluationContext evalContext,
-                                 String input)
+    public static Object xpathEval(EvaluationContext evalContext,
+                                   String input)
             throws XPathSyntaxException {
         XPathExpression expr = XPathParseTool.parseXPath(input);
-        XPathFuncExpr.unpack(expr.eval(evalContext));
+        return XPathFuncExpr.unpack(expr.eval(evalContext));
     }
 }
