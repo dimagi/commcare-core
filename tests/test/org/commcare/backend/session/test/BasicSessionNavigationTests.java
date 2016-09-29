@@ -1,6 +1,7 @@
 package org.commcare.backend.session.test;
 
 import org.commcare.modern.session.SessionWrapper;
+import org.commcare.session.SessionNavigator;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.session.SessionFrame;
 import org.javarosa.core.model.instance.ExternalDataInstance;
@@ -160,7 +161,7 @@ public class BasicSessionNavigationTests {
         session.setDatum("case_id", "case_one");
 
         // assert that relevancy condition of post request is false
-        Assert.assertEquals(session.getNeededData(), null);
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SKIP);
     }
 
     @Test
@@ -174,7 +175,7 @@ public class BasicSessionNavigationTests {
     @Test
     public void testStepToSyncRequestRelevancy() {
         session.setCommand("irrelevant-remote-request");
-        Assert.assertEquals(session.getNeededData(), null);
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SKIP);
 
         session.setCommand("relevant-remote-request");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SYNC_REQUEST);

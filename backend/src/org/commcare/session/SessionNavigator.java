@@ -29,6 +29,7 @@ public class SessionNavigator {
     public static final int START_SYNC_REQUEST = 7;
     public static final int PROCESS_QUERY_REQUEST = 8;
     public static final int REPORT_CASE_AUTOSELECT = 9;
+    public static final int SKIP = 10;
 
     private final SessionNavigationResponder responder;
     private CommCareSession currentSession;
@@ -86,6 +87,9 @@ public class SessionNavigator {
                 break;
             case SessionFrame.STATE_SYNC_REQUEST:
                 sendResponse(START_SYNC_REQUEST);
+                break;
+            case SessionFrame.STATE_SKIP:
+                sendResponse(SKIP);
                 break;
             case SessionFrame.STATE_QUERY_REQUEST:
                 sendResponse(PROCESS_QUERY_REQUEST);
