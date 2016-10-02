@@ -37,6 +37,9 @@ public class FormEntryController {
     public static final boolean STEP_OVER_GROUP = true;
     public static final boolean STEP_INTO_GROUP = false;
 
+    private boolean oneQuestionPerScreen = false;
+    private FormIndex currentIndex;
+
     /**
      * Creates a new form entry controller for the model provided
      */
@@ -448,5 +451,22 @@ public class FormEntryController {
 
         GroupDef gd = (GroupDef)this.getModel().getForm().getChild(index); // exceptions?
         return (FIELD_LIST.equalsIgnoreCase(gd.getAppearanceAttr()));
+    }
+
+
+    public void setOneQuestionPerScreen(boolean oneQuestionPerScreen) {
+        this.oneQuestionPerScreen = oneQuestionPerScreen;
+    }
+
+    public boolean getOneQuestionPerScreen() {
+        return oneQuestionPerScreen;
+    }
+
+    public void setCurrentIndex(FormIndex index) {
+        this.currentIndex = index;
+    }
+
+    public FormIndex getCurrentIndex() {
+        return currentIndex;
     }
 }

@@ -30,6 +30,8 @@ public class ActionParser extends CommCareElementParser<Action> {
     public Action parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode(NAME_ACTION);
 
+        String iconForActionBarPlacement = parser.getAttributeValue(null, "action-bar-icon");
+
         DisplayUnit display = null;
         Vector<StackOperation> stackOps = new Vector<>();
 
@@ -52,7 +54,7 @@ public class ActionParser extends CommCareElementParser<Action> {
         if (stackOps.size() == 0) {
             throw new InvalidStructureException("An <action> block must define at least one stack operation", parser);
         }
-        return new Action(display, stackOps, relevantExpr);
+        return new Action(display, stackOps, relevantExpr, iconForActionBarPlacement);
     }
 
     private XPathExpression parseRelevancyExpr() throws InvalidStructureException {
