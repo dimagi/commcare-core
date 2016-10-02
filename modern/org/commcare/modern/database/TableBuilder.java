@@ -187,9 +187,9 @@ public class TableBuilder {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
             externalizable.writeExternal(new DataOutputStream(bos));
-        } catch (IOException e1) {
-            e1.printStackTrace();
-            throw new RuntimeException("Failed to serialize externalizable for content values");
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to serialize externalizable " + externalizable +
+                " for content values wth exception " + e);
         }
         return bos.toByteArray();
     }
