@@ -211,7 +211,8 @@ public class CommCareSession {
             if (((RemoteRequestEntry)entries.elementAt(0)).getPostRequest().isRelevant(evalContext)) {
                 return SessionFrame.STATE_SYNC_REQUEST;
             } else {
-                return SessionFrame.STATE_SKIP;
+                // don't make http post but execute the pending stack operations
+                return SessionFrame.STATE_COMPLETE_SESSION;
             }
         } else if (entries.size() > 1 || !entries.elementAt(0).getCommandId().equals(currentCmd)) {
             //the only other thing we can need is a form command. If there's

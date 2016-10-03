@@ -75,7 +75,10 @@ public class SessionFrame implements Externalizable {
      */
     public static final String STATE_FORM_XMLNS = "FORM_XMLNS";
 
-    public static final String STATE_SKIP = "SKIP";
+    /**
+     * An action became irrelevant and pending stack operations should be executed
+     */
+    public static final String STATE_COMPLETE_SESSION = "COMPLETE";
 
     // endregion - states
 
