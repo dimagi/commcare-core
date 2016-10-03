@@ -10,6 +10,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+/**
+ * Keywords (':some-keyword') are a syntactical aid with no semantic meaning.
+ *
+ * Currently only used by the 'cond()' to designate the 'else' branch:
+ * > cond(1 = 0, 'inconsistent world', :else, 'consistent world')
+ */
 public class XPathKeywordExpr extends XPathExpression {
     public XPathQName id;
 
