@@ -62,19 +62,13 @@ public class XPathFuncExpr extends XPathExpression {
         if ("if".equals(id.name) && args.length != 3) {
             throw new XPathSyntaxException("if() function requires 3 arguments but " + args.length + " are present.");
         } else if ("cond".equals(id.name)) {
-            if (args.length < 2 || args.length % 2 != 0) {
-                throw new XPathSyntaxException("cond() function requires an even number of arguments. " + args.length + " are present.");
-            } else if (!isElseKeyword(args[args.length-2])) {
-                throw new XPathSyntaxException("The last two arguments of 'cond()' must be ':else, expr'.");
+            if (args.length < 3 || args.length % 2 != 1) {
+                throw new XPathSyntaxException("cond() function requires an odd number of arguments. " + args.length + " are present.");
             }
         }
 
         this.id = id;
         this.args = args;
-    }
-
-    private static boolean isElseKeyword(XPathExpression expr) {
-        return expr instanceof XPathKeywordExpr && "else".equals(((XPathKeywordExpr)expr).id.name);
     }
 
     @Override

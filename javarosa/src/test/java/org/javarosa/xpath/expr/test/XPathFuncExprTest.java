@@ -56,20 +56,21 @@ public class XPathFuncExprTest {
     public void testCond() {
         FormInstance instance = ExprEvalUtils.loadInstance("/test_xpathpathexpr.xml");
         // test evaluating valid cond statements
-        ExprEvalUtils.testEval("cond(true(), 0, :else, 1)", instance, null, 0.0);
-        ExprEvalUtils.testEval("cond(false(), 0, :else, 1)", instance, null, 1.0);
+        ExprEvalUtils.testEval("cond(true(), 0, 1=1, 1, -1)", instance, null, 0.0);
+        ExprEvalUtils.testEval("cond(false(), 0, 1)", instance, null, 1.0);
 
         // test cond with non-obvious boolean condition
-        ExprEvalUtils.testEval("cond('a', 0, :else, 1)", instance, null, 0.0);
+        ExprEvalUtils.testEval("cond('a', 0, 1)", instance, null, 0.0);
 
         // test nested cond statements
-        ExprEvalUtils.testEval("cond(1 = 0, 0, cond(1 = 1, true(), :else, false()), 1, :else, 0)", instance, null, 1.0);
+        ExprEvalUtils.testEval("cond(1 = 0, 0, cond(1 = 1, true(), false()), 1, 0)", instance, null, 1.0);
 
         // test parsing invalid cond statements
+        assertParseFailure("cond('a' = 'a')");
         assertParseFailure("cond('a' = 'a', 0)");
-        assertParseFailure("cond('a' = 'a', 0, 1)");
+        assertParseFailure("cond('a' = 'a', 0, false(), 0)");
         // '*1' is invalid syntax
-        assertParseFailure("cond('a', 0, :else, *1)");
+        assertParseFailure("cond('a', 0, *1)");
     }
 
     private static void assertParseFailure(String exprString) {

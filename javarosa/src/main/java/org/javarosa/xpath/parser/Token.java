@@ -34,7 +34,6 @@ public class Token {
     public static final int UNION = 30;
     public static final int VAR = 31;
     public static final int WILDCARD = 32;
-    public static final int KEYWORD = 33;
 
     public final int type;
     public final Object val;
@@ -144,9 +143,6 @@ public class Token {
                 break;
             case VAR:
                 s = "VAR(" + val.toString() + ")";
-                break;
-            case KEYWORD:
-                s = "KEYWORD(" + val.toString() + ")";
                 break;
             case WILDCARD:
                 s = "WILDCARD";

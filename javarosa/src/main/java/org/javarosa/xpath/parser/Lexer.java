@@ -105,14 +105,6 @@ public class Lexer {
                     token = new Token(Token.VAR, new XPathQName(expr.substring(i + 1, i + len + 1)));
                     skip = len + 1;
                 }
-            } else if (c == ':') {
-                int len = matchQName(expr, i + 1);
-                if (len == 0) {
-                    badParse(expr, i, (char)c);
-                } else {
-                    token = new Token(Token.KEYWORD, new XPathQName(expr.substring(i + 1, i + len + 1)));
-                    skip = len + 1;
-                }
             } else if (c == '\'' || c == '\"') {
                 int end = expr.indexOf(c, i + 1);
                 if (end == -1) {

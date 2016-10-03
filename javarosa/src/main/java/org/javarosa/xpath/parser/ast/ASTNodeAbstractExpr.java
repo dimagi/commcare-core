@@ -1,7 +1,6 @@
 package org.javarosa.xpath.parser.ast;
 
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathKeywordExpr;
 import org.javarosa.xpath.expr.XPathNumericLiteral;
 import org.javarosa.xpath.expr.XPathQName;
 import org.javarosa.xpath.expr.XPathStringLiteral;
@@ -47,8 +46,6 @@ public class ASTNodeAbstractExpr extends ASTNode {
                         return new XPathStringLiteral((String)getToken(0).val);
                     case Token.VAR:
                         return new XPathVariableReference((XPathQName)getToken(0).val);
-                    case Token.KEYWORD:
-                        return new XPathKeywordExpr((XPathQName)getToken(0).val);
                     default:
                         throw new XPathSyntaxException();
                 }
@@ -61,7 +58,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
     private boolean isTerminal() {
         if (content.size() == 1) {
             int type = getTokenType(0);
-            return (type == Token.NUM || type == Token.STR || type == Token.VAR || type == Token.KEYWORD);
+            return (type == Token.NUM || type == Token.STR || type == Token.VAR);
         } else {
             return false;
         }

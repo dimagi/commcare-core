@@ -97,9 +97,6 @@ public abstract class XPathExpression implements Externalizable {
         } else if (o instanceof XPathVariableReference) {
             XPathVariableReference x = (XPathVariableReference)o;
             printStr("var {" + x.id.toString() + "}");
-        } else if (o instanceof XPathKeywordExpr) {
-            XPathKeywordExpr x = (XPathKeywordExpr)o;
-            printStr("keyword {" + x.id.toString() + "}");
         } else if (o instanceof XPathArithExpr) {
             XPathArithExpr x = (XPathArithExpr)o;
             String op = null;
