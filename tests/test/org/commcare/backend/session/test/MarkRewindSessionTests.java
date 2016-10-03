@@ -10,6 +10,7 @@ import org.commcare.session.SessionFrame;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -35,7 +36,8 @@ public class MarkRewindSessionTests {
         Detail shortDetail = session.getPlatform().getDetail("case-list");
         Action action = shortDetail.getCustomActions(session.getEvaluationContext()).firstElement();
         // queue up action
-        session.executeStackOperations(action.getStackOperations(), session.getEvaluationContext());
+        boolean didRewindOrNewFrame = session.executeStackOperations(action.getStackOperations(), session.getEvaluationContext());
+        assertFalse(didRewindOrNewFrame);
 
         // test backing out of action
         session.stepBack();
@@ -46,14 +48,16 @@ public class MarkRewindSessionTests {
         session.executeStackOperations(action.getStackOperations(), session.getEvaluationContext());
 
         // finish action
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        didRewindOrNewFrame = session.finishExecuteAndPop(session.getEvaluationContext());
+        assertTrue(didRewindOrNewFrame);
 
         // ensure we don't need any more data to perform the visit
         assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
         CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
                 "instance('session')/session/data/child_case_1", "billy");
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        didRewindOrNewFrame = session.finishExecuteAndPop(session.getEvaluationContext());
+        assertFalse(didRewindOrNewFrame);
         assertTrue(session.getFrame().isDead());
     }
 
@@ -65,7 +69,8 @@ public class MarkRewindSessionTests {
         session.setCommand("create-rewind-behavior");
         assertNull(session.getNeededData());
 
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        boolean didRewindOrNewFrame = session.finishExecuteAndPop(session.getEvaluationContext());
+        assertTrue(didRewindOrNewFrame);
 
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         assertEquals("child_case_1", session.getNeededDatum().getDataId());
@@ -82,7 +87,8 @@ public class MarkRewindSessionTests {
         session.setCommand("create-rewind-without-mark");
         assertNull(session.getNeededData());
 
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        boolean didRewindOrNewFrame = session.finishExecuteAndPop(session.getEvaluationContext());
+        assertTrue(didRewindOrNewFrame);
 
         assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
@@ -111,7 +117,8 @@ public class MarkRewindSessionTests {
 
         // execute the stack ops for the m0-f0 entry
         session.setCommand("m0-f0");
-        session.finishExecuteAndPop(session.getEvaluationContext());
+        boolean didRewindOrNewFrame = session.finishExecuteAndPop(session.getEvaluationContext());
+        assertTrue(didRewindOrNewFrame);
 
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         assertEquals("child_case_1", session.getNeededDatum().getDataId());
