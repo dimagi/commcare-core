@@ -171,14 +171,7 @@ public class XPathFuncExpr extends XPathExpression {
         if (name.equals("if") && args.length == 3) {
             return ifThenElse(model, evalContext, args, argVals);
         } else if (name.equals("coalesce") && args.length == 2) {
-            //Not sure if unpacking here is quiiite right, but it seems right
-            argVals[0] = XPathFuncExpr.unpack(args[0].eval(model, evalContext));
-            if (!isNull(argVals[0])) {
-                return argVals[0];
-            } else {
-                argVals[1] = args[1].eval(model, evalContext);
-                return argVals[1];
-            }
+            return coalesceEval(model, evalContext, args, argVals);
         }
 
         for (int i = 0; i < args.length; i++) {
@@ -877,6 +870,18 @@ public class XPathFuncExpr extends XPathExpression {
         argVals[0] = args[0].eval(model, ec);
         boolean b = toBoolean(argVals[0]).booleanValue();
         return (b ? args[1].eval(model, ec) : args[2].eval(model, ec));
+    }
+
+    private static Object coalesceEval(DataInstance model, EvaluationContext evalContext,
+                                       XPathExpression[] args, Object[] argVals) {
+        //Not sure if unpacking here is quiiite right, but it seems right
+        argVals[0] = XPathFuncExpr.unpack(args[0].eval(model, evalContext));
+        if (!isNull(argVals[0])) {
+            return argVals[0];
+        } else {
+            argVals[1] = args[1].eval(model, evalContext);
+            return argVals[1];
+        }
     }
 
     /**
