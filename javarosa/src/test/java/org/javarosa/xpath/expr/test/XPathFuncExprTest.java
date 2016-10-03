@@ -62,5 +62,6 @@ public class XPathFuncExprTest {
         ExprEvalUtils.testEval("coalesce('', '', /data/places/country[@id = 'one']/name)", instance, null, "Singapore");
         ExprEvalUtils.testEval("coalesce('', /data/places/country[@id = 'three']/name, /data/places/country[@id = 'one']/name)", instance, null, "Singapore");
         ExprEvalUtils.testEval("coalesce('', /data/places/country[@id = 'one']/name, /data/places/country[@id = 'two']/name)", instance, null, "Singapore");
+        ExprEvalUtils.testEval("coalesce('', '', '', '', '')", instance, null, "");
     }
 }
