@@ -8,6 +8,7 @@
 		<password>sha1$60441$53cf77c2ac3608a944db96af177a6dfe1579e4ba</password>
 		<uuid>test_uuid</uuid>
 		<date>2012-04-30</date>
+		<user_data><data key="user_type">demo</data></user_data>
 	</Registration>
 	<case case_id="case_one"
 		date_modified="2014-08-04T21:09:07.000000Z" user_id="test_uuid"

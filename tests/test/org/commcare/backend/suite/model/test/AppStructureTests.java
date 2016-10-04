@@ -2,9 +2,9 @@ package org.commcare.backend.suite.model.test;
 
 import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Text;
 import org.commcare.test.utilities.MockApp;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,6 +16,7 @@ import org.junit.Test;
  * @author ctsims
  */
 public class AppStructureTests {
+
     private MockApp mApp;
 
     @Before
@@ -85,7 +86,13 @@ public class AppStructureTests {
     }
 
     @Test
-    public void testDemoUserRestoreParsing() {
+    public void testDemoUserRestoreParsing() throws Exception {
+        MockApp appWithGoodUserRestore = new MockApp("/app_with_good_demo_restore/");
 
+        OfflineUserRestore offlineUserRestore = appWithGoodUserRestore.getSession().getPlatform()
+                .getDemoUserRestore();
+        Assert.assertNotNull(offlineUserRestore);
+        Assert.assertEquals("test", offlineUserRestore.getUsername());
+        Assert.assertNotNull(offlineUserRestore.getPassword());
     }
 }

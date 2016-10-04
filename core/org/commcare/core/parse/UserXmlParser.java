@@ -20,10 +20,6 @@ public class UserXmlParser extends TransactionParser<User> {
 
     private IStorageUtilityIndexed<User> storage;
 
-    public UserXmlParser(KXmlParser parser) {
-        super(parser);
-    }
-
     public UserXmlParser(KXmlParser parser, IStorageUtilityIndexed<User> storage) {
         super(parser);
         this.storage = storage;
@@ -84,9 +80,7 @@ public class UserXmlParser extends TransactionParser<User> {
 
         addCustomData(u);
 
-        if (storage != null) {
-            commit(u);
-        }
+        commit(u);
         return u;
     }
 

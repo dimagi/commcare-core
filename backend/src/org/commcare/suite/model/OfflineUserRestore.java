@@ -1,21 +1,24 @@
 package org.commcare.suite.model;
 
 import org.commcare.core.parse.UserXmlParser;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.ByteArrayInputStream;
@@ -132,7 +135,17 @@ public class OfflineUserRestore implements Persistable {
     private static String parseUsernameAndCheckUserType(InputStream restoreStream)
             throws UnfullfilledRequirementsException, IOException, InvalidStructureException,
             XmlPullParserException {
-        UserXmlParser userParser = new UserXmlParser(ElementParser.instantiateParser(restoreStream));
+
+        KXmlParser parserAtRegistrationTag = getParserAtPointOfRegistrationTag(restoreStream);
+        if (parserAtRegistrationTag == null) {
+            throw new UnfullfilledRequirementsException("Demo user restore file is malformed, " +
+                    "could not find registration block", CommCareElementParser.SEVERITY_PROMPT);
+        }
+
+        IStorageUtilityIndexed<User> fakeUserStorage =
+                new DummyIndexedStorageUtility<>(User.class, new LivePrototypeFactory());
+
+        UserXmlParser userParser = new UserXmlParser(parserAtRegistrationTag, fakeUserStorage);
         User u = userParser.parse();
         if (!u.getUserType().equals(User.TYPE_DEMO)) {
             throw new UnfullfilledRequirementsException(
@@ -140,5 +153,24 @@ public class OfflineUserRestore implements Persistable {
                     CommCareElementParser.SEVERITY_PROMPT);
         }
         return u.getUsername();
+    }
+
+    private static KXmlParser getParserAtPointOfRegistrationTag(InputStream restoreStream) {
+        try {
+            KXmlParser parser = ElementParser.instantiateParser(restoreStream);
+            parser.next();
+            int eventType = parser.getEventType();
+            do {
+                if (eventType == KXmlParser.START_TAG) {
+                    if (parser.getName().toLowerCase().equals("registration")) {
+                        return parser;
+                    }
+                }
+                eventType = parser.next();
+            } while (eventType != KXmlParser.END_DOCUMENT);
+        } catch (IOException | XmlPullParserException e) {
+            return null;
+        }
+        return null;
     }
 }
