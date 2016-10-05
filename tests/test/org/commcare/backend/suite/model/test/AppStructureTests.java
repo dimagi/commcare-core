@@ -6,16 +6,12 @@ import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Text;
 import org.commcare.test.utilities.MockApp;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -104,7 +100,7 @@ public class AppStructureTests {
 
         boolean exceptionThrown = false;
         try {
-            new MockApp("/app_with_bad_demo_restore1/");
+            new MockApp("/app_with_bad_demo_restore/");
         } catch (UnresolvedResourceException e) {
             exceptionThrown = true;
             String expectedErrorMsg =
@@ -119,6 +115,5 @@ public class AppStructureTests {
             fail("A demo user restore file that does not specify user_type to demo should throw " +
                     "an UnfulfilledRequirementsException");
         }
-
     }
 }
