@@ -72,7 +72,7 @@ public class JsonActionUtils {
     // Similar to above, but get the questions for only one formIndex (OQPS)
     public static JSONObject getCurrentJson(FormEntryController controller,
                                             FormEntryModel model,
-                                            int formIndex) {
+                                            String formIndex) {
         JSONObject ret = new JSONObject();
         ret.put(ApiConstants.QUESTION_TREE_KEY, getOneQuestionPerScreenJSON(model, controller,
                 JsonActionUtils.indexFromString("" + formIndex, model.getForm())));
