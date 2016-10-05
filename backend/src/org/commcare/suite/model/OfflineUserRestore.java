@@ -1,21 +1,20 @@
 package org.commcare.suite.model;
 
 import org.commcare.core.parse.UserXmlParser;
+import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.data.xml.TransactionParser;
+import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
@@ -48,18 +47,22 @@ public class OfflineUserRestore implements Persistable {
 
     public OfflineUserRestore(String reference) throws UnfullfilledRequirementsException, IOException, InvalidStructureException,
             XmlPullParserException, InvalidReferenceException {
+
         this.reference = reference;
-        this.username = parseUsernameAndCheckUserType(reference);
+        checkThatRestoreIsValid(reference);
         this.password = PropertyUtils.genUUID();
     }
 
     public static OfflineUserRestore buildInMemoryUserRestore(InputStream restoreStream)
             throws UnfullfilledRequirementsException, IOException, InvalidStructureException,
             XmlPullParserException {
+
         OfflineUserRestore offlineUserRestore = new OfflineUserRestore();
-        offlineUserRestore.username = parseUsernameAndCheckUserType(restoreStream);
-        offlineUserRestore.restore = new String(StreamsUtil.inputStreamToByteArray(restoreStream));
+        byte[] restoreBytes = StreamsUtil.inputStreamToByteArray(restoreStream);
+        offlineUserRestore.restore = new String(restoreBytes);
+        offlineUserRestore.checkThatRestoreIsValid(new ByteArrayInputStream(restoreBytes));
         offlineUserRestore.password = PropertyUtils.genUUID();
+
         return offlineUserRestore;
     }
 
@@ -106,6 +109,8 @@ public class OfflineUserRestore implements Persistable {
         this.recordId = ExtUtil.readInt(in);
         this.reference = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         this.restore = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        this.username = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        this.password = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
     }
 
     @Override
@@ -113,6 +118,8 @@ public class OfflineUserRestore implements Persistable {
         ExtUtil.writeNumeric(out, recordId);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(reference));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(restore));
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(username));
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(password));
     }
 
     @Override
@@ -125,52 +132,50 @@ public class OfflineUserRestore implements Persistable {
         return recordId;
     }
 
-    private static String parseUsernameAndCheckUserType(String localRestoreReference)
+    private void checkThatRestoreIsValid(String localRestoreReference)
             throws UnfullfilledRequirementsException, IOException, InvalidStructureException,
             XmlPullParserException, InvalidReferenceException {
         InputStream is = ReferenceManager._().DeriveReference(localRestoreReference).getStream();
-        return parseUsernameAndCheckUserType(is);
+        checkThatRestoreIsValid(is);
     }
 
-    private static String parseUsernameAndCheckUserType(InputStream restoreStream)
+    private void checkThatRestoreIsValid(InputStream restoreStream)
             throws UnfullfilledRequirementsException, IOException, InvalidStructureException,
             XmlPullParserException {
 
-        KXmlParser parserAtRegistrationTag = getParserAtPointOfRegistrationTag(restoreStream);
-        if (parserAtRegistrationTag == null) {
-            throw new UnfullfilledRequirementsException("Demo user restore file is malformed, " +
-                    "could not find registration block", CommCareElementParser.SEVERITY_PROMPT);
-        }
+        TransactionParserFactory factory = new TransactionParserFactory() {
+            @Override
+            public TransactionParser getParser(KXmlParser parser) {
+                String name = parser.getName();
+                if ("registration".equals(name.toLowerCase())) {
+                    return buildUserParser(parser);
+                }
+                return null;
+            }
+        };
 
-        IStorageUtilityIndexed<User> fakeUserStorage =
-                new DummyIndexedStorageUtility<>(User.class, new LivePrototypeFactory());
-
-        UserXmlParser userParser = new UserXmlParser(parserAtRegistrationTag, fakeUserStorage);
-        User u = userParser.parse();
-        if (!u.getUserType().equals(User.TYPE_DEMO)) {
-            throw new UnfullfilledRequirementsException(
-                    "Demo user restore file must be for a user with user_type set to demo",
-                    CommCareElementParser.SEVERITY_PROMPT);
-        }
-        return u.getUsername();
+        DataModelPullParser parser = new DataModelPullParser(restoreStream, factory, true, false);
+        parser.parse();
     }
 
-    private static KXmlParser getParserAtPointOfRegistrationTag(InputStream restoreStream) {
-        try {
-            KXmlParser parser = ElementParser.instantiateParser(restoreStream);
-            parser.next();
-            int eventType = parser.getEventType();
-            do {
-                if (eventType == KXmlParser.START_TAG) {
-                    if (parser.getName().toLowerCase().equals("registration")) {
-                        return parser;
-                    }
+    private TransactionParser buildUserParser(KXmlParser parser) {
+        return new UserXmlParser(parser) {
+
+            @Override
+            protected void commit(User parsed) throws IOException, UnfullfilledRequirementsException {
+                if (!parsed.getUserType().equals(User.TYPE_DEMO)) {
+                    throw new UnfullfilledRequirementsException(
+                            "Demo user restore file must be for a user with user_type set to demo",
+                            CommCareElementParser.SEVERITY_PROMPT);
                 }
-                eventType = parser.next();
-            } while (eventType != KXmlParser.END_DOCUMENT);
-        } catch (IOException | XmlPullParserException e) {
-            return null;
-        }
-        return null;
+                OfflineUserRestore.this.username = parsed.getUsername();
+            }
+
+            @Override
+            public User retrieve(String entityId) {
+                return null;
+            }
+
+        };
     }
 }

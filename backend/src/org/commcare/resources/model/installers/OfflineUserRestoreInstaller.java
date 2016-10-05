@@ -53,7 +53,7 @@ public class OfflineUserRestoreInstaller extends CacheInstaller<OfflineUserResto
                 table.commit(r, Resource.RESOURCE_STATUS_UPGRADE);
             }
             cacheLocation = offlineUserRestore.getID();
-        } catch (IOException | XmlPullParserException | InvalidStructureException e) {
+        } catch (IOException | XmlPullParserException | InvalidStructureException | UnfullfilledRequirementsException e) {
             throw new UnresolvedResourceException(r, e.getMessage());
         }
         return true;

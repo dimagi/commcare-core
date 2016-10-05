@@ -1,14 +1,22 @@
 package org.commcare.backend.suite.model.test;
 
+import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Text;
 import org.commcare.test.utilities.MockApp;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Tests for general app structure, like menus and commands
@@ -26,23 +34,23 @@ public class AppStructureTests {
 
     @Test
     public void testMenuStyles() {
-        Assert.assertEquals("Root Menu Style",
+        assertEquals("Root Menu Style",
                 "grid",
                 mApp.getSession().getPlatform().getMenuDisplayStyle("root"));
 
-        Assert.assertEquals("Common Menu Style",
+        assertEquals("Common Menu Style",
                 "list",
                 mApp.getSession().getPlatform().getMenuDisplayStyle("m1"));
 
-        Assert.assertEquals("Disperate Menu Style",
+        assertEquals("Disperate Menu Style",
                 null,
                 mApp.getSession().getPlatform().getMenuDisplayStyle("m2"));
 
-        Assert.assertEquals("Empty Menu",
+        assertEquals("Empty Menu",
                 null,
                 mApp.getSession().getPlatform().getMenuDisplayStyle("m0"));
 
-        Assert.assertEquals("Specific override",
+        assertEquals("Specific override",
                 "grid",
                 mApp.getSession().getPlatform().getMenuDisplayStyle("m3"));
     }
@@ -54,7 +62,7 @@ public class AppStructureTests {
             mApp.getSession().getPlatform().getDetail("m0_case_short").getCallout();
 
         // specifies the callout's intent type
-        Assert.assertEquals(callout.getRawCalloutData().getType(), "text/plain");
+        assertEquals(callout.getRawCalloutData().getType(), "text/plain");
 
         // If the detail block represents an entity list, then the 'lookup' can
         // have a detail field describing the UI for displaying callout result
@@ -88,11 +96,29 @@ public class AppStructureTests {
     @Test
     public void testDemoUserRestoreParsing() throws Exception {
         MockApp appWithGoodUserRestore = new MockApp("/app_with_good_demo_restore/");
-
         OfflineUserRestore offlineUserRestore = appWithGoodUserRestore.getSession().getPlatform()
                 .getDemoUserRestore();
         Assert.assertNotNull(offlineUserRestore);
-        Assert.assertEquals("test", offlineUserRestore.getUsername());
+        assertEquals("test", offlineUserRestore.getUsername());
         Assert.assertNotNull(offlineUserRestore.getPassword());
+
+        boolean exceptionThrown = false;
+        try {
+            new MockApp("/app_with_bad_demo_restore1/");
+        } catch (UnresolvedResourceException e) {
+            exceptionThrown = true;
+            String expectedErrorMsg =
+                    "Demo user restore file must be for a user with user_type set to demo";
+            assertEquals(
+                    "The UnresolvedResourceException that was thrown was due to an unexpected cause, " +
+                            "the actual error message is: " + e.getMessage(),
+                    expectedErrorMsg,
+                    e.getMessage());
+        }
+        if (!exceptionThrown) {
+            fail("A demo user restore file that does not specify user_type to demo should throw " +
+                    "an UnfulfilledRequirementsException");
+        }
+
     }
 }
