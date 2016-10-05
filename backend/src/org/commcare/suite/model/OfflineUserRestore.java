@@ -168,7 +168,13 @@ public class OfflineUserRestore implements Persistable {
                             "Demo user restore file must be for a user with user_type set to demo",
                             CommCareElementParser.SEVERITY_PROMPT);
                 }
-                OfflineUserRestore.this.username = parsed.getUsername();
+                if ("".equals(parsed.getUsername()) || parsed.getUsername() == null) {
+                    throw new UnfullfilledRequirementsException(
+                            "Demo user restore file must specify a username in the Registration block",
+                            CommCareElementParser.SEVERITY_PROMPT);
+                } else {
+                    OfflineUserRestore.this.username = parsed.getUsername();
+                }
             }
 
             @Override

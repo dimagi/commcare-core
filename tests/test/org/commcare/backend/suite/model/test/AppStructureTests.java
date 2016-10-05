@@ -91,6 +91,7 @@ public class AppStructureTests {
 
     @Test
     public void testDemoUserRestoreParsing() throws Exception {
+        // Test parsing an app with a properly-formed demo user restore file
         MockApp appWithGoodUserRestore = new MockApp("/app_with_good_demo_restore/");
         OfflineUserRestore offlineUserRestore = appWithGoodUserRestore.getSession().getPlatform()
                 .getDemoUserRestore();
@@ -98,6 +99,7 @@ public class AppStructureTests {
         assertEquals("test", offlineUserRestore.getUsername());
         Assert.assertNotNull(offlineUserRestore.getPassword());
 
+        // Test parsing an app where the user_type is not set to 'demo'
         boolean exceptionThrown = false;
         try {
             new MockApp("/app_with_bad_demo_restore/");
@@ -113,6 +115,25 @@ public class AppStructureTests {
         }
         if (!exceptionThrown) {
             fail("A demo user restore file that does not specify user_type to demo should throw " +
+                    "an UnfulfilledRequirementsException");
+        }
+
+        // Test parsing an app where the username block is empty
+        exceptionThrown = false;
+        try {
+            new MockApp("/app_with_bad_demo_restore2/");
+        } catch (UnresolvedResourceException e) {
+            exceptionThrown = true;
+            String expectedErrorMsg =
+                    "Demo user restore file must specify a username in the Registration block";
+            assertEquals(
+                    "The UnresolvedResourceException that was thrown was due to an unexpected cause, " +
+                            "the actual error message is: " + e.getMessage(),
+                    expectedErrorMsg,
+                    e.getMessage());
+        }
+        if (!exceptionThrown) {
+            fail("A demo user restore file that does not specify a username should throw " +
                     "an UnfulfilledRequirementsException");
         }
     }
