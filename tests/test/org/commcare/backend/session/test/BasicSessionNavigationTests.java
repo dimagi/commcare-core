@@ -168,7 +168,7 @@ public class BasicSessionNavigationTests {
         SessionWrapper session = mApp.getSession();
 
         session.setCommand("empty-remote-request");
-        Assert.assertEquals(session.getNeededData(), null);
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SYNC_REQUEST);
     }
 
     @Test
