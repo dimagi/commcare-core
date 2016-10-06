@@ -207,8 +207,8 @@ public class CommCareSession {
         } else if (entries.isEmpty()) {
             throw new RuntimeException("Collected datums don't match required datums for entries at command " + currentCmd);
         } else if (entries.size() == 1
-                && entries.elementAt(0) instanceof RemoteRequestEntry &&
-                ((RemoteRequestEntry)entries.elementAt(0)).getPostRequest().isRelevant(evalContext)) {
+                && entries.elementAt(0) instanceof RemoteRequestEntry
+                && ((RemoteRequestEntry)entries.elementAt(0)).getPostRequest().isRelevant(evalContext)) {
             return SessionFrame.STATE_SYNC_REQUEST;
         } else if (entries.size() > 1 || !entries.elementAt(0).getCommandId().equals(currentCmd)) {
             //the only other thing we can need is a form command. If there's
