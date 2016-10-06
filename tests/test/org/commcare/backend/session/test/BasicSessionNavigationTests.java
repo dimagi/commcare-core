@@ -160,7 +160,7 @@ public class BasicSessionNavigationTests {
         session.setDatum("case_id", "case_one");
 
         // assert that relevancy condition of post request is false
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMPLETE_SESSION);
+        Assert.assertEquals(session.getNeededData(), null);
     }
 
     @Test
@@ -168,13 +168,13 @@ public class BasicSessionNavigationTests {
         SessionWrapper session = mApp.getSession();
 
         session.setCommand("empty-remote-request");
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SYNC_REQUEST);
+        Assert.assertEquals(session.getNeededData(), null);
     }
 
     @Test
     public void testStepToSyncRequestRelevancy() {
         session.setCommand("irrelevant-remote-request");
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMPLETE_SESSION);
+        Assert.assertEquals(session.getNeededData(), null);
 
         session.setCommand("relevant-remote-request");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SYNC_REQUEST);

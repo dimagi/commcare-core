@@ -207,13 +207,9 @@ public class CommCareSession {
         } else if (entries.isEmpty()) {
             throw new RuntimeException("Collected datums don't match required datums for entries at command " + currentCmd);
         } else if (entries.size() == 1
-                && entries.elementAt(0) instanceof RemoteRequestEntry) {
-            if (((RemoteRequestEntry)entries.elementAt(0)).getPostRequest().isRelevant(evalContext)) {
-                return SessionFrame.STATE_SYNC_REQUEST;
-            } else {
-                // don't make http post but execute the pending stack operations
-                return SessionFrame.STATE_COMPLETE_SESSION;
-            }
+                && entries.elementAt(0) instanceof RemoteRequestEntry &&
+                ((RemoteRequestEntry)entries.elementAt(0)).getPostRequest().isRelevant(evalContext)) {
+            return SessionFrame.STATE_SYNC_REQUEST;
         } else if (entries.size() > 1 || !entries.elementAt(0).getCommandId().equals(currentCmd)) {
             //the only other thing we can need is a form command. If there's
             //still more than one applicable entry, we need to keep going

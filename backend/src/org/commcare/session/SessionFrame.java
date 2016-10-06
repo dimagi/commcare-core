@@ -75,11 +75,6 @@ public class SessionFrame implements Externalizable {
      */
     public static final String STATE_FORM_XMLNS = "FORM_XMLNS";
 
-    /**
-     * An action became irrelevant and pending stack operations should be executed
-     */
-    public static final String STATE_COMPLETE_SESSION = "COMPLETE";
-
     // endregion - states
 
     private Vector<StackFrameStep> steps = new Vector<>();
