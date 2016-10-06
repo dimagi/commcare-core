@@ -49,7 +49,7 @@ public class OfflineUserRestore implements Persistable {
             XmlPullParserException, InvalidReferenceException {
 
         this.reference = reference;
-        checkThatRestoreIsValid(reference);
+        checkThatRestoreIsValid();
         this.password = PropertyUtils.genUUID();
     }
 
@@ -60,17 +60,19 @@ public class OfflineUserRestore implements Persistable {
         OfflineUserRestore offlineUserRestore = new OfflineUserRestore();
         byte[] restoreBytes = StreamsUtil.inputStreamToByteArray(restoreStream);
         offlineUserRestore.restore = new String(restoreBytes);
-        offlineUserRestore.checkThatRestoreIsValid(new ByteArrayInputStream(restoreBytes));
+        offlineUserRestore.checkThatRestoreIsValid();
         offlineUserRestore.password = PropertyUtils.genUUID();
 
         return offlineUserRestore;
     }
 
     public InputStream getRestoreStream() {
-        if (reference == null) {
-            return getInMemoryStream();
-        } else {
+        if (reference != null) {
+            // user restore xml was installed to a file
             return getStreamFromReference();
+        } else {
+            // user restore xml was installed in memory (CLI)
+            return getInMemoryStream();
         }
     }
 
@@ -132,14 +134,7 @@ public class OfflineUserRestore implements Persistable {
         return recordId;
     }
 
-    private void checkThatRestoreIsValid(String localRestoreReference)
-            throws UnfullfilledRequirementsException, IOException, InvalidStructureException,
-            XmlPullParserException, InvalidReferenceException {
-        InputStream is = ReferenceManager._().DeriveReference(localRestoreReference).getStream();
-        checkThatRestoreIsValid(is);
-    }
-
-    private void checkThatRestoreIsValid(InputStream restoreStream)
+    private void checkThatRestoreIsValid()
             throws UnfullfilledRequirementsException, IOException, InvalidStructureException,
             XmlPullParserException {
 
@@ -154,7 +149,7 @@ public class OfflineUserRestore implements Persistable {
             }
         };
 
-        DataModelPullParser parser = new DataModelPullParser(restoreStream, factory, true, false);
+        DataModelPullParser parser = new DataModelPullParser(getRestoreStream(), factory, true, false);
         parser.parse();
     }
 
