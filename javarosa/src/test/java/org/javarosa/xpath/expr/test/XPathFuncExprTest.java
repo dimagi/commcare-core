@@ -6,10 +6,13 @@ import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for xpath functions
@@ -47,5 +50,36 @@ public class XPathFuncExprTest {
             return;
         }
         Assert.fail("form entry should fail on bad `position` usage before getting here");
+    }
+
+    @Test
+    public void testCond() {
+        FormInstance instance = ExprEvalUtils.loadInstance("/test_xpathpathexpr.xml");
+        // test evaluating valid cond statements
+        ExprEvalUtils.testEval("cond(true(), 0, 1=1, 1, -1)", instance, null, 0.0);
+        ExprEvalUtils.testEval("cond(false(), 0, 1)", instance, null, 1.0);
+
+        // test cond with non-obvious boolean condition
+        ExprEvalUtils.testEval("cond('a', 0, 1)", instance, null, 0.0);
+
+        // test nested cond statements
+        ExprEvalUtils.testEval("cond(1 = 0, 0, cond(1 = 1, true(), false()), 1, 0)", instance, null, 1.0);
+
+        // test parsing invalid cond statements
+        assertParseFailure("cond('a' = 'a')");
+        assertParseFailure("cond('a' = 'a', 0)");
+        assertParseFailure("cond('a' = 'a', 0, false(), 0)");
+        // '*1' is invalid syntax
+        assertParseFailure("cond('a', 0, *1)");
+    }
+
+    private static void assertParseFailure(String exprString) {
+        boolean didParseFail = false;
+        try {
+            XPathParseTool.parseXPath(exprString);
+        } catch (XPathSyntaxException xpse) {
+            didParseFail = true;
+        }
+        assertTrue(didParseFail);
     }
 }

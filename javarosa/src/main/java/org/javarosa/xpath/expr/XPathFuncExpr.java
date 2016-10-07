@@ -59,10 +59,13 @@ public class XPathFuncExpr extends XPathExpression {
     } //for deserialization
 
     public XPathFuncExpr(XPathQName id, XPathExpression[] args) throws XPathSyntaxException {
-
-        if (id.name.equals("if")) {
-            if (args.length != 3) {
-                throw new XPathSyntaxException("if() function requires 3 arguments but " + args.length + " are present.");
+        if ("if".equals(id.name) && args.length != 3) {
+            throw new XPathSyntaxException("if() function requires 3 arguments but " + args.length + " are present.");
+        } else if ("cond".equals(id.name)) {
+            if (args.length < 3) {
+                throw new XPathSyntaxException("cond() function requires at least 3 arguments. " + args.length + " arguments provided.");
+            } else if (args.length % 2 != 1) {
+                throw new XPathSyntaxException("cond() function requires an odd number of arguments. " + args.length + " arguments provided.");
             }
         }
 
@@ -136,15 +139,17 @@ public class XPathFuncExpr extends XPathExpression {
         Vector v = (Vector)ExtUtil.read(in, new ExtWrapListPoly(), pf);
 
         args = new XPathExpression[v.size()];
-        for (int i = 0; i < args.length; i++)
+        for (int i = 0; i < args.length; i++) {
             args[i] = (XPathExpression)v.elementAt(i);
+        }
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        Vector v = new Vector();
-        for (int i = 0; i < args.length; i++)
-            v.addElement(args[i]);
+        Vector<XPathExpression> v = new Vector<>();
+        for (XPathExpression arg : args) {
+            v.addElement(arg);
+        }
 
         ExtUtil.write(out, id);
         ExtUtil.write(out, new ExtWrapListPoly(v));
@@ -169,7 +174,9 @@ public class XPathFuncExpr extends XPathExpression {
 
         //TODO: Func handlers should be able to declare the desire for short circuiting as well
         if (name.equals("if") && args.length == 3) {
-            return ifThenElse(model, evalContext, args, argVals);
+            return ifThenElse(model, evalContext, args);
+        } else if (name.equals("cond")) {
+            return condEval(model, evalContext, args);
         } else if (name.equals("coalesce") && args.length == 2) {
             //Not sure if unpacking here is quiiite right, but it seems right
             argVals[0] = XPathFuncExpr.unpack(args[0].eval(model, evalContext));
@@ -873,10 +880,23 @@ public class XPathFuncExpr extends XPathExpression {
         return new Double(refAt.getMultLast());
     }
 
-    public static Object ifThenElse(DataInstance model, EvaluationContext ec, XPathExpression[] args, Object[] argVals) {
-        argVals[0] = args[0].eval(model, ec);
-        boolean b = toBoolean(argVals[0]).booleanValue();
-        return (b ? args[1].eval(model, ec) : args[2].eval(model, ec));
+    private static Object ifThenElse(DataInstance model, EvaluationContext ec, XPathExpression[] args) {
+        if (toBoolean(args[0].eval(model, ec))) {
+            return args[1].eval(model, ec);
+        } else {
+            return args[2].eval(model, ec);
+        }
+    }
+
+    private static Object condEval(DataInstance model, EvaluationContext ec,
+                                   XPathExpression[] args) {
+        for (int i = 0; i < args.length - 2; i+=2) {
+            if (toBoolean(args[i].eval(model, ec))) {
+                return args[i+1].eval(model, ec);
+            }
+        }
+
+        return args[args.length-1].eval(model, ec);
     }
 
     /**
