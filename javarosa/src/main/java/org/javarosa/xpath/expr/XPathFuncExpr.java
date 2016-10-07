@@ -62,8 +62,10 @@ public class XPathFuncExpr extends XPathExpression {
         if ("if".equals(id.name) && args.length != 3) {
             throw new XPathSyntaxException("if() function requires 3 arguments but " + args.length + " are present.");
         } else if ("cond".equals(id.name)) {
-            if (args.length < 3 || args.length % 2 != 1) {
-                throw new XPathSyntaxException("cond() function requires an odd number of arguments. " + args.length + " are present.");
+            if (args.length < 3) {
+                throw new XPathSyntaxException("cond() function requires at least 3 arguments. " + args.length + " arguments provided.");
+            } else if (args.length % 2 != 1) {
+                throw new XPathSyntaxException("cond() function requires an odd number of arguments. " + args.length + " arguments provided.");
             }
         }
 
