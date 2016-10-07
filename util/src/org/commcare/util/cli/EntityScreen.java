@@ -1,18 +1,19 @@
 package org.commcare.util.cli;
 
 import org.commcare.modern.session.SessionWrapper;
+import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
 
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -40,6 +41,8 @@ public class EntityScreen extends CompoundScreenHost {
 
     private boolean readyToSkip = false;
 
+    private Hashtable<String, TreeReference> referenceMap;
+
     public void init(SessionWrapper session) throws CommCareSessionException {
         SessionDatum datum = session.getNeededDatum();
         if (!(datum instanceof EntityDatum)) {
@@ -64,6 +67,11 @@ public class EntityScreen extends CompoundScreenHost {
         EvaluationContext ec = session.getEvaluationContext();
         Vector<TreeReference> references = ec.expandReference(mNeededDatum.getNodeset());
 
+        referenceMap = new Hashtable<>();
+        for(TreeReference reference: references) {
+            referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), ec), reference);
+        }
+
         if(mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
             this.setHighlightedEntity(references.firstElement());
             if(!this.setCurrentScreenToDetail()) {
@@ -72,6 +80,7 @@ public class EntityScreen extends CompoundScreenHost {
             }
         } else {
             mCurrentScreen = new EntityListSubscreen(mShortDetail, references, ec);
+            initDetailScreens();
         }
     }
 
@@ -81,7 +90,7 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     @Override
-    protected String getScreenTitle() {
+    public String getScreenTitle() {
         try {
             return mShortDetail.getTitle().evaluate(mSession.getEvaluationContext()).getName();
         }catch (NoLocalizedTextException nlte) {
@@ -94,7 +103,7 @@ public class EntityScreen extends CompoundScreenHost {
         return mCurrentScreen;
     }
 
-    private String getReturnValueFromSelection(TreeReference contextRef, EntityDatum needed, EvaluationContext context) {
+    public String getReturnValueFromSelection(TreeReference contextRef, EntityDatum needed, EvaluationContext context) {
         // grab the session's (form) element reference, and load it.
         TreeReference elementRef =
                 XPathReference.getPathExpr(needed.getValue()).getReference();
@@ -125,6 +134,10 @@ public class EntityScreen extends CompoundScreenHost {
 
     public void setHighlightedEntity(TreeReference selection) {
         this.mCurrentSelection = selection;
+    }
+
+    public void setHighlightedEntity(String id) {
+        this.mCurrentSelection = referenceMap.get(id);
     }
 
     private void initDetailScreens() {
@@ -168,7 +181,11 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
-    private String[] getDetailListTitles(EvaluationContext subContext) {
+    public Detail[] getLongDetailList(){
+        return mLongDetailList;
+    }
+
+    public String[] getDetailListTitles(EvaluationContext subContext) {
         String[] titles = new String[mLongDetailList.length];
         for(int i = 0 ; i < mLongDetailList.length ; ++i) {
             titles[i] = this.mLongDetailList[i].getTitle().getText().evaluate(subContext);
@@ -178,5 +195,11 @@ public class EntityScreen extends CompoundScreenHost {
 
     public void setPendingAction(Action pendingAction) {
         this.mPendingAction = pendingAction;
+    }
+    public Detail getShortDetail(){
+        return mShortDetail;
+    }
+    public SessionWrapper getSession(){
+        return mSession;
     }
 }

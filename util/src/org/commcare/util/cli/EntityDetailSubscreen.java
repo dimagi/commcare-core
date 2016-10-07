@@ -21,24 +21,35 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
 
     private final String[] rows;
     private final String[] mDetailListTitles;
-
+    private final Object[] data ;
+    private final String[] headers;
     private final int mCurrentIndex;
 
     public EntityDetailSubscreen(int currentIndex, Detail detail, EvaluationContext subContext, String[] detailListTitles) {
         DetailField[] fields = detail.getFields();
         rows = new String[fields.length];
+        headers = new String[fields.length];
+        data = new Object[fields.length];
 
         detail.populateEvaluationContextVariables(subContext);
 
         for (int i = 0; i < fields.length; ++i) {
-            rows[i] = createRow(fields[i], subContext);
+            data[i] = createData(fields[i], subContext);
+            headers[i] = createHeader(fields[i], subContext);
+            rows[i] = createRow(fields[i], subContext, data[i]);
         }
         mDetailListTitles = detailListTitles;
 
         mCurrentIndex = currentIndex;
     }
 
-    private String createRow(DetailField field, EvaluationContext ec) {
+    private String createHeader(DetailField field, EvaluationContext ec){return field.getHeader().evaluate(ec);}
+
+    private Object createData(DetailField field, EvaluationContext ec){
+        return field.getTemplate().evaluate(ec);
+    }
+
+    private String createRow(DetailField field, EvaluationContext ec, Object o) {
         StringBuilder row = new StringBuilder();
         String header = field.getHeader().evaluate(ec);
 
@@ -46,7 +57,6 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
         row.append(" | ");
 
         String value;
-        Object o = field.getTemplate().evaluate(ec);
         if (!(o instanceof String)) {
             value = "{ " + field.getTemplateForm() + " data}";
         } else {
@@ -116,4 +126,14 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
         }
         return false;
     }
+
+    public Object[] getData() {
+        return data;
+    }
+
+    public String[] getHeaders(){
+        return headers;
+    }
+
+    public String[] getTitles() { return mDetailListTitles;}
 }

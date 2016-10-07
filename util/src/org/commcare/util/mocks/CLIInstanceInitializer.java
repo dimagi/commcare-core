@@ -19,7 +19,7 @@ public class CLIInstanceInitializer extends CommCareInstanceInitializer {
         super(sessionWrapper, mSandbox, mPlatform);
     }
 
-    protected String getVersionString(){
+    public String getVersionString(){
         return "CommCare CLI Version: " + mPlatform.getMajorVersion() + "." + mPlatform.getMinorVersion();
     }
 }

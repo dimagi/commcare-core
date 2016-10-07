@@ -1,15 +1,13 @@
 package org.commcare.util.cli;
 
-import org.commcare.modern.session.SessionWrapper;
 import org.commcare.core.interfaces.UserSandbox;
-import org.commcare.suite.model.FormEntry;
-import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.Menu;
-import org.commcare.suite.model.MenuDisplayable;
-import org.commcare.suite.model.Suite;
-import org.commcare.util.CommCarePlatform;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
+import org.commcare.suite.model.*;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -46,6 +44,9 @@ public class MenuScreen extends Screen {
         
         Hashtable<String, Entry> map = mPlatform.getMenuMap();
         EvaluationContext ec = null;
+
+        mTitle = this.getBestTitle();
+
         for(Suite s : mPlatform.getInstalledSuites()) {
             for(Menu m : s.getMenus()) {
                 try {
@@ -56,16 +57,8 @@ public class MenuScreen extends Screen {
                             continue;
                         }
                     }
-                    if (m.getId().equals(root)) {
 
-                        if (mTitle == null) {
-                            //TODO: Do I need args, here?
-                            try {
-                                mTitle = m.getName().evaluate();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
+                    if (m.getId().equals(root)) {
 
                         for (String command : m.getCommandIds()) {
                             XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
@@ -123,7 +116,7 @@ public class MenuScreen extends Screen {
         choices.copyInto(mChoices);
     }
 
-    protected String getScreenTitle() {
+    public String getScreenTitle() {
         return mTitle;
     }
 
@@ -170,5 +163,17 @@ public class MenuScreen extends Screen {
             //This will result in things just executing again, which is fine.
         }
         return true;
+    }
+
+    public MenuDisplayable[] getMenuDisplayables(){
+        return mChoices;
+    }
+
+    private String getBestTitle(){
+        try {
+            return Localization.get("app.display.name");
+        } catch (NoLocalizedTextException nlte) {
+            return "CommCare";
+        }
     }
 }

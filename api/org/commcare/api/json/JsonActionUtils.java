@@ -71,7 +71,7 @@ public class JsonActionUtils {
     // Similar to above, but get the questions for only one formIndex (OQPS)
     public static JSONObject getCurrentJson(FormEntryController controller,
                                             FormEntryModel model,
-                                            int formIndex) {
+                                            String formIndex) {
         JSONObject ret = new JSONObject();
         ret.put(ApiConstants.QUESTION_TREE_KEY, getOneQuestionPerScreenJSON(model, controller,
                 JsonActionUtils.indexFromString("" + formIndex, model.getForm())));
@@ -113,7 +113,13 @@ public class JsonActionUtils {
             ret.put(ApiConstants.ERROR_TYPE_KEY, "constraint");
             ret.put(ApiConstants.ERROR_REASON_KEY, prompt.getConstraintText());
         } else if (result == FormEntryController.ANSWER_OK) {
-            ret.put(ApiConstants.QUESTION_TREE_KEY, getFullFormJSON(model, controller));
+            if (controller.getOneQuestionPerScreen()) {
+                ret.put(ApiConstants.QUESTION_TREE_KEY, getOneQuestionPerScreenJSON(
+                    model, controller, controller.getCurrentIndex()));
+            } else {
+                ret.put(ApiConstants.QUESTION_TREE_KEY, getFullFormJSON(model, controller));
+            }
+
             ret.put(ApiConstants.RESPONSE_STATUS_KEY, "accepted");
         }
         return ret;
