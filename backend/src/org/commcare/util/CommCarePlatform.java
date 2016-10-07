@@ -1,6 +1,5 @@
 package org.commcare.util;
 
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.FormEntry;
@@ -104,13 +103,9 @@ public class CommCarePlatform implements CommCareInstance {
      * @param global Table with fully-installed resources
      */
     public void initialize(ResourceTable global, boolean isUpgrade) {
-        try {
-            global.initializeResources(this, isUpgrade);
-        } catch (ResourceInitializationException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error initializing Resource! " + e.getMessage());
-        }
+        global.initializeResources(this, isUpgrade);
     }
+
     public void clearAppState() {
         //Clear out any app state
         profile = -1;

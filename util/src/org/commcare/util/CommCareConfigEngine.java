@@ -6,7 +6,6 @@ import org.commcare.modern.reference.JavaHttpRoot;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
@@ -209,9 +208,14 @@ public class CommCareConfigEngine {
     }
 
     public void initEnvironment() {
-        try {
             Localization.init(true);
+        try {
             table.initializeResources(platform, false);
+        } catch (RuntimeException e) {
+            print.println("Error while initializing one of the resolved resources");
+            e.printStackTrace(print);
+            System.exit(-1);
+        }
             //Make sure there's a default locale, since the app doesn't necessarily use the
             //localization engine
             Localization.getGlobalLocalizerAdvanced().addAvailableLocale("default");
@@ -224,11 +228,6 @@ public class CommCareConfigEngine {
             }
 
             setDefaultLocale();
-        } catch (ResourceInitializationException e) {
-            print.println("Error while initializing one of the resolved resources");
-            e.printStackTrace(print);
-            System.exit(-1);
-        }
     }
 
     private void setDefaultLocale() {

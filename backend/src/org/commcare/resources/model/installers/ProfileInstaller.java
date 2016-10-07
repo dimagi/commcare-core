@@ -1,7 +1,6 @@
 package org.commcare.resources.model.installers;
 
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnreliableSourceException;
@@ -50,7 +49,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
     }
 
     @Override
-    public boolean initialize(CommCareInstance instance, boolean isUpgrade) throws ResourceInitializationException {
+    public boolean initialize(CommCareInstance instance, boolean isUpgrade) {
         //Certain properties may not have been able to set during install, so we'll make sure they're
         //set here.
         Profile p = storage().read(cacheLocation);

@@ -883,12 +883,8 @@ public class ResourceTable {
     /**
      * Register the available resources in this table with the provided
      * CommCare instance.
-     *
-     * @param instance
-     * @throws ResourceInitializationException
      */
-    public void initializeResources(CommCareInstance instance, boolean isUpgrade)
-            throws ResourceInitializationException {
+    public void initializeResources(CommCareInstance instance, boolean isUpgrade) {
         // HHaaaacckkk. (Some properties cannot be handled until after others
         // TODO: Replace this with some sort of sorted priority queue.
         Vector<ResourceInstaller> lateInit = new Vector<>();

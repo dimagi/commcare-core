@@ -2,9 +2,9 @@ package org.javarosa.xpath;
 
 public class XPathException extends RuntimeException {
 
-    //A reference to the "Source" of this message helpful
-    //for tracking down where the invalid xpath was declared
-    String sourceRef;
+    // A reference to the "Source" of this message helpful
+    // for tracking down where the invalid xpath was declared
+    private String sourceRef;
 
     public XPathException() {
 
