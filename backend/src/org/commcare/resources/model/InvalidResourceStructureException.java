@@ -6,7 +6,11 @@ package org.commcare.resources.model;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class InvalidResourceStructureException extends RuntimeException {
-    public InvalidResourceStructureException(String msg) {
+    public final String resourceName;
+
+    public InvalidResourceStructureException(String resourceName, String msg) {
         super(msg);
+
+        this.resourceName = resourceName;
     }
 }
