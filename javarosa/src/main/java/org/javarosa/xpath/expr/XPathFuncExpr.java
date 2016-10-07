@@ -174,7 +174,7 @@ public class XPathFuncExpr extends XPathExpression {
 
         //TODO: Func handlers should be able to declare the desire for short circuiting as well
         if (name.equals("if") && args.length == 3) {
-            return ifThenElse(model, evalContext, args, argVals);
+            return ifThenElse(model, evalContext, args);
         } else if (name.equals("coalesce") && args.length > 0) {
             return coalesceEval(model, evalContext, args);
         } else if (name.equals("cond")) {
