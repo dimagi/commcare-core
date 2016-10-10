@@ -1,7 +1,6 @@
 (ns commcare-cli.core
   (:require [clojure.tools.cli :as cli]
             [commcare-cli.app_host :as app_host])
-  (:import [org.commcare.util.cli ApplicationHost])
   (:gen-class))
 
 (defn parse-args [args]

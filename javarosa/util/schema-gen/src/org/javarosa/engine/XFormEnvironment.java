@@ -98,8 +98,8 @@ public class XFormEnvironment {
         if (mockup != null) {
             customDate = mockup.getDate();
         }
-        ec.addFunctionHandler(new TodayFunc("today", customDate));
-        ec.addFunctionHandler(new TodayFunc("now", customDate));
+        ec.addFunctionHandler(new FunctionExtensions.TodayFunc("today", customDate));
+        ec.addFunctionHandler(new FunctionExtensions.TodayFunc("now", customDate));
         return ec;
     }
 
@@ -117,41 +117,6 @@ public class XFormEnvironment {
         System.out.println(hardCodedDate);
     }
 
-    private static class TodayFunc implements IFunctionHandler {
-        private final String name;
-        private final Date date;
-
-        public TodayFunc(String name, Date date) {
-            this.name = name;
-            this.date = date;
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public Vector getPrototypes() {
-            Vector<Class[]> p = new Vector<>();
-            p.addElement(new Class[0]);
-            return p;
-        }
-
-        @Override
-        public boolean rawArgs() {
-            return false;
-        }
-
-        @Override
-        public Object eval(Object[] args, EvaluationContext ec) {
-            if (date != null) {
-                return date;
-            } else {
-                return new Date();
-            }
-        }
-    }
 
     public void commitStep() {
         if(recording) {
