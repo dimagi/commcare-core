@@ -14,6 +14,7 @@
 (defn launch
   ""
   [options]
+  (when (nil? (:app options)) (doall (println "must provide an app via -a") (System/exit 0)))
   (let [app
         (if (some? (:restore options))
           (app_host/install-app-with-restore (:app options) (:restore options))

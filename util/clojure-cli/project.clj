@@ -7,7 +7,7 @@
                  [jline "2.14.2"]
                  [org.clojure/tools.cli "0.3.5"]
                  [org.commcare/commcare "2.31.0"]]
-  :aot [commcare-cli.reader.jline.JlineInputReader]
+  :aot [commcare-cli.reader.jline.JlineInputReader commcare-cli.core]
   :plugins [[lein-localrepo "0.5.3"]]
   :main ^{:skip-aot true} commcare-cli.core
   :target-path "target/%s"
