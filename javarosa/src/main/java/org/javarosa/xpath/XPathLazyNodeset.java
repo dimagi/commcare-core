@@ -147,8 +147,4 @@ public class XPathLazyNodeset extends XPathNodeset {
     public String getUnexpandedRefString() {
         return unExpandedRef.toString();
     }
-
-    public TreeReference getUnexpandedRef() {
-        return unExpandedRef;
-    }
 }
