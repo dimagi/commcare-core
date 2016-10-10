@@ -24,7 +24,7 @@
   HELP_MESSAGE
   (helpers/long-str
     ":exit / :quit - Terminate the session and close the CLI app"
-    ":update (-f) - Update the application live against the newest version on the server. -f optional flag to grab the newest build instead of the newest starred build"
+    ":update (-f/-p) - Update the application live against the newest version on the server. --latest/-f optional flag to grab the newest build instead of the newest starred build. --preview/-p is for latest saved version of app"
     ":home - Navigate to the home menu of the app"
     ":lang <lang> - change the language to <lang> (e.g. :lang en)"
     ":today <date> - change the date returned by today()/now() (e.g. :today 2015-07-25). ':today' resets to today's date"
@@ -92,6 +92,23 @@
                      (println "DATUM: " (.getId step) " - " (.getValue step))))
         steps))))
 
+;; String -> BuildType
+;; where BuildType is one of 
+;; - :save, latest saved version of app
+;; - :build, latest built version of app
+;; - :release, latests starred version of app
+(defn parse-build-type [arg]
+  (cond
+    (nil? arg) :release
+    (or (string/includes? arg "--latest") (string/includes? arg "-f")) :build
+    (or (string/includes? arg "--preview") (string/includes? arg "-p")) :save
+    :else :release))
+
+;; App BuildType -> None
+(defn update-app [app build-type]
+  (.clearAllState (:session app))
+  (.attemptAppUpdate (:engine app) (name build-type)))
+
 (defn set-locale [locale]
   (if (string/blank? locale)
     (println "Command format\n:lang [langcode]")
@@ -110,8 +127,8 @@
           [command arg] (map string/trim (string/split user-input #" " 2))]
       (cond
         (= command ":update")
-        (do (println "TODO: app implement update")
-            :stay)
+        (do (update-app app (parse-build-type arg))
+            :refresh)
         (= command ":home")
         (do (.clearAllState session)
             :refresh)
