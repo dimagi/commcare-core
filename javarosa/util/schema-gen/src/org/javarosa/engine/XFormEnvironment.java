@@ -2,7 +2,6 @@ package org.javarosa.engine;
 
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.engine.models.Action;
@@ -14,7 +13,6 @@ import org.javarosa.form.api.FormEntryModel;
 
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.Vector;
 
 /**
  *
@@ -100,6 +98,7 @@ public class XFormEnvironment {
         }
         ec.addFunctionHandler(new FunctionExtensions.TodayFunc("today", customDate));
         ec.addFunctionHandler(new FunctionExtensions.TodayFunc("now", customDate));
+        ec.addFunctionHandler(new FunctionExtensions.PrintFunc(createIIF()));
         return ec;
     }
 

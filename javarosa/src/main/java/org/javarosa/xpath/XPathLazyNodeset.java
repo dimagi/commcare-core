@@ -115,7 +115,7 @@ public class XPathLazyNodeset extends XPathNodeset {
     }
 
     @Override
-    protected Vector<TreeReference> getReferences() {
+    public Vector<TreeReference> getReferences() {
         performEvaluation();
         return super.getReferences();
     }
@@ -143,7 +143,12 @@ public class XPathLazyNodeset extends XPathNodeset {
         performEvaluation();
         return super.nodeContents();
     }
+
     public String getUnexpandedRefString() {
         return unExpandedRef.toString();
+    }
+
+    public TreeReference getUnexpandedRef() {
+        return unExpandedRef;
     }
 }
