@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.xpath.parser.ast;
 
 import org.javarosa.xpath.expr.XPathExpression;
@@ -43,16 +27,18 @@ public class ASTNodePathStep extends ASTNode {
     public ASTNodeFunctionCall nodeTestFunc;
     public XPathQName nodeTestQName;
     public String nodeTestNamespace;
-    public final Vector predicates;
+    public final Vector<ASTNode> predicates;
 
     public ASTNodePathStep() {
-        predicates = new Vector();
+        predicates = new Vector<>();
     }
 
-    public Vector getChildren() {
+    @Override
+    public Vector<ASTNode> getChildren() {
         return predicates;
     }
 
+    @Override
     public XPathExpression build() {
         return null;
     }
@@ -100,7 +86,7 @@ public class ASTNodePathStep extends ASTNode {
 
             XPathExpression[] preds = new XPathExpression[predicates.size()];
             for (int i = 0; i < preds.length; i++) {
-                preds[i] = ((ASTNode)predicates.elementAt(i)).build();
+                preds[i] = predicates.elementAt(i).build();
             }
             step.predicates = preds;
 
@@ -143,5 +129,4 @@ public class ASTNodePathStep extends ASTNode {
             return false;
         }
     }
-
 }

@@ -24,8 +24,9 @@ public class Parser {
 
     private static ASTNode buildParseTree(Vector tokens) throws XPathSyntaxException {
         ASTNodeAbstractExpr root = new ASTNodeAbstractExpr();
-        for (int i = 0; i < tokens.size(); i++)
+        for (int i = 0; i < tokens.size(); i++) {
             root.content.addElement(tokens.elementAt(i));
+        }
 
         parseFuncCalls(root);
         parseParens(root);
@@ -63,8 +64,9 @@ public class Parser {
 
             int i = 0;
             while (i < absNode.content.size() - 1) {
-                if (absNode.getTokenType(i + 1) == Token.LPAREN && absNode.getTokenType(i) == Token.QNAME)
+                if (absNode.getTokenType(i + 1) == Token.LPAREN && absNode.getTokenType(i) == Token.QNAME) {
                     condenseFuncCall(absNode, i);
+                }
                 i++;
             }
         }
@@ -88,7 +90,7 @@ public class Parser {
             //no arguments
         } else {
             //process arguments
-            funcCall.args = args.pieces;
+            funcCall.args = (Vector)args.pieces;
         }
 
         node.condense(funcCall, funcStart, funcEnd + 1);
@@ -96,6 +98,7 @@ public class Parser {
 
     private static void parseParens(ASTNode node) throws XPathSyntaxException {
         parseBalanced(node, new SubNodeFactory() {
+            @Override
             public ASTNode newNode(ASTNodeAbstractExpr node) {
                 return node;
             }
@@ -104,6 +107,7 @@ public class Parser {
 
     private static void parsePredicates(ASTNode node) throws XPathSyntaxException {
         parseBalanced(node, new SubNodeFactory() {
+            @Override
             public ASTNode newNode(ASTNodeAbstractExpr node) {
                 ASTNodePredicate p = new ASTNodePredicate();
                 p.expr = node;
@@ -315,7 +319,7 @@ public class Parser {
 
             while (i < node.content.size()) {
                 if (node.content.elementAt(i) instanceof ASTNodePredicate) {
-                    step.predicates.addElement(node.content.elementAt(i));
+                    step.predicates.addElement((ASTNodePredicate)node.content.elementAt(i));
                 } else {
                     throw new XPathSyntaxException();
                 }
@@ -331,7 +335,7 @@ public class Parser {
         int i;
         for (i = node.content.size() - 1; i >= 0; i--) {
             if (node.content.elementAt(i) instanceof ASTNodePredicate) {
-                filt.predicates.insertElementAt(node.content.elementAt(i), 0);
+                filt.predicates.insertElementAt((ASTNodePredicate)node.content.elementAt(i), 0);
             } else {
                 break;
             }
@@ -344,7 +348,7 @@ public class Parser {
         return filt;
     }
 
-    public static void verifyBaseExpr(ASTNode node) throws XPathSyntaxException {
+    private static void verifyBaseExpr(ASTNode node) throws XPathSyntaxException {
         if (node instanceof ASTNodeAbstractExpr) {
             ASTNodeAbstractExpr absNode = (ASTNodeAbstractExpr)node;
 
@@ -359,6 +363,6 @@ public class Parser {
     }
 
     public static int vectInt(Vector v, int i) {
-        return ((Integer)v.elementAt(i)).intValue();
+        return (Integer)v.elementAt(i);
     }
 }

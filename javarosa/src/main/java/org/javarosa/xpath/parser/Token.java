@@ -29,6 +29,7 @@ public class Token {
     public static final int RPAREN = 26;
     public static final int SLASH = 27;
     public static final int STR = 28;
+    // Unary minus op
     public static final int UMINUS = 29;
     public static final int UNION = 30;
     public static final int VAR = 31;

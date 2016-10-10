@@ -259,7 +259,7 @@ public class SessionStackTests {
     }
 
     @Test
-    public void testIrrelevantActions() throws Exception {
+    public void testActionParsing() throws Exception {
         MockApp mApp = new MockApp("/complex_stack/");
         SessionWrapper session = mApp.getSession();
 
@@ -271,7 +271,14 @@ public class SessionStackTests {
 
         EvaluationContext ec = session.getEvaluationContext();
         Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(ec);
+
+        // Only 2 of the 3 actions should be returned, because 1 has a relevant condition of false()
         assertEquals(2, actions.size());
+
+        Action actionToInspect = actions.get(1);
+        assertTrue(actionToInspect.hasActionBarIcon());
+        assertEquals("Jump to Menu 2 Form 1", actionToInspect.getDisplay().getText().evaluate(ec));
+        assertEquals(1, actionToInspect.getStackOperations().size());
     }
 
     protected static TreeElement buildExampleInstanceRoot(String bolivarsId) {
