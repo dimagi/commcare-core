@@ -23,7 +23,7 @@ public class MarkRewindSessionTests {
      * Test rewinding and set needed datum occurs correctly
      */
     @Test
-    public void FrameCopyAndReturnTest() throws Exception {
+    public void basicMarkRewindTest() throws Exception {
         MockApp mockApp = new MockApp("/stack-frame-copy-app/");
         SessionWrapper session = mockApp.getSession();
 
@@ -54,7 +54,7 @@ public class MarkRewindSessionTests {
         // ensure we don't need any more data to perform the visit
         assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
-        CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
+        CaseTestUtils.xpathEvalAndAssert(session.getEvaluationContext(),
                 "instance('session')/session/data/child_case_1", "billy");
         didRewindOrNewFrame = session.finishExecuteAndPop(session.getEvaluationContext());
         assertFalse(didRewindOrNewFrame);
@@ -75,7 +75,7 @@ public class MarkRewindSessionTests {
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         assertEquals("child_case_1", session.getNeededDatum().getDataId());
 
-        CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
+        CaseTestUtils.xpathEvalAndAssert(session.getEvaluationContext(),
                 "instance('session')/session/data/mother_case_1", "real mother");
     }
 
@@ -92,9 +92,7 @@ public class MarkRewindSessionTests {
 
         assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
-        CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
-                "instance('session')/session/data/mother_case_1", "real mother");
-        CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
+        CaseTestUtils.xpathEvalAndAssert(session.getEvaluationContext(),
                 "instance('session')/session/data/child_case_1", "billy");
     }
 
@@ -108,7 +106,7 @@ public class MarkRewindSessionTests {
 
         // start with the registration
         session.setCommand("m0");
-        assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
+        assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
 
         assertEquals("mother_case_1", session.getNeededDatum().getDataId());
 
@@ -119,6 +117,9 @@ public class MarkRewindSessionTests {
         session.setCommand("m0-f0");
         boolean didRewindOrNewFrame = session.finishExecuteAndPop(session.getEvaluationContext());
         assertTrue(didRewindOrNewFrame);
+
+        CaseTestUtils.xpathEvalAndAssert(session.getEvaluationContext(),
+                "instance('session')/session/data/mother_case_1", "nancy");
 
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         assertEquals("child_case_1", session.getNeededDatum().getDataId());
@@ -142,9 +143,8 @@ public class MarkRewindSessionTests {
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         assertEquals("child_case_1", session.getNeededDatum().getDataId());
 
-        CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
+        CaseTestUtils.xpathEvalAndAssert(session.getEvaluationContext(),
                 "instance('session')/session/data/mother_case_1", "the mother case id");
-
     }
 
     @Test
@@ -162,7 +162,7 @@ public class MarkRewindSessionTests {
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         assertEquals("child_case_1", session.getNeededDatum().getDataId());
 
-        CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
+        CaseTestUtils.xpathEvalAndAssert(session.getEvaluationContext(),
                 "instance('session')/session/data/mother_case_1", "the mother case id");
     }
 
