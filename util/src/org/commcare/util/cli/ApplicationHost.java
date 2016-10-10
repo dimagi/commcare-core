@@ -362,7 +362,7 @@ public class ApplicationHost {
 
         mSandbox = sandbox;
         if (mLocalUserCredentials != null) {
-            restoreUserToSandbox(mSandbox, mLocalUserCredentials);
+            restoreUserToSandbox(mSandbox, mLocalUserCredentials[0], mLocalUserCredentials[1]);
         } else {
             restoreFileToSandbox(mSandbox, mRestoreFile);
         }
@@ -391,10 +391,7 @@ public class ApplicationHost {
         System.out.println("Setting logged in user to: " + u.getUsername());
     }
 
-    private void restoreUserToSandbox(UserSandbox mSandbox, String[] userCredentials) {
-        final String username = userCredentials[0];
-        final String password = userCredentials[1];
-
+    public static void restoreUserToSandbox(UserSandbox mSandbox, String username, final String password) {
         //fetch the restore data and set credentials
         String otaRestoreURL = PropertyManager._().getSingularProperty("ota-restore-url") + "?version=2.0";
         String domain = PropertyManager._().getSingularProperty("cc_user_domain");

@@ -9,7 +9,7 @@
            [org.commcare.data.xml DataModelPullParser]
            [org.commcare.session SessionFrame]
            [org.commcare.util CommCareConfigEngine]
-           [org.commcare.util.cli MenuScreen EntityScreen]
+           [org.commcare.util.cli ApplicationHost MenuScreen EntityScreen]
            [org.commcare.util.mocks CLISessionWrapper MockUserDataSandbox]
            [org.javarosa.core.util.externalizable LivePrototypeFactory]
            [org.javarosa.core.services.locale Localization]
@@ -31,7 +31,7 @@
     ":stack - Show the current session frame stack"
     ":help - Show this message"))
 
-(defn build-user-sandbox [prototype-factory restore-file]
+(defn build-restore-user-sandbox [prototype-factory restore-file]
   (let [sandbox (MockUserDataSandbox. prototype-factory)
         restore (try (BufferedInputStream. (FileInputStream. restore-file))
                      (catch FileNotFoundException e
@@ -41,15 +41,32 @@
     (.setLoggedInUser sandbox (.read (.getUserStorage sandbox) 0))
     sandbox))
 
-(defn install-app [ccz restore-file username password]
+(defn build-remote-user-sandbox [prototype-factory username password]
+  (let [sandbox (MockUserDataSandbox. prototype-factory)]
+    (.setAppFixtureStorageLocation sandbox (StorageManager/getStorage FormInstance/STORAGE_KEY))
+    (ApplicationHost/restoreUserToSandbox sandbox username password)
+    sandbox))
+
+(defn install-app-with-restore [ccz restore-file]
   (let [prototype-factory (LivePrototypeFactory.)
         engine (CommCareConfigEngine. System/out prototype-factory)
-        user-sandbox (build-user-sandbox prototype-factory restore-file)]
+        user-sandbox (build-restore-user-sandbox prototype-factory restore-file)]
     (App. (CLISessionWrapper. (.getPlatform engine) user-sandbox)
           (doto engine
             (.initFromArchive ccz)
             (.initEnvironment))
           user-sandbox)))
+
+(defn install-app-with-creds [ccz username password]
+  (let [prototype-factory (LivePrototypeFactory.)
+        engine (CommCareConfigEngine. System/out prototype-factory)]
+  (doto engine
+              (.initFromArchive ccz)
+              (.initEnvironment))
+  (let [user-sandbox (build-remote-user-sandbox prototype-factory username password)]
+      (App. (CLISessionWrapper. (.getPlatform engine) user-sandbox)
+            engine
+            user-sandbox))))
 
 (defn get-next-screen [session]
   (let [eval-context (.getEvaluationContext session)
