@@ -1,7 +1,7 @@
 package org.commcare.data.xml;
 
 import org.javarosa.xml.ElementParser;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 
 import java.io.IOException;
@@ -14,5 +14,5 @@ public abstract class TransactionParser<T> extends ElementParser<T> {
         super(parser);
     }
 
-    protected abstract void commit(T parsed) throws IOException, UnfullfilledRequirementsException;
+    protected abstract void commit(T parsed) throws IOException, InvalidStructureException;
 }

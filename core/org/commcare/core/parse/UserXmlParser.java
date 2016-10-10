@@ -95,7 +95,7 @@ public class UserXmlParser extends TransactionParser<User> {
     }
 
     @Override
-    protected void commit(User parsed) throws IOException, UnfullfilledRequirementsException {
+    protected void commit(User parsed) throws IOException, InvalidStructureException {
         try {
             storage().write(parsed);
         } catch (StorageFullException e) {

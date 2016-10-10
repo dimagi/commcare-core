@@ -45,8 +45,8 @@ public class OfflineUserRestore implements Persistable {
     public OfflineUserRestore() {
     }
 
-    public OfflineUserRestore(String reference) throws UnfullfilledRequirementsException, IOException, InvalidStructureException,
-            XmlPullParserException, InvalidReferenceException {
+    public OfflineUserRestore(String reference) throws UnfullfilledRequirementsException,
+            IOException, InvalidStructureException, XmlPullParserException, InvalidReferenceException {
 
         this.reference = reference;
         checkThatRestoreIsValid(reference);
@@ -162,16 +162,14 @@ public class OfflineUserRestore implements Persistable {
         return new UserXmlParser(parser) {
 
             @Override
-            protected void commit(User parsed) throws IOException, UnfullfilledRequirementsException {
+            protected void commit(User parsed) throws IOException, InvalidStructureException {
                 if (!parsed.getUserType().equals(User.TYPE_DEMO)) {
-                    throw new UnfullfilledRequirementsException(
-                            "Demo user restore file must be for a user with user_type set to demo",
-                            CommCareElementParser.SEVERITY_PROMPT);
+                    throw new InvalidStructureException(
+                            "Demo user restore file must be for a user with user_type set to demo");
                 }
                 if ("".equals(parsed.getUsername()) || parsed.getUsername() == null) {
-                    throw new UnfullfilledRequirementsException(
-                            "Demo user restore file must specify a username in the Registration block",
-                            CommCareElementParser.SEVERITY_PROMPT);
+                    throw new InvalidStructureException(
+                            "Demo user restore file must specify a username in the Registration block");
                 } else {
                     OfflineUserRestore.this.username = parsed.getUsername();
                 }

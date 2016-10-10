@@ -7,7 +7,6 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.util.CommCareInstance;
-import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -53,7 +52,7 @@ public class OfflineUserRestoreInstaller extends CacheInstaller<OfflineUserResto
                 table.commit(r, Resource.RESOURCE_STATUS_UPGRADE);
             }
             cacheLocation = offlineUserRestore.getID();
-        } catch (IOException | XmlPullParserException | InvalidStructureException | UnfullfilledRequirementsException e) {
+        } catch (IOException | XmlPullParserException | InvalidStructureException e) {
             throw new UnresolvedResourceException(r, e.getMessage());
         }
         return true;
