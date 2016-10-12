@@ -9,21 +9,23 @@ import java.util.Vector;
 
 public class ASTNodeFunctionCall extends ASTNode {
     public final XPathQName name;
-    public Vector args;
+    public Vector<ASTNode> args;
 
     public ASTNodeFunctionCall(XPathQName name) {
         this.name = name;
-        args = new Vector();
+        args = new Vector<>();
     }
 
-    public Vector getChildren() {
+    @Override
+    public Vector<ASTNode> getChildren() {
         return args;
     }
 
+    @Override
     public XPathExpression build() throws XPathSyntaxException {
         XPathExpression[] xargs = new XPathExpression[args.size()];
         for (int i = 0; i < args.size(); i++)
-            xargs[i] = ((ASTNode)args.elementAt(i)).build();
+            xargs[i] = args.elementAt(i).build();
 
         return new XPathFuncExpr(name, xargs);
     }
