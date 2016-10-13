@@ -105,8 +105,8 @@ public class SuiteParser extends ElementParser<Suite> {
                             entries.put(viewEntry.getCommandId(), viewEntry);
                             break;
                         case EntryParser.REMOTE_REQUEST_TAG:
-                            Entry syncEntry = EntryParser.buildRemoteSyncParser(parser).parse();
-                            entries.put(syncEntry.getCommandId(), syncEntry);
+                            Entry remoteRequestEntry = EntryParser.buildRemoteSyncParser(parser).parse();
+                            entries.put(remoteRequestEntry.getCommandId(), remoteRequestEntry);
                             break;
                         case "locale":
                             String localeKey = parser.getAttributeValue(null, "language");
@@ -130,9 +130,19 @@ public class SuiteParser extends ElementParser<Suite> {
                         case "xform":
                             //skip xform stuff for now
                             parser.nextTag();
-                            Resource r = new ResourceParser(parser, maximumResourceAuthority).parse();
+                            Resource xformResource = new ResourceParser(parser, maximumResourceAuthority).parse();
                             if (!skipResources) {
-                                table.addResource(r, table.getInstallers().getXFormInstaller(), resourceGuid);
+                                table.addResource(xformResource, table.getInstallers().getXFormInstaller(), resourceGuid);
+                            }
+                            break;
+                        case "user-restore":
+                            parser.nextTag();
+                            Resource userRestoreResource =
+                                    new ResourceParser(parser, maximumResourceAuthority).parse();
+                            if (!skipResources) {
+                                table.addResource(userRestoreResource,
+                                        table.getInstallers().getUserRestoreInstaller(),
+                                        resourceGuid);
                             }
                             break;
                         case "detail":
