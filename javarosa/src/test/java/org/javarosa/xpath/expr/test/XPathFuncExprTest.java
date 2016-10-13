@@ -53,6 +53,22 @@ public class XPathFuncExprTest {
     }
 
     @Test
+    public void testCoalesce() {
+        FormInstance instance = ExprEvalUtils.loadInstance("/test_xpathpathexpr.xml");
+
+        // demo of basic coalesce behavior
+        ExprEvalUtils.testEval("/data/places/country[@id = 'one']/name", instance, null, "Singapore");
+        ExprEvalUtils.testEval("/data/places/country[@id = 'three']/name", instance, null, "");
+        ExprEvalUtils.testEval("coalesce(/data/places/country[@id = 'three']/name, /data/places/country[@id = 'one']/name)", instance, null, "Singapore");
+
+        // tests for extending coalesce to work with more than one argument
+        ExprEvalUtils.testEval("coalesce('', '', /data/places/country[@id = 'one']/name)", instance, null, "Singapore");
+        ExprEvalUtils.testEval("coalesce('', /data/places/country[@id = 'three']/name, /data/places/country[@id = 'one']/name)", instance, null, "Singapore");
+        ExprEvalUtils.testEval("coalesce('', /data/places/country[@id = 'one']/name, /data/places/country[@id = 'two']/name)", instance, null, "Singapore");
+        ExprEvalUtils.testEval("coalesce('', '', '', '', '')", instance, null, "");
+    }
+
+    @Test
     public void testCond() {
         FormInstance instance = ExprEvalUtils.loadInstance("/test_xpathpathexpr.xml");
         // test evaluating valid cond statements

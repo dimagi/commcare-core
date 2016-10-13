@@ -48,22 +48,11 @@ public class StorageManager {
     }
 
     public static void registerStorage(String key, Class type) {
-        registerStorage(key, key, type);
-    }
-
-    public static void registerStorage(String storageKey, String storageName, Class type) {
         if (storageFactory == null) {
             throw new RuntimeException("No storage factory has been set; I don't know what kind of storage utility to create. Either set a storage factory, or register your StorageUtilitys directly.");
         }
 
-        registerStorage(storageKey, storageFactory.newStorage(storageName, type));
-    }
-
-    /**
-     * It is strongly, strongly advised that you do not register storage in this way.
-     */
-    public static void registerStorage(String key, IStorageUtility storage) {
-        storageRegistry.put(key, storage);
+        storageRegistry.put(key, storageFactory.newStorage(key, type));
     }
 
     public static IStorageUtility getStorage(String key) {

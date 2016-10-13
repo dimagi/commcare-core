@@ -6,6 +6,7 @@ import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -18,14 +19,19 @@ import java.util.NoSuchElementException;
  */
 public class UserXmlParser extends TransactionParser<User> {
 
-    final IStorageUtilityIndexed<User> storage;
+    private IStorageUtilityIndexed<User> storage;
+
+    public UserXmlParser(KXmlParser parser) {
+        super(parser);
+    }
 
     public UserXmlParser(KXmlParser parser, IStorageUtilityIndexed<User> storage) {
         super(parser);
         this.storage = storage;
     }
 
-    public User parse() throws InvalidStructureException, IOException, XmlPullParserException {
+    public User parse() throws InvalidStructureException, IOException, XmlPullParserException,
+            UnfullfilledRequirementsException {
         this.checkNode("registration");
 
         //parse (with verification) the next tag
@@ -89,7 +95,7 @@ public class UserXmlParser extends TransactionParser<User> {
     }
 
     @Override
-    protected void commit(User parsed) throws IOException {
+    protected void commit(User parsed) throws IOException, InvalidStructureException {
         try {
             storage().write(parsed);
         } catch (StorageFullException e) {
