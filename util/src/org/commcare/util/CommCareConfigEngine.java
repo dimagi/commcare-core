@@ -60,7 +60,7 @@ public class CommCareConfigEngine {
     private final PrintStream print;
     private final CommCarePlatform platform;
     private final PrototypeFactory mLiveFactory;
-    
+
     private ArchiveFileRoot mArchiveRoot;
 
     public CommCareConfigEngine() {
@@ -97,7 +97,7 @@ public class CommCareConfigEngine {
 
         StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
         StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
-        StorageManager.registerStorage(FormDef.STORAGE_KEY,FormDef.class);
+        StorageManager.registerStorage(FormDef.STORAGE_KEY, FormDef.class);
         StorageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
         StorageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
     }
@@ -113,7 +113,7 @@ public class CommCareConfigEngine {
 
     public void initFromArchive(String archiveURL) {
         String fileName;
-        if(archiveURL.startsWith("http")) {
+        if (archiveURL.startsWith("http")) {
             fileName = downloadToTemp(archiveURL);
         } else {
             fileName = archiveURL;
@@ -133,9 +133,9 @@ public class CommCareConfigEngine {
     }
 
     private String downloadToTemp(String resource) {
-        try{
+        try {
             URL url = new URL(resource);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
             conn.setInstanceFollowRedirects(true);  //you still need to handle redirect manully.
             HttpURLConnection.setFollowRedirects(true);
 
@@ -144,8 +144,8 @@ public class CommCareConfigEngine {
             FileOutputStream fos = new FileOutputStream(file);
             StreamsUtil.writeFromInputToOutput(new BufferedInputStream(conn.getInputStream()), fos);
             return file.getAbsolutePath();
-        } catch(IOException e) {
-            print.println("Issue downloading or create stream for " +resource);
+        } catch (IOException e) {
+            print.println("Issue downloading or create stream for " + resource);
             e.printStackTrace(print);
             System.exit(-1);
             return null;
@@ -164,12 +164,12 @@ public class CommCareConfigEngine {
         String rootPath;
         String filePart;
 
-        if(lastSeparator == -1 ) {
+        if (lastSeparator == -1) {
             rootPath = new File("").getAbsolutePath();
             filePart = resource;
         } else {
             //Get the location of the file. In the future, we'll treat this as the resource root
-            rootPath = resource.substring(0,resource.lastIndexOf(File.separator));
+            rootPath = resource.substring(0, resource.lastIndexOf(File.separator));
 
             //cut off the end
             filePart = resource.substring(resource.lastIndexOf(File.separator) + 1);
@@ -184,23 +184,23 @@ public class CommCareConfigEngine {
 
 
     private void init(String profileRef) {
-            try {
-                installAppFromReference(profileRef);
-                print.println("Table resources intialized and fully resolved.");
-                print.println(table);
-            } catch (InstallCancelledException e) {
-                print.println("Install was cancelled by the user or system");
-                e.printStackTrace(print);
-                System.exit(-1);
-            } catch (UnresolvedResourceException e) {
-                print.println("While attempting to resolve the necessary resources, one couldn't be found: " + e.getResource().getResourceId());
-                e.printStackTrace(print);
-                System.exit(-1);
-            } catch (UnfullfilledRequirementsException e) {
-                print.println("While attempting to resolve the necessary resources, a requirement wasn't met");
-                e.printStackTrace(print);
-                System.exit(-1);
-            }
+        try {
+            installAppFromReference(profileRef);
+            print.println("Table resources intialized and fully resolved.");
+            print.println(table);
+        } catch (InstallCancelledException e) {
+            print.println("Install was cancelled by the user or system");
+            e.printStackTrace(print);
+            System.exit(-1);
+        } catch (UnresolvedResourceException e) {
+            print.println("While attempting to resolve the necessary resources, one couldn't be found: " + e.getResource().getResourceId());
+            e.printStackTrace(print);
+            System.exit(-1);
+        } catch (UnfullfilledRequirementsException e) {
+            print.println("While attempting to resolve the necessary resources, a requirement wasn't met");
+            e.printStackTrace(print);
+            System.exit(-1);
+        }
     }
 
     public void installAppFromReference(String profileReference) throws UnresolvedResourceException,
@@ -209,7 +209,7 @@ public class CommCareConfigEngine {
     }
 
     public void initEnvironment() {
-            Localization.init(true);
+        Localization.init(true);
         try {
             table.initializeResources(platform, false);
         } catch (RuntimeException e) {
@@ -217,18 +217,18 @@ public class CommCareConfigEngine {
             e.printStackTrace(print);
             System.exit(-1);
         }
-            //Make sure there's a default locale, since the app doesn't necessarily use the
-            //localization engine
-            Localization.getGlobalLocalizerAdvanced().addAvailableLocale("default");
+        //Make sure there's a default locale, since the app doesn't necessarily use the
+        //localization engine
+        Localization.getGlobalLocalizerAdvanced().addAvailableLocale("default");
 
-            Localization.setDefaultLocale("default");
+        Localization.setDefaultLocale("default");
 
-            print.println("Locales defined: ");
-            for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
-                System.out.println("* " + locale);
-            }
+        print.println("Locales defined: ");
+        for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
+            System.out.println("* " + locale);
+        }
 
-            setDefaultLocale();
+        setDefaultLocale();
     }
 
     private void setDefaultLocale() {
@@ -245,7 +245,7 @@ public class CommCareConfigEngine {
 
     public void describeApplication() {
         print.println("Locales defined: ");
-        for(String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
+        for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
             System.out.println("* " + locale);
         }
 
@@ -253,15 +253,15 @@ public class CommCareConfigEngine {
 
         Vector<Menu> root = new Vector<>();
         Hashtable<String, Vector<Menu>> mapping = new Hashtable<>();
-        mapping.put("root",new Vector<Menu>());
+        mapping.put("root", new Vector<Menu>());
 
-        for(Suite s : platform.getInstalledSuites()) {
-            for(Menu m : s.getMenus()) {
-                if(m.getId().equals("root")) {
+        for (Suite s : platform.getInstalledSuites()) {
+            for (Menu m : s.getMenus()) {
+                if (m.getId().equals("root")) {
                     root.add(m);
                 } else {
                     Vector<Menu> menus = mapping.get(m.getRoot());
-                    if(menus == null) {
+                    if (menus == null) {
                         menus = new Vector<>();
                     }
                     menus.add(m);
@@ -270,29 +270,29 @@ public class CommCareConfigEngine {
             }
         }
 
-        for(String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
+        for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
             Localization.setLocale(locale);
 
             print.println("Application details for locale: " + locale);
             print.println("CommCare");
 
-            for(Menu m : mapping.get("root")) {
+            for (Menu m : mapping.get("root")) {
                 print.println("|- " + m.getName().evaluate());
-                for(String command : m.getCommandIds()) {
-                    for(Suite s : platform.getInstalledSuites()) {
-                        if(s.getEntries().containsKey(command)) {
-                            print(s,s.getEntries().get(command),2);
+                for (String command : m.getCommandIds()) {
+                    for (Suite s : platform.getInstalledSuites()) {
+                        if (s.getEntries().containsKey(command)) {
+                            print(s, s.getEntries().get(command), 2);
                         }
                     }
                 }
 
             }
 
-            for(Menu m : root) {
-                for(String command : m.getCommandIds()) {
-                    for(Suite s : platform.getInstalledSuites()) {
-                        if(s.getEntries().containsKey(command)) {
-                            print(s,s.getEntries().get(command),1);
+            for (Menu m : root) {
+                for (String command : m.getCommandIds()) {
+                    for (Suite s : platform.getInstalledSuites()) {
+                        if (s.getEntries().containsKey(command)) {
+                            print(s, s.getEntries().get(command), 1);
                         }
                     }
                 }
@@ -313,8 +313,8 @@ public class CommCareConfigEngine {
     private void print(Suite s, Entry e, int level) {
         String head = "";
         String emptyhead = "";
-        for(int i = 0; i < level; ++i ){
-            head +=      "|- ";
+        for (int i = 0; i < level; ++i) {
+            head += "|- ";
             emptyhead += "   ";
         }
         if (e.isView()) {
@@ -322,20 +322,20 @@ public class CommCareConfigEngine {
         } else {
             print.println(head + "Entry: " + e.getText().evaluate());
         }
-        for(SessionDatum datum : e.getSessionDataReqs()) {
-            if(datum instanceof FormIdDatum) {
+        for (SessionDatum datum : e.getSessionDataReqs()) {
+            if (datum instanceof FormIdDatum) {
                 print.println(emptyhead + "Form: " + datum.getValue());
             } else if (datum instanceof EntityDatum) {
                 String shortDetailId = ((EntityDatum)datum).getShortDetail();
-                if(shortDetailId != null) {
+                if (shortDetailId != null) {
                     Detail d = s.getDetail(shortDetailId);
                     try {
                         print.println(emptyhead + "|Select: " + d.getTitle().getText().evaluate(new EvaluationContext(null)));
-                    } catch(XPathMissingInstanceException ex) {
+                    } catch (XPathMissingInstanceException ex) {
                         print.println(emptyhead + "|Select: " + "(dynamic title)");
                     }
                     print.print(emptyhead + "| ");
-                    for(DetailField f : d.getFields()) {
+                    for (DetailField f : d.getFields()) {
                         print.print(f.getHeader().evaluate() + " | ");
                     }
                     print.print("\n");
@@ -345,7 +345,7 @@ public class CommCareConfigEngine {
     }
 
 
-    final static private class QuickStateListener implements TableStateListener{
+    final static private class QuickStateListener implements TableStateListener {
         int lastComplete = 0;
 
         @Override
@@ -362,7 +362,7 @@ public class CommCareConfigEngine {
         public void incrementProgress(int complete, int total) {
             int diff = complete - lastComplete;
             lastComplete = complete;
-            for(int i = 0 ; i < diff ; ++i) {
+            for (int i = 0; i < diff; ++i) {
                 System.out.print(".");
             }
         }
@@ -399,7 +399,7 @@ public class CommCareConfigEngine {
             // If we want to be using/updating to the latest build of the
             // app (instead of latest release), add it to the query tags of
             // the profile reference
-            if (updateTarget!= null &&
+            if (updateTarget != null &&
                     ("https".equals(authUrl.getProtocol()) ||
                             "http".equals(authUrl.getProtocol()))) {
                 if (authUrl.getQuery() != null) {
@@ -417,7 +417,6 @@ public class CommCareConfigEngine {
 
 
         try {
-
             // This populates the upgrade table with resources based on
             // binary files, starting with the profile file. If the new
             // profile is not a newer version, statgeUpgradeTable doesn't
@@ -440,15 +439,15 @@ public class CommCareConfigEngine {
             // Replaces global table with temporary, or w/ recovery if
             // something goes wrong
             resourceManager.upgrade();
-        } catch(UnresolvedResourceException e) {
+        } catch (UnresolvedResourceException e) {
             System.out.println("Update Failed! Couldn't find or install one of the remote resources");
             e.printStackTrace();
             return;
-        } catch(UnfullfilledRequirementsException e) {
+        } catch (UnfullfilledRequirementsException e) {
             System.out.println("Update Failed! This CLI host is incompatible with the app");
             e.printStackTrace();
             return;
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("Update Failed! There is a problem with one of the resources");
             e.printStackTrace();
             return;
