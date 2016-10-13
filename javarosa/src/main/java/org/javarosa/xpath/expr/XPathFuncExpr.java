@@ -175,17 +175,10 @@ public class XPathFuncExpr extends XPathExpression {
         //TODO: Func handlers should be able to declare the desire for short circuiting as well
         if (name.equals("if") && args.length == 3) {
             return ifThenElse(model, evalContext, args);
+        } else if (name.equals("coalesce") && args.length > 0) {
+            return coalesceEval(model, evalContext, args);
         } else if (name.equals("cond")) {
             return condEval(model, evalContext, args);
-        } else if (name.equals("coalesce") && args.length == 2) {
-            //Not sure if unpacking here is quiiite right, but it seems right
-            argVals[0] = XPathFuncExpr.unpack(args[0].eval(model, evalContext));
-            if (!isNull(argVals[0])) {
-                return argVals[0];
-            } else {
-                argVals[1] = args[1].eval(model, evalContext);
-                return argVals[1];
-            }
         }
 
         for (int i = 0; i < args.length; i++) {
@@ -897,6 +890,18 @@ public class XPathFuncExpr extends XPathExpression {
         }
 
         return args[args.length-1].eval(model, ec);
+    }
+
+    private static Object coalesceEval(DataInstance model, EvaluationContext evalContext,
+                                       XPathExpression[] args) {
+        //Not sure if unpacking here is quiiite right, but it seems right
+        for (int i = 0; i < args.length - 1; i++) {
+            Object evaluatedArg = XPathFuncExpr.unpack(args[i].eval(model, evalContext));
+            if (!isNull(evaluatedArg)) {
+                return evaluatedArg;
+            }
+        }
+        return args[args.length - 1].eval(model, evalContext);
     }
 
     /**

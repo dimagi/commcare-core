@@ -20,6 +20,12 @@ public class UnresolvedResourceException extends Exception {
         this.userFacing = userFacing;
     }
 
+    public UnresolvedResourceException(Resource r, Throwable cause, String message, boolean userFacing) {
+        super(message, cause);
+        this.r = r;
+        this.userFacing = userFacing;
+    }
+
     public Resource getResource() {
         return r;
     }

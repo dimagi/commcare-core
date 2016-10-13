@@ -26,10 +26,6 @@ import java.util.Vector;
  * Used for any resources which:
  * 1) Are going to be stored in memory
  * 2) Possibly have derived resources
- * 3)
- *
- * NOTE: This functionality can probably be summed up into a
- * composite model, rather than an inheritance.
  *
  * @author ctsims
  */
