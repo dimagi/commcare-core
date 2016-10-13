@@ -51,7 +51,6 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
             //If it's in the cache, we should just get it from there
             return false;
         } else {
-
             InputStream incoming = null;
             try {
                 incoming = ref.getStream();

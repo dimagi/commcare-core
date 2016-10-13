@@ -27,13 +27,19 @@ import java.util.Vector;
  */
 public class XFormInstaller extends CacheInstaller<FormDef> {
 
+    private static final String UPGRADE_EXT = "_TEMP";
+    private static final String STAGING_EXT = "_STAGING-OPENROSA";
+    private static final String[] exts = new String[]{UPGRADE_EXT, STAGING_EXT};
+
     @Override
     protected String getCacheKey() {
         return FormDef.STORAGE_KEY;
     }
 
     @Override
-    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException {
+    public boolean install(Resource r, ResourceLocation location, Reference ref,
+                           ResourceTable table, CommCareInstance instance,
+                           boolean upgrade) throws UnresolvedResourceException {
         InputStream incoming = null;
         try {
             if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_CACHE) {
@@ -98,10 +104,6 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
         return true;
     }
 
-    private static final String UPGRADE_EXT = "_TEMP";
-    private static final String STAGING_EXT = "_STAGING-OPENROSA";
-    private static final String[] exts = new String[]{UPGRADE_EXT, STAGING_EXT};
-
     @Override
     public boolean unstage(Resource r, int newStatus) {
         //This either unstages back to upgrade mode or
@@ -153,7 +155,6 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
         String currentSchema = form.getInstance().schema;
 
         //Just figure out whether we finished and return that
-
         switch (status) {
             case Resource.RESOURCE_STATUS_INSTALL_TO_UNSTAGE:
             case Resource.RESOURCE_STATUS_UNSTAGE_TO_INSTALL:

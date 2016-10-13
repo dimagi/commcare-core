@@ -15,6 +15,7 @@ import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.PropertySetter;
 import org.commcare.suite.model.SessionDatum;
@@ -92,13 +93,13 @@ public class CommCareConfigEngine {
             public IStorageUtility newStorage(String name, Class type) {
                 return new DummyIndexedStorageUtility(type, mLiveFactory);
             }
-
         });
 
         StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
         StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
         StorageManager.registerStorage(FormDef.STORAGE_KEY,FormDef.class);
         StorageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
+        StorageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
     }
 
     private void setRoots() {
