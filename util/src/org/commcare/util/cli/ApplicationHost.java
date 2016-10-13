@@ -399,7 +399,7 @@ public class ApplicationHost {
         System.out.println("Setting logged in user to: " + u.getUsername());
     }
 
-    public static void restoreUserToSandbox(UserSandbox mSandbox, String username, final String password) {
+    public static void restoreUserToSandbox(UserSandbox sandbox, String username, final String password) {
         //fetch the restore data and set credentials
         String otaRestoreURL = PropertyManager._().getSingularProperty("ota-restore-url") + "?version=2.0";
         String domain = PropertyManager._().getSingularProperty("cc_user_domain");
