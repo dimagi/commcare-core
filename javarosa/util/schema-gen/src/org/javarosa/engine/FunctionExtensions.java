@@ -18,9 +18,14 @@ import java.util.Date;
 import java.util.Vector;
 
 /**
+ * Custom functions to be used in form player debug tools.
+ *
+ * Allows users to:
+ *  - override 'today()' and 'now()' with custom dates.
+ *  - perform introspection on xpath references with 'print()'
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-
 class FunctionExtensions {
     protected static class TodayFunc implements IFunctionHandler {
         private final String name;
