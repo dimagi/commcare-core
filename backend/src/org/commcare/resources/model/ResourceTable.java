@@ -364,7 +364,7 @@ public class ResourceTable {
         // skip this huge (although in reality like one step) chunk
 
         UnreliableSourceException unreliableSourceException = null;
-        InvalidResourceStructureException invalidResourceException = null;
+        InvalidResourceException invalidResourceException = null;
 
         boolean handled = false;
 
@@ -378,7 +378,7 @@ public class ResourceTable {
                         try {
                             handled = installResource(r, location, ref, this,
                                     instance, upgrade);
-                        } catch (InvalidResourceStructureException e) {
+                        } catch (InvalidResourceException e) {
                             invalidResourceException = e;
                         } catch (UnreliableSourceException use) {
                             unreliableSourceException = use;
@@ -398,7 +398,7 @@ public class ResourceTable {
                         recordSuccess(r);
                         break;
                     }
-                } catch (InvalidResourceStructureException e) {
+                } catch (InvalidResourceException e) {
                     invalidResourceException = e;
                 } catch (InvalidReferenceException ire) {
                     ire.printStackTrace();
