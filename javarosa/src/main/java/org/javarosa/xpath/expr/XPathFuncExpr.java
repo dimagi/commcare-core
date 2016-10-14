@@ -1068,10 +1068,10 @@ public class XPathFuncExpr extends XPathExpression {
         }
 
         int substringIndex = fullString.indexOf(subString);
-        if (substringIndex == -1) {
-            return fullString;
+        if (substringIndex <= 0) {
+            return "";
         } else {
-            return fullString.substring(substringIndex);
+            return fullString.substring(0, substringIndex);
         }
     }
 
@@ -1087,7 +1087,7 @@ public class XPathFuncExpr extends XPathExpression {
         if (substringIndex == -1) {
             return fullString;
         } else {
-            return fullString.substring(substringIndex, fullString.length());
+            return fullString.substring(substringIndex + subString.length(), fullString.length());
         }
     }
 
