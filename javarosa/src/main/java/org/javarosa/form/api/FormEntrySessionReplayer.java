@@ -44,6 +44,7 @@ public class FormEntrySessionReplayer {
             replayEvent(event);
             event = formEntryController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP);
         }
+        formEntryController.stepToPreviousEvent();
     }
 
     /**
