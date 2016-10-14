@@ -318,6 +318,16 @@ public class XPathFuncExpr extends XPathExpression {
                     throw new XPathArityException(name, "two or three arguments", args.length);
                 }
                 return substring(argVals[0], argVals[1], args.length == 3 ? argVals[2] : null);
+            } else if (name.equals("substring-before")) {
+                if (!(args.length == 2)) {
+                    throw new XPathArityException(name, "two arguments", args.length);
+                }
+                return substringBefore(argVals[0], argVals[1]);
+            } else if (name.equals("substring-after")) {
+                if (!(args.length == 2)) {
+                    throw new XPathArityException(name, "two arguments", args.length);
+                }
+                return substringAfter(argVals[0], argVals[1]);
             } else if (name.equals("string-length")) {
                 checkArity(name, 1, args.length);
                 return stringLength(argVals[0]);
@@ -1047,6 +1057,38 @@ public class XPathFuncExpr extends XPathExpression {
         end = Math.min(Math.max(0, end), end);
 
         return ((start <= end && end <= len) ? s.substring(start, end) : "");
+    }
+
+    private static String substringBefore(Object fullStringAsRaw, Object substringAsRaw) {
+        String fullString = toString(fullStringAsRaw);
+        String subString = toString(substringAsRaw);
+
+        if (fullString.length() == 0) {
+            return "";
+        }
+
+        int substringIndex = fullString.indexOf(subString);
+        if (substringIndex == -1) {
+            return fullString;
+        } else {
+            return fullString.substring(substringIndex);
+        }
+    }
+
+    private static String substringAfter(Object fullStringAsRaw, Object substringAsRaw) {
+        String fullString = toString(fullStringAsRaw);
+        String subString = toString(substringAsRaw);
+
+        if (fullString.length() == 0) {
+            return "";
+        }
+
+        int substringIndex = fullString.indexOf(subString);
+        if (substringIndex == -1) {
+            return fullString;
+        } else {
+            return fullString.substring(substringIndex, fullString.length());
+        }
     }
 
     /**
