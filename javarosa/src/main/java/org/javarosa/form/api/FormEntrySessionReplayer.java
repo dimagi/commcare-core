@@ -36,24 +36,24 @@ public class FormEntrySessionReplayer {
         return formEntrySession != null && formEntrySession.size() > 0;
     }
 
-    private void replayForm() {
-        formEntryController.jumpToIndex(FormIndex.createBeginningOfFormIndex());
-        int event = formEntryController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP);
-        while (event != FormEntryController.EVENT_END_OF_FORM && hasSessionToReplay()
-                && !reachedEndOfReplay()) {
-            replayEvent(event);
-            event = formEntryController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP);
-        }
-        formEntryController.stepToPreviousEvent();
-    }
-
     /**
      * TODO AMS: If the question corresponding to the stopping ref has been removed, this will
      * never return true and replay will take the user all the way to the end of the form
      */
-    private boolean reachedEndOfReplay() {
-        String nextQuestionRef = formEntryController.getModel().getFormIndex().getReference().toString();
-        return nextQuestionRef.equals(formEntrySession.getStopRef());
+    private boolean reachedEndOfReplay(String lastQuestionRefReplayed) {
+        return lastQuestionRefReplayed.equals(formEntrySession.getStopRef());
+    }
+
+    private void replayForm() {
+        formEntryController.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+        int event = formEntryController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP);
+        String lastQuestionRefReplayed = "";
+        while (event != FormEntryController.EVENT_END_OF_FORM && hasSessionToReplay()
+                && !reachedEndOfReplay(lastQuestionRefReplayed)) {
+            lastQuestionRefReplayed = replayEvent(event);
+            event = formEntryController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP);
+        }
+        formEntryController.stepToPreviousEvent();
     }
 
     private String replayEvent(int event) {
