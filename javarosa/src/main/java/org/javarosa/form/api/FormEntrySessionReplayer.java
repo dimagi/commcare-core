@@ -36,14 +36,6 @@ public class FormEntrySessionReplayer {
         return formEntrySession != null && formEntrySession.size() > 0;
     }
 
-    /**
-     * TODO AMS: If the question corresponding to the stopping ref has been removed, this will
-     * never return true and replay will take the user all the way to the end of the form
-     */
-    private boolean reachedEndOfReplay(String lastQuestionRefReplayed) {
-        return lastQuestionRefReplayed.equals(formEntrySession.getStopRef());
-    }
-
     private void replayForm() {
         formEntryController.jumpToIndex(FormIndex.createBeginningOfFormIndex());
         int event = formEntryController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP);
@@ -53,7 +45,22 @@ public class FormEntrySessionReplayer {
             lastQuestionRefReplayed = replayEvent(event);
             event = formEntryController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP);
         }
-        formEntryController.stepToPreviousEvent();
+
+        if (!formEntrySession.stopRefWasReplayed()) {
+            // If the stop ref was removed in the current version of the app, we will have
+            // replayed all the way to the end of the form; It seems like the least confusing
+            // thing to do in this scenario is to just put them back at the beginning of the form
+            formEntryController.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+        } else {
+            // The while loop above actually lands us one question past where the user left off
+            // (which is necessary in order to have actually replayed the answer to that question
+            // if it exists), but now we should step back so we're sitting on the right question
+            formEntryController.stepToPreviousEvent();
+        }
+    }
+
+    private boolean reachedEndOfReplay(String lastQuestionRefReplayed) {
+        return lastQuestionRefReplayed.equals(formEntrySession.getStopRef());
     }
 
     private String replayEvent(int event) {
