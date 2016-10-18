@@ -66,9 +66,7 @@ public class XFormEnvironment {
         }
 
         FormEntryModel fem = new FormEntryModel(form);
-        FormEntryController fec = FormEntryController.buildRecordingController(fem);
-
-        return fec;
+        return FormEntryController.buildRecordingController(fem);
     }
 
     public Step popStep() {
