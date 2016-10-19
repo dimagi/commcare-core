@@ -1,7 +1,6 @@
 package org.commcare.resources.model.installers;
 
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
@@ -27,8 +26,7 @@ public class OfflineUserRestoreInstaller extends CacheInstaller<OfflineUserResto
     }
 
     @Override
-    public boolean initialize(CommCareInstance instance, boolean isUpgrade)
-            throws ResourceInitializationException {
+    public boolean initialize(CommCareInstance instance, boolean isUpgrade) {
         instance.registerDemoUserRestore(storage().read(cacheLocation));
         return true;
     }

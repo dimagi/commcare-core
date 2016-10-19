@@ -32,6 +32,28 @@ public class XPathFuncExprTest {
         ExprEvalUtils.testEval("selected-at('hello there', 2)", instance, null, new XPathException());
     }
 
+    @Test
+    public void testSubstringVariants() {
+        FormInstance instance = ExprEvalUtils.loadInstance("/test_xpathpathexpr.xml");
+
+        ExprEvalUtils.testEval("substring-before('Utah Montana', /data/places/country/state[2])", instance, null, "Utah ");
+        ExprEvalUtils.testEval("substring-before(join(' ', /data/places/country/state), /data/places/country/state[2])", instance, null, "Utah ");
+        ExprEvalUtils.testEval("substring-before('hello there', ' there')", instance, null, "hello");
+        ExprEvalUtils.testEval("substring-before('hello there there', ' there')", instance, null, "hello");
+        ExprEvalUtils.testEval("substring-before('hello there', '')", instance, null, "");
+        ExprEvalUtils.testEval("substring-before('hello there', 'foo')", instance, null, "");
+        ExprEvalUtils.testEval("substring-before('', 'foo')", instance, null, "");
+        ExprEvalUtils.testEval("substring-before('123', 2)", instance, null, "1");
+
+        ExprEvalUtils.testEval("substring-after('Utah Montana', /data/places/country/state[1])", instance, null, " Montana");
+        ExprEvalUtils.testEval("substring-after(join(' ', /data/places/country/state), /data/places/country/state[1])", instance, null, " Montana");
+        ExprEvalUtils.testEval("substring-after('hello there', 'hello ')", instance, null, "there");
+        ExprEvalUtils.testEval("substring-after('hello hello there', 'hello ')", instance, null, "hello there");
+        ExprEvalUtils.testEval("substring-after('hello there', '')", instance, null, "hello there");
+        ExprEvalUtils.testEval("substring-after('hello there', 'foo')", instance, null, "hello there");
+        ExprEvalUtils.testEval("substring-after('', 'foo')", instance, null, "");
+        ExprEvalUtils.testEval("substring-after('123', 2)", instance, null, "3");
+    }
     /**
      * Test that `position(some_ref)` throws a XPathTypeMismatchException when
      * some_ref points to an empty nodeset

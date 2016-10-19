@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.resources.model;
 
 /**
