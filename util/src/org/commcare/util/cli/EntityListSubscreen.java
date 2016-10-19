@@ -5,6 +5,9 @@ import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.AccumulatingReporter;
+import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
 import org.javarosa.xpath.XPathException;
 
 import java.io.PrintStream;
@@ -26,14 +29,19 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     private final Vector<Action> actions;
 
+    private final Detail shortDetail;
+    private final EvaluationContext rootContext;
+
     public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context) throws CommCareSessionException {
         mHeader = this.createHeader(shortDetail, context);
+        this.shortDetail = shortDetail;
+        this.rootContext = context;
 
         rows = new String[references.size()];
 
         int i = 0;
         for (TreeReference entity : references) {
-            rows[i] = createRow(entity, shortDetail, context);
+            rows[i] = createRow(entity);
             ++i;
         }
 
@@ -43,10 +51,26 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         actions = shortDetail.getCustomActions(context);
     }
 
-    private String createRow(TreeReference entity, Detail shortDetail, EvaluationContext ec) {
-        EvaluationContext context = new EvaluationContext(ec, entity);
+    private String createRow(TreeReference entity) {
+        return createRow(entity, false);
+    }
 
+    private String createRow(TreeReference entity, boolean collectDebug) {
+        EvaluationContext context = new EvaluationContext(rootContext, entity);
+        AccumulatingReporter reporter = new AccumulatingReporter();
+
+        if(collectDebug) {
+            context.setDebugModeOn(reporter);
+        }
         shortDetail.populateEvaluationContextVariables(context);
+
+        if(collectDebug) {
+            if(reporter.getCollectedTraces().size() > 0) {
+                System.out.println("Variable Traces");
+            }
+            PrintCollectedTraces(reporter);
+            reporter.clearTraces();
+        }
 
         DetailField[] fields = shortDetail.getFields();
 
@@ -79,7 +103,23 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                 row.append(" | ");
             }
         }
+
+        if(collectDebug) {
+            if(reporter.getCollectedTraces().size() > 0) {
+                System.out.println("Template Traces:");
+            }
+            PrintCollectedTraces(reporter);
+            reporter.clearTraces();
+        }
         return row.toString();
+    }
+
+    private static void PrintCollectedTraces(AccumulatingReporter reporter) {
+        StringEvaluationTraceSerializer serializer = new StringEvaluationTraceSerializer();
+        for(EvaluationTrace trace : reporter.getCollectedTraces()) {
+            System.out.println(trace.getExpression() +": " + trace.getValue());
+            System.out.print(serializer.serializeEvaluationLevels(trace));
+        }
     }
 
     //So annoying how identical this is...
@@ -146,6 +186,15 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                 host.setPendingAction(actions.elementAt(chosenActionIndex));
                 return true;
             }
+        }
+
+        if(input.startsWith("debug ")) {
+            try {
+                int chosenDebugIndex = Integer.valueOf(input.substring("debug ".length()).trim());
+                createRow(this.mChoices[chosenDebugIndex], true);
+            } catch (NumberFormatException e) {
+            }
+            return false;
         }
 
         try {
