@@ -2,6 +2,7 @@ package org.javarosa.core.util.test;
 
 import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapBase;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -16,12 +17,18 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class ExternalizableTest {
@@ -112,9 +119,7 @@ public class ExternalizableTest {
     }
 
     private static void print(String s) {
-        //#if javarosa.dev.serializationtest.verbose
         System.out.println(s);
-        //#endif
     }
 
     @Test
@@ -263,5 +268,109 @@ public class ExternalizableTest {
         m.put("d", new SampleExtz("boris", "yeltsin"));
         m.put("e", new ExtWrapList(vs));
         testExternalizable(new ExtWrapMapPoly(m), new ExtWrapMapPoly(String.class, true), pf);
+    }
+
+    /**
+     * Test string serialization extension that handles large strings.
+     */
+    @Test
+    public void stringExtSizeTest() throws IOException, DeserializationException {
+        String largeString = buildLargeString();
+        PrototypeFactory pf = new PrototypeFactory();
+        PrototypeFactory.setStaticHasher(new ClassNameHasher());
+
+        // serialize large string using new string serialization method
+        byte[] serializedBytes = serializeStringToBytes(largeString);
+
+        // deserialize the large string
+        DataInputStream newInputStream = new DataInputStream(new ByteArrayInputStream(serializedBytes));
+        String result = (String)ExtUtil.read(newInputStream, new ExtWrapTagged(), pf);
+        newInputStream.close();
+
+        // check that deserializing a large string with 'readString' fails
+        boolean didFail = false;
+        newInputStream = new DataInputStream(new ByteArrayInputStream(serializedBytes));
+        try {
+            ExtUtil.readString(newInputStream);
+        } catch (Exception e) {
+            didFail = true;
+        }
+        assertTrue("Deserializing a large string using 'readString' shouldn't wor", didFail);
+
+        // test equality of original string with deserialized one
+        assertEquals('a', result.charAt(0));
+        assertEquals('z', result.charAt(result.length() - 1));
+        assertEquals(largeString.length(), result.length());
+
+        // assert that the string would have thrown an error using the old serialization implementation
+        DataOutputStream dataOutputStream = new DataOutputStream(new ByteArrayOutputStream());
+        didFail = false;
+        try {
+            writeStringOld(dataOutputStream, largeString);
+        } catch (IOException e) {
+            didFail = true;
+        }
+        assertTrue("The old string serialization method should fail on large strings", didFail);
+    }
+
+    private static String buildLargeString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("a");
+        for (int i = 0; i < ((ExtUtil.MAX_UNSIGNED_SHORT_VALUE / 4) + 100); i++) {
+            // 🚩 is at least 4 bytes long, more depending on encoding stuff...
+            sb.append("🚩");
+        }
+        sb.append("z");
+        return sb.toString();
+    }
+
+    private static byte[] serializeStringToBytes(String string) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dataOutputStream = new DataOutputStream(baos);
+        try {
+            ExtUtil.writeString(dataOutputStream, string);
+            return baos.toByteArray();
+        } catch (Exception e) {
+            fail("shouldn't crash serializing large string");
+        } finally {
+            try {
+                dataOutputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return null;
+    }
+
+    /**
+     * Check that serializing a small string defaults to the old implementation
+     */
+    @Test
+    public void stringExtImplementationEqTest() throws IOException {
+        PrototypeFactory.setStaticHasher(new ClassNameHasher());
+
+        String message = "hello world!";
+        // serialize and deserialize a small string using 'writeString' / 'readString'
+        byte [] serializedString = serializeStringToBytes(message);
+
+        DataInputStream newInputStream = new DataInputStream(new ByteArrayInputStream(serializedString));
+        String deserializedString = ExtUtil.readString(newInputStream);
+        assertEquals(message, deserializedString);
+
+        // check that the old 'writeString' implementation matches the updated
+        // 'writeString' implementation for small strings
+        ByteArrayOutputStream oldByteStream = new ByteArrayOutputStream();
+        DataOutputStream oldImplStream = new DataOutputStream(oldByteStream);
+        writeStringOld(oldImplStream, message);
+
+        assertNotNull(serializedString);
+        assertEquals(oldByteStream.toString(), new String(serializedString));
+
+        oldImplStream.close();
+    }
+
+    private static void writeStringOld(DataOutputStream out, String val) throws IOException {
+        out.writeUTF(val);
     }
 }
