@@ -1224,7 +1224,7 @@ public class XPathFuncExpr extends XPathExpression {
      * @param o1 string being matched
      * @param o2 regular expression
      */
-    public static Boolean regex(Object o1, Object o2) {
+    private static Boolean regex(Object o1, Object o2) {
         String str = toString(o1);
         String re = toString(o2);
 

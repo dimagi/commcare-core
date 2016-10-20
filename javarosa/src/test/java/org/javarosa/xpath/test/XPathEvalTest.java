@@ -658,35 +658,6 @@ public class XPathEvalTest {
         });
 
         ec.addFunctionHandler(new IFunctionHandler() {
-
-            public String getName() {
-                return "regex";
-            }
-
-            public Object eval(Object[] args, EvaluationContext ec) {
-                System.out.println("EVAL REGEX TESTS:");
-                for (int i = 0; i < args.length; i++) {
-                    System.out.println("REGEX ARGS: " + args[i].toString());
-                }
-
-
-                return new Boolean(true); // String.re  args[0].
-
-            }
-
-            public Vector getPrototypes() {
-                Vector p = new Vector();
-                p.addElement(allPrototypes[2]);
-                return p;
-            }
-
-            public boolean rawArgs() {
-                return false;
-            }
-        });
-
-
-        ec.addFunctionHandler(new IFunctionHandler() {
             public String getName() {
                 return "add";
             }
