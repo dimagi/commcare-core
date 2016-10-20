@@ -1,5 +1,6 @@
 package org.javarosa.core.util.externalizable;
 
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.util.Interner;
 import org.javarosa.core.util.OrderedHashtable;
@@ -127,7 +128,13 @@ public class ExtUtil {
     }
 
     public static void writeString(DataOutputStream out, String val) throws IOException {
+        try {
         out.writeUTF(val);
+        } catch (UTFDataFormatException e) {
+            // custom code that should not hit prod that clears problematic case props
+            Logger.log("case-commit-error", "clearing case property value that started with: '" + val.substring(0, 10) + "'");
+            out.writeUTF("");
+        }
         //we could easily come up with more efficient default encoding for string
     }
 
