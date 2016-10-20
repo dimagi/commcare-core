@@ -28,7 +28,8 @@
     ":home - Navigate to the home menu of the app"
     ":lang <lang> - change the language to <lang> (e.g. :lang en)"
     ":today <date> - change the date returned by today()/now() (e.g. :today 2015-07-25). ':today' resets to today's date"
-    ":stack - Show the current session frame stack"
+    ":stack - Show the stack of session frames"
+    ":frame - Show the current session frame"
     ":help - Show this message"))
 
 (defn build-restore-user-sandbox [prototype-factory restore-file]
@@ -81,19 +82,34 @@
         (recur session))
       :else (throw (RuntimeException. "Unexpected frame request")))))
 
-(defn print-stack [session]
+(defn print-frame-inner [steps]
+  (doall
+    (map
+      (fn [step] (if (= (.getType step) SessionFrame/STATE_COMMAND_ID)
+                   (println "COMMAND: " (.getId step))
+                   (println "DATUM: " (.getId step) " - " (.getValue step))))
+      steps)))
+
+(defn print-frame [session]
   (let
     [frame (.getFrame session)
      steps (.getSteps frame)]
+    (print-frame-inner steps)))
+
+(defn print-stack [session]
+  (let
+    [frame-stack (.getFrameStack session)]
+    (println "------- current frame -------")
+    (print-frame session)
+    (println "-----------------------------")
     (doall
-      (map
-        (fn [step] (if (= (.getType step) SessionFrame/STATE_COMMAND_ID)
-                     (println "COMMAND: " (.getId step))
-                     (println "DATUM: " (.getId step) " - " (.getValue step))))
-        steps))))
+      (map (fn [frame] (println "-------")
+             (print-frame-inner (.getSteps frame))
+             (println "-------")))
+      frame-stack)))
 
 ;; String -> BuildType
-;; where BuildType is one of 
+;; where BuildType is one of
 ;; - :save, latest saved version of app
 ;; - :build, latest built version of app
 ;; - :release, latests starred version of app
@@ -138,6 +154,9 @@
         (= command ":stack")
         (do (print-stack session)
             :stay)
+        (= command ":frame")
+        (do (print-frame session)
+            :stay)
         (= command ":lang")
         (do (set-locale arg)
             :stay)
@@ -177,7 +196,7 @@
   (try
     (let [stream (ByteArrayInputStream. form-instance)]
       (.parse (DataModelPullParser. stream (CommCareTransactionParserFactory. sandbox) true true)))
-    (catch Exception e (doall 
+    (catch Exception e (doall
                          (println "Error processing the form result: " (.getMessage e))
                          (st/print-stack-trace e)))))
 
@@ -187,7 +206,7 @@
         form-xmlns (.getForm session)
         locale nil] ; TODO: pass in locale
     (println "Starting form entry with the following stack frame")
-    (print-stack session)
+    (print-frame session)
     (if (nil? form-xmlns)
       (do (finish-session session) true)
       (let [form-result (form-player/play
