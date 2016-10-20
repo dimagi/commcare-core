@@ -6,6 +6,7 @@ import org.commcare.data.xml.TransactionParser;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.util.externalizable.SerializationLimitationException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.ActionableInvalidStructureException;
 import org.kxml2.io.KXmlParser;
@@ -100,7 +101,12 @@ public class CaseXmlParser extends TransactionParser<Case> {
         if (caseForBlock != null) {
             caseForBlock.setLastModified(modified);
 
-            commit(caseForBlock);
+            try {
+                commit(caseForBlock);
+            } catch (SerializationLimitationException e) {
+                throw new InvalidStructureException("One of property values for the case " +
+                        caseForBlock.getCaseId() + " is too large: " + e.getMessage());
+            }
 
             if (isCreateOrUpdate) {
                 onCaseCreateUpdate(caseId);
