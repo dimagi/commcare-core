@@ -1,5 +1,6 @@
 package org.javarosa.core.util.externalizable;
 
+import org.javarosa.core.model.data.LargeString;
 import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.util.Interner;
 import org.javarosa.core.util.OrderedHashtable;
@@ -19,6 +20,7 @@ import java.util.Vector;
 public class ExtUtil {
     public static boolean interning = true;
     public static Interner<String> stringCache;
+    public final static int MAX_UNSIGNED_SHORT_VALUE = (((int)Short.MAX_VALUE) * 2);
 
     public static byte[] serialize(Object o) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -127,7 +129,14 @@ public class ExtUtil {
     }
 
     public static void writeString(DataOutputStream out, String val) throws IOException {
-        out.writeUTF(val);
+        if (val.getBytes("UTF-8").length > MAX_UNSIGNED_SHORT_VALUE) {
+            // serialize the string using an implementation that doesn't have a size limit
+            // NOTE: you cannot use 'readString' to deserialize strings encoded this way.
+            // Instead you must read it using a wrapped tag
+            write(out, new ExtWrapTagged(new LargeString(val)));
+        } else {
+            out.writeUTF(val);
+        }
         //we could easily come up with more efficient default encoding for string
     }
 

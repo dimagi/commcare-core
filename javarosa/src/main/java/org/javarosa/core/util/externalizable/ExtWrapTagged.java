@@ -1,5 +1,7 @@
 package org.javarosa.core.util.externalizable;
 
+import org.javarosa.core.model.data.LargeString;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -19,6 +21,7 @@ public class ExtWrapTagged extends ExternalizableWrapper {
         WRAPPER_CODES.put(ExtWrapMapPoly.class, 0x23);
         WRAPPER_CODES.put(ExtWrapIntEncodingUniform.class, 0x40);
         WRAPPER_CODES.put(ExtWrapIntEncodingSmall.class, 0x41);
+        WRAPPER_CODES.put(LargeString.class, 0x42);
     }
 
     /* serialization */
