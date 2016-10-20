@@ -44,24 +44,12 @@ public class LargeString extends ExternalizableWrapper {
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        int size = (int)ExtUtil.readNumeric(in);
-        byte[] bytes = new byte[size];
-        int read = 0;
-        int toread = size;
-        while (read != size) {
-            read = in.read(bytes, 0, toread);
-            toread -= read;
-        }
-
-        val = new String(bytes, "UTF-8");
+        val = new String(ExtUtil.readBytes(in), "UTF-8");
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         byte[] stringAsBytes = ((String)val).getBytes("UTF-8");
-        ExtUtil.writeNumeric(out, stringAsBytes.length);
-        if (stringAsBytes.length > 0) {
-            out.write(stringAsBytes);
-        }
+        ExtUtil.writeBytes(out, stringAsBytes);
     }
 }
