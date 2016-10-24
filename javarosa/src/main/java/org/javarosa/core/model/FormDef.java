@@ -1857,7 +1857,6 @@ public class FormDef implements IFormElement, IMetaData,
         throw new RuntimeException("This method call is not relevant for FormDefs [setTextID()]");
     }
 
-
     public void setDefaultSubmission(SubmissionProfile profile) {
         submissionProfiles.put(DEFAULT_SUBMISSION_PROFILE, profile);
     }
@@ -1889,19 +1888,5 @@ public class FormDef implements IFormElement, IMetaData,
         }
         extensions.addElement(newEx);
         return newEx;
-    }
-
-
-    /**
-     * Frees all of the components of this form which are no longer needed once it is completed.
-     *
-     * Once this is called, the form is no longer capable of functioning, but all data should be retained.
-     */
-    public void seal() {
-        triggerables = null;
-        triggerIndex = null;
-        conditionRepeatTargetIndex = null;
-        //We may need ths one, actually
-        exprEvalContext = null;
     }
 }
