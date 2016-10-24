@@ -1,0 +1,27 @@
+<h:html xmlns="http://www.w3.org/2002/xforms"
+        xmlns:h="http://www.w3.org/1999/xhtml">
+    <h:head>
+        <h:title>Constraints for simple and select answers</h:title>
+        <model>
+            <letref ref="/data" var="form"/>
+
+            <instance>
+                <data>
+                    <places>
+                        <country id='one'>
+                            <name>Singapore</name>
+                        </country>
+                        <country id='two'>
+                            <name>United States</name>
+                            <state id='beehive_state'>Utah</state>
+                            <state id='treasure_state'>Montana</state>
+                        </country>
+                    </places>
+                </data>
+            </instance>
+        </model>
+    </h:head>
+
+    <h:body>
+    </h:body>
+</h:html>

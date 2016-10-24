@@ -59,7 +59,6 @@ public class XPathPathExprTest {
     public void testNestedPreds() {
         FormParseInit fpi = new FormParseInit("/test_nested_preds_with_rel_refs.xml");
         FormDef fd = fpi.getFormDef();
-        FormInstance fi = fd.getInstance();
         FormInstance groupsInstance = (FormInstance)fd.getNonMainInstance("groups");
         EvaluationContext ec = fd.getEvaluationContext();
 
@@ -93,11 +92,14 @@ public class XPathPathExprTest {
 
     @Test
     public void hashRefResolution() {
-        FormInstance instance = ExprEvalUtils.loadInstance("/test_xpathpathexpr.xml");
+        FormParseInit fpi = new FormParseInit("/xform_tests/hash_ref_example.xml");
+        FormDef fd = fpi.getFormDef();
+        FormInstance instance = fd.getInstance();
+        EvaluationContext ec = fd.getEvaluationContext();
 
-        ExprEvalUtils.testEval("/data/places/country[@id = 'one']/name", instance, null, "Singapore");
+        ExprEvalUtils.testEval("/data/places/country[@id = 'one']/name", instance, ec, "Singapore");
         // TODO PLM: make this pass:
-        ExprEvalUtils.testEval("#form/places/country[@id = 'one']/name", instance, null, "Singapore");
+        ExprEvalUtils.testEval("#form/places/country[@id = 'one']/name", instance, ec, "Singapore");
     }
 
     @Test
