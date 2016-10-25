@@ -96,9 +96,6 @@ public class DatabaseHelper {
     private static void addDataToValues(HashMap<String, Object> values,
                                         Externalizable e) throws RecordTooLargeException {
         byte[] blob = TableBuilder.toBlob(e);
-        if (blob.length > 1000000) {
-            throw new RecordTooLargeException(blob.length / 1000000);
-        }
         values.put(DATA_COL, blob);
     }
 
