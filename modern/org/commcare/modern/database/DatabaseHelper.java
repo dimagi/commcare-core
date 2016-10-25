@@ -1,18 +1,12 @@
 package org.commcare.modern.database;
 
 import org.commcare.modern.models.EncryptedModel;
-import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Setup of platform-agnostic DB helper functions IE for generating SQL
@@ -86,15 +80,14 @@ public class DatabaseHelper {
         return new Pair<>(stringBuilder.toString(), retArray);
     }
 
-    public static HashMap<String, Object> getMetaFieldsAndValues(Externalizable e) throws RecordTooLargeException{
+    public static HashMap<String, Object> getMetaFieldsAndValues(Externalizable e) {
         HashMap<String, Object> values = getNonDataMetaEntries(e);
-
         addDataToValues(values, e);
         return values;
     }
 
     private static void addDataToValues(HashMap<String, Object> values,
-                                        Externalizable e) throws RecordTooLargeException {
+                                        Externalizable e) {
         byte[] blob = TableBuilder.toBlob(e);
         if (blob.length > 1000000) {
             throw new RecordTooLargeException(blob.length / 1000000);
