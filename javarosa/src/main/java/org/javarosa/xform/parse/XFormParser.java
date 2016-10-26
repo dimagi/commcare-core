@@ -12,7 +12,6 @@ import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.QuestionString;
 import org.javarosa.core.model.SelectChoice;
-import org.javarosa.core.model.SubmissionProfile;
 import org.javarosa.core.model.actions.SetValueAction;
 import org.javarosa.core.model.condition.Condition;
 import org.javarosa.core.model.condition.Constraint;
@@ -98,7 +97,6 @@ public class XFormParser {
     private static Hashtable<String, IElementHandler> topLevelHandlers;
     private static Hashtable<String, IElementHandler> groupLevelHandlers;
     private static Hashtable<String, Integer> typeMappings;
-    private static Vector<SubmissionParser> submissionParsers;
 
     private final Vector<QuestionExtensionParser> extensionParsers = new Vector<>();
 
@@ -159,7 +157,6 @@ public class XFormParser {
     private static void staticInit() {
         initProcessingRules();
         initTypeMappings();
-        submissionParsers = new Vector<>();
     }
 
     private static void initProcessingRules() {
@@ -728,8 +725,6 @@ public class XFormParser {
                 saveInstanceNode(child);
             } else if (BIND_ATTR.equals(childName)) { //<instance> must come before <bind>s
                 parseBind(child);
-            } else if ("submission".equals(childName)) {
-                delayedParseElements.addElement(child);
             } else if (childName != null && actionHandlers.containsKey(childName)) {
                 delayedParseElements.addElement(child);
             } else { //invalid model content
@@ -754,15 +749,10 @@ public class XFormParser {
             }
         }
 
-        //Now parse out the submission/action blocks (we needed the binds to all be set before we could)
+        //Now parse out the action blocks (we needed the binds to all be set before we could)
         for (Element child : delayedParseElements) {
             String name = child.getName();
-            if (name.equals("submission")) {
-                parseSubmission(child);
-            } else {
-                // For now, anything that isn't a submission is an action
-                actionHandlers.get(name).handle(this, child, _f);
-            }
+            actionHandlers.get(name).handle(this, child, _f);
         }
     }
 
@@ -839,57 +829,6 @@ public class XFormParser {
         source.registerEventListener(event, action);
     }
 
-    private void parseSubmission(Element submission) {
-        String id = submission.getAttributeValue(null, ID_ATTR);
-
-        //These two are always required
-        String method = submission.getAttributeValue(null, "method");
-        String action = submission.getAttributeValue(null, "action");
-
-        SubmissionParser parser = new SubmissionParser();
-        for (SubmissionParser p : submissionParsers) {
-            if (p.matchesCustomMethod(method)) {
-                parser = p;
-            }
-        }
-
-        //These two might exist, but if neither do, we just assume you want the entire instance.
-        String ref = submission.getAttributeValue(null, REF_ATTR);
-        String bind = submission.getAttributeValue(null, BIND_ATTR);
-
-        XPathReference dataRef = null;
-        boolean refFromBind = false;
-
-        if (bind != null) {
-            DataBinding binding = bindingsByID.get(bind);
-            if (binding == null) {
-                throw new XFormParseException("XForm Parse: invalid binding ID in submit'" + bind + "'", submission);
-            }
-            dataRef = binding.getReference();
-            refFromBind = true;
-        } else if (ref != null) {
-            dataRef = new XPathReference(ref);
-        } else {
-            //no reference! No big deal, assume we want the root reference
-            dataRef = new XPathReference("/");
-        }
-
-        if (dataRef != null) {
-            if (!refFromBind) {
-                dataRef = getAbsRef(dataRef, TreeReference.rootRef());
-            }
-        }
-
-        SubmissionProfile profile = parser.parseSubmission(method, action, dataRef, submission);
-
-        if (id == null) {
-            //default submission profile
-            _f.setDefaultSubmission(profile);
-        } else {
-            //typed submission profile
-            _f.addSubmissionProfile(id, profile);
-        }
-    }
 
     private void saveInstanceNode(Element instance) {
         Element instanceNode = null;

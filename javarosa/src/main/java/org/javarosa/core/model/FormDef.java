@@ -116,11 +116,6 @@ public class FormDef implements IFormElement, IMetaData,
 
     private QuestionPreloader preloader = new QuestionPreloader();
 
-    // XML ID's cannot start with numbers, so this should never conflict
-    private static final String DEFAULT_SUBMISSION_PROFILE = "1";
-
-    private Hashtable<String, SubmissionProfile> submissionProfiles;
-
     /**
      * Secondary and external instance pointers
      */
@@ -152,7 +147,6 @@ public class FormDef implements IFormElement, IMetaData,
         //This is kind of a wreck...
         setEvaluationContext(new EvaluationContext(null));
         outputFragments = new Vector();
-        submissionProfiles = new Hashtable<>();
         formInstances = new Hashtable<>();
         extensions = new Vector<>();
         actionController = new ActionController();
@@ -1471,8 +1465,6 @@ public class FormDef implements IFormElement, IMetaData,
 
         outputFragments = (Vector)ExtUtil.read(dis, new ExtWrapListPoly(), pf);
 
-        submissionProfiles = (Hashtable<String, SubmissionProfile>)ExtUtil.read(dis, new ExtWrapMap(String.class, SubmissionProfile.class), pf);
-
         formInstances = (Hashtable<String, DataInstance>)ExtUtil.read(dis, new ExtWrapMap(String.class, new ExtWrapTagged()), pf);
 
         extensions = (Vector)ExtUtil.read(dis, new ExtWrapListPoly(), pf);
@@ -1571,7 +1563,6 @@ public class FormDef implements IFormElement, IMetaData,
         ExtUtil.write(dos, new ExtWrapList(recalcs));
 
         ExtUtil.write(dos, new ExtWrapListPoly(outputFragments));
-        ExtUtil.write(dos, new ExtWrapMap(submissionProfiles));
 
         //for support of multi-instance forms
 
@@ -1855,22 +1846,6 @@ public class FormDef implements IFormElement, IMetaData,
     @Override
     public void setTextID(String textID) {
         throw new RuntimeException("This method call is not relevant for FormDefs [setTextID()]");
-    }
-
-
-    public void setDefaultSubmission(SubmissionProfile profile) {
-        submissionProfiles.put(DEFAULT_SUBMISSION_PROFILE, profile);
-    }
-
-    public void addSubmissionProfile(String submissionId, SubmissionProfile profile) {
-        submissionProfiles.put(submissionId, profile);
-    }
-
-    public SubmissionProfile getSubmissionProfile() {
-        //At some point these profiles will be set by the <submit> control in the form.
-        //In the mean time, though, we can only promise that the default one will be used.
-
-        return submissionProfiles.get(DEFAULT_SUBMISSION_PROFILE);
     }
 
     public <X extends XFormExtension> X getExtension(Class<X> extension) {
