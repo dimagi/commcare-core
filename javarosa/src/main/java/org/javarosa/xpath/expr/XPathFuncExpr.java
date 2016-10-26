@@ -17,7 +17,7 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xform.util.CalendarUtils;
+import org.javarosa.xform.util.NepaliCalendarUtils;
 import org.javarosa.xform.util.EthiopianCalendarUtils;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathArityException;
@@ -489,7 +489,7 @@ public class XPathFuncExpr extends XPathExpression {
         if ("ethiopian".equals(format)) {
             return EthiopianCalendarUtils.convertToEthiopianString(date);
         } else if ("nepali".equals(format)) {
-            return CalendarUtils.convertToNepaliString(date);
+            return NepaliCalendarUtils.convertToNepaliString(date);
         } else {
             throw new XPathUnsupportedException("Unsupported calendar type: " + format);
         }

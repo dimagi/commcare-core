@@ -1,6 +1,6 @@
 package org.javarosa.xform.util.test;
 
-import org.javarosa.xform.util.CalendarUtils;
+import org.javarosa.xform.util.NepaliCalendarUtils;
 import org.javarosa.xform.util.UniversalDate;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
@@ -25,13 +25,13 @@ public class CalendarTests {
         Calendar nepaliBeginningOfDayDate = Calendar.getInstance(nepaliTimeZone.toTimeZone());
         nepaliBeginningOfDayDate.set(2007, Calendar.JULY, 7, 0, 0);
 
-        UniversalDate middleOfDay = CalendarUtils.fromMillis(nepaliMiddleOfDayDate.getTimeInMillis(), nepaliTimeZone);
-        UniversalDate beginningOfDay = CalendarUtils.fromMillis(nepaliBeginningOfDayDate.getTimeInMillis(), nepaliTimeZone);
+        UniversalDate middleOfDay = NepaliCalendarUtils.fromMillis(nepaliMiddleOfDayDate.getTimeInMillis(), nepaliTimeZone);
+        UniversalDate beginningOfDay = NepaliCalendarUtils.fromMillis(nepaliBeginningOfDayDate.getTimeInMillis(), nepaliTimeZone);
         assertSameDate(middleOfDay, beginningOfDay);
 
         Calendar nepaliEndOfDayDate = Calendar.getInstance(nepaliTimeZone.toTimeZone());
         nepaliEndOfDayDate.set(2007, Calendar.JULY, 7, 23, 59, 59);
-        UniversalDate endOfDay = CalendarUtils.fromMillis(nepaliEndOfDayDate.getTimeInMillis(), nepaliTimeZone);
+        UniversalDate endOfDay = NepaliCalendarUtils.fromMillis(nepaliEndOfDayDate.getTimeInMillis(), nepaliTimeZone);
         assertSameDate(endOfDay, beginningOfDay);
     }
 
@@ -50,8 +50,8 @@ public class CalendarTests {
         Calendar mexicoCal = Calendar.getInstance(mexicanTimeZone.toTimeZone());
         mexicoCal.set(2007, Calendar.JULY, 7, 18, 46);
 
-        UniversalDate mexicanDate = CalendarUtils.fromMillis(mexicoCal.getTimeInMillis(), mexicanTimeZone);
-        UniversalDate nepaliDate = CalendarUtils.fromMillis(nepalCal.getTimeInMillis(), nepaliTimeZone);
+        UniversalDate mexicanDate = NepaliCalendarUtils.fromMillis(mexicoCal.getTimeInMillis(), mexicanTimeZone);
+        UniversalDate nepaliDate = NepaliCalendarUtils.fromMillis(nepalCal.getTimeInMillis(), nepaliTimeZone);
         assertSameDate(nepaliDate, mexicanDate);
     }
 
@@ -62,9 +62,9 @@ public class CalendarTests {
         Calendar mexicoCal = Calendar.getInstance(mexicanTimeZone.toTimeZone());
         mexicoCal.set(2007, Calendar.JULY, 7, 18, 46);
 
-        UniversalDate mexicanDate = CalendarUtils.fromMillis(mexicoCal.getTimeInMillis(), mexicanTimeZone);
-        long time = CalendarUtils.toMillisFromJavaEpoch(mexicanDate.year, mexicanDate.month, mexicanDate.day, mexicanTimeZone);
-        UniversalDate rebuiltDateInUsingDifferentTimezone = CalendarUtils.fromMillis(time, nepaliTimeZone);
+        UniversalDate mexicanDate = NepaliCalendarUtils.fromMillis(mexicoCal.getTimeInMillis(), mexicanTimeZone);
+        long time = NepaliCalendarUtils.toMillisFromJavaEpoch(mexicanDate.year, mexicanDate.month, mexicanDate.day, mexicanTimeZone);
+        UniversalDate rebuiltDateInUsingDifferentTimezone = NepaliCalendarUtils.fromMillis(time, nepaliTimeZone);
         assertSameDate(rebuiltDateInUsingDifferentTimezone, mexicanDate);
     }
 
@@ -74,15 +74,15 @@ public class CalendarTests {
 
         Calendar dayInNewYork = Calendar.getInstance(nycTimeZone.toTimeZone());
         dayInNewYork.set(2007, Calendar.JULY, 7);
-        UniversalDate nycTime = CalendarUtils.fromMillis(dayInNewYork.getTimeInMillis(), nycTimeZone);
+        UniversalDate nycTime = NepaliCalendarUtils.fromMillis(dayInNewYork.getTimeInMillis(), nycTimeZone);
 
-        long time = CalendarUtils.toMillisFromJavaEpoch(nycTime.year, nycTime.month, nycTime.day, nycTimeZone);
-        UniversalDate unpackedNycTime = CalendarUtils.fromMillis(time, nycTimeZone);
+        long time = NepaliCalendarUtils.toMillisFromJavaEpoch(nycTime.year, nycTime.month, nycTime.day, nycTimeZone);
+        UniversalDate unpackedNycTime = NepaliCalendarUtils.fromMillis(time, nycTimeZone);
         assertSameDate(nycTime, unpackedNycTime);
 
         DateTimeZone nepaliTimeZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("GMT+05:45"));
-        time = CalendarUtils.toMillisFromJavaEpoch(nycTime.year, nycTime.month, nycTime.day, nepaliTimeZone);
-        UniversalDate unpackedNepaliTime = CalendarUtils.fromMillis(time, nepaliTimeZone);
+        time = NepaliCalendarUtils.toMillisFromJavaEpoch(nycTime.year, nycTime.month, nycTime.day, nepaliTimeZone);
+        UniversalDate unpackedNepaliTime = NepaliCalendarUtils.fromMillis(time, nepaliTimeZone);
         assertSameDate(nycTime, unpackedNepaliTime);
     }
 
@@ -91,16 +91,16 @@ public class CalendarTests {
         // India
         DateTimeZone indiaTimeZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("GMT+05:00"));
         UniversalDate nepaliDate = new UniversalDate(2073, 5, 2, 0);
-        long normalizedTime = CalendarUtils.toMillisFromJavaEpoch(2073, 5, 2, indiaTimeZone);
+        long normalizedTime = NepaliCalendarUtils.toMillisFromJavaEpoch(2073, 5, 2, indiaTimeZone);
         Date date = new Date(normalizedTime);
-        UniversalDate deserializedNepaliDate = CalendarUtils.fromMillis(date.getTime(), indiaTimeZone);
+        UniversalDate deserializedNepaliDate = NepaliCalendarUtils.fromMillis(date.getTime(), indiaTimeZone);
         assertSameDate(nepaliDate, deserializedNepaliDate);
 
         // Boston
         DateTimeZone bostonTimeZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("GMT-04:00"));
-        normalizedTime = CalendarUtils.toMillisFromJavaEpoch(2073, 5, 2, bostonTimeZone);
+        normalizedTime = NepaliCalendarUtils.toMillisFromJavaEpoch(2073, 5, 2, bostonTimeZone);
         date = new Date(normalizedTime);
-        deserializedNepaliDate = CalendarUtils.fromMillis(date.getTime(), bostonTimeZone);
+        deserializedNepaliDate = NepaliCalendarUtils.fromMillis(date.getTime(), bostonTimeZone);
         assertSameDate(nepaliDate, deserializedNepaliDate);
     }
 }
