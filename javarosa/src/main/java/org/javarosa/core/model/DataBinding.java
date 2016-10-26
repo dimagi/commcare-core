@@ -1,35 +1,9 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model;
 
 import org.javarosa.core.model.condition.Condition;
 import org.javarosa.core.model.condition.IConditionExpr;
 import org.javarosa.core.model.condition.Recalculate;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapNullable;
-import org.javarosa.core.util.externalizable.ExtWrapTagged;
-import org.javarosa.core.util.externalizable.Externalizable;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 
 /**
  * A data binding is an object that represents how a
@@ -45,7 +19,7 @@ import java.io.IOException;
  *
  * @author Drew Roos
  */
-public class DataBinding implements Externalizable {
+public class DataBinding {
     private String id;
     private XPathReference ref;
     private int dataType;
@@ -69,101 +43,43 @@ public class DataBinding implements Externalizable {
         readonlyAbsolute = false;
     }
 
-    /**
-     * @return The data reference
-     */
     public XPathReference getReference() {
         return ref;
     }
 
-    /**
-     * @param ref the reference to set
-     */
     public void setReference(XPathReference ref) {
         this.ref = ref;
     }
 
-    /**
-     * @return the id
-     */
     public String getId() {
         return id;
     }
 
-    /**
-     * @param id the id to set
-     */
     public void setId(String id) {
         this.id = id;
     }
 
-    /**
-     * @return the dataType
-     */
     public int getDataType() {
         return dataType;
     }
 
-    /**
-     * @param dataType the dataType to set
-     */
     public void setDataType(int dataType) {
         this.dataType = dataType;
     }
 
-    /**
-     * @return the preload
-     */
     public String getPreload() {
         return preload;
     }
 
-    /**
-     * @param preload the preload to set
-     */
     public void setPreload(String preload) {
         this.preload = preload;
     }
 
-    /**
-     * @return the preloadParams
-     */
     public String getPreloadParams() {
         return preloadParams;
     }
 
-    /**
-     * @param preloadParams the preloadParams to set
-     */
     public void setPreloadParams(String preloadParams) {
         this.preloadParams = preloadParams;
     }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
-     */
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        setId((String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf));
-        setDataType(ExtUtil.readInt(in));
-        setPreload((String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf));
-        setPreloadParams((String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf));
-        ref = (XPathReference)ExtUtil.read(in, new ExtWrapTagged());
-
-        //don't bother reading relevancy/required/readonly/constraint/calculate right now; they're only used during parse anyway
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.utilities.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
-    public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.write(out, new ExtWrapNullable(getId()));
-        ExtUtil.writeNumeric(out, getDataType());
-        ExtUtil.write(out, new ExtWrapNullable(getPreload()));
-        ExtUtil.write(out, new ExtWrapNullable(getPreloadParams()));
-        ExtUtil.write(out, new ExtWrapTagged(ref));
-
-        //don't bother writing relevancy/required/readonly/constraint/calculate right now; they're only used during parse anyway
-    }
-
-
 }
