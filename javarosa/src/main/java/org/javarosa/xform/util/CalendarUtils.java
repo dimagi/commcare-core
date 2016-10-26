@@ -2,36 +2,14 @@ package org.javarosa.xform.util;
 
 import org.commcare.util.ArrayDataSource;
 import org.commcare.util.LocaleArrayDataSource;
-import org.joda.time.Chronology;
-import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.chrono.EthiopicChronology;
-import org.joda.time.chrono.GregorianChronology;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
 public class CalendarUtils {
 
     private static ArrayDataSource arrayDataSource = new LocaleArrayDataSource();
-
-    private static String ConvertToEthiopian(int gregorianYear, int gregorianMonth, int gregorianDay) {
-        Chronology chron_eth = EthiopicChronology.getInstance();
-        Chronology chron_greg = GregorianChronology.getInstance();
-        DateTime jodaDateTime = new DateTime(gregorianYear, gregorianMonth, gregorianDay, 0, 0, 0, chron_greg);
-        DateTime dtEthiopic = jodaDateTime.withChronology(chron_eth);
-        String[] monthsArray = getMonthsArray("ethiopian_months");
-        return dtEthiopic.getDayOfMonth() + " "
-                + monthsArray[dtEthiopic.getMonthOfYear() - 1] + " "
-                + dtEthiopic.getYear();
-    }
-
-    public static String ConvertToEthiopian(Date d) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(d);
-        return ConvertToEthiopian(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH));
-    }
 
     private static final HashMap<Integer, int[]> NEPALI_YEAR_MONTHS = new HashMap<>();
 
@@ -215,7 +193,7 @@ public class CalendarUtils {
      * Convert a Gregorian Date object to a Nepali date string,
      * formatted as 'd MMMM yyyy'.
      *
-     * @param date       Gregorian Date to convert
+     * @param date Gregorian Date to convert
      * @return Nepali date string in 'd MMMM yyyy' format
      */
     public static String convertToNepaliString(Date date) {
@@ -380,7 +358,7 @@ public class CalendarUtils {
         return millisNormalizedToUTC + MIN_MILLIS_FROM_JAVA_EPOCH;
     }
 
-    public static String[] getMonthsArray(String key){
+    public static String[] getMonthsArray(String key) {
         return arrayDataSource.getArray(key);
     }
 
