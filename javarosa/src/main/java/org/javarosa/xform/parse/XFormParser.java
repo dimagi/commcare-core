@@ -1,5 +1,6 @@
 package org.javarosa.xform.parse;
 
+import org.javarosa.core.model.LetRefBinding;
 import org.javarosa.core.model.actions.Action;
 import org.javarosa.core.model.actions.ActionController;
 import org.javarosa.core.model.Constants;
@@ -84,6 +85,7 @@ public class XFormParser {
     private static final String ITEXT_OPEN = "jr:itext('";
     private static final String BIND_ATTR = "bind";
     private static final String REF_ATTR = "ref";
+    private static final String LET_REF_ATTR = "letref";
     private static final String EVENT_ATTR = "event";
     private static final String SELECTONE = "select1";
     private static final String SELECT = "select";
@@ -112,6 +114,7 @@ public class XFormParser {
     private boolean modelFound;
     private Hashtable<String, DataBinding> bindingsByID;
     private Vector<DataBinding> bindings;
+    private Vector<LetRefBinding> letRefBindings;
     private Vector<TreeReference> actionTargets;
     private Vector<TreeReference> repeats;
     private Vector<ItemsetBinding> itemsets;
@@ -296,6 +299,7 @@ public class XFormParser {
         modelFound = false;
         bindingsByID = new Hashtable<>();
         bindings = new Vector<>();
+        letRefBindings = new Vector<>();
         actionTargets = new Vector<>();
         repeats = new Vector<>();
         itemsets = new Vector<>();
@@ -606,7 +610,6 @@ public class XFormParser {
             //set the main instance
             _f.setInstance(fi);
         }
-
     }
 
     /**
@@ -728,6 +731,8 @@ public class XFormParser {
                 saveInstanceNode(child);
             } else if (BIND_ATTR.equals(childName)) { //<instance> must come before <bind>s
                 parseBind(child);
+            } else if (LET_REF_ATTR.equals(childName)) {
+                parseLetRef(child);
             } else if ("submission".equals(childName)) {
                 delayedParseElements.addElement(child);
             } else if (childName != null && actionHandlers.containsKey(childName)) {
@@ -1962,6 +1967,19 @@ public class XFormParser {
         addBinding(binding);
     }
 
+    private void parseLetRef(Element e) {
+        Vector<String> usedAtts = new Vector<>();
+
+        DataBinding binding = processStandardBindAttributes(usedAtts, e);
+
+        //print unused attribute warning message for parent element
+        if (XFormUtils.showUnusedAttributeWarning(e, usedAtts)) {
+            reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
+        }
+
+        addBinding(binding);
+    }
+
     private Condition buildCondition(String xpath, String type, XPathReference contextRef) {
         XPathConditional cond;
         int trueAction = -1, falseAction = -1;
@@ -2059,6 +2077,7 @@ public class XFormParser {
         if (isMainInstance) {
             processRepeats(instanceModel);
             verifyBindings(instanceModel);
+            verifyLetRefBindings(instanceModel);
             verifyActions(instanceModel);
         }
         applyInstanceProperties(instanceModel);
@@ -2419,6 +2438,10 @@ public class XFormParser {
         }
     }
 
+    private void verifyLetRefBindings(FormInstance instance) {
+        // PLM TODO:
+    }
+
     private void verifyBindings(FormInstance instance) {
         //check <bind>s (can't bind to '/', bound nodes actually exist)
         for (int i = 0; i < bindings.size(); i++) {
@@ -2669,7 +2692,14 @@ public class XFormParser {
             }
         }
 
+        applyLetRefs(instance);
         applyControlProperties(instance);
+    }
+
+    private void applyLetRefs(FormInstance instance) {
+        for (LetRefBinding refBinding : letRefBindings) {
+            // TODO PLM:
+        }
     }
 
     private static void attachBindGeneral(DataBinding bind) {
