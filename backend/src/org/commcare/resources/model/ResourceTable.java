@@ -583,7 +583,7 @@ public class ResourceTable {
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         UnreliableSourceException aFailure = null;
 
-        for (int i = 0; i < this.NUMBER_OF_LOSSY_RETRIES + 1; ++i) {
+        for (int i = 0; i < NUMBER_OF_LOSSY_RETRIES + 1; ++i) {
             abortIfInstallCancelled(r);
             try {
                 return r.getInstaller().install(r, location, ref, table, instance, upgrade);
