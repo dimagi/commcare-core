@@ -29,7 +29,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
 
     InputStream is;
 
-    String requiredRootEnvelope = null;
+    final String requiredRootEnvelope = null;
 
     CommCareOTARestoreListener rListener;
 

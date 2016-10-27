@@ -57,7 +57,7 @@ public class ResourceTable {
     private boolean isResourceProgressStale = false;
     // Cache for profile and suite 'parent' resources which are used in
     // references resolution
-    private Hashtable<String, Resource> compoundResourceCache =
+    private final Hashtable<String, Resource> compoundResourceCache =
             new Hashtable<>();
 
     public ResourceTable() {
