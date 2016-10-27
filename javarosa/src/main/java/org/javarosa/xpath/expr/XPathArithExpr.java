@@ -10,6 +10,7 @@ public class XPathArithExpr extends XPathBinaryOpExpr {
     public static final int DIVIDE = 3;
     public static final int MODULO = 4;
 
+    @SuppressWarnings("unused")
     public XPathArithExpr() {
     } //for deserialization
 

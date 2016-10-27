@@ -16,6 +16,7 @@ public class XPathCmpExpr extends XPathBinaryOpExpr {
     public static final int LTE = 2;
     public static final int GTE = 3;
 
+    @SuppressWarnings("unused")
     public XPathCmpExpr() {
     } //for deserialization
 

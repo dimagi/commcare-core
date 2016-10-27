@@ -4,6 +4,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 
 public class XPathNumNegExpr extends XPathUnaryOpExpr {
+    @SuppressWarnings("unused")
     public XPathNumNegExpr() {
         // for deserialization
     }

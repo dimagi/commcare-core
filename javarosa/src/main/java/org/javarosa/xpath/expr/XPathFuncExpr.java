@@ -55,6 +55,7 @@ public class XPathFuncExpr extends XPathExpression {
 
     private static final CacheTable<String, Double> mDoubleParseCache = new CacheTable<>();
 
+    @SuppressWarnings("unused")
     public XPathFuncExpr() {
     } //for deserialization
 

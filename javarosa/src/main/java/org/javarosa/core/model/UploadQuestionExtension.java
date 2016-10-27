@@ -19,6 +19,7 @@ public class UploadQuestionExtension implements QuestionDataExtension {
 
     private int maxDimen;
 
+    @SuppressWarnings("unused")
     public UploadQuestionExtension() {
         // for deserialization
     }

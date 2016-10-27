@@ -7,6 +7,7 @@ public class XPathBoolExpr extends XPathBinaryOpExpr {
     public static final int AND = 0;
     public static final int OR = 1;
 
+    @SuppressWarnings("unused")
     public XPathBoolExpr() {
     } //for deserialization
 

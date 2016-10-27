@@ -37,6 +37,7 @@ public class XPathConditional implements IConditionExpr {
         this.expr = expr;
     }
 
+    @SuppressWarnings("unused")
     public XPathConditional() {
 
     }

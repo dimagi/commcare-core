@@ -15,6 +15,7 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
     public static final int NEQ = 1;
     private boolean isEqOp;
 
+    @SuppressWarnings("unused")
     public XPathEqExpr() {
     } //for deserialization
 
