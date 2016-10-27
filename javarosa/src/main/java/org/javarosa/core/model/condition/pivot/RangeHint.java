@@ -73,22 +73,22 @@ public abstract class RangeHint<T extends IAnswerData> implements ConstraintHint
         c.isConstraint = true;
 
         c.candidateValue = castToValue(val);
-        boolean eq = XPathFuncExpr.toBoolean(conditional.eval(instance, c)).booleanValue();
+        boolean eq = XPathFuncExpr.toBoolean(conditional.eval(instance, c));
 
         c.candidateValue = castToValue(lt);
-        boolean ltr = XPathFuncExpr.toBoolean(conditional.eval(instance, c)).booleanValue();
+        boolean ltr = XPathFuncExpr.toBoolean(conditional.eval(instance, c));
 
         c.candidateValue = castToValue(gt);
-        boolean gtr = XPathFuncExpr.toBoolean(conditional.eval(instance, c)).booleanValue();
+        boolean gtr = XPathFuncExpr.toBoolean(conditional.eval(instance, c));
         
         if (ltr && !gtr) {
-            max = new Double(val);
+            max = val;
             maxInclusive = eq;
             maxCast = castToValue(max);
         }
 
         if (!ltr && gtr) {
-            min = new Double(val);
+            min = val;
             minInclusive = eq;
             minCast = castToValue(min);
         }

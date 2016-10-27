@@ -34,8 +34,8 @@ public class XPathCmpExpr extends XPathBinaryOpExpr {
         aval = XPathFuncExpr.toNumeric(aval);
         bval = XPathFuncExpr.toNumeric(bval);
 
-        double fa = ((Double)aval).doubleValue();
-        double fb = ((Double)bval).doubleValue();
+        double fa = (Double)aval;
+        double fb = (Double)bval;
 
         switch (op) {
             case LT:
@@ -108,15 +108,15 @@ public class XPathCmpExpr extends XPathBinaryOpExpr {
                 } else {
                     //These are probably the
                     if (b instanceof Integer) {
-                        val = new Double(((Integer)b).doubleValue());
+                        val = ((Integer)b).doubleValue();
                     } else if (b instanceof Long) {
-                        val = new Double(((Long)b).doubleValue());
+                        val = ((Long)b).doubleValue();
                     } else if (b instanceof Float) {
-                        val = new Double(((Float)b).doubleValue());
+                        val = ((Float)b).doubleValue();
                     } else if (b instanceof Short) {
-                        val = new Double(((Short)b).shortValue());
+                        val = new Double((Short)b);
                     } else if (b instanceof Byte) {
-                        val = new Double(((Byte)b).byteValue());
+                        val = new Double((Byte)b);
                     } else {
                         if (b instanceof String) {
                             try {
@@ -132,7 +132,7 @@ public class XPathCmpExpr extends XPathBinaryOpExpr {
                 }
 
 
-                pivots.addElement(new CmpPivot(val.doubleValue(), op));
+                pivots.addElement(new CmpPivot(val, op));
                 return true;
             }
         }

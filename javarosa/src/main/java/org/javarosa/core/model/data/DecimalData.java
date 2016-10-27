@@ -15,7 +15,7 @@ import java.io.IOException;
  * @author Brian DeRenzi
  */
 public class DecimalData implements IAnswerData {
-    double d;
+    private double d;
 
     /**
      * Empty Constructor, necessary for dynamic construction during deserialization.
@@ -59,20 +59,14 @@ public class DecimalData implements IAnswerData {
         if (o == null) {
             throw new NullPointerException("Attempt to set an IAnswerData class to null.");
         }
-        d = ((Double)o).doubleValue();
+        d = (Double)o;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
-     */
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         d = ExtUtil.readDecimal(in);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.utilities.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeDecimal(out, d);

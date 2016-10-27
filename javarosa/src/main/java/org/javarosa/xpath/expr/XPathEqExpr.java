@@ -75,8 +75,8 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
                 bval = XPathFuncExpr.toBoolean(bval);
             }
 
-            boolean ba = ((Boolean)aval).booleanValue();
-            boolean bb = ((Boolean)bval).booleanValue();
+            boolean ba = (Boolean)aval;
+            boolean bb = (Boolean)bval;
             eq = (ba == bb);
         } else if (aval instanceof Double || bval instanceof Double) {
             if (!(aval instanceof Double)) {
@@ -85,8 +85,8 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
                 bval = XPathFuncExpr.toNumeric(bval);
             }
 
-            double fa = ((Double)aval).doubleValue();
-            double fb = ((Double)bval).doubleValue();
+            double fa = (Double)aval;
+            double fb = (Double)bval;
             eq = Math.abs(fa - fb) < 1.0e-12;
         } else {
             aval = XPathFuncExpr.toString(aval);

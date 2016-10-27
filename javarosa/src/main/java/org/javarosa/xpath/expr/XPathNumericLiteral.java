@@ -18,7 +18,7 @@ public class XPathNumericLiteral extends XPathExpression {
     } //for deserialization
 
     public XPathNumericLiteral(Double d) {
-        this.d = d.doubleValue();
+        this.d = d;
     }
 
     @Override

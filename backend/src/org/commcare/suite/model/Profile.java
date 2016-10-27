@@ -143,7 +143,7 @@ public class Profile implements Persistable {
      */
     public boolean isFeatureActive(String feature) {
         return featureStatus.containsKey(feature) &&
-                featureStatus.get(feature).booleanValue();
+                featureStatus.get(feature);
     }
 
     // The below methods should all be replaced by a model builder

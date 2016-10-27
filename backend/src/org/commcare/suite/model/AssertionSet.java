@@ -52,7 +52,7 @@ public class AssertionSet implements Externalizable {
                 XPathExpression expression = XPathParseTool.parseXPath(xpathExpressions.elementAt(i));
                 try {
                     Object val = expression.eval(ec);
-                    if (!XPathFuncExpr.toBoolean(val).booleanValue()) {
+                    if (!XPathFuncExpr.toBoolean(val)) {
                         return messages.elementAt(i);
                     }
                 } catch (Exception e) {

@@ -284,13 +284,13 @@ public class Detail implements Externalizable {
                 continue;
             }
             for (int j = 0; j < indices.size(); ++j) {
-                if (order < fields[indices.elementAt(j).intValue()].getSortOrder()) {
-                    indices.insertElementAt(new Integer(i), j);
+                if (order < fields[indices.elementAt(j)].getSortOrder()) {
+                    indices.insertElementAt(i, j);
                     continue outer;
                 }
             }
             //otherwise it's larger than all of the other fields.
-            indices.addElement(new Integer(i));
+            indices.addElement(i);
             continue;
         }
         if (indices.size() == 0) {
@@ -298,7 +298,7 @@ public class Detail implements Externalizable {
         } else {
             int[] ret = new int[indices.size()];
             for (int i = 0; i < ret.length; ++i) {
-                ret[i] = indices.elementAt(i).intValue();
+                ret[i] = indices.elementAt(i);
             }
             return ret;
         }
@@ -306,19 +306,6 @@ public class Detail implements Externalizable {
 
     //These are just helpers around the old structure. Shouldn't really be
     //used if avoidable
-
-
-    /**
-     * Obsoleted - Don't use
-     */
-    public String[] getHeaderSizeHints() {
-        return new Map<String[]>(new String[fields.length]) {
-            @Override
-            protected void map(DetailField f, String[] a, int i) {
-                a[i] = f.getHeaderWidthHint();
-            }
-        }.go();
-    }
 
     /**
      * Obsoleted - Don't use
@@ -450,7 +437,7 @@ public class Detail implements Externalizable {
             return false;
         }
         Object value = XPathFuncExpr.unpack(focusFunction.eval(ec));
-        return XPathFuncExpr.toBoolean(value).booleanValue();
+        return XPathFuncExpr.toBoolean(value);
     }
 
     public XPathExpression getFocusFunction() {

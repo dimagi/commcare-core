@@ -194,7 +194,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         Vector<Integer> removed = new Vector<>();
         for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
             Integer i = (Integer)en.nextElement();
-            switch (ef.preFilter(i.intValue(), null)) {
+            switch (ef.preFilter(i, null)) {
                 case EntityFilter.PREFILTER_INCLUDE:
                     removed.addElement(i);
                     break;

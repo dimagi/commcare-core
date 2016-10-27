@@ -181,7 +181,7 @@ public class ResourceTable {
     public Vector<Resource> getResourcesForParent(String parent) {
         Vector<Resource> v = new Vector<>();
         for (Enumeration en = storage.getIDsForValue(Resource.META_INDEX_PARENT_GUID, parent).elements(); en.hasMoreElements(); ) {
-            Resource r = (Resource)storage.read(((Integer)en.nextElement()).intValue());
+            Resource r = (Resource)storage.read((Integer)en.nextElement());
             v.addElement(r);
         }
         return v;

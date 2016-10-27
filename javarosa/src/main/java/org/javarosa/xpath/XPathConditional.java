@@ -59,7 +59,7 @@ public class XPathConditional implements IConditionExpr {
 
     @Override
     public boolean eval(DataInstance model, EvaluationContext evalContext) {
-        return XPathFuncExpr.toBoolean(evalRaw(model, evalContext)).booleanValue();
+        return XPathFuncExpr.toBoolean(evalRaw(model, evalContext));
     }
 
     @Override

@@ -1447,7 +1447,7 @@ public class CsvReader {
         Object indexValue = headersHolder.IndexByName.get(headerName);
 
         if (indexValue != null) {
-            return ((Integer) indexValue).intValue();
+            return (Integer)indexValue;
         } else {
             return -1;
         }

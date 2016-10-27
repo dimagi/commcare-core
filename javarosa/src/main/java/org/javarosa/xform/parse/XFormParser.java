@@ -2789,7 +2789,7 @@ public class XFormParser {
                     } else {
                         //update multiplicity counter
                         Integer mult = multiplicities.get(name);
-                        index = (mult == null ? 0 : mult.intValue() + 1);
+                        index = (mult == null ? 0 : mult + 1);
                         multiplicities.put(name, DataUtil.integer(index));
                     }
 
@@ -2935,7 +2935,7 @@ public class XFormParser {
             }
 
             if (typeMappings.containsKey(type)) {
-                dataType = typeMappings.get(type).intValue();
+                dataType = typeMappings.get(type);
             } else {
                 dataType = Constants.DATATYPE_UNSUPPORTED;
                 reporter.warning(XFormParserReporter.TYPE_ERROR_PRONE, "unrecognized data type [" + type + "]", null);

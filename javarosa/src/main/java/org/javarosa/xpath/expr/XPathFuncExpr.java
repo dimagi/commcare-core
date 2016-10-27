@@ -404,16 +404,16 @@ public class XPathFuncExpr extends XPathExpression {
                 return power(argVals[0], argVals[1]);
             } else if (name.equals("abs")) {
                 checkArity(name, 1, args.length);
-                return new Double(Math.abs(toDouble(argVals[0]).doubleValue()));
+                return Math.abs(toDouble(argVals[0]));
             } else if (name.equals("ceiling")) {
                 checkArity(name, 1, args.length);
-                return new Double(Math.ceil(toDouble(argVals[0]).doubleValue()));
+                return new Double(Math.ceil(toDouble(argVals[0])));
             } else if (name.equals("floor")) {
                 checkArity(name, 1, args.length);
-                return new Double(Math.floor(toDouble(argVals[0]).doubleValue()));
+                return new Double(Math.floor(toDouble(argVals[0])));
             } else if (name.equals("round")) {
                 checkArity(name, 1, args.length);
-                return new Double(Math.floor(toDouble(argVals[0]).doubleValue() + 0.5));
+                return new Double(Math.floor(toDouble(argVals[0]) + 0.5));
             } else if (name.equals("log")) { //XPath 3.0
                 checkArity(name, 1, args.length);
                 return log(argVals[0]);
@@ -742,12 +742,12 @@ public class XPathFuncExpr extends XPathExpression {
 
         if (val.isInfinite() || val.isNaN()) {
             return val;
-        } else if (val.doubleValue() >= Long.MAX_VALUE || val.doubleValue() <= Long.MIN_VALUE) {
+        } else if (val >= Long.MAX_VALUE || val <= Long.MIN_VALUE) {
             return val;
         } else {
             long l = val.longValue();
             Double dbl = new Double(l);
-            if (l == 0 && (val.doubleValue() < 0. || val.equals(new Double(-0.)))) {
+            if (l == 0 && (val < 0. || val.equals(new Double(-0.)))) {
                 dbl = new Double(-0.);
             }
             return dbl;
@@ -763,9 +763,9 @@ public class XPathFuncExpr extends XPathExpression {
         o = unpack(o);
 
         if (o instanceof Boolean) {
-            val = (((Boolean)o).booleanValue() ? "true" : "false");
+            val = ((Boolean)o ? "true" : "false");
         } else if (o instanceof Double) {
-            double d = ((Double)o).doubleValue();
+            double d = (Double)o;
             if (Double.isNaN(d)) {
                 val = "NaN";
             } else if (Math.abs(d) < 1.0e-12) {
@@ -819,7 +819,7 @@ public class XPathFuncExpr extends XPathExpression {
                 return n;
             }
 
-            if (n.isInfinite() || n.doubleValue() > Integer.MAX_VALUE || n.doubleValue() < Integer.MIN_VALUE) {
+            if (n.isInfinite() || n > Integer.MAX_VALUE || n < Integer.MIN_VALUE) {
                 throw new XPathTypeMismatchException("converting out-of-range value to date");
             }
 
@@ -1204,13 +1204,13 @@ public class XPathFuncExpr extends XPathExpression {
      * this sum is between the min and max
      */
     public static Boolean checklistWeighted(Object oMin, Object oMax, Object[] flags, Object[] weights) {
-        double min = toNumeric(oMin).doubleValue();
-        double max = toNumeric(oMax).doubleValue();
+        double min = toNumeric(oMin);
+        double max = toNumeric(oMax);
 
         double sum = 0.;
         for (int i = 0; i < flags.length; i++) {
-            boolean flag = toBoolean(flags[i]).booleanValue();
-            double weight = toNumeric(weights[i]).doubleValue();
+            boolean flag = toBoolean(flags[i]);
+            double weight = toNumeric(weights[i]);
 
             if (flag)
                 sum += weight;
@@ -1338,7 +1338,7 @@ public class XPathFuncExpr extends XPathExpression {
      * @return Natural log of value
      */
     private Double log(Object o) {
-        double value = toDouble(o).doubleValue();
+        double value = toDouble(o);
         return Math.log(value);
     }
 
@@ -1346,7 +1346,7 @@ public class XPathFuncExpr extends XPathExpression {
      * Returns the sine of the argument, expressed in radians.
      */
     private Double sin(Object o) {
-        double value = toDouble(o).doubleValue();
+        double value = toDouble(o);
         return Math.sin(value);
     }
 
@@ -1354,7 +1354,7 @@ public class XPathFuncExpr extends XPathExpression {
      * Returns the cosine of the argument, expressed in radians.
      */
     private Double cosin(Object o) {
-        double value = toDouble(o).doubleValue();
+        double value = toDouble(o);
         return Math.cos(value);
     }
 
@@ -1362,7 +1362,7 @@ public class XPathFuncExpr extends XPathExpression {
      * Returns the tangent of the argument, expressed in radians.
      */
     private Double tan(Object o) {
-        double value = toDouble(o).doubleValue();
+        double value = toDouble(o);
         return Math.tan(value);
     }
 
@@ -1370,7 +1370,7 @@ public class XPathFuncExpr extends XPathExpression {
      * Returns the square root of the argument, expressed in radians.
      */
     private Double sqrt(Object o) {
-        double value = toDouble(o).doubleValue();
+        double value = toDouble(o);
         return Math.sqrt(value);
     }
 
@@ -1378,7 +1378,7 @@ public class XPathFuncExpr extends XPathExpression {
      * Returns the arc cosine of the argument, expressed in radians.
      */
     private Double acos(Object o) {
-        double value = toDouble(o).doubleValue();
+        double value = toDouble(o);
         return Math.acos(value);
     }
 
@@ -1386,7 +1386,7 @@ public class XPathFuncExpr extends XPathExpression {
      * Returns the arc sine of the argument, expressed in radians.
      */
     private Double asin(Object o) {
-        double value = toDouble(o).doubleValue();
+        double value = toDouble(o);
         return Math.asin(value);
     }
 
@@ -1394,7 +1394,7 @@ public class XPathFuncExpr extends XPathExpression {
      * Returns the arc tan of the argument, expressed in radians.
      */
     private Double atan(Object o) {
-        double value = toDouble(o).doubleValue();
+        double value = toDouble(o);
         return Math.atan(value);
     }
 
@@ -1404,7 +1404,7 @@ public class XPathFuncExpr extends XPathExpression {
      * @return Base ten log of value
      */
     private Double log10(Object o) {
-        double value = toDouble(o).doubleValue();
+        double value = toDouble(o);
         return Math.log10(value);
     }
 
@@ -1413,13 +1413,13 @@ public class XPathFuncExpr extends XPathExpression {
     }
 
     private Double atan2(Object o1, Object o2) {
-        double value1 = toDouble(o1).doubleValue();
-        double value2 = toDouble(o2).doubleValue();
+        double value1 = toDouble(o1);
+        double value2 = toDouble(o2);
         return Math.atan2(value1, value2);
     }
 
     private Double exp(Object o) {
-        double value = toDouble(o).doubleValue();
+        double value = toDouble(o);
         return Math.exp(value);
     }
 
@@ -1434,18 +1434,18 @@ public class XPathFuncExpr extends XPathExpression {
      * used otherwise.
      */
     private Double power(Object o1, Object o2) {
-        double a = toDouble(o1).doubleValue();
-        double b = toDouble(o2).doubleValue();
+        double a = toDouble(o1);
+        double b = toDouble(o2);
 
         return Math.pow(a, b);
     }
 
     @SuppressWarnings("unused")
     private Double powerApprox(Object o1, Object o2) {
-        double a = toDouble(o1).doubleValue();
+        double a = toDouble(o1);
         Double db = toDouble(o2);
         //We need to determine if "b" is a double, or an integer.
-        if (Math.abs(db.doubleValue() - toInt(db).doubleValue()) > DOUBLE_TOLERANCE) {
+        if (Math.abs(db - toInt(db)) > DOUBLE_TOLERANCE) {
             throw new XPathUnsupportedException("Sorry, power functions with non-integer exponents are not supported on your platform");
         } else {
             //Integer it is, whew!

@@ -261,7 +261,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
             //For now this seems impossible
             if (recordId == -1) {
                 Vector<Integer> ids = (Vector<Integer>)parent.storage.getIDsForValue("case_id", caseId);
-                recordId = ids.elementAt(0).intValue();
+                recordId = ids.elementAt(0);
             }
 
             Case c = parent.getCase(recordId);

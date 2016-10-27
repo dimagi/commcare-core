@@ -168,7 +168,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
     }
 
     public Object serializeAnswerData(BooleanData data) {
-        if (((Boolean)data.getValue()).booleanValue()) {
+        if ((Boolean)data.getValue()) {
             return "1";
         } else {
             return "0";

@@ -297,7 +297,7 @@ public class PropertyManager implements IPropertyManager {
 
         Vector IDs = properties.getIDsForValue("NAME", propertyName);
         if (IDs.size() == 1) {
-            theProp.setID(((Integer)IDs.elementAt(0)).intValue());
+            theProp.setID((Integer)IDs.elementAt(0));
         }
 
         properties.write(theProp);

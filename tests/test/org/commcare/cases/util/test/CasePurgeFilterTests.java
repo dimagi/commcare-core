@@ -145,7 +145,7 @@ public class CasePurgeFilterTests {
             iterator.nextID();
         }
         if(present.size() > 0) {
-            fail("No case with index " + present.firstElement().intValue() + " in testdb");
+            fail("No case with index " + present.firstElement() + " in testdb");
         }
     }
 
