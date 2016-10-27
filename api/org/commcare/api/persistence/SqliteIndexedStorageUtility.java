@@ -10,6 +10,7 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
+import org.sqlite.javax.SQLiteConnectionPoolDataSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
