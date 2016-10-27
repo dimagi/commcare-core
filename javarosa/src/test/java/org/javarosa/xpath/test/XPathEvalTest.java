@@ -638,24 +638,20 @@ public class XPathEvalTest {
         };
 
         ec.addFunctionHandler(new IFunctionHandler() {
-            @Override
             public String getName() {
                 return "testfunc";
             }
 
-            @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
                 p.addElement(new Class[0]);
                 return p;
             }
 
-            @Override
             public boolean rawArgs() {
                 return false;
             }
 
-            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return Boolean.TRUE;
             }
@@ -664,17 +660,15 @@ public class XPathEvalTest {
         ec.addFunctionHandler(new IFunctionHandler() {
 
             @Override
-            @Override
             public String getName() {
                 return "regex";
             }
 
             @Override
-            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 System.out.println("EVAL REGEX TESTS:");
-                for (int i = 0; i < args.length; i++) {
-                    System.out.println("REGEX ARGS: " + args[i].toString());
+                for (Object arg : args) {
+                    System.out.println("REGEX ARGS: " + arg.toString());
                 }
 
 
@@ -683,14 +677,12 @@ public class XPathEvalTest {
             }
 
             @Override
-            @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
                 p.addElement(allPrototypes[2]);
                 return p;
             }
 
-            @Override
             @Override
             public boolean rawArgs() {
                 return false;
@@ -700,12 +692,10 @@ public class XPathEvalTest {
 
         ec.addFunctionHandler(new IFunctionHandler() {
             @Override
-            @Override
             public String getName() {
                 return "add";
             }
 
-            @Override
             @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
@@ -714,12 +704,10 @@ public class XPathEvalTest {
             }
 
             @Override
-            @Override
             public boolean rawArgs() {
                 return false;
             }
 
-            @Override
             @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return new Double(((Double)args[0]).doubleValue() + ((Double)args[1]).doubleValue());
@@ -728,12 +716,10 @@ public class XPathEvalTest {
 
         ec.addFunctionHandler(new IFunctionHandler() {
             @Override
-            @Override
             public String getName() {
                 return "proto";
             }
 
-            @Override
             @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
@@ -745,12 +731,10 @@ public class XPathEvalTest {
             }
 
             @Override
-            @Override
             public boolean rawArgs() {
                 return false;
             }
 
-            @Override
             @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return printArgs(args);
@@ -759,12 +743,10 @@ public class XPathEvalTest {
 
         ec.addFunctionHandler(new IFunctionHandler() {
             @Override
-            @Override
             public String getName() {
                 return "raw";
             }
 
-            @Override
             @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
@@ -773,12 +755,10 @@ public class XPathEvalTest {
             }
 
             @Override
-            @Override
             public boolean rawArgs() {
                 return true;
             }
 
-            @Override
             @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return printArgs(args);
@@ -787,24 +767,20 @@ public class XPathEvalTest {
 
         ec.addFunctionHandler(new IFunctionHandler() {
             @Override
-            @Override
             public String getName() {
                 return "null-proto";
             }
 
-            @Override
             @Override
             public Vector getPrototypes() {
                 return null;
             }
 
             @Override
-            @Override
             public boolean rawArgs() {
                 return false;
             }
 
-            @Override
             @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return Boolean.FALSE;
@@ -813,41 +789,36 @@ public class XPathEvalTest {
 
         ec.addFunctionHandler(new IFunctionHandler() {
             @Override
-            @Override
             public String getName() {
                 return "concat";
             }
 
-            @Override
             @Override
             public Vector getPrototypes() {
                 return new Vector();
             }
 
             @Override
-            @Override
             public boolean rawArgs() {
                 return true;
             }
 
             @Override
-            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 StringBuffer sb = new StringBuffer();
-                for (int i = 0; i < args.length; i++)
-                    sb.append(XPathFuncExpr.toString(args[i]));
+                for (Object arg : args) {
+                    sb.append(XPathFuncExpr.toString(arg));
+                }
                 return sb.toString();
             }
         });
 
         ec.addFunctionHandler(new IFunctionHandler() {
             @Override
-            @Override
             public String getName() {
                 return "convertible";
             }
 
-            @Override
             @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
@@ -856,22 +827,18 @@ public class XPathEvalTest {
             }
 
             @Override
-            @Override
             public boolean rawArgs() {
                 return false;
             }
 
             @Override
-            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return new IExprDataType() {
-                    @Override
                     @Override
                     public Boolean toBoolean() {
                         return Boolean.TRUE;
                     }
 
-                    @Override
                     @Override
                     public Double toNumeric() {
                         return new Double(5.0);
@@ -887,12 +854,10 @@ public class XPathEvalTest {
 
         ec.addFunctionHandler(new IFunctionHandler() {
             @Override
-            @Override
             public String getName() {
                 return "inconvertible";
             }
 
-            @Override
             @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
@@ -901,12 +866,10 @@ public class XPathEvalTest {
             }
 
             @Override
-            @Override
             public boolean rawArgs() {
                 return false;
             }
 
-            @Override
             @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return new Object();
@@ -915,12 +878,10 @@ public class XPathEvalTest {
 
         ec.addFunctionHandler(new IFunctionHandler() {
             @Override
-            @Override
             public String getName() {
                 return "get-custom";
             }
 
-            @Override
             @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
@@ -929,12 +890,10 @@ public class XPathEvalTest {
             }
 
             @Override
-            @Override
             public boolean rawArgs() {
                 return false;
             }
 
-            @Override
             @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return ((Boolean)args[0]).booleanValue() ? new CustomSubType() : new CustomType();
@@ -943,12 +902,10 @@ public class XPathEvalTest {
 
         ec.addFunctionHandler(new IFunctionHandler() {
             @Override
-            @Override
             public String getName() {
                 return "check-types";
             }
 
-            @Override
             @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
@@ -957,12 +914,10 @@ public class XPathEvalTest {
             }
 
             @Override
-            @Override
             public boolean rawArgs() {
                 return false;
             }
 
-            @Override
             @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 if (args.length != 5 || !(args[0] instanceof Boolean) || !(args[1] instanceof Double) ||
@@ -1031,7 +986,6 @@ public class XPathEvalTest {
         public String val;
 
         @Override
-        @Override
         public boolean rawArgs() {
             return false;
         }
@@ -1039,12 +993,10 @@ public class XPathEvalTest {
 
     final StatefulFunc read = new StatefulFunc() {
         @Override
-        @Override
         public String getName() {
             return "read";
         }
 
-        @Override
         @Override
         public Vector getPrototypes() {
             Vector p = new Vector();
@@ -1053,7 +1005,6 @@ public class XPathEvalTest {
         }
 
         @Override
-        @Override
         public Object eval(Object[] args, EvaluationContext ec) {
             return val;
         }
@@ -1061,12 +1012,10 @@ public class XPathEvalTest {
 
     final StatefulFunc write = new StatefulFunc() {
         @Override
-        @Override
         public String getName() {
             return "write";
         }
 
-        @Override
         @Override
         public Vector getPrototypes() {
             Vector p = new Vector();
@@ -1075,7 +1024,6 @@ public class XPathEvalTest {
             return p;
         }
 
-        @Override
         @Override
         public Object eval(Object[] args, EvaluationContext ec) {
             val = (String)args[0];

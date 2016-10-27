@@ -358,8 +358,7 @@ public class Detail implements Externalizable {
 
     public boolean usesEntityTileView() {
         boolean usingEntityTile = false;
-        for (int i = 0; i < fields.length; i++) {
-            DetailField currentField = fields[i];
+        for (DetailField currentField : fields) {
             if (currentField.getGridX() >= 0 && currentField.getGridY() >= 0 &&
                     currentField.getGridWidth() >= 0 && currentField.getGridHeight() > 0) {
                 usingEntityTile = true;

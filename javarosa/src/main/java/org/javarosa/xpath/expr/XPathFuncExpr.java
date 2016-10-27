@@ -1182,8 +1182,8 @@ public class XPathFuncExpr extends XPathExpression {
         int max = toNumeric(oMax).intValue();
 
         int count = 0;
-        for (int i = 0; i < factors.length; i++) {
-            if (toBoolean(factors[i])) {
+        for (Object factor : factors) {
+            if (toBoolean(factor)) {
                 count++;
             }
         }
@@ -1301,11 +1301,11 @@ public class XPathFuncExpr extends XPathExpression {
 
         boolean pivoted = false;
         //evaluate the pivots
-        for (int i = 0; i < argVals.length; ++i) {
-            if (argVals[i] == null) {
+        for (Object argVal : argVals) {
+            if (argVal == null) {
                 //one of our arguments contained pivots,
                 pivoted = true;
-            } else if (sentinal.equals(argVals[i])) {
+            } else if (sentinal.equals(argVal)) {
                 //one of our arguments is the sentinal, return the sentinal if possible
                 if (id) {
                     return sentinal;

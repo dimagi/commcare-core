@@ -65,8 +65,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
             multipleInputs = true;
         }
 
-        for (int i = 0; i < rows.length; ++i) {
-            String row = rows[i];
+        for (String row : rows) {
             out.println(row);
         }
 

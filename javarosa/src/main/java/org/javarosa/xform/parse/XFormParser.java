@@ -646,8 +646,8 @@ public class XFormParser {
                 "delHeader"
         };
         Vector<String> suppressWarning = new Vector<>();
-        for (int i = 0; i < suppressWarningArr.length; i++) {
-            suppressWarning.addElement(suppressWarningArr[i]);
+        for (String aSuppressWarningArr : suppressWarningArr) {
+            suppressWarning.addElement(aSuppressWarningArr);
         }
 
         // if there is a registered parser, invoke it
@@ -975,8 +975,8 @@ public class XFormParser {
                 if (extension != null) {
                     question.addExtension(extension);
                     String[] attributesFromExtension = parser.getUsedAttributes();
-                    for (int i = 0 ; i < attributesFromExtension.length; i++) {
-                        usedAtts.addElement(attributesFromExtension[i]);
+                    for (String anAttributesFromExtension : attributesFromExtension) {
+                        usedAtts.addElement(anAttributesFromExtension);
                     }
                 }
             }
@@ -1801,14 +1801,14 @@ public class XFormParser {
         Localizer l = _f.getLocalizer();
         String[] locales = l.getAvailableLocales();
 
-        for (int i = 0; i < locales.length; i++) {
+        for (String locale : locales) {
             //Test whether there is a default translation, or whether there is any special form available.
-            if (!(hasITextMapping(textID, locales[i]) ||
-                    (allowSubforms && hasSpecialFormMapping(textID, locales[i])))) {
-                if (locales[i].equals(l.getDefaultLocale())) {
+            if (!(hasITextMapping(textID, locale) ||
+                    (allowSubforms && hasSpecialFormMapping(textID, locale)))) {
+                if (locale.equals(l.getDefaultLocale())) {
                     throw new XFormParseException(type + " '" + textID + "': text is not localizable for default locale [" + l.getDefaultLocale() + "]!");
                 } else {
-                    reporter.warning(XFormParserReporter.TYPE_TECHNICAL, type + " '" + textID + "': text is not localizable for locale " + locales[i] + ".", null);
+                    reporter.warning(XFormParserReporter.TYPE_TECHNICAL, type + " '" + textID + "': text is not localizable for locale " + locale + ".", null);
                 }
             }
         }
