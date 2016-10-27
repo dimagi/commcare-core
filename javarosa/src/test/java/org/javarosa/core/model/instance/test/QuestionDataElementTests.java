@@ -48,7 +48,7 @@ public class QuestionDataElementTests {
 
     @Test
     public void testSetName() {
-        String newName = new String("New Name");
+        String newName = "New Name";
         stringElement.setName(newName);
 
         assertEquals("Question Data Element 'string' did not properly set its name", stringElement.getName(), newName);

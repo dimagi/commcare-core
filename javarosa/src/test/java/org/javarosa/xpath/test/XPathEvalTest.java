@@ -460,8 +460,8 @@ public class XPathEvalTest {
         testEval("check-types(55, '55', false(), '1999-09-09', get-custom(false()))", null, ec, Boolean.TRUE);
         testEval("check-types(55, '55', false(), '1999-09-09', get-custom(true()))", null, ec, Boolean.TRUE);
         testEval("regex('12345','[0-9]+')", null, ec, Boolean.TRUE);
-        testEval("upper-case('SimpLY')", null, null, new String("SIMPLY"));
-        testEval("lower-case('rEd')", null, null, new String("red"));
+        testEval("upper-case('SimpLY')", null, null, "SIMPLY");
+        testEval("lower-case('rEd')", null, null, "red");
         testEval("contains('', 'stuff')", null, null, Boolean.FALSE);
         testEval("contains('stuff', '')", null, null, Boolean.TRUE);
         testEval("contains('know', 'now')", null, null, Boolean.TRUE);
@@ -471,17 +471,17 @@ public class XPathEvalTest {
         testEval("starts-with('why', 'y')", null, null, Boolean.FALSE);
         testEval("ends-with('elements', 'nts')", null, null, Boolean.TRUE);
         testEval("ends-with('elements', 'xenon')", null, null, Boolean.FALSE);
-        testEval("translate('aBcdE', 'xyz', 'qrs')", null, null, new String("aBcdE"));
-        testEval("translate('bosco', 'bos', 'sfo')", null, null, new String("sfocf"));
-        testEval("translate('ramp', 'mapp', 'nbqr')", null, null, new String("rbnq"));
-        testEval("translate('yellow', 'low', 'or')", null, null, new String("yeoor"));
-        testEval("translate('bora bora', 'a', 'bc')", null, null, new String("borb borb"));
-        testEval("translate('squash me', 'aeiou ', '')", null, null, new String("sqshm"));
+        testEval("translate('aBcdE', 'xyz', 'qrs')", null, null, "aBcdE");
+        testEval("translate('bosco', 'bos', 'sfo')", null, null, "sfocf");
+        testEval("translate('ramp', 'mapp', 'nbqr')", null, null, "rbnq");
+        testEval("translate('yellow', 'low', 'or')", null, null, "yeoor");
+        testEval("translate('bora bora', 'a', 'bc')", null, null, "borb borb");
+        testEval("translate('squash me', 'aeiou ', '')", null, null, "sqshm");
         testEval("regex('aaaabfooaaabgarplyaaabwackyb', 'a*b')", null, null, Boolean.TRUE);
         testEval("regex('photo', 'a*b')", null, null, Boolean.FALSE);
-        testEval("replace('aaaabfooaaabgarplyaaabwackyb', 'a*b', '-')", null, null, new String("-foo-garply-wacky-"));
-        testEval("replace('abbc', 'a(.*)c', '$1')", null, null, new String("$1"));
-        testEval("replace('aaabb', '[ab][ab][ab]', '')", null, null, new String("bb"));
+        testEval("replace('aaaabfooaaabgarplyaaabwackyb', 'a*b', '-')", null, null, "-foo-garply-wacky-");
+        testEval("replace('abbc', 'a(.*)c', '$1')", null, null, "$1");
+        testEval("replace('aaabb', '[ab][ab][ab]', '')", null, null, "bb");
         //Variables
         EvaluationContext varContext = getVariableContext();
         testEval("$var_float_five", null, varContext, new Double(5.0));
