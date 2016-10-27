@@ -2739,9 +2739,12 @@ public class XFormParser {
         node.setPreloadParams(bind.getPreloadParams());
     }
 
-    //apply properties to instance nodes that are determined by controls bound to those nodes
-    //this should make you feel slightly dirty, but it allows us to be somewhat forgiving with the form
-    //(e.g., a select question bound to a 'text' type node) 
+    /**
+     * Apply properties to instance nodes that are determined by controls bound to those nodes.
+     *
+     * This should make you feel slightly dirty, but it allows us to be somewhat forgiving with the form
+     * (e.g., a select question bound to a 'text' type node)
+     */
     private void applyControlProperties(FormInstance instance) {
         for (int h = 0; h < 2; h++) {
             Vector<TreeReference> selectRefs = (h == 0 ? selectOnes : selectMultis);
