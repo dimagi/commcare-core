@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import org.javarosa.core.reference.RootTranslator;
@@ -20,9 +17,6 @@ public class RootParser extends ElementParser<RootTranslator> {
         super(parser);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.xml.ElementParser#parse()
-     */
     @Override
     public RootTranslator parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode("root");

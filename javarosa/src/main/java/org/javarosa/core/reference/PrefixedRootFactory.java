@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.reference;
 
 /**
@@ -52,9 +49,6 @@ public abstract class PrefixedRootFactory implements ReferenceFactory {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.reference.ReferenceFactory#derive(java.lang.String)
-     */
     @Override
     public Reference derive(String URI) throws InvalidReferenceException {
         for (String root : roots) {
@@ -76,18 +70,12 @@ public abstract class PrefixedRootFactory implements ReferenceFactory {
      */
     protected abstract Reference factory(String terminal, String URI);
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.reference.ReferenceFactory#derive(java.lang.String, java.lang.String)
-     */
     @Override
     public Reference derive(String URI, String context) throws InvalidReferenceException {
         String referenceURI = context.substring(0, context.lastIndexOf('/') + 1) + URI;
         return ReferenceManager._().DeriveReference(referenceURI);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.reference.ReferenceFactory#derives(java.lang.String)
-     */
     @Override
     public boolean derives(String URI) {
         for (String root : roots) {

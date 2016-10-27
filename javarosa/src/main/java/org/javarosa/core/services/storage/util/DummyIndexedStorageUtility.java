@@ -110,13 +110,8 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         return curCount - 1;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#close()
-     */
-    @Override
     public void close() {
         // TODO Auto-generated method stub
-
     }
 
     @Override

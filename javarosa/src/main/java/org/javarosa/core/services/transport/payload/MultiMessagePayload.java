@@ -48,10 +48,6 @@ public class MultiMessagePayload implements IDataPayload {
         return payloads;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.transport.IDataPayload#getPayloadStream()
-     */
     @Override
     public InputStream getPayloadStream() throws IOException {
         MultiInputStream bigStream = new MultiInputStream();
@@ -64,20 +60,12 @@ public class MultiMessagePayload implements IDataPayload {
         return bigStream;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         payloads = (Vector)ExtUtil.read(in, new ExtWrapListPoly(), pf);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapListPoly(payloads));

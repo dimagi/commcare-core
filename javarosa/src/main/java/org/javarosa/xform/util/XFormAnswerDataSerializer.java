@@ -223,10 +223,6 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.model.IAnswerDataSerializer#containsExternalData(org.javarosa.core.model.data.IAnswerData)
-     */
     @Override
     public Boolean containsExternalData(IAnswerData data) {
         //First check for registered serializers to identify whether

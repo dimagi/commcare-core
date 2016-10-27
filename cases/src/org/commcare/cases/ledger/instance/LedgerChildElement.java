@@ -77,34 +77,22 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
         empty.addChild(blankLedger);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isLeaf()
-     */
     @Override
     public boolean isLeaf() {
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isChildable()
-     */
     @Override
     public boolean isChildable() {
         // TODO Auto-generated method stub
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getInstanceName()
-     */
     @Override
     public String getInstanceName() {
         return parent.getInstanceName();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChild(java.lang.String, int)
-     */
     @Override
     public TreeElement getChild(String name, int multiplicity) {
         TreeElement cached = cache();
@@ -118,9 +106,6 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
         return child;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildrenWithName(java.lang.String)
-     */
     @Override
     public Vector getChildrenWithName(String name) {
         return cache().getChildrenWithName(name);
@@ -131,9 +116,6 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getNumChildren()
-     */
     @Override
     public int getNumChildren() {
         if (numChildren == -1) {
@@ -142,83 +124,53 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
         return numChildren;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildAt(int)
-     */
     @Override
     public TreeElement getChildAt(int i) {
         return cache().getChildAt(i);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isRepeatable()
-     */
     @Override
     public boolean isRepeatable() {
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isAttribute()
-     */
     @Override
     public boolean isAttribute() {
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildMultiplicity(java.lang.String)
-     */
     @Override
     public int getChildMultiplicity(String name) {
         return cache().getChildMultiplicity(name);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#accept(org.javarosa.core.model.instance.utils.ITreeVisitor)
-     */
     @Override
     public void accept(ITreeVisitor visitor) {
         visitor.visit(this);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeCount()
-     */
     @Override
     public int getAttributeCount() {
         //TODO: Attributes should be fixed and possibly only include meta-details
         return cache().getAttributeCount();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeNamespace(int)
-     */
     @Override
     public String getAttributeNamespace(int index) {
         return cache().getAttributeNamespace(index);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeName(int)
-     */
     @Override
     public String getAttributeName(int index) {
         return cache().getAttributeName(index);
 
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeValue(int)
-     */
     @Override
     public String getAttributeValue(int index) {
         return cache().getAttributeValue(index);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttribute(java.lang.String, java.lang.String)
-     */
     @Override
     public TreeElement getAttribute(String namespace, String name) {
         if (name.equals(NAME_ID)) {
@@ -246,9 +198,6 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
         return cache().getAttribute(namespace, name);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeValue(java.lang.String, java.lang.String)
-     */
     @Override
     public String getAttributeValue(String namespace, String name) {
         if (name.equals(NAME_ID)) {
@@ -259,9 +208,6 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
 
     TreeReference ref;
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getRef()
-     */
     @Override
     public TreeReference getRef() {
         if (ref == null) {
@@ -270,43 +216,28 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
         return ref;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getName()
-     */
     @Override
     public String getName() {
         return NAME;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getMult()
-     */
     @Override
     public int getMult() {
         // TODO Auto-generated method stub
         return mult;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getParent()
-     */
     @Override
     public AbstractTreeElement getParent() {
         return parent;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getValue()
-     */
     @Override
     public IAnswerData getValue() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getDataType()
-     */
     @Override
     public int getDataType() {
         // TODO Auto-generated method stub

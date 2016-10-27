@@ -38,17 +38,11 @@ public class DecimalData implements IAnswerData {
         return new DecimalData(d);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.data.IAnswerData#getDisplayText()
-     */
     @Override
     public String getDisplayText() {
         return String.valueOf(d);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.data.IAnswerData#getValue()
-     */
     @Override
     public Object getValue() {
         return new Double(d);
