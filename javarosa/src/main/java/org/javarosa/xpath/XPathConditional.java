@@ -139,6 +139,9 @@ public class XPathConditional implements IConditionExpr {
                 }
             }
             if (!triggers.contains(contextualized)) {
+                if (contextualized.isHashRef()) {
+                    throw new RuntimeException("You must fully expand the # reference: " + contextualized);
+                }
                 triggers.addElement(contextualized);
             }
         } else if (expr instanceof XPathBinaryOpExpr) {

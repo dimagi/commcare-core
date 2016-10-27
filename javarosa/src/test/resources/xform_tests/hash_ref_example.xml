@@ -4,9 +4,14 @@
         <h:title>Constraints for simple and select answers</h:title>
         <model>
             <letref ref="/data" var="form"/>
+            <letref ref="/data/number" var="num"/>
+            <letref ref="/data/day" var="day"/>
 
             <instance>
                 <data>
+                    <number>1</number>
+                    <day>saturday</day>
+                    <day_and_number>
                     <places>
                         <country id='one'>
                             <name>Singapore</name>
@@ -19,6 +24,10 @@
                     </places>
                 </data>
             </instance>
+
+            <bind nodeset="#num" calculate="4"/>
+            <bind nodeset="day_and_number" calculate="concat(#num, #day)"/>
+            <bind calculate="position(/data/animals/zoos) + 1" nodeset="/data/animals/id_num"/>
         </model>
     </h:head>
 

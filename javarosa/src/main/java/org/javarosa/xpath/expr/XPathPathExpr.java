@@ -189,6 +189,9 @@ public class XPathPathExpr extends XPathExpression {
         TreeReference genericRef = getReference();
         TreeReference ref;
 
+        if (genericRef.isHashRef()) {
+
+        }
         if (genericRef.getContext() == TreeReference.CONTEXT_ORIGINAL) {
             // reference begins with "current()" so contexutalize in the original context
             ref = genericRef.contextualize(ec.getOriginalContext());
