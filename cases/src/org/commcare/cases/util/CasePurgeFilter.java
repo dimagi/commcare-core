@@ -346,6 +346,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.EntityFilter#preFilter(int, java.util.Hashtable)
      */
+    @Override
     public int preFilter(int id, Hashtable<String, Object> metaData) {
         if (idsToRemove.contains(DataUtil.integer(id))) {
             return PREFILTER_INCLUDE;
@@ -354,6 +355,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         }
     }
 
+    @Override
     public boolean matches(Case e) {
         //We're doing everything with pre-filtering
         return false;

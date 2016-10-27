@@ -142,6 +142,7 @@ public class DataBinding implements Externalizable {
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
      */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         setId((String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf));
         setDataType(ExtUtil.readInt(in));
@@ -155,6 +156,7 @@ public class DataBinding implements Externalizable {
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.utilities.Externalizable#writeExternal(java.io.DataOutputStream)
      */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapNullable(getId()));
         ExtUtil.writeNumeric(out, getDataType());

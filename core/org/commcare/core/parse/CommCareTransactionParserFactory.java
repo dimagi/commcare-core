@@ -58,6 +58,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         this.initStockParser();
     }
 
+    @Override
     public TransactionParser getParser(KXmlParser parser) {
         String namespace = parser.getNamespace();
         String name = parser.getName();

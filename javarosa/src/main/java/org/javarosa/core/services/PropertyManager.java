@@ -90,6 +90,7 @@ public class PropertyManager implements IPropertyManager {
      * @return The String value of the property specified if it exists, is singluar, and is in one the current
      * rulessets. null if the property is denied by the current ruleset, or is a vector.
      */
+    @Override
     public String getSingularProperty(String propertyName) {
         String retVal = null;
         if ((rulesList.size() == 0 || checkPropertyAllowed(propertyName))) {
@@ -109,6 +110,7 @@ public class PropertyManager implements IPropertyManager {
      * @return The String value of the property specified if it exists, and is the current ruleset, if one exists.
      * null if the property is denied by the current ruleset.
      */
+    @Override
     public Vector getProperty(String propertyName) {
         if (rulesList.size() == 0) {
             return getValue(propertyName);
@@ -127,6 +129,7 @@ public class PropertyManager implements IPropertyManager {
      * @param propertyName  The property to be set
      * @param propertyValue The value that the property will be set to
      */
+    @Override
     public void setProperty(String propertyName, String propertyValue) {
         Vector wrapper = new Vector();
         wrapper.addElement(propertyValue);
@@ -139,6 +142,7 @@ public class PropertyManager implements IPropertyManager {
      * @param propertyName  The property to be set
      * @param propertyValue The value that the property will be set to
      */
+    @Override
     public void setProperty(String propertyName, Vector propertyValue) {
         Vector oldValue = getProperty(propertyName);
         if (oldValue != null && vectorEquals(oldValue, propertyValue)) {
@@ -187,6 +191,7 @@ public class PropertyManager implements IPropertyManager {
      *
      * @return The rulesets being used by this property manager
      */
+    @Override
     public Vector getRules() {
         return rulesList;
     }
@@ -198,6 +203,7 @@ public class PropertyManager implements IPropertyManager {
      *
      * @param rules The set of rules to be added to the permitted list
      */
+    @Override
     public void addRules(IPropertyRules rules) {
         if (rules != null) {
             this.rulesList.addElement(rules);

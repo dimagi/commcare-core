@@ -23,6 +23,7 @@ public class RootParser extends ElementParser<RootTranslator> {
     /* (non-Javadoc)
      * @see org.javarosa.xml.ElementParser#parse()
      */
+    @Override
     public RootTranslator parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode("root");
 

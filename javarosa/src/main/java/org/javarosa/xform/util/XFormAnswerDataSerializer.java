@@ -56,6 +56,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
 
     final Vector additionalSerializers = new Vector();
 
+    @Override
     public boolean canSerialize(IAnswerData data) {
         return data instanceof StringData || data instanceof DateData || data instanceof TimeData ||
                 data instanceof SelectMultiData || data instanceof SelectOneData ||
@@ -174,6 +175,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
         }
     }
 
+    @Override
     public Object serializeAnswerData(IAnswerData data, int dataType) {
         // First, we want to go through the additional serializers, as they should
         // take priority to the default serializations
@@ -188,6 +190,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
         return serializeAnswerData(data);
     }
 
+    @Override
     public Object serializeAnswerData(IAnswerData data) {
         if (data instanceof StringData) {
             return serializeAnswerData((StringData)data);
@@ -224,6 +227,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
      * (non-Javadoc)
      * @see org.javarosa.core.model.IAnswerDataSerializer#containsExternalData(org.javarosa.core.model.data.IAnswerData)
      */
+    @Override
     public Boolean containsExternalData(IAnswerData data) {
         //First check for registered serializers to identify whether
         //they override this one.
@@ -241,6 +245,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
         return Boolean.FALSE;
     }
 
+    @Override
     public IDataPointer[] retrieveExternalDataPointer(IAnswerData data) {
         Enumeration en = additionalSerializers.elements();
         while (en.hasMoreElements()) {

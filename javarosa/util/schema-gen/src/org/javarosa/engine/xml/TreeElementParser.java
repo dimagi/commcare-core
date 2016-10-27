@@ -23,6 +23,7 @@ public class TreeElementParser extends ElementParser<TreeElement> {
         this.instanceId = instanceId;
     }
 
+    @Override
     public TreeElement parse() throws InvalidStructureException, IOException, XmlPullParserException {
 
         int depth = parser.getDepth();

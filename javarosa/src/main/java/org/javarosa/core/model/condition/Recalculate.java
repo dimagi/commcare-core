@@ -139,6 +139,7 @@ public class Recalculate extends Triggerable {
     }
 
 
+    @Override
     public String getDebugLabel() {
         return "calculate";
     }

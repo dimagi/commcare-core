@@ -169,6 +169,7 @@ public class Text implements Externalizable, DetailTemplate {
      *                xpath functions in the underlying Text
      * @return The evaluated string value for this Text object.
      */
+    @Override
     public String evaluate(EvaluationContext context) {
         switch (type) {
             case TEXT_TYPE_FLAT:
@@ -199,6 +200,7 @@ public class Text implements Externalizable, DetailTemplate {
 
                     temp.addFunctionHandler(new IFunctionHandler() {
 
+                        @Override
                         public Object eval(Object[] args, EvaluationContext ec) {
                             Object o = XPathFuncExpr.toDate(args[0]);
                             if (!(o instanceof Date)) {
@@ -216,10 +218,12 @@ public class Text implements Externalizable, DetailTemplate {
                             return DateUtils.formatDate((Date)o, format);
                         }
 
+                        @Override
                         public String getName() {
                             return "format_date";
                         }
 
+                        @Override
                         public Vector getPrototypes() {
                             Vector format = new Vector();
                             Class[] prototypes = new Class[]{
@@ -230,6 +234,7 @@ public class Text implements Externalizable, DetailTemplate {
                             return format;
                         }
 
+                        @Override
                         public boolean rawArgs() {
                             return false;
                         }
@@ -238,16 +243,19 @@ public class Text implements Externalizable, DetailTemplate {
 
                     temp.addFunctionHandler(new IFunctionHandler() {
 
+                        @Override
                         public Object eval(Object[] args, EvaluationContext ec) {
                             Calendar c = Calendar.getInstance();
                             c.setTime(new Date());
                             return String.valueOf(c.get(Calendar.DAY_OF_WEEK));
                         }
 
+                        @Override
                         public String getName() {
                             return "dow";
                         }
 
+                        @Override
                         public Vector getPrototypes() {
                             Vector format = new Vector();
                             Class[] prototypes = new Class[]{};
@@ -255,6 +263,7 @@ public class Text implements Externalizable, DetailTemplate {
                             return format;
                         }
 
+                        @Override
                         public boolean rawArgs() {
                             return false;
                         }
@@ -293,6 +302,7 @@ public class Text implements Externalizable, DetailTemplate {
      * (non-Javadoc)
      * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
      */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         type = ExtUtil.readInt(in);
         argument = ExtUtil.readString(in);
@@ -303,6 +313,7 @@ public class Text implements Externalizable, DetailTemplate {
      * (non-Javadoc)
      * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
      */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, type);
         ExtUtil.writeString(out, argument);

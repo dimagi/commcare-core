@@ -59,6 +59,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
         this.rListener = rListener;
     }
 
+    @Override
     public Boolean parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         try {
 

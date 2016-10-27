@@ -24,6 +24,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
         super(parser);
     }
 
+    @Override
     public Detail parse() throws InvalidStructureException, IOException, XmlPullParserException {
         checkNode("detail");
 

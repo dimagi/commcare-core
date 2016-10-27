@@ -97,10 +97,12 @@ public class QuestionDataElementTests {
         final MutableBoolean dispatchedWrong = new MutableBoolean(false);
         ITreeVisitor sampleVisitor = new ITreeVisitor() {
 
+            @Override
             public void visit(FormInstance tree) {
                 dispatchedWrong.bool = true;
             }
 
+            @Override
             public void visit(AbstractTreeElement element) {
                 visitorAccepted.bool = true;
             }

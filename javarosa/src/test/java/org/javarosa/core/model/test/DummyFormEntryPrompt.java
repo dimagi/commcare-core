@@ -14,14 +14,17 @@ public class DummyFormEntryPrompt extends FormEntryPrompt {
         this.element = q;
     }
 
+    @Override
     protected String getTextID() {
         return textId;
     }
 
+    @Override
     public Localizer localizer() {
         return localizer;
     }
 
+    @Override
     protected String substituteStringArgs(String template) {
         return template;
     }

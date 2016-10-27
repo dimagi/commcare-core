@@ -27,6 +27,7 @@ public class AssertionSetParser extends ElementParser<AssertionSet> {
     /* (non-Javadoc)
      * @see org.javarosa.xml.ElementParser#parse()
      */
+    @Override
     public AssertionSet parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode("assertions");
 

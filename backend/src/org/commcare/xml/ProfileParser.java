@@ -43,6 +43,7 @@ public class ProfileParser extends ElementParser<Profile> {
         this.forceVersion = forceVersion;
     }
 
+    @Override
     public Profile parse() throws InvalidStructureException, IOException, XmlPullParserException,
             UnfullfilledRequirementsException {
 

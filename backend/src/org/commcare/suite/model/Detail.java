@@ -313,6 +313,7 @@ public class Detail implements Externalizable {
      */
     public String[] getHeaderSizeHints() {
         return new Map<String[]>(new String[fields.length]) {
+            @Override
             protected void map(DetailField f, String[] a, int i) {
                 a[i] = f.getHeaderWidthHint();
             }
@@ -324,6 +325,7 @@ public class Detail implements Externalizable {
      */
     public String[] getTemplateSizeHints() {
         return new Map<String[]>(new String[fields.length]) {
+            @Override
             protected void map(DetailField f, String[] a, int i) {
                 a[i] = f.getTemplateWidthHint();
             }
@@ -335,6 +337,7 @@ public class Detail implements Externalizable {
      */
     public String[] getHeaderForms() {
         return new Map<String[]>(new String[fields.length]) {
+            @Override
             protected void map(DetailField f, String[] a, int i) {
                 a[i] = f.getHeaderForm();
             }
@@ -346,6 +349,7 @@ public class Detail implements Externalizable {
      */
     public String[] getTemplateForms() {
         return new Map<String[]>(new String[fields.length]) {
+            @Override
             protected void map(DetailField f, String[] a, int i) {
                 a[i] = f.getTemplateForm();
             }

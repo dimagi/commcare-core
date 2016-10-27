@@ -41,6 +41,7 @@ public class BufferedInputStream extends InputStream {
     /* (non-Javadoc)
      * @see java.io.InputStream#available()
      */
+    @Override
     public int available() throws IOException {
         if (count == -1) {
             return 0;
@@ -52,6 +53,7 @@ public class BufferedInputStream extends InputStream {
     /* (non-Javadoc)
      * @see java.io.InputStream#close()
      */
+    @Override
     public void close() throws IOException {
         in.close();
         //clear up buffer
@@ -61,6 +63,7 @@ public class BufferedInputStream extends InputStream {
     /* (non-Javadoc)
      * @see java.io.InputStream#mark(int)
      */
+    @Override
     public void mark(int arg0) {
         //nothing
     }
@@ -68,6 +71,7 @@ public class BufferedInputStream extends InputStream {
     /* (non-Javadoc)
      * @see java.io.InputStream#markSupported()
      */
+    @Override
     public boolean markSupported() {
         return false;
     }
@@ -75,6 +79,7 @@ public class BufferedInputStream extends InputStream {
     /* (non-Javadoc)
      * @see java.io.InputStream#read(byte[], int, int)
      */
+    @Override
     public int read(byte[] b, int off, int len) throws IOException {
         //If we've reached EOF, signal that.
         if (count == -1) {
@@ -153,6 +158,7 @@ public class BufferedInputStream extends InputStream {
     /* (non-Javadoc)
      * @see java.io.InputStream#read(byte[])
      */
+    @Override
     public int read(byte[] b) throws IOException {
         return this.read(b, 0, b.length);
     }
@@ -160,6 +166,7 @@ public class BufferedInputStream extends InputStream {
     /* (non-Javadoc)
      * @see java.io.InputStream#reset()
      */
+    @Override
     public void reset() throws IOException {
         //mark is unsupported
     }
@@ -167,6 +174,7 @@ public class BufferedInputStream extends InputStream {
     /* (non-Javadoc)
      * @see java.io.InputStream#skip(long)
      */
+    @Override
     public long skip(long len) throws IOException {
         //TODO: Something smarter here?
         long skipped = in.skip(len);
@@ -189,6 +197,7 @@ public class BufferedInputStream extends InputStream {
     /* (non-Javadoc)
      * @see java.io.InputStream#read()
      */
+    @Override
     public int read() throws IOException {
         //If we've read all of the available buffer, fill
         //'er up.

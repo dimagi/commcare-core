@@ -395,6 +395,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
     private TreeElement buildAttachmentTreeElement(Case c, final boolean[] done) {
         TreeElement attachments = new TreeElement("attachment") {
+            @Override
             public TreeElement getChild(String name, int multiplicity) {
                 TreeElement child = super.getChild(CaseChildElement.this.parent.intern(name), multiplicity);
 
@@ -424,6 +425,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         return attachments;
     }
 
+    @Override
     public boolean isRelevant() {
         return true;
     }
@@ -432,11 +434,13 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         return new CaseChildElement(parent);
     }
 
+    @Override
     public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
         //TODO: We should be able to catch the index case here?
         return null;
     }
 
+    @Override
     public String getNamespace() {
         return null;
     }

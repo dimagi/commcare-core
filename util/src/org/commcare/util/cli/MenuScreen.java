@@ -122,6 +122,7 @@ public class MenuScreen extends Screen {
         choices.copyInto(mChoices);
     }
 
+    @Override
     protected String getScreenTitle() {
         return mTitle;
     }

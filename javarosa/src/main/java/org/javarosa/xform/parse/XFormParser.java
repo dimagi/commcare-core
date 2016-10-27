@@ -170,46 +170,55 @@ public class XFormParser {
 
     private static void setupGroupLevelHandlers() {
         IElementHandler input = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseControl((IFormElement)parent, e, Constants.CONTROL_INPUT);
             }
         };
         IElementHandler secret = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseControl((IFormElement)parent, e, Constants.CONTROL_SECRET);
             }
         };
         IElementHandler select = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseControl((IFormElement)parent, e, Constants.CONTROL_SELECT_MULTI);
             }
         };
         IElementHandler select1 = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseControl((IFormElement)parent, e, Constants.CONTROL_SELECT_ONE);
             }
         };
         IElementHandler group = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseGroup((IFormElement)parent, e, CONTAINER_GROUP);
             }
         };
         IElementHandler repeat = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseGroup((IFormElement)parent, e, CONTAINER_REPEAT);
             }
         };
         IElementHandler groupLabel = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseGroupLabel((GroupDef)parent, e);
             }
         };
         IElementHandler trigger = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseControl((IFormElement)parent, e, Constants.CONTROL_TRIGGER);
             }
         };
         IElementHandler upload = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseUpload((IFormElement)parent, e, Constants.CONTROL_UPLOAD);
             }
@@ -229,16 +238,19 @@ public class XFormParser {
 
     private static void setupTopLevelHandlers() {
         IElementHandler title = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseTitle(e);
             }
         };
         IElementHandler meta = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseMeta(e);
             }
         };
         IElementHandler model = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseModel(e);
             }
@@ -2945,6 +2957,7 @@ public class XFormParser {
 
     public static void registerControlType(String type, final int typeId) {
         IElementHandler newHandler = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseControl((IFormElement)parent, e, typeId);
             }
@@ -2974,6 +2987,7 @@ public class XFormParser {
         actionHandlers.put(
                 name,
                 new IElementHandler() {
+                    @Override
                     public void handle(XFormParser p, Element e, Object parent) {
                         p.parseAction(e, parent, specificHandler);
                     }

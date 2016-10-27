@@ -40,6 +40,7 @@ public class EntityScreen extends CompoundScreenHost {
 
     private boolean readyToSkip = false;
 
+    @Override
     public void init(SessionWrapper session) throws CommCareSessionException {
         SessionDatum datum = session.getNeededDatum();
         if (!(datum instanceof EntityDatum)) {

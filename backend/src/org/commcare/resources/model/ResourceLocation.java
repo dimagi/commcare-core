@@ -72,6 +72,7 @@ public class ResourceLocation implements Externalizable {
      * (non-Javadoc)
      * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
      */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         this.authority = ExtUtil.readInt(in);
@@ -83,6 +84,7 @@ public class ResourceLocation implements Externalizable {
      * (non-Javadoc)
      * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
      */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, authority);
         ExtUtil.writeString(out, location);
