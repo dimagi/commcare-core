@@ -38,7 +38,6 @@ import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xform.util.XFormAnswerDataSerializer;
 import org.javarosa.xpath.XPathConditional;
 
-import java.util.Enumeration;
 import java.util.Iterator;
 
 public class FormOverview {

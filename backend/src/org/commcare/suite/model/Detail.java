@@ -16,7 +16,6 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
