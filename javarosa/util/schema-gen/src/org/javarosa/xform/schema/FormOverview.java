@@ -338,7 +338,7 @@ public class FormOverview {
         for (int i = 0; i < indent; i++) {
             sb.append("  ");
         }
-        sb.append(line + "\n");
+        sb.append(line).append("\n");
     }
 
     private static void println (StringBuffer sb) {

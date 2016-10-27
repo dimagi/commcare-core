@@ -95,7 +95,7 @@ public class ExternalizableTest {
             return sb.toString();
         } else if (o instanceof Hashtable) {
             StringBuffer sb = new StringBuffer();
-            sb.append((o instanceof OrderedHashtable ? "oH" : "H") + "[");
+            sb.append(o instanceof OrderedHashtable ? "oH" : "H").append("[");
             for (Enumeration e = ((Hashtable)o).keys(); e.hasMoreElements(); ) {
                 Object key = e.nextElement();
                 sb.append(printObj(key));

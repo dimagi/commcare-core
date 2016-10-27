@@ -94,7 +94,7 @@ public class XPathFuncExpr extends XPathExpression {
     @Override
     public String toPrettyString() {
         StringBuffer sb = new StringBuffer();
-        sb.append(id.toString() + "(");
+        sb.append(id.toString()).append("(");
         for (int i = 0; i < args.length; i++) {
             sb.append(args[i].toPrettyString());
             if (i < args.length - 1) {

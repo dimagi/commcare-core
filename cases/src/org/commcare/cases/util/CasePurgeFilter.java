@@ -335,7 +335,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     private static String flattenVectorOfStrings(Vector<String> v) {
         StringBuilder builder = new StringBuilder();
         for (String caseId : v) {
-            builder.append(caseId + " ");
+            builder.append(caseId).append(" ");
         }
         return builder.toString();
     }
