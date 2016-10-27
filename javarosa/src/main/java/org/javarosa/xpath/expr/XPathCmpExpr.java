@@ -52,7 +52,7 @@ public class XPathCmpExpr extends XPathBinaryOpExpr {
                 break;
         }
 
-        return new Boolean(result);
+        return result;
     }
 
     @Override

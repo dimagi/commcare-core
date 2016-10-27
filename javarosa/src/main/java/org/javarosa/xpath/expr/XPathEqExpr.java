@@ -31,7 +31,7 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
         Object bval = XPathFuncExpr.unpack(b.eval(model, evalContext));
         boolean eq = testEquality(aval, bval);
 
-        return new Boolean(isEqOp == eq);
+        return isEqOp == eq;
     }
 
     @Override

@@ -76,7 +76,7 @@ public class Profile implements Persistable {
         featureStatus = new Hashtable<>();
 
         //turn on default features
-        featureStatus.put("users", new Boolean(true));
+        featureStatus.put("users", true);
     }
 
     @Override
@@ -170,7 +170,7 @@ public class Profile implements Persistable {
     }
 
     public void setFeatureActive(String feature, boolean active) {
-        this.featureStatus.put(feature, new Boolean(active));
+        this.featureStatus.put(feature, active);
     }
 
     /**

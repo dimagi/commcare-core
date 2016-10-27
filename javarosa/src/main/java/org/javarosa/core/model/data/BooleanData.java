@@ -42,13 +42,13 @@ public class BooleanData implements IAnswerData {
 
     @Override
     public Object getValue() {
-        return new Boolean(data);
+        return data;
     }
 
 
     @Override
     public void setValue(Object o) {
-        data = ((Boolean)o).booleanValue();
+        data = (Boolean)o;
     }
 
     @Override

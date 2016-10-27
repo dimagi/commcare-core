@@ -644,11 +644,11 @@ public class XPathFuncExpr extends XPathExpression {
         if (o instanceof Boolean) {
             val = (Boolean)o;
         } else if (o instanceof Double) {
-            double d = ((Double)o).doubleValue();
-            val = new Boolean(Math.abs(d) > 1.0e-12 && !Double.isNaN(d));
+            double d = (Double)o;
+            val = Math.abs(d) > 1.0e-12 && !Double.isNaN(d);
         } else if (o instanceof String) {
             String s = (String)o;
-            val = new Boolean(s.length() > 0);
+            val = s.length() > 0;
         } else if (o instanceof Date) {
             val = Boolean.TRUE;
         } else if (o instanceof IExprDataType) {
@@ -847,8 +847,8 @@ public class XPathFuncExpr extends XPathExpression {
     }
 
     public static Boolean boolNot(Object o) {
-        boolean b = toBoolean(o).booleanValue();
-        return new Boolean(!b);
+        boolean b = toBoolean(o);
+        return !b;
     }
 
     public static Boolean boolStr(Object o) {
@@ -1184,11 +1184,12 @@ public class XPathFuncExpr extends XPathExpression {
 
         int count = 0;
         for (int i = 0; i < factors.length; i++) {
-            if (toBoolean(factors[i]).booleanValue())
+            if (toBoolean(factors[i])) {
                 count++;
+            }
         }
 
-        return new Boolean((min < 0 || count >= min) && (max < 0 || count <= max));
+        return (min < 0 || count >= min) && (max < 0 || count <= max);
     }
 
     /**
@@ -1216,7 +1217,7 @@ public class XPathFuncExpr extends XPathExpression {
                 sum += weight;
         }
 
-        return new Boolean(sum >= min && sum <= max);
+        return sum >= min && sum <= max;
     }
 
     /**
@@ -1243,7 +1244,7 @@ public class XPathFuncExpr extends XPathExpression {
             throw new XPathException("The regular expression '" + str + "' took too long to process.");
         }
 
-        return new Boolean(result);
+        return result;
     }
 
     private static Object[] subsetArgList(Object[] args, int start) {

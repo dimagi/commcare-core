@@ -297,9 +297,9 @@ public class FormEntryCaption {
 
             Hashtable<String, Object> vars = new Hashtable<>();
             vars.put("name", title);
-            vars.put("i", new Integer(ix));
-            vars.put("n", new Integer(count));
-            vars.put("new", new Boolean(newrep));
+            vars.put("i", ix);
+            vars.put("n", count);
+            vars.put("new", newrep);
             return form.fillTemplateString(caption, index.getReference(), vars);
         } else {
             return null;
