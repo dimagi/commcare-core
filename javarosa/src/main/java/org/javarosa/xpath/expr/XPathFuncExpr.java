@@ -478,7 +478,6 @@ public class XPathFuncExpr extends XPathExpression {
      * Accepted calendars are Ethiopian and Nepali
      * @param dateObject The Object (String, Date, or XPath) to be evaluated into a date
      * @param format The calendar format (nepali or ethiopian)
-     * @return
      */
     private String formatDateForCalendar(Object dateObject, Object format) {
 

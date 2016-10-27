@@ -206,7 +206,6 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      * neighboring nodes, as long as those nodes meet the relationship provided. If the relationship
      * is null, only the mask is checked.
      *
-     * @param dag
      * @param walkFromSourceToSink If true, start at sources (nodes with only outgoing edges), and walk edges
      *                             from parent to child. If false, start at sinks (nodes with only incoming edges)
      *                             and walk from child to parent

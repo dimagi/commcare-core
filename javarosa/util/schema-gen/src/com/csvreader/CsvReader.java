@@ -436,8 +436,6 @@ public class CsvReader {
      * the file format is known and tested. With the switch off, the max column
      * lengths and max column count per record supported by the parser will
      * greatly increase. Default is true.
-     *
-     * @param safetySwitch
      */
     public void setSafetySwitch(boolean safetySwitch) {
         userSettings.SafetySwitch = safetySwitch;
