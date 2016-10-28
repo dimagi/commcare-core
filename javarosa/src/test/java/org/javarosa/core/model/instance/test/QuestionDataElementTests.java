@@ -48,7 +48,7 @@ public class QuestionDataElementTests {
 
     @Test
     public void testSetName() {
-        String newName = new String("New Name");
+        String newName = "New Name";
         stringElement.setName(newName);
 
         assertEquals("Question Data Element 'string' did not properly set its name", stringElement.getName(), newName);
@@ -97,10 +97,12 @@ public class QuestionDataElementTests {
         final MutableBoolean dispatchedWrong = new MutableBoolean(false);
         ITreeVisitor sampleVisitor = new ITreeVisitor() {
 
+            @Override
             public void visit(FormInstance tree) {
                 dispatchedWrong.bool = true;
             }
 
+            @Override
             public void visit(AbstractTreeElement element) {
                 visitorAccepted.bool = true;
             }

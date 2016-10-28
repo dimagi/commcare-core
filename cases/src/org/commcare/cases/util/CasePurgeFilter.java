@@ -206,7 +206,6 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      * neighboring nodes, as long as those nodes meet the relationship provided. If the relationship
      * is null, only the mask is checked.
      *
-     * @param dag
      * @param walkFromSourceToSink If true, start at sources (nodes with only outgoing edges), and walk edges
      *                             from parent to child. If false, start at sinks (nodes with only incoming edges)
      *                             and walk from child to parent
@@ -335,7 +334,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     private static String flattenVectorOfStrings(Vector<String> v) {
         StringBuilder builder = new StringBuilder();
         for (String caseId : v) {
-            builder.append(caseId + " ");
+            builder.append(caseId).append(" ");
         }
         return builder.toString();
     }
@@ -344,9 +343,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         return (status & flag) == flag;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.EntityFilter#preFilter(int, java.util.Hashtable)
-     */
+    @Override
     public int preFilter(int id, Hashtable<String, Object> metaData) {
         if (idsToRemove.contains(DataUtil.integer(id))) {
             return PREFILTER_INCLUDE;
@@ -355,6 +352,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         }
     }
 
+    @Override
     public boolean matches(Case e) {
         //We're doing everything with pre-filtering
         return false;

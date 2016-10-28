@@ -115,20 +115,24 @@ public class XFormEnvironment {
             this.name = name;
         }
 
+        @Override
         public String getName() {
             return name;
         }
 
+        @Override
         public Vector getPrototypes() {
             Vector p = new Vector();
             p.addElement(new Class[0]);
             return p;
         }
 
+        @Override
         public boolean rawArgs() {
             return false;
         }
 
+        @Override
         public Object eval(Object[] args, EvaluationContext ec) {
             if(mockup != null && mockup.getDate() != null) {
                 return mockup.getDate();

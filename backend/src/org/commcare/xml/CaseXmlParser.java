@@ -54,6 +54,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
         this.storage = storage;
     }
 
+    @Override
     public Case parse() throws InvalidStructureException, IOException, XmlPullParserException {
         checkNode("case");
 

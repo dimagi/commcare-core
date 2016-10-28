@@ -29,7 +29,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
 
     InputStream is;
 
-    String requiredRootEnvelope = null;
+    final String requiredRootEnvelope = null;
 
     CommCareOTARestoreListener rListener;
 
@@ -59,6 +59,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
         this.rListener = rListener;
     }
 
+    @Override
     public Boolean parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         try {
 

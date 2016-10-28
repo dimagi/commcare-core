@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.xform.schema;
 
 import org.javarosa.xform.parse.XFormParseException;
@@ -12,10 +9,9 @@ import java.util.ArrayList;
 
 /**
  * @author ctsims
- *
  */
 public class JSONReporter extends XFormParserReporter {
-    ArrayList<JSONObject> problems = new ArrayList<>();
+    final ArrayList<JSONObject> problems = new ArrayList<>();
 
     boolean passedValidation = false;
     private String failureReason;
