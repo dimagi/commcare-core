@@ -4,7 +4,6 @@ import org.commcare.core.parse.UserXmlParser;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
-import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.InvalidReferenceException;

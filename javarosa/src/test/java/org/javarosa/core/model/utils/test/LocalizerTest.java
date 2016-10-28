@@ -639,6 +639,7 @@ public class LocalizerTest {
         final String[] holder = new String[1];
 
         runAsync(new Runnable() {
+            @Override
             public void run() {
                 holder[0] = Localizer.processArguments("${0}", new String[]{C});
             }
@@ -648,6 +649,7 @@ public class LocalizerTest {
 
 
         runAsync(new Runnable() {
+            @Override
             public void run() {
                 holder[0] = Localizer.processArguments("${0}", new String[]{D});
             }
@@ -656,6 +658,7 @@ public class LocalizerTest {
         assertEquals(holder[0], D);
 
         runAsync(new Runnable() {
+            @Override
             public void run() {
                 holder[0] = Localizer.processArguments(holder[0], res);
             }
@@ -664,6 +667,7 @@ public class LocalizerTest {
         assertEquals(holder[0], res[1] + res[0]);
 
         runAsync(new Runnable() {
+            @Override
             public void run() {
                 holder[0] = Localizer.processArguments("$ {0} ${1}", res);
             }

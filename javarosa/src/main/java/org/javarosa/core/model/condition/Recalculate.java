@@ -77,10 +77,10 @@ public class Recalculate extends Triggerable {
             boolean b;
 
             if (val instanceof Boolean) {
-                b = ((Boolean)val).booleanValue();
+                b = (Boolean)val;
             } else if (val instanceof Double) {
                 Double d = (Double)val;
-                b = Math.abs(d.doubleValue()) > 1.0e-12 && !Double.isNaN(d);
+                b = Math.abs(d) > 1.0e-12 && !Double.isNaN(d);
             } else if (val instanceof String) {
                 String s = (String)val;
                 b = s.length() > 0;
@@ -90,7 +90,7 @@ public class Recalculate extends Triggerable {
 
             return new BooleanData(b);
         } else if (val instanceof Double) {
-            double d = ((Double)val).doubleValue();
+            double d = (Double)val;
             long l = (long)d;
             boolean isIntegral = Math.abs(d - l) < 1.0e-9;
             if (Constants.DATATYPE_INTEGER == dataType ||
@@ -139,6 +139,7 @@ public class Recalculate extends Triggerable {
     }
 
 
+    @Override
     public String getDebugLabel() {
         return "calculate";
     }

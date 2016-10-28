@@ -57,7 +57,7 @@ public class ResourceTable {
     private boolean isResourceProgressStale = false;
     // Cache for profile and suite 'parent' resources which are used in
     // references resolution
-    private Hashtable<String, Resource> compoundResourceCache =
+    private final Hashtable<String, Resource> compoundResourceCache =
             new Hashtable<>();
 
     public ResourceTable() {
@@ -181,7 +181,7 @@ public class ResourceTable {
     public Vector<Resource> getResourcesForParent(String parent) {
         Vector<Resource> v = new Vector<>();
         for (Enumeration en = storage.getIDsForValue(Resource.META_INDEX_PARENT_GUID, parent).elements(); en.hasMoreElements(); ) {
-            Resource r = (Resource)storage.read(((Integer)en.nextElement()).intValue());
+            Resource r = (Resource)storage.read((Integer)en.nextElement());
             v.addElement(r);
         }
         return v;
@@ -583,7 +583,7 @@ public class ResourceTable {
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         UnreliableSourceException aFailure = null;
 
-        for (int i = 0; i < this.NUMBER_OF_LOSSY_RETRIES + 1; ++i) {
+        for (int i = 0; i < NUMBER_OF_LOSSY_RETRIES + 1; ++i) {
             abortIfInstallCancelled(r);
             try {
                 return r.getInstaller().install(r, location, ref, table, instance, upgrade);

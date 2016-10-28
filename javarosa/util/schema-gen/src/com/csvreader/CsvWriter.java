@@ -522,6 +522,7 @@ public class CsvWriter {
     /**
      *
      */
+    @Override
     protected void finalize() {
         close(false);
     }

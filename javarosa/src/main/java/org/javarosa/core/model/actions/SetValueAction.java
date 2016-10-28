@@ -58,6 +58,7 @@ public class SetValueAction extends Action {
 
     public static IElementHandler getHandler() {
         return new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 // the generic parseAction() method in XFormParser already checks to make sure
                 // that parent is an IFormElement, and throws an exception if it is not
@@ -155,6 +156,7 @@ public class SetValueAction extends Action {
         return targetReference;
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         target = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
         explicitValue = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
@@ -164,6 +166,7 @@ public class SetValueAction extends Action {
 
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, target);
 

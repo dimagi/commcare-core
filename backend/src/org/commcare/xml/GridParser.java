@@ -23,6 +23,7 @@ public class GridParser extends ElementParser<Integer> {
         this.builder = builder;
     }
 
+    @Override
     public Integer parse() throws InvalidStructureException, IOException, XmlPullParserException {
 
         checkNode("grid");

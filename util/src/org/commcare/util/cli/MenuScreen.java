@@ -2,7 +2,6 @@ package org.commcare.util.cli;
 
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.core.interfaces.UserSandbox;
-import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
@@ -123,6 +122,7 @@ public class MenuScreen extends Screen {
         choices.copyInto(mChoices);
     }
 
+    @Override
     protected String getScreenTitle() {
         return mTitle;
     }

@@ -8,7 +8,6 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.xmlpull.v1.XmlPullParserException;

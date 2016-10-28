@@ -31,6 +31,7 @@ public class CaseDataInstance extends ExternalDataInstance {
     /**
      * Does the reference follow the statically defined CaseDB spec?
      */
+    @Override
     public boolean hasTemplatePath(TreeReference ref) {
             loadTemplateSpecLazily();
 

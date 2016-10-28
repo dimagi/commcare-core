@@ -37,23 +37,6 @@ public class XFormSerializer {
     }
 
     /**
-     * Formats an XML document into a UTF-8 (no BOM) compatible format.
-     *
-     * UNSAFE - This method should not be used in favor of getUtfBytesFromDocument(),
-     * because it doesn't throw exceptions.
-     *
-     * @return The raw bytes of the utf-8 encoded docm or null if any error occurs
-     */
-    public static byte[] getUtfBytes(Document doc) {
-        try {
-            return getUtfBytesFromDocument(doc);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
      * Formats an XML document into a UTF-8 (no BOM) compatible format
      *
      * @return The raw bytes of the utf-8 encoded doc

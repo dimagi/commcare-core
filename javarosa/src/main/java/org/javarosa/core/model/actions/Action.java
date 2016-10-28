@@ -45,10 +45,12 @@ public abstract class Action implements Externalizable {
      */
     public abstract TreeReference processAction(FormDef model, TreeReference context);
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         name = ExtUtil.readString(in);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, name);
     }

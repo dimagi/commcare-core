@@ -88,10 +88,12 @@ public class Case implements Persistable, IMetaData, Secure {
         this.closed = closed;
     }
 
+    @Override
     public int getID() {
         return recordId;
     }
 
+    @Override
     public void setID(int id) {
         this.recordId = id;
     }

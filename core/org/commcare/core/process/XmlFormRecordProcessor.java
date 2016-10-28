@@ -28,6 +28,7 @@ public class XmlFormRecordProcessor {
 
     public static void process(final UserSandbox sandbox, InputStream stream) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
         process(stream, new TransactionParserFactory() {
+            @Override
             public TransactionParser getParser(KXmlParser parser) {
                 if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(parser.getNamespace())) {
                     return new LedgerXmlParsers(parser, sandbox.getLedgerStorage());

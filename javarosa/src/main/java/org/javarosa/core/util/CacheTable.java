@@ -26,6 +26,7 @@ public class CacheTable<T, K> {
     private static final Vector<WeakReference> caches = new Vector<>();
 
     private static final Thread cleaner = new Thread(new Runnable() {
+        @Override
         public void run() {
             Vector<Integer> toRemove = new Vector<>();
             while (true) {

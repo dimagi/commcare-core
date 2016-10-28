@@ -23,6 +23,7 @@ public class TreeElementParser extends ElementParser<TreeElement> {
         this.instanceId = instanceId;
     }
 
+    @Override
     public TreeElement parse() throws InvalidStructureException, IOException,
             XmlPullParserException, UnfullfilledRequirementsException {
 
@@ -42,7 +43,7 @@ public class TreeElementParser extends ElementParser<TreeElement> {
                     String name = parser.getName();
                     int val;
                     if (multiplicities.containsKey(name)) {
-                        val = multiplicities.get(name).intValue() + 1;
+                        val = multiplicities.get(name) + 1;
                     } else {
                         val = 0;
                     }

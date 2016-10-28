@@ -54,6 +54,7 @@ public class GeoPointData implements IAnswerData {
         }
     }
 
+    @Override
     public IAnswerData clone() {
         return new GeoPointData(gp);
     }

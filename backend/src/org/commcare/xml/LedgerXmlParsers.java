@@ -87,6 +87,7 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
                     //We need to capture some of the state (IE: Depth, etc) to parse recursively,
                     //so create a new anonymous parser.
                     new ElementParser<Ledger[]>(this.parser) {
+                        @Override
                         public Ledger[] parse() throws InvalidStructureException, IOException, XmlPullParserException {
                             String productId = parser.getAttributeValue(null, ENTRY_ID);
 
@@ -148,6 +149,7 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
                     //We need to capture some of the state (IE: Depth, etc) to parse recursively,
                     //so create a new anonymous parser.
                     new ElementParser<Ledger[]>(this.parser) {
+                        @Override
                         public Ledger[] parse() throws InvalidStructureException, IOException, XmlPullParserException {
                             String productId = parser.getAttributeValue(null, ENTRY_ID);
 
