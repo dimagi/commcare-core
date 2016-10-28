@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import org.commcare.suite.model.AssertionSet;
@@ -24,9 +21,7 @@ public class AssertionSetParser extends ElementParser<AssertionSet> {
         super(parser);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.xml.ElementParser#parse()
-     */
+    @Override
     public AssertionSet parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode("assertions");
 

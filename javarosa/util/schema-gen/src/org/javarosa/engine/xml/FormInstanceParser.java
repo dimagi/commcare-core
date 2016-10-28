@@ -26,6 +26,7 @@ public class FormInstanceParser extends ElementParser<FormInstance> {
         super(parser);
     }
 
+    @Override
     public FormInstance parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode("instance");
 

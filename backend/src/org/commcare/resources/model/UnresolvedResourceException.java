@@ -1,14 +1,11 @@
-/**
- *
- */
 package org.commcare.resources.model;
 
 /**
  * @author ctsims
  */
 public class UnresolvedResourceException extends Exception {
-    final Resource r;
-    final boolean userFacing;
+    private final Resource r;
+    private final boolean userFacing;
 
     public UnresolvedResourceException(Resource r, String message) {
         this(r, message, false);

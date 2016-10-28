@@ -44,38 +44,47 @@ public class MockUserDataSandbox extends UserSandbox {
         appFixtureStorage = new DummyIndexedStorageUtility<>(FormInstance.class, factory);
     }
 
+    @Override
     public IStorageUtilityIndexed<Case> getCaseStorage() {
         return caseStorage;
     }
 
+    @Override
     public IStorageUtilityIndexed<Ledger> getLedgerStorage() {
         return ledgerStorage;
     }
 
+    @Override
     public IStorageUtilityIndexed<User> getUserStorage() {
         return userStorage;
     }
 
+    @Override
     public IStorageUtilityIndexed<FormInstance> getUserFixtureStorage() {
         return userFixtureStorage;
     }
 
+    @Override
     public IStorageUtilityIndexed<FormInstance> getAppFixtureStorage() {
         return appFixtureStorage;
     }
     
+    @Override
     public void setSyncToken(String syncToken) {
         this.mSyncToken = syncToken;
     }
     
+    @Override
     public String getSyncToken() {
         return mSyncToken;
     }
     
+    @Override
     public void setLoggedInUser(User user) {
         this.mUser = user;
     }
     
+    @Override
     public User getLoggedInUser() {
         return mUser;
     }

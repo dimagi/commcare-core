@@ -406,6 +406,7 @@ public class ApplicationHost {
         final String qualifiedUsername = username + "@" + domain;
 
         Authenticator.setDefault(new Authenticator() {
+            @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(qualifiedUsername, password.toCharArray());
             }

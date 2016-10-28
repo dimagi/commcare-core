@@ -49,7 +49,7 @@ public class ResourceTable {
     private InstallCancelled cancellationChecker = null;
     private InstallStatsLogger installStatsLogger = null;
 
-    private int numberOfLossyRetries = 3;
+    private static final int NUMBER_OF_LOSSY_RETRIES = 3;
     // Tracks whether a compound resource has been added, requiring
     // recalculation of how many uninstalled resources there are.  Where
     // 'compound resources' are those that contain references to more
@@ -57,7 +57,7 @@ public class ResourceTable {
     private boolean isResourceProgressStale = false;
     // Cache for profile and suite 'parent' resources which are used in
     // references resolution
-    private Hashtable<String, Resource> compoundResourceCache =
+    private final Hashtable<String, Resource> compoundResourceCache =
             new Hashtable<>();
 
     public ResourceTable() {
@@ -181,7 +181,7 @@ public class ResourceTable {
     public Vector<Resource> getResourcesForParent(String parent) {
         Vector<Resource> v = new Vector<>();
         for (Enumeration en = storage.getIDsForValue(Resource.META_INDEX_PARENT_GUID, parent).elements(); en.hasMoreElements(); ) {
-            Resource r = (Resource)storage.read(((Integer)en.nextElement()).intValue());
+            Resource r = (Resource)storage.read((Integer)en.nextElement());
             v.addElement(r);
         }
         return v;
@@ -363,7 +363,9 @@ public class ResourceTable {
         // TODO: Possibly check if resource status is local and proceeding to
         // skip this huge (although in reality like one step) chunk
 
-        UnreliableSourceException theFailure = null;
+        UnreliableSourceException unreliableSourceException = null;
+        InvalidResourceException invalidResourceException = null;
+
         boolean handled = false;
 
         for (ResourceLocation location : r.getLocations()) {
@@ -376,8 +378,10 @@ public class ResourceTable {
                         try {
                             handled = installResource(r, location, ref, this,
                                     instance, upgrade);
+                        } catch (InvalidResourceException e) {
+                            invalidResourceException = e;
                         } catch (UnreliableSourceException use) {
-                            theFailure = use;
+                            unreliableSourceException = use;
                         }
                         if (handled) {
                             recordSuccess(r);
@@ -394,24 +398,28 @@ public class ResourceTable {
                         recordSuccess(r);
                         break;
                     }
+                } catch (InvalidResourceException e) {
+                    invalidResourceException = e;
                 } catch (InvalidReferenceException ire) {
                     ire.printStackTrace();
                     // Continue until no resources can be found.
                 } catch (UnreliableSourceException use) {
-                    theFailure = use;
+                    unreliableSourceException = use;
                 }
             }
         }
 
         if (!handled) {
-            if (theFailure == null) {
+            if (invalidResourceException != null) {
+                throw invalidResourceException;
+            } else if (unreliableSourceException == null) {
                 // no particular failure to point our finger at.
                 throw new UnresolvedResourceException(r,
                         "No external or local definition could be found for resource " +
                                 r.getResourceId());
             } else {
                 // Expose the lossy failure rather than the generic one
-                throw theFailure;
+                throw unreliableSourceException;
             }
         }
     }
@@ -575,7 +583,7 @@ public class ResourceTable {
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         UnreliableSourceException aFailure = null;
 
-        for (int i = 0; i < this.numberOfLossyRetries + 1; ++i) {
+        for (int i = 0; i < NUMBER_OF_LOSSY_RETRIES + 1; ++i) {
             abortIfInstallCancelled(r);
             try {
                 return r.getInstaller().install(r, location, ref, table, instance, upgrade);
@@ -583,7 +591,7 @@ public class ResourceTable {
                 recordFailure(r, use);
                 aFailure = use;
                 Logger.log("install", "Potentially lossy install attempt # " +
-                        (i + 1) + " of " + (numberOfLossyRetries + 1) +
+                        (i + 1) + " of " + (NUMBER_OF_LOSSY_RETRIES + 1) +
                         " unsuccessful from: " + ref.getURI() + "|" +
                         use.getMessage());
             }
@@ -883,12 +891,8 @@ public class ResourceTable {
     /**
      * Register the available resources in this table with the provided
      * CommCare instance.
-     *
-     * @param instance
-     * @throws ResourceInitializationException
      */
-    public void initializeResources(CommCareInstance instance, boolean isUpgrade)
-            throws ResourceInitializationException {
+    public void initializeResources(CommCareInstance instance, boolean isUpgrade) {
         // HHaaaacckkk. (Some properties cannot be handled until after others
         // TODO: Replace this with some sort of sorted priority queue.
         Vector<ResourceInstaller> lateInit = new Vector<>();

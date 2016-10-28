@@ -48,18 +48,22 @@ public class PointerAnswerData implements IAnswerData {
         this.data = data;
     }
 
+    @Override
     public IAnswerData clone() {
         return null; //not cloneable
     }
 
+    @Override
     public String getDisplayText() {
         return data.getDisplayText();
     }
 
+    @Override
     public Object getValue() {
         return data;
     }
 
+    @Override
     public void setValue(Object o) {
         if (o == null) {
             throw new NullPointerException("Attempt to set an IAnswerData class to null.");
@@ -67,19 +71,23 @@ public class PointerAnswerData implements IAnswerData {
         data = ((IDataPointer)o);
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         data = (IDataPointer)ExtUtil.read(in, new ExtWrapTagged());
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapTagged(data));
     }
 
+    @Override
     public UncastData uncast() {
         return new UncastData(data.getDisplayText());
     }
 
+    @Override
     public PointerAnswerData cast(UncastData data) throws IllegalArgumentException {
         return null;
     }

@@ -69,6 +69,7 @@ public class QuestionString implements Externalizable {
                 + textInner + " Fallback: " + textFallback;
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         name = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         textId = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
@@ -76,6 +77,7 @@ public class QuestionString implements Externalizable {
         textFallback = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapNullable(name));
         ExtUtil.write(out, new ExtWrapNullable(textId));
