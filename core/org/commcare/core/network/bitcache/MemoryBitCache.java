@@ -37,6 +37,7 @@ public class MemoryBitCache implements BitCache {
         return new ByteArrayInputStream(data);
     }
 
+    @Override
     public void release() {
         bos = null;
         data = null;

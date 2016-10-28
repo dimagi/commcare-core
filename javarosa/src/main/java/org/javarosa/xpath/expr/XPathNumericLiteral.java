@@ -13,11 +13,12 @@ import java.io.IOException;
 public class XPathNumericLiteral extends XPathExpression {
     public double d;
 
+    @SuppressWarnings("unused")
     public XPathNumericLiteral() {
     } //for deserialization
 
     public XPathNumericLiteral(Double d) {
-        this.d = d.doubleValue();
+        this.d = d;
     }
 
     @Override

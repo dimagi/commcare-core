@@ -436,8 +436,6 @@ public class CsvReader {
      * the file format is known and tested. With the switch off, the max column
      * lengths and max column count per record supported by the parser will
      * greatly increase. Default is true.
-     *
-     * @param safetySwitch
      */
     public void setSafetySwitch(boolean safetySwitch) {
         userSettings.SafetySwitch = safetySwitch;
@@ -1449,7 +1447,7 @@ public class CsvReader {
         Object indexValue = headersHolder.IndexByName.get(headerName);
 
         if (indexValue != null) {
-            return ((Integer) indexValue).intValue();
+            return (Integer)indexValue;
         } else {
             return -1;
         }
@@ -1593,6 +1591,7 @@ public class CsvReader {
     /**
      *
      */
+    @Override
     protected void finalize() {
         close(false);
     }

@@ -17,15 +17,14 @@ import java.io.InputStream;
  * @author Clayton Sims
  */
 public class ByteArrayPayload implements IDataPayload {
-    byte[] payload;
-
-    String id;
-
-    int type;
+    private byte[] payload;
+    private String id;
+    private int type;
 
     /**
      * Note: Only useful for serialization.
      */
+    @SuppressWarnings("unused")
     public ByteArrayPayload() {
     }
 
@@ -49,17 +48,13 @@ public class ByteArrayPayload implements IDataPayload {
         this.type = IDataPayload.PAYLOAD_TYPE_XML;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.transport.IDataPayload#getPayloadStream()
-     */
+    @Override
     public InputStream getPayloadStream() {
 
         return new ByteArrayInputStream(payload);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         int length = in.readInt();
@@ -70,9 +65,7 @@ public class ByteArrayPayload implements IDataPayload {
         id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         out.writeInt(payload.length);
         if (payload.length > 0) {
@@ -81,30 +74,22 @@ public class ByteArrayPayload implements IDataPayload {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.transport.IDataPayload#accept(org.javarosa.core.services.transport.IDataPayloadVisitor)
-     */
+    @Override
     public Object accept(IDataPayloadVisitor visitor) {
         return visitor.visit(this);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.transport.IDataPayload#getPayloadId()
-     */
+    @Override
     public String getPayloadId() {
         return id;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.transport.IDataPayload#getPayloadType()
-     */
+    @Override
     public int getPayloadType() {
         return type;
     }
 
+    @Override
     public long getLength() {
         return payload.length;
     }

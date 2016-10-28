@@ -30,6 +30,7 @@ public class UserXmlParser extends TransactionParser<User> {
         this.storage = storage;
     }
 
+    @Override
     public User parse() throws InvalidStructureException, IOException, XmlPullParserException,
             UnfullfilledRequirementsException {
         this.checkNode("registration");

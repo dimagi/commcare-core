@@ -110,12 +110,8 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         return curCount - 1;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#close()
-     */
     public void close() {
         // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -193,7 +189,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         Vector<Integer> removed = new Vector<>();
         for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
             Integer i = (Integer)en.nextElement();
-            switch (ef.preFilter(i.intValue(), null)) {
+            switch (ef.preFilter(i, null)) {
                 case EntityFilter.PREFILTER_INCLUDE:
                     removed.addElement(i);
                     break;
