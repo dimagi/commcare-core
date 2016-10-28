@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.resources.model;
 
 import org.javarosa.core.reference.ReferenceManager;
@@ -68,10 +65,7 @@ public class ResourceLocation implements Externalizable {
         return relative;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         this.authority = ExtUtil.readInt(in);
@@ -79,15 +73,10 @@ public class ResourceLocation implements Externalizable {
         this.relative = ReferenceManager.isRelative(location);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, authority);
         ExtUtil.writeString(out, location);
         this.relative = ReferenceManager.isRelative(location);
     }
-
-
 }

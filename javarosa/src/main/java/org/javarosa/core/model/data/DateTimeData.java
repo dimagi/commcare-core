@@ -49,6 +49,7 @@ public class DateTimeData implements IAnswerData {
         return new Date(d.getTime());
     }
 
+    @Override
     public String getDisplayText() {
         return DateUtils.formatDateTime(d, DateUtils.FORMAT_HUMAN_READABLE_SHORT);
     }

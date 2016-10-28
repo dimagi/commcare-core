@@ -20,6 +20,7 @@ public class TestInstanceInitializer extends InstanceInitializationFactory {
         this.sandbox = sandbox;
     }
 
+    @Override
     public ExternalDataInstance getSpecializedExternalDataInstance(ExternalDataInstance instance) {
         if (CaseInstanceTreeElement.MODEL_NAME.equals(instance.getInstanceId())) {
             return new CaseDataInstance(instance);
@@ -28,6 +29,7 @@ public class TestInstanceInitializer extends InstanceInitializationFactory {
         }
     }
 
+    @Override
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
         if (ref.contains(CaseInstanceTreeElement.MODEL_NAME)) {

@@ -42,6 +42,7 @@ public class XFormParseException extends RuntimeException {
         element = e;
     }
 
+    @Override
     public String getMessage() {
         if (element == null) {
             return super.getMessage();

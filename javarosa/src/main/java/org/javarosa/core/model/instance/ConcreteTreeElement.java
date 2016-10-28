@@ -63,24 +63,18 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
         this.parent = null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isLeaf()
-     */
+    @Override
     public boolean isLeaf() {
         return (children == null || children.size() == 0);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isChildable()
-     */
+    @Override
     public boolean isChildable() {
         return (value == null);
     }
 
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getInstanceName()
-     */
+    @Override
     public String getInstanceName() {
         //CTS: I think this is a better way to do this, although I really, really don't like the duplicated code
         if (parent != null) {
@@ -89,16 +83,10 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
         return instanceName;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setInstanceName(java.lang.String)
-     */
     public void setInstanceName(String instanceName) {
         this.instanceName = instanceName;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setValue(org.javarosa.core.model.data.IAnswerData)
-     */
     public void setValue(IAnswerData value) {
         if (isLeaf()) {
             this.value = value;
@@ -107,9 +95,7 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChild(java.lang.String, int)
-     */
+    @Override
     public T getChild(String name, int multiplicity) {
         if (this.children == null) {
             return null;
@@ -132,9 +118,7 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildrenWithName(java.lang.String)
-     */
+    @Override
     public Vector<T> getChildrenWithName(String name) {
         return getChildrenWithName(name, false);
     }
@@ -155,34 +139,25 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
         return v;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getNumChildren()
-     */
+    @Override
     public int getNumChildren() {
         return children == null ? 0 : this.children.size();
     }
 
+    @Override
     public boolean hasChildren() {
         return getNumChildren() > 0;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildAt(int)
-     */
+    @Override
     public T getChildAt(int i) {
         return children.elementAt(i);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setDataType(int)
-     */
     public void setDataType(int dataType) {
         this.dataType = dataType;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#addChild(org.javarosa.core.model.instance.TreeElement)
-     */
     public void addChild(T child) {
         addChild(child, false);
     }
@@ -221,9 +196,6 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
         children.insertElementAt(child, i);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChild(org.javarosa.core.model.instance.TreeElement)
-     */
     public void removeChild(T child) {
         if (children == null) {
             return;
@@ -231,17 +203,12 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
         children.removeElement(child);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChildAt(int)
-     */
     public void removeChildAt(int i) {
         children.removeElementAt(i);
 
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildMultiplicity(java.lang.String)
-     */
+    @Override
     public int getChildMultiplicity(String name) {
         return getChildrenWithName(name, false).size();
     }
@@ -250,9 +217,6 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
 
     /* ==== SPECIAL SETTERS (SETTERS WITH SIDE-EFFECTS) ==== */
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setAnswer(org.javarosa.core.model.data.IAnswerData)
-     */
     public boolean setAnswer(IAnswerData answer) {
         if (value != null || answer != null) {
             setValue(answer);
@@ -264,9 +228,7 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
 
     /* ==== VISITOR PATTERN ==== */
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#accept(org.javarosa.core.model.instance.utils.ITreeVisitor)
-     */
+    @Override
     public void accept(ITreeVisitor visitor) {
         visitor.visit(this);
 
@@ -282,30 +244,22 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
 
     /* ==== Attributes ==== */
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeCount()
-     */
+    @Override
     public int getAttributeCount() {
         return attributes == null ? 0 : attributes.size();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeNamespace(int)
-     */
+    @Override
     public String getAttributeNamespace(int index) {
         return attributes.elementAt(index).getNamespace();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeName(int)
-     */
+    @Override
     public String getAttributeName(int index) {
         return attributes.elementAt(index).getName();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeValue(int)
-     */
+    @Override
     public String getAttributeValue(int index) {
         return getAttributeValue(attributes.elementAt(index));
     }
@@ -321,10 +275,7 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
         }
     }
 
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttribute(java.lang.String, java.lang.String)
-     */
+    @Override
     public T getAttribute(String namespace, String name) {
         if (attributes == null) {
             return null;
@@ -337,17 +288,12 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeValue(java.lang.String, java.lang.String)
-     */
+    @Override
     public String getAttributeValue(String namespace, String name) {
         T element = getAttribute(namespace, name);
         return element == null ? null : getAttributeValue(element);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setAttribute(java.lang.String, java.lang.String, java.lang.String)
-     */
     public void setAttribute(String namespace, String name, String value) {
         if (attributes == null) {
             this.attributes = new Vector<>();
@@ -379,11 +325,9 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
     }
 
     //return the tree reference that corresponds to this tree element
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getRef()
-     */
     TreeReference refCache;
 
+    @Override
     public TreeReference getRef() {
         //TODO: Expire cache somehow;
         if (refCache == null) {
@@ -393,58 +337,38 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
     }
 
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getName()
-     */
+    @Override
     public String getName() {
         return name;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setName(java.lang.String)
-     */
     public void setName(String name) {
         this.name = name;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getMult()
-     */
+    @Override
     public int getMult() {
         return multiplicity;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setMult(int)
-     */
     public void setMult(int multiplicity) {
         this.multiplicity = multiplicity;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setParent(org.javarosa.core.model.instance.TreeElement)
-     */
     public void setParent(AbstractTreeElement parent) {
         this.parent = parent;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getParent()
-     */
+    @Override
     public AbstractTreeElement getParent() {
         return parent;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getValue()
-     */
+    @Override
     public IAnswerData getValue() {
         return value;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#toString()
-     */
     public String toString() {
         String name = "NULL";
         if (this.name != null) {
@@ -459,9 +383,7 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
         return name + " - Children: " + childrenCount;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getDataType()
-     */
+    @Override
     public int getDataType() {
         return dataType;
     }
@@ -470,6 +392,7 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
         return multiplicity;
     }
 
+    @Override
     public String getNamespace() {
         return namespace;
     }
@@ -478,19 +401,23 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
         this.namespace = namespace;
     }
 
+    @Override
     public Vector<TreeReference> tryBatchChildFetch(String name, int mult,
                                                     Vector<XPathExpression> predicates, EvaluationContext evalContext) {
         return null;
     }
 
+    @Override
     public boolean isRepeatable() {
         return true;
     }
 
+    @Override
     public boolean isAttribute() {
         return false;
     }
 
+    @Override
     public boolean isRelevant() {
         return true;
     }

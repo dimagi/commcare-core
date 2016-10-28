@@ -405,6 +405,7 @@ public class XPathPathExpr extends XPathExpression {
         return path;
     }
 
+    @Override
     public Object pivot(DataInstance model, EvaluationContext evalContext, Vector<Object> pivots, Object sentinal) throws UnpivotableExpressionException {
         TreeReference ref = this.getReference();
         //Either concretely the sentinal, or "."

@@ -28,6 +28,7 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
         super(parser);
     }
 
+    @Override
     public SessionDatum parse() throws InvalidStructureException, IOException, XmlPullParserException {
         if ("query".equals(parser.getName())) {
             return parseRemoteQueryDatum();

@@ -77,12 +77,14 @@ public class Constraint implements Externalizable {
         }
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         constraint = (IConditionExpr)ExtUtil.read(in, new ExtWrapTagged(), pf);
         constraintMsg = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         attemptConstraintCompile();
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapTagged(constraint));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(constraintMsg));
