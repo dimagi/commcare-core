@@ -15,6 +15,7 @@ public class ViewEntry extends Entry {
     /**
      * Serialization only!
      */
+    @SuppressWarnings("unused")
     public ViewEntry() {
 
     }

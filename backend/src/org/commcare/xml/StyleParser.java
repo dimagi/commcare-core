@@ -24,6 +24,7 @@ public class StyleParser extends ElementParser<Integer> {
         this.builder = builder;
     }
 
+    @Override
     public Integer parse() throws InvalidStructureException, IOException, XmlPullParserException {
 
         String fontSize = parser.getAttributeValue(null, "font-size");

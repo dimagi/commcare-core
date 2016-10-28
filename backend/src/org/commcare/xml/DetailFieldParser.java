@@ -26,6 +26,7 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
         this.id = id;
     }
 
+    @Override
     public DetailField parse() throws InvalidStructureException, IOException, XmlPullParserException {
         checkNode("field");
 

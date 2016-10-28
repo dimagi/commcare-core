@@ -18,5 +18,6 @@ public abstract class GraphParser extends ElementParser<DetailTemplate> {
         super(parser);
     }
 
+    @Override
     public abstract DetailTemplate parse() throws InvalidStructureException, IOException, XmlPullParserException;
 }

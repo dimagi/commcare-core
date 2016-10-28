@@ -149,7 +149,7 @@ public class TableBuilder {
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append("INSERT INTO " + scrubName(name) + " (");
+        stringBuilder.append("INSERT INTO ").append(scrubName(name)).append(" (");
         HashMap<String, Object> contentValues = DatabaseHelper.getMetaFieldsAndValues(p);
 
         ArrayList<Object> params = new ArrayList<>();

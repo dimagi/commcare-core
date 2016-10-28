@@ -20,6 +20,7 @@ public class ASTNodeLocPath extends ASTNode {
         separators = new Vector<>();
     }
 
+    @Override
     public Vector getChildren() {
         return clauses;
     }
@@ -36,6 +37,7 @@ public class ASTNodeLocPath extends ASTNode {
                 && ((ASTNodePathStep)clauses.firstElement()).nodeTestType == ASTNodePathStep.NODE_TEST_TYPE_HASH_REF;
     }
 
+    @Override
     public XPathExpression build() throws XPathSyntaxException {
         ArrayList<XPathStep> steps = new ArrayList<>();
         XPathExpression filtExpr = null;

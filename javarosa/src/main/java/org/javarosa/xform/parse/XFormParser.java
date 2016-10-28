@@ -173,46 +173,55 @@ public class XFormParser {
 
     private static void setupGroupLevelHandlers() {
         IElementHandler input = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseControl((IFormElement)parent, e, Constants.CONTROL_INPUT);
             }
         };
         IElementHandler secret = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseControl((IFormElement)parent, e, Constants.CONTROL_SECRET);
             }
         };
         IElementHandler select = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseControl((IFormElement)parent, e, Constants.CONTROL_SELECT_MULTI);
             }
         };
         IElementHandler select1 = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseControl((IFormElement)parent, e, Constants.CONTROL_SELECT_ONE);
             }
         };
         IElementHandler group = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseGroup((IFormElement)parent, e, CONTAINER_GROUP);
             }
         };
         IElementHandler repeat = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseGroup((IFormElement)parent, e, CONTAINER_REPEAT);
             }
         };
         IElementHandler groupLabel = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseGroupLabel((GroupDef)parent, e);
             }
         };
         IElementHandler trigger = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseControl((IFormElement)parent, e, Constants.CONTROL_TRIGGER);
             }
         };
         IElementHandler upload = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseUpload((IFormElement)parent, e, Constants.CONTROL_UPLOAD);
             }
@@ -232,16 +241,19 @@ public class XFormParser {
 
     private static void setupTopLevelHandlers() {
         IElementHandler title = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseTitle(e);
             }
         };
         IElementHandler meta = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseMeta(e);
             }
         };
         IElementHandler model = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseModel(e);
             }
@@ -637,8 +649,8 @@ public class XFormParser {
                 "delHeader"
         };
         Vector<String> suppressWarning = new Vector<>();
-        for (int i = 0; i < suppressWarningArr.length; i++) {
-            suppressWarning.addElement(suppressWarningArr[i]);
+        for (String aSuppressWarningArr : suppressWarningArr) {
+            suppressWarning.addElement(aSuppressWarningArr);
         }
 
         // if there is a registered parser, invoke it
@@ -968,8 +980,8 @@ public class XFormParser {
                 if (extension != null) {
                     question.addExtension(extension);
                     String[] attributesFromExtension = parser.getUsedAttributes();
-                    for (int i = 0 ; i < attributesFromExtension.length; i++) {
-                        usedAtts.addElement(attributesFromExtension[i]);
+                    for (String anAttributesFromExtension : attributesFromExtension) {
+                        usedAtts.addElement(anAttributesFromExtension);
                     }
                 }
             }
@@ -1794,14 +1806,14 @@ public class XFormParser {
         Localizer l = _f.getLocalizer();
         String[] locales = l.getAvailableLocales();
 
-        for (int i = 0; i < locales.length; i++) {
+        for (String locale : locales) {
             //Test whether there is a default translation, or whether there is any special form available.
-            if (!(hasITextMapping(textID, locales[i]) ||
-                    (allowSubforms && hasSpecialFormMapping(textID, locales[i])))) {
-                if (locales[i].equals(l.getDefaultLocale())) {
+            if (!(hasITextMapping(textID, locale) ||
+                    (allowSubforms && hasSpecialFormMapping(textID, locale)))) {
+                if (locale.equals(l.getDefaultLocale())) {
                     throw new XFormParseException(type + " '" + textID + "': text is not localizable for default locale [" + l.getDefaultLocale() + "]!");
                 } else {
-                    reporter.warning(XFormParserReporter.TYPE_TECHNICAL, type + " '" + textID + "': text is not localizable for locale " + locales[i] + ".", null);
+                    reporter.warning(XFormParserReporter.TYPE_TECHNICAL, type + " '" + textID + "': text is not localizable for locale " + locale + ".", null);
                 }
             }
         }
@@ -2810,7 +2822,7 @@ public class XFormParser {
                     } else {
                         //update multiplicity counter
                         Integer mult = multiplicities.get(name);
-                        index = (mult == null ? 0 : mult.intValue() + 1);
+                        index = (mult == null ? 0 : mult + 1);
                         multiplicities.put(name, DataUtil.integer(index));
                     }
 
@@ -2956,7 +2968,7 @@ public class XFormParser {
             }
 
             if (typeMappings.containsKey(type)) {
-                dataType = typeMappings.get(type).intValue();
+                dataType = typeMappings.get(type);
             } else {
                 dataType = Constants.DATATYPE_UNSUPPORTED;
                 reporter.warning(XFormParserReporter.TYPE_ERROR_PRONE, "unrecognized data type [" + type + "]", null);
@@ -2978,6 +2990,7 @@ public class XFormParser {
 
     public static void registerControlType(String type, final int typeId) {
         IElementHandler newHandler = new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseControl((IFormElement)parent, e, typeId);
             }
@@ -3007,6 +3020,7 @@ public class XFormParser {
         actionHandlers.put(
                 name,
                 new IElementHandler() {
+                    @Override
                     public void handle(XFormParser p, Element e, Object parent) {
                         p.parseAction(e, parent, specificHandler);
                     }

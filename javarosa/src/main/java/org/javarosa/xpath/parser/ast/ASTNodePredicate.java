@@ -24,12 +24,14 @@ import java.util.Vector;
 public class ASTNodePredicate extends ASTNode {
     public ASTNode expr;
 
+    @Override
     public Vector getChildren() {
         Vector v = new Vector();
         v.addElement(expr);
         return v;
     }
 
+    @Override
     public XPathExpression build() throws XPathSyntaxException {
         return expr.build();
     }

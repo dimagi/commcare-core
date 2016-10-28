@@ -53,6 +53,7 @@ public class SessionWrapper extends CommCareSession {
         return initializer;
     }
 
+    @Override
     public CommCarePlatform getPlatform(){
         return this.mPlatform;
     }
