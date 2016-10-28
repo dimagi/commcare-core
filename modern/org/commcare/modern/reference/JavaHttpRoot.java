@@ -16,6 +16,7 @@ public class JavaHttpRoot extends PrefixedRootFactory {
         super(new String[] {"http://", "https://"});
     }
 
+    @Override
     protected Reference factory(String terminal, String URI) {
         return new JavaHttpReference(URI);
     }

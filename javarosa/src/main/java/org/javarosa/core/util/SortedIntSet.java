@@ -13,7 +13,7 @@ import java.util.Vector;
 
 //maintain an array of integers in sorted order. no duplicates allowed.
 public class SortedIntSet implements Externalizable {
-    Vector<Integer> v;
+    private Vector<Integer> v;
 
     public SortedIntSet() {
         v = new Vector<>();

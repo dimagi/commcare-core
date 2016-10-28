@@ -37,7 +37,7 @@ public class XPathStep implements Externalizable {
     public static final int TEST_TYPE_PROCESSING_INSTRUCTION = 6;
 
     private static Interner<XPathStep> refs;
-    public static boolean XPathStepInterningEnabled = true;
+    public static final boolean XPathStepInterningEnabled = true;
 
     public int axis;
     public int test;

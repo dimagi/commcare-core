@@ -17,7 +17,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 public class ExtUtil {
-    public static boolean interning = true;
+    public static final boolean interning = true;
     public static Interner<String> stringCache;
 
     public static byte[] serialize(Object o) {

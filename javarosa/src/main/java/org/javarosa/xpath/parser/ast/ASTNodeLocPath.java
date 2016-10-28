@@ -19,6 +19,7 @@ public class ASTNodeLocPath extends ASTNode {
         separators = new Vector<>();
     }
 
+    @Override
     public Vector getChildren() {
         return clauses;
     }
@@ -27,6 +28,7 @@ public class ASTNodeLocPath extends ASTNode {
         return (clauses.size() == separators.size()) || (clauses.size() == 0 && separators.size() == 1);
     }
 
+    @Override
     public XPathExpression build() throws XPathSyntaxException {
         Vector<XPathStep> steps = new Vector<>();
         XPathExpression filtExpr = null;

@@ -154,9 +154,9 @@ public class ASTNodeAbstractExpr extends ASTNode {
         Vector<Integer> sepIdxs = new Vector<>();
 
         for (int i = start; i < end; i++) {
-            for (int j = 0; j < separators.length; j++) {
-                if (getTokenType(i) == separators[j]) {
-                    part.separators.addElement(separators[j]);
+            for (int separator : separators) {
+                if (getTokenType(i) == separator) {
+                    part.separators.addElement(separator);
                     sepIdxs.addElement(i);
                     break;
                 }
