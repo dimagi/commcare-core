@@ -68,9 +68,7 @@ public class CaseIndex implements Externalizable {
         this.mRelationship = relationship;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         mName = ExtUtil.readString(in);
         mTargetId = ExtUtil.readString(in);
@@ -78,9 +76,7 @@ public class CaseIndex implements Externalizable {
         mRelationship = ExtUtil.readString(in);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, mName);
         ExtUtil.writeString(out, mTargetId);

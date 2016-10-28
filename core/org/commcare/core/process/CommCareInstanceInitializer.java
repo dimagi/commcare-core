@@ -54,6 +54,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         this.mPlatform = platform;
     }
 
+    @Override
     public ExternalDataInstance getSpecializedExternalDataInstance(ExternalDataInstance instance) {
         if (CaseInstanceTreeElement.MODEL_NAME.equals(instance.getInstanceId())) {
             return new CaseDataInstance(instance);

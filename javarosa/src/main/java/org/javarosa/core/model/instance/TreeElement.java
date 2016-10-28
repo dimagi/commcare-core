@@ -200,6 +200,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         return children == null ? 0 : children.size();
     }
 
+    @Override
     public boolean hasChildren() {
         return (getNumChildren() > 0);
     }
@@ -847,6 +848,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         setMaskVar(MASK_REPEATABLE, repeatable);
     }
 
+    @Override
     public String getNamespace() {
         return namespace;
     }

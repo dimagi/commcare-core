@@ -27,13 +27,8 @@ import java.io.FileNotFoundException;
 
 /**
  * @author Brian DeRenzi
- *
  */
 public class MainClass {
-
-    /**
-     * @param args
-     */
     public static void main(String[] args) {
         // Very simple class that takes in an xform as an argument then outputs the debug
         // info from the XForm parser
