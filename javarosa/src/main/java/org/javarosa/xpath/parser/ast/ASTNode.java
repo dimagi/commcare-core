@@ -1,5 +1,6 @@
 package org.javarosa.xpath.parser.ast;
 
+import org.javarosa.core.model.condition.HashRefResolver;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.Token;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -10,7 +11,7 @@ import java.util.List;
 public abstract class ASTNode {
     public abstract List<? extends ASTNode> getChildren();
 
-    public abstract XPathExpression build() throws XPathSyntaxException;
+    public abstract XPathExpression build(HashRefResolver hashRefResolver) throws XPathSyntaxException;
 
     private int indent;
 
@@ -120,7 +121,7 @@ public abstract class ASTNode {
             int offset = x.isAbsolute() ? 1 : 0;
             for (int i = 0; i < x.clauses.size() + offset; i++) {
                 if (offset == 0 || i > 0)
-                    print(x.clauses.elementAt(i - offset));
+                    print(x.clauses.get(i - offset));
                 if (i < x.separators.size()) {
                     switch (x.separators.get(i)) {
                         case Token.DBL_SLASH:

@@ -1,5 +1,7 @@
 package org.javarosa.xpath.parser.ast;
 
+import org.javarosa.core.model.condition.HashRefResolver;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFilterExpr;
 import org.javarosa.xpath.expr.XPathPathExpr;
@@ -11,16 +13,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ASTNodeLocPath extends ASTNode {
-    public final Vector<ASTNode> clauses;
+    public final List<ASTNode> clauses;
     public List<Integer> separators;
 
     public ASTNodeLocPath() {
-        clauses = new Vector<>();
+        clauses = new ArrayList<>();
         separators = new ArrayList<>();
     }
 
     @Override
-    public Vector getChildren() {
+    public List<? extends ASTNode> getChildren() {
         return clauses;
     }
 
@@ -32,22 +34,22 @@ public class ASTNodeLocPath extends ASTNode {
 
     private boolean isHashRef() {
         return !clauses.isEmpty()
-                && clauses.firstElement() instanceof ASTNodePathStep
-                && ((ASTNodePathStep)clauses.firstElement()).nodeTestType == ASTNodePathStep.NODE_TEST_TYPE_HASH_REF;
+                && clauses.get(0) instanceof ASTNodePathStep
+                && ((ASTNodePathStep)clauses.get(0)).nodeTestType == ASTNodePathStep.NODE_TEST_TYPE_HASH_REF;
     }
 
     @Override
-    public XPathExpression build() throws XPathSyntaxException {
+    public XPathExpression build(HashRefResolver hashRefResolver) throws XPathSyntaxException {
         ArrayList<XPathStep> steps = new ArrayList<>();
         XPathExpression filtExpr = null;
         int offset = isAbsolute() ? 1 : 0;
         for (int i = 0; i < clauses.size() + offset; i++) {
             if (offset == 0 || i > 0) {
-                ASTNode currentClause = clauses.elementAt(i - offset);
+                ASTNode currentClause = clauses.get(i - offset);
                 if (currentClause instanceof ASTNodePathStep) {
-                    steps.add(((ASTNodePathStep)currentClause).getStep());
+                    steps.add(((ASTNodePathStep)currentClause).getStep(hashRefResolver));
                 } else {
-                    filtExpr = currentClause.build();
+                    filtExpr = currentClause.build(hashRefResolver);
                 }
             }
 
@@ -62,7 +64,17 @@ public class ASTNodeLocPath extends ASTNode {
         if (filtExpr == null) {
             if (isAbsolute()) {
                 if (isHashRef()) {
-                    return XPathPathExpr.buildHashRefPath(stepArr);
+                    XPathPathExpr hashRefExpr = XPathPathExpr.buildHashRefPath(stepArr);
+                    if (hashRefResolver == null) {
+                        return hashRefExpr;
+                    } else {
+                        TreeReference resolvedRef = hashRefResolver.resolveLetRef(hashRefExpr.getReference());
+                        if (resolvedRef == null) {
+                            return hashRefExpr;
+                        } else {
+                            return XPathPathExpr.fromRef(resolvedRef);
+                        }
+                    }
                 } else {
                     return XPathPathExpr.buildAbsolutePath(stepArr);
                 }

@@ -1243,7 +1243,7 @@ public class XFormParser {
 
         XPathConditional expr = null;
         try {
-            expr = new XPathConditional(xpath);
+            expr = new XPathConditional(xpath, _f.getEvaluationContext());
         } catch (XPathSyntaxException xse) {
             throw new XFormParseException("Output tag has malformed " + attr + " attribute: " + xpath, e);
 
@@ -1387,7 +1387,8 @@ public class XFormParser {
             throw new RuntimeException("No nodeset attribute in element: [" + e.getName() + "]. This is required. (Element Printout:" + XFormSerializer.elementToString(e) + ")");
         }
 
-        XPathPathExpr path = XPathReference.getPathExpr(nodesetStr);
+        XPathPathExpr path = XPathReference.getPathExpr(nodesetStr, _f.getEvaluationContext());
+
         itemset.nodesetExpr = new XPathConditional(path);
         itemset.contextRef = getFormElementRef(q);
         itemset.nodesetRef = FormInstance.unpackReference(getAbsRef(new XPathReference(path.getReference()), itemset.contextRef));
@@ -1417,7 +1418,7 @@ public class XFormParser {
                     throw new XFormParseException("<label> in <itemset> requires 'ref'");
                 }
 
-                XPathPathExpr labelPath = XPathReference.getPathExpr(labelXpath);
+                XPathPathExpr labelPath = XPathReference.getPathExpr(labelXpath, _f.getEvaluationContext());
                 itemset.labelRef = FormInstance.unpackReference(getAbsRef(new XPathReference(labelPath), itemset.nodesetRef));
                 itemset.labelExpr = new XPathConditional(labelPath);
                 itemset.labelIsItext = labelItext;
@@ -1450,7 +1451,7 @@ public class XFormParser {
                     throw new XFormParseException("<value> in <itemset> requires 'ref'");
                 }
 
-                XPathPathExpr valuePath = XPathReference.getPathExpr(valueXpath);
+                XPathPathExpr valuePath = XPathReference.getPathExpr(valueXpath, _f.getEvaluationContext());
                 itemset.valueRef = FormInstance.unpackReference(getAbsRef(new XPathReference(valuePath), itemset.nodesetRef));
                 itemset.valueExpr = new XPathConditional(valuePath);
                 itemset.copyMode = false;
@@ -1951,8 +1952,7 @@ public class XFormParser {
         String xpathConstr = e.getAttributeValue(null, "constraint");
         if (xpathConstr != null) {
             try {
-                // TODO PLM: expand #ref
-                binding.constraint = new XPathConditional(xpathConstr);
+                binding.constraint = new XPathConditional(xpathConstr, _f.getEvaluationContext());
             } catch (XPathSyntaxException xse) {
                 throw buildParseException(nodeset, xse.getMessage(), xpathConstr, "validation");
             }
@@ -1963,7 +1963,7 @@ public class XFormParser {
         if (xpathCalc != null) {
             Recalculate r;
             try {
-                r = buildCalculate(xpathCalc, ref);
+                r = buildCalculate(xpathCalc, ref, _f.getEvaluationContext());
             } catch (XPathSyntaxException xpse) {
                 throw buildParseException(nodeset, xpse.getMessage(), xpathCalc, "calculate");
             }
@@ -2049,8 +2049,7 @@ public class XFormParser {
         }
 
         try {
-            // TODO PLM: expand #ref
-            cond = new XPathConditional(xpath);
+            cond = new XPathConditional(xpath, _f.getEvaluationContext());
         } catch (XPathSyntaxException xse) {
             String errorMessage = "Encountered a problem with " + prettyType + " for node [" + contextRef.getReference().toString() + "] at line: " + xpath + ", " + xse.getMessage();
             reporter.error(errorMessage);
@@ -2060,8 +2059,8 @@ public class XFormParser {
         return new Condition(cond, trueAction, falseAction, FormInstance.unpackReference(contextRef));
     }
 
-    private static Recalculate buildCalculate(String xpath, XPathReference contextRef) throws XPathSyntaxException {
-        XPathConditional calc = new XPathConditional(xpath);
+    private static Recalculate buildCalculate(String xpath, XPathReference contextRef, HashRefResolver hashRefResolver) throws XPathSyntaxException {
+        XPathConditional calc = new XPathConditional(xpath, hashRefResolver);
 
         return new Recalculate(calc, FormInstance.unpackReference(contextRef));
     }

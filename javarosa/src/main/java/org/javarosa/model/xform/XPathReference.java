@@ -1,5 +1,6 @@
 package org.javarosa.model.xform;
 
+import org.javarosa.core.model.condition.HashRefResolver;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -30,11 +31,15 @@ public class XPathReference implements Externalizable {
     }
 
     public static XPathPathExpr getPathExpr(String nodeset) {
+        return getPathExpr(nodeset, null);
+    }
+
+    public static XPathPathExpr getPathExpr(String nodeset, HashRefResolver hashRefResolver) {
         XPathExpression path;
         boolean validNonPathExpr = false;
 
         try {
-            path = XPathParseTool.parseXPath(nodeset);
+            path = XPathParseTool.parseXPath(nodeset, hashRefResolver);
             if (!(path instanceof XPathPathExpr)) {
                 validNonPathExpr = true;
                 throw new XPathSyntaxException();

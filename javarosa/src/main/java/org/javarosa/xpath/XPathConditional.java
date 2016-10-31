@@ -28,9 +28,9 @@ public class XPathConditional implements IConditionExpr {
     public String xpath; //not serialized!
     private boolean hasNow; //indicates whether this XpathConditional contains the now() function (used for timestamping)
 
-    public XPathConditional(String xpath) throws XPathSyntaxException {
+    public XPathConditional(String xpath, HashRefResolver hashRefResolver) throws XPathSyntaxException {
         hasNow = xpath.contains("now()");
-        this.expr = XPathParseTool.parseXPath(xpath);
+        this.expr = XPathParseTool.parseXPath(xpath, hashRefResolver);
         this.xpath = xpath;
     }
 

@@ -1,5 +1,6 @@
 package org.javarosa.xpath.parser.ast;
 
+import org.javarosa.core.model.condition.HashRefResolver;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathQName;
 import org.javarosa.xpath.expr.XPathStep;
@@ -39,11 +40,11 @@ public class ASTNodePathStep extends ASTNode {
     }
 
     @Override
-    public XPathExpression build() {
+    public XPathExpression build(HashRefResolver hashRefResolver) {
         return null;
     }
 
-    public XPathStep getStep() throws XPathSyntaxException {
+    public XPathStep getStep(HashRefResolver hashRefResolver) throws XPathSyntaxException {
         if (nodeTestType == NODE_TEST_TYPE_ABBR_DOT) {
             return XPathStep.ABBR_SELF();
         } else if (nodeTestType == NODE_TEST_TYPE_ABBR_DBL_DOT) {
@@ -86,7 +87,7 @@ public class ASTNodePathStep extends ASTNode {
 
             XPathExpression[] preds = new XPathExpression[predicates.size()];
             for (int i = 0; i < preds.length; i++) {
-                preds[i] = predicates.elementAt(i).build();
+                preds[i] = predicates.elementAt(i).build(hashRefResolver);
             }
             step.predicates = preds;
 

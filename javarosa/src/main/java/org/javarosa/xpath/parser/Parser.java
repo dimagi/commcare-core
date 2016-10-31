@@ -1,5 +1,6 @@
 package org.javarosa.xpath.parser;
 
+import org.javarosa.core.model.condition.HashRefResolver;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathQName;
 import org.javarosa.xpath.parser.ast.ASTNode;
@@ -17,9 +18,9 @@ import java.util.List;
 
 public class Parser {
 
-    public static XPathExpression parse(List<Token> tokens) throws XPathSyntaxException {
+    public static XPathExpression parse(List<Token> tokens, HashRefResolver hashRefResolver) throws XPathSyntaxException {
         ASTNode tree = buildParseTree(tokens);
-        return tree.build();
+        return tree.build(hashRefResolver);
     }
 
     private static ASTNode buildParseTree(List<Token> tokens) throws XPathSyntaxException {
@@ -195,7 +196,7 @@ public class Parser {
                 if (absNode.isStep()) {
                     ASTNodePathStep step = parseStep(absNode);
                     ASTNodeLocPath path = new ASTNodeLocPath();
-                    path.clauses.addElement(step);
+                    path.clauses.add(step);
                     absNode.condenseFull(path);
                 } else {
                     //filter expr
@@ -216,7 +217,7 @@ public class Parser {
                         ASTNodeAbstractExpr x = part.pieces.get(i);
                         if (x.isStep()) {
                             ASTNodePathStep step = parseStep(x);
-                            path.clauses.addElement(step);
+                            path.clauses.add(step);
                         } else {
                             if (i == 0) {
                                 if (x.size() == 0) {
@@ -226,9 +227,9 @@ public class Parser {
                                     //filter expr
                                     ASTNodeFilterExpr filt = parseFilterExp(x);
                                     if (filt != null)
-                                        path.clauses.addElement(filt);
+                                        path.clauses.add(filt);
                                     else
-                                        path.clauses.addElement(x);
+                                        path.clauses.add(x);
                                 }
                             } else {
                                 throw new XPathSyntaxException("Unexpected beginning of path");

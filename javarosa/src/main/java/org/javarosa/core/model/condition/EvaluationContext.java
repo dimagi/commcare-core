@@ -271,7 +271,11 @@ public class EvaluationContext implements HashRefResolver {
     @Override
     public TreeReference resolveLetRef(TreeReference reference) {
         TreeReference base = hashReferences.get(reference.getSubReference(0));
-        return reference.replaceBase(base);
+        if (base == null) {
+            return null;
+        } else {
+            return reference.replaceBase(base);
+        }
     }
 
     public void addLetRef(TreeReference var, TreeReference ref) {

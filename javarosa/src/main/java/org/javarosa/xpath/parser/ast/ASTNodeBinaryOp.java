@@ -1,5 +1,6 @@
 package org.javarosa.xpath.parser.ast;
 
+import org.javarosa.core.model.condition.HashRefResolver;
 import org.javarosa.xpath.expr.XPathArithExpr;
 import org.javarosa.xpath.expr.XPathBinaryOpExpr;
 import org.javarosa.xpath.expr.XPathBoolExpr;
@@ -32,18 +33,18 @@ public class ASTNodeBinaryOp extends ASTNode {
     }
 
     @Override
-    public XPathExpression build() throws XPathSyntaxException {
+    public XPathExpression build(HashRefResolver hashRefResolver) throws XPathSyntaxException {
         XPathExpression x;
 
         if (associativity == ASSOC_LEFT) {
-            x = exprs.get(0).build();
+            x = exprs.get(0).build(hashRefResolver);
             for (int i = 1; i < exprs.size(); i++) {
-                x = getBinOpExpr(ops.get(i - 1), x, exprs.get(i).build());
+                x = getBinOpExpr(ops.get(i - 1), x, exprs.get(i).build(hashRefResolver));
             }
         } else {
-            x = exprs.get(exprs.size() - 1).build();
+            x = exprs.get(exprs.size() - 1).build(hashRefResolver);
             for (int i = exprs.size() - 2; i >= 0; i--) {
-                x = getBinOpExpr(ops.get(i), exprs.get(i).build(), x);
+                x = getBinOpExpr(ops.get(i), exprs.get(i).build(hashRefResolver), x);
             }
         }
 

@@ -4,6 +4,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.test.FormDefTest;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.XPathParseTool;
@@ -93,12 +94,12 @@ public class XPathPathExprTest {
     @Test
     public void hashRefResolution() {
         FormParseInit fpi = new FormParseInit("/xform_tests/hash_ref_example.xml");
+        FormDefTest.initFormEntry(fpi);
         FormDef fd = fpi.getFormDef();
         FormInstance instance = fd.getInstance();
         EvaluationContext ec = fd.getEvaluationContext();
 
         ExprEvalUtils.testEval("/data/places/country[@id = 'one']/name", instance, ec, "Singapore");
-        // TODO PLM: make this pass:
         ExprEvalUtils.testEval("#form/places/country[@id = 'one']/name", instance, ec, "Singapore");
         ExprEvalUtils.testEval("/data/day_and_number", instance, ec, "4saturday");
     }
