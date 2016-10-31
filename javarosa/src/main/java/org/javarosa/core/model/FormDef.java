@@ -1226,6 +1226,7 @@ public class FormDef implements IFormElement, IMetaData,
 
     public void addHashRefrence(TreeReference variable, TreeReference reference) {
         hashReferences.put(variable, reference);
+        exprEvalContext.addLetRef(variable, reference);
     }
 
     public String fillTemplateString(String template, TreeReference contextRef) {

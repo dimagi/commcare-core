@@ -22,7 +22,7 @@ import java.util.Vector;
  * A collection of objects that affect the evaluation of an expression, like
  * function handlers and (not supported) variable bindings.
  */
-public class EvaluationContext {
+public class EvaluationContext implements HashRefResolver {
     /**
      * Whether XPath expressions being evaluated should be traced during
      * execution for debugging.
@@ -268,9 +268,14 @@ public class EvaluationContext {
      *
      * For example, #form/some_data resolves to /data/some_data
      */
-    private TreeReference resolveLetRef(TreeReference reference) {
+    @Override
+    public TreeReference resolveLetRef(TreeReference reference) {
         TreeReference base = hashReferences.get(reference.getSubReference(0));
         return reference.replaceBase(base);
+    }
+
+    public void addLetRef(TreeReference var, TreeReference ref) {
+        hashReferences.put(var, ref);
     }
 
     /**

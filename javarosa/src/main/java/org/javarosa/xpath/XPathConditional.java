@@ -2,6 +2,7 @@ package org.javarosa.xpath;
 
 import org.javarosa.core.log.FatalException;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.HashRefResolver;
 import org.javarosa.core.model.condition.IConditionExpr;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.instance.DataInstance;
@@ -52,8 +53,6 @@ public class XPathConditional implements IConditionExpr {
             } else {
                 throw e;
             }
-
-
         }
     }
 

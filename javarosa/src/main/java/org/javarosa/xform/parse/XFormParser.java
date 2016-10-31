@@ -18,6 +18,7 @@ import org.javarosa.core.model.actions.SetValueAction;
 import org.javarosa.core.model.condition.Condition;
 import org.javarosa.core.model.condition.Constraint;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.HashRefResolver;
 import org.javarosa.core.model.condition.Recalculate;
 import org.javarosa.core.model.condition.Triggerable;
 import org.javarosa.core.model.data.AnswerDataFactory;
@@ -114,7 +115,6 @@ public class XFormParser {
     private boolean modelFound;
     private Hashtable<String, DataBinding> bindingsByID;
     private Vector<DataBinding> bindings;
-    private Vector<LetRefBinding> letRefBindings;
     private Vector<TreeReference> actionTargets;
     private Vector<TreeReference> repeats;
     private Vector<ItemsetBinding> itemsets;
@@ -311,7 +311,6 @@ public class XFormParser {
         modelFound = false;
         bindingsByID = new Hashtable<>();
         bindings = new Vector<>();
-        letRefBindings = new Vector<>();
         actionTargets = new Vector<>();
         repeats = new Vector<>();
         itemsets = new Vector<>();
@@ -729,6 +728,7 @@ public class XFormParser {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
         }
 
+        boolean isPastLetRefs = false;
         for (int i = 0; i < e.getChildCount(); i++) {
             int type = e.getType(i);
             Element child = (type == Node.ELEMENT ? e.getElement(i) : null);
@@ -741,9 +741,15 @@ public class XFormParser {
                 //binds and data types and such
                 saveInstanceNode(child);
             } else if (BIND_ATTR.equals(childName)) { //<instance> must come before <bind>s
+                isPastLetRefs = true;
                 parseBind(child);
             } else if (LET_REF_ATTR.equals(childName)) {
-                parseLetRef(child);
+                if (isPastLetRefs) {
+                    throw new XFormParseException("letref elements must come before binds");
+                } else {
+                    LetRefBinding letRefBinding = parseLetRef(child);
+                    _f.addHashRefrence(letRefBinding.var, letRefBinding.ref);
+                }
             } else if ("submission".equals(childName)) {
                 delayedParseElements.addElement(child);
             } else if (childName != null && actionHandlers.containsKey(childName)) {
@@ -1594,7 +1600,11 @@ public class XFormParser {
     }
 
     private XPathReference getAbsRef(XPathReference ref, IFormElement parent) {
-        return getAbsRef(ref, getFormElementRef(parent));
+        return getAbsRef(ref, getFormElementRef(parent), _f.getEvaluationContext());
+    }
+
+    public XPathReference getAbsRef(XPathReference ref, TreeReference parentRef) {
+        return getAbsRef(ref, parentRef, _f.getEvaluationContext());
     }
 
     /**
@@ -1604,7 +1614,9 @@ public class XFormParser {
      * @param ref       potentially null reference
      * @param parentRef must be an absolute path
      */
-    public static XPathReference getAbsRef(XPathReference ref, TreeReference parentRef) {
+    private static XPathReference getAbsRef(XPathReference ref,
+                                            TreeReference parentRef,
+                                            HashRefResolver hashRefResolver) {
         TreeReference tref;
 
         if (!parentRef.isAbsolute()) {
@@ -1615,6 +1627,10 @@ public class XFormParser {
             tref = ref.getReference();
         } else {
             tref = TreeReference.selfRef(); //only happens for <group>s with no binding
+        }
+
+        if (tref.isHashRef()) {
+            tref = hashRefResolver.resolveLetRef(tref);
         }
 
         tref = tref.parent(parentRef);
@@ -1864,7 +1880,6 @@ public class XFormParser {
 
         DataBinding binding = new DataBinding();
 
-
         binding.setId(e.getAttributeValue("", ID_ATTR));
 
         String nodeset = e.getAttributeValue(null, NODESET_ATTR);
@@ -1936,6 +1951,7 @@ public class XFormParser {
         String xpathConstr = e.getAttributeValue(null, "constraint");
         if (xpathConstr != null) {
             try {
+                // TODO PLM: expand #ref
                 binding.constraint = new XPathConditional(xpathConstr);
             } catch (XPathSyntaxException xse) {
                 throw buildParseException(nodeset, xse.getMessage(), xpathConstr, "validation");
@@ -1978,7 +1994,7 @@ public class XFormParser {
         addBinding(binding);
     }
 
-    private void parseLetRef(Element e) {
+    private LetRefBinding parseLetRef(Element e) {
         Vector<String> usedAtts = new Vector<>();
 
         LetRefBinding letRefBinding = processLetRefAttributes(usedAtts, e);
@@ -1988,7 +2004,7 @@ public class XFormParser {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
         }
 
-        letRefBindings.add(letRefBinding);
+        return letRefBinding;
     }
 
     private LetRefBinding processLetRefAttributes(Vector<String> usedAtts, Element e) {
@@ -2006,7 +2022,7 @@ public class XFormParser {
         }
 
         XPathPathExpr ref = XPathReference.getPathExpr(refString);
-        XPathPathExpr var = XPathReference.getPathExpr(refString);
+        XPathPathExpr var = XPathReference.getPathExpr("#" + varString);
         return new LetRefBinding(ref.getReference(), var.getReference());
     }
 
@@ -2033,6 +2049,7 @@ public class XFormParser {
         }
 
         try {
+            // TODO PLM: expand #ref
             cond = new XPathConditional(xpath);
         } catch (XPathSyntaxException xse) {
             String errorMessage = "Encountered a problem with " + prettyType + " for node [" + contextRef.getReference().toString() + "] at line: " + xpath + ", " + xse.getMessage();
@@ -2109,7 +2126,6 @@ public class XFormParser {
             verifyBindings(instanceModel);
             verifyLetRefBindings(instanceModel);
             verifyActions(instanceModel);
-            applyLetRefs();
         }
         applyInstanceProperties(instanceModel);
 
@@ -2724,12 +2740,6 @@ public class XFormParser {
         }
 
         applyControlProperties(instance);
-    }
-
-    private void applyLetRefs() {
-        for (LetRefBinding letRefBinding : letRefBindings) {
-            _f.addHashRefrence(letRefBinding.var, letRefBinding.ref);
-        }
     }
 
     private static void attachBindGeneral(DataBinding bind) {
