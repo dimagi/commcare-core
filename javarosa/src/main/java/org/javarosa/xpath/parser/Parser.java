@@ -13,19 +13,20 @@ import org.javarosa.xpath.parser.ast.ASTNodePredicate;
 import org.javarosa.xpath.parser.ast.ASTNodeUnaryOp;
 
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
 
 public class Parser {
 
-    public static XPathExpression parse(Vector tokens) throws XPathSyntaxException {
+    public static XPathExpression parse(List<Token> tokens) throws XPathSyntaxException {
         ASTNode tree = buildParseTree(tokens);
         return tree.build();
     }
 
-    private static ASTNode buildParseTree(Vector tokens) throws XPathSyntaxException {
+    private static ASTNode buildParseTree(List<Token> tokens) throws XPathSyntaxException {
         ASTNodeAbstractExpr root = new ASTNodeAbstractExpr();
         for (int i = 0; i < tokens.size(); i++) {
-            root.content.addElement(tokens.elementAt(i));
+            root.content.addElement(tokens.get(i));
         }
 
         parseFuncCalls(root);
