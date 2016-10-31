@@ -14,6 +14,7 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -49,6 +50,7 @@ public class EvaluationContext {
 
     private final Hashtable<String, IFunctionHandler> functionHandlers;
     private final Hashtable<String, Object> variables;
+    private final HashMap<TreeReference, TreeReference> hashReferences;
 
     // Do we want to evaluate constraints?
     public boolean isConstraint;
@@ -77,19 +79,20 @@ public class EvaluationContext {
     }
 
     public EvaluationContext(EvaluationContext base, TreeReference context) {
-        this(base, base.instance, context, base.formInstances);
+        this(base, base.instance, context, base.formInstances, base.hashReferences);
     }
 
     public EvaluationContext(EvaluationContext base,
                              Hashtable<String, DataInstance> formInstances,
                              TreeReference context) {
-        this(base, base.instance, context, formInstances);
+        this(base, base.instance, context, formInstances, base.hashReferences);
     }
 
     public EvaluationContext(FormInstance instance,
                              Hashtable<String, DataInstance> formInstances,
+                             HashMap<TreeReference, TreeReference> hashReferences,
                              EvaluationContext base) {
-        this(base, instance, base.contextNode, formInstances);
+        this(base, instance, base.contextNode, formInstances, hashReferences);
     }
 
     public EvaluationContext(DataInstance instance,
@@ -99,6 +102,7 @@ public class EvaluationContext {
         this.contextNode = TreeReference.rootRef();
         functionHandlers = new Hashtable<>();
         variables = new Hashtable<>();
+        hashReferences = new HashMap<>();
     }
 
     /**
@@ -106,11 +110,13 @@ public class EvaluationContext {
      */
     private EvaluationContext(EvaluationContext base, DataInstance instance,
                               TreeReference contextNode,
-                              Hashtable<String, DataInstance> formInstances) {
+                              Hashtable<String, DataInstance> formInstances,
+                              HashMap<TreeReference, TreeReference> hashReferences) {
         //TODO: These should be deep, not shallow
         this.functionHandlers = base.functionHandlers;
         this.formInstances = formInstances;
         this.variables = new Hashtable<>();
+        this.hashReferences = (HashMap<TreeReference, TreeReference>)hashReferences.clone();
 
         //TODO: this is actually potentially much slower than
         //our old strategy (but is needed for this object to
@@ -246,10 +252,25 @@ public class EvaluationContext {
             return null;
         }
 
+        if (ref.isHashRef()) {
+            ref = resolveLetRef(ref);
+        }
+
         DataInstance baseInstance = retrieveInstance(ref);
         Vector<TreeReference> v = new Vector<>();
         expandReferenceAccumulator(ref, baseInstance, baseInstance.getRoot().getRef(), v, includeTemplates);
         return v;
+    }
+
+    /**
+     * Turns reference that begins with a hash reference, bound via a let-ref,
+     * into a fully expanded reference.
+     *
+     * For example, #form/some_data resolves to /data/some_data
+     */
+    private TreeReference resolveLetRef(TreeReference reference) {
+        TreeReference base = hashReferences.get(reference.getSubReference(0));
+        return reference.replaceBase(base);
     }
 
     /**

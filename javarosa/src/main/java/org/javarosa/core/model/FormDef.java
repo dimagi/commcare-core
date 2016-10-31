@@ -127,6 +127,7 @@ public class FormDef implements IFormElement, IMetaData,
     private Hashtable<String, DataInstance> formInstances;
 
     private FormInstance mainInstance = null;
+    private final HashMap<TreeReference, TreeReference> hashReferences;
 
     private boolean mDebugModeEnabled = false;
 
@@ -149,6 +150,7 @@ public class FormDef implements IFormElement, IMetaData,
         setChildren(null);
         triggerables = new ArrayList<>();
         triggerIndex = new HashMap<>();
+        hashReferences = new HashMap<>();
         //This is kind of a wreck...
         setEvaluationContext(new EvaluationContext(null));
         outputFragments = new Vector();
@@ -1096,7 +1098,7 @@ public class FormDef implements IFormElement, IMetaData,
     }
 
     public void setEvaluationContext(EvaluationContext ec) {
-        ec = new EvaluationContext(mainInstance, formInstances, ec);
+        ec = new EvaluationContext(mainInstance, formInstances, hashReferences, ec);
         initEvalContext(ec);
         this.exprEvalContext = ec;
     }
@@ -1220,6 +1222,10 @@ public class FormDef implements IFormElement, IMetaData,
                 }
             });
         }
+    }
+
+    public void addHashRefrence(TreeReference variable, TreeReference reference) {
+        hashReferences.put(variable, reference);
     }
 
     public String fillTemplateString(String template, TreeReference contextRef) {

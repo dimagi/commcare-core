@@ -89,6 +89,9 @@ public class XPathConditional implements IConditionExpr {
     @Override
     public Vector<TreeReference> getExprsTriggers(TreeReference originalContextRef) {
         Vector<TreeReference> triggers = new Vector<>();
+        if (originalContextRef.isHashRef()) {
+            throw new RuntimeException("You must fully expand the # reference: " + originalContextRef);
+        }
         getExprsTriggersAccumulator(expr, triggers, null, originalContextRef);
         return triggers;
     }

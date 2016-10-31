@@ -730,7 +730,6 @@ public class XFormParser {
         }
 
         for (int i = 0; i < e.getChildCount(); i++) {
-
             int type = e.getType(i);
             Element child = (type == Node.ELEMENT ? e.getElement(i) : null);
             String childName = (child != null ? child.getName() : null);
@@ -1620,7 +1619,7 @@ public class XFormParser {
 
         tref = tref.parent(parentRef);
         if (tref == null) {
-            throw new XFormParseException("Binding path [" + tref + "] not allowed with parent binding of [" + parentRef + "]");
+            throw new XFormParseException("Binding path [" + ref + "] not allowed with parent binding of [" + parentRef + "]");
         }
 
         return new XPathReference(tref);
@@ -1639,7 +1638,7 @@ public class XFormParser {
 
             if (group != null) {
                 if (!group.getRepeat() && group.getChildren().size() == 1) {
-                    IFormElement grandchild = (IFormElement)group.getChildren().elementAt(0);
+                    IFormElement grandchild = group.getChildren().elementAt(0);
                     GroupDef repeat = null;
                     if (grandchild instanceof GroupDef)
                         repeat = (GroupDef)grandchild;
@@ -1982,14 +1981,33 @@ public class XFormParser {
     private void parseLetRef(Element e) {
         Vector<String> usedAtts = new Vector<>();
 
-        DataBinding binding = processStandardBindAttributes(usedAtts, e);
+        LetRefBinding letRefBinding = processLetRefAttributes(usedAtts, e);
 
         //print unused attribute warning message for parent element
         if (XFormUtils.showUnusedAttributeWarning(e, usedAtts)) {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
         }
 
-        addBinding(binding);
+        letRefBindings.add(letRefBinding);
+    }
+
+    private LetRefBinding processLetRefAttributes(Vector<String> usedAtts, Element e) {
+        usedAtts.addElement("ref");
+        usedAtts.addElement("var");
+
+        String refString = e.getAttributeValue("", "ref");
+        String varString = e.getAttributeValue("", "var");
+
+        if (refString == null) {
+            throw new XFormParseException("XForm Parse: <letref> with missing 'ref' attribute'");
+        }
+        if (varString == null) {
+            throw new XFormParseException("XForm Parse: <letref> with missing 'var' attribute'");
+        }
+
+        XPathPathExpr ref = XPathReference.getPathExpr(refString);
+        XPathPathExpr var = XPathReference.getPathExpr(refString);
+        return new LetRefBinding(ref.getReference(), var.getReference());
     }
 
     private Condition buildCondition(String xpath, String type, XPathReference contextRef) {
@@ -2091,6 +2109,7 @@ public class XFormParser {
             verifyBindings(instanceModel);
             verifyLetRefBindings(instanceModel);
             verifyActions(instanceModel);
+            applyLetRefs();
         }
         applyInstanceProperties(instanceModel);
 
@@ -2704,13 +2723,12 @@ public class XFormParser {
             }
         }
 
-        applyLetRefs(instance);
         applyControlProperties(instance);
     }
 
-    private void applyLetRefs(FormInstance instance) {
-        for (LetRefBinding refBinding : letRefBindings) {
-            // TODO PLM:
+    private void applyLetRefs() {
+        for (LetRefBinding letRefBinding : letRefBindings) {
+            _f.addHashRefrence(letRefBinding.var, letRefBinding.ref);
         }
     }
 

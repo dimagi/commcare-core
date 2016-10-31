@@ -1,15 +1,15 @@
 package org.javarosa.core.model;
 
-import org.javarosa.model.xform.XPathReference;
+import org.javarosa.core.model.instance.TreeReference;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class LetRefBinding {
-    public final XPathReference ref;
-    public final String var;
+    public final TreeReference ref;
+    public final TreeReference var;
 
-    public LetRefBinding(XPathReference ref, String var) {
+    public LetRefBinding(TreeReference ref, TreeReference var) {
         this.ref = ref;
         this.var = var;
     }

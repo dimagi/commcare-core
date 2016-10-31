@@ -100,6 +100,7 @@ public class XPathPathExprTest {
         ExprEvalUtils.testEval("/data/places/country[@id = 'one']/name", instance, ec, "Singapore");
         // TODO PLM: make this pass:
         ExprEvalUtils.testEval("#form/places/country[@id = 'one']/name", instance, ec, "Singapore");
+        ExprEvalUtils.testEval("/data/day_and_number", instance, ec, "4saturday");
     }
 
     @Test

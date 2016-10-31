@@ -17,7 +17,7 @@ import java.util.Vector;
 // optimizations.
 public class TreeReference implements Externalizable {
 
-    int hashCode = -1;
+    private int hashCode = -1;
 
     // Multiplicity demarcates the position of a given element with respect to
     // other elements of the same name.
@@ -83,7 +83,8 @@ public class TreeReference implements Externalizable {
         this(instanceName, refLevel, -1, false);
     }
 
-    private TreeReference(String instanceName, int refLevel, int contextType, boolean hasHashRefAbbreviation) {
+    private TreeReference(String instanceName, int refLevel,
+                          int contextType, boolean hasHashRefAbbreviation) {
         this.instanceName = instanceName;
         this.refLevel = refLevel;
         this.contextType = contextType;
@@ -330,6 +331,15 @@ public class TreeReference implements Externalizable {
         }
     }
 
+    public TreeReference replaceBase(TreeReference base) {
+        TreeReference resultRef = clone();
+        resultRef.contextType = CONTEXT_INHERITED;
+        resultRef.data.remove(0);
+        resultRef.setRefLevel(0);
+
+        return resultRef.anchor(base);
+    }
+
     public TreeReference getParentRef() {
         //TODO: level
         TreeReference ref = this.clone();
@@ -423,9 +433,6 @@ public class TreeReference implements Externalizable {
      * if it is absolute and doesn't match the context reference argument.
      */
     public TreeReference contextualize(TreeReference contextRef) {
-        //TODO: Technically we should possibly be modifying context stuff here
-        //instead of in the xpath stuff;
-
         if (!contextRef.isAbsolute()) {
             return null;
         }

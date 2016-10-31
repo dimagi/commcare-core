@@ -11,7 +11,7 @@
                 <data>
                     <number>1</number>
                     <day>saturday</day>
-                    <day_and_number>
+                    <day_and_number/>
                     <places>
                         <country id='one'>
                             <name>Singapore</name>
@@ -26,8 +26,7 @@
             </instance>
 
             <bind nodeset="#num" calculate="4"/>
-            <bind nodeset="day_and_number" calculate="concat(#num, #day)"/>
-            <bind calculate="position(/data/animals/zoos) + 1" nodeset="/data/animals/id_num"/>
+            <bind nodeset="/data/day_and_number" calculate="concat(#num, #day)"/>
         </model>
     </h:head>
 
