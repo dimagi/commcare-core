@@ -78,7 +78,7 @@ public class ASTNodePathStep extends ASTNode {
 
                 step = new XPathStep(axisVal, type);
                 if (nodeTestFunc.args.size() > 0) {
-                    step.literal = (String)((ASTNodeAbstractExpr)nodeTestFunc.args.elementAt(0)).getToken(0).val;
+                    step.literal = (String)((ASTNodeAbstractExpr)nodeTestFunc.args.get(0)).getToken(0).val;
                 }
             }
 
@@ -117,8 +117,8 @@ public class ASTNodePathStep extends ASTNode {
             if (f.args.size() == 0) {
                 return true;
             } else if (name.equals("processing-instruction") && f.args.size() == 1) {
-                ASTNodeAbstractExpr x = (ASTNodeAbstractExpr)f.args.elementAt(0);
-                return x.content.size() == 1 && x.getTokenType(0) == Token.STR;
+                ASTNodeAbstractExpr x = (ASTNodeAbstractExpr)f.args.get(0);
+                return x.size() == 1 && x.getTokenType(0) == Token.STR;
             } else {
                 return false;
             }

@@ -2,7 +2,8 @@ package org.javarosa.xpath.parser;
 
 import org.javarosa.xpath.expr.XPathQName;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Lexer {
 
@@ -11,8 +12,8 @@ public class Lexer {
     private static final int LEX_CONTEXT_VAL = 1;
     private static final int LEX_CONTEXT_OP = 2;
 
-    public static Vector<Token> lex(String expr) throws XPathSyntaxException {
-        Vector<Token> tokens = new Vector<>();
+    public static List<Token> lex(String expr) throws XPathSyntaxException {
+        ArrayList<Token> tokens = new ArrayList<>();
 
         int i = 0;
         int context = LEX_CONTEXT_VAL;
@@ -145,7 +146,7 @@ public class Lexer {
                     context = LEX_CONTEXT_VAL;
                 }
 
-                tokens.addElement(token);
+                tokens.add(token);
             }
             i += skip;
         }
