@@ -2491,6 +2491,7 @@ public class XFormParser {
 
     private void verifyBindings(FormInstance instance) {
         //check <bind>s (can't bind to '/', bound nodes actually exist)
+        EvaluationContext instanceContext = new EvaluationContext(instance);
         for (int i = 0; i < bindings.size(); i++) {
             DataBinding bind = bindings.elementAt(i);
             TreeReference ref = FormInstance.unpackReference(bind.getReference());
@@ -2500,7 +2501,7 @@ public class XFormParser {
                 bindings.removeElementAt(i);
                 i--;
             } else {
-                Vector<TreeReference> nodes = new EvaluationContext(instance).expandReference(ref, true);
+                Vector<TreeReference> nodes = instanceContext.expandReference(ref, true);
 
                 if (nodes.size() == 0) {
                     if (ref.getInstanceName() != null) {

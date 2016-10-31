@@ -4,7 +4,9 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFilterExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
 
 public class ASTNodeFilterExpr extends ASTNode {
@@ -16,12 +18,13 @@ public class ASTNodeFilterExpr extends ASTNode {
     }
 
     @Override
-    public Vector<ASTNode> getChildren() {
-        Vector<ASTNode> v = new Vector<>();
-        v.addElement(expr);
-        for (Enumeration<ASTNode> e = predicates.elements(); e.hasMoreElements(); )
-            v.addElement(e.nextElement());
-        return v;
+    public List<? extends ASTNode> getChildren() {
+        List<ASTNode> list = new ArrayList<>();
+        list.add(expr);
+        for (Enumeration<ASTNode> e = predicates.elements(); e.hasMoreElements(); ) {
+            list.add(e.nextElement());
+        }
+        return list;
     }
 
     @Override

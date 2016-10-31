@@ -4,20 +4,19 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFilterExpr;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.expr.XPathStep;
-import org.javarosa.xpath.parser.Parser;
 import org.javarosa.xpath.parser.Token;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.ArrayList;
-import java.util.Vector;
+import java.util.List;
 
 public class ASTNodeLocPath extends ASTNode {
     public final Vector<ASTNode> clauses;
-    public Vector<Integer> separators;
+    public List<Integer> separators;
 
     public ASTNodeLocPath() {
         clauses = new Vector<>();
-        separators = new Vector<>();
+        separators = new ArrayList<>();
     }
 
     @Override
@@ -53,7 +52,7 @@ public class ASTNodeLocPath extends ASTNode {
             }
 
             if (i < separators.size()) {
-                if (Parser.vectInt(separators, i) == Token.DBL_SLASH) {
+                if (separators.get(i) == Token.DBL_SLASH) {
                     steps.add(XPathStep.ABBR_DESCENDANTS());
                 }
             }
