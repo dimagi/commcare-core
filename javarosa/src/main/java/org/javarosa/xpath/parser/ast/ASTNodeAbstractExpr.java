@@ -203,4 +203,28 @@ public class ASTNodeAbstractExpr extends ASTNode {
     public int size() {
         return content.size();
     }
+
+    /**
+     * true if 'node' is potentially a step, as opposed to a filter expr
+     */
+    public boolean isStep() {
+        if (content.size() > 0) {
+            int type = getTokenType(0);
+            if (type == Token.QNAME ||
+                    type == Token.WILDCARD ||
+                    type == Token.NSWILDCARD ||
+                    type == Token.AT ||
+                    type == Token.DOT ||
+                    type == Token.DBL_DOT) {
+                return true;
+            } else if (content.elementAt(0) instanceof ASTNodeFunctionCall) {
+                String name = ((ASTNodeFunctionCall)content.elementAt(0)).name.toString();
+                return (name.equals("node") || name.equals("text") || name.equals("comment") || name.equals("processing-instruction"));
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
 }

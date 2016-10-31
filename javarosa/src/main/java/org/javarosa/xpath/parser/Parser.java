@@ -194,7 +194,7 @@ public class Parser {
 
             if (part.separators.size() == 0) {
                 //filter expression or standalone step
-                if (isStep(absNode)) {
+                if (absNode.isStep()) {
                     ASTNodePathStep step = parseStep(absNode);
                     ASTNodeLocPath path = new ASTNodeLocPath();
                     path.clauses.addElement(step);
@@ -216,7 +216,7 @@ public class Parser {
                 } else {
                     for (int i = 0; i < part.pieces.size(); i++) {
                         ASTNodeAbstractExpr x = part.pieces.elementAt(i);
-                        if (isStep(x)) {
+                        if (x.isStep()) {
                             ASTNodePathStep step = parseStep(x);
                             path.clauses.addElement(step);
                         } else {
@@ -244,28 +244,6 @@ public class Parser {
 
         for (Enumeration e = node.getChildren().elements(); e.hasMoreElements(); ) {
             parsePathExpr((ASTNode)e.nextElement());
-        }
-    }
-
-    //true if 'node' is potentially a step, as opposed to a filter expr
-    private static boolean isStep(ASTNodeAbstractExpr node) {
-        if (node.size() > 0) {
-            int type = node.getTokenType(0);
-            if (type == Token.QNAME ||
-                    type == Token.WILDCARD ||
-                    type == Token.NSWILDCARD ||
-                    type == Token.AT ||
-                    type == Token.DOT ||
-                    type == Token.DBL_DOT) {
-                return true;
-            } else if (node.content.elementAt(0) instanceof ASTNodeFunctionCall) {
-                String name = ((ASTNodeFunctionCall)node.content.elementAt(0)).name.toString();
-                return (name.equals("node") || name.equals("text") || name.equals("comment") || name.equals("processing-instruction"));
-            } else {
-                return false;
-            }
-        } else {
-            return false;
         }
     }
 
