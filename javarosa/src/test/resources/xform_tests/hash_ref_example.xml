@@ -4,12 +4,16 @@
         <h:title>Constraints for simple and select answers</h:title>
         <model>
             <letref ref="/data" var="form"/>
-            <letref ref="/data/number" var="num"/>
+            <letref ref="/data/entry" var="entry"/>
             <letref ref="/data/day" var="day"/>
+            <letref ref="/data/number" var="num"/>
 
             <instance>
                 <data>
-                    <number>1</number>
+                    <entry>a</entry>
+                    <first_num/>
+                    <number id="a">1</number>
+                    <number id="b">2</number>
                     <day>saturday</day>
                     <day_and_number/>
                     <places>
@@ -25,8 +29,9 @@
                 </data>
             </instance>
 
-            <bind nodeset="#num" calculate="4"/>
-            <bind nodeset="/data/day_and_number" calculate="concat(#num, #day)"/>
+            <bind nodeset="#entry" calculate="'b'"/>
+            <bind nodeset="/data/first_num" calculate="#num[1]"/>
+            <bind nodeset="/data/day_and_number" calculate="concat(#num[1], #day)"/>
         </model>
     </h:head>
 

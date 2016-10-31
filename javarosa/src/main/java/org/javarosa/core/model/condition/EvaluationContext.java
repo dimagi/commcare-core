@@ -11,6 +11,8 @@ import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.expr.XPathPathExpr;
+import org.javarosa.xpath.expr.XPathStep;
 
 import java.util.Date;
 import java.util.Enumeration;
@@ -270,11 +272,30 @@ public class EvaluationContext implements HashRefResolver {
      */
     @Override
     public TreeReference resolveLetRef(TreeReference reference) {
-        TreeReference base = hashReferences.get(reference.getSubReference(0));
+        TreeReference varReferenceWithPreds = reference.getSubReference(0);
+        Vector<XPathExpression> varPreds = varReferenceWithPreds.getPredicate(0);
+        TreeReference base = hashReferences.get(varReferenceWithPreds.removePredicates());
         if (base == null) {
             return null;
         } else {
-            return reference.replaceBase(base);
+            TreeReference resolvedRef = reference.replaceBase(base);
+            resolvedRef.addPredicate(resolvedRef.size() - 1, varPreds);
+            return resolvedRef;
+        }
+    }
+
+    /**
+     */
+    @Override
+    public XPathStep[] resolveLetRefPathSteps(XPathStep varStep) {
+        TreeReference varRef = XPathPathExpr.buildHashRefPath(new XPathStep[] {varStep}).getReference();
+        TreeReference base = hashReferences.get(varRef.removePredicates());
+        if (base == null) {
+            return null;
+        } else {
+            XPathStep[] resolvedSteps = XPathPathExpr.fromRef(base).steps;
+            resolvedSteps[resolvedSteps.length - 1].predicates = varStep.predicates;
+            return resolvedSteps;
         }
     }
 

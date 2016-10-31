@@ -25,6 +25,11 @@ public class XPathReference implements Externalizable {
         // for externalization
     }
 
+    public XPathReference(String nodeset, HashRefResolver hashRefResolver) {
+        ref = getPathExpr(nodeset, hashRefResolver).getReference();
+        this.nodeset = nodeset;
+    }
+
     public XPathReference(String nodeset) {
         ref = getPathExpr(nodeset).getReference();
         this.nodeset = nodeset;

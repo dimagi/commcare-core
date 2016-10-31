@@ -101,7 +101,7 @@ public class XPathPathExprTest {
 
         ExprEvalUtils.testEval("/data/places/country[@id = 'one']/name", instance, ec, "Singapore");
         ExprEvalUtils.testEval("#form/places/country[@id = 'one']/name", instance, ec, "Singapore");
-        ExprEvalUtils.testEval("/data/day_and_number", instance, ec, "4saturday");
+        ExprEvalUtils.testEval("/data/day_and_number", instance, ec, "1saturday");
     }
 
     @Test

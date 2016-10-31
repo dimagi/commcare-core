@@ -10,6 +10,7 @@ import org.javarosa.xpath.parser.Token;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ASTNodeLocPath extends ASTNode {
@@ -64,15 +65,16 @@ public class ASTNodeLocPath extends ASTNode {
         if (filtExpr == null) {
             if (isAbsolute()) {
                 if (isHashRef()) {
-                    XPathPathExpr hashRefExpr = XPathPathExpr.buildHashRefPath(stepArr);
                     if (hashRefResolver == null) {
-                        return hashRefExpr;
+                        return XPathPathExpr.buildHashRefPath(stepArr);
                     } else {
-                        TreeReference resolvedRef = hashRefResolver.resolveLetRef(hashRefExpr.getReference());
-                        if (resolvedRef == null) {
-                            return hashRefExpr;
+                        XPathStep[] resolvedHashSteps =  hashRefResolver.resolveLetRefPathSteps(stepArr[0]);
+                        if (resolvedHashSteps == null) {
+                            return XPathPathExpr.buildHashRefPath(stepArr);
                         } else {
-                            return XPathPathExpr.fromRef(resolvedRef);
+                            XPathStep[] result = Arrays.copyOf(resolvedHashSteps, resolvedHashSteps.length + stepArr.length - 1);
+                            System.arraycopy(stepArr, 1, result, resolvedHashSteps.length, stepArr.length - 1);
+                            return XPathPathExpr.buildAbsolutePath(result);
                         }
                     }
                 } else {
