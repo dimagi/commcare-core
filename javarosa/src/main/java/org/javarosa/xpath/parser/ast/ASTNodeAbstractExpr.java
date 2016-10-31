@@ -25,7 +25,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
     @Override
     public List<? extends ASTNode> getChildren() {
         List<ASTNode> children = new ArrayList<>();
-        for (int i = 0; i < content.size(); i++) {
+        for (int i = 0; i < size(); i++) {
             if (getType(i) == CHILD) {
                 children.add((ASTNode)content.get(i));
             }
@@ -35,7 +35,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
 
     @Override
     public XPathExpression build() throws XPathSyntaxException {
-        if (content.size() == 1) {
+        if (size() == 1) {
             if (getType(0) == CHILD) {
                 return ((ASTNode)content.get(0)).build();
             } else {
@@ -56,7 +56,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
     }
 
     private boolean isTerminal() {
-        if (content.size() == 1) {
+        if (size() == 1) {
             int type = getTokenType(0);
             return (type == Token.NUM || type == Token.STR || type == Token.VAR);
         } else {
@@ -65,7 +65,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
     }
 
     public boolean isNormalized() {
-        if (content.size() == 1 && getType(0) == CHILD) {
+        if (size() == 1 && getType(0) == CHILD) {
             ASTNode child = (ASTNode)content.get(0);
             if (child instanceof ASTNodePathStep || child instanceof ASTNodePredicate) {
                 throw new RuntimeException("shouldn't happen");
@@ -127,7 +127,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
         int i = start + 1;
         boolean found = false;
 
-        while (depth >= 0 && i < content.size()) {
+        while (depth >= 0 && i < size()) {
             int type = getTokenType(i);
 
             if (depth == 0 && type == target) {
@@ -216,7 +216,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
      * true if 'node' is potentially a step, as opposed to a filter expr
      */
     public boolean isStep() {
-        if (content.size() > 0) {
+        if (size() > 0) {
             int type = getTokenType(0);
             if (type == Token.QNAME ||
                     type == Token.WILDCARD ||
