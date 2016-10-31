@@ -272,17 +272,20 @@ public class Parser {
             } else {
                 step.axisType = ASTNodePathStep.AXIS_TYPE_NULL;
             }
-            
+
             int tokenType = node.getTokenType(i);
-            if (node.size() > i && tokenType == Token.WILDCARD) {
+            if (node.size() <= i) {
+                throw new XPathSyntaxException();
+            }
+            if (tokenType == Token.WILDCARD) {
                 step.nodeTestType = ASTNodePathStep.NODE_TEST_TYPE_WILDCARD;
-            } else if (node.size() > i && tokenType == Token.NSWILDCARD) {
+            } else if (tokenType == Token.NSWILDCARD) {
                 step.nodeTestType = ASTNodePathStep.NODE_TEST_TYPE_NSWILDCARD;
                 step.nodeTestNamespace = (String)node.getToken(i).val;
-            } else if (node.size() > i && tokenType == Token.QNAME) {
+            } else if (tokenType == Token.QNAME) {
                 step.nodeTestType = ASTNodePathStep.NODE_TEST_TYPE_QNAME;
                 step.nodeTestQName = (XPathQName)node.getToken(i).val;
-            } else if (node.size() > i && node.content.elementAt(i) instanceof ASTNodeFunctionCall) {
+            } else if (node.content.elementAt(i) instanceof ASTNodeFunctionCall) {
                 if (!ASTNodePathStep.validateNodeTypeTest((ASTNodeFunctionCall)node.content.elementAt(i))) {
                     throw new XPathSyntaxException();
                 }
