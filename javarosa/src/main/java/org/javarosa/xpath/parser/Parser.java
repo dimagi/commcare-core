@@ -12,9 +12,8 @@ import org.javarosa.xpath.parser.ast.ASTNodePathStep;
 import org.javarosa.xpath.parser.ast.ASTNodePredicate;
 import org.javarosa.xpath.parser.ast.ASTNodeUnaryOp;
 
-import java.util.Enumeration;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 public class Parser {
 
@@ -25,9 +24,8 @@ public class Parser {
 
     private static ASTNode buildParseTree(List<Token> tokens) throws XPathSyntaxException {
         ASTNodeAbstractExpr root = new ASTNodeAbstractExpr();
-        for (int i = 0; i < tokens.size(); i++) {
-            root.content.add(tokens.get(i));
-        }
+
+        root.content = new ArrayList<Object>(tokens);
 
         parseFuncCalls(root);
         parseParens(root);
