@@ -27,7 +27,7 @@ public abstract class ASTNode {
         if (o instanceof ASTNodeAbstractExpr) {
             ASTNodeAbstractExpr x = (ASTNodeAbstractExpr)o;
             printStr("abstractexpr {");
-            for (int i = 0; i < x.content.size(); i++) {
+            for (int i = 0; i < x.size(); i++) {
                 if (x.getType(i) == ASTNodeAbstractExpr.CHILD)
                     print(x.content.elementAt(i));
                 else

@@ -178,8 +178,9 @@ public class ASTNodeAbstractExpr extends ASTNode {
         Partition part = new Partition();
         Vector<Integer> sepIdxs = new Vector<>();
         int end = indexOfBalanced(start, rightPop, leftPush, rightPop);
-        if (end == -1)
+        if (end == -1) {
             return null;
+        }
 
         int k = start;
         do {
@@ -197,5 +198,9 @@ public class ASTNodeAbstractExpr extends ASTNode {
         }
 
         return part;
+    }
+
+    public int size() {
+        return content.size();
     }
 }

@@ -118,7 +118,7 @@ public class ASTNodePathStep extends ASTNode {
                 return true;
             } else if (name.equals("processing-instruction") && f.args.size() == 1) {
                 ASTNodeAbstractExpr x = (ASTNodeAbstractExpr)f.args.elementAt(0);
-                return x.content.size() == 1 && x.getTokenType(0) == Token.STR;
+                return x.size() == 1 && x.getTokenType(0) == Token.STR;
             } else {
                 return false;
             }

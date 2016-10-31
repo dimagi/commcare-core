@@ -64,7 +64,7 @@ public class Parser {
             ASTNodeAbstractExpr absNode = (ASTNodeAbstractExpr)node;
 
             int i = 0;
-            while (i < absNode.content.size() - 1) {
+            while (i < absNode.size() - 1) {
                 if (absNode.getTokenType(i + 1) == Token.LPAREN && absNode.getTokenType(i) == Token.QNAME) {
                     condenseFuncCall(absNode, i);
                 }
@@ -87,7 +87,7 @@ public class Parser {
         }
 
         ASTNodeAbstractExpr.Partition args = node.partitionBalanced(Token.COMMA, funcStart + 1, Token.LPAREN, Token.RPAREN);
-        if (args.pieces.size() == 1 && args.pieces.elementAt(0).content.size() == 0) {
+        if (args.pieces.size() == 1 && args.pieces.elementAt(0).size() == 0) {
             //no arguments
         } else {
             //process arguments
@@ -126,7 +126,7 @@ public class Parser {
             ASTNodeAbstractExpr absNode = (ASTNodeAbstractExpr)node;
 
             int i = 0;
-            while (i < absNode.content.size()) {
+            while (i < absNode.size()) {
                 int type = absNode.getTokenType(i);
                 if (type == rToken) {
                     throw new XPathSyntaxException("Unbalanced brackets or parentheses!"); //unbalanced
@@ -150,7 +150,7 @@ public class Parser {
     private static void parseBinaryOp(ASTNode node, int[] ops, int associativity) {
         if (node instanceof ASTNodeAbstractExpr) {
             ASTNodeAbstractExpr absNode = (ASTNodeAbstractExpr)node;
-            ASTNodeAbstractExpr.Partition part = absNode.partition(ops, 0, absNode.content.size());
+            ASTNodeAbstractExpr.Partition part = absNode.partition(ops, 0, absNode.size());
 
             if (part.separators.size() == 0) {
                 //no occurrences of op
@@ -160,7 +160,7 @@ public class Parser {
                 binOp.exprs = part.pieces;
                 binOp.ops = part.separators;
 
-                absNode.condense(binOp, 0, absNode.content.size());
+                absNode.condense(binOp, 0, absNode.size());
             }
         }
 
@@ -173,11 +173,11 @@ public class Parser {
         if (node instanceof ASTNodeAbstractExpr) {
             ASTNodeAbstractExpr absNode = (ASTNodeAbstractExpr)node;
 
-            if (absNode.content.size() > 0 && absNode.getTokenType(0) == op) {
+            if (absNode.size() > 0 && absNode.getTokenType(0) == op) {
                 ASTNodeUnaryOp unOp = new ASTNodeUnaryOp();
                 unOp.op = op;
-                unOp.expr = (absNode.content.size() > 1 ? absNode.extract(1, absNode.content.size()) : new ASTNodeAbstractExpr());
-                absNode.condense(unOp, 0, absNode.content.size());
+                unOp.expr = (absNode.size() > 1 ? absNode.extract(1, absNode.size()) : new ASTNodeAbstractExpr());
+                absNode.condense(unOp, 0, absNode.size());
             }
         }
 
@@ -190,7 +190,7 @@ public class Parser {
         if (node instanceof ASTNodeAbstractExpr) {
             ASTNodeAbstractExpr absNode = (ASTNodeAbstractExpr)node;
             int[] pathOps = {Token.SLASH, Token.DBL_SLASH};
-            ASTNodeAbstractExpr.Partition part = absNode.partition(pathOps, 0, absNode.content.size());
+            ASTNodeAbstractExpr.Partition part = absNode.partition(pathOps, 0, absNode.size());
 
             if (part.separators.size() == 0) {
                 //filter expression or standalone step
@@ -198,12 +198,12 @@ public class Parser {
                     ASTNodePathStep step = parseStep(absNode);
                     ASTNodeLocPath path = new ASTNodeLocPath();
                     path.clauses.addElement(step);
-                    absNode.condense(path, 0, absNode.content.size());
+                    absNode.condense(path, 0, absNode.size());
                 } else {
                     //filter expr
                     ASTNodeFilterExpr filt = parseFilterExp(absNode);
                     if (filt != null) {
-                        absNode.condense(filt, 0, absNode.content.size());
+                        absNode.condense(filt, 0, absNode.size());
                     }
                 }
             } else {
@@ -211,7 +211,7 @@ public class Parser {
                 ASTNodeLocPath path = new ASTNodeLocPath();
                 path.separators = part.separators;
 
-                if (part.separators.size() == 1 && absNode.content.size() == 1 && vectInt(part.separators, 0) == Token.SLASH) {
+                if (part.separators.size() == 1 && absNode.size() == 1 && vectInt(part.separators, 0) == Token.SLASH) {
                     //empty absolute path
                 } else {
                     for (int i = 0; i < part.pieces.size(); i++) {
@@ -221,7 +221,7 @@ public class Parser {
                             path.clauses.addElement(step);
                         } else {
                             if (i == 0) {
-                                if (x.content.size() == 0) {
+                                if (x.size() == 0) {
                                     //absolute path expr; first clause is null
                                     /* do nothing */
                                 } else {
@@ -238,7 +238,7 @@ public class Parser {
                         }
                     }
                 }
-                absNode.condense(path, 0, absNode.content.size());
+                absNode.condense(path, 0, absNode.size());
             }
         }
 
@@ -249,7 +249,7 @@ public class Parser {
 
     //true if 'node' is potentially a step, as opposed to a filter expr
     private static boolean isStep(ASTNodeAbstractExpr node) {
-        if (node.content.size() > 0) {
+        if (node.size() > 0) {
             int type = node.getTokenType(0);
             if (type == Token.QNAME ||
                     type == Token.WILDCARD ||
@@ -272,18 +272,18 @@ public class Parser {
     //please kill me
     private static ASTNodePathStep parseStep(ASTNodeAbstractExpr node) throws XPathSyntaxException {
         ASTNodePathStep step = new ASTNodePathStep();
-        if (node.content.size() == 1 && node.getTokenType(0) == Token.DOT) {
+        if (node.size() == 1 && node.getTokenType(0) == Token.DOT) {
             step.axisType = ASTNodePathStep.AXIS_TYPE_NULL;
             step.nodeTestType = ASTNodePathStep.NODE_TEST_TYPE_ABBR_DOT;
-        } else if (node.content.size() == 1 && node.getTokenType(0) == Token.DBL_DOT) {
+        } else if (node.size() == 1 && node.getTokenType(0) == Token.DBL_DOT) {
             step.axisType = ASTNodePathStep.AXIS_TYPE_NULL;
             step.nodeTestType = ASTNodePathStep.NODE_TEST_TYPE_ABBR_DBL_DOT;
         } else {
             int i = 0;
-            if (node.content.size() > 0 && node.getTokenType(0) == Token.AT) {
+            if (node.size() > 0 && node.getTokenType(0) == Token.AT) {
                 step.axisType = ASTNodePathStep.AXIS_TYPE_ABBR;
                 i += 1;
-            } else if (node.content.size() > 1 && node.getTokenType(0) == Token.QNAME && node.getTokenType(1) == Token.DBL_COLON) {
+            } else if (node.size() > 1 && node.getTokenType(0) == Token.QNAME && node.getTokenType(1) == Token.DBL_COLON) {
                 int axisVal = ASTNodePathStep.validateAxisName(node.getToken(0).val.toString());
                 if (axisVal == -1) {
                     throw new XPathSyntaxException("Invalid Axis: " + node.getToken(0).val.toString());
@@ -295,15 +295,15 @@ public class Parser {
                 step.axisType = ASTNodePathStep.AXIS_TYPE_NULL;
             }
 
-            if (node.content.size() > i && node.getTokenType(i) == Token.WILDCARD) {
+            if (node.size() > i && node.getTokenType(i) == Token.WILDCARD) {
                 step.nodeTestType = ASTNodePathStep.NODE_TEST_TYPE_WILDCARD;
-            } else if (node.content.size() > i && node.getTokenType(i) == Token.NSWILDCARD) {
+            } else if (node.size() > i && node.getTokenType(i) == Token.NSWILDCARD) {
                 step.nodeTestType = ASTNodePathStep.NODE_TEST_TYPE_NSWILDCARD;
                 step.nodeTestNamespace = (String)node.getToken(i).val;
-            } else if (node.content.size() > i && node.getTokenType(i) == Token.QNAME) {
+            } else if (node.size() > i && node.getTokenType(i) == Token.QNAME) {
                 step.nodeTestType = ASTNodePathStep.NODE_TEST_TYPE_QNAME;
                 step.nodeTestQName = (XPathQName)node.getToken(i).val;
-            } else if (node.content.size() > i && node.content.elementAt(i) instanceof ASTNodeFunctionCall) {
+            } else if (node.size() > i && node.content.elementAt(i) instanceof ASTNodeFunctionCall) {
                 if (!ASTNodePathStep.validateNodeTypeTest((ASTNodeFunctionCall)node.content.elementAt(i))) {
                     throw new XPathSyntaxException();
                 }
@@ -314,7 +314,7 @@ public class Parser {
             }
             i += 1;
 
-            while (i < node.content.size()) {
+            while (i < node.size()) {
                 if (node.content.elementAt(i) instanceof ASTNodePredicate) {
                     step.predicates.addElement((ASTNodePredicate)node.content.elementAt(i));
                 } else {
@@ -330,7 +330,7 @@ public class Parser {
     private static ASTNodeFilterExpr parseFilterExp(ASTNodeAbstractExpr node) throws XPathSyntaxException {
         ASTNodeFilterExpr filt = new ASTNodeFilterExpr();
         int i;
-        for (i = node.content.size() - 1; i >= 0; i--) {
+        for (i = node.size() - 1; i >= 0; i--) {
             if (node.content.elementAt(i) instanceof ASTNodePredicate) {
                 filt.predicates.insertElementAt((ASTNodePredicate)node.content.elementAt(i), 0);
             } else {
