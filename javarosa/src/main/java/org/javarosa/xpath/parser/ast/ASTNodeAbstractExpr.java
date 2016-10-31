@@ -5,29 +5,29 @@ import org.javarosa.xpath.expr.XPathNumericLiteral;
 import org.javarosa.xpath.expr.XPathQName;
 import org.javarosa.xpath.expr.XPathStringLiteral;
 import org.javarosa.xpath.expr.XPathVariableReference;
-import org.javarosa.xpath.parser.Parser;
 import org.javarosa.xpath.parser.Token;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ASTNodeAbstractExpr extends ASTNode {
     public static final int CHILD = 1;
     public static final int TOKEN = 2;
 
     // mixture of tokens and ASTNodes
-    public final Vector<Object> content;
+    public List<Object> content;
 
     public ASTNodeAbstractExpr() {
-        content = new Vector<>();
+        content = new ArrayList<>();
     }
 
     @Override
-    public Vector getChildren() {
-        Vector<Object> children = new Vector<>();
+    public List<? extends ASTNode> getChildren() {
+        List<ASTNode> children = new ArrayList<>();
         for (int i = 0; i < content.size(); i++) {
             if (getType(i) == CHILD) {
-                children.add(content.get(i));
+                children.add((ASTNode)content.get(i));
             }
         }
         return children;
@@ -98,9 +98,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
     //create new node containing children from [start,end)
     public ASTNodeAbstractExpr extract(int start, int end) {
         ASTNodeAbstractExpr node = new ASTNodeAbstractExpr();
-        for (int i = start; i < end; i++) {
-            node.content.add(content.get(i));
-        }
+        node.content = new ArrayList<>(content.subList(start, end));
         return node;
     }
 
@@ -149,34 +147,34 @@ public class ASTNodeAbstractExpr extends ASTNode {
     }
 
     public static class Partition {
-        public final Vector<ASTNodeAbstractExpr> pieces;
-        public final Vector<Integer> separators;
+        public final List<ASTNodeAbstractExpr> pieces;
+        public final List<Integer> separators;
 
         public Partition() {
-            pieces = new Vector<>();
-            separators = new Vector<>();
+            pieces = new ArrayList<>();
+            separators = new ArrayList<>();
         }
     }
 
     //paritition the range [start,end), separating by any occurrence of separator
     public Partition partition(int[] separators, int start, int end) {
         Partition part = new Partition();
-        Vector<Integer> sepIdxs = new Vector<>();
+        ArrayList<Integer> sepIdxs = new ArrayList<>();
 
         for (int i = start; i < end; i++) {
             for (int separator : separators) {
                 if (getTokenType(i) == separator) {
-                    part.separators.addElement(separator);
-                    sepIdxs.addElement(i);
+                    part.separators.add(separator);
+                    sepIdxs.add(i);
                     break;
                 }
             }
         }
 
         for (int i = 0; i <= sepIdxs.size(); i++) {
-            int pieceStart = (i == 0 ? start : Parser.vectInt(sepIdxs, i - 1) + 1);
-            int pieceEnd = (i == sepIdxs.size() ? end : Parser.vectInt(sepIdxs, i));
-            part.pieces.addElement(extract(pieceStart, pieceEnd));
+            int pieceStart = (i == 0 ? start : sepIdxs.get(i - 1) + 1);
+            int pieceEnd = (i == sepIdxs.size() ? end : sepIdxs.get(i));
+            part.pieces.add(extract(pieceStart, pieceEnd));
         }
 
         return part;
@@ -186,7 +184,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
     //start is the opening token of the current stack level
     public Partition partitionBalanced(int sep, int start, int leftPush, int rightPop) {
         Partition part = new Partition();
-        Vector<Integer> sepIdxs = new Vector<>();
+        List<Integer> sepIdxs = new ArrayList<>();
         int end = indexOfBalanced(start, rightPop, leftPush, rightPop);
         if (end == -1) {
             return null;
@@ -196,15 +194,15 @@ public class ASTNodeAbstractExpr extends ASTNode {
         do {
             k = indexOfBalanced(k, sep, leftPush, rightPop);
             if (k != -1) {
-                sepIdxs.addElement(k);
-                part.separators.addElement(sep);
+                sepIdxs.add(k);
+                part.separators.add(sep);
             }
         } while (k != -1);
 
         for (int i = 0; i <= sepIdxs.size(); i++) {
-            int pieceStart = (i == 0 ? start + 1 : Parser.vectInt(sepIdxs, i - 1) + 1);
-            int pieceEnd = (i == sepIdxs.size() ? end : Parser.vectInt(sepIdxs, i));
-            part.pieces.addElement(extract(pieceStart, pieceEnd));
+            int pieceStart = (i == 0 ? start + 1 : sepIdxs.get(i - 1) + 1);
+            int pieceEnd = (i == sepIdxs.size() ? end : sepIdxs.get(i));
+            part.pieces.add(extract(pieceStart, pieceEnd));
         }
 
         return part;

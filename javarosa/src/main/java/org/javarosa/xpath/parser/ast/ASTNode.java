@@ -1,15 +1,14 @@
 package org.javarosa.xpath.parser.ast;
 
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.parser.Parser;
 import org.javarosa.xpath.parser.Token;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.Enumeration;
-import java.util.Vector;
+import java.util.List;
 
 public abstract class ASTNode {
-    public abstract Vector getChildren();
+    public abstract List<? extends ASTNode> getChildren();
 
     public abstract XPathExpression build() throws XPathSyntaxException;
 
@@ -46,7 +45,7 @@ public abstract class ASTNode {
             } else {
                 printStr("func {" + x.name.toString() + ", args {{");
                 for (int i = 0; i < x.args.size(); i++) {
-                    print(x.args.elementAt(i));
+                    print(x.args.get(i));
                     if (i < x.args.size() - 1)
                         printStr(" } {");
                 }
@@ -56,9 +55,9 @@ public abstract class ASTNode {
             ASTNodeBinaryOp x = (ASTNodeBinaryOp)o;
             printStr("opexpr {");
             for (int i = 0; i < x.exprs.size(); i++) {
-                print(x.exprs.elementAt(i));
+                print(x.exprs.get(i));
                 if (i < x.exprs.size() - 1) {
-                    switch (Parser.vectInt(x.ops, i)) {
+                    switch (x.ops.get(i)) {
                         case Token.AND:
                             printStr("and:");
                             break;
@@ -123,7 +122,7 @@ public abstract class ASTNode {
                 if (offset == 0 || i > 0)
                     print(x.clauses.elementAt(i - offset));
                 if (i < x.separators.size()) {
-                    switch (Parser.vectInt(x.separators, i)) {
+                    switch (x.separators.get(i)) {
                         case Token.DBL_SLASH:
                             printStr("dbl-slash:");
                             break;

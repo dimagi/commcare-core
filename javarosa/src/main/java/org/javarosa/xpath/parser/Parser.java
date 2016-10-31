@@ -72,8 +72,8 @@ public class Parser {
             }
         }
 
-        for (Enumeration e = node.getChildren().elements(); e.hasMoreElements(); ) {
-            parseFuncCalls((ASTNode)e.nextElement());
+        for (ASTNode subNode : node.getChildren()) {
+            parseFuncCalls(subNode);
         }
     }
 
@@ -87,11 +87,11 @@ public class Parser {
         }
 
         ASTNodeAbstractExpr.Partition args = node.partitionBalanced(Token.COMMA, funcStart + 1, Token.LPAREN, Token.RPAREN);
-        if (args.pieces.size() == 1 && args.pieces.elementAt(0).size() == 0) {
+        if (args.pieces.size() == 1 && args.pieces.get(0).size() == 0) {
             //no arguments
         } else {
             //process arguments
-            funcCall.args = (Vector)args.pieces;
+            funcCall.args = args.pieces;
         }
 
         node.condense(funcCall, funcStart, funcEnd + 1);
@@ -142,8 +142,8 @@ public class Parser {
             }
         }
 
-        for (Enumeration e = node.getChildren().elements(); e.hasMoreElements(); ) {
-            parseBalanced((ASTNode)e.nextElement(), snf, lToken, rToken);
+        for (ASTNode subNode : node.getChildren()) {
+            parseBalanced(subNode, snf, lToken, rToken);
         }
     }
 
@@ -164,8 +164,8 @@ public class Parser {
             }
         }
 
-        for (Enumeration e = node.getChildren().elements(); e.hasMoreElements(); ) {
-            parseBinaryOp((ASTNode)e.nextElement(), ops, associativity);
+        for (ASTNode subNode : node.getChildren()) {
+            parseBinaryOp(subNode, ops, associativity);
         }
     }
 
@@ -181,8 +181,8 @@ public class Parser {
             }
         }
 
-        for (Enumeration e = node.getChildren().elements(); e.hasMoreElements(); ) {
-            parseUnaryOp((ASTNode)e.nextElement(), op);
+        for (ASTNode subNode : node.getChildren()) {
+            parseUnaryOp(subNode, op);
         }
     }
 
@@ -211,11 +211,11 @@ public class Parser {
                 ASTNodeLocPath path = new ASTNodeLocPath();
                 path.separators = part.separators;
 
-                if (part.separators.size() == 1 && absNode.size() == 1 && vectInt(part.separators, 0) == Token.SLASH) {
+                if (part.separators.size() == 1 && absNode.size() == 1 && part.separators.get(0) == Token.SLASH) {
                     //empty absolute path
                 } else {
                     for (int i = 0; i < part.pieces.size(); i++) {
-                        ASTNodeAbstractExpr x = part.pieces.elementAt(i);
+                        ASTNodeAbstractExpr x = part.pieces.get(i);
                         if (x.isStep()) {
                             ASTNodePathStep step = parseStep(x);
                             path.clauses.addElement(step);
@@ -242,8 +242,8 @@ public class Parser {
             }
         }
 
-        for (Enumeration e = node.getChildren().elements(); e.hasMoreElements(); ) {
-            parsePathExpr((ASTNode)e.nextElement());
+        for (ASTNode subNode : node.getChildren()) {
+            parsePathExpr(subNode);
         }
     }
 
@@ -336,12 +336,8 @@ public class Parser {
             }
         }
 
-        for (Enumeration e = node.getChildren().elements(); e.hasMoreElements(); ) {
-            verifyBaseExpr((ASTNode)e.nextElement());
+        for (ASTNode subNode : node.getChildren()) {
+            verifyBaseExpr(subNode);
         }
-    }
-
-    public static int vectInt(Vector v, int i) {
-        return (Integer)v.elementAt(i);
     }
 }
