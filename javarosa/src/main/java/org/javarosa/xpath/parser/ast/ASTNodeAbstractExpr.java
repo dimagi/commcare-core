@@ -27,7 +27,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
         Vector<Object> children = new Vector<>();
         for (int i = 0; i < content.size(); i++) {
             if (getType(i) == CHILD) {
-                children.addElement(content.elementAt(i));
+                children.add(content.get(i));
             }
         }
         return children;
@@ -37,7 +37,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
     public XPathExpression build() throws XPathSyntaxException {
         if (content.size() == 1) {
             if (getType(0) == CHILD) {
-                return ((ASTNode)content.elementAt(0)).build();
+                return ((ASTNode)content.get(0)).build();
             } else {
                 switch (getTokenType(0)) {
                     case Token.NUM:
@@ -66,7 +66,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
 
     public boolean isNormalized() {
         if (content.size() == 1 && getType(0) == CHILD) {
-            ASTNode child = (ASTNode)content.elementAt(0);
+            ASTNode child = (ASTNode)content.get(0);
             if (child instanceof ASTNodePathStep || child instanceof ASTNodePredicate) {
                 throw new RuntimeException("shouldn't happen");
             }
@@ -77,7 +77,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
     }
 
     public int getType(int i) {
-        Object o = content.elementAt(i);
+        Object o = content.get(i);
         if (o instanceof Token)
             return TOKEN;
         else if (o instanceof ASTNode)
@@ -87,7 +87,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
     }
 
     public Token getToken(int i) {
-        return (getType(i) == TOKEN ? (Token)content.elementAt(i) : null);
+        return (getType(i) == TOKEN ? (Token)content.get(i) : null);
     }
 
     public int getTokenType(int i) {
@@ -99,7 +99,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
     public ASTNodeAbstractExpr extract(int start, int end) {
         ASTNodeAbstractExpr node = new ASTNodeAbstractExpr();
         for (int i = start; i < end; i++) {
-            node.content.addElement(content.elementAt(i));
+            node.content.add(content.get(i));
         }
         return node;
     }
@@ -109,9 +109,9 @@ public class ASTNodeAbstractExpr extends ASTNode {
      */
     public void condense(ASTNode node, int start, int end) {
         for (int i = end - 1; i >= start; i--) {
-            content.removeElementAt(i);
+            content.remove(i);
         }
-        content.insertElementAt(node, start);
+        content.add(start, node);
     }
 
     /**
@@ -227,8 +227,8 @@ public class ASTNodeAbstractExpr extends ASTNode {
                     type == Token.DOT ||
                     type == Token.DBL_DOT) {
                 return true;
-            } else if (content.elementAt(0) instanceof ASTNodeFunctionCall) {
-                String name = ((ASTNodeFunctionCall)content.elementAt(0)).name.toString();
+            } else if (content.get(0) instanceof ASTNodeFunctionCall) {
+                String name = ((ASTNodeFunctionCall)content.get(0)).name.toString();
                 return (name.equals("node") || name.equals("text") || name.equals("comment") || name.equals("processing-instruction"));
             } else {
                 return false;

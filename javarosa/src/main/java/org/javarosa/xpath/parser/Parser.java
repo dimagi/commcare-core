@@ -26,7 +26,7 @@ public class Parser {
     private static ASTNode buildParseTree(List<Token> tokens) throws XPathSyntaxException {
         ASTNodeAbstractExpr root = new ASTNodeAbstractExpr();
         for (int i = 0; i < tokens.size(); i++) {
-            root.content.addElement(tokens.get(i));
+            root.content.add(tokens.get(i));
         }
 
         parseFuncCalls(root);
@@ -285,20 +285,20 @@ public class Parser {
             } else if (tokenType == Token.QNAME) {
                 step.nodeTestType = ASTNodePathStep.NODE_TEST_TYPE_QNAME;
                 step.nodeTestQName = (XPathQName)node.getToken(i).val;
-            } else if (node.content.elementAt(i) instanceof ASTNodeFunctionCall) {
-                if (!ASTNodePathStep.validateNodeTypeTest((ASTNodeFunctionCall)node.content.elementAt(i))) {
+            } else if (node.content.get(i) instanceof ASTNodeFunctionCall) {
+                if (!ASTNodePathStep.validateNodeTypeTest((ASTNodeFunctionCall)node.content.get(i))) {
                     throw new XPathSyntaxException();
                 }
                 step.nodeTestType = ASTNodePathStep.NODE_TEST_TYPE_FUNC;
-                step.nodeTestFunc = (ASTNodeFunctionCall)node.content.elementAt(i);
+                step.nodeTestFunc = (ASTNodeFunctionCall)node.content.get(i);
             } else {
                 throw new XPathSyntaxException();
             }
             i += 1;
 
             while (i < node.size()) {
-                if (node.content.elementAt(i) instanceof ASTNodePredicate) {
-                    step.predicates.addElement((ASTNodePredicate)node.content.elementAt(i));
+                if (node.content.get(i) instanceof ASTNodePredicate) {
+                    step.predicates.addElement((ASTNodePredicate)node.content.get(i));
                 } else {
                     throw new XPathSyntaxException();
                 }
@@ -313,8 +313,8 @@ public class Parser {
         ASTNodeFilterExpr filt = new ASTNodeFilterExpr();
         int i;
         for (i = node.size() - 1; i >= 0; i--) {
-            if (node.content.elementAt(i) instanceof ASTNodePredicate) {
-                filt.predicates.insertElementAt((ASTNodePredicate)node.content.elementAt(i), 0);
+            if (node.content.get(i) instanceof ASTNodePredicate) {
+                filt.predicates.insertElementAt((ASTNodePredicate)node.content.get(i), 0);
             } else {
                 break;
             }

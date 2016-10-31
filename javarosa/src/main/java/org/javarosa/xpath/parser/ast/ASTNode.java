@@ -29,7 +29,7 @@ public abstract class ASTNode {
             printStr("abstractexpr {");
             for (int i = 0; i < x.size(); i++) {
                 if (x.getType(i) == ASTNodeAbstractExpr.CHILD)
-                    print(x.content.elementAt(i));
+                    print(x.content.get(i));
                 else
                     printStr(x.getToken(i).toString());
             }
