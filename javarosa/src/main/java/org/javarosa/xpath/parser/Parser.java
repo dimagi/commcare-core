@@ -272,13 +272,14 @@ public class Parser {
             } else {
                 step.axisType = ASTNodePathStep.AXIS_TYPE_NULL;
             }
-
-            if (node.size() > i && node.getTokenType(i) == Token.WILDCARD) {
+            
+            int tokenType = node.getTokenType(i);
+            if (node.size() > i && tokenType == Token.WILDCARD) {
                 step.nodeTestType = ASTNodePathStep.NODE_TEST_TYPE_WILDCARD;
-            } else if (node.size() > i && node.getTokenType(i) == Token.NSWILDCARD) {
+            } else if (node.size() > i && tokenType == Token.NSWILDCARD) {
                 step.nodeTestType = ASTNodePathStep.NODE_TEST_TYPE_NSWILDCARD;
                 step.nodeTestNamespace = (String)node.getToken(i).val;
-            } else if (node.size() > i && node.getTokenType(i) == Token.QNAME) {
+            } else if (node.size() > i && tokenType == Token.QNAME) {
                 step.nodeTestType = ASTNodePathStep.NODE_TEST_TYPE_QNAME;
                 step.nodeTestQName = (XPathQName)node.getToken(i).val;
             } else if (node.size() > i && node.content.elementAt(i) instanceof ASTNodeFunctionCall) {
