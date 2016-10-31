@@ -104,12 +104,22 @@ public class ASTNodeAbstractExpr extends ASTNode {
         return node;
     }
 
-    //remove children from [start,end) and replace with node n
+    /**
+     * remove children from [start,end) and replace with node n
+     */
     public void condense(ASTNode node, int start, int end) {
         for (int i = end - 1; i >= start; i--) {
             content.removeElementAt(i);
         }
         content.insertElementAt(node, start);
+    }
+
+    /**
+     * Replace contents (which should be just tokens) with a single node
+     */
+    public void condenseFull(ASTNode node) {
+        content.clear();
+        content.add(node);
     }
 
     //find the next incidence of 'target' at the current stack level

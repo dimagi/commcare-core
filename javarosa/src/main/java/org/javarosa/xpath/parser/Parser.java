@@ -160,7 +160,7 @@ public class Parser {
                 binOp.exprs = part.pieces;
                 binOp.ops = part.separators;
 
-                absNode.condense(binOp, 0, absNode.size());
+                absNode.condenseFull(binOp);
             }
         }
 
@@ -177,7 +177,7 @@ public class Parser {
                 ASTNodeUnaryOp unOp = new ASTNodeUnaryOp();
                 unOp.op = op;
                 unOp.expr = (absNode.size() > 1 ? absNode.extract(1, absNode.size()) : new ASTNodeAbstractExpr());
-                absNode.condense(unOp, 0, absNode.size());
+                absNode.condenseFull(unOp);
             }
         }
 
@@ -198,12 +198,12 @@ public class Parser {
                     ASTNodePathStep step = parseStep(absNode);
                     ASTNodeLocPath path = new ASTNodeLocPath();
                     path.clauses.addElement(step);
-                    absNode.condense(path, 0, absNode.size());
+                    absNode.condenseFull(path);
                 } else {
                     //filter expr
                     ASTNodeFilterExpr filt = parseFilterExp(absNode);
                     if (filt != null) {
-                        absNode.condense(filt, 0, absNode.size());
+                        absNode.condenseFull(filt);
                     }
                 }
             } else {
@@ -238,7 +238,7 @@ public class Parser {
                         }
                     }
                 }
-                absNode.condense(path, 0, absNode.size());
+                absNode.condenseFull(path);
             }
         }
 
