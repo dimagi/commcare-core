@@ -77,4 +77,9 @@ public class CaseDataInstance extends ExternalDataInstance {
             return followsTemplateSpec(refToCheck, nextTemplateNode, currRefDepth + 1);
         }
     }
+
+    @Override
+    public boolean useCaseTemplate() {
+        return true;
+    }
 }

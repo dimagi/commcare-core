@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 public class ExternalDataInstance extends DataInstance {
     private String reference;
+    private boolean useCaseTemplate;
 
     private AbstractTreeElement root;
     private InstanceBase base;
@@ -39,8 +40,10 @@ public class ExternalDataInstance extends DataInstance {
     }
 
     private ExternalDataInstance(String reference, String instanceId,
-                                 TreeElement topLevel) {
+                                 TreeElement topLevel, boolean useCaseTemplate) {
         this(reference, instanceId);
+
+        this.useCaseTemplate = useCaseTemplate;
 
         base = new InstanceBase(instanceId);
         topLevel.setInstanceName(instanceId);
@@ -50,8 +53,13 @@ public class ExternalDataInstance extends DataInstance {
     }
 
     public static ExternalDataInstance buildFromRemote(String instanceId,
-                                                       TreeElement root) {
-        return new ExternalDataInstance(JR_REMOTE_REFERENCE, instanceId, root);
+                                                       TreeElement root,
+                                                       boolean useCaseTemplate) {
+        return new ExternalDataInstance(JR_REMOTE_REFERENCE, instanceId, root, useCaseTemplate);
+    }
+
+    public boolean useCaseTemplate() {
+        return useCaseTemplate;
     }
 
     @Override
@@ -79,6 +87,7 @@ public class ExternalDataInstance extends DataInstance {
         super.readExternal(in, pf);
 
         reference = ExtUtil.readString(in);
+        useCaseTemplate = ExtUtil.readBool(in);
     }
 
     @Override
@@ -86,6 +95,7 @@ public class ExternalDataInstance extends DataInstance {
         super.writeExternal(out);
 
         ExtUtil.writeString(out, reference);
+        ExtUtil.writeBool(out, useCaseTemplate);
     }
 
     @Override

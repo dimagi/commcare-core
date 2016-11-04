@@ -130,8 +130,8 @@ public class BasicSessionNavigationTests {
         session.setCommand("patient-search");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
 
-        TreeElement data = SessionStackTests.buildExampleInstanceRoot("some_patient_id");
-        session.setQueryDatum(ExternalDataInstance.buildFromRemote("patients", data));
+        TreeElement data = SessionStackTests.buildExampleInstanceRoot("patients", "case", "bolivar", "some_patient_id");
+        session.setQueryDatum(ExternalDataInstance.buildFromRemote("patients", data, true));
 
         // case_id
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
@@ -150,8 +150,9 @@ public class BasicSessionNavigationTests {
         session.setCommand("patient-search");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
 
-        TreeElement data = SessionStackTests.buildExampleInstanceRoot("some_patient_id");
-        session.setQueryDatum(ExternalDataInstance.buildFromRemote("patients", data));
+
+        TreeElement data = SessionStackTests.buildExampleInstanceRoot("patients", "case", "bolivar", "some_patient_id");
+        session.setQueryDatum(ExternalDataInstance.buildFromRemote("patients", data, true));
 
         // case_id
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);

@@ -66,6 +66,10 @@ public class RemoteQuerySessionManager {
         return queryDatum.getUrl();
     }
 
+    public boolean useCaseTemplate() {
+        return queryDatum.useCaseTemplate();
+    }
+
     public String getStorageInstanceName() {
         return queryDatum.getDataId();
     }

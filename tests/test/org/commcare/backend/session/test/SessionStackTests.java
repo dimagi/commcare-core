@@ -12,12 +12,15 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.XPathMissingInstanceException;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import org.commcare.session.SessionFrame;
 import org.junit.Test;
 
 import java.util.Vector;
+
+import javax.xml.crypto.dsig.spec.XPathType;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -218,17 +221,53 @@ public class SessionStackTests {
      * results) are correctly popped off with the associated frame step
      */
     @Test
-    public void testInstancesOnStack() throws Exception {
+    public void testNonCaseInstanceOnStack() throws Exception {
+        final boolean useCaseTemplate = false;
         MockApp mockApp = new MockApp("/session-tests-template/");
         SessionWrapper session = mockApp.getSession();
 
-        session.setCommand("patient-search");
+        session.setCommand("color-search");
+        assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
+
+        SessionDatum datum = session.getNeededDatum();
+        String colorId = "123";
+        TreeElement data = buildExampleInstanceRoot("colors", "color", "green", colorId);
+        session.setQueryDatum(ExternalDataInstance.buildFromRemote(datum.getDataId(), data, useCaseTemplate));
+
+        ExprEvalUtils.testEval("instance('colors')/colors/color/green",
+                session.getEvaluationContext(),
+                colorId);
+
+        // rerun the same sequence, but expecting the remote query instance to
+        // adhere to the casedb xml structure
+        session.clearAllState();
+        session.setCommand("color-search");
+        assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
+
+        session.setQueryDatum(ExternalDataInstance.buildFromRemote(datum.getDataId(), data, true));
+
+        ExprEvalUtils.testEval("instance('colors')/colors/color/green",
+                session.getEvaluationContext(),
+                new XPathTypeMismatchException());
+    }
+
+    /**
+     * Test that instances stored on the session stack (from remote query
+     * results), which adheres to the casedb xml template, has are correctly popped off with the associated frame step
+     */
+    @Test
+    public void testCaseInstancesOnStack() throws Exception {
+        final boolean useCaseTemplate = true;
+        MockApp mockApp = new MockApp("/session-tests-template/");
+        SessionWrapper session = mockApp.getSession();
+
+        session.setCommand("patient-case-search");
         assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
 
         SessionDatum datum = session.getNeededDatum();
         String bolivarsId = "123";
-        TreeElement data = buildExampleInstanceRoot(bolivarsId);
-        session.setQueryDatum(ExternalDataInstance.buildFromRemote(datum.getDataId(), data));
+        TreeElement data = buildExampleInstanceRoot("patients", "case", "bolivar", bolivarsId);
+        session.setQueryDatum(ExternalDataInstance.buildFromRemote(datum.getDataId(), data, useCaseTemplate));
 
         ExprEvalUtils.testEval("instance('patients')/patients/case/bolivar",
                 session.getEvaluationContext(),
@@ -246,7 +285,7 @@ public class SessionStackTests {
         session.stepBack();
         assertInstanceMissing(session, "instance('patients')/patients/case/bolivar");
 
-        session.setQueryDatum(ExternalDataInstance.buildFromRemote(datum.getDataId(), data));
+        session.setQueryDatum(ExternalDataInstance.buildFromRemote(datum.getDataId(), data, useCaseTemplate));
         ExprEvalUtils.testEval("instance('patients')/patients/case/bolivar",
                 session.getEvaluationContext(),
                 bolivarsId);
@@ -281,14 +320,15 @@ public class SessionStackTests {
         assertEquals(1, actionToInspect.getStackOperations().size());
     }
 
-    protected static TreeElement buildExampleInstanceRoot(String bolivarsId) {
-        TreeElement root = new TreeElement("patients");
-        TreeElement data = new TreeElement("case");
+    protected static TreeElement buildExampleInstanceRoot(String rootName, String subRoot,
+                                                          String entity, String entityId) {
+        TreeElement root = new TreeElement(rootName);
+        TreeElement data = new TreeElement(subRoot);
         root.addChild(data);
-        TreeElement bolivar = new TreeElement("bolivar");
-        bolivar.setValue(new StringData(bolivarsId));
+        TreeElement bolivar = new TreeElement(entity);
+        bolivar.setValue(new StringData(entityId));
         data.addChild(bolivar);
-        data.addChild(new TreeElement("sanjay"));
+        data.addChild(new TreeElement("random"));
         return root;
     }
 

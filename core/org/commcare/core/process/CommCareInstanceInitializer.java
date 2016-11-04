@@ -56,11 +56,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
     @Override
     public ExternalDataInstance getSpecializedExternalDataInstance(ExternalDataInstance instance) {
-        if (CaseInstanceTreeElement.MODEL_NAME.equals(instance.getInstanceId())
-                || ExternalDataInstance.JR_REMOTE_REFERENCE.equals(instance.getReference())) {
-            // If instance named 'casedb' make lookups respect casedb path template.
-            // Also if instance is pulled from remote server, treat it like a
-            // casedb because it _most likely_ is set of cases
+        if (instance.useCaseTemplate()) {
             return new CaseDataInstance(instance);
         } else {
             return instance;
