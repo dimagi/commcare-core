@@ -1,6 +1,8 @@
 package org.commcare.backend.session.test;
 
 import org.commcare.modern.session.SessionWrapper;
+import org.commcare.modern.util.Pair;
+import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
@@ -18,11 +20,11 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.commcare.session.SessionFrame;
 import org.junit.Test;
 
+import java.io.InputStream;
 import java.util.Vector;
 
-import javax.xml.crypto.dsig.spec.XPathType;
-
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
@@ -54,14 +56,14 @@ public class SessionStackTests {
 
         Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(session.getEvaluationContext());
 
-        if(actions == null || actions.isEmpty()) {
+        if (actions == null || actions.isEmpty()) {
             fail("Detail screen stack action was missing from app!");
         }
         Action dblManagement = actions.firstElement();
 
         session.executeStackOperations(dblManagement.getStackOperations(), session.getEvaluationContext());
 
-        if(session.getNeededData() != null) {
+        if (session.getNeededData() != null) {
             fail("After executing stack frame steps, session should be redirected");
         }
 
@@ -69,9 +71,9 @@ public class SessionStackTests {
 
         EvaluationContext ec = session.getEvaluationContext();
 
-        CaseTestUtils.xpathEvalAndCompare(ec,"count(instance('session')/session/data/calculated_data)", 1);
+        CaseTestUtils.xpathEvalAndCompare(ec, "count(instance('session')/session/data/calculated_data)", 1);
 
-        CaseTestUtils.xpathEvalAndCompare(ec,"instance('session')/session/data/calculated_data", "new");
+        CaseTestUtils.xpathEvalAndCompare(ec, "instance('session')/session/data/calculated_data", "new");
     }
 
     @Test
@@ -217,38 +219,22 @@ public class SessionStackTests {
     }
 
     /**
-     * Test that instances stored on the session stack (from remote query
-     * results) are correctly popped off with the associated frame step
      */
     @Test
     public void testNonCaseInstanceOnStack() throws Exception {
-        final boolean useCaseTemplate = false;
         MockApp mockApp = new MockApp("/session-tests-template/");
         SessionWrapper session = mockApp.getSession();
 
-        session.setCommand("color-search");
+        session.setCommand("patient-noncase-search");
         assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
 
-        SessionDatum datum = session.getNeededDatum();
-        String colorId = "123";
-        TreeElement data = buildExampleInstanceRoot("colors", "color", "green", colorId);
-        session.setQueryDatum(ExternalDataInstance.buildFromRemote(datum.getDataId(), data, useCaseTemplate));
+        ExternalDataInstance dataInstance =
+                buildRemoteExternalDataInstance(this.getClass(), session, "/session-tests-template/patient_query_result.xml");
+        session.setQueryDatum(dataInstance);
 
-        ExprEvalUtils.testEval("instance('colors')/colors/color/green",
+        ExprEvalUtils.testEval("instance('patients')/results/patient[@id = '321']/name",
                 session.getEvaluationContext(),
-                colorId);
-
-        // rerun the same sequence, but expecting the remote query instance to
-        // adhere to the casedb xml structure
-        session.clearAllState();
-        session.setCommand("color-search");
-        assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
-
-        session.setQueryDatum(ExternalDataInstance.buildFromRemote(datum.getDataId(), data, true));
-
-        ExprEvalUtils.testEval("instance('colors')/colors/color/green",
-                session.getEvaluationContext(),
-                new XPathTypeMismatchException());
+                "calbert");
     }
 
     /**
@@ -257,44 +243,47 @@ public class SessionStackTests {
      */
     @Test
     public void testCaseInstancesOnStack() throws Exception {
-        final boolean useCaseTemplate = true;
         MockApp mockApp = new MockApp("/session-tests-template/");
         SessionWrapper session = mockApp.getSession();
 
         session.setCommand("patient-case-search");
         assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
 
-        SessionDatum datum = session.getNeededDatum();
-        String bolivarsId = "123";
-        TreeElement data = buildExampleInstanceRoot("casedb", "case", "bolivar", bolivarsId);
-        session.setQueryDatum(ExternalDataInstance.buildFromRemote(datum.getDataId(), data, useCaseTemplate));
+        ExternalDataInstance dataInstance =
+                buildRemoteExternalDataInstance(this.getClass(), session, "/session-tests-template/patient_query_result.xml");
+        session.setQueryDatum(dataInstance);
 
-        ExprEvalUtils.testEval("instance('patients')/casedb/case/bolivar",
+        ExprEvalUtils.testEval("instance('patients')/results/case[@id = '123']/name",
                 session.getEvaluationContext(),
-                bolivarsId);
+                "bolivar");
+
+        // demonstrate that paths that aren't 'casedb/case/...' fail
+        ExprEvalUtils.testEval("instance('patients')/results/patient[@id = '321']/name",
+                session.getEvaluationContext(),
+                new XPathTypeMismatchException());
 
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         assertEquals("case_id", session.getNeededDatum().getDataId());
         session.setDatum("case_id", "case_id_value");
 
         session.stepBack();
-        ExprEvalUtils.testEval("instance('patients')/casedb/case/bolivar",
+        ExprEvalUtils.testEval("instance('patients')/results/case[@id = '123']/name",
                 session.getEvaluationContext(),
-                bolivarsId);
+                "bolivar");
 
         session.stepBack();
-        assertInstanceMissing(session, "instance('patients')/casedb/case/bolivar");
+        assertInstanceMissing(session, "instance('patients')/results/case/bolivar");
 
-        session.setQueryDatum(ExternalDataInstance.buildFromRemote(datum.getDataId(), data, useCaseTemplate));
-        ExprEvalUtils.testEval("instance('patients')/casedb/case/bolivar",
+        session.setQueryDatum(dataInstance);
+        ExprEvalUtils.testEval("instance('patients')/results/case[@id = '123']/name",
                 session.getEvaluationContext(),
-                bolivarsId);
+                "bolivar");
 
         session.finishExecuteAndPop(session.getEvaluationContext());
-        assertInstanceMissing(session, "instance('patients')/casedb/case/bolivar");
+        assertInstanceMissing(session, "instance('patients')/results/case/bolivar");
         ExprEvalUtils.testEval("instance('session')/session/data/case_id",
                 session.getEvaluationContext(),
-                bolivarsId);
+                "bolivar");
     }
 
     @Test
@@ -320,18 +309,6 @@ public class SessionStackTests {
         assertEquals(1, actionToInspect.getStackOperations().size());
     }
 
-    protected static TreeElement buildExampleInstanceRoot(String rootName, String subRoot,
-                                                          String entity, String entityId) {
-        TreeElement root = new TreeElement(rootName);
-        TreeElement data = new TreeElement(subRoot);
-        root.addChild(data);
-        TreeElement bolivar = new TreeElement(entity);
-        bolivar.setValue(new StringData(entityId));
-        data.addChild(bolivar);
-        data.addChild(new TreeElement("random"));
-        return root;
-    }
-
     private static void assertInstanceMissing(SessionWrapper session, String xpath)
             throws XPathSyntaxException {
         try {
@@ -342,4 +319,16 @@ public class SessionStackTests {
         }
     }
 
+    static ExternalDataInstance buildRemoteExternalDataInstance(Class cls,
+                                                                SessionWrapper sessionWrapper,
+                                                                String resourcePath) {
+        RemoteQuerySessionManager remoteQuerySessionManager =
+                RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper,
+                        sessionWrapper.getEvaluationContext());
+        InputStream is = cls.getResourceAsStream(resourcePath);
+        Pair<ExternalDataInstance, String> instanceOrError =
+                remoteQuerySessionManager.buildExternalDataInstance(is);
+        assertNotNull(instanceOrError.first);
+        return instanceOrError.first;
+    }
 }
