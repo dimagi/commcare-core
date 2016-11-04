@@ -37,8 +37,8 @@ public class SessionDescriptorUtil {
         StringBuilder descriptor = new StringBuilder();
         for (StackFrameStep step : session.getFrame().getSteps()) {
             String type = step.getType();
-            if ((SessionFrame.STATE_QUERY_REQUEST.equals(type) ||
-                    SessionFrame.STATE_SYNC_REQUEST.equals(type))) {
+            if (SessionFrame.STATE_QUERY_REQUEST.equals(type) ||
+                    SessionFrame.STATE_SYNC_REQUEST.equals(type)) {
                 // Skip adding remote server query/sync steps to the descriptor.
                 // They are hard to replay (requires serializing query results)
                 // and shouldn't be needed for incomplete forms

@@ -17,6 +17,7 @@ public class MarkupParser extends ElementParser<Integer> {
         this.builder = builder;
     }
 
+    @Override
     public Integer parse() throws InvalidStructureException, IOException, XmlPullParserException {
 
         parser.nextTag();

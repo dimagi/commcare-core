@@ -79,6 +79,7 @@ public class Selection implements Externalizable {
         this.index = index;
     }
 
+    @Override
     public Selection clone() {
         Selection s = new Selection();
         s.choice = choice;

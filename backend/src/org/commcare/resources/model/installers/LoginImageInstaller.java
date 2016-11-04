@@ -1,6 +1,5 @@
 package org.commcare.resources.model.installers;
 
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.util.CommCareInstance;
 
 /**
@@ -12,7 +11,7 @@ import org.commcare.util.CommCareInstance;
 public class LoginImageInstaller extends BasicInstaller {
 
     @Override
-    public boolean initialize(CommCareInstance instance, boolean isUpgrade) throws ResourceInitializationException {
+    public boolean initialize(CommCareInstance instance, boolean isUpgrade) {
         //Tell the login screen where to get this?
         return true;
     }

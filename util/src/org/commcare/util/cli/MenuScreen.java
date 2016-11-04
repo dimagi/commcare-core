@@ -3,7 +3,10 @@ package org.commcare.util.cli;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
-import org.commcare.suite.model.*;
+import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.MenuDisplayable;
+import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.locale.Localization;
@@ -116,6 +119,7 @@ public class MenuScreen extends Screen {
         choices.copyInto(mChoices);
     }
 
+    @Override
     public String getScreenTitle() {
         return mTitle;
     }

@@ -13,10 +13,4 @@ public interface CommCareOTARestoreListener {
      * Enables the progress bar
      */
     void setTotalForms(int totalItemCount);
-
-    /**
-     * Called when the restore task wants to refresh the main view. Perhaps should be removed?
-     * Seems like something that should be in the controller
-     */
-    void refreshView();
 }

@@ -106,7 +106,7 @@ public class DetailField implements Externalizable {
             parsedRelevancy = XPathParseTool.parseXPath(relevancy);
         }
 
-        return XPathFuncExpr.toBoolean(parsedRelevancy.eval(context)).booleanValue();
+        return XPathFuncExpr.toBoolean(parsedRelevancy.eval(context));
     }
 
     /**

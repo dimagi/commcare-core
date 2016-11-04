@@ -29,7 +29,7 @@ public class TreeReferenceLevel implements Externalizable {
     private static Interner<TreeReferenceLevel> refs;
 
     // Do we want to keep a cache of all reference levels?
-    public static boolean treeRefLevelInterningEnabled = true;
+    public static final boolean treeRefLevelInterningEnabled = true;
 
     public TreeReferenceLevel() {
         // for externalization

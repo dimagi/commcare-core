@@ -41,8 +41,12 @@ public class EntityScreen extends CompoundScreenHost {
 
     private boolean readyToSkip = false;
 
+<<<<<<< HEAD
     private Hashtable<String, TreeReference> referenceMap;
 
+=======
+    @Override
+>>>>>>> master
     public void init(SessionWrapper session) throws CommCareSessionException {
         SessionDatum datum = session.getNeededDatum();
         if (!(datum instanceof EntityDatum)) {

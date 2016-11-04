@@ -8,6 +8,7 @@ package org.javarosa.core.model.trace;
  */
 public class StringEvaluationTraceSerializer implements EvaluationTraceSerializer<String> {
 
+    @Override
     public String serializeEvaluationLevels(EvaluationTrace input) {
         return dumpExprOutput(input, 1);
     }

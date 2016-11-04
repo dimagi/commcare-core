@@ -5,7 +5,6 @@ import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.condition.EvaluationContext;
 
 import java.io.PrintStream;
-import java.util.Arrays;
 
 /**
  * An entity detail subscreen displays one of the detail screens associated with an
@@ -76,8 +75,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
             multipleInputs = true;
         }
 
-        for (int i = 0; i < rows.length; ++i) {
-            String row = rows[i];
+        for (String row : rows) {
             out.println(row);
         }
 

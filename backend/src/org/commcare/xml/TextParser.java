@@ -17,6 +17,7 @@ public class TextParser extends ElementParser<Text> {
         super(parser);
     }
 
+    @Override
     public Text parse() throws InvalidStructureException, IOException, XmlPullParserException {
         Vector<Text> texts = new Vector<>();
 

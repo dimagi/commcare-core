@@ -11,8 +11,8 @@ import org.javarosa.core.util.NoLocalizedTextException;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class ActionableInvalidStructureException extends InvalidStructureException {
-    private String localizationKey;
-    private String[] localizationParameters;
+    private final String localizationKey;
+    private final String[] localizationParameters;
 
     public ActionableInvalidStructureException(String localizationKey,
                                                 String[] localizationParameters,

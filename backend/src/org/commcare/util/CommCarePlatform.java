@@ -1,11 +1,11 @@
 package org.commcare.util;
 
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.services.storage.IStorageIterator;
@@ -35,6 +35,7 @@ public class CommCarePlatform implements CommCareInstance {
     private int profile;
     private Profile cachedProfile;
 
+    private OfflineUserRestore offlineUserRestore;
 
     private final int majorVersion;
     private final int minorVersion;
@@ -110,13 +111,9 @@ public class CommCarePlatform implements CommCareInstance {
      * @param global Table with fully-installed resources
      */
     public void initialize(ResourceTable global, boolean isUpgrade) {
-        try {
-            global.initializeResources(this, isUpgrade);
-        } catch (ResourceInitializationException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error initializing Resource! " + e.getMessage());
-        }
+        global.initializeResources(this, isUpgrade);
     }
+
     public void clearAppState() {
         //Clear out any app state
         profile = -1;
@@ -175,5 +172,14 @@ public class CommCarePlatform implements CommCareInstance {
             }
         }
         return commonDisplayStyle;
+    }
+
+    public OfflineUserRestore getDemoUserRestore() {
+        return offlineUserRestore;
+    }
+
+    @Override
+    public void registerDemoUserRestore(OfflineUserRestore offlineUserRestore) {
+        this.offlineUserRestore = offlineUserRestore;
     }
 }

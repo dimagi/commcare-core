@@ -2,7 +2,6 @@ package org.commcare.resources.model.installers;
 
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceInstaller;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
@@ -56,7 +55,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
     }
 
     @Override
-    public boolean initialize(CommCareInstance instance, boolean isUpgrade) throws ResourceInitializationException {
+    public boolean initialize(CommCareInstance instance, boolean isUpgrade) {
         if (cache == null) {
             Localization.registerLanguageReference(locale, localReference);
         } else {

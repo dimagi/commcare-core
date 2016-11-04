@@ -44,11 +44,13 @@ public class StringData implements IAnswerData {
         setValue(s);
     }
 
+    @Override
     public IAnswerData clone() {
         return new StringData(s);
     }
 
     //string should not be null or empty; the entire StringData reference should be null in this case
+    @Override
     public void setValue(Object o) {
         if (o == null) {
             throw new NullPointerException("Attempt to set an IAnswerData class to null.");
@@ -56,40 +58,32 @@ public class StringData implements IAnswerData {
         s = (String)o;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.model.data.IAnswerData#getValue()
-     */
+    @Override
     public Object getValue() {
         return s;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.model.data.IAnswerData#getDisplayText()
-     */
+    @Override
     public String getDisplayText() {
         return s;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         s = ExtUtil.readString(in);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.utilities.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, s);
     }
 
+    @Override
     public UncastData uncast() {
         return new UncastData(s);
     }
 
+    @Override
     public StringData cast(UncastData data) throws IllegalArgumentException {
         return new StringData(data.value);
     }

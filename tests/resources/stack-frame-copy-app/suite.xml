@@ -7,7 +7,11 @@
         </command>
         <instance id="session" src="jr://instance/session"/>
         <session>
-            <datum function="uuid()" id="mother_case_1"/>
+            <datum detail-confirm="m0_case_long"
+                   detail-select="m0_case_short"
+                   id="mother_case_1"
+                   nodeset="instance('casedb')/casedb/case[@case_type='pregnancy'][@status='open']"
+                   value="./@case_id"/>
         </session>
         <stack>
             <push>
@@ -125,7 +129,7 @@
         </session>
         <stack>
             <push>
-                <rewind value="'billy'"/>
+                <rewind value="if(true(), 'billy', 'bob')"/>
             </push>
             <!-- this should never get run because we have a mark to rewind to -->
             <create>

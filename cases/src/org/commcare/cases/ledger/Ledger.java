@@ -62,7 +62,7 @@ public class Ledger implements Persistable, IMetaData {
         if (!sections.containsKey(sectionId) || !sections.get(sectionId).containsKey(entryId)) {
             return 0;
         }
-        return sections.get(sectionId).get(entryId).intValue();
+        return sections.get(sectionId).get(entryId);
     }
 
     /**

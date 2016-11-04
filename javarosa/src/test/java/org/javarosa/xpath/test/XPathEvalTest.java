@@ -460,8 +460,8 @@ public class XPathEvalTest {
         testEval("check-types(55, '55', false(), '1999-09-09', get-custom(false()))", null, ec, Boolean.TRUE);
         testEval("check-types(55, '55', false(), '1999-09-09', get-custom(true()))", null, ec, Boolean.TRUE);
         testEval("regex('12345','[0-9]+')", null, ec, Boolean.TRUE);
-        testEval("upper-case('SimpLY')", null, null, new String("SIMPLY"));
-        testEval("lower-case('rEd')", null, null, new String("red"));
+        testEval("upper-case('SimpLY')", null, null, "SIMPLY");
+        testEval("lower-case('rEd')", null, null, "red");
         testEval("contains('', 'stuff')", null, null, Boolean.FALSE);
         testEval("contains('stuff', '')", null, null, Boolean.TRUE);
         testEval("contains('know', 'now')", null, null, Boolean.TRUE);
@@ -471,17 +471,17 @@ public class XPathEvalTest {
         testEval("starts-with('why', 'y')", null, null, Boolean.FALSE);
         testEval("ends-with('elements', 'nts')", null, null, Boolean.TRUE);
         testEval("ends-with('elements', 'xenon')", null, null, Boolean.FALSE);
-        testEval("translate('aBcdE', 'xyz', 'qrs')", null, null, new String("aBcdE"));
-        testEval("translate('bosco', 'bos', 'sfo')", null, null, new String("sfocf"));
-        testEval("translate('ramp', 'mapp', 'nbqr')", null, null, new String("rbnq"));
-        testEval("translate('yellow', 'low', 'or')", null, null, new String("yeoor"));
-        testEval("translate('bora bora', 'a', 'bc')", null, null, new String("borb borb"));
-        testEval("translate('squash me', 'aeiou ', '')", null, null, new String("sqshm"));
+        testEval("translate('aBcdE', 'xyz', 'qrs')", null, null, "aBcdE");
+        testEval("translate('bosco', 'bos', 'sfo')", null, null, "sfocf");
+        testEval("translate('ramp', 'mapp', 'nbqr')", null, null, "rbnq");
+        testEval("translate('yellow', 'low', 'or')", null, null, "yeoor");
+        testEval("translate('bora bora', 'a', 'bc')", null, null, "borb borb");
+        testEval("translate('squash me', 'aeiou ', '')", null, null, "sqshm");
         testEval("regex('aaaabfooaaabgarplyaaabwackyb', 'a*b')", null, null, Boolean.TRUE);
         testEval("regex('photo', 'a*b')", null, null, Boolean.FALSE);
-        testEval("replace('aaaabfooaaabgarplyaaabwackyb', 'a*b', '-')", null, null, new String("-foo-garply-wacky-"));
-        testEval("replace('abbc', 'a(.*)c', '$1')", null, null, new String("$1"));
-        testEval("replace('aaabb', '[ab][ab][ab]', '')", null, null, new String("bb"));
+        testEval("replace('aaaabfooaaabgarplyaaabwackyb', 'a*b', '-')", null, null, "-foo-garply-wacky-");
+        testEval("replace('abbc', 'a(.*)c', '$1')", null, null, "$1");
+        testEval("replace('aaabb', '[ab][ab][ab]', '')", null, null, "bb");
         //Variables
         EvaluationContext varContext = getVariableContext();
         testEval("$var_float_five", null, varContext, new Double(5.0));
@@ -659,27 +659,31 @@ public class XPathEvalTest {
 
         ec.addFunctionHandler(new IFunctionHandler() {
 
+            @Override
             public String getName() {
                 return "regex";
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 System.out.println("EVAL REGEX TESTS:");
-                for (int i = 0; i < args.length; i++) {
-                    System.out.println("REGEX ARGS: " + args[i].toString());
+                for (Object arg : args) {
+                    System.out.println("REGEX ARGS: " + arg.toString());
                 }
 
 
-                return new Boolean(true); // String.re  args[0].
+                return true; // String.re  args[0].
 
             }
 
+            @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
                 p.addElement(allPrototypes[2]);
                 return p;
             }
 
+            @Override
             public boolean rawArgs() {
                 return false;
             }
@@ -687,30 +691,36 @@ public class XPathEvalTest {
 
 
         ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "add";
             }
 
+            @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
                 p.addElement(allPrototypes[0]);
                 return p;
             }
 
+            @Override
             public boolean rawArgs() {
                 return false;
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return new Double(((Double)args[0]).doubleValue() + ((Double)args[1]).doubleValue());
             }
         });
 
         ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "proto";
             }
 
+            @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
                 p.addElement(allPrototypes[0]);
@@ -720,99 +730,121 @@ public class XPathEvalTest {
                 return p;
             }
 
+            @Override
             public boolean rawArgs() {
                 return false;
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return printArgs(args);
             }
         });
 
         ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "raw";
             }
 
+            @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
                 p.addElement(allPrototypes[3]);
                 return p;
             }
 
+            @Override
             public boolean rawArgs() {
                 return true;
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return printArgs(args);
             }
         });
 
         ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "null-proto";
             }
 
+            @Override
             public Vector getPrototypes() {
                 return null;
             }
 
+            @Override
             public boolean rawArgs() {
                 return false;
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return Boolean.FALSE;
             }
         });
 
         ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "concat";
             }
 
+            @Override
             public Vector getPrototypes() {
                 return new Vector();
             }
 
+            @Override
             public boolean rawArgs() {
                 return true;
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 StringBuffer sb = new StringBuffer();
-                for (int i = 0; i < args.length; i++)
-                    sb.append(XPathFuncExpr.toString(args[i]));
+                for (Object arg : args) {
+                    sb.append(XPathFuncExpr.toString(arg));
+                }
                 return sb.toString();
             }
         });
 
         ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "convertible";
             }
 
+            @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
                 p.addElement(new Class[0]);
                 return p;
             }
 
+            @Override
             public boolean rawArgs() {
                 return false;
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return new IExprDataType() {
+                    @Override
                     public Boolean toBoolean() {
                         return Boolean.TRUE;
                     }
 
+                    @Override
                     public Double toNumeric() {
                         return new Double(5.0);
                     }
 
+                    @Override
                     public String toString() {
                         return "hi";
                     }
@@ -821,60 +853,72 @@ public class XPathEvalTest {
         });
 
         ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "inconvertible";
             }
 
+            @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
                 p.addElement(new Class[0]);
                 return p;
             }
 
+            @Override
             public boolean rawArgs() {
                 return false;
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return new Object();
             }
         });
 
         ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "get-custom";
             }
 
+            @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
                 p.addElement(allPrototypes[4]);
                 return p;
             }
 
+            @Override
             public boolean rawArgs() {
                 return false;
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return ((Boolean)args[0]).booleanValue() ? new CustomSubType() : new CustomType();
             }
         });
 
         ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "check-types";
             }
 
+            @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
                 p.addElement(allPrototypes[5]);
                 return p;
             }
 
+            @Override
             public boolean rawArgs() {
                 return false;
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 if (args.length != 5 || !(args[0] instanceof Boolean) || !(args[1] instanceof Double) ||
                         !(args[2] instanceof String) || !(args[3] instanceof Date) || !(args[4] instanceof CustomType))
@@ -941,32 +985,38 @@ public class XPathEvalTest {
     private abstract class StatefulFunc implements IFunctionHandler {
         public String val;
 
+        @Override
         public boolean rawArgs() {
             return false;
         }
     }
 
     final StatefulFunc read = new StatefulFunc() {
+        @Override
         public String getName() {
             return "read";
         }
 
+        @Override
         public Vector getPrototypes() {
             Vector p = new Vector();
             p.addElement(new Class[0]);
             return p;
         }
 
+        @Override
         public Object eval(Object[] args, EvaluationContext ec) {
             return val;
         }
     };
 
     final StatefulFunc write = new StatefulFunc() {
+        @Override
         public String getName() {
             return "write";
         }
 
+        @Override
         public Vector getPrototypes() {
             Vector p = new Vector();
             Class[] proto = {String.class};
@@ -974,6 +1024,7 @@ public class XPathEvalTest {
             return p;
         }
 
+        @Override
         public Object eval(Object[] args, EvaluationContext ec) {
             val = (String)args[0];
             return Boolean.TRUE;
