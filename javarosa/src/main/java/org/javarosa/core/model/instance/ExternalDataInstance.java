@@ -1,5 +1,6 @@
 package org.javarosa.core.model.instance;
 
+import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -25,6 +26,8 @@ public class ExternalDataInstance extends DataInstance {
     public ExternalDataInstance(String reference, String instanceid) {
         super(instanceid);
         this.reference = reference;
+
+        useCaseTemplate = CaseInstanceTreeElement.MODEL_NAME.equals(instanceid);
     }
 
     /**
@@ -37,6 +40,8 @@ public class ExternalDataInstance extends DataInstance {
         this.base = instance.getBase();
         this.root = instance.getRoot();
         this.mCacheHost = instance.getCacheHost();
+
+        useCaseTemplate = CaseInstanceTreeElement.MODEL_NAME.equals(instanceid);
     }
 
     private ExternalDataInstance(String reference, String instanceId,

@@ -266,10 +266,10 @@ public class SessionStackTests {
 
         SessionDatum datum = session.getNeededDatum();
         String bolivarsId = "123";
-        TreeElement data = buildExampleInstanceRoot("patients", "case", "bolivar", bolivarsId);
+        TreeElement data = buildExampleInstanceRoot("casedb", "case", "bolivar", bolivarsId);
         session.setQueryDatum(ExternalDataInstance.buildFromRemote(datum.getDataId(), data, useCaseTemplate));
 
-        ExprEvalUtils.testEval("instance('patients')/patients/case/bolivar",
+        ExprEvalUtils.testEval("instance('patients')/casedb/case/bolivar",
                 session.getEvaluationContext(),
                 bolivarsId);
 
@@ -278,20 +278,20 @@ public class SessionStackTests {
         session.setDatum("case_id", "case_id_value");
 
         session.stepBack();
-        ExprEvalUtils.testEval("instance('patients')/patients/case/bolivar",
+        ExprEvalUtils.testEval("instance('patients')/casedb/case/bolivar",
                 session.getEvaluationContext(),
                 bolivarsId);
 
         session.stepBack();
-        assertInstanceMissing(session, "instance('patients')/patients/case/bolivar");
+        assertInstanceMissing(session, "instance('patients')/casedb/case/bolivar");
 
         session.setQueryDatum(ExternalDataInstance.buildFromRemote(datum.getDataId(), data, useCaseTemplate));
-        ExprEvalUtils.testEval("instance('patients')/patients/case/bolivar",
+        ExprEvalUtils.testEval("instance('patients')/casedb/case/bolivar",
                 session.getEvaluationContext(),
                 bolivarsId);
 
         session.finishExecuteAndPop(session.getEvaluationContext());
-        assertInstanceMissing(session, "instance('patients')/patients/case/bolivar");
+        assertInstanceMissing(session, "instance('patients')/casedb/case/bolivar");
         ExprEvalUtils.testEval("instance('session')/session/data/case_id",
                 session.getEvaluationContext(),
                 bolivarsId);

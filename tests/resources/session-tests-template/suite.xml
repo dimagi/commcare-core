@@ -107,7 +107,7 @@
     <post url="http://fake.com/claim_patient/"
           relevant="count(instance('casedb')/casedb/case[@case_id=instance('session')/session/data/case_id]) = 0">
       <data key="selected_case_id" ref="instance('session')/session/data/case_id"/>
-      <data key="selected_name" ref="instance('patients')/case[@case_id=instance('session')/session/data/case_id]/name"/>
+      <data key="selected_name" ref="instance('patients')/casedb/case[@case_id=instance('session')/session/data/case_id]/name"/>
     </post>
     <instance id="casedb" src="jr://instance/casedb"/>
     <instance id="session" src="jr://instance/session"/>
@@ -130,12 +130,12 @@
           </display>
         </prompt>
       </query>
-      <datum id="case_id" nodeset="instance('patients')/case" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+      <datum id="case_id" nodeset="instance('patients')/casedb/case" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
     </session>
     <stack>
       <create>
         <command value="'m2-f0'"/>
-        <datum id="case_id" value="instance('patients')/patients/case/bolivar"/>
+        <datum id="case_id" value="instance('patients')/casedb/case/bolivar"/>
       </create>
     </stack>
   </remote-request>

@@ -127,7 +127,7 @@ public class BasicSessionNavigationTests {
 
     @Test
     public void testStepToSyncRequest() {
-        session.setCommand("patient-search");
+        session.setCommand("patient-case-search");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
 
         TreeElement data = SessionStackTests.buildExampleInstanceRoot("patients", "case", "bolivar", "some_patient_id");
@@ -147,7 +147,7 @@ public class BasicSessionNavigationTests {
      */
     @Test
     public void testStepToIrrelevantSyncRequest() {
-        session.setCommand("patient-search");
+        session.setCommand("patient-case-search");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
 
 

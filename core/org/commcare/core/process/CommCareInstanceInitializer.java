@@ -105,7 +105,6 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
     protected AbstractTreeElement setupFixtureData(ExternalDataInstance instance) {
         String ref = instance.getReference();
-        //TODO: This is all just copied from J2ME code. that's pretty silly. unify that.
         String userId = "";
         User u = mSandbox.getLoggedInUser();
 
