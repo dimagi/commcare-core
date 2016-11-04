@@ -45,9 +45,7 @@ public class CaseDataInstance extends ExternalDataInstance {
             try {
                 caseDbSpecTemplate =
                         FormLoadingUtils.xmlToTreeElement("/casedb_instance_structure.xml");
-            } catch (InvalidStructureException e) {
-                throw new RuntimeException(errorMsg);
-            } catch (IOException e) {
+            } catch (InvalidStructureException | IOException e) {
                 throw new RuntimeException(errorMsg);
             }
         }

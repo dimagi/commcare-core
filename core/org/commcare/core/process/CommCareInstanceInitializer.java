@@ -56,7 +56,11 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
     @Override
     public ExternalDataInstance getSpecializedExternalDataInstance(ExternalDataInstance instance) {
-        if (CaseInstanceTreeElement.MODEL_NAME.equals(instance.getInstanceId())) {
+        if (CaseInstanceTreeElement.MODEL_NAME.equals(instance.getInstanceId())
+                || ExternalDataInstance.JR_REMOTE_REFERENCE.equals(instance.getReference())) {
+            // If instance named 'casedb' make lookups respect casedb path template.
+            // Also if instance is pulled from remote server, treat it like a
+            // casedb because it _most likely_ is set of cases
             return new CaseDataInstance(instance);
         } else {
             return instance;
@@ -74,6 +78,8 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             return setupFixtureData(instance);
         } else if (instance.getReference().contains("session")) {
             return setupSessionData(instance);
+        } else if (instance.getReference().startsWith(ExternalDataInstance.JR_REMOTE_REFERENCE)) {
+            return setupRemoteData(instance);
         } else if (ref.contains("migration")) {
             return setupMigrationData(instance);
         }
@@ -138,6 +144,10 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                         u.getProperties()).getRoot();
         root.setParent(instance.getBase());
         return root;
+    }
+
+    protected AbstractTreeElement setupRemoteData(ExternalDataInstance instance) {
+        return instance.getRoot();
     }
 
     protected String getDeviceId(){

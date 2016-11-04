@@ -230,7 +230,7 @@ public class SessionStackTests {
         TreeElement data = buildExampleInstanceRoot(bolivarsId);
         session.setQueryDatum(ExternalDataInstance.buildFromRemote(datum.getDataId(), data));
 
-        ExprEvalUtils.testEval("instance('patients')/patients/patient/bolivar",
+        ExprEvalUtils.testEval("instance('patients')/patients/case/bolivar",
                 session.getEvaluationContext(),
                 bolivarsId);
 
@@ -239,20 +239,20 @@ public class SessionStackTests {
         session.setDatum("case_id", "case_id_value");
 
         session.stepBack();
-        ExprEvalUtils.testEval("instance('patients')/patients/patient/bolivar",
+        ExprEvalUtils.testEval("instance('patients')/patients/case/bolivar",
                 session.getEvaluationContext(),
                 bolivarsId);
 
         session.stepBack();
-        assertInstanceMissing(session, "instance('patients')/patients/patient/bolivar");
+        assertInstanceMissing(session, "instance('patients')/patients/case/bolivar");
 
         session.setQueryDatum(ExternalDataInstance.buildFromRemote(datum.getDataId(), data));
-        ExprEvalUtils.testEval("instance('patients')/patients/patient/bolivar",
+        ExprEvalUtils.testEval("instance('patients')/patients/case/bolivar",
                 session.getEvaluationContext(),
                 bolivarsId);
 
         session.finishExecuteAndPop(session.getEvaluationContext());
-        assertInstanceMissing(session, "instance('patients')/patients/patient/bolivar");
+        assertInstanceMissing(session, "instance('patients')/patients/case/bolivar");
         ExprEvalUtils.testEval("instance('session')/session/data/case_id",
                 session.getEvaluationContext(),
                 bolivarsId);
@@ -283,7 +283,7 @@ public class SessionStackTests {
 
     protected static TreeElement buildExampleInstanceRoot(String bolivarsId) {
         TreeElement root = new TreeElement("patients");
-        TreeElement data = new TreeElement("patient");
+        TreeElement data = new TreeElement("case");
         root.addChild(data);
         TreeElement bolivar = new TreeElement("bolivar");
         bolivar.setValue(new StringData(bolivarsId));

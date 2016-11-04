@@ -16,6 +16,7 @@ public class ExternalDataInstance extends DataInstance {
 
     private AbstractTreeElement root;
     private InstanceBase base;
+    public final static String JR_REMOTE_REFERENCE = "jr://instance/remote";
 
     public ExternalDataInstance() {
     }
@@ -50,7 +51,7 @@ public class ExternalDataInstance extends DataInstance {
 
     public static ExternalDataInstance buildFromRemote(String instanceId,
                                                        TreeElement root) {
-        return new ExternalDataInstance("jr://instance/remote", instanceId, root);
+        return new ExternalDataInstance(JR_REMOTE_REFERENCE, instanceId, root);
     }
 
     @Override
@@ -76,12 +77,14 @@ public class ExternalDataInstance extends DataInstance {
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
+
         reference = ExtUtil.readString(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
+
         ExtUtil.writeString(out, reference);
     }
 
@@ -92,5 +95,4 @@ public class ExternalDataInstance extends DataInstance {
         base.setChild(root);
         return initializer.getSpecializedExternalDataInstance(this);
     }
-
 }
