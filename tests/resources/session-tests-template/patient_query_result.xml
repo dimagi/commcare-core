@@ -1,4 +1,4 @@
-<results id="patients">
+<patients id="case">
     <case id="123">
         <name>bolivar</name>
     </case>
@@ -8,4 +8,4 @@
     <patient id="333">
         <name>Halbert</name>
     </patient>
-</results>
+</patients>

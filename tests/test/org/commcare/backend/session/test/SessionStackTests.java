@@ -232,7 +232,7 @@ public class SessionStackTests {
                 buildRemoteExternalDataInstance(this.getClass(), session, "/session-tests-template/patient_query_result.xml");
         session.setQueryDatum(dataInstance);
 
-        ExprEvalUtils.testEval("instance('patients')/results/patient[@id = '321']/name",
+        ExprEvalUtils.testEval("instance('patients')/patients/patient[@id = '321']/name",
                 session.getEvaluationContext(),
                 "calbert");
     }
@@ -253,12 +253,12 @@ public class SessionStackTests {
                 buildRemoteExternalDataInstance(this.getClass(), session, "/session-tests-template/patient_query_result.xml");
         session.setQueryDatum(dataInstance);
 
-        ExprEvalUtils.testEval("instance('patients')/results/case[@id = '123']/name",
+        ExprEvalUtils.testEval("instance('patients')/patients/case[@id = '123']/name",
                 session.getEvaluationContext(),
                 "bolivar");
 
         // demonstrate that paths that aren't 'casedb/case/...' fail
-        ExprEvalUtils.testEval("instance('patients')/results/patient[@id = '321']/name",
+        ExprEvalUtils.testEval("instance('patients')/patients/patient[@id = '321']/name",
                 session.getEvaluationContext(),
                 new XPathTypeMismatchException());
 
@@ -267,20 +267,20 @@ public class SessionStackTests {
         session.setDatum("case_id", "case_id_value");
 
         session.stepBack();
-        ExprEvalUtils.testEval("instance('patients')/results/case[@id = '123']/name",
+        ExprEvalUtils.testEval("instance('patients')/patients/case[@id = '123']/name",
                 session.getEvaluationContext(),
                 "bolivar");
 
         session.stepBack();
-        assertInstanceMissing(session, "instance('patients')/results/case/bolivar");
+        assertInstanceMissing(session, "instance('patients')/patients/case/bolivar");
 
         session.setQueryDatum(dataInstance);
-        ExprEvalUtils.testEval("instance('patients')/results/case[@id = '123']/name",
+        ExprEvalUtils.testEval("instance('patients')/patients/case[@id = '123']/name",
                 session.getEvaluationContext(),
                 "bolivar");
 
         session.finishExecuteAndPop(session.getEvaluationContext());
-        assertInstanceMissing(session, "instance('patients')/results/case/bolivar");
+        assertInstanceMissing(session, "instance('patients')/patients/case/bolivar");
         ExprEvalUtils.testEval("instance('session')/session/data/case_id",
                 session.getEvaluationContext(),
                 "bolivar");

@@ -33,9 +33,12 @@ public class CaseDataInstance extends ExternalDataInstance {
      */
     @Override
     public boolean hasTemplatePath(TreeReference ref) {
-            loadTemplateSpecLazily();
+        loadTemplateSpecLazily();
 
-            return followsTemplateSpec(ref, caseDbSpecTemplate, 0);
+
+        return ref.size() > 0
+                && instanceid.equals(ref.getName(0))
+                && followsTemplateSpec(ref, caseDbSpecTemplate, 1);
     }
 
     private static synchronized void loadTemplateSpecLazily() {
