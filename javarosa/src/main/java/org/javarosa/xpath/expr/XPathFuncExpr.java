@@ -9,7 +9,6 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.model.utils.GeoPointUtils;
-import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.MathUtils;
 import org.javarosa.core.util.PropertyUtils;
@@ -52,6 +51,7 @@ import me.regexp.RESyntaxException;
 public class XPathFuncExpr extends XPathExpression {
     public String id;            //name of the function
     public XPathExpression[] args;    //argument list
+    protected int expectedArgCount;
 
     @SuppressWarnings("unused")
     public XPathFuncExpr() {
