@@ -115,7 +115,7 @@ public class CommCareSession {
         }
     }
 
-    public Vector<Entry> getEntriesForCommand(String commandId) {
+    private Vector<Entry> getEntriesForCommand(String commandId) {
         return getEntriesForCommand(commandId, new OrderedHashtable<String, String>());
     }
 
