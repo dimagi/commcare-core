@@ -30,6 +30,11 @@ public class RemoteQueryDatum extends SessionDatum {
     public RemoteQueryDatum() {
     }
 
+    /**
+     * @param useCaseTemplate True if query results respect the casedb
+     *                        template structure. Permits flexibility (path
+     *                        heterogeneity) in case data lookups
+     */
     public RemoteQueryDatum(URL url, String storageInstance,
                             Hashtable<String, XPathExpression> hiddenQueryValues,
                             OrderedHashtable<String, DisplayUnit> userQueryPrompts,
@@ -68,9 +73,9 @@ public class RemoteQueryDatum extends SessionDatum {
         super.readExternal(in, pf);
 
         hiddenQueryValues =
-                (Hashtable<String, XPathExpression>) ExtUtil.read(in, new ExtWrapMapPoly(String.class), pf);
+                (Hashtable<String, XPathExpression>)ExtUtil.read(in, new ExtWrapMapPoly(String.class), pf);
         userQueryPrompts =
-                (OrderedHashtable<String, DisplayUnit>) ExtUtil.read(in,
+                (OrderedHashtable<String, DisplayUnit>)ExtUtil.read(in,
                         new ExtWrapMap(String.class, DisplayUnit.class, ExtWrapMap.TYPE_ORDERED), pf);
         useCaseTemplate = ExtUtil.readBool(in);
     }

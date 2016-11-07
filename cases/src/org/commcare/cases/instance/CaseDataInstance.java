@@ -36,9 +36,11 @@ public class CaseDataInstance extends ExternalDataInstance {
         loadTemplateSpecLazily();
 
 
-        return ref.size() > 0
-                && instanceid.equals(ref.getName(0))
-                && followsTemplateSpec(ref, caseDbSpecTemplate, 1);
+        // enforce (artificial) constraint that the instance name matches the
+        // root element name. For instance, instance('casedb')/casedb
+        boolean instanceNameMatch = ref.size() > 0 && instanceid.equals(ref.getName(0));
+
+        return instanceNameMatch && followsTemplateSpec(ref, caseDbSpecTemplate, 1);
     }
 
     private static synchronized void loadTemplateSpecLazily() {

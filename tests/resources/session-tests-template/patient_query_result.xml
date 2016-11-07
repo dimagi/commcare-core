@@ -1,7 +1,9 @@
 <patients id="case">
+    <!-- adheres to casedb xml template -->
     <case id="123">
         <name>bolivar</name>
     </case>
+    <!-- strays from casedb xml template (use of 'patient' instead of 'case') -->
     <patient id="321">
         <name>calbert</name>
     </patient>

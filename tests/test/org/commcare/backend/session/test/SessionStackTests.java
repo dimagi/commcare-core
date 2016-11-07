@@ -219,6 +219,9 @@ public class SessionStackTests {
     }
 
     /**
+     * Test that instance stored on the session stack (from remote query
+     * results), that isn't supposed to adhere to the casedb xml template,
+     * doesn't in fact adhere to it
      */
     @Test
     public void testNonCaseInstanceOnStack() throws Exception {
@@ -229,7 +232,8 @@ public class SessionStackTests {
         assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
 
         ExternalDataInstance dataInstance =
-                buildRemoteExternalDataInstance(this.getClass(), session, "/session-tests-template/patient_query_result.xml");
+                buildRemoteExternalDataInstance(this.getClass(), session,
+                        "/session-tests-template/patient_query_result.xml");
         session.setQueryDatum(dataInstance);
 
         ExprEvalUtils.testEval("instance('patients')/patients/patient[@id = '321']/name",
@@ -239,7 +243,9 @@ public class SessionStackTests {
 
     /**
      * Test that instances stored on the session stack (from remote query
-     * results), which adheres to the casedb xml template, has are correctly popped off with the associated frame step
+     * results), adheres to the casedb xml template as expected from the query
+     * having the template="case" attribute Also ensure the instance is
+     * correctly popped off with the associated frame step
      */
     @Test
     public void testCaseInstancesOnStack() throws Exception {
@@ -250,7 +256,8 @@ public class SessionStackTests {
         assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
 
         ExternalDataInstance dataInstance =
-                buildRemoteExternalDataInstance(this.getClass(), session, "/session-tests-template/patient_query_result.xml");
+                buildRemoteExternalDataInstance(this.getClass(), session,
+                        "/session-tests-template/patient_query_result.xml");
         session.setQueryDatum(dataInstance);
 
         ExprEvalUtils.testEval("instance('patients')/patients/case[@id = '123']/name",
