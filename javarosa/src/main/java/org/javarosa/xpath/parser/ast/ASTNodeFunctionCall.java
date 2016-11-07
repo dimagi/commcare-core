@@ -29,6 +29,6 @@ public class ASTNodeFunctionCall extends ASTNode {
             xargs[i] = args.get(i).build();
         }
 
-        return new XPathFuncExpr(name, xargs);
+        return new XPathFuncExpr(name.name, xargs);
     }
 }

@@ -50,7 +50,7 @@ import me.regexp.RESyntaxException;
  * @author Drew Roos
  */
 public class XPathFuncExpr extends XPathExpression {
-    public XPathQName id;            //name of the function
+    public String id;            //name of the function
     public XPathExpression[] args;    //argument list
 
     private static final CacheTable<String, Double> mDoubleParseCache = new CacheTable<>();
@@ -59,10 +59,10 @@ public class XPathFuncExpr extends XPathExpression {
     public XPathFuncExpr() {
     } //for deserialization
 
-    public XPathFuncExpr(XPathQName id, XPathExpression[] args) throws XPathSyntaxException {
-        if ("if".equals(id.name) && args.length != 3) {
+    public XPathFuncExpr(String id, XPathExpression[] args) throws XPathSyntaxException {
+        if ("if".equals(id) && args.length != 3) {
             throw new XPathSyntaxException("if() function requires 3 arguments but " + args.length + " are present.");
-        } else if ("cond".equals(id.name)) {
+        } else if ("cond".equals(id)) {
             if (args.length < 3) {
                 throw new XPathSyntaxException("cond() function requires at least 3 arguments. " + args.length + " arguments provided.");
             } else if (args.length % 2 != 1) {
@@ -79,7 +79,7 @@ public class XPathFuncExpr extends XPathExpression {
         StringBuffer sb = new StringBuffer();
 
         sb.append("{func-expr:");
-        sb.append(id.toString());
+        sb.append(id);
         sb.append(",{");
         for (int i = 0; i < args.length; i++) {
             sb.append(args[i].toString());
@@ -94,7 +94,7 @@ public class XPathFuncExpr extends XPathExpression {
     @Override
     public String toPrettyString() {
         StringBuffer sb = new StringBuffer();
-        sb.append(id.toString()).append("(");
+        sb.append(id).append("(");
         for (int i = 0; i < args.length; i++) {
             sb.append(args[i].toPrettyString());
             if (i < args.length - 1) {
@@ -115,7 +115,7 @@ public class XPathFuncExpr extends XPathExpression {
             //practice in Java, since o.equals(o) will return false. We should evaluate that differently.
             //Dec 8, 2011 - Added "uuid", since we should never assume one uuid equals another
             //May 6, 2013 - Added "random", since two calls asking for a random
-            if (!id.equals(x.id) || args.length != x.args.length || id.toString().equals("uuid") || id.toString().equals("random")) {
+            if (!id.equals(x.id) || args.length != x.args.length || id.equals("uuid") || id.equals("random")) {
                 return false;
             }
 
@@ -136,9 +136,9 @@ public class XPathFuncExpr extends XPathExpression {
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        id = (XPathQName)ExtUtil.read(in, XPathQName.class);
-        Vector v = (Vector)ExtUtil.read(in, new ExtWrapListPoly(), pf);
+        id = ExtUtil.readString(in);
 
+        Vector v = (Vector)ExtUtil.read(in, new ExtWrapListPoly(), pf);
         args = new XPathExpression[v.size()];
         for (int i = 0; i < args.length; i++) {
             args[i] = (XPathExpression)v.elementAt(i);
@@ -147,12 +147,12 @@ public class XPathFuncExpr extends XPathExpression {
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeString(out, id);
+
         Vector<XPathExpression> v = new Vector<>();
         for (XPathExpression arg : args) {
             v.addElement(arg);
         }
-
-        ExtUtil.write(out, id);
         ExtUtil.write(out, new ExtWrapListPoly(v));
     }
 
