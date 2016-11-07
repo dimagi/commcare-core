@@ -380,10 +380,8 @@ public class CommCareSession {
             return true;
         }
 
-        if (SessionFrame.STATE_UNKNOWN.equals(poppedType)) {
-            return guessUnknownType(popped).equals(SessionFrame.STATE_DATUM_COMPUTED);
-        }
-        return false;
+        return SessionFrame.STATE_UNKNOWN.equals(poppedType)
+                && guessUnknownType(popped).equals(SessionFrame.STATE_DATUM_COMPUTED);
 
     }
 
