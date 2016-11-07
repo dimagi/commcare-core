@@ -371,14 +371,16 @@ public class CommCareSession {
 
     private boolean shouldPopNext(EvaluationContext evalContext) {
         String neededData = getNeededData(evalContext);
+        String poppedType = popped == null ? "" : popped.getType();
+
         if (neededData == null ||
                 SessionFrame.STATE_DATUM_COMPUTED.equals(neededData) ||
-                SessionFrame.STATE_DATUM_COMPUTED.equals(popped.getType()) ||
+                SessionFrame.STATE_DATUM_COMPUTED.equals(poppedType) ||
                 topStepIsMark()) {
             return true;
         }
 
-        if (SessionFrame.STATE_UNKNOWN.equals(popped.getType())) {
+        if (SessionFrame.STATE_UNKNOWN.equals(poppedType)) {
             return guessUnknownType(popped).equals(SessionFrame.STATE_DATUM_COMPUTED);
         }
         return false;

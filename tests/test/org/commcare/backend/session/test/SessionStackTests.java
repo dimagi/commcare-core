@@ -302,4 +302,11 @@ public class SessionStackTests {
         }
     }
 
+    @Test
+    public void testStepBackAtBase() throws Exception {
+        MockApp mockApp = new MockApp("/session-tests-template/");
+        SessionWrapper session = mockApp.getSession();
+        session.stepBack();
+    }
+
 }
