@@ -14,6 +14,7 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.expr.XPathStep;
 import org.javarosa.xpath.expr.XPathStringLiteral;
+import org.javarosa.xpath.expr.functions.FunctionUtils;
 
 import java.util.Hashtable;
 import java.util.Vector;
@@ -178,7 +179,7 @@ public class TreeUtilities {
                                 // did it's not available here) so we will try
                                 // to do some _very basic_ type inference on
                                 // this value before performing the match
-                                Object value = XPathFuncExpr.InferType(attrValue);
+                                Object value = FunctionUtils.InferType(attrValue);
 
                                 if (XPathEqExpr.testEquality(value, literalMatch)) {
                                     predicateMatches.addElement(kids.elementAt(kidI).getRef());

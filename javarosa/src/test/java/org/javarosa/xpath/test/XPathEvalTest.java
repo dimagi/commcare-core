@@ -22,6 +22,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathNumericLiteral;
 import org.javarosa.xpath.expr.XPathPathExpr;
+import org.javarosa.xpath.expr.functions.FunctionUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -87,11 +88,11 @@ public class XPathEvalTest {
 
     @Test
     public void testTypeCoercion(){
-        Object str = XPathFuncExpr.InferType("notadouble");
+        Object str = FunctionUtils.InferType("notadouble");
         Assert.assertTrue("'notadouble' coerced to the wrong type, "
                 +str.getClass().toString(), str instanceof String);
 
-        Object d = XPathFuncExpr.InferType("5.0");
+        Object d = FunctionUtils.InferType("5.0");
 
         Assert.assertTrue("'5.0' coerced to the wrong type, "
                 + d.getClass().toString(), d instanceof Double);
@@ -556,7 +557,7 @@ public class XPathEvalTest {
 
     @Test
     public void testDoNotInferScientificNotationAsDouble() {
-        Object dbl = XPathFuncExpr.InferType("100E5");
+        Object dbl = FunctionUtils.InferType("100E5");
         Assert.assertTrue("We should not evaluate strings with scientific notation as doubles",
                 XPathEqExpr.testEquality(dbl, "100E5"));
     }

@@ -2,6 +2,7 @@ package org.javarosa.core.model.trace;
 
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.expr.functions.FunctionUtils;
 
 import java.util.Vector;
 
@@ -68,7 +69,7 @@ public class EvaluationTrace {
         // Temporarily deal with this in a flat manner until we can evaluate
         // more robustly
         if (value instanceof XPathNodeset) {
-            return XPathFuncExpr.getSerializedNodeset((XPathNodeset)value);
+            return FunctionUtils.getSerializedNodeset((XPathNodeset)value);
         }
         return XPathFuncExpr.toString(value);
     }

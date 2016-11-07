@@ -53,8 +53,6 @@ public class XPathFuncExpr extends XPathExpression {
     public String id;            //name of the function
     public XPathExpression[] args;    //argument list
 
-    private static final CacheTable<String, Double> mDoubleParseCache = new CacheTable<>();
-
     @SuppressWarnings("unused")
     public XPathFuncExpr() {
     } //for deserialization
@@ -168,7 +166,7 @@ public class XPathFuncExpr extends XPathExpression {
      */
     @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
-        String name = id.toString();
+        String name = id;
         Object[] argVals = new Object[args.length];
 
         Hashtable funcHandlers = evalContext.getFunctionHandlers();
@@ -713,7 +711,7 @@ public class XPathFuncExpr extends XPathExpression {
      * The xpath spec doesn't recognize scientific notation, or +/-Infinity when converting a
      * string to a number
      */
-    private static boolean checkForInvalidNumericOrDatestringCharacters(String s) {
+    public static boolean checkForInvalidNumericOrDatestringCharacters(String s) {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             if (c != '-' && c != '.' && (c < '0' || c > '9')) {
@@ -877,7 +875,6 @@ public class XPathFuncExpr extends XPathExpression {
             return null;
         }
     }
-
 
     private Double position(TreeReference refAt) {
         return new Double(refAt.getMultLast());
@@ -1329,7 +1326,6 @@ public class XPathFuncExpr extends XPathExpression {
 
         //TODO: Inner eval here with eval'd args to improve speed
         return eval(model, evalContext);
-
     }
 
     /**
@@ -1493,68 +1489,5 @@ public class XPathFuncExpr extends XPathExpression {
         GeoPointData castedTo = new GeoPointData().cast(new UncastData(unpackedTo));
 
         return new Double(GeoPointUtils.computeDistanceBetween(castedFrom, castedTo));
-    }
-
-    /**
-     * Take in a value (only a string for now, TODO: Extend?) that doesn't
-     * have any type information and attempt to infer a more specific type
-     * that may assist in equality or comparison operations
-     *
-     * @param attrValue A typeless data object
-     * @return The passed in object in as specific of a type as was able to
-     * be identified.
-     */
-    public static Object InferType(String attrValue) {
-        //Throwing exceptions from parsing doubles is _very_ slow, which is the purpose
-        //of this cache. In high performant situations, this prevents a ton of overhead.
-        Double d = mDoubleParseCache.retrieve(attrValue);
-        if(d != null) {
-            if(d.isNaN()) {
-                return attrValue;
-            } else {
-                return d;
-            }
-        }
-
-        try {
-            // Don't process strings with scientific notation or +/- Infinity as doubles
-            if (checkForInvalidNumericOrDatestringCharacters(attrValue)) {
-                mDoubleParseCache.register(attrValue, new Double(Double.NaN));
-                return attrValue;
-            }
-            Double ret = Double.parseDouble(attrValue);
-            mDoubleParseCache.register(attrValue, ret);
-            return ret;
-        } catch (NumberFormatException ife) {
-            //Not a double
-            mDoubleParseCache.register(attrValue, new Double(Double.NaN));
-        }
-        //TODO: What about dates? That is a _super_ expensive
-        //operation to be testing, though...
-        return attrValue;
-    }
-
-    /**
-     * Gets a human readable string representing an xpath nodeset.
-     *
-     * @param nodeset An xpath nodeset to be visualized
-     * @return A string representation of the nodeset's references
-     */
-    public static String getSerializedNodeset(XPathNodeset nodeset) {
-        if (nodeset.size() == 1) {
-            return XPathFuncExpr.toString(nodeset);
-        }
-
-        StringBuffer sb = new StringBuffer();
-        sb.append("{nodeset: ");
-        for (int i = 0; i < nodeset.size(); ++i) {
-            String ref = nodeset.getRefAt(i).toString(true);
-            sb.append(ref);
-            if (i != nodeset.size() - 1) {
-                sb.append(", ");
-            }
-        }
-        sb.append("}");
-        return sb.toString();
     }
 }
