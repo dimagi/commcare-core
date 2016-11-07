@@ -319,6 +319,17 @@ public class SessionStackTests {
         }
     }
 
+    /**
+     * Make sure that stepping backwards before doing anything else doesn't crash
+     */
+    @Test
+    public void testStepBackAtBase() throws Exception {
+        MockApp mockApp = new MockApp("/session-tests-template/");
+        SessionWrapper session = mockApp.getSession();
+        session.stepBack();
+
+    }
+
     static ExternalDataInstance buildRemoteExternalDataInstance(Class cls,
                                                                 SessionWrapper sessionWrapper,
                                                                 String resourcePath) {
