@@ -370,14 +370,15 @@ public class CommCareSession {
     }
 
     private boolean shouldPopNext(EvaluationContext evalContext) {
-        if (this.getNeededData(evalContext) == null ||
-                this.getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED) ||
-                popped.getType().equals(SessionFrame.STATE_DATUM_COMPUTED) ||
+        String neededData = getNeededData(evalContext);
+        if (neededData == null ||
+                SessionFrame.STATE_DATUM_COMPUTED.equals(neededData) ||
+                SessionFrame.STATE_DATUM_COMPUTED.equals(popped.getType()) ||
                 topStepIsMark()) {
             return true;
         }
 
-        if (popped.getType().equals(SessionFrame.STATE_UNKNOWN)){
+        if (SessionFrame.STATE_UNKNOWN.equals(popped.getType())) {
             return guessUnknownType(popped).equals(SessionFrame.STATE_DATUM_COMPUTED);
         }
         return false;
