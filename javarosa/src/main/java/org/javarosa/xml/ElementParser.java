@@ -29,7 +29,7 @@ import java.util.Date;
 public abstract class ElementParser<T> {
     protected final KXmlParser parser;
 
-    int level = 0;
+    private int level = 0;
 
     /**
      * Produces a new element parser for the appropriate Element datatype.
