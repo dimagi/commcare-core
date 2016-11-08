@@ -2,22 +2,26 @@ package org.javarosa.xpath.expr;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.util.MathUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+// non-standard
 public class XPathRandomFunc extends XPathFuncExpr {
+    private static final String NAME = "random";
+    private static final int EXPECTED_ARG_COUNT = 0;
+
     public XPathRandomFunc() {
-        id = "";
-        // at least 2 arguments
-        expectedArgCount = -1;
+        id = NAME;
+        expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
     public XPathRandomFunc(XPathExpression[] args) throws XPathSyntaxException {
-        this();
-        this.args = args;
-        validateArgCount();
+        super(NAME, args, EXPECTED_ARG_COUNT, false);
     }
 
     @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+        //calculated expressions may be recomputed w/o warning! use with caution!!
+        return new Double(MathUtils.getRand().nextDouble());
     }
 }

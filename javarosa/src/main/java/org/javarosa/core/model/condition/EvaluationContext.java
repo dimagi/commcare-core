@@ -161,7 +161,7 @@ public class EvaluationContext {
         functionHandlers.put(fh.getName(), fh);
     }
 
-    public Hashtable getFunctionHandlers() {
+    public Hashtable<String, IFunctionHandler> getFunctionHandlers() {
         return functionHandlers;
     }
 

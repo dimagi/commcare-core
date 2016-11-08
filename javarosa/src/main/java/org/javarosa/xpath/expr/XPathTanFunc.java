@@ -5,19 +5,30 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathTanFunc extends XPathFuncExpr {
+    private static final String NAME = "tan";
+    private static final int EXPECTED_ARG_COUNT = 1;
+
     public XPathTanFunc() {
-        id = "";
-        // at least 2 arguments
-        expectedArgCount = -1;
+        id = NAME;
+        expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
     public XPathTanFunc(XPathExpression[] args) throws XPathSyntaxException {
-        this();
-        this.args = args;
-        validateArgCount();
+        super(NAME, args, EXPECTED_ARG_COUNT, true);
     }
 
     @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+        evaluateArguments(model, evalContext);
+
+        return tan(evaluatedArgs[0]);
+    }
+
+    /**
+     * Returns the tangent of the argument, expressed in radians.
+     */
+    private static Double tan(Object o) {
+        double value = toDouble(o);
+        return Math.tan(value);
     }
 }

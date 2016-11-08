@@ -2,22 +2,41 @@ package org.javarosa.xpath.expr;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.util.PropertyUtils;
+import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathUuidFunc extends XPathFuncExpr {
+    private static final String NAME = "uuid";
+    // 0 or 1 arguments
+    private static final int EXPECTED_ARG_COUNT = -1;
+
     public XPathUuidFunc() {
-        id = "";
-        // at least 2 arguments
-        expectedArgCount = -1;
+        id = NAME;
+        expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
     public XPathUuidFunc(XPathExpression[] args) throws XPathSyntaxException {
-        this();
-        this.args = args;
-        validateArgCount();
+        super(NAME, args, EXPECTED_ARG_COUNT, true);
+    }
+
+    @Override
+    protected void validateArgCount() throws XPathSyntaxException {
+        if (args.length > 1) {
+            throw new XPathArityException(id, "0 or one arguments", args.length);
+        }
     }
 
     @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+        evaluateArguments(model, evalContext);
+
+        //calculated expressions may be recomputed w/o warning! use with caution!!
+        if (args.length == 0) {
+            return PropertyUtils.genUUID();
+        }
+
+        int len = toInt(evaluatedArgs[0]).intValue();
+        return PropertyUtils.genGUID(len);
     }
 }

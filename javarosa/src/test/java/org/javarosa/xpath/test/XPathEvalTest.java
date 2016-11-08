@@ -49,6 +49,9 @@ public class XPathEvalTest {
         try {
             xpe = XPathParseTool.parseXPath(expr);
         } catch (XPathSyntaxException xpse) {
+        } catch (XPathArityException e) {
+            assertExceptionExpected(exceptionExpected, expected, e);
+            return;
         }
 
         if (xpe == null) {
@@ -77,12 +80,16 @@ public class XPathEvalTest {
                 fail("Expected " + expected + ", got " + result);
             }
         } catch (XPathException xpex) {
-            if (!exceptionExpected) {
-                fail("Did not expect " + xpex.getClass() + " exception");
-            } else if (xpex.getClass() != expected.getClass()) {
-                fail("Expected " + expected.getClass() +
-                        "exception type but was provided" + xpex.getClass());
-            }
+            assertExceptionExpected(exceptionExpected, expected, xpex);
+        }
+    }
+
+    private void assertExceptionExpected(boolean exceptionExpected, Object expected, Exception xpex) {
+        if (!exceptionExpected) {
+            fail("Did not expect " + xpex.getClass() + " exception");
+        } else if (xpex.getClass() != expected.getClass()) {
+            fail("Expected " + expected.getClass() +
+                    "exception type but was provided" + xpex.getClass());
         }
     }
 

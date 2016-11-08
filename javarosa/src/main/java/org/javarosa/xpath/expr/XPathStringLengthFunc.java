@@ -4,20 +4,32 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-public class XPathStringLenthFunc extends XPathFuncExpr {
-    public XPathStringLenthFunc() {
-        id = "";
-        // at least 2 arguments
-        expectedArgCount = -1;
+public class XPathStringLengthFunc extends XPathFuncExpr {
+    private static final String NAME = "string-length";
+    private static final int EXPECTED_ARG_COUNT = 1;
+
+    public XPathStringLengthFunc() {
+        id = NAME;
+        expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
-    public XPathStringLenthFunc(XPathExpression[] args) throws XPathSyntaxException {
-        this();
-        this.args = args;
-        validateArgCount();
+    public XPathStringLengthFunc(XPathExpression[] args) throws XPathSyntaxException {
+        super(NAME, args, EXPECTED_ARG_COUNT, true);
     }
 
     @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+        evaluateArguments(model, evalContext);
+
+        return stringLength(evaluatedArgs[0]);
     }
+
+    private static Double stringLength(Object o) {
+        String s = toString(o);
+        if (s == null) {
+            return new Double(0.0);
+        }
+        return new Double(s.length());
+    }
+
 }

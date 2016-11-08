@@ -5,19 +5,22 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathSelectedAtFunc extends XPathFuncExpr {
+    private static final String NAME = "selected-at";
+    private static final int EXPECTED_ARG_COUNT = 2;
+
     public XPathSelectedAtFunc() {
-        id = "";
-        // at least 2 arguments
-        expectedArgCount = -1;
+        id = NAME;
+        expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
     public XPathSelectedAtFunc(XPathExpression[] args) throws XPathSyntaxException {
-        this();
-        this.args = args;
-        validateArgCount();
+        super(NAME, args, EXPECTED_ARG_COUNT, true);
     }
 
     @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+        evaluateArguments(model, evalContext);
+
+        return selectedAt(evaluatedArgs[0], evaluatedArgs[1]);
     }
 }

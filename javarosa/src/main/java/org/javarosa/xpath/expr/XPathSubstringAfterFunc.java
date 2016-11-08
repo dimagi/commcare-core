@@ -5,19 +5,39 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathSubstringAfterFunc extends XPathFuncExpr {
+    private static final String NAME = "substring-after";
+    private static final int EXPECTED_ARG_COUNT = 2;
+
     public XPathSubstringAfterFunc() {
-        id = "";
-        // at least 2 arguments
-        expectedArgCount = -1;
+        id = NAME;
+        expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
     public XPathSubstringAfterFunc(XPathExpression[] args) throws XPathSyntaxException {
-        this();
-        this.args = args;
-        validateArgCount();
+        super(NAME, args, EXPECTED_ARG_COUNT, true);
     }
 
     @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+        evaluateArguments(model, evalContext);
+
+        return substringAfter(evaluatedArgs[0], evaluatedArgs[1]);
     }
+
+    private static String substringAfter(Object fullStringAsRaw, Object substringAsRaw) {
+        String fullString = toString(fullStringAsRaw);
+        String subString = toString(substringAsRaw);
+
+        if (fullString.length() == 0) {
+            return "";
+        }
+
+        int substringIndex = fullString.indexOf(subString);
+        if (substringIndex == -1) {
+            return fullString;
+        } else {
+            return fullString.substring(substringIndex + subString.length(), fullString.length());
+        }
+    }
+
 }

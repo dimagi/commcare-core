@@ -5,16 +5,16 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathIfFunc extends XPathFuncExpr {
+    private static final String NAME = "if";
+    private static final int EXPECTED_ARG_COUNT = 3;
 
     public XPathIfFunc() {
-        id = "if";
-        expectedArgCount = 3;
+        id = NAME;
+        expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
     public XPathIfFunc(XPathExpression[] args) throws XPathSyntaxException {
-        this();
-        this.args = args;
-        validateArgCount();
+        super(NAME, args, EXPECTED_ARG_COUNT, false);
     }
 
     @Override

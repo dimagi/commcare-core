@@ -36,7 +36,7 @@ public class ASTNodeFunctionCall extends ASTNode {
             case "if":
                 return new XPathIfFunc(args);
             case "coalesce":
-                return new XPathIfFunc(args);
+                return new XpathCoalesceFunc(args);
             case "cond":
                 return new XPathCondFunc(args);
             case "true":
@@ -64,7 +64,7 @@ public class ASTNodeFunctionCall extends ASTNode {
             case "selected":
                 // fall-through to is-selected on purpose
             case "is-selected":
-                return new XPathSelectedFunc(args);
+                return new XPathSelectedFunc(name, args);
             case "count-selected":
                 return new XPathCountSelectedFunc(args);
             case "selected-at":
@@ -94,7 +94,7 @@ public class ASTNodeFunctionCall extends ASTNode {
             case "substring-after":
                 return new XPathSubstringAfterFunc(args);
             case "string-length":
-                return new XPathStringLenthFunc(args);
+                return new XPathStringLengthFunc(args);
             case "upper-case":
                 return new XPathUpperCaseFunc(args);
             case "lower-case":
@@ -112,7 +112,7 @@ public class ASTNodeFunctionCall extends ASTNode {
             case "checklist":
                 return new XPathChecklistFunc(args);
             case "weighted-checklist":
-                return new XPathWeightedChecklistFunch(args);
+                return new XPathWeightedChecklistFunc(args);
             case "regex":
                 return new XPathRegexFunc(args);
             case "depend":
@@ -160,7 +160,7 @@ public class ASTNodeFunctionCall extends ASTNode {
             case "format-date-for-calendar":
                 return new XPathFormatDateForCalendarFunc(args);
             default:
-                return new XPathIfFunc(args);
+                return new XPathCustomFunc(name, args);
         }
     }
 }

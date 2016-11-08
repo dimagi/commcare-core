@@ -2,22 +2,36 @@ package org.javarosa.xpath.expr;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+import java.util.Date;
+
 public class XPathFormatDateFunc extends XPathFuncExpr {
+    private static final String NAME = "format-date";
+    private static final int EXPECTED_ARG_COUNT = 2;
+
     public XPathFormatDateFunc() {
-        id = "";
-        // at least 2 arguments
-        expectedArgCount = -1;
+        id = NAME;
+        expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
     public XPathFormatDateFunc(XPathExpression[] args) throws XPathSyntaxException {
-        this();
-        this.args = args;
-        validateArgCount();
+        super(NAME, args, EXPECTED_ARG_COUNT, true);
     }
 
     @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+        evaluateArguments(model, evalContext);
+
+        return dateStr(evaluatedArgs[0], evaluatedArgs[1]);
+    }
+
+    private static String dateStr(Object od, Object of) {
+        Date expandedDate = expandDateSafe(od);
+        if (expandedDate == null) {
+            return "";
+        }
+        return DateUtils.format(expandedDate, toString(of));
     }
 }

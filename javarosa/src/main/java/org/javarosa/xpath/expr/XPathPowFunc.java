@@ -5,19 +5,39 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathPowFunc extends XPathFuncExpr {
+    private static final String NAME = "pow";
+    private static final int EXPECTED_ARG_COUNT = 2;
+
     public XPathPowFunc() {
-        id = "";
-        // at least 2 arguments
-        expectedArgCount = -1;
+        id = NAME;
+        expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
     public XPathPowFunc(XPathExpression[] args) throws XPathSyntaxException {
-        this();
-        this.args = args;
-        validateArgCount();
+        super(NAME, args, EXPECTED_ARG_COUNT, true);
     }
 
     @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+        evaluateArguments(model, evalContext);
+
+        return power(evaluatedArgs[0], evaluatedArgs[1]);
+    }
+
+    /**
+     * Best faith effort at getting a result for math.pow
+     *
+     * @param o1 The base number
+     * @param o2 The exponent of the number that it is to be raised to
+     * @return An approximation of o1 ^ o2. If there is a native power
+     * function, it is utilized. It there is not, a recursive exponent is
+     * run if (b) is an integer value, and a taylor series approximation is
+     * used otherwise.
+     */
+    private static Double power(Object o1, Object o2) {
+        double a = toDouble(o1);
+        double b = toDouble(o2);
+
+        return Math.pow(a, b);
     }
 }

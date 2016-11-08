@@ -8,16 +8,17 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class XPathCondFunc extends XPathFuncExpr {
+    private static final String NAME = "cond";
+    // expects at least 3 arguments
+    private static final int EXPECTED_ARG_COUNT = -1;
+
     public XPathCondFunc() {
-        id = "cond";
-        // at least 3 arguments
-        expectedArgCount = -1;
+        id = NAME;
+        expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
     public XPathCondFunc(XPathExpression[] args) throws XPathSyntaxException {
-        this();
-        this.args = args;
-        validateArgCount();
+        super(NAME, args, EXPECTED_ARG_COUNT, false);
     }
 
     @Override
