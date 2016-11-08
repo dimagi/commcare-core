@@ -161,10 +161,6 @@ public class XPathFuncExpr extends XPathExpression {
 
         Hashtable funcHandlers = evalContext.getFunctionHandlers();
 
-        if (name.equals("coalesce") && args.length > 0) {
-            return coalesceEval(model, evalContext, args);
-        }
-
         for (int i = 0; i < args.length; i++) {
             argVals[i] = args[i].eval(model, evalContext);
         }
@@ -865,18 +861,6 @@ public class XPathFuncExpr extends XPathExpression {
         return new Double(refAt.getMultLast());
     }
 
-    private static Object coalesceEval(DataInstance model, EvaluationContext evalContext,
-                                       XPathExpression[] args) {
-        //Not sure if unpacking here is quiiite right, but it seems right
-        for (int i = 0; i < args.length - 1; i++) {
-            Object evaluatedArg = XPathFuncExpr.unpack(args[i].eval(model, evalContext));
-            if (!isNull(evaluatedArg)) {
-                return evaluatedArg;
-            }
-        }
-        return args[args.length - 1].eval(model, evalContext);
-    }
-
     /**
      * return whether a particular choice of a multi-select is selected
      *
@@ -1457,6 +1441,5 @@ public class XPathFuncExpr extends XPathExpression {
 
 
     protected void validateArgCount() throws XPathSyntaxException {
-        // TODO PLM: make abstract
     }
 }

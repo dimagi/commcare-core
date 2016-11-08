@@ -1,10 +1,6 @@
 package org.javarosa.xpath.parser.ast;
 
-import org.javarosa.xpath.expr.XPathCondFunc;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
-import org.javarosa.xpath.expr.XPathQName;
-import org.javarosa.xpath.expr.XPathIfFunc;
+import org.javarosa.xpath.expr.*;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.ArrayList;
@@ -44,125 +40,125 @@ public class ASTNodeFunctionCall extends ASTNode {
             case "cond":
                 return new XPathCondFunc(args);
             case "true":
-                return new XPathIfFunc(args);
+                return new XPathTrueFunc(args);
             case "false":
-                return new XPathIfFunc(args);
+                return new XPathFalseFunc(args);
             case "boolean":
-                return new XPathIfFunc(args);
+                return new XPathBooleanFunc(args);
             case "number":
-                return new XPathIfFunc(args);
+                return new XPathNumberFunc(args);
             case "int":
-                return new XPathIfFunc(args);
+                return new XPathIntFunc(args);
             case "double":
-                return new XPathIfFunc(args);
+                return new XPathDoubleFunc(args);
             case "string":
-                return new XPathIfFunc(args);
+                return new XPathStringFunc(args);
             case "date":
-                return new XPathIfFunc(args);
+                return new XPathDateFunc(args);
             case "not":
-                return new XPathIfFunc(args);
+                return new XPathNotFunc(args);
             case "boolean-from-string":
-                return new XPathIfFunc(args);
+                return new XPathBooleanFromStringFunc(args);
             case "format-date":
-                return new XPathIfFunc(args);
+                return new XPathFormatDateFunc(args);
             case "selected":
-                return new XPathIfFunc(args);
+                // fall-through to is-selected on purpose
             case "is-selected":
-                return new XPathIfFunc(args);
+                return new XPathSelectedFunc(args);
             case "count-selected":
-                return new XPathIfFunc(args);
+                return new XPathCountSelectedFunc(args);
             case "selected-at":
-                return new XPathIfFunc(args);
+                return new XPathSelectedAtFunc(args);
             case "position":
-                return new XPathIfFunc(args);
+                return new XPathPositionFunc(args);
             case "count":
-                return new XPathIfFunc(args);
+                return new XPathCountFunc(args);
             case "sum":
-                return new XPathIfFunc(args);
+                return new XPathSumFunc(args);
             case "max":
-                return new XPathIfFunc(args);
+                return new XPathMaxFunc(args);
             case "min":
-                return new XPathIfFunc(args);
+                return new XPathMinFunc(args);
             case "today":
-                return new XPathIfFunc(args);
+                return new XPathTodayFunc(args);
             case "now":
-                return new XPathIfFunc(args);
+                return new XPathNowFunc(args);
             case "concat":
-                return new XPathIfFunc(args);
+                return new XPathConcatFunc(args);
             case "join":
-                return new XPathIfFunc(args);
+                return new XPathJoinFunc(args);
             case "substr":
-                return new XPathIfFunc(args);
+                return new XPathSubstrFunc(args);
             case "substring-before":
-                return new XPathIfFunc(args);
+                return new XPathSubstringBeforeFunc(args);
             case "substring-after":
-                return new XPathIfFunc(args);
+                return new XPathSubstringAfterFunc(args);
             case "string-length":
-                return new XPathIfFunc(args);
+                return new XPathStringLenthFunc(args);
             case "upper-case":
-                return new XPathIfFunc(args);
+                return new XPathUpperCaseFunc(args);
             case "lower-case":
-                return new XPathIfFunc(args);
+                return new XPathLowerCaseFunc(args);
             case "contains":
-                return new XPathIfFunc(args);
+                return new XPathContainsFunc(args);
             case "starts-with":
-                return new XPathIfFunc(args);
+                return new XPathStartsWithFunc(args);
             case "ends-with":
-                return new XPathIfFunc(args);
+                return new XPathEndsWithFunc(args);
             case "translate":
-                return new XPathIfFunc(args);
+                return new XPathTranslateFunc(args);
             case "replace":
-                return new XPathIfFunc(args);
+                return new XPathReplaceFunc(args);
             case "checklist":
-                return new XPathIfFunc(args);
+                return new XPathChecklistFunc(args);
             case "weighted-checklist":
-                return new XPathIfFunc(args);
+                return new XPathWeightedChecklistFunch(args);
             case "regex":
-                return new XPathIfFunc(args);
+                return new XPathRegexFunc(args);
             case "depend":
-                return new XPathIfFunc(args);
+                return new XPathDependFunc(args);
             case "random":
-                return new XPathIfFunc(args);
+                return new XPathRandomFunc(args);
             case "uuid":
-                return new XPathIfFunc(args);
+                return new XPathUuidFunc(args);
             case "pow":
-                return new XPathIfFunc(args);
+                return new XPathPowFunc(args);
             case "abs":
-                return new XPathIfFunc(args);
+                return new XPathAbsFunc(args);
             case "ceiling":
-                return new XPathIfFunc(args);
+                return new XPathCeilingFunc(args);
             case "floor":
-                return new XPathIfFunc(args);
+                return new XPathFloorFunc(args);
             case "round":
-                return new XPathIfFunc(args);
+                return new XPathRoundFunc(args);
             case "log":
-                return new XPathIfFunc(args);
+                return new XPathLogFunc(args);
             case "log10":
-                return new XPathIfFunc(args);
+                return new XPathLogTenFunc(args);
             case "sin":
-                return new XPathIfFunc(args);
+                return new XPathSinFunc(args);
             case "cos":
-                return new XPathIfFunc(args);
+                return new XPathCosFunc(args);
             case "tan":
-                return new XPathIfFunc(args);
+                return new XPathTanFunc(args);
             case "asin":
-                return new XPathIfFunc(args);
+                return new XPathAsinFunc(args);
             case "acos":
-                return new XPathIfFunc(args);
+                return new XPathAcosFunc(args);
             case "atan":
-                return new XPathIfFunc(args);
+                return new XPathAtanFunc(args);
             case "atan2":
-                return new XPathIfFunc(args);
+                return new XPathAtanTwoFunc(args);
             case "sqrt":
-                return new XPathIfFunc(args);
+                return new XPathSqrtFunc(args);
             case "exp":
-                return new XPathIfFunc(args);
+                return new XPathExpFunc(args);
             case "pi":
-                return new XPathIfFunc(args);
+                return new XPathPiFunc(args);
             case "distance":
-                return new XPathIfFunc(args);
+                return new XPathDistanceFunc(args);
             case "format-date-for-calendar":
-                return new XPathIfFunc(args);
+                return new XPathFormatDateForCalendarFunc(args);
             default:
                 return new XPathIfFunc(args);
         }
