@@ -49,7 +49,7 @@ import me.regexp.RESyntaxException;
  * @author Drew Roos
  */
 public class XPathFuncExpr extends XPathExpression {
-    public String id;            //name of the function
+    protected String id;            //name of the function
     public XPathExpression[] args;    //argument list
     protected int expectedArgCount;
 
@@ -58,9 +58,7 @@ public class XPathFuncExpr extends XPathExpression {
     } //for deserialization
 
     public XPathFuncExpr(String id, XPathExpression[] args) throws XPathSyntaxException {
-        if ("if".equals(id) && args.length != 3) {
-            throw new XPathSyntaxException("if() function requires 3 arguments but " + args.length + " are present.");
-        } else if ("cond".equals(id)) {
+        if ("cond".equals(id)) {
             if (args.length < 3) {
                 throw new XPathSyntaxException("cond() function requires at least 3 arguments. " + args.length + " arguments provided.");
             } else if (args.length % 2 != 1) {
@@ -171,10 +169,7 @@ public class XPathFuncExpr extends XPathExpression {
 
         Hashtable funcHandlers = evalContext.getFunctionHandlers();
 
-        //TODO: Func handlers should be able to declare the desire for short circuiting as well
-        if (name.equals("if") && args.length == 3) {
-            return ifThenElse(model, evalContext, args);
-        } else if (name.equals("coalesce") && args.length > 0) {
+        if (name.equals("coalesce") && args.length > 0) {
             return coalesceEval(model, evalContext, args);
         } else if (name.equals("cond")) {
             return condEval(model, evalContext, args);
@@ -880,14 +875,6 @@ public class XPathFuncExpr extends XPathExpression {
         return new Double(refAt.getMultLast());
     }
 
-    private static Object ifThenElse(DataInstance model, EvaluationContext ec, XPathExpression[] args) {
-        if (toBoolean(args[0].eval(model, ec))) {
-            return args[1].eval(model, ec);
-        } else {
-            return args[2].eval(model, ec);
-        }
-    }
-
     private static Object condEval(DataInstance model, EvaluationContext ec,
                                    XPathExpression[] args) {
         for (int i = 0; i < args.length - 2; i+=2) {
@@ -1276,8 +1263,6 @@ public class XPathFuncExpr extends XPathExpression {
 
     @Override
     public Object pivot(DataInstance model, EvaluationContext evalContext, Vector<Object> pivots, Object sentinal) throws UnpivotableExpressionException {
-        String name = id.toString();
-
         //for now we'll assume that all that functions do is return the composition of their components
         Object[] argVals = new Object[args.length];
 
@@ -1286,7 +1271,7 @@ public class XPathFuncExpr extends XPathExpression {
         String[] identities = new String[]{"string-length"};
         boolean id = false;
         for (String identity : identities) {
-            if (identity.equals(name)) {
+            if (identity.equals(id)) {
                 id = true;
             }
         }

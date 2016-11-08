@@ -1,4 +1,4 @@
-package org.javarosa.xpath.expr.functions;
+package org.javarosa.xpath.expr;
 
 import org.javarosa.core.util.CacheTable;
 import org.javarosa.xpath.XPathNodeset;

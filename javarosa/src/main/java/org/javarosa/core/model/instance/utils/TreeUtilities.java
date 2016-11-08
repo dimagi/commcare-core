@@ -14,7 +14,7 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.expr.XPathStep;
 import org.javarosa.xpath.expr.XPathStringLiteral;
-import org.javarosa.xpath.expr.functions.FunctionUtils;
+import org.javarosa.xpath.expr.FunctionUtils;
 
 import java.util.Hashtable;
 import java.util.Vector;

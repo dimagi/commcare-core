@@ -3,7 +3,7 @@ package org.javarosa.xpath.parser.ast;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathQName;
-import org.javarosa.xpath.expr.functions.IfFunc;
+import org.javarosa.xpath.expr.XPathIfFunc;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.ArrayList;
@@ -36,133 +36,133 @@ public class ASTNodeFunctionCall extends ASTNode {
     private static XPathFuncExpr buildFuncExpr(String name, XPathExpression[] args) {
         switch (name) {
             case "if":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "coalesce":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "cond":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "true":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "false":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "boolean":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "number":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "int":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "double":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "string":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "date":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "not":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "boolean-from-string":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "format-date":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "selected":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "is-selected":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "count-selected":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "selected-at":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "position":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "count":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "sum":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "max":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "min":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "today":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "now":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "concat":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "join":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "substr":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "substring-before":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "substring-after":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "string-length":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "upper-case":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "lower-case":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "contains":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "starts-with":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "ends-with":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "translate":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "replace":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "checklist":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "weighted-checklist":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "regex":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "depend":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "random":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "uuid":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "pow":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "abs":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "ceiling":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "floor":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "round":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "log":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "log10":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "sin":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "cos":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "tan":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "asin":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "acos":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "atan":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "atan2":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "sqrt":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "exp":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "pi":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "distance":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             case "format-date-for-calendar":
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
             default:
-                return new IfFunc(args);
+                return new XPathIfFunc(args);
         }
     }
 }

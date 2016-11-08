@@ -2,7 +2,7 @@ package org.javarosa.core.model.trace;
 
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.expr.XPathFuncExpr;
-import org.javarosa.xpath.expr.functions.FunctionUtils;
+import org.javarosa.xpath.expr.FunctionUtils;
 
 import java.util.Vector;
 
