@@ -27,7 +27,7 @@ public class ASTNodeFunctionCall extends ASTNode {
             xargs[i] = args.get(i).build();
         }
 
-        return buildFuncExpr(name.name, xargs);
+        return buildFuncExpr(name.toString(), xargs);
     }
 
     private static XPathFuncExpr buildFuncExpr(String name, XPathExpression[] args)
