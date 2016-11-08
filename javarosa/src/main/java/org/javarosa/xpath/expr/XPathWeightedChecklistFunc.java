@@ -40,4 +40,32 @@ public class XPathWeightedChecklistFunc extends XPathFuncExpr {
             return checklistWeighted(evaluatedArgs[0], evaluatedArgs[1], subsetArgList(evaluatedArgs, 2, 2), subsetArgList(evaluatedArgs, 3, 2));
         }
     }
+
+    /**
+     * very similar to checklist, only each factor is assigned a real-number 'weight'.
+     *
+     * the first and second args are again the minimum and maximum, but -1 no longer means
+     * 'not applicable'.
+     *
+     * subsequent arguments come in pairs: first the boolean value, then the floating-point
+     * weight for that value
+     *
+     * the weights of all the 'true' factors are summed, and the function returns whether
+     * this sum is between the min and max
+     */
+    private static Boolean checklistWeighted(Object oMin, Object oMax, Object[] flags, Object[] weights) {
+        double min = toNumeric(oMin);
+        double max = toNumeric(oMax);
+
+        double sum = 0.;
+        for (int i = 0; i < flags.length; i++) {
+            boolean flag = toBoolean(flags[i]);
+            double weight = toNumeric(weights[i]);
+
+            if (flag)
+                sum += weight;
+        }
+
+        return sum >= min && sum <= max;
+    }
 }

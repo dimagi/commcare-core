@@ -19,6 +19,11 @@ public class XPathBooleanFromStringFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return boolStr(evaluatedArgs[0]);
+        String s = toString(evaluatedArgs[0]);
+        if (s.equalsIgnoreCase("true") || s.equals("1")) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
     }
 }

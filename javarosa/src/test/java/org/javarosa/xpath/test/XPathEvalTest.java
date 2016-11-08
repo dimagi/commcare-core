@@ -33,6 +33,8 @@ import java.util.Vector;
 import static org.junit.Assert.fail;
 
 public class XPathEvalTest {
+    public static final double DOUBLE_TOLERANCE = 1.0e-12;
+
     private void testEval(String expr, FormInstance model, EvaluationContext ec, Object expected) {
         testEval(expr, model, ec, expected, 1.0e-12);
     }
@@ -60,7 +62,7 @@ public class XPathEvalTest {
 
         try {
             Object result = XPathFuncExpr.unpack(xpe.eval(model, ec));
-            if (tolerance != XPathFuncExpr.DOUBLE_TOLERANCE) {
+            if (tolerance != DOUBLE_TOLERANCE) {
                 System.out.println(expr + " = " + result);
             }
 

@@ -29,5 +29,4 @@ public class XPathAtanFunc extends XPathFuncExpr {
         double value = toDouble(o);
         return Math.atan(value);
     }
-
 }

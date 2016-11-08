@@ -5,7 +5,6 @@ import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.MathUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -13,7 +12,6 @@ import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathArityException;
-import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -186,16 +184,6 @@ public abstract class XPathFuncExpr extends XPathExpression {
      * it must, strive to make it an XPathException
      */
 
-    public static boolean isNull(Object o) {
-        if (o == null) {
-            return true; //true 'null' values aren't allowed in the xpath engine, but whatever
-        } else if (o instanceof String && ((String)o).length() == 0) {
-            return true;
-        } else {
-            return o instanceof Double && ((Double)o).isNaN();
-        }
-    }
-
     /**
      * convert a value to a boolean using xpath's type conversion rules
      */
@@ -277,7 +265,7 @@ public abstract class XPathFuncExpr extends XPathExpression {
      * The xpath spec doesn't recognize scientific notation, or +/-Infinity when converting a
      * string to a number
      */
-    public static boolean checkForInvalidNumericOrDatestringCharacters(String s) {
+    protected static boolean checkForInvalidNumericOrDatestringCharacters(String s) {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             if (c != '-' && c != '.' && (c < '0' || c > '9')) {
@@ -409,19 +397,6 @@ public abstract class XPathFuncExpr extends XPathExpression {
         }
     }
 
-    public static Boolean boolNot(Object o) {
-        boolean b = toBoolean(o);
-        return !b;
-    }
-
-    public static Boolean boolStr(Object o) {
-        String s = toString(o);
-        if (s.equalsIgnoreCase("true") || s.equals("1"))
-            return Boolean.TRUE;
-        else
-            return Boolean.FALSE;
-    }
-
     protected static Date expandDateSafe(Object dateObject) {
         if (!(dateObject instanceof Date)) {
             // try to expand this out of a nodeset
@@ -435,110 +410,6 @@ public abstract class XPathFuncExpr extends XPathExpression {
     }
 
     /**
-     * return whether a particular choice of a multi-select is selected
-     *
-     * @param o1 XML-serialized answer to multi-select question (i.e, space-delimited choice values)
-     * @param o2 choice to look for
-     */
-    public static Boolean multiSelected(Object o1, Object o2) {
-        o2 = unpack(o2);
-        if (!(o2 instanceof String)) {
-            throw generateBadArgumentMessage("selected", 2, "single potential value from the list of select options", o2);
-        }
-        String s1 = (String)unpack(o1);
-        String s2 = ((String)o2).trim();
-
-        return (" " + s1 + " ").contains(" " + s2 + " ");
-    }
-
-    public static XPathException generateBadArgumentMessage(String functionName, int argNumber, String type, Object endValue) {
-        return new XPathException("Bad argument to function '" + functionName + "'. Argument #" + argNumber + " should be a " + type + ", but instead evaluated to: " + String.valueOf(endValue));
-    }
-
-    /**
-     * return the number of choices in a multi-select answer
-     *
-     * @param o XML-serialized answer to multi-select question (i.e, space-delimited choice values)
-     */
-    public static Double countSelected(Object o) {
-
-        Object evalResult = unpack(o);
-        if (!(evalResult instanceof String)) {
-            throw new XPathTypeMismatchException("count-selected argument was not a select list");
-        }
-
-        String s = (String)evalResult;
-        return new Double(DataUtil.splitOnSpaces(s).length);
-    }
-
-    /**
-     * Get the Nth item in a selected list
-     *
-     * @param o1 XML-serialized answer to multi-select question (i.e, space-delimited choice values)
-     * @param o2 the integer index into the list to return
-     */
-    public static String selectedAt(Object o1, Object o2) {
-        String selection = (String)unpack(o1);
-        int index = toInt(o2).intValue();
-
-        String[] entries = DataUtil.splitOnSpaces(selection);
-
-        if (entries.length <= index) {
-            throw new XPathException("Attempting to select element " + index +
-                    " of a list with only " + entries.length + " elements.");
-        } else {
-            return entries[index];
-        }
-    }
-
-    /**
-     * concatenate an abritrary-length argument list of string values together
-     */
-    public static String join(Object oSep, Object[] argVals) {
-        String sep = toString(oSep);
-        StringBuffer sb = new StringBuffer();
-
-        for (int i = 0; i < argVals.length; i++) {
-            sb.append(toString(argVals[i]));
-            if (i < argVals.length - 1)
-                sb.append(sep);
-        }
-
-        return sb.toString();
-    }
-
-    /*
-     * Implementation decisions:
-     * -Returns the empty string if o1.equals("")
-     * -Returns the empty string for any inputs that would
-     * cause an IndexOutOfBoundsException on call to Java's substring method,
-     * after start and end have been adjusted
-     */
-    public static String substring(Object o1, Object o2, Object o3) {
-        String s = toString(o1);
-
-        if (s.length() == 0) {
-            return "";
-        }
-
-        int start = toInt(o2).intValue();
-
-        int len = s.length();
-
-        int end = (o3 != null ? toInt(o3).intValue() : len);
-        if (start < 0) {
-            start = len + start;
-        }
-        if (end < 0) {
-            end = len + end;
-        }
-        start = Math.min(Math.max(0, start), end);
-        end = Math.min(Math.max(0, end), end);
-
-        return ((start <= end && end <= len) ? s.substring(start, end) : "");
-    }
-
-    /**
      * Perform toUpperCase or toLowerCase on given object.
      */
     protected String normalizeCase(Object o, boolean toUpper) {
@@ -547,61 +418,6 @@ public abstract class XPathFuncExpr extends XPathExpression {
             return s.toUpperCase();
         }
         return s.toLowerCase();
-    }
-
-
-    /**
-     * perform a 'checklist' computation, enabling expressions like 'if there are at least 3 risk
-     * factors active'
-     *
-     * @param oMin    a numeric value expressing the minimum number of factors required.
-     *                if -1, no minimum is applicable
-     * @param oMax    a numeric value expressing the maximum number of allowed factors.
-     *                if -1, no maximum is applicable
-     * @param factors individual factors that are coerced to boolean values
-     * @return true if the count of 'true' factors is between the applicable minimum and maximum,
-     * inclusive
-     */
-    public static Boolean checklist(Object oMin, Object oMax, Object[] factors) {
-        int min = toNumeric(oMin).intValue();
-        int max = toNumeric(oMax).intValue();
-
-        int count = 0;
-        for (Object factor : factors) {
-            if (toBoolean(factor)) {
-                count++;
-            }
-        }
-
-        return (min < 0 || count >= min) && (max < 0 || count <= max);
-    }
-
-    /**
-     * very similar to checklist, only each factor is assigned a real-number 'weight'.
-     *
-     * the first and second args are again the minimum and maximum, but -1 no longer means
-     * 'not applicable'.
-     *
-     * subsequent arguments come in pairs: first the boolean value, then the floating-point
-     * weight for that value
-     *
-     * the weights of all the 'true' factors are summed, and the function returns whether
-     * this sum is between the min and max
-     */
-    public static Boolean checklistWeighted(Object oMin, Object oMax, Object[] flags, Object[] weights) {
-        double min = toNumeric(oMin);
-        double max = toNumeric(oMax);
-
-        double sum = 0.;
-        for (int i = 0; i < flags.length; i++) {
-            boolean flag = toBoolean(flags[i]);
-            double weight = toNumeric(weights[i]);
-
-            if (flag)
-                sum += weight;
-        }
-
-        return sum >= min && sum <= max;
     }
 
     protected static Object[] subsetArgList(Object[] args, int start) {
@@ -685,9 +501,6 @@ public abstract class XPathFuncExpr extends XPathExpression {
         //TODO: Inner eval here with eval'd args to improve speed
         return eval(model, evalContext);
     }
-
-    public static final double DOUBLE_TOLERANCE = 1.0e-12;
-
 
     protected void validateArgCount() throws XPathSyntaxException {
         if (expectedArgCount != args.length) {

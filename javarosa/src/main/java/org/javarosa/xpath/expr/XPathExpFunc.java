@@ -26,5 +26,4 @@ public class XPathExpFunc extends XPathFuncExpr {
         double value = toDouble(o);
         return Math.exp(value);
     }
-
 }

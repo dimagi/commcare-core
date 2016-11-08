@@ -144,7 +144,7 @@ public class ExprEvalUtils {
 
         try {
             Object result = XPathFuncExpr.unpack(xpe.eval(model, ec));
-            if (tolerance != XPathFuncExpr.DOUBLE_TOLERANCE) {
+            if (tolerance != DOUBLE_TOLERANCE) {
                 System.out.println(expr + " = " + result);
             }
 

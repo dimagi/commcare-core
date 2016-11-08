@@ -29,5 +29,4 @@ public class XPathAcosFunc extends XPathFuncExpr {
         double value = toDouble(o);
         return Math.acos(value);
     }
-
 }

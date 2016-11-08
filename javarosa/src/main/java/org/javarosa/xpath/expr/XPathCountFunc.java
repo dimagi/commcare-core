@@ -27,7 +27,7 @@ public class XPathCountFunc extends XPathFuncExpr {
     /**
      * count the number of nodes in a nodeset
      */
-    public static Double count(Object o) {
+    private static Double count(Object o) {
         if (o instanceof XPathNodeset) {
             return new Double(((XPathNodeset)o).size());
         } else {

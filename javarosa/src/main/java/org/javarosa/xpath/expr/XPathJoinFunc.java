@@ -35,4 +35,21 @@ public class XPathJoinFunc extends XPathFuncExpr {
             return join(evaluatedArgs[0], subsetArgList(evaluatedArgs, 1));
         }
     }
+
+    /**
+     * concatenate an abritrary-length argument list of string values together
+     */
+    public static String join(Object oSep, Object[] argVals) {
+        String sep = toString(oSep);
+        StringBuffer sb = new StringBuffer();
+
+        for (int i = 0; i < argVals.length; i++) {
+            sb.append(toString(argVals[i]));
+            if (i < argVals.length - 1)
+                sb.append(sep);
+        }
+
+        return sb.toString();
+    }
+
 }

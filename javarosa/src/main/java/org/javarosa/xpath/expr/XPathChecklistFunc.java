@@ -35,4 +35,31 @@ public class XPathChecklistFunc extends XPathFuncExpr {
             return checklist(evaluatedArgs[0], evaluatedArgs[1], subsetArgList(evaluatedArgs, 2));
         }
     }
+
+    /**
+     * perform a 'checklist' computation, enabling expressions like 'if there are at least 3 risk
+     * factors active'
+     *
+     * @param oMin    a numeric value expressing the minimum number of factors required.
+     *                if -1, no minimum is applicable
+     * @param oMax    a numeric value expressing the maximum number of allowed factors.
+     *                if -1, no maximum is applicable
+     * @param factors individual factors that are coerced to boolean values
+     * @return true if the count of 'true' factors is between the applicable minimum and maximum,
+     * inclusive
+     */
+    private static Boolean checklist(Object oMin, Object oMax, Object[] factors) {
+        int min = toNumeric(oMin).intValue();
+        int max = toNumeric(oMax).intValue();
+
+        int count = 0;
+        for (Object factor : factors) {
+            if (toBoolean(factor)) {
+                count++;
+            }
+        }
+
+        return (min < 0 || count >= min) && (max < 0 || count <= max);
+    }
+
 }

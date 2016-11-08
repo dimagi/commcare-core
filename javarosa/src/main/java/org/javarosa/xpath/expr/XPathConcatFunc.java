@@ -2,7 +2,6 @@ package org.javarosa.xpath.expr;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
@@ -27,9 +26,9 @@ public class XPathConcatFunc extends XPathFuncExpr {
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         if (args.length == 1 && evaluatedArgs[0] instanceof XPathNodeset) {
-            return join("", ((XPathNodeset)evaluatedArgs[0]).toArgList());
+            return XPathJoinFunc.join("", ((XPathNodeset)evaluatedArgs[0]).toArgList());
         } else {
-            return join("", evaluatedArgs);
+            return XPathJoinFunc.join("", evaluatedArgs);
         }
     }
 }

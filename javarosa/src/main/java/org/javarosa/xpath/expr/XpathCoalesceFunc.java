@@ -37,4 +37,14 @@ public class XpathCoalesceFunc extends XPathFuncExpr {
         }
         return args[args.length - 1].eval(model, evalContext);
     }
+
+    private static boolean isNull(Object o) {
+        if (o == null) {
+            return true; //true 'null' values aren't allowed in the xpath engine, but whatever
+        } else if (o instanceof String && ((String)o).length() == 0) {
+            return true;
+        } else {
+            return o instanceof Double && ((Double)o).isNaN();
+        }
+    }
 }

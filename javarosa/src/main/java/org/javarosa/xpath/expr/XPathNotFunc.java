@@ -19,6 +19,6 @@ public class XPathNotFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return boolNot(evaluatedArgs[0]);
+        return !toBoolean(evaluatedArgs[0]);
     }
 }
