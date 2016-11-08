@@ -161,7 +161,6 @@ public abstract class XPathFuncExpr extends XPathExpression {
         }
     }
 
-
     protected abstract Object evalBody(DataInstance model, EvaluationContext evalContext);
 
     /**

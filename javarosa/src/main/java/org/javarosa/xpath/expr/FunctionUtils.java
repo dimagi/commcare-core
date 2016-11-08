@@ -2,11 +2,6 @@ package org.javarosa.xpath.expr;
 
 import org.javarosa.core.util.CacheTable;
 import org.javarosa.xpath.XPathNodeset;
-import org.javarosa.xpath.expr.XPathFuncExpr;
-
-/**
- * @author Phillip Mates (pmates@dimagi.com)
- */
 
 public class FunctionUtils {
 
