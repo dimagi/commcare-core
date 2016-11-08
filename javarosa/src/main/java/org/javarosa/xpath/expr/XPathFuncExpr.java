@@ -58,14 +58,6 @@ public class XPathFuncExpr extends XPathExpression {
     } //for deserialization
 
     public XPathFuncExpr(String id, XPathExpression[] args) throws XPathSyntaxException {
-        if ("cond".equals(id)) {
-            if (args.length < 3) {
-                throw new XPathSyntaxException("cond() function requires at least 3 arguments. " + args.length + " arguments provided.");
-            } else if (args.length % 2 != 1) {
-                throw new XPathSyntaxException("cond() function requires an odd number of arguments. " + args.length + " arguments provided.");
-            }
-        }
-
         this.id = id;
         this.args = args;
     }
@@ -171,8 +163,6 @@ public class XPathFuncExpr extends XPathExpression {
 
         if (name.equals("coalesce") && args.length > 0) {
             return coalesceEval(model, evalContext, args);
-        } else if (name.equals("cond")) {
-            return condEval(model, evalContext, args);
         }
 
         for (int i = 0; i < args.length; i++) {
@@ -875,17 +865,6 @@ public class XPathFuncExpr extends XPathExpression {
         return new Double(refAt.getMultLast());
     }
 
-    private static Object condEval(DataInstance model, EvaluationContext ec,
-                                   XPathExpression[] args) {
-        for (int i = 0; i < args.length - 2; i+=2) {
-            if (toBoolean(args[i].eval(model, ec))) {
-                return args[i+1].eval(model, ec);
-            }
-        }
-
-        return args[args.length-1].eval(model, ec);
-    }
-
     private static Object coalesceEval(DataInstance model, EvaluationContext evalContext,
                                        XPathExpression[] args) {
         //Not sure if unpacking here is quiiite right, but it seems right
@@ -1474,5 +1453,10 @@ public class XPathFuncExpr extends XPathExpression {
         GeoPointData castedTo = new GeoPointData().cast(new UncastData(unpackedTo));
 
         return new Double(GeoPointUtils.computeDistanceBetween(castedFrom, castedTo));
+    }
+
+
+    protected void validateArgCount() throws XPathSyntaxException {
+        // TODO PLM: make abstract
     }
 }

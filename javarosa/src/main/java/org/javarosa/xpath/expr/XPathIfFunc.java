@@ -4,9 +4,6 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-/**
- * @author Phillip Mates (pmates@dimagi.com)
- */
 public class XPathIfFunc extends XPathFuncExpr {
 
     public XPathIfFunc() {
@@ -20,7 +17,8 @@ public class XPathIfFunc extends XPathFuncExpr {
         validateArgCount();
     }
 
-    private void validateArgCount() throws XPathSyntaxException {
+    @Override
+    protected void validateArgCount() throws XPathSyntaxException {
         if (args.length != expectedArgCount) {
             String msg = id + "() function requires "
                     + expectedArgCount + " arguments but "

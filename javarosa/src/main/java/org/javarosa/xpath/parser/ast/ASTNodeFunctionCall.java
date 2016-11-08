@@ -1,5 +1,6 @@
 package org.javarosa.xpath.parser.ast;
 
+import org.javarosa.xpath.expr.XPathCondFunc;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathQName;
@@ -33,14 +34,15 @@ public class ASTNodeFunctionCall extends ASTNode {
         return buildFuncExpr(name.name, xargs);
     }
 
-    private static XPathFuncExpr buildFuncExpr(String name, XPathExpression[] args) {
+    private static XPathFuncExpr buildFuncExpr(String name, XPathExpression[] args)
+            throws XPathSyntaxException {
         switch (name) {
             case "if":
                 return new XPathIfFunc(args);
             case "coalesce":
                 return new XPathIfFunc(args);
             case "cond":
-                return new XPathIfFunc(args);
+                return new XPathCondFunc(args);
             case "true":
                 return new XPathIfFunc(args);
             case "false":
