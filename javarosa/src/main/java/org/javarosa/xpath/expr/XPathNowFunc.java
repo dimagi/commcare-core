@@ -20,7 +20,7 @@ public class XPathNowFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return new Date();
     }
 }

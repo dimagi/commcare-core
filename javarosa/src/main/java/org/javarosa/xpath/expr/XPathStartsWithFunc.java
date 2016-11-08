@@ -18,9 +18,7 @@ public class XPathStartsWithFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
-        evaluateArguments(model, evalContext);
-
+    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return toString(evaluatedArgs[0]).startsWith(toString(evaluatedArgs[1]));
     }
 }

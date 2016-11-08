@@ -16,7 +16,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -36,16 +35,7 @@ public class XPathCustomFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
-        evaluateArguments(model, evalContext);
-
-        Hashtable<String, IFunctionHandler> funcHandlers = evalContext.getFunctionHandlers();
-
-        IFunctionHandler handler = funcHandlers.get(id);
-        if (handler != null) {
-            return evalCustomFunction(handler, evaluatedArgs, evalContext);
-        }
-
+    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         throw new XPathUnhandledException("function \'" + id + "\'");
     }
 
@@ -59,7 +49,7 @@ public class XPathCustomFunc extends XPathFuncExpr {
      * unaltered argument list if no prototype matches. (this lets functions
      * support variable-length argument lists)
      */
-    private static Object evalCustomFunction(IFunctionHandler handler, Object[] args,
+    protected static Object evalCustomFunction(IFunctionHandler handler, Object[] args,
                                              EvaluationContext ec) {
         Vector prototypes = handler.getPrototypes();
         Enumeration e = prototypes.elements();

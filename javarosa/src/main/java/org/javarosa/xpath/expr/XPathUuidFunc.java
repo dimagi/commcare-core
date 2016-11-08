@@ -28,9 +28,7 @@ public class XPathUuidFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
-        evaluateArguments(model, evalContext);
-
+    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         //calculated expressions may be recomputed w/o warning! use with caution!!
         if (args.length == 0) {
             return PropertyUtils.genUUID();

@@ -1,6 +1,7 @@
 package org.javarosa.xpath.expr;
 
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.utils.DateUtils;
@@ -34,8 +35,9 @@ import java.util.Vector;
 public abstract class XPathFuncExpr extends XPathExpression {
     protected String id;
     public XPathExpression[] args;
-    public Object[] evaluatedArgs;
+    protected Object[] evaluatedArgs;
     protected int expectedArgCount;
+    private boolean evaluateArgsFirst;
 
     @SuppressWarnings("unused")
     public XPathFuncExpr() {
@@ -48,12 +50,7 @@ public abstract class XPathFuncExpr extends XPathExpression {
         this.id = id;
         this.args = args;
         this.expectedArgCount = expectedArgCount;
-
-        if (evaluateArgsFirst) {
-            this.evaluatedArgs = new Object[args.length];
-        } else {
-            this.evaluatedArgs = null;
-        }
+        this.evaluateArgsFirst = evaluateArgsFirst;
 
         validateArgCount();
     }
@@ -122,18 +119,19 @@ public abstract class XPathFuncExpr extends XPathExpression {
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         expectedArgCount = ExtUtil.readInt(in);
+        evaluateArgsFirst = ExtUtil.readBool(in);
 
         Vector v = (Vector)ExtUtil.read(in, new ExtWrapListPoly(), pf);
         args = new XPathExpression[v.size()];
         for (int i = 0; i < args.length; i++) {
             args[i] = (XPathExpression)v.elementAt(i);
         }
-        evaluatedArgs = new Object[args.length];
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, expectedArgCount);
+        ExtUtil.write(out, evaluateArgsFirst);
 
         Vector<XPathExpression> v = new Vector<>();
         for (XPathExpression arg : args) {
@@ -143,7 +141,30 @@ public abstract class XPathFuncExpr extends XPathExpression {
     }
 
     @Override
-    public abstract Object evalRaw(DataInstance model, EvaluationContext evalContext);
+    public final Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+        evaluateArguments(model, evalContext);
+
+        IFunctionHandler handler = evalContext.getFunctionHandlers().get(id);
+        if (handler != null) {
+            return XPathCustomFunc.evalCustomFunction(handler, evaluatedArgs, evalContext);
+        } else {
+            return evalBody(model, evalContext);
+        }
+    }
+
+    private void evaluateArguments(DataInstance model, EvaluationContext evalContext) {
+        if (evaluateArgsFirst) {
+            if (evaluatedArgs == null) {
+                evaluatedArgs = new Object[args.length];
+            }
+            for (int i = 0; i < args.length; i++) {
+                evaluatedArgs[i] = args[i].eval(model, evalContext);
+            }
+        }
+    }
+
+
+    protected abstract Object evalBody(DataInstance model, EvaluationContext evalContext);
 
     /**
      * ***** HANDLERS FOR BUILT-IN FUNCTIONS ********
@@ -671,14 +692,6 @@ public abstract class XPathFuncExpr extends XPathExpression {
     protected void validateArgCount() throws XPathSyntaxException {
         if (expectedArgCount != args.length) {
             throw new XPathArityException(id, expectedArgCount, args.length);
-        }
-    }
-
-    protected void evaluateArguments(DataInstance model, EvaluationContext evalContext) {
-        if (evaluatedArgs != null) {
-            for (int i = 0; i < args.length; i++) {
-                evaluatedArgs[i] = args[i].eval(model, evalContext);
-            }
         }
     }
 }

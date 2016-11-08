@@ -22,9 +22,7 @@ public class XPathFormatDateForCalendarFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
-        evaluateArguments(model, evalContext);
-
+    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return formatDateForCalendar(evaluatedArgs[0], evaluatedArgs[1]);
     }
 

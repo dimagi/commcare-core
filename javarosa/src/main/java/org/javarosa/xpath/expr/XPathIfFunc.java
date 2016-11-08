@@ -28,7 +28,7 @@ public class XPathIfFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         if (toBoolean(args[0].eval(model, evalContext))) {
             return args[1].eval(model, evalContext);
         } else {

@@ -28,9 +28,7 @@ public class XPathMinFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
-        evaluateArguments(model, evalContext);
-
+    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         if (evaluatedArgs.length == 1 && evaluatedArgs[0] instanceof XPathNodeset) {
             return min(((XPathNodeset)evaluatedArgs[0]).toArgList());
         } else {

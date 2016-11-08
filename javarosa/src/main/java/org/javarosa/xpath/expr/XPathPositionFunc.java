@@ -31,9 +31,7 @@ public class XPathPositionFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
-        evaluateArguments(model, evalContext);
-
+    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         if (args.length == 1) {
             XPathNodeset expr = (XPathNodeset)evaluatedArgs[0];
             try {

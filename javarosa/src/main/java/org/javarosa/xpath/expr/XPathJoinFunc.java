@@ -28,9 +28,7 @@ public class XPathJoinFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
-        evaluateArguments(model, evalContext);
-
+    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         if (args.length == 2 && evaluatedArgs[1] instanceof XPathNodeset) {
             return join(evaluatedArgs[0], ((XPathNodeset)evaluatedArgs[1]).toArgList());
         } else {

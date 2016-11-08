@@ -18,9 +18,7 @@ public class XPathNumberFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
-        evaluateArguments(model, evalContext);
-
+    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return toNumeric(evaluatedArgs[0]);
     }
 }
