@@ -1,11 +1,10 @@
-package org.commcare.util.cli;
+package org.commcare.util.screen;
 
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.DisplayUnit;
-import org.commcare.suite.model.MenuDisplayable;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.xml.ElementParser;
@@ -15,12 +14,10 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Hashtable;
 import java.util.Map;
 

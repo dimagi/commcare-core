@@ -1,19 +1,14 @@
-package org.commcare.util.cli;
+package org.commcare.util.screen;
 
 import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.suite.model.EntityDatum;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathException;
 
 import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -79,7 +74,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             } catch (Exception e) {
                 //Really don't care if it didn't work
             }
-            CliUtils.addPaddedStringToBuilder(row, s, widthHint);
+            ScreenUtils.addPaddedStringToBuilder(row, s, widthHint);
             i++;
             if (i != fields.length) {
                 row.append(" | ");
@@ -104,7 +99,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             } catch (Exception e) {
                 //Really don't care if it didn't work
             }
-            CliUtils.addPaddedStringToBuilder(row, s, widthHint);
+            ScreenUtils.addPaddedStringToBuilder(row, s, widthHint);
 
             headers[i] = s;
             widthHints[i] = widthHint;
@@ -132,8 +127,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             } catch (Exception e) {
                 //Really don't care if it didn't work
             }
-            CliUtils.addPaddedStringToBuilder(row, s, widthHint);
-
+            ScreenUtils.addPaddedStringToBuilder(row, s, widthHint);
             i++;
             if (i != fields.length) {
                 row.append(" | ");
@@ -146,12 +140,12 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     public void prompt(PrintStream out) {
 
         int maxLength = String.valueOf(mChoices.length).length();
-        out.println(CliUtils.pad("", maxLength + 1) + mHeader);
+        out.println(ScreenUtils.pad("", maxLength + 1) + mHeader);
         out.println("==============================================================================================");
 
         for (int i = 0; i < mChoices.length; ++i) {
             String d = rows[i];
-            out.println(CliUtils.pad(String.valueOf(i), maxLength) + ")" + d);
+            out.println(ScreenUtils.pad(String.valueOf(i), maxLength) + ")" + d);
         }
 
         if(actions != null) {
