@@ -99,7 +99,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
 
 
     @Override
-    public boolean handleInputAndUpdateHost(String input, EntityScreen host) throws org.commcare.util.screen.CommCareSessionException {
+    public boolean handleInputAndUpdateHost(String input, EntityScreen host) throws CommCareSessionException {
         if (input.trim().equals("")) {
             return true;
         }
