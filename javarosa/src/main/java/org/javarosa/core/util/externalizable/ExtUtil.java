@@ -127,7 +127,12 @@ public class ExtUtil {
     }
 
     public static void writeString(DataOutputStream out, String val) throws IOException {
-        out.writeUTF(val);
+        try {
+            out.writeUTF(val);
+        } catch (UTFDataFormatException e) {
+            int percentOversized = ((val.getBytes("UTF-8").length / (((int)Short.MAX_VALUE) * 2)) - 1) * 100;
+            throw new SerializationLimitationException(percentOversized);
+        }
         //we could easily come up with more efficient default encoding for string
     }
 

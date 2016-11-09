@@ -97,7 +97,6 @@ public class AppStructureTests {
                 .getDemoUserRestore();
         Assert.assertNotNull(offlineUserRestore);
         assertEquals("test", offlineUserRestore.getUsername());
-        Assert.assertNotNull(offlineUserRestore.getPassword());
 
         // Test parsing an app where the user_type is not set to 'demo'
         boolean exceptionThrown = false;

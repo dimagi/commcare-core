@@ -115,7 +115,7 @@ public class CommCareSession {
         }
     }
 
-    public Vector<Entry> getEntriesForCommand(String commandId) {
+    private Vector<Entry> getEntriesForCommand(String commandId) {
         return getEntriesForCommand(commandId, new OrderedHashtable<String, String>());
     }
 
@@ -370,17 +370,18 @@ public class CommCareSession {
     }
 
     private boolean shouldPopNext(EvaluationContext evalContext) {
-        if (this.getNeededData(evalContext) == null ||
-                this.getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED) ||
-                popped.getType().equals(SessionFrame.STATE_DATUM_COMPUTED) ||
+        String neededData = getNeededData(evalContext);
+        String poppedType = popped == null ? "" : popped.getType();
+
+        if (neededData == null ||
+                SessionFrame.STATE_DATUM_COMPUTED.equals(neededData) ||
+                SessionFrame.STATE_DATUM_COMPUTED.equals(poppedType) ||
                 topStepIsMark()) {
             return true;
         }
 
-        if (popped.getType().equals(SessionFrame.STATE_UNKNOWN)){
-            return guessUnknownType(popped).equals(SessionFrame.STATE_DATUM_COMPUTED);
-        }
-        return false;
+        return SessionFrame.STATE_UNKNOWN.equals(poppedType)
+                && guessUnknownType(popped).equals(SessionFrame.STATE_DATUM_COMPUTED);
 
     }
 
