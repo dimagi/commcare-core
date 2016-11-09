@@ -23,7 +23,7 @@ public class PersistableSandbox {
         factory = new PrototypeFactory(new ClassNameHasher());
     }
     
-    public <T extends Externalizable> byte[] serialize(T t) {
+    public static <T extends Externalizable> byte[] serialize(T t) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             t.writeExternal(new DataOutputStream(baos));
