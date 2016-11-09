@@ -35,21 +35,20 @@ import java.io.UnsupportedEncodingException;
  */
 public class OfflineUserRestore implements Persistable {
     public static final String STORAGE_KEY = "OfflineUserRestore";
+    public static final String DEMO_USER_PASSWORD = "demo-user-password";
     private int recordId = -1;
     private String restore;
     private String reference;
     private String username;
-    private String password;
 
     public OfflineUserRestore() {
     }
 
-    public OfflineUserRestore(String reference) throws UnfullfilledRequirementsException,
-            IOException, InvalidStructureException, XmlPullParserException, InvalidReferenceException {
-
+    public OfflineUserRestore(String reference)
+            throws UnfullfilledRequirementsException, IOException, InvalidStructureException,
+            XmlPullParserException, InvalidReferenceException {
         this.reference = reference;
-        checkThatRestoreIsValid();
-        this.password = PropertyUtils.genUUID();
+        checkThatRestoreIsValidAndSetUsername();
     }
 
     public static OfflineUserRestore buildInMemoryUserRestore(InputStream restoreStream)
@@ -59,8 +58,7 @@ public class OfflineUserRestore implements Persistable {
         OfflineUserRestore offlineUserRestore = new OfflineUserRestore();
         byte[] restoreBytes = StreamsUtil.inputStreamToByteArray(restoreStream);
         offlineUserRestore.restore = new String(restoreBytes);
-        offlineUserRestore.checkThatRestoreIsValid();
-        offlineUserRestore.password = PropertyUtils.genUUID();
+        offlineUserRestore.checkThatRestoreIsValidAndSetUsername();
 
         return offlineUserRestore;
     }
@@ -100,10 +98,6 @@ public class OfflineUserRestore implements Persistable {
         return username;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
@@ -111,7 +105,6 @@ public class OfflineUserRestore implements Persistable {
         this.reference = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         this.restore = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         this.username = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-        this.password = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
     }
 
     @Override
@@ -120,7 +113,6 @@ public class OfflineUserRestore implements Persistable {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(reference));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(restore));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(username));
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(password));
     }
 
     @Override
@@ -133,7 +125,7 @@ public class OfflineUserRestore implements Persistable {
         return recordId;
     }
 
-    private void checkThatRestoreIsValid()
+    private void checkThatRestoreIsValidAndSetUsername()
             throws UnfullfilledRequirementsException, IOException, InvalidStructureException,
             XmlPullParserException {
 
