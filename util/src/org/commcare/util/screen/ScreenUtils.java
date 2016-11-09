@@ -1,11 +1,11 @@
-package org.commcare.util.cli;
+package org.commcare.util.screen;
 
 /**
  * Generally useful methods on CLI screens.
  *
  * Created by ctsims on 8/20/2015.
  */
-public class CliUtils {
+public class ScreenUtils {
 
     public static void addPaddedStringToBuilder(StringBuilder builder, String s, int width) {
         if (s.length() > width) {
