@@ -106,7 +106,8 @@ public class CaseXmlParser extends TransactionParser<Case> {
                 commit(caseForBlock);
             } catch (SerializationLimitationException e) {
                 throw new InvalidStructureException("One of the property values for the case " +
-                        caseForBlock.getCaseId() + " is too large: " + e.getMessage());
+                        caseForBlock.getCaseId() + " is too large (by " + e.percentOversized +
+                        "%). Please show your supervisor.");
             }
 
             if (isCreateOrUpdate) {
