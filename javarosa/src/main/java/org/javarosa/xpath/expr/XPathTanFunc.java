@@ -19,14 +19,6 @@ public class XPathTanFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return tan(evaluatedArgs[0]);
-    }
-
-    /**
-     * Returns the tangent of the argument, expressed in radians.
-     */
-    private static Double tan(Object o) {
-        double value = FunctionUtils.toDouble(o);
-        return Math.tan(value);
+        return Math.tan(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
 }

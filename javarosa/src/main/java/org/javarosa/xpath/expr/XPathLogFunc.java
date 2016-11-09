@@ -19,16 +19,6 @@ public class XPathLogFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return log(evaluatedArgs[0]);
-    }
-
-    /**
-     * Implementation of natural logarithm
-     *
-     * @return Natural log of value
-     */
-    private static Double log(Object o) {
-        double value = FunctionUtils.toDouble(o);
-        return Math.log(value);
+        return Math.log(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
 }

@@ -19,16 +19,6 @@ public class XPathLogTenFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return log10(evaluatedArgs[0]);
-    }
-
-    /**
-     * Implementation of logarithm with base ten
-     *
-     * @return Base ten log of value
-     */
-    private static Double log10(Object o) {
-        double value = FunctionUtils.toDouble(o);
-        return Math.log10(value);
+        return Math.log10(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
 }

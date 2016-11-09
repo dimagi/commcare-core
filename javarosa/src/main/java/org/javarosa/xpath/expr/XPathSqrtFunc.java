@@ -19,14 +19,6 @@ public class XPathSqrtFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return sqrt(evaluatedArgs[0]);
-    }
-
-    /**
-     * Returns the square root of the argument, expressed in radians.
-     */
-    private static Double sqrt(Object o) {
-        double value = FunctionUtils.toDouble(o);
-        return Math.sqrt(value);
+        return Math.sqrt(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
 }

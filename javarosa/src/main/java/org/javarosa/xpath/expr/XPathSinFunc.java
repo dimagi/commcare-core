@@ -19,14 +19,6 @@ public class XPathSinFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return sin(evaluatedArgs[0]);
-    }
-
-    /**
-     * Returns the sine of the argument, expressed in radians.
-     */
-    private static Double sin(Object o) {
-        double value = FunctionUtils.toDouble(o);
-        return Math.sin(value);
+        return Math.sin(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
 }
