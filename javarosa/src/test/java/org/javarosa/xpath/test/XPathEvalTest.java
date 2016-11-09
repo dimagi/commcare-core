@@ -48,9 +48,7 @@ public class XPathEvalTest {
 
         try {
             xpe = XPathParseTool.parseXPath(expr);
-        } catch (XPathSyntaxException xpse) {
-            assertExceptionExpected(exceptionExpected, expected, xpse);
-        } catch (XPathArityException e) {
+        } catch (XPathArityException | XPathSyntaxException e) {
             assertExceptionExpected(exceptionExpected, expected, e);
             return;
         }
