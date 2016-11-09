@@ -6,16 +6,17 @@ import org.javarosa.xpath.expr.XPathUnaryOpExpr;
 import org.javarosa.xpath.parser.Token;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ASTNodeUnaryOp extends ASTNode {
     public ASTNode expr;
     public int op;
 
     @Override
-    public Vector getChildren() {
-        Vector<ASTNode> v = new Vector<>();
-        v.addElement(expr);
+    public List<? extends ASTNode> getChildren() {
+        List<ASTNode> v = new ArrayList<>();
+        v.add(expr);
         return v;
     }
 
