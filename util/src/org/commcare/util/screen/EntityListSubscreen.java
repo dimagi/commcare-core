@@ -4,16 +4,11 @@ import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.suite.model.EntityDatum;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathException;
 
 import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -104,7 +99,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             } catch (Exception e) {
                 //Really don't care if it didn't work
             }
-            CliUtils.addPaddedStringToBuilder(row, s, widthHint);
+            ScreenUtils.addPaddedStringToBuilder(row, s, widthHint);
 
             headers[i] = s;
             widthHints[i] = widthHint;
