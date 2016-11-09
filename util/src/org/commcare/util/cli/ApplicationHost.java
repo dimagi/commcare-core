@@ -236,7 +236,7 @@ public class ApplicationHost {
                 return true;
             } else {
                 XFormPlayer player = new XFormPlayer(System.in, System.out, null);
-                player.setmPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
+                player.setPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
                 player.setSessionIIF(mSession.getIIF());
                 player.start(mEngine.loadFormByXmlns(formXmlns));
 
@@ -365,7 +365,7 @@ public class ApplicationHost {
 
         mSandbox = sandbox;
         if (mLocalUserCredentials != null) {
-            restoreUserToSandbox(mSandbox, mLocalUserCredentials);
+            restoreUserToSandbox(mSandbox, mLocalUserCredentials[0], mLocalUserCredentials[1]);
         } else if (mRestoreFile != null) {
             restoreFileToSandbox(mSandbox, mRestoreFile);
         } else {
@@ -399,10 +399,7 @@ public class ApplicationHost {
         System.out.println("Setting logged in user to: " + u.getUsername());
     }
 
-    private static void restoreUserToSandbox(UserSandbox sandbox, String[] userCredentials) {
-        final String username = userCredentials[0];
-        final String password = userCredentials[1];
-
+    public static void restoreUserToSandbox(UserSandbox sandbox, String username, final String password) {
         //fetch the restore data and set credentials
         String otaRestoreURL = PropertyManager._().getSingularProperty("ota-restore-url") + "?version=2.0";
         String domain = PropertyManager._().getSingularProperty("cc_user_domain");
