@@ -9,7 +9,7 @@ public class XPathEndsWithFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = 2;
 
     public XPathEndsWithFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 

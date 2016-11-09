@@ -13,7 +13,7 @@ public class XPathSelectedFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = 2;
 
     public XPathSelectedFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
@@ -21,7 +21,7 @@ public class XPathSelectedFunc extends XPathFuncExpr {
         super(NAME, args, EXPECTED_ARG_COUNT, true);
 
         // keep function name from parsing instead of using default
-        this.id = name;
+        this.name = name;
     }
 
     @Override

@@ -11,7 +11,7 @@ public class XPathSelectedAtFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = 2;
 
     public XPathSelectedAtFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 

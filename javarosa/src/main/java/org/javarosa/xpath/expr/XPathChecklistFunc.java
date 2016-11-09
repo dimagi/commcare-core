@@ -12,7 +12,7 @@ public class XPathChecklistFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = -1;
 
     public XPathChecklistFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
@@ -23,7 +23,7 @@ public class XPathChecklistFunc extends XPathFuncExpr {
     @Override
     protected void validateArgCount() throws XPathSyntaxException {
         if (args.length < 2) {
-            throw new XPathArityException(id, "two or more arguments", args.length);
+            throw new XPathArityException(name, "two or more arguments", args.length);
         }
     }
 

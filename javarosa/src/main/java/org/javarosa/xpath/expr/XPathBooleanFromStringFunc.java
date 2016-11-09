@@ -9,7 +9,7 @@ public class XPathBooleanFromStringFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = 1;
 
     public XPathBooleanFromStringFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 

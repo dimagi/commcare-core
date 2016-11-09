@@ -13,7 +13,7 @@ public class XPathFormatDateForCalendarFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = 2;
 
     public XPathFormatDateForCalendarFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 

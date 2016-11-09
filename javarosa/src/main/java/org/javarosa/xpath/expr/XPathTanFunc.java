@@ -9,7 +9,7 @@ public class XPathTanFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = 1;
 
     public XPathTanFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 

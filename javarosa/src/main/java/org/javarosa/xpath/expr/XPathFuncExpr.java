@@ -31,7 +31,7 @@ import java.util.Vector;
  * runtime.
  */
 public abstract class XPathFuncExpr extends XPathExpression {
-    protected String id;
+    protected String name;
     public XPathExpression[] args;
     protected Object[] evaluatedArgs;
     protected int expectedArgCount;
@@ -42,10 +42,10 @@ public abstract class XPathFuncExpr extends XPathExpression {
         // for deserialization
     }
 
-    public XPathFuncExpr(String id, XPathExpression[] args,
+    public XPathFuncExpr(String name, XPathExpression[] args,
                          int expectedArgCount, boolean evaluateArgsFirst)
             throws XPathSyntaxException {
-        this.id = id;
+        this.name = name;
         this.args = args;
         this.expectedArgCount = expectedArgCount;
         this.evaluateArgsFirst = evaluateArgsFirst;
@@ -58,7 +58,7 @@ public abstract class XPathFuncExpr extends XPathExpression {
         StringBuffer sb = new StringBuffer();
 
         sb.append("{func-expr:");
-        sb.append(id);
+        sb.append(name);
         sb.append(",{");
         for (int i = 0; i < args.length; i++) {
             sb.append(args[i].toString());
@@ -73,7 +73,7 @@ public abstract class XPathFuncExpr extends XPathExpression {
     @Override
     public String toPrettyString() {
         StringBuffer sb = new StringBuffer();
-        sb.append(id).append("(");
+        sb.append(name).append("(");
         for (int i = 0; i < args.length; i++) {
             sb.append(args[i].toPrettyString());
             if (i < args.length - 1) {
@@ -94,7 +94,7 @@ public abstract class XPathFuncExpr extends XPathExpression {
             //practice in Java, since o.equals(o) will return false. We should evaluate that differently.
             //Dec 8, 2011 - Added "uuid", since we should never assume one uuid equals another
             //May 6, 2013 - Added "random", since two calls asking for a random
-            if (!id.equals(x.id) || args.length != x.args.length || id.equals("uuid") || id.equals("random")) {
+            if (!name.equals(x.name) || args.length != x.args.length || name.equals("uuid") || name.equals("random")) {
                 return false;
             }
 
@@ -110,7 +110,7 @@ public abstract class XPathFuncExpr extends XPathExpression {
         for (XPathExpression arg : args) {
             argsHash ^= arg.hashCode();
         }
-        return id.hashCode() ^ argsHash;
+        return name.hashCode() ^ argsHash;
     }
 
     @Override
@@ -142,7 +142,7 @@ public abstract class XPathFuncExpr extends XPathExpression {
     public final Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         evaluateArguments(model, evalContext);
 
-        IFunctionHandler handler = evalContext.getFunctionHandlers().get(id);
+        IFunctionHandler handler = evalContext.getFunctionHandlers().get(name);
         if (handler != null) {
             return XPathCustomRuntimeFunc.evalCustomFunction(handler, evaluatedArgs, evalContext);
         } else {
@@ -503,7 +503,7 @@ public abstract class XPathFuncExpr extends XPathExpression {
 
     protected void validateArgCount() throws XPathSyntaxException {
         if (expectedArgCount != args.length) {
-            throw new XPathArityException(id, expectedArgCount, args.length);
+            throw new XPathArityException(name, expectedArgCount, args.length);
         }
     }
 }

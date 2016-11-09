@@ -12,7 +12,7 @@ public class XPathMinFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = -1;
 
     public XPathMinFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
@@ -23,7 +23,7 @@ public class XPathMinFunc extends XPathFuncExpr {
     @Override
     protected void validateArgCount() throws XPathSyntaxException {
         if (args.length < 1) {
-            throw new XPathArityException(id, "at least one argument", args.length);
+            throw new XPathArityException(name, "at least one argument", args.length);
         }
     }
 

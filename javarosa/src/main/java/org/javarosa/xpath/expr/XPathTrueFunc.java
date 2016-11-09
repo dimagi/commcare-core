@@ -9,7 +9,7 @@ public class XPathTrueFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = 0;
 
     public XPathTrueFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 

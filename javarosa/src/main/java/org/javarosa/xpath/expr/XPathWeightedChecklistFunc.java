@@ -12,7 +12,7 @@ public class XPathWeightedChecklistFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = -1;
 
     public XPathWeightedChecklistFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
@@ -23,7 +23,7 @@ public class XPathWeightedChecklistFunc extends XPathFuncExpr {
     @Override
     protected void validateArgCount() throws XPathSyntaxException {
         if (!(args.length >= 2 && args.length % 2 == 0)) {
-            throw new XPathArityException(id, "an even number of arguments", args.length);
+            throw new XPathArityException(name, "an even number of arguments", args.length);
         }
     }
 

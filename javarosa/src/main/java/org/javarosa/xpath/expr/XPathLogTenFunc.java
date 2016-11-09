@@ -9,7 +9,7 @@ public class XPathLogTenFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = 1;
 
     public XPathLogTenFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 

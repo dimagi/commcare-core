@@ -13,7 +13,7 @@ public class XPathCondFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = -1;
 
     public XPathCondFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
@@ -24,9 +24,9 @@ public class XPathCondFunc extends XPathFuncExpr {
     @Override
     protected void validateArgCount() throws XPathSyntaxException {
         if (args.length < 3) {
-            throw new XPathSyntaxException(id + "() function requires at least 3 arguments. " + args.length + " arguments provided.");
+            throw new XPathSyntaxException(name + "() function requires at least 3 arguments. " + args.length + " arguments provided.");
         } else if (args.length % 2 != 1) {
-            throw new XPathSyntaxException(id + "() function requires an odd number of arguments. " + args.length + " arguments provided.");
+            throw new XPathSyntaxException(name + "() function requires an odd number of arguments. " + args.length + " arguments provided.");
         }
     }
 

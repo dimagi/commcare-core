@@ -15,7 +15,7 @@ public class XPathPositionFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = -1;
 
     public XPathPositionFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
@@ -26,7 +26,7 @@ public class XPathPositionFunc extends XPathFuncExpr {
     @Override
     protected void validateArgCount() throws XPathSyntaxException {
         if (args.length > 1) {
-            throw new XPathArityException(id, "0 or one arguments", args.length);
+            throw new XPathArityException(name, "0 or one arguments", args.length);
         }
     }
 

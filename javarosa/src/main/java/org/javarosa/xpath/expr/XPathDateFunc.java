@@ -10,7 +10,7 @@ public class XPathDateFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = 1;
 
     public XPathDateFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 

@@ -9,7 +9,7 @@ public class XPathPiFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = 0;
 
     public XPathPiFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 

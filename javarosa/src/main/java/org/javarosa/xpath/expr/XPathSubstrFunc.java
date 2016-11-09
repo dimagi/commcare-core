@@ -11,7 +11,7 @@ public class XPathSubstrFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = -1;
 
     public XPathSubstrFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
@@ -22,7 +22,7 @@ public class XPathSubstrFunc extends XPathFuncExpr {
     @Override
     protected void validateArgCount() {
         if (!(args.length == 2 || args.length == 3)) {
-            throw new XPathArityException(id, "two or three arguments", args.length);
+            throw new XPathArityException(name, "two or three arguments", args.length);
         }
     }
 

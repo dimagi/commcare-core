@@ -11,7 +11,7 @@ public class XPathRandomFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = 0;
 
     public XPathRandomFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 

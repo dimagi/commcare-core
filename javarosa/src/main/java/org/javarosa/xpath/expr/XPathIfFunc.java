@@ -9,7 +9,7 @@ public class XPathIfFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = 3;
 
     public XPathIfFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
@@ -20,7 +20,7 @@ public class XPathIfFunc extends XPathFuncExpr {
     @Override
     protected void validateArgCount() throws XPathSyntaxException {
         if (args.length != expectedArgCount) {
-            String msg = id + "() function requires "
+            String msg = name + "() function requires "
                     + expectedArgCount + " arguments but "
                     + args.length + " are present.";
             throw new XPathSyntaxException(msg);

@@ -11,7 +11,7 @@ public class XpathCoalesceFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = -1;
 
     public XpathCoalesceFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
@@ -22,7 +22,7 @@ public class XpathCoalesceFunc extends XPathFuncExpr {
     @Override
     protected void validateArgCount() throws XPathSyntaxException {
         if (args.length < 1) {
-            throw new XPathArityException(id, "1 or more arguments", args.length);
+            throw new XPathArityException(name, "1 or more arguments", args.length);
         }
     }
 

@@ -36,7 +36,7 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        throw new XPathUnhandledException("function \'" + id + "\'");
+        throw new XPathUnhandledException("function \'" + name + "\'");
     }
 
     /**
@@ -130,13 +130,13 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
 
-        id = ExtUtil.readString(in);
+        name = ExtUtil.readString(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
 
-        ExtUtil.writeString(out, id);
+        ExtUtil.writeString(out, name);
     }
 }

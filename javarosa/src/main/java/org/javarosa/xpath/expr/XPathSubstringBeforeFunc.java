@@ -9,7 +9,7 @@ public class XPathSubstringBeforeFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = 2;
 
     public XPathSubstringBeforeFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 

@@ -13,7 +13,7 @@ public class XPathReplaceFunc extends XPathFuncExpr {
     private static final int EXPECTED_ARG_COUNT = 3;
 
     public XPathReplaceFunc() {
-        id = NAME;
+        name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
