@@ -54,6 +54,31 @@ public abstract class XPathFuncExpr extends XPathExpression {
     }
 
     @Override
+    public final Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+        evaluateArguments(model, evalContext);
+
+        IFunctionHandler handler = evalContext.getFunctionHandlers().get(name);
+        if (handler != null) {
+            return XPathCustomRuntimeFunc.evalCustomFunction(handler, evaluatedArgs, evalContext);
+        } else {
+            return evalBody(model, evalContext);
+        }
+    }
+
+    private void evaluateArguments(DataInstance model, EvaluationContext evalContext) {
+        if (evaluateArgsFirst) {
+            if (evaluatedArgs == null) {
+                evaluatedArgs = new Object[args.length];
+            }
+            for (int i = 0; i < args.length; i++) {
+                evaluatedArgs[i] = args[i].eval(model, evalContext);
+            }
+        }
+    }
+
+    protected abstract Object evalBody(DataInstance model, EvaluationContext evalContext);
+
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
 
@@ -138,30 +163,6 @@ public abstract class XPathFuncExpr extends XPathExpression {
         ExtUtil.write(out, new ExtWrapListPoly(v));
     }
 
-    @Override
-    public final Object evalRaw(DataInstance model, EvaluationContext evalContext) {
-        evaluateArguments(model, evalContext);
-
-        IFunctionHandler handler = evalContext.getFunctionHandlers().get(name);
-        if (handler != null) {
-            return XPathCustomRuntimeFunc.evalCustomFunction(handler, evaluatedArgs, evalContext);
-        } else {
-            return evalBody(model, evalContext);
-        }
-    }
-
-    private void evaluateArguments(DataInstance model, EvaluationContext evalContext) {
-        if (evaluateArgsFirst) {
-            if (evaluatedArgs == null) {
-                evaluatedArgs = new Object[args.length];
-            }
-            for (int i = 0; i < args.length; i++) {
-                evaluatedArgs[i] = args[i].eval(model, evalContext);
-            }
-        }
-    }
-
-    protected abstract Object evalBody(DataInstance model, EvaluationContext evalContext);
 
     /**
      * ***** HANDLERS FOR BUILT-IN FUNCTIONS ********
