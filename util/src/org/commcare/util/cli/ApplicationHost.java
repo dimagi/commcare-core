@@ -12,6 +12,7 @@ import org.commcare.util.CommCarePlatform;
 import org.commcare.session.SessionFrame;
 import org.commcare.util.mocks.CLISessionWrapper;
 import org.commcare.util.mocks.MockUserDataSandbox;
+import org.commcare.util.screen.MenuScreen;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
@@ -131,7 +132,7 @@ public class ApplicationHost {
     }
 
     private boolean loopSession() throws IOException {
-        Screen s = getNextScreen();
+        org.commcare.util.screen.Screen s = getNextScreen();
         boolean screenIsRedrawing = false;
 
         boolean sessionIsLive = true;
@@ -212,7 +213,7 @@ public class ApplicationHost {
                     if (!screenIsRedrawing) {
                         s = getNextScreen();
                     }
-                } catch (CommCareSessionException ccse) {
+                } catch (org.commcare.util.screen.CommCareSessionException ccse) {
                     printErrorAndContinue("Error during session execution:", ccse);
 
                     //Restart
@@ -309,7 +310,7 @@ public class ApplicationHost {
         }
     }
 
-    private Screen getNextScreen() {
+    private org.commcare.util.screen.Screen getNextScreen() {
         String next = mSession.getNeededData(mSession.getEvaluationContext());
 
         if (next == null) {
@@ -318,7 +319,7 @@ public class ApplicationHost {
         } else if (next.equals(SessionFrame.STATE_COMMAND_ID)) {
             return new MenuScreen();
         } else if (next.equals(SessionFrame.STATE_DATUM_VAL)) {
-            return new EntityScreen();
+            return new org.commcare.util.screen.EntityScreen();
         } else if (next.equalsIgnoreCase(SessionFrame.STATE_DATUM_COMPUTED)) {
             computeDatum();
             return getNextScreen();
