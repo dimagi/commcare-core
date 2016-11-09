@@ -1,4 +1,4 @@
-package org.commcare.util.cli;
+package org.commcare.util.screen;
 
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
@@ -37,7 +37,7 @@ public class EntityScreen extends CompoundScreenHost {
     private EntityDatum mNeededDatum;
     private Action mPendingAction;
 
-    private Subscreen<EntityScreen> mCurrentScreen;
+    private org.commcare.util.screen.Subscreen<EntityScreen> mCurrentScreen;
 
     private boolean readyToSkip = false;
 
@@ -46,7 +46,7 @@ public class EntityScreen extends CompoundScreenHost {
     public void init(SessionWrapper session) throws CommCareSessionException {
         SessionDatum datum = session.getNeededDatum();
         if (!(datum instanceof EntityDatum)) {
-            throw new CommCareSessionException("Didn't find an entity select action where one is expected.");
+            throw new org.commcare.util.screen.CommCareSessionException("Didn't find an entity select action where one is expected.");
         }
         mNeededDatum = (EntityDatum)datum;
 
@@ -55,13 +55,13 @@ public class EntityScreen extends CompoundScreenHost {
 
         String detailId = mNeededDatum.getShortDetail();
         if(detailId == null) {
-            throw new CommCareSessionException("Can't handle entity selection with blank detail definition for datum " + mNeededDatum.getDataId());
+            throw new org.commcare.util.screen.CommCareSessionException("Can't handle entity selection with blank detail definition for datum " + mNeededDatum.getDataId());
         }
 
         mShortDetail = this.mPlatform.getDetail(detailId);
 
         if(mShortDetail == null) {
-            throw new CommCareSessionException("Missing detail definition for: " + detailId);
+            throw new org.commcare.util.screen.CommCareSessionException("Missing detail definition for: " + detailId);
         }
 
         EvaluationContext ec = session.getEvaluationContext();
@@ -99,7 +99,7 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     @Override
-    public Subscreen getCurrentScreen() {
+    public org.commcare.util.screen.Subscreen getCurrentScreen() {
         return mCurrentScreen;
     }
 
@@ -157,7 +157,7 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
-    public boolean setCurrentScreenToDetail() throws CommCareSessionException {
+    public boolean setCurrentScreenToDetail() throws org.commcare.util.screen.CommCareSessionException {
         initDetailScreens();
 
         if(mLongDetailList == null) {
@@ -177,7 +177,7 @@ public class EntityScreen extends CompoundScreenHost {
             this.mCurrentScreen = new EntityListSubscreen(this.mLongDetailList[index], subContext.expandReference(contextualizedNodeset), subContext);
         }
         else {
-            this.mCurrentScreen = new EntityDetailSubscreen(index, this.mLongDetailList[index], subContext, getDetailListTitles(subContext));
+            this.mCurrentScreen = new org.commcare.util.screen.EntityDetailSubscreen(index, this.mLongDetailList[index], subContext, getDetailListTitles(subContext));
         }
     }
 

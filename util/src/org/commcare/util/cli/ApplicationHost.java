@@ -12,6 +12,7 @@ import org.commcare.util.CommCarePlatform;
 import org.commcare.session.SessionFrame;
 import org.commcare.util.mocks.CLISessionWrapper;
 import org.commcare.util.mocks.MockUserDataSandbox;
+import org.commcare.util.screen.MenuScreen;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
@@ -131,7 +132,7 @@ public class ApplicationHost {
     }
 
     private boolean loopSession() throws IOException {
-        Screen s = getNextScreen();
+        org.commcare.util.screen.Screen s = getNextScreen();
         boolean screenIsRedrawing = false;
 
         boolean sessionIsLive = true;
@@ -212,7 +213,7 @@ public class ApplicationHost {
                     if (!screenIsRedrawing) {
                         s = getNextScreen();
                     }
-                } catch (CommCareSessionException ccse) {
+                } catch (org.commcare.util.screen.CommCareSessionException ccse) {
                     printErrorAndContinue("Error during session execution:", ccse);
 
                     //Restart
@@ -236,7 +237,7 @@ public class ApplicationHost {
                 return true;
             } else {
                 XFormPlayer player = new XFormPlayer(System.in, System.out, null);
-                player.setmPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
+                player.setPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
                 player.setSessionIIF(mSession.getIIF());
                 player.start(mEngine.loadFormByXmlns(formXmlns));
 
@@ -309,7 +310,7 @@ public class ApplicationHost {
         }
     }
 
-    private Screen getNextScreen() {
+    private org.commcare.util.screen.Screen getNextScreen() {
         String next = mSession.getNeededData(mSession.getEvaluationContext());
 
         if (next == null) {
@@ -318,7 +319,7 @@ public class ApplicationHost {
         } else if (next.equals(SessionFrame.STATE_COMMAND_ID)) {
             return new MenuScreen();
         } else if (next.equals(SessionFrame.STATE_DATUM_VAL)) {
-            return new EntityScreen();
+            return new org.commcare.util.screen.EntityScreen();
         } else if (next.equalsIgnoreCase(SessionFrame.STATE_DATUM_COMPUTED)) {
             computeDatum();
             return getNextScreen();
@@ -365,7 +366,7 @@ public class ApplicationHost {
 
         mSandbox = sandbox;
         if (mLocalUserCredentials != null) {
-            restoreUserToSandbox(mSandbox, mLocalUserCredentials);
+            restoreUserToSandbox(mSandbox, mLocalUserCredentials[0], mLocalUserCredentials[1]);
         } else if (mRestoreFile != null) {
             restoreFileToSandbox(mSandbox, mRestoreFile);
         } else {
@@ -399,10 +400,7 @@ public class ApplicationHost {
         System.out.println("Setting logged in user to: " + u.getUsername());
     }
 
-    private static void restoreUserToSandbox(UserSandbox sandbox, String[] userCredentials) {
-        final String username = userCredentials[0];
-        final String password = userCredentials[1];
-
+    public static void restoreUserToSandbox(UserSandbox sandbox, String username, final String password) {
         //fetch the restore data and set credentials
         String otaRestoreURL = PropertyManager._().getSingularProperty("ota-restore-url") + "?version=2.0";
         String domain = PropertyManager._().getSingularProperty("cc_user_domain");
