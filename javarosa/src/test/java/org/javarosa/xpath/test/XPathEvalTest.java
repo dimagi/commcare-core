@@ -36,10 +36,6 @@ public class XPathEvalTest {
     public static final double DOUBLE_TOLERANCE = 1.0e-12;
 
     private void testEval(String expr, FormInstance model, EvaluationContext ec, Object expected) {
-        testEval(expr, model, ec, expected, 1.0e-12);
-    }
-
-    private void testEval(String expr, FormInstance model, EvaluationContext ec, Object expected, double tolerance) {
         XPathExpression xpe;
         boolean exceptionExpected = expected instanceof XPathException || expected instanceof XPathSyntaxException;
         if (ec == null) {
@@ -59,16 +55,13 @@ public class XPathEvalTest {
 
         try {
             Object result = XPathFuncExpr.unpack(xpe.eval(model, ec));
-            if (tolerance != DOUBLE_TOLERANCE) {
-                System.out.println(expr + " = " + result);
-            }
 
             if (exceptionExpected) {
                 fail("Expected exception, expression : " + expr);
             } else if ((result instanceof Double && expected instanceof Double)) {
-                Double o = ((Double)result).doubleValue();
-                Double t = ((Double)expected).doubleValue();
-                if (Math.abs(o - t) > tolerance) {
+                Double o = (Double)result;
+                Double t = (Double)expected;
+                if (Math.abs(o - t) > DOUBLE_TOLERANCE) {
                     fail("Doubles outside of tolerance [" + o + "," + t + " ]");
                 } else if (Double.isNaN(o) && !Double.isNaN(t)) {
                     fail("Result was NaN when not expected");
