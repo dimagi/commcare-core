@@ -17,12 +17,8 @@ import java.io.IOException;
 import java.util.Vector;
 
 /**
- * Representation of an xpath function expression.
- *
- * All of the built-in xpath functions are included here, as well as the xpath type conversion logic
- *
- * Evaluation of functions can delegate out to custom function handlers that must be registered at
- * runtime.
+ * Base class for xpath function expressions.
+ * Dispatches to runtime function overrides when they exist.
  */
 public abstract class XPathFuncExpr extends XPathExpression {
     protected String name;
@@ -156,7 +152,6 @@ public abstract class XPathFuncExpr extends XPathExpression {
         }
         ExtUtil.write(out, new ExtWrapListPoly(v));
     }
-
 
     @Override
     public Object pivot(DataInstance model, EvaluationContext evalContext, Vector<Object> pivots, Object sentinal) throws UnpivotableExpressionException {
