@@ -160,7 +160,7 @@ public class ASTNodeFunctionCall extends ASTNode {
             case "format-date-for-calendar":
                 return new XPathFormatDateForCalendarFunc(args);
             default:
-                return new XPathCustomFunc(name, args);
+                return new XPathCustomRuntimeFunc(name, args);
         }
     }
 }

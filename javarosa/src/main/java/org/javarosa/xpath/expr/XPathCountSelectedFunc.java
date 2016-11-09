@@ -7,6 +7,10 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 // non-standard
+/**
+ * return the number of choices in a multi-select answer
+ * (i.e, space-delimited choice values)
+ */
 public class XPathCountSelectedFunc extends XPathFuncExpr {
     private static final String NAME = "count-selected";
     private static final int EXPECTED_ARG_COUNT = 1;
@@ -22,17 +26,7 @@ public class XPathCountSelectedFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return countSelected(evaluatedArgs[0]);
-    }
-
-    /**
-     * return the number of choices in a multi-select answer
-     *
-     * @param o XML-serialized answer to multi-select question (i.e, space-delimited choice values)
-     */
-    public static Double countSelected(Object o) {
-
-        Object evalResult = unpack(o);
+        Object evalResult = unpack(evaluatedArgs[0]);
         if (!(evalResult instanceof String)) {
             throw new XPathTypeMismatchException("count-selected argument was not a select list");
         }
@@ -40,5 +34,4 @@ public class XPathCountSelectedFunc extends XPathFuncExpr {
         String s = (String)evalResult;
         return new Double(DataUtil.splitOnSpaces(s).length);
     }
-
 }

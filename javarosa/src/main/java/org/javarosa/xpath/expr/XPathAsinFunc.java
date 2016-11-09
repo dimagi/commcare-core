@@ -19,14 +19,6 @@ public class XPathAsinFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return asin(evaluatedArgs[0]);
-    }
-
-    /**
-     * Returns the arc sine of the argument, expressed in radians.
-     */
-    private static Double asin(Object o) {
-        double value = toDouble(o);
-        return Math.asin(value);
+        return Math.asin(toDouble(evaluatedArgs[0]));
     }
 }

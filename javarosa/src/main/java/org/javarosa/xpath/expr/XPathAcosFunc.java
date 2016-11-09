@@ -19,14 +19,6 @@ public class XPathAcosFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return acos(evaluatedArgs[0]);
-    }
-
-    /**
-     * Returns the arc cosine of the argument, expressed in radians.
-     */
-    private static Double acos(Object o) {
-        double value = toDouble(o);
-        return Math.acos(value);
+        return Math.acos(toDouble(evaluatedArgs[0]));
     }
 }

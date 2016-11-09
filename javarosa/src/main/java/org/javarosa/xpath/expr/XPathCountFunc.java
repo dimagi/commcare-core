@@ -21,18 +21,10 @@ public class XPathCountFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return count(evaluatedArgs[0]);
-    }
-
-    /**
-     * count the number of nodes in a nodeset
-     */
-    private static Double count(Object o) {
-        if (o instanceof XPathNodeset) {
-            return new Double(((XPathNodeset)o).size());
+        if (evaluatedArgs[0] instanceof XPathNodeset) {
+            return new Double(((XPathNodeset)evaluatedArgs[0]).size());
         } else {
             throw new XPathTypeMismatchException("not a nodeset");
         }
     }
-
 }

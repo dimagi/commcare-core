@@ -7,7 +7,6 @@ import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
-import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathUnhandledException;
 import org.junit.Test;
 

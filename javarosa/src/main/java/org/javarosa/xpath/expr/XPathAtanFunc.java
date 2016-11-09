@@ -19,14 +19,6 @@ public class XPathAtanFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return atan(evaluatedArgs[0]);
-    }
-
-    /**
-     * Returns the arc tan of the argument, expressed in radians.
-     */
-    private static Double atan(Object o) {
-        double value = toDouble(o);
-        return Math.atan(value);
+        return Math.atan(toDouble(evaluatedArgs[0]));
     }
 }

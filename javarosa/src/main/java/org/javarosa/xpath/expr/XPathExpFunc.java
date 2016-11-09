@@ -19,11 +19,6 @@ public class XPathExpFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return exp(evaluatedArgs[0]);
-    }
-
-    private static Double exp(Object o) {
-        double value = toDouble(o);
-        return Math.exp(value);
+        return Math.exp(toDouble(evaluatedArgs[0]));
     }
 }

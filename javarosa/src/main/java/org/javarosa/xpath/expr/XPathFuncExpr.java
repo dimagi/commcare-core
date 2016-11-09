@@ -144,7 +144,7 @@ public abstract class XPathFuncExpr extends XPathExpression {
 
         IFunctionHandler handler = evalContext.getFunctionHandlers().get(id);
         if (handler != null) {
-            return XPathCustomFunc.evalCustomFunction(handler, evaluatedArgs, evalContext);
+            return XPathCustomRuntimeFunc.evalCustomFunction(handler, evaluatedArgs, evalContext);
         } else {
             return evalBody(model, evalContext);
         }

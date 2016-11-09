@@ -21,12 +21,12 @@ import java.util.Vector;
 /**
  * Custom function that is dispatched at runtime
  */
-public class XPathCustomFunc extends XPathFuncExpr {
+public class XPathCustomRuntimeFunc extends XPathFuncExpr {
 
-    public XPathCustomFunc() {
+    public XPathCustomRuntimeFunc() {
     }
 
-    public XPathCustomFunc(String name, XPathExpression[] args) throws XPathSyntaxException {
+    public XPathCustomRuntimeFunc(String name, XPathExpression[] args) throws XPathSyntaxException {
         super(name, args, -1, true);
     }
 

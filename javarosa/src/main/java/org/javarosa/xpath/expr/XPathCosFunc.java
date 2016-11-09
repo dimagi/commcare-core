@@ -19,15 +19,6 @@ public class XPathCosFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return cosin(evaluatedArgs[0]);
+        return Math.cos(toDouble(evaluatedArgs[0]));
     }
-
-    /**
-     * Returns the cosine of the argument, expressed in radians.
-     */
-    private static Double cosin(Object o) {
-        double value = toDouble(o);
-        return Math.cos(value);
-    }
-
 }
