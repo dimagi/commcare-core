@@ -15,7 +15,6 @@ import java.util.Date;
 import java.util.Hashtable;
 
 /**
- *
  * Run an XForm programatically for fun and profit.
  *
  * @author ctsims
@@ -31,8 +30,11 @@ public class XFormEnvironment {
 
     private Session session;
     private Mockup mockup;
-    private Date hardCodedDate;
-    boolean recording = true;
+
+    private boolean recording = true;
+
+    // stores date override of 'today()' / 'now()'
+    private Date hardCodedDate = new Date();
 
     public XFormEnvironment(FormDef form) {
         this.form = form;
@@ -54,7 +56,7 @@ public class XFormEnvironment {
     }
     
     public FormEntryController setup(InstanceInitializationFactory factory) {
-        form.setEvaluationContext(getEC());
+        form.setEvaluationContext(buildBaseEvaluationContext());
 
         form.initialize(true, factory, preferredLocale);
 
@@ -88,15 +90,22 @@ public class XFormEnvironment {
         return new MockupProviderFactory(mockup == null ? new Hashtable() : mockup.getInstances());
     }
 
-    private EvaluationContext getEC() {
+    /**
+     * Builds evaluation context that overrides 'today()' and 'now()' with
+     * custom date, if provided.
+     */
+    private EvaluationContext buildBaseEvaluationContext() {
         EvaluationContext ec = new EvaluationContext(null);
-        Date customDate = hardCodedDate;
+
+        // if present, load date from formplayer mockup (which allows for restoring formplayer state)
         if (mockup != null) {
-            customDate = mockup.getDate();
+            hardCodedDate = mockup.getDate();
         }
-        ec.addFunctionHandler(new FunctionExtensions.TodayFunc("today", customDate));
-        ec.addFunctionHandler(new FunctionExtensions.TodayFunc("now", customDate));
+
+        ec.addFunctionHandler(new FunctionExtensions.TodayFunc("today", hardCodedDate));
+        ec.addFunctionHandler(new FunctionExtensions.TodayFunc("now", hardCodedDate));
         ec.addFunctionHandler(new FunctionExtensions.PrintFunc(createIIF()));
+
         return ec;
     }
 
@@ -113,7 +122,6 @@ public class XFormEnvironment {
         hardCodedDate = DateUtils.parseDate(dateString);
         System.out.println(hardCodedDate);
     }
-
 
     public void commitStep() {
         if(recording) {
