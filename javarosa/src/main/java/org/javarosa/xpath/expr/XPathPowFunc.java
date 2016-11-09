@@ -33,8 +33,8 @@ public class XPathPowFunc extends XPathFuncExpr {
      * used otherwise.
      */
     private static Double power(Object o1, Object o2) {
-        double a = toDouble(o1);
-        double b = toDouble(o2);
+        double a = FunctionUtils.toDouble(o1);
+        double b = FunctionUtils.toDouble(o2);
 
         return Math.pow(a, b);
     }

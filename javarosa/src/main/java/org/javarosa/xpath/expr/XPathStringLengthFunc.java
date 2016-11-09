@@ -23,7 +23,7 @@ public class XPathStringLengthFunc extends XPathFuncExpr {
     }
 
     private static Double stringLength(Object o) {
-        String s = toString(o);
+        String s = FunctionUtils.toString(o);
         if (s == null) {
             return new Double(0.0);
         }

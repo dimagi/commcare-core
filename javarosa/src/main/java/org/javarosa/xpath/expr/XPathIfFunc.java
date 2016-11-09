@@ -29,7 +29,7 @@ public class XPathIfFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        if (toBoolean(args[0].eval(model, evalContext))) {
+        if (FunctionUtils.toBoolean(args[0].eval(model, evalContext))) {
             return args[1].eval(model, evalContext);
         } else {
             return args[2].eval(model, evalContext);

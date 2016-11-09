@@ -20,6 +20,6 @@ public class XPathDateFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return toDate(evaluatedArgs[0]);
+        return FunctionUtils.toDate(evaluatedArgs[0]);
     }
 }

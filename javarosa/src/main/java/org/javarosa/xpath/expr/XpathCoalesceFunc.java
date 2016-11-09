@@ -30,7 +30,7 @@ public class XpathCoalesceFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         // Not sure if unpacking here is quiiite right, but it seems right
         for (int i = 0; i < args.length - 1; i++) {
-            Object evaluatedArg = XPathFuncExpr.unpack(args[i].eval(model, evalContext));
+            Object evaluatedArg = FunctionUtils.unpack(args[i].eval(model, evalContext));
             if (!isNull(evaluatedArg)) {
                 return evaluatedArg;
             }

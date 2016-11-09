@@ -39,7 +39,7 @@ public class XPathMinFunc extends XPathFuncExpr {
     private static Object min(Object[] argVals) {
         double min = Double.MAX_VALUE;
         for (Object argVal : argVals) {
-            min = Math.min(min, toNumeric(argVal));
+            min = Math.min(min, FunctionUtils.toNumeric(argVal));
         }
         return min;
     }

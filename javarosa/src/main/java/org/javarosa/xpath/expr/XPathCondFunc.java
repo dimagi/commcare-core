@@ -33,7 +33,7 @@ public class XPathCondFunc extends XPathFuncExpr {
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         for (int i = 0; i < args.length - 2; i+=2) {
-            if (toBoolean(args[i].eval(model, evalContext))) {
+            if (FunctionUtils.toBoolean(args[i].eval(model, evalContext))) {
                 return args[i+1].eval(model, evalContext);
             }
         }

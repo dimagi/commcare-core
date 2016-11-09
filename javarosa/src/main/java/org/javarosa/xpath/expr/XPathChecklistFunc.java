@@ -32,7 +32,7 @@ public class XPathChecklistFunc extends XPathFuncExpr {
         if (args.length == 3 && evaluatedArgs[2] instanceof XPathNodeset) {
             return checklist(evaluatedArgs[0], evaluatedArgs[1], ((XPathNodeset)evaluatedArgs[2]).toArgList());
         } else {
-            return checklist(evaluatedArgs[0], evaluatedArgs[1], subsetArgList(evaluatedArgs, 2));
+            return checklist(evaluatedArgs[0], evaluatedArgs[1], FunctionUtils.subsetArgList(evaluatedArgs, 2));
         }
     }
 
@@ -49,12 +49,12 @@ public class XPathChecklistFunc extends XPathFuncExpr {
      * inclusive
      */
     private static Boolean checklist(Object oMin, Object oMax, Object[] factors) {
-        int min = toNumeric(oMin).intValue();
-        int max = toNumeric(oMax).intValue();
+        int min = FunctionUtils.toNumeric(oMin).intValue();
+        int max = FunctionUtils.toNumeric(oMax).intValue();
 
         int count = 0;
         for (Object factor : factors) {
-            if (toBoolean(factor)) {
+            if (FunctionUtils.toBoolean(factor)) {
                 count++;
             }
         }

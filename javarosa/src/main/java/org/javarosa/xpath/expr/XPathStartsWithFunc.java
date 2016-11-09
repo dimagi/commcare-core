@@ -19,6 +19,6 @@ public class XPathStartsWithFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return toString(evaluatedArgs[0]).startsWith(toString(evaluatedArgs[1]));
+        return FunctionUtils.toString(evaluatedArgs[0]).startsWith(FunctionUtils.toString(evaluatedArgs[1]));
     }
 }

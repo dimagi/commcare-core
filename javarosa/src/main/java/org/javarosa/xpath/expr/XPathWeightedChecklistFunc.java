@@ -37,7 +37,7 @@ public class XPathWeightedChecklistFunc extends XPathFuncExpr {
             }
             return checklistWeighted(evaluatedArgs[0], evaluatedArgs[1], factors, weights);
         } else {
-            return checklistWeighted(evaluatedArgs[0], evaluatedArgs[1], subsetArgList(evaluatedArgs, 2, 2), subsetArgList(evaluatedArgs, 3, 2));
+            return checklistWeighted(evaluatedArgs[0], evaluatedArgs[1], FunctionUtils.subsetArgList(evaluatedArgs, 2, 2), FunctionUtils.subsetArgList(evaluatedArgs, 3, 2));
         }
     }
 
@@ -54,13 +54,13 @@ public class XPathWeightedChecklistFunc extends XPathFuncExpr {
      * this sum is between the min and max
      */
     private static Boolean checklistWeighted(Object oMin, Object oMax, Object[] flags, Object[] weights) {
-        double min = toNumeric(oMin);
-        double max = toNumeric(oMax);
+        double min = FunctionUtils.toNumeric(oMin);
+        double max = FunctionUtils.toNumeric(oMax);
 
         double sum = 0.;
         for (int i = 0; i < flags.length; i++) {
-            boolean flag = toBoolean(flags[i]);
-            double weight = toNumeric(weights[i]);
+            boolean flag = FunctionUtils.toBoolean(flags[i]);
+            double weight = FunctionUtils.toNumeric(weights[i]);
 
             if (flag)
                 sum += weight;

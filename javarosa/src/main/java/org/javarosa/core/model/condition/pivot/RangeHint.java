@@ -7,7 +7,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IConditionExpr;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.expr.FunctionUtils;
 
 import java.util.Vector;
 
@@ -73,13 +73,13 @@ public abstract class RangeHint<T extends IAnswerData> implements ConstraintHint
         c.isConstraint = true;
 
         c.candidateValue = castToValue(val);
-        boolean eq = XPathFuncExpr.toBoolean(conditional.eval(instance, c));
+        boolean eq = FunctionUtils.toBoolean(conditional.eval(instance, c));
 
         c.candidateValue = castToValue(lt);
-        boolean ltr = XPathFuncExpr.toBoolean(conditional.eval(instance, c));
+        boolean ltr = FunctionUtils.toBoolean(conditional.eval(instance, c));
 
         c.candidateValue = castToValue(gt);
-        boolean gtr = XPathFuncExpr.toBoolean(conditional.eval(instance, c));
+        boolean gtr = FunctionUtils.toBoolean(conditional.eval(instance, c));
         
         if (ltr && !gtr) {
             max = val;

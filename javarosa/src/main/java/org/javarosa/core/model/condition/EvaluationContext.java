@@ -9,8 +9,8 @@ import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathLazyNodeset;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import java.util.Date;
 import java.util.Enumeration;
@@ -318,7 +318,7 @@ public class EvaluationContext {
 
                     EvaluationContext evalContext = rescope(refToExpand, positionContext[predIndex]);
                     Object o = predExpr.eval(sourceInstance, evalContext);
-                    o = XPathFuncExpr.unpack(o);
+                    o = FunctionUtils.unpack(o);
 
                     boolean passed = false;
                     if (o instanceof Double) {
@@ -327,7 +327,7 @@ public class EvaluationContext {
 
                         // The spec just says "number" for when to use this;
                         // Not clear what to do with a non-integer/rounding.
-                        int intVal = XPathFuncExpr.toInt(o).intValue();
+                        int intVal = FunctionUtils.toInt(o).intValue();
                         passed = (intVal == positionContext[predIndex]);
                     } else if (o instanceof Boolean) {
                         passed = (Boolean)o;

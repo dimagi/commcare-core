@@ -9,8 +9,8 @@ import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -106,7 +106,7 @@ public class DetailField implements Externalizable {
             parsedRelevancy = XPathParseTool.parseXPath(relevancy);
         }
 
-        return XPathFuncExpr.toBoolean(parsedRelevancy.eval(context));
+        return FunctionUtils.toBoolean(parsedRelevancy.eval(context));
     }
 
     /**

@@ -32,7 +32,6 @@ import org.javarosa.xform.util.XFormUtils;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
@@ -383,7 +382,7 @@ public class XFormPlayer {
         if (value instanceof XPathNodeset) {
             return FunctionUtils.getSerializedNodeset((XPathNodeset)value);
         } else {
-            return XPathFuncExpr.toString(value);
+            return FunctionUtils.toString(value);
         }
     }
 

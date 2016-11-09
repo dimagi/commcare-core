@@ -39,9 +39,9 @@ public class XPathTranslateFunc extends XPathFuncExpr {
      * @param o3 String of replacement characters
      */
     private static String translate(Object o1, Object o2, Object o3) {
-        String source = toString(o1);
-        String from = toString(o2);
-        String to = toString(o3);
+        String source = FunctionUtils.toString(o1);
+        String from = FunctionUtils.toString(o2);
+        String to = FunctionUtils.toString(o3);
 
         Hashtable<Character, Character> map = new Hashtable<>();
         for (int i = 0; i < Math.min(from.length(), to.length()); i++) {

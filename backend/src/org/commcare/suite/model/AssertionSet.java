@@ -8,8 +8,8 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -52,7 +52,7 @@ public class AssertionSet implements Externalizable {
                 XPathExpression expression = XPathParseTool.parseXPath(xpathExpressions.elementAt(i));
                 try {
                     Object val = expression.eval(ec);
-                    if (!XPathFuncExpr.toBoolean(val)) {
+                    if (!FunctionUtils.toBoolean(val)) {
                         return messages.elementAt(i);
                     }
                 } catch (Exception e) {

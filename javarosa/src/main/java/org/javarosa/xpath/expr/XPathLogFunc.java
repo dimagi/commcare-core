@@ -28,7 +28,7 @@ public class XPathLogFunc extends XPathFuncExpr {
      * @return Natural log of value
      */
     private static Double log(Object o) {
-        double value = toDouble(o);
+        double value = FunctionUtils.toDouble(o);
         return Math.log(value);
     }
 }

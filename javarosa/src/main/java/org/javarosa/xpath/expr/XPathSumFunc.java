@@ -34,7 +34,7 @@ public class XPathSumFunc extends XPathFuncExpr {
     private static Double sum(Object argVals[]) {
         double sum = 0.0;
         for (Object argVal : argVals) {
-            sum += toNumeric(argVal);
+            sum += FunctionUtils.toNumeric(argVal);
         }
         return sum;
     }

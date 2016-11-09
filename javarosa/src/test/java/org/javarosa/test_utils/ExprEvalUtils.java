@@ -6,8 +6,8 @@ import org.javarosa.core.model.instance.utils.FormLoadingUtils;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 
@@ -66,7 +66,7 @@ public class ExprEvalUtils {
         }
 
         try {
-            Object result = XPathFuncExpr.unpack(expr.eval(model, evalCtx));
+            Object result = FunctionUtils.unpack(expr.eval(model, evalCtx));
 
             if (exceptionExpected) {
                 return "Expected exception, expression : " + rawExpr;
@@ -114,7 +114,7 @@ public class ExprEvalUtils {
             throws XPathSyntaxException {
         XPathExpression expr;
         expr = XPathParseTool.parseXPath(input);
-        return XPathFuncExpr.unpack(expr.eval(evalContext));
+        return FunctionUtils.unpack(expr.eval(evalContext));
     }
 
     public static void testEval(String expr, EvaluationContext ec, Object expected) {
@@ -143,7 +143,7 @@ public class ExprEvalUtils {
         }
 
         try {
-            Object result = XPathFuncExpr.unpack(xpe.eval(model, ec));
+            Object result = FunctionUtils.unpack(xpe.eval(model, ec));
             if (tolerance != DOUBLE_TOLERANCE) {
                 System.out.println(expr + " = " + result);
             }

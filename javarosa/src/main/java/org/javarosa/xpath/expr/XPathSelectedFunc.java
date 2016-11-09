@@ -36,11 +36,11 @@ public class XPathSelectedFunc extends XPathFuncExpr {
      * @param o2 choice to look for
      */
     private static Boolean multiSelected(Object o1, Object o2) {
-        o2 = unpack(o2);
+        o2 = FunctionUtils.unpack(o2);
         if (!(o2 instanceof String)) {
             throw generateBadArgumentMessage("selected", 2, "single potential value from the list of select options", o2);
         }
-        String s1 = (String)unpack(o1);
+        String s1 = (String)FunctionUtils.unpack(o1);
         String s2 = ((String)o2).trim();
 
         return (" " + s1 + " ").contains(" " + s2 + " ");

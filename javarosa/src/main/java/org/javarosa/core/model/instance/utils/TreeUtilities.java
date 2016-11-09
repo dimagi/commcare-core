@@ -10,7 +10,6 @@ import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.expr.XPathStep;
 import org.javarosa.xpath.expr.XPathStringLiteral;
@@ -108,8 +107,8 @@ public class TreeUtilities {
 
                         try {
                             //Otherwise, go pull out the right hand value
-                            Object o = XPathFuncExpr.unpack(right.eval(evalContext));
-                            literalMatch = XPathFuncExpr.toString(o);
+                            Object o = FunctionUtils.unpack(right.eval(evalContext));
+                            literalMatch = FunctionUtils.toString(o);
                         } catch (XPathException e) {
                             //We may have some weird lack of context that makes this not work, so don't choke on the bonus evaluation
                             //and just evaluate that traditional way

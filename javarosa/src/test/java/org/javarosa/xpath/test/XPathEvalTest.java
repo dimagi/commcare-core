@@ -19,7 +19,6 @@ import org.javarosa.xpath.XPathUnhandledException;
 import org.javarosa.xpath.XPathUnsupportedException;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathNumericLiteral;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.expr.FunctionUtils;
@@ -54,7 +53,7 @@ public class XPathEvalTest {
         }
 
         try {
-            Object result = XPathFuncExpr.unpack(xpe.eval(model, ec));
+            Object result = FunctionUtils.unpack(xpe.eval(model, ec));
 
             if (exceptionExpected) {
                 fail("Expected exception, expression : " + expr);

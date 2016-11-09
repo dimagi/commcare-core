@@ -20,6 +20,6 @@ public class XPathDoubleFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return toDouble(evaluatedArgs[0]);
+        return FunctionUtils.toDouble(evaluatedArgs[0]);
     }
 }

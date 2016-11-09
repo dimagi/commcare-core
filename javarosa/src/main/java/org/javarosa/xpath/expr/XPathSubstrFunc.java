@@ -39,17 +39,17 @@ public class XPathSubstrFunc extends XPathFuncExpr {
      * after start and end have been adjusted
      */
     private static String substring(Object o1, Object o2, Object o3) {
-        String s = toString(o1);
+        String s = FunctionUtils.toString(o1);
 
         if (s.length() == 0) {
             return "";
         }
 
-        int start = toInt(o2).intValue();
+        int start = FunctionUtils.toInt(o2).intValue();
 
         int len = s.length();
 
-        int end = (o3 != null ? toInt(o3).intValue() : len);
+        int end = (o3 != null ? FunctionUtils.toInt(o3).intValue() : len);
         if (start < 0) {
             start = len + start;
         }

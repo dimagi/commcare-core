@@ -19,6 +19,6 @@ public class XPathAsinFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return Math.asin(toDouble(evaluatedArgs[0]));
+        return Math.asin(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
 }

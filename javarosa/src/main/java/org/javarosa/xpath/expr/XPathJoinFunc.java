@@ -32,7 +32,7 @@ public class XPathJoinFunc extends XPathFuncExpr {
         if (args.length == 2 && evaluatedArgs[1] instanceof XPathNodeset) {
             return join(evaluatedArgs[0], ((XPathNodeset)evaluatedArgs[1]).toArgList());
         } else {
-            return join(evaluatedArgs[0], subsetArgList(evaluatedArgs, 1));
+            return join(evaluatedArgs[0], FunctionUtils.subsetArgList(evaluatedArgs, 1));
         }
     }
 
@@ -40,11 +40,11 @@ public class XPathJoinFunc extends XPathFuncExpr {
      * concatenate an abritrary-length argument list of string values together
      */
     public static String join(Object oSep, Object[] argVals) {
-        String sep = toString(oSep);
+        String sep = FunctionUtils.toString(oSep);
         StringBuffer sb = new StringBuffer();
 
         for (int i = 0; i < argVals.length; i++) {
-            sb.append(toString(argVals[i]));
+            sb.append(FunctionUtils.toString(argVals[i]));
             if (i < argVals.length - 1)
                 sb.append(sep);
         }

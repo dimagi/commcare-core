@@ -19,6 +19,6 @@ public class XPathUpperCaseFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return normalizeCase(evaluatedArgs[0], true);
+        return FunctionUtils.normalizeCase(evaluatedArgs[0], true);
     }
 }

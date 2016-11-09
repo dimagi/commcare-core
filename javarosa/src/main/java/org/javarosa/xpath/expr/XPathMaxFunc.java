@@ -42,7 +42,7 @@ public class XPathMaxFunc extends XPathFuncExpr {
     private static Object max(Object[] argVals) {
         double max = Double.MIN_VALUE;
         for (Object argVal : argVals) {
-            max = Math.max(max, toNumeric(argVal));
+            max = Math.max(max, FunctionUtils.toNumeric(argVal));
         }
         return max;
     }

@@ -19,6 +19,6 @@ public class XPathAbsFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return Math.abs(toDouble(evaluatedArgs[0]));
+        return Math.abs(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
 }

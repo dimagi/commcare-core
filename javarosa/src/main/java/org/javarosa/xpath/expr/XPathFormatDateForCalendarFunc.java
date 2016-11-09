@@ -35,7 +35,7 @@ public class XPathFormatDateForCalendarFunc extends XPathFuncExpr {
      */
     private static String formatDateForCalendar(Object dateObject, Object format) {
 
-        Date date = expandDateSafe(dateObject);
+        Date date = FunctionUtils.expandDateSafe(dateObject);
         if (date == null) {
             return "";
         }

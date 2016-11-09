@@ -19,6 +19,6 @@ public class XPathAcosFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return Math.acos(toDouble(evaluatedArgs[0]));
+        return Math.acos(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
 }

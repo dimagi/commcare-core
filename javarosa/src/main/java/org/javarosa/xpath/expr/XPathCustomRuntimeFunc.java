@@ -104,13 +104,13 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
                 } else {
                     try {
                         if (prototype[i] == Boolean.class) {
-                            typed[i] = toBoolean(args[i]);
+                            typed[i] = FunctionUtils.toBoolean(args[i]);
                         } else if (prototype[i] == Double.class) {
-                            typed[i] = toNumeric(args[i]);
+                            typed[i] = FunctionUtils.toNumeric(args[i]);
                         } else if (prototype[i] == String.class) {
-                            typed[i] = toString(args[i]);
+                            typed[i] = FunctionUtils.toString(args[i]);
                         } else if (prototype[i] == Date.class) {
-                            typed[i] = toDate(args[i]);
+                            typed[i] = FunctionUtils.toDate(args[i]);
                         }
                     } catch (XPathTypeMismatchException xptme) {
                     }

@@ -33,8 +33,8 @@ public class XPathRegexFunc extends XPathFuncExpr {
      * @param o2 regular expression
      */
     private static Boolean regex(Object o1, Object o2) {
-        String str = toString(o1);
-        String re = toString(o2);
+        String str = FunctionUtils.toString(o1);
+        String re = FunctionUtils.toString(o2);
 
         RE regexp;
         try {

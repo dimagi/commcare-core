@@ -20,6 +20,6 @@ public class XPathIntFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return toInt(evaluatedArgs[0]);
+        return FunctionUtils.toInt(evaluatedArgs[0]);
     }
 }

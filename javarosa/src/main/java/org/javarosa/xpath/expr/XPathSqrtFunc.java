@@ -26,7 +26,7 @@ public class XPathSqrtFunc extends XPathFuncExpr {
      * Returns the square root of the argument, expressed in radians.
      */
     private static Double sqrt(Object o) {
-        double value = toDouble(o);
+        double value = FunctionUtils.toDouble(o);
         return Math.sqrt(value);
     }
 }

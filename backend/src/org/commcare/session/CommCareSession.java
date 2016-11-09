@@ -25,8 +25,8 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -450,10 +450,10 @@ public class CommCareSession {
             throw new RuntimeException(e.getMessage());
         }
         if (datum instanceof FormIdDatum) {
-            setXmlns(XPathFuncExpr.toString(form.eval(ec)));
+            setXmlns(FunctionUtils.toString(form.eval(ec)));
             setDatum("", "awful");
         } else if (datum instanceof ComputedDatum) {
-            setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
+            setDatum(datum.getDataId(), FunctionUtils.toString(form.eval(ec)));
         }
     }
 

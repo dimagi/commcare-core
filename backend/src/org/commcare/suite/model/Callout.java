@@ -9,7 +9,7 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -70,7 +70,7 @@ public class Callout implements Externalizable, DetailTemplate {
         while (keys.hasMoreElements()) {
             String key = (String)keys.nextElement();
             try {
-                String evaluatedKey = XPathFuncExpr.toString(XPathParseTool.parseXPath(extras.get(key)).eval(context));
+                String evaluatedKey = FunctionUtils.toString(XPathParseTool.parseXPath(extras.get(key)).eval(context));
                 evaluatedExtras.put(key, evaluatedKey);
             } catch (XPathSyntaxException e) {
                 // do nothing

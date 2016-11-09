@@ -26,7 +26,7 @@ public class XPathTanFunc extends XPathFuncExpr {
      * Returns the tangent of the argument, expressed in radians.
      */
     private static Double tan(Object o) {
-        double value = toDouble(o);
+        double value = FunctionUtils.toDouble(o);
         return Math.tan(value);
     }
 }

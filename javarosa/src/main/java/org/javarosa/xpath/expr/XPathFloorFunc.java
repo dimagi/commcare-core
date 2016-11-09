@@ -19,6 +19,6 @@ public class XPathFloorFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return new Double(Math.floor(toDouble(evaluatedArgs[0])));
+        return new Double(Math.floor(FunctionUtils.toDouble(evaluatedArgs[0])));
     }
 }

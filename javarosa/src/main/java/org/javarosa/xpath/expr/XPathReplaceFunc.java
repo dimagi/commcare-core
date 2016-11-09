@@ -36,15 +36,15 @@ public class XPathReplaceFunc extends XPathFuncExpr {
      * @return String
      */
     private static String replace(Object o1, Object o2, Object o3) {
-        String source = toString(o1);
-        String regexString = toString(o2);
+        String source = FunctionUtils.toString(o1);
+        String regexString = FunctionUtils.toString(o2);
         RE pattern;
         try {
             pattern = new RE(regexString);
         } catch (RESyntaxException e) {
             throw new XPathException("The regular expression '" + regexString + "' is invalid.");
         }
-        String replacement = toString(o3);
+        String replacement = FunctionUtils.toString(o3);
         return pattern.subst(source, replacement);
     }
 }

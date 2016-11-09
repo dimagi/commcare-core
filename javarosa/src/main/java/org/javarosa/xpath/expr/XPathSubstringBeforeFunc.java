@@ -23,8 +23,8 @@ public class XPathSubstringBeforeFunc extends XPathFuncExpr {
     }
 
     private static String substringBefore(Object fullStringAsRaw, Object substringAsRaw) {
-        String fullString = toString(fullStringAsRaw);
-        String subString = toString(substringAsRaw);
+        String fullString = FunctionUtils.toString(fullStringAsRaw);
+        String subString = FunctionUtils.toString(substringAsRaw);
 
         if (fullString.length() == 0) {
             return "";

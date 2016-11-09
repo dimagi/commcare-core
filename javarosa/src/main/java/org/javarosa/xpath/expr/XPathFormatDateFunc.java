@@ -26,10 +26,10 @@ public class XPathFormatDateFunc extends XPathFuncExpr {
     }
 
     private static String dateStr(Object od, Object of) {
-        Date expandedDate = expandDateSafe(od);
+        Date expandedDate = FunctionUtils.expandDateSafe(od);
         if (expandedDate == null) {
             return "";
         }
-        return DateUtils.format(expandedDate, toString(of));
+        return DateUtils.format(expandedDate, FunctionUtils.toString(of));
     }
 }

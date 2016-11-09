@@ -19,6 +19,6 @@ public class XPathStringFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
-        return toString(evaluatedArgs[0]);
+        return FunctionUtils.toString(evaluatedArgs[0]);
     }
 }

@@ -32,8 +32,8 @@ public class XPathDistanceFunc extends XPathFuncExpr {
      * Returns -1 if one of the arguments is null or the empty string.
      */
     public static Double distance(Object from, Object to) {
-        String unpackedFrom = (String)unpack(from);
-        String unpackedTo = (String)unpack(to);
+        String unpackedFrom = (String)FunctionUtils.unpack(from);
+        String unpackedTo = (String)FunctionUtils.unpack(to);
 
         if (unpackedFrom == null || "".equals(unpackedFrom) || unpackedTo == null || "".equals(unpackedTo)) {
             return new Double(-1.0);

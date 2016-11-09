@@ -26,7 +26,7 @@ public class XPathSinFunc extends XPathFuncExpr {
      * Returns the sine of the argument, expressed in radians.
      */
     private static Double sin(Object o) {
-        double value = toDouble(o);
+        double value = FunctionUtils.toDouble(o);
         return Math.sin(value);
     }
 }

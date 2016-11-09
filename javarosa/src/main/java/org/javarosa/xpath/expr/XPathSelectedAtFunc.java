@@ -31,8 +31,8 @@ public class XPathSelectedAtFunc extends XPathFuncExpr {
      * @param o2 the integer index into the list to return
      */
     private static String selectedAt(Object o1, Object o2) {
-        String selection = (String)unpack(o1);
-        int index = toInt(o2).intValue();
+        String selection = (String)FunctionUtils.unpack(o1);
+        int index = FunctionUtils.toInt(o2).intValue();
 
         String[] entries = DataUtil.splitOnSpaces(selection);
 
