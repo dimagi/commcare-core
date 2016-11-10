@@ -185,10 +185,10 @@ public class Profile implements Persistable {
      */
     public void initializeProperties(boolean enableForce) {
         for (PropertySetter setter : properties) {
-            String property = PropertyManager._().getSingularProperty(setter.getKey());
+            String property = PropertyManager.getInstance().getSingularProperty(setter.getKey());
             //We only want to set properties which are undefined or are forced
             if (property == null || (enableForce && setter.force)) {
-                PropertyManager._().setProperty(setter.getKey(), setter.getValue());
+                PropertyManager.getInstance().setProperty(setter.getKey(), setter.getValue());
             }
         }
     }

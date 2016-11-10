@@ -405,8 +405,8 @@ public class ApplicationHost {
 
     public static void restoreUserToSandbox(UserSandbox sandbox, String username, final String password) {
         //fetch the restore data and set credentials
-        String otaRestoreURL = PropertyManager._().getSingularProperty("ota-restore-url") + "?version=2.0";
-        String domain = PropertyManager._().getSingularProperty("cc_user_domain");
+        String otaRestoreURL = PropertyManager.getInstance().getSingularProperty("ota-restore-url") + "?version=2.0";
+        String domain = PropertyManager.getInstance().getSingularProperty("cc_user_domain");
         final String qualifiedUsername = username + "@" + domain;
 
         Authenticator.setDefault(new Authenticator() {
