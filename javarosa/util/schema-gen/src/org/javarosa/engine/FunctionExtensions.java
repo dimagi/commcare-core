@@ -2,15 +2,12 @@ package org.javarosa.engine;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
+import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.engine.xml.XmlUtil;
 import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.xpath.XPathLazyNodeset;
-import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathPathExpr;
-import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -21,12 +18,13 @@ import java.util.Vector;
  * Custom functions to be used in form player debug tools.
  *
  * Allows users to:
- *  - override 'today()' and 'now()' with custom dates.
- *  - perform introspection on xpath references with 'print()'
+ * - override 'today()' and 'now()' with custom dates.
+ * - perform introspection on xpath references with 'print()'
+ * - override 'here()' with custom location.
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-class FunctionExtensions {
+public class FunctionExtensions {
     protected static class TodayFunc implements IFunctionHandler {
         private final String name;
         private final Date date;
@@ -106,4 +104,5 @@ class FunctionExtensions {
             return "";
         }
     }
+
 }
