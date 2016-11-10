@@ -74,7 +74,7 @@ public class PointerAnswerData implements IAnswerData {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
-        data = (IDataPointer)ExtUtil.read(in, new ExtWrapTagged());
+        data = (IDataPointer)ExtUtil.read(in, new ExtWrapTagged(), pf);
     }
 
     @Override

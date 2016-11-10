@@ -905,7 +905,7 @@ public class CommCareSession {
 
         CommCareSession restoredSession = new CommCareSession(ccPlatform);
         restoredSession.frame = restoredFrame;
-        Vector<SessionFrame> frames = (Vector<SessionFrame>) ExtUtil.read(inputStream, new ExtWrapList(SessionFrame.class));
+        Vector<SessionFrame> frames = (Vector<SessionFrame>) ExtUtil.read(inputStream, new ExtWrapList(SessionFrame.class), null);
         Stack<SessionFrame> stackFrames = new Stack<>();
         while(!frames.isEmpty()){
             SessionFrame lastElement = frames.lastElement();

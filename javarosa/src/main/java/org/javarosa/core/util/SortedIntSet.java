@@ -82,7 +82,7 @@ public class SortedIntSet implements Externalizable {
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        v = (Vector)ExtUtil.read(in, new ExtWrapList(Integer.class));
+        v = (Vector)ExtUtil.read(in, new ExtWrapList(Integer.class), pf);
     }
 
     @Override
