@@ -201,7 +201,7 @@ public class CommCareSession {
 
         Vector<Entry> entries = getEntriesForCommand(currentCmd, collectedDatums);
         String needDatum = getDataNeededByAllEntries(entries);
-        
+
         if (needDatum != null) {
             return needDatum;
         } else if (entries.isEmpty()) {
