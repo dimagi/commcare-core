@@ -201,12 +201,7 @@ public class CommCareSession {
 
         Vector<Entry> entries = getEntriesForCommand(currentCmd, collectedDatums);
         String needDatum = getDataNeededByAllEntries(entries);
-
-        if (needDatum == null &&
-                entries != null &&
-                entries.size() == 1 && entries.elementAt(0) instanceof RemoteRequestEntry) {
-        }
-
+        
         if (needDatum != null) {
             return needDatum;
         } else if (entries.isEmpty()) {
