@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.UTFDataFormatException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
