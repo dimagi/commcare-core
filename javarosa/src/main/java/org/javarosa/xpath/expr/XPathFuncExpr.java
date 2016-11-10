@@ -136,7 +136,7 @@ public class XPathFuncExpr extends XPathExpression {
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        id = (XPathQName)ExtUtil.read(in, XPathQName.class);
+        id = (XPathQName)ExtUtil.read(in, XPathQName.class, pf);
         Vector v = (Vector)ExtUtil.read(in, new ExtWrapListPoly(), pf);
 
         args = new XPathExpression[v.size()];
