@@ -10,7 +10,6 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -83,7 +82,7 @@ public class OfflineUserRestore implements Persistable {
 
     private InputStream getStreamFromReference() {
         try {
-            Reference local = ReferenceManager._().DeriveReference(reference);
+            Reference local = ReferenceManager.instance().DeriveReference(reference);
             return local.getStream();
         } catch (IOException | InvalidReferenceException e) {
             throw new RuntimeException(e);
