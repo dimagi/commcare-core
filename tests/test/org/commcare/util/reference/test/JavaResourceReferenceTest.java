@@ -17,11 +17,11 @@ import java.io.InputStream;
 public class JavaResourceReferenceTest {
     @Test
     public void testReferences() throws Exception {
-        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
+        ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
 
         String referenceName = "jr://resource/reference/resource_reference_test.txt";
 
-        Reference r = ReferenceManager._().DeriveReference(referenceName);
+        Reference r = ReferenceManager.instance().DeriveReference(referenceName);
 
         if (!(r instanceof ResourceReference)) {
             Assert.fail("Incorrect reference type: " + r);
