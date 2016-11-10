@@ -99,7 +99,7 @@ public class StackOperation implements Externalizable {
             throws IOException, DeserializationException {
         opType = ExtUtil.readInt(in);
         ifCondition = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-        elements = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class));
+        elements = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class), pf);
     }
 
     @Override

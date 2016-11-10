@@ -1,4 +1,4 @@
-package org.commcare.util.cli;
+package org.commcare.util.screen;
 
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.core.interfaces.UserSandbox;
@@ -16,7 +16,7 @@ import java.io.PrintStream;
  *
  * @author ctsims
  */
-public abstract class Screen implements OptionsScreen{
+public abstract class Screen implements OptionsScreen {
 
     /**
      * Fired once per screen when the screen is requested. Should set up all of the state

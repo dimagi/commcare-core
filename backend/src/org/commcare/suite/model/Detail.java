@@ -202,9 +202,9 @@ public class Detail implements Externalizable {
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        id = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        id = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         title = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
-        titleForm = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        titleForm = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         nodeset = (TreeReference)ExtUtil.read(in, new ExtWrapNullable(TreeReference.class), pf);
         Vector<Detail> theDetails = (Vector<Detail>)ExtUtil.read(in, new ExtWrapList(Detail.class), pf);
         details = new Detail[theDetails.size()];

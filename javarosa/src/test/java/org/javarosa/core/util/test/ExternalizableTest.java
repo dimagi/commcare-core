@@ -1,6 +1,8 @@
 package org.javarosa.core.util.test;
 
+import org.commcare.cases.model.Case;
 import org.javarosa.core.api.ClassNameHasher;
+import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapBase;
@@ -12,7 +14,9 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.ExternalizableWrapper;
+import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.core.util.externalizable.SerializationLimitationException;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -22,6 +26,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class ExternalizableTest {
@@ -264,4 +269,29 @@ public class ExternalizableTest {
         m.put("e", new ExtWrapList(vs));
         testExternalizable(new ExtWrapMapPoly(m), new ExtWrapMapPoly(String.class, true), pf);
     }
+
+    @Test(expected = SerializationLimitationException.class)
+    public void stringSerializationLimitationTest() {
+        DummyIndexedStorageUtility<Case> storage =
+                new DummyIndexedStorageUtility<>(Case.class, new LivePrototypeFactory());
+
+        Case caseWithLongStringProp = new Case("123", "a");
+        caseWithLongStringProp.setCaseId("foo");
+        String longString = buildLargeString();
+        caseWithLongStringProp.setProperty("too_long", longString);
+
+        storage.write(caseWithLongStringProp);
+        // dummy storage only serializes on read... so read
+        storage.read(0);
+    }
+
+    private static String buildLargeString() {
+        StringBuilder sb = new StringBuilder();
+        int overMax = (((int)Short.MAX_VALUE) * 2) + 100;
+        for (int i = 0; i < overMax; i++) {
+            sb.append("z");
+        }
+        return sb.toString();
+    }
+
 }

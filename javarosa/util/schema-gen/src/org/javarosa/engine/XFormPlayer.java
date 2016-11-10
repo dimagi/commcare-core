@@ -95,7 +95,7 @@ public class XFormPlayer {
         this.mockup = mockup;
     }
 
-    public void setmPreferredLocale(String locale) {
+    public void setPreferredLocale(String locale) {
         this.mPreferredLocale = locale;
     }
 
