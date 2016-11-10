@@ -61,7 +61,7 @@ sourceSets {
     api {
         java {
             srcDir 'api'
-            srcDir 'util/src/org/commcare/util/screen'
+            srcDir 'util/src'
             compileClasspath += main.output
         }
     }
@@ -90,6 +90,7 @@ dependencies {
       compile 'commons-cli:commons-cli:1.3.1'
       compile 'xpp3:xpp3:1.1.4c'
       compile 'joda-time:joda-time:2.9.3'
+     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.3.5'
 
       cliCompile 'org.json:json:20140107'
       cliCompile files('javarosa/lib/regexp-me.jar')
@@ -97,8 +98,10 @@ dependencies {
       cliCompile 'commons-cli:commons-cli:1.3.1'
       cliCompile 'xpp3:xpp3:1.1.4c'
       cliCompile 'joda-time:joda-time:2.9.3'
+      cliCompile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.3.5'
 
-      testCompile sourceSets.main.output
+
+    testCompile sourceSets.main.output
       testCompile sourceSets.api.output
       testCompile sourceSets.cli.output
       testCompile 'junit:junit:4.12'
@@ -127,6 +130,7 @@ dependencies {
       translateCompile files('javarosa/util/schema-gen/lib/json-simple-1.1.1.jar')
       translateCompile 'joda-time:joda-time:2.9.3'
       translateCompile 'org.json:json:20140107'
+    compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
 }
 
 jar {

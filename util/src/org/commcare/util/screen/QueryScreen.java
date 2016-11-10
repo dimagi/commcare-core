@@ -1,22 +1,18 @@
 package org.commcare.util.screen;
 
+import org.apache.http.client.utils.URIBuilder;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.DisplayUnit;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.xml.ElementParser;
-import org.javarosa.xml.TreeElementParser;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.kxml2.io.KXmlParser;
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Hashtable;
 import java.util.Map;
@@ -53,7 +49,25 @@ public class QueryScreen extends Screen {
 
     }
     public InputStream makeQueryRequestReturnStream() {
-        // TODO Implement this
+        try {
+            URL urlObject = getBaseUrl();
+            Hashtable<String, String> params = getQueryParams();
+            URIBuilder uriBuilder = new URIBuilder(urlObject.toString());
+            for(String key: params.keySet()) {
+                uriBuilder.addParameter(key, params.get(key));
+            }
+            urlObject = uriBuilder.build().toURL();
+            HttpURLConnection con = null;
+            con = (HttpURLConnection) urlObject.openConnection();
+            con.setRequestMethod("GET");
+            int responseCode = con.getResponseCode();
+            return con.getInputStream();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -68,7 +82,7 @@ public class QueryScreen extends Screen {
             return false;
         } else {
             sessionWrapper.setQueryDatum(instanceOrError.first);
-            return true;
+            return false;
         }
     }
 
