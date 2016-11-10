@@ -71,10 +71,10 @@ public class QuestionString implements Externalizable {
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        name = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
-        textId = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
-        textInner = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
-        textFallback = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        name = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        textId = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        textInner = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        textFallback = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
     }
 
     @Override
