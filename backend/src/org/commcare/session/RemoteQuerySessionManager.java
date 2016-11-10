@@ -1,13 +1,24 @@
 package org.commcare.session;
 
+import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.TreeElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.kxml2.io.KXmlParser;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -25,7 +36,7 @@ public class RemoteQuerySessionManager {
             new Hashtable<>();
 
     private RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
-                                     EvaluationContext evaluationContext) {
+                                      EvaluationContext evaluationContext) {
         this.queryDatum = queryDatum;
         this.evaluationContext = evaluationContext;
     }
@@ -66,10 +77,6 @@ public class RemoteQuerySessionManager {
         return queryDatum.getUrl();
     }
 
-    public String getStorageInstanceName() {
-        return queryDatum.getDataId();
-    }
-
     public Hashtable<String, String> getRawQueryParams() {
         Hashtable<String, String> params = new Hashtable<>();
         Hashtable<String, XPathExpression> hiddenQueryValues = queryDatum.getHiddenQueryValues();
@@ -89,4 +96,21 @@ public class RemoteQuerySessionManager {
                                              EvaluationContext evaluationContext) {
         return XPathFuncExpr.toString(expr.eval(evaluationContext));
     }
+
+    /**
+     * @return Data instance built from xml stream or the error message raised during parsing
+     */
+    public Pair<ExternalDataInstance, String> buildExternalDataInstance(InputStream instanceStream) {
+        TreeElement root;
+        try {
+            KXmlParser baseParser = ElementParser.instantiateParser(instanceStream);
+            root = new TreeElementParser(baseParser, 0, queryDatum.getDataId()).parse();
+        } catch (InvalidStructureException | IOException
+                | XmlPullParserException | UnfullfilledRequirementsException e) {
+            e.printStackTrace();
+            return new Pair<>(null, e.getMessage());
+        }
+        return new Pair<>(ExternalDataInstance.buildFromRemote(queryDatum.getDataId(), root, queryDatum.useCaseTemplate()), "");
+    }
+
 }
