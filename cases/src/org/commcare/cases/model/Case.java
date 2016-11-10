@@ -132,7 +132,7 @@ public class Case implements Persistable, IMetaData, Secure {
         closed = ExtUtil.readBool(in);
         dateOpened = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
         recordId = ExtUtil.readInt(in);
-        indices = (Vector<CaseIndex>)ExtUtil.read(in, new ExtWrapList(CaseIndex.class));
+        indices = (Vector<CaseIndex>)ExtUtil.read(in, new ExtWrapList(CaseIndex.class), pf);
         data = (Hashtable)ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
     }
 

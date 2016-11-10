@@ -61,6 +61,7 @@ sourceSets {
     api {
         java {
             srcDir 'api'
+            srcDir 'util/src/org/commcare/util/screen'
             compileClasspath += main.output
         }
     }
@@ -163,7 +164,6 @@ task apiJar(type: Jar, dependsOn: apiClasses) {
     baseName = "commcare-api"
     from sourceSets.api.output
     from sourceSets.main.output
-    from sourceSets.cli.output
     from {
         configurations.apiCompile.collect {
             it.isDirectory() ? it : zipTree(it)

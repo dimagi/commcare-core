@@ -101,7 +101,7 @@ public class Ledger implements Persistable, IMetaData {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         recordId = ExtUtil.readInt(in);
         entityId = ExtUtil.readString(in);
-        sections = (Hashtable<String, Hashtable<String, Integer>>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapMap(String.class, Integer.class)));
+        sections = (Hashtable<String, Hashtable<String, Integer>>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapMap(String.class, Integer.class)), pf);
     }
 
     @Override

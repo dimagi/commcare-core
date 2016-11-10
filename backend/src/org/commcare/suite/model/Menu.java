@@ -133,7 +133,7 @@ public class Menu implements Externalizable, MenuDisplayable {
         id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         root = ExtUtil.readString(in);
         rawRelevance = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-        display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class);
+        display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
         commandIds = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
         commandExprs = new String[ExtUtil.readInt(in)];
         for (int i = 0; i < commandExprs.length; ++i) {
