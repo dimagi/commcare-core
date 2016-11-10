@@ -1,4 +1,4 @@
-package org.commcare.util.cli;
+package org.commcare.util.screen;
 
 import java.io.PrintStream;
 
@@ -10,7 +10,7 @@ import java.io.PrintStream;
  *
  * Created by ctsims on 8/20/2015.
  */
-public abstract class Subscreen<T extends CompoundScreenHost> implements OptionsScreen{
+public abstract class Subscreen<T extends CompoundScreenHost> implements OptionsScreen {
 
     /**
      * The subscreen should process the provided input, and update any relevant state in its
