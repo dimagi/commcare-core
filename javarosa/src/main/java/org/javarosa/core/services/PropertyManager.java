@@ -35,7 +35,7 @@ public class PropertyManager implements IPropertyManager {
         setPropertyManager(new PropertyManager());
     }
 
-    public static IPropertyManager getInstance() {
+    public static IPropertyManager instance() {
         if (instance == null) {
             initDefaultPropertyManager();
         }

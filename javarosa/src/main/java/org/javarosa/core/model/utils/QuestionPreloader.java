@@ -233,7 +233,7 @@ public class QuestionPreloader {
      * null otherwise
      */
     private IAnswerData preloadProperty(String preloadParams) {
-        String propval = PropertyManager.getInstance().getSingularProperty(preloadParams);
+        String propval = PropertyManager.instance().getSingularProperty(preloadParams);
         StringData data = null;
         if (propval != null && propval.length() > 0) {
             data = new StringData(propval);
@@ -245,7 +245,7 @@ public class QuestionPreloader {
         IAnswerData answer = node.getValue();
         String value = (answer == null ? null : answer.getDisplayText());
         if (propName != null && propName.length() > 0 && value != null && value.length() > 0)
-            PropertyManager.getInstance().setProperty(propName, value);
+            PropertyManager.instance().setProperty(propName, value);
     }
 
     private DateTimeData getTimestamp() {

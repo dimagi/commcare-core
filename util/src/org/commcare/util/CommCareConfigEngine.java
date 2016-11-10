@@ -103,12 +103,12 @@ public class CommCareConfigEngine {
     }
 
     private void setRoots() {
-        ReferenceManager.getInstance().addReferenceFactory(new JavaHttpRoot());
+        ReferenceManager.instance().addReferenceFactory(new JavaHttpRoot());
 
         this.mArchiveRoot = new ArchiveFileRoot();
 
-        ReferenceManager.getInstance().addReferenceFactory(mArchiveRoot);
-        ReferenceManager.getInstance().addReferenceFactory(new ResourceReferenceFactory());
+        ReferenceManager.instance().addReferenceFactory(mArchiveRoot);
+        ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
     }
 
     public void initFromArchive(String archiveURL) {
@@ -176,7 +176,7 @@ public class CommCareConfigEngine {
         }
 
         //(That root now reads as jr://file/)
-        ReferenceManager.getInstance().addReferenceFactory(new JavaFileRoot(rootPath));
+        ReferenceManager.instance().addReferenceFactory(new JavaFileRoot(rootPath));
 
         //Now build the testing reference we'll use
         return "jr://file/" + filePart;

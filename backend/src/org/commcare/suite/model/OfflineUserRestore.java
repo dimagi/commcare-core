@@ -82,7 +82,7 @@ public class OfflineUserRestore implements Persistable {
 
     private InputStream getStreamFromReference() {
         try {
-            Reference local = ReferenceManager.getInstance().DeriveReference(reference);
+            Reference local = ReferenceManager.instance().DeriveReference(reference);
             return local.getStream();
         } catch (IOException | InvalidReferenceException e) {
             throw new RuntimeException(e);

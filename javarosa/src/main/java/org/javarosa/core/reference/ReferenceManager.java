@@ -44,7 +44,7 @@ public class ReferenceManager {
      * @return Singleton accessor to the global
      * ReferenceManager.
      */
-    public static ReferenceManager getInstance() {
+    public static ReferenceManager instance() {
         if (instance == null) {
             instance = new ReferenceManager();
         }
