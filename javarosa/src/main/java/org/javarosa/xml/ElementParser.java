@@ -71,6 +71,7 @@ public abstract class ElementParser<T> {
             Logger.exception("Element Parser", e);
             throw new IOException(e.getMessage());
         } catch (IllegalArgumentException e) {
+            e.printStackTrace();
             throw new IOException(e.getMessage());
         }
     }
