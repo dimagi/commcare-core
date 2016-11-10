@@ -15,7 +15,9 @@ import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.screen.CommCareSessionException;
 import org.commcare.util.screen.EntityScreen;
 import org.commcare.util.screen.MenuScreen;
+import org.commcare.util.screen.QueryScreen;
 import org.commcare.util.screen.Screen;
+import org.commcare.util.screen.SyncScreen;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
@@ -323,6 +325,10 @@ public class ApplicationHost {
             return new MenuScreen();
         } else if (next.equals(SessionFrame.STATE_DATUM_VAL)) {
             return new EntityScreen();
+        } else if (next.equals(SessionFrame.STATE_QUERY_REQUEST)) {
+            return new QueryScreen();
+        } else if (next.equals(SessionFrame.STATE_SYNC_REQUEST)) {
+            return new SyncScreen();
         } else if (next.equalsIgnoreCase(SessionFrame.STATE_DATUM_COMPUTED)) {
             computeDatum();
             return getNextScreen();
