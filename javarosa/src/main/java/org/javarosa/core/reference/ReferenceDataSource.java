@@ -45,7 +45,7 @@ public class ReferenceDataSource implements LocaleDataSource {
     public Hashtable<String, String> getLocalizedText() {
         InputStream is = null;
         try {
-            is = ReferenceManager._().DeriveReference(referenceURI).getStream();
+            is = ReferenceManager.getInstance().DeriveReference(referenceURI).getStream();
             if (is == null) {
                 throw new IOException("There is no resource at " + referenceURI);
             }

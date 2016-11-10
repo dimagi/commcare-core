@@ -128,12 +128,12 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
                 int copy = 0;
 
                 try {
-                    Reference destination = ReferenceManager._().DeriveReference("jr://file/" + uri);
+                    Reference destination = ReferenceManager.getInstance().DeriveReference("jr://file/" + uri);
                     while (destination.doesBinaryExist()) {
                         //Need a different location.
                         copy++;
                         String newUri = uri + "." + copy;
-                        destination = ReferenceManager._().DeriveReference("jr://file/" + newUri);
+                        destination = ReferenceManager.getInstance().DeriveReference("jr://file/" + newUri);
                     }
 
                     if (destination.isReadOnly()) {
@@ -237,7 +237,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
         }
         Reference reference;
         try {
-            reference = ReferenceManager._().DeriveReference(localReference);
+            reference = ReferenceManager.getInstance().DeriveReference(localReference);
             if (!reference.isReadOnly()) {
                 reference.remove();
             }
@@ -284,7 +284,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
                 //If we've gotten the cache into memory, we're fine
             } else {
                 try {
-                    if (!ReferenceManager._().DeriveReference(localReference).doesBinaryExist()) {
+                    if (!ReferenceManager.getInstance().DeriveReference(localReference).doesBinaryExist()) {
                         throw new MissingMediaException(r, "Locale data does note exist at: " + localReference);
                     }
                 } catch (IOException e) {

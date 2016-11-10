@@ -17,7 +17,7 @@ public class InstallerUtil {
 
     public static void checkMedia(Resource r, String filePath, SizeBoundUniqueVector<MissingMediaException> problems, MediaType mt) {
         try {
-            Reference ref = ReferenceManager._().DeriveReference(filePath);
+            Reference ref = ReferenceManager.getInstance().DeriveReference(filePath);
             String localName = ref.getLocalURI();
             boolean successfulAdd;
             try {
