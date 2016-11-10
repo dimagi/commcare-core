@@ -35,6 +35,8 @@ public class Case implements Persistable, IMetaData, Secure {
     public static final String INDEX_CASE_STATUS = "case-status";
     public static final String INDEX_CASE_INDEX_PRE = "case-in-";
 
+    private static final String ATTACHMENT_PREFIX = "attachmentdata";
+
     protected String typeId;
     protected String id;
     protected String name;
@@ -233,8 +235,6 @@ public class Case implements Persistable, IMetaData, Secure {
     public Vector<CaseIndex> getIndices() {
         return indices;
     }
-
-    private static final String ATTACHMENT_PREFIX = "attachmentdata";
 
     public void updateAttachment(String attachmentName, String reference) {
         data.put(ATTACHMENT_PREFIX + attachmentName, reference);
