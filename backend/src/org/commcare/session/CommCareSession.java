@@ -558,15 +558,16 @@ public class CommCareSession {
             String key = (String)en.nextElement();
             instancesInScope.put(key, instancesInScope.get(key).initialize(iif, key));
         }
-        addInstancesFromFrame(instancesInScope);
+        addInstancesFromFrame(instancesInScope, iif);
 
         return new EvaluationContext(null, instancesInScope);
     }
 
-    private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap) {
+    private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap,
+                                       InstanceInitializationFactory iif) {
         for (StackFrameStep step : frame.getSteps()) {
             if (step.hasXmlInstance()) {
-                instanceMap.put(step.getId(), step.getXmlInstance());
+                instanceMap.put(step.getId(), step.getXmlInstance().initialize(iif, step.getId()));
             }
         }
     }

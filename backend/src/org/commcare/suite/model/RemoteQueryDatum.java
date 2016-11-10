@@ -24,17 +24,25 @@ import java.util.Hashtable;
 public class RemoteQueryDatum extends SessionDatum {
     private Hashtable<String, XPathExpression> hiddenQueryValues;
     private OrderedHashtable<String, DisplayUnit> userQueryPrompts;
+    private boolean useCaseTemplate;
 
     @SuppressWarnings("unused")
     public RemoteQueryDatum() {
     }
 
+    /**
+     * @param useCaseTemplate True if query results respect the casedb
+     *                        template structure. Permits flexibility (path
+     *                        heterogeneity) in case data lookups
+     */
     public RemoteQueryDatum(URL url, String storageInstance,
                             Hashtable<String, XPathExpression> hiddenQueryValues,
-                            OrderedHashtable<String, DisplayUnit> userQueryPrompts) {
+                            OrderedHashtable<String, DisplayUnit> userQueryPrompts,
+                            boolean useCaseTemplate) {
         super(storageInstance, url.toString());
         this.hiddenQueryValues = hiddenQueryValues;
         this.userQueryPrompts = userQueryPrompts;
+        this.useCaseTemplate = useCaseTemplate;
     }
 
     public OrderedHashtable<String, DisplayUnit> getUserQueryPrompts() {
@@ -55,16 +63,21 @@ public class RemoteQueryDatum extends SessionDatum {
         }
     }
 
+    public boolean useCaseTemplate() {
+        return useCaseTemplate;
+    }
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
 
         hiddenQueryValues =
-                (Hashtable<String, XPathExpression>) ExtUtil.read(in, new ExtWrapMapPoly(String.class), pf);
+                (Hashtable<String, XPathExpression>)ExtUtil.read(in, new ExtWrapMapPoly(String.class), pf);
         userQueryPrompts =
-                (OrderedHashtable<String, DisplayUnit>) ExtUtil.read(in,
+                (OrderedHashtable<String, DisplayUnit>)ExtUtil.read(in,
                         new ExtWrapMap(String.class, DisplayUnit.class, ExtWrapMap.TYPE_ORDERED), pf);
+        useCaseTemplate = ExtUtil.readBool(in);
     }
 
     @Override
@@ -73,5 +86,6 @@ public class RemoteQueryDatum extends SessionDatum {
 
         ExtUtil.write(out, new ExtWrapMapPoly(hiddenQueryValues));
         ExtUtil.write(out, new ExtWrapMap(userQueryPrompts));
+        ExtUtil.writeBool(out, useCaseTemplate);
     }
 }
