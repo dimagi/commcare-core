@@ -1,5 +1,11 @@
 package org.commcare.util.screen;
 
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.IFunctionHandler;
+import org.javarosa.core.model.data.GeoPointData;
+
+import java.util.Vector;
+
 /**
  * Generally useful methods on CLI screens.
  *
@@ -27,4 +33,35 @@ public class ScreenUtils {
         return builder.toString();
     }
 
+    public static class HereDummyFunc implements IFunctionHandler {
+        private final double lat;
+        private final double lon;
+
+        public HereDummyFunc(double lat, double lon) {
+            this.lat = lat;
+            this.lon = lon;
+        }
+
+        @Override
+        public String getName() {
+            return "here";
+        }
+
+        @Override
+        public Vector getPrototypes() {
+            Vector<Class[]> p = new Vector<>();
+            p.addElement(new Class[0]);
+            return p;
+        }
+
+        @Override
+        public boolean rawArgs() {
+            return false;
+        }
+
+        @Override
+        public Object eval(Object[] args, EvaluationContext ec) {
+            return new GeoPointData(new double[]{lat, lon, 0, 10}).getDisplayText();
+        }
+    }
 }

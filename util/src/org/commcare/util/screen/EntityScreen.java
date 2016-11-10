@@ -11,7 +11,6 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.NoLocalizedTextException;
-import org.javarosa.engine.FunctionExtensions;
 import org.javarosa.model.xform.XPathReference;
 
 import java.util.Vector;
@@ -67,7 +66,7 @@ public class EntityScreen extends CompoundScreenHost {
         evalContext = mSession.getEvaluationContext();
         Vector<TreeReference> references = evalContext.expandReference(mNeededDatum.getNodeset());
         // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic setting
-        evalContext.addFunctionHandler(new FunctionExtensions.HereDummyFunc(-23.56,  -46.66));
+        evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56,  -46.66));
 
         if(mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
             this.setHighlightedEntity(references.firstElement());
