@@ -70,8 +70,8 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         name = (Text)ExtUtil.read(in, Text.class, pf);
-        imageReference = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class));
-        audioReference = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class));
+        imageReference = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
+        audioReference = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
     }
 
     @Override
