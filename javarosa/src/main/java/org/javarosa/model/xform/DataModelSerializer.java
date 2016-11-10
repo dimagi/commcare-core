@@ -18,14 +18,8 @@ import java.io.OutputStream;
  */
 public class DataModelSerializer {
 
-    final KXmlSerializer serializer;
-    InstanceInitializationFactory factory;
-
-    /*
-    public DataModelSerializer(OutputStream stream) throws IOException {
-        this(stream, new InstanceInitializationFactory());
-    }
-    */
+    private final KXmlSerializer serializer;
+    private final InstanceInitializationFactory factory;
 
     public DataModelSerializer(OutputStream stream, InstanceInitializationFactory factory) throws IOException {
         serializer = new KXmlSerializer();
@@ -35,6 +29,7 @@ public class DataModelSerializer {
 
     public DataModelSerializer(KXmlSerializer serializer) {
         this.serializer = serializer;
+        this.factory = null;
     }
 
     public void serialize(ExternalDataInstance instance, TreeReference base) throws IOException {
@@ -50,22 +45,22 @@ public class DataModelSerializer {
         } else {
             root = instance.resolveReference(base);
         }
+        serialize(root);
+    }
 
-        //write root
+    public void serialize(AbstractTreeElement root) throws IOException {
         serializer.startTag(root.getNamespace(), root.getName());
 
         for (int i = 0; i < root.getNumChildren(); i++) {
-            //write children
             AbstractTreeElement childAt = root.getChildAt(i);
             serializeNode(childAt);
         }
 
-        //end root
         serializer.endTag(root.getNamespace(), root.getName());
         serializer.flush();
     }
 
-    public void serializeNode(AbstractTreeElement instanceNode) throws IOException {
+    private void serializeNode(AbstractTreeElement instanceNode) throws IOException {
         //don't serialize template nodes or non-relevant nodes
         if (!instanceNode.isRelevant() || instanceNode.getMult() == TreeReference.INDEX_TEMPLATE) {
             return;

@@ -60,7 +60,7 @@ public class XPathNodeset {
         this.nodes = nodes;
     }
 
-    protected Vector<TreeReference> getReferences() {
+    public Vector<TreeReference> getReferences() {
         return this.nodes;
     }
 
