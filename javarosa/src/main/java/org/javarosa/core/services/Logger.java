@@ -18,7 +18,7 @@ public class Logger {
         logger = theLogger;
     }
 
-    public static ILogger _() {
+    public static ILogger getInstance() {
         return logger;
     }
 
