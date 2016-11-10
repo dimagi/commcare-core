@@ -6,8 +6,7 @@ import org.commcare.session.CommCareSession;
 import java.io.PrintStream;
 
 /**
- * Screen that displays user configurable entry texts and makes
- * a case query to the server with these fields.
+ * Screen that should trigger a sync on HQ, not yet implemented
  *
  * @author wspride
  */
