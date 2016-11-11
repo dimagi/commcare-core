@@ -19,6 +19,7 @@ public class UploadQuestionExtension implements QuestionDataExtension {
 
     private int maxDimen;
 
+    @SuppressWarnings("unused")
     public UploadQuestionExtension() {
         // for deserialization
     }
@@ -31,11 +32,13 @@ public class UploadQuestionExtension implements QuestionDataExtension {
         return this.maxDimen;
     }
 
+    @Override
     public void readExternal(DataInputStream dis, PrototypeFactory pf)
             throws IOException, DeserializationException {
         this.maxDimen = ExtUtil.readInt(dis);
     }
 
+    @Override
     public void writeExternal(DataOutputStream dos) throws IOException {
         ExtUtil.writeNumeric(dos, maxDimen);
     }

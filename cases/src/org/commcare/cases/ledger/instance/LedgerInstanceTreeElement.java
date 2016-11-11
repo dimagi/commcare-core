@@ -142,6 +142,7 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         }
     }
 
+    @Override
     public boolean isRepeatable() {
         return false;
     }
@@ -242,6 +243,7 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         return 0;
     }
 
+    @Override
     public String getNamespace() {
         return null;
     }

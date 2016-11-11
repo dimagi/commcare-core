@@ -30,6 +30,7 @@ public class ExtWrapListPoly extends ExternalizableWrapper {
         return new ExtWrapListPoly((Vector)val);
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         long size = ExtUtil.readNumeric(in);
         Vector<Object> v = new Vector<>((int)size);

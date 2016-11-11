@@ -307,6 +307,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     }
 
 
+    @Override
     protected String translateFilterExpr(XPathPathExpr expressionTemplate, XPathPathExpr matchingExpr, Hashtable<XPathPathExpr, String> indices) {
         String filter = super.translateFilterExpr(expressionTemplate, matchingExpr, indices);
 

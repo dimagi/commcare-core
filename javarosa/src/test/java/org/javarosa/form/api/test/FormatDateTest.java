@@ -1,10 +1,7 @@
 package org.javarosa.form.api.test;
 
 import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.data.DateData;
-import org.javarosa.core.model.data.IntegerData;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
@@ -17,7 +14,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * @author wspride

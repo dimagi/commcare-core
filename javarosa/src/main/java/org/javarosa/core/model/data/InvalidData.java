@@ -11,11 +11,10 @@ import java.io.IOException;
  */
 public class InvalidData implements IAnswerData {
 
-    private String myErrorMessage;
-    private IAnswerData savedValue;
+    private final String myErrorMessage;
+    private final IAnswerData savedValue;
 
     public InvalidData(String error, IAnswerData returnValue) {
-
         myErrorMessage = error;
         savedValue = returnValue;
     }

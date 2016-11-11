@@ -42,7 +42,7 @@ public class XPathLazyNodeset extends XPathNodeset {
 
     private void performEvaluation() {
         synchronized (evaluated) {
-            if (evaluated.booleanValue()) {
+            if (evaluated) {
                 return;
             }
             Vector<TreeReference> nodes = ec.expandReference(unExpandedRef);
@@ -68,7 +68,7 @@ public class XPathLazyNodeset extends XPathNodeset {
     @Override
     public Object unpack() {
         synchronized (evaluated) {
-            if (evaluated.booleanValue()) {
+            if (evaluated) {
                 return super.unpack();
             }
 

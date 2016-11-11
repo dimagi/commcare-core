@@ -5,29 +5,29 @@ import org.javarosa.xpath.expr.XPathNumericLiteral;
 import org.javarosa.xpath.expr.XPathQName;
 import org.javarosa.xpath.expr.XPathStringLiteral;
 import org.javarosa.xpath.expr.XPathVariableReference;
-import org.javarosa.xpath.parser.Parser;
 import org.javarosa.xpath.parser.Token;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ASTNodeAbstractExpr extends ASTNode {
     public static final int CHILD = 1;
     public static final int TOKEN = 2;
 
     // mixture of tokens and ASTNodes
-    public final Vector<Object> content;
+    public List<Object> content;
 
     public ASTNodeAbstractExpr() {
-        content = new Vector<>();
+        content = new ArrayList<>();
     }
 
     @Override
-    public Vector getChildren() {
-        Vector<Object> children = new Vector<>();
-        for (int i = 0; i < content.size(); i++) {
+    public List<? extends ASTNode> getChildren() {
+        List<ASTNode> children = new ArrayList<>();
+        for (int i = 0; i < size(); i++) {
             if (getType(i) == CHILD) {
-                children.addElement(content.elementAt(i));
+                children.add((ASTNode)content.get(i));
             }
         }
         return children;
@@ -35,9 +35,9 @@ public class ASTNodeAbstractExpr extends ASTNode {
 
     @Override
     public XPathExpression build() throws XPathSyntaxException {
-        if (content.size() == 1) {
+        if (size() == 1) {
             if (getType(0) == CHILD) {
-                return ((ASTNode)content.elementAt(0)).build();
+                return ((ASTNode)content.get(0)).build();
             } else {
                 switch (getTokenType(0)) {
                     case Token.NUM:
@@ -56,7 +56,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
     }
 
     private boolean isTerminal() {
-        if (content.size() == 1) {
+        if (size() == 1) {
             int type = getTokenType(0);
             return (type == Token.NUM || type == Token.STR || type == Token.VAR);
         } else {
@@ -65,8 +65,8 @@ public class ASTNodeAbstractExpr extends ASTNode {
     }
 
     public boolean isNormalized() {
-        if (content.size() == 1 && getType(0) == CHILD) {
-            ASTNode child = (ASTNode)content.elementAt(0);
+        if (size() == 1 && getType(0) == CHILD) {
+            ASTNode child = (ASTNode)content.get(0);
             if (child instanceof ASTNodePathStep || child instanceof ASTNodePredicate) {
                 throw new RuntimeException("shouldn't happen");
             }
@@ -77,7 +77,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
     }
 
     public int getType(int i) {
-        Object o = content.elementAt(i);
+        Object o = content.get(i);
         if (o instanceof Token)
             return TOKEN;
         else if (o instanceof ASTNode)
@@ -87,7 +87,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
     }
 
     public Token getToken(int i) {
-        return (getType(i) == TOKEN ? (Token)content.elementAt(i) : null);
+        return (getType(i) == TOKEN ? (Token)content.get(i) : null);
     }
 
     public int getTokenType(int i) {
@@ -98,18 +98,26 @@ public class ASTNodeAbstractExpr extends ASTNode {
     //create new node containing children from [start,end)
     public ASTNodeAbstractExpr extract(int start, int end) {
         ASTNodeAbstractExpr node = new ASTNodeAbstractExpr();
-        for (int i = start; i < end; i++) {
-            node.content.addElement(content.elementAt(i));
-        }
+        node.content = new ArrayList<>(content.subList(start, end));
         return node;
     }
 
-    //remove children from [start,end) and replace with node n
+    /**
+     * remove children from [start,end) and replace with node n
+     */
     public void condense(ASTNode node, int start, int end) {
         for (int i = end - 1; i >= start; i--) {
-            content.removeElementAt(i);
+            content.remove(i);
         }
-        content.insertElementAt(node, start);
+        content.add(start, node);
+    }
+
+    /**
+     * Replace contents (which should be just tokens) with a single node
+     */
+    public void condenseFull(ASTNode node) {
+        content.clear();
+        content.add(node);
     }
 
     //find the next incidence of 'target' at the current stack level
@@ -119,7 +127,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
         int i = start + 1;
         boolean found = false;
 
-        while (depth >= 0 && i < content.size()) {
+        while (depth >= 0 && i < size()) {
             int type = getTokenType(i);
 
             if (depth == 0 && type == target) {
@@ -139,34 +147,34 @@ public class ASTNodeAbstractExpr extends ASTNode {
     }
 
     public static class Partition {
-        public final Vector<ASTNodeAbstractExpr> pieces;
-        public final Vector<Integer> separators;
+        public final List<ASTNodeAbstractExpr> pieces;
+        public final List<Integer> separators;
 
         public Partition() {
-            pieces = new Vector<>();
-            separators = new Vector<>();
+            pieces = new ArrayList<>();
+            separators = new ArrayList<>();
         }
     }
 
     //paritition the range [start,end), separating by any occurrence of separator
     public Partition partition(int[] separators, int start, int end) {
         Partition part = new Partition();
-        Vector<Integer> sepIdxs = new Vector<>();
+        ArrayList<Integer> sepIdxs = new ArrayList<>();
 
         for (int i = start; i < end; i++) {
-            for (int j = 0; j < separators.length; j++) {
-                if (getTokenType(i) == separators[j]) {
-                    part.separators.addElement(separators[j]);
-                    sepIdxs.addElement(i);
+            for (int separator : separators) {
+                if (getTokenType(i) == separator) {
+                    part.separators.add(separator);
+                    sepIdxs.add(i);
                     break;
                 }
             }
         }
 
         for (int i = 0; i <= sepIdxs.size(); i++) {
-            int pieceStart = (i == 0 ? start : Parser.vectInt(sepIdxs, i - 1) + 1);
-            int pieceEnd = (i == sepIdxs.size() ? end : Parser.vectInt(sepIdxs, i));
-            part.pieces.addElement(extract(pieceStart, pieceEnd));
+            int pieceStart = (i == 0 ? start : sepIdxs.get(i - 1) + 1);
+            int pieceEnd = (i == sepIdxs.size() ? end : sepIdxs.get(i));
+            part.pieces.add(extract(pieceStart, pieceEnd));
         }
 
         return part;
@@ -176,26 +184,55 @@ public class ASTNodeAbstractExpr extends ASTNode {
     //start is the opening token of the current stack level
     public Partition partitionBalanced(int sep, int start, int leftPush, int rightPop) {
         Partition part = new Partition();
-        Vector<Integer> sepIdxs = new Vector<>();
+        List<Integer> sepIdxs = new ArrayList<>();
         int end = indexOfBalanced(start, rightPop, leftPush, rightPop);
-        if (end == -1)
+        if (end == -1) {
             return null;
+        }
 
         int k = start;
         do {
             k = indexOfBalanced(k, sep, leftPush, rightPop);
             if (k != -1) {
-                sepIdxs.addElement(k);
-                part.separators.addElement(sep);
+                sepIdxs.add(k);
+                part.separators.add(sep);
             }
         } while (k != -1);
 
         for (int i = 0; i <= sepIdxs.size(); i++) {
-            int pieceStart = (i == 0 ? start + 1 : Parser.vectInt(sepIdxs, i - 1) + 1);
-            int pieceEnd = (i == sepIdxs.size() ? end : Parser.vectInt(sepIdxs, i));
-            part.pieces.addElement(extract(pieceStart, pieceEnd));
+            int pieceStart = (i == 0 ? start + 1 : sepIdxs.get(i - 1) + 1);
+            int pieceEnd = (i == sepIdxs.size() ? end : sepIdxs.get(i));
+            part.pieces.add(extract(pieceStart, pieceEnd));
         }
 
         return part;
+    }
+
+    public int size() {
+        return content.size();
+    }
+
+    /**
+     * true if 'node' is potentially a step, as opposed to a filter expr
+     */
+    public boolean isStep() {
+        if (size() > 0) {
+            int type = getTokenType(0);
+            if (type == Token.QNAME ||
+                    type == Token.WILDCARD ||
+                    type == Token.NSWILDCARD ||
+                    type == Token.AT ||
+                    type == Token.DOT ||
+                    type == Token.DBL_DOT) {
+                return true;
+            } else if (content.get(0) instanceof ASTNodeFunctionCall) {
+                String name = ((ASTNodeFunctionCall)content.get(0)).name.toString();
+                return (name.equals("node") || name.equals("text") || name.equals("comment") || name.equals("processing-instruction"));
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 }

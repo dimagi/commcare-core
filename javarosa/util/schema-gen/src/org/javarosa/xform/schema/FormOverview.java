@@ -38,7 +38,6 @@ import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xform.util.XFormAnswerDataSerializer;
 import org.javarosa.xpath.XPathConditional;
 
-import java.util.Enumeration;
 import java.util.Iterator;
 
 public class FormOverview {
@@ -339,7 +338,7 @@ public class FormOverview {
         for (int i = 0; i < indent; i++) {
             sb.append("  ");
         }
-        sb.append(line + "\n");
+        sb.append(line).append("\n");
     }
 
     private static void println (StringBuffer sb) {

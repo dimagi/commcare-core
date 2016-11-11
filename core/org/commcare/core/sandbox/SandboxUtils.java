@@ -93,7 +93,7 @@ public class SandboxUtils {
         // ... Nooooot so clean.
         if (userFixtures.size() == 1) {
             // easy case, one fixture, use it
-            return userFixtureStorage.read(userFixtures.elementAt(0).intValue());
+            return userFixtureStorage.read(userFixtures.elementAt(0));
             // TODO: Userid check anyway?
         } else if (userFixtures.size() > 1) {
             // intersect userid and fixtureid set.
@@ -106,7 +106,7 @@ public class SandboxUtils {
                 Integer userFixture =
                         ArrayUtilities.intersectSingle(userFixtures, relevantUserFixtures);
                 if (userFixture != null) {
-                    return userFixtureStorage.read(userFixture.intValue());
+                    return userFixtureStorage.read(userFixture);
                 }
             }
         }
@@ -117,13 +117,13 @@ public class SandboxUtils {
         Integer globalFixture =
                 ArrayUtilities.intersectSingle(appFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, ""), appFixtures);
         if (globalFixture != null) {
-            return appFixtureStorage.read(globalFixture.intValue());
+            return appFixtureStorage.read(globalFixture);
         } else {
             // See if we have one manually placed in the suite
             Integer userFixture =
                     ArrayUtilities.intersectSingle(appFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, userId), appFixtures);
             if (userFixture != null) {
-                return appFixtureStorage.read(userFixture.intValue());
+                return appFixtureStorage.read(userFixture);
             }
             // Otherwise, nothing
             return null;

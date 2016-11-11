@@ -99,6 +99,7 @@ public class Logger {
         //depending on how the code was invoked, a straight 'throw' won't always reliably crash the app
         //throwing in a thread should work (at least on our nokias)
         new Thread() {
+            @Override
             public void run() {
                 throw crashException;
             }

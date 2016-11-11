@@ -120,6 +120,7 @@ public class GroupDef implements IFormElement {
         this.repeat = repeat;
     }
 
+    @Override
     public String getLabelInnerText() {
         return labelInnerText;
     }
@@ -133,6 +134,7 @@ public class GroupDef implements IFormElement {
         return appearanceAttr;
     }
 
+    @Override
     public void setAppearanceAttr(String appearanceAttr) {
         this.appearanceAttr = appearanceAttr;
     }

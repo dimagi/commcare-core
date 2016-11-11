@@ -10,10 +10,12 @@ import org.javarosa.core.model.data.IntegerData;
  */
 public class IntegerRangeHint extends RangeHint<IntegerData> {
 
+    @Override
     protected IntegerData castToValue(double value) throws UnpivotableExpressionException {
         return new IntegerData((int)Math.floor(value));
     }
 
+    @Override
     protected double unit() {
         return 1;
     }
