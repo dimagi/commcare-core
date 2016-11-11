@@ -59,17 +59,15 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         EvaluationContext context = new EvaluationContext(rootContext, entity);
         AccumulatingReporter reporter = new AccumulatingReporter();
 
-        if(collectDebug) {
+        if (collectDebug) {
             context.setDebugModeOn(reporter);
         }
         shortDetail.populateEvaluationContextVariables(context);
 
-        if(collectDebug) {
-            if(reporter.getCollectedTraces().size() > 0) {
-                System.out.println("Variable Traces");
-            }
-            PrintCollectedTraces(reporter);
-            reporter.clearTraces();
+
+
+        if (collectDebug) {
+            printAndClearTraces(reporter, "Variable Traces");
         }
 
         DetailField[] fields = shortDetail.getFields();
@@ -80,7 +78,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             Object o;
             try {
                 o = field.getTemplate().evaluate(context);
-            } catch(XPathException e) {
+            } catch (XPathException e) {
                 o = "error (see output)";
                 e.printStackTrace();
             }
@@ -104,20 +102,24 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             }
         }
 
-        if(collectDebug) {
-            if(reporter.getCollectedTraces().size() > 0) {
-                System.out.println("Template Traces:");
-            }
-            PrintCollectedTraces(reporter);
-            reporter.clearTraces();
+        if (collectDebug) {
+            printAndClearTraces(reporter, "Template Traces:");
         }
         return row.toString();
     }
 
-    private static void PrintCollectedTraces(AccumulatingReporter reporter) {
+    private void printAndClearTraces(AccumulatingReporter reporter, String description) {
+        if (reporter.getCollectedTraces().size() > 0) {
+            System.out.println(description);
+        }
+        printCollectedTraces(reporter);
+        reporter.clearTraces();
+    }
+
+    private static void printCollectedTraces(AccumulatingReporter reporter) {
         StringEvaluationTraceSerializer serializer = new StringEvaluationTraceSerializer();
-        for(EvaluationTrace trace : reporter.getCollectedTraces()) {
-            System.out.println(trace.getExpression() +": " + trace.getValue());
+        for (EvaluationTrace trace : reporter.getCollectedTraces()) {
+            System.out.println(trace.getExpression() + ": " + trace.getValue());
             System.out.print(serializer.serializeEvaluationLevels(trace));
         }
     }
@@ -158,7 +160,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             out.println(CliUtils.pad(String.valueOf(i), maxLength) + ")" + d);
         }
 
-        if(actions != null) {
+        if (actions != null) {
             int actionCount = 0;
             for (Action action : actions) {
                 out.println();
@@ -175,7 +177,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     @Override
     public boolean handleInputAndUpdateHost(String input, EntityScreen host) throws CommCareSessionException {
-        if(input.startsWith("action ") && actions != null) {
+        if (input.startsWith("action ") && actions != null) {
             int chosenActionIndex;
             try {
                 chosenActionIndex = Integer.valueOf(input.substring("action ".length()).trim());
@@ -188,7 +190,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             }
         }
 
-        if(input.startsWith("debug ")) {
+        if (input.startsWith("debug ")) {
             try {
                 int chosenDebugIndex = Integer.valueOf(input.substring("debug ".length()).trim());
                 createRow(this.mChoices[chosenDebugIndex], true);

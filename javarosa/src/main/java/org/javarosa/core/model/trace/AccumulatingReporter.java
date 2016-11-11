@@ -9,7 +9,7 @@ import java.util.Vector;
  * Created by ctsims on 10/19/2016.
  */
 public class AccumulatingReporter implements EvaluationTraceReporter {
-    Vector<EvaluationTrace> traces = new Vector<>();
+    private final Vector<EvaluationTrace> traces = new Vector<>();
 
     @Override
     public void reportTrace(EvaluationTrace trace) {
