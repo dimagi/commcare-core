@@ -18,7 +18,7 @@ public class Logger {
         logger = theLogger;
     }
 
-    public static ILogger _() {
+    public static ILogger instance() {
         return logger;
     }
 
@@ -63,7 +63,7 @@ public class Logger {
         boolean enabled;
         boolean problemReadingFlag = false;
         try {
-            String flag = PropertyManager._().getSingularProperty(LOGS_ENABLED);
+            String flag = PropertyManager.instance().getSingularProperty(LOGS_ENABLED);
             enabled = (flag == null || flag.equals(LOGS_ENABLED_YES));
         } catch (Exception e) {
             enabled = true;    //default to true if problem
