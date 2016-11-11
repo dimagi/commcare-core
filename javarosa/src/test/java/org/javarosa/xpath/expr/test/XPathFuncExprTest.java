@@ -8,6 +8,8 @@ import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.expr.FunctionUtils;
+import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -119,5 +121,12 @@ public class XPathFuncExprTest {
             didParseFail = true;
         }
         assertTrue(didParseFail);
+    }
+    @Test
+    public void funcListTest() {
+        Class<?>[] classes = XPathFuncExprTest.class.getClasses();
+        for (Class c : classes) {
+            assertTrue(FunctionUtils.funcList.containsKey(c));
+        }
     }
 }

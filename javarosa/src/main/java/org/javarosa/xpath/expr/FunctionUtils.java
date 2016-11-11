@@ -8,8 +8,76 @@ import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.util.Date;
+import java.util.HashMap;
 
 public class FunctionUtils {
+    public static final HashMap<Class, String> funcList = new HashMap<>();
+
+    static {
+        funcList.put(XPathDateFunc.class, "");
+        funcList.put(XpathCoalesceFunc.class, "");
+        funcList.put(XPathTrueFunc.class, "");
+        funcList.put(XPathNowFunc.class, "");
+        funcList.put(XPathNumberFunc.class, "");
+        funcList.put(XPathSelectedFunc.class, "");
+        funcList.put(XPathBooleanFunc.class, "");
+        funcList.put(XPathLogTenFunc.class, "");
+        funcList.put(XPathExpFunc.class, "");
+        funcList.put(XPathChecklistFunc.class, "");
+        funcList.put(XPathAtanTwoFunc.class, "");
+        funcList.put(XPathSubstrFunc.class, "");
+        funcList.put(XPathStringFunc.class, "");
+        funcList.put(XPathEndsWithFunc.class, "");
+        funcList.put(XPathDependFunc.class, "");
+        funcList.put(XPathDoubleFunc.class, "");
+        funcList.put(XPathTanFunc.class, "");
+        funcList.put(XPathReplaceFunc.class, "");
+        funcList.put(XPathJoinFunc.class, "");
+        funcList.put(XPathFloorFunc.class, "");
+        funcList.put(XPathPiFunc.class, "");
+        funcList.put(XPathFormatDateFunc.class, "");
+        funcList.put(XPathFormatDateForCalendarFunc.class, "");
+        funcList.put(XPathMinFunc.class, "");
+        funcList.put(XPathSinFunc.class, "");
+        funcList.put(XPathBooleanFromStringFunc.class, "");
+        funcList.put(XPathCondFunc.class, "");
+        funcList.put(XPathSubstringBeforeFunc.class, "");
+        funcList.put(XPathCeilingFunc.class, "");
+        funcList.put(XPathPositionFunc.class, "");
+        funcList.put(XPathStringLengthFunc.class, "");
+        funcList.put(XPathRandomFunc.class, "");
+        funcList.put(XPathMaxFunc.class, "");
+        funcList.put(XPathCustomRuntimeFunc.class, "");
+        funcList.put(XPathAcosFunc.class, "");
+        funcList.put(XPathAsinFunc.class, "");
+        funcList.put(XPathIfFunc.class, "");
+        funcList.put(XPathLowerCaseFunc.class, "");
+        funcList.put(XPathIntFunc.class, "");
+        funcList.put(XPathDistanceFunc.class, "");
+        funcList.put(XPathWeightedChecklistFunc.class, "");
+        funcList.put(XPathUpperCaseFunc.class, "");
+        funcList.put(XPathCosFunc.class, "");
+        funcList.put(XPathFalseFunc.class, "");
+        funcList.put(XPathLogFunc.class, "");
+        funcList.put(XPathRoundFunc.class, "");
+        funcList.put(XPathSubstringAfterFunc.class, "");
+        funcList.put(XPathAbsFunc.class, "");
+        funcList.put(XPathTranslateFunc.class, "");
+        funcList.put(XPathCountSelectedFunc.class, "");
+        funcList.put(XPathSelectedAtFunc.class, "");
+        funcList.put(XPathCountFunc.class, "");
+        funcList.put(XPathPowFunc.class, "");
+        funcList.put(XPathContainsFunc.class, "");
+        funcList.put(XPathNotFunc.class, "");
+        funcList.put(XPathSumFunc.class, "");
+        funcList.put(XPathRegexFunc.class, "");
+        funcList.put(XPathAtanFunc.class, "");
+        funcList.put(XPathStartsWithFunc.class, "");
+        funcList.put(XPathTodayFunc.class, "");
+        funcList.put(XPathConcatFunc.class, "");
+        funcList.put(XPathSqrtFunc.class, "");
+        funcList.put(XPathUuidFunc.class, "");
+    }
 
     private static final CacheTable<String, Double> mDoubleParseCache = new CacheTable<>();
     /**

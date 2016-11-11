@@ -68,6 +68,8 @@ public abstract class XPathFuncExpr extends XPathExpression {
 
     protected abstract Object evalBody(DataInstance model, EvaluationContext evalContext);
 
+    //protected abstract String docs();
+
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
