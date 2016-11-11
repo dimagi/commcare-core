@@ -64,10 +64,8 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         }
         shortDetail.populateEvaluationContextVariables(context);
 
-
-
         if (collectDebug) {
-            printAndClearTraces(reporter, "Variable Traces");
+            ScreenUtils.printAndClearTraces(reporter, "Variable Traces");
         }
 
         DetailField[] fields = shortDetail.getFields();
@@ -103,26 +101,11 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         }
 
         if (collectDebug) {
-            printAndClearTraces(reporter, "Template Traces:");
+            ScreenUtils.printAndClearTraces(reporter, "Template Traces:");
         }
         return row.toString();
     }
 
-    private void printAndClearTraces(AccumulatingReporter reporter, String description) {
-        if (reporter.getCollectedTraces().size() > 0) {
-            System.out.println(description);
-        }
-        printCollectedTraces(reporter);
-        reporter.clearTraces();
-    }
-
-    private static void printCollectedTraces(AccumulatingReporter reporter) {
-        StringEvaluationTraceSerializer serializer = new StringEvaluationTraceSerializer();
-        for (EvaluationTrace trace : reporter.getCollectedTraces()) {
-            System.out.println(trace.getExpression() + ": " + trace.getValue());
-            System.out.print(serializer.serializeEvaluationLevels(trace));
-        }
-    }
 
     //So annoying how identical this is...
     private static String createHeader(Detail shortDetail, EvaluationContext context) {
@@ -190,10 +173,14 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         }
 
         if (input.startsWith("debug ")) {
+            String debugArg = input.substring("debug ".length());
             try {
-                int chosenDebugIndex = Integer.valueOf(input.substring("debug ".length()).trim());
+                int chosenDebugIndex = Integer.valueOf(debugArg.trim());
                 createRow(this.mChoices[chosenDebugIndex], true);
             } catch (NumberFormatException e) {
+                if ("list".equals(debugArg)) {
+                    host.printNodesetExpansionTrace();
+                }
             }
             return false;
         }
