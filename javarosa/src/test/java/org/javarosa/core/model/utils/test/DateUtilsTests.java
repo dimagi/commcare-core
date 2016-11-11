@@ -6,6 +6,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.TimeZone;
 
 import static org.junit.Assert.assertEquals;
@@ -180,6 +181,26 @@ public class DateUtilsTests {
             fail("Error: " + in + e.getMessage());
         }
     }
+
+    @Test
+    public void testFormat() {
+        Date novFifth2016 = new Date(17110);
+        DateFields novFifth2016Fields = DateUtils.getFields(novFifth2016, null);
+        Map escapesResults = new HashMap();
+        escapesResults.put("%a", "Sat");
+        escapesResults.put("%A", "Saturday");
+        escapesResults.put("%b", "Nov");
+        escapesResults.put("%B", "November");
+        escapesResults.put("%d", "05");
+        escapesResults.put("%e", "5");
+
+        for (String escape : escapesResults.keySet()) {
+            String result = escapesResults.get(escape);
+            String formatted = DateUtils.format(novFifth2016Fields, escape);
+            assertEquals(formatted, result);
+        }
+    }
+
 /*
     private void testGetData() {
 
