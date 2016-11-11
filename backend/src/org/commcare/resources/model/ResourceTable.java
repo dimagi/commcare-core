@@ -392,7 +392,7 @@ public class ResourceTable {
             } else {
                 try {
                     handled = installResource(r, location,
-                            ReferenceManager._().DeriveReference(location.getLocation()),
+                            ReferenceManager.instance().DeriveReference(location.getLocation()),
                             this, instance, upgrade);
                     if (handled) {
                         recordSuccess(r);
@@ -1048,12 +1048,12 @@ public class ResourceTable {
             final Reference derivedRef;
             if (context == null) {
                 derivedRef =
-                        ReferenceManager._().DeriveReference(location.getLocation());
+                        ReferenceManager.instance().DeriveReference(location.getLocation());
             } else {
                 // contextualize the location ref in terms of the multiple refs
                 // pointing to different locations for the parent resource
                 derivedRef =
-                        ReferenceManager._().DeriveReference(location.getLocation(),
+                        ReferenceManager.instance().DeriveReference(location.getLocation(),
                                 context);
             }
             ret.addElement(derivedRef);
