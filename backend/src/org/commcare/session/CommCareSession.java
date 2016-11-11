@@ -128,6 +128,9 @@ public class CommCareSession {
     private Vector<Entry> getEntriesForCommand(String commandId,
                                                OrderedHashtable<String, String> currentSessionData) {
         Vector<Entry> entries = new Vector<>();
+        if (commandId == null) {
+            return entries;
+        }
         for (Suite s : platform.getInstalledSuites()) {
             List<Menu> menusWithId = s.getMenusWithId(commandId);
             if (menusWithId != null) {
