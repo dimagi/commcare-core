@@ -197,7 +197,7 @@ public class DateUtilsTests {
         for (String escape : escapesResults.keySet()) {
             String result = escapesResults.get(escape);
             String formatted = DateUtils.format(novFifth2016Fields, escape);
-            assertEquals(formatted, result);
+            assertEquals("Fail: '" + escape + "' rendered unexpectedly", result, formatted);
         }
     }
 
