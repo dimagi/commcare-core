@@ -1,4 +1,4 @@
-package org.commcare.util.cli;
+package org.commcare.util.screen;
 
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.suite.model.Action;
@@ -39,6 +39,7 @@ public class EntityScreen extends CompoundScreenHost {
     private Subscreen<EntityScreen> mCurrentScreen;
 
     private boolean readyToSkip = false;
+    private EvaluationContext evalContext;
 
     @Override
     public void init(SessionWrapper session) throws CommCareSessionException {
@@ -62,8 +63,10 @@ public class EntityScreen extends CompoundScreenHost {
             throw new CommCareSessionException("Missing detail definition for: " + detailId);
         }
 
-        EvaluationContext ec = session.getEvaluationContext();
-        Vector<TreeReference> references = ec.expandReference(mNeededDatum.getNodeset());
+        evalContext = mSession.getEvaluationContext();
+        Vector<TreeReference> references = evalContext.expandReference(mNeededDatum.getNodeset());
+        // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic setting
+        evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56,  -46.66));
 
         if(mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
             this.setHighlightedEntity(references.firstElement());
@@ -72,7 +75,7 @@ public class EntityScreen extends CompoundScreenHost {
                 readyToSkip = true;
             }
         } else {
-            mCurrentScreen = new EntityListSubscreen(mShortDetail, references, ec);
+            mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext);
         }
     }
 
@@ -84,7 +87,7 @@ public class EntityScreen extends CompoundScreenHost {
     @Override
     protected String getScreenTitle() {
         try {
-            return mShortDetail.getTitle().evaluate(mSession.getEvaluationContext()).getName();
+            return mShortDetail.getTitle().evaluate(evalContext).getName();
         }catch (NoLocalizedTextException nlte) {
             return "Select (error with title string)";
         }
@@ -114,12 +117,12 @@ public class EntityScreen extends CompoundScreenHost {
     @Override
     protected void updateSession(CommCareSession session) {
         if(mPendingAction != null) {
-            session.executeStackOperations(mPendingAction.getStackOperations(), mSession.getEvaluationContext());
+            session.executeStackOperations(mPendingAction.getStackOperations(), evalContext);
             return;
         }
 
         String selectedValue = this.getReturnValueFromSelection(this.mCurrentSelection,
-                mNeededDatum, mSession.getEvaluationContext());
+                mNeededDatum, evalContext);
         session.setDatum(mNeededDatum.getDataId(), selectedValue);
 
     }
@@ -157,7 +160,7 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     public void setCurrentScreenToDetail(int index) throws CommCareSessionException {
-        EvaluationContext subContext = new EvaluationContext(mSession.getEvaluationContext(), this.mCurrentSelection);
+        EvaluationContext subContext = new EvaluationContext(evalContext, this.mCurrentSelection);
 
         TreeReference detailNodeset = this.mLongDetailList[index].getNodeset();
         if (detailNodeset != null) {

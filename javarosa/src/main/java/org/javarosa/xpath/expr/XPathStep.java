@@ -270,13 +270,13 @@ public class XPathStep implements Externalizable {
 
         switch (test) {
             case TEST_NAME:
-                name = (XPathQName)ExtUtil.read(in, XPathQName.class);
+                name = (XPathQName)ExtUtil.read(in, XPathQName.class, pf);
                 break;
             case TEST_NAMESPACE_WILDCARD:
                 namespace = ExtUtil.readString(in);
                 break;
             case TEST_TYPE_PROCESSING_INSTRUCTION:
-                literal = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+                literal = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
                 break;
         }
 

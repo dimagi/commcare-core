@@ -1,4 +1,4 @@
-package org.commcare.util.cli;
+package org.commcare.util.screen;
 
 /**
  * Wrapper for exceptions or errors that occur during CLI usage

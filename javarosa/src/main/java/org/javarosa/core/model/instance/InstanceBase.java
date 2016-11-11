@@ -12,8 +12,8 @@ import java.util.Vector;
  */
 public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
 
-    final String instanceName;
-    AbstractTreeElement child;
+    private final String instanceName;
+    private AbstractTreeElement child;
 
     public InstanceBase(String instanceName) {
         this.instanceName = instanceName;
@@ -174,7 +174,8 @@ public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
 
     @Override
     public Vector<TreeReference> tryBatchChildFetch(String name, int mult,
-                                                    Vector<XPathExpression> predicates, EvaluationContext evalContext) {
+                                                    Vector<XPathExpression> predicates,
+                                                    EvaluationContext evalContext) {
         return null;
     }
 

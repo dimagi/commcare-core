@@ -449,7 +449,7 @@ public class EvaluationContext {
     public AbstractTreeElement resolveReference(TreeReference qualifiedRef) {
         DataInstance instance = this.getMainInstance();
         if (qualifiedRef.getInstanceName() != null &&
-                (instance == null || !instance.getInstanceId().equals(qualifiedRef.getInstanceName()))) {
+                (instance == null || instance.getInstanceId() == null || !instance.getInstanceId().equals(qualifiedRef.getInstanceName()))) {
             instance = this.getInstance(qualifiedRef.getInstanceName());
         }
         return instance.resolveReference(qualifiedRef);

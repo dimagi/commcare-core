@@ -115,7 +115,7 @@ public class CommCareSession {
         }
     }
 
-    public Vector<Entry> getEntriesForCommand(String commandId) {
+    private Vector<Entry> getEntriesForCommand(String commandId) {
         return getEntriesForCommand(commandId, new OrderedHashtable<String, String>());
     }
 
@@ -128,6 +128,9 @@ public class CommCareSession {
     private Vector<Entry> getEntriesForCommand(String commandId,
                                                OrderedHashtable<String, String> currentSessionData) {
         Vector<Entry> entries = new Vector<>();
+        if (commandId == null) {
+            return entries;
+        }
         for (Suite s : platform.getInstalledSuites()) {
             List<Menu> menusWithId = s.getMenusWithId(commandId);
             if (menusWithId != null) {
@@ -370,17 +373,18 @@ public class CommCareSession {
     }
 
     private boolean shouldPopNext(EvaluationContext evalContext) {
-        if (this.getNeededData(evalContext) == null ||
-                this.getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED) ||
-                popped.getType().equals(SessionFrame.STATE_DATUM_COMPUTED) ||
+        String neededData = getNeededData(evalContext);
+        String poppedType = popped == null ? "" : popped.getType();
+
+        if (neededData == null ||
+                SessionFrame.STATE_DATUM_COMPUTED.equals(neededData) ||
+                SessionFrame.STATE_DATUM_COMPUTED.equals(poppedType) ||
                 topStepIsMark()) {
             return true;
         }
 
-        if (popped.getType().equals(SessionFrame.STATE_UNKNOWN)){
-            return guessUnknownType(popped).equals(SessionFrame.STATE_DATUM_COMPUTED);
-        }
-        return false;
+        return SessionFrame.STATE_UNKNOWN.equals(poppedType)
+                && guessUnknownType(popped).equals(SessionFrame.STATE_DATUM_COMPUTED);
 
     }
 
@@ -557,15 +561,16 @@ public class CommCareSession {
             String key = (String)en.nextElement();
             instancesInScope.put(key, instancesInScope.get(key).initialize(iif, key));
         }
-        addInstancesFromFrame(instancesInScope);
+        addInstancesFromFrame(instancesInScope, iif);
 
         return new EvaluationContext(null, instancesInScope);
     }
 
-    private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap) {
+    private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap,
+                                       InstanceInitializationFactory iif) {
         for (StackFrameStep step : frame.getSteps()) {
             if (step.hasXmlInstance()) {
-                instanceMap.put(step.getId(), step.getXmlInstance());
+                instanceMap.put(step.getId(), step.getXmlInstance().initialize(iif, step.getId()));
             }
         }
     }
@@ -903,7 +908,7 @@ public class CommCareSession {
 
         CommCareSession restoredSession = new CommCareSession(ccPlatform);
         restoredSession.frame = restoredFrame;
-        Vector<SessionFrame> frames = (Vector<SessionFrame>) ExtUtil.read(inputStream, new ExtWrapList(SessionFrame.class));
+        Vector<SessionFrame> frames = (Vector<SessionFrame>) ExtUtil.read(inputStream, new ExtWrapList(SessionFrame.class), null);
         Stack<SessionFrame> stackFrames = new Stack<>();
         while(!frames.isEmpty()){
             SessionFrame lastElement = frames.lastElement();

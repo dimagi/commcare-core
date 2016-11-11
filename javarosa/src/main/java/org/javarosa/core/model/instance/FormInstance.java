@@ -185,7 +185,7 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         schema = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         dateSaved = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
 
-        namespaces = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
+        namespaces = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
         setRoot((TreeElement)ExtUtil.read(in, TreeElement.class, pf));
     }
 
@@ -310,7 +310,7 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         schema = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         dateSaved = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
 
-        namespaces = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
+        namespaces = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
         TreeElement newRoot;
         try {
             newRoot = TreeElement.class.newInstance();

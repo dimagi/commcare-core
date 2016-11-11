@@ -1,4 +1,4 @@
-package org.commcare.util.cli;
+package org.commcare.util.screen;
 
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
@@ -21,7 +21,7 @@ import java.util.Vector;
  */
 public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
-    private final int SCREEN_WIDTH = 100;
+    private static final int SCREEN_WIDTH = 100;
 
     private final TreeReference[] mChoices;
     private final String[] rows;
@@ -33,7 +33,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     private final EvaluationContext rootContext;
 
     public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context) throws CommCareSessionException {
-        mHeader = this.createHeader(shortDetail, context);
+        mHeader = createHeader(shortDetail, context);
         this.shortDetail = shortDetail;
         this.rootContext = context;
 
@@ -95,7 +95,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             } catch (Exception e) {
                 //Really don't care if it didn't work
             }
-            CliUtils.addPaddedStringToBuilder(row, s, widthHint);
+            ScreenUtils.addPaddedStringToBuilder(row, s, widthHint);
             i++;
             if (i != fields.length) {
                 row.append(" | ");
@@ -125,7 +125,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     }
 
     //So annoying how identical this is...
-    private String createHeader(Detail shortDetail, EvaluationContext context) {
+    private static String createHeader(Detail shortDetail, EvaluationContext context) {
         DetailField[] fields = shortDetail.getFields();
 
         StringBuilder row = new StringBuilder();
@@ -139,7 +139,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             } catch (Exception e) {
                 //Really don't care if it didn't work
             }
-            CliUtils.addPaddedStringToBuilder(row, s, widthHint);
+            ScreenUtils.addPaddedStringToBuilder(row, s, widthHint);
             i++;
             if (i != fields.length) {
                 row.append(" | ");
@@ -150,14 +150,13 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     @Override
     public void prompt(PrintStream out) {
-
         int maxLength = String.valueOf(mChoices.length).length();
-        out.println(CliUtils.pad("", maxLength + 1) + mHeader);
+        out.println(ScreenUtils.pad("", maxLength + 1) + mHeader);
         out.println("==============================================================================================");
 
         for (int i = 0; i < mChoices.length; ++i) {
             String d = rows[i];
-            out.println(CliUtils.pad(String.valueOf(i), maxLength) + ")" + d);
+            out.println(ScreenUtils.pad(String.valueOf(i), maxLength) + ")" + d);
         }
 
         if (actions != null) {

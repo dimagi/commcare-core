@@ -1,4 +1,4 @@
-package org.commcare.util.cli;
+package org.commcare.util.screen;
 
 /**
  * An OptionsScreen provides a set of options (IE modules, list, cases) that can be selected

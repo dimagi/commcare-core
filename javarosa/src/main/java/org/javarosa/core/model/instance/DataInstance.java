@@ -36,7 +36,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
     /**
      * The ID of the form that this is a model for
      */
-    protected int formId;
+    private int formId;
 
     protected String instanceid;
 
