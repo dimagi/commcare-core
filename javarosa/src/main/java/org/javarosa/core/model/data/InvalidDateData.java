@@ -5,9 +5,9 @@ package org.javarosa.core.model.data;
  */
 public class InvalidDateData extends InvalidData {
 
-    private String dayText;
-    private String monthText;
-    private String yearText;
+    private final String dayText;
+    private final String monthText;
+    private final String yearText;
 
     public InvalidDateData(String error, IAnswerData returnValue, String day, String month, String year){
         super(error, returnValue);

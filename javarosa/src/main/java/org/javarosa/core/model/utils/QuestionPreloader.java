@@ -34,14 +34,17 @@ public class QuestionPreloader {
      */
     private void initPreloadHandlers() {
         IPreloadHandler date = new IPreloadHandler() {
+            @Override
             public String preloadHandled() {
                 return "date";
             }
 
+            @Override
             public IAnswerData handlePreload(String preloadParams) {
                 return preloadDate(preloadParams);
             }
 
+            @Override
             public boolean handlePostProcess(TreeElement node, String params) {
                 //do nothing
                 return false;
@@ -49,14 +52,17 @@ public class QuestionPreloader {
         };
 
         IPreloadHandler property = new IPreloadHandler() {
+            @Override
             public String preloadHandled() {
                 return "property";
             }
 
+            @Override
             public IAnswerData handlePreload(String preloadParams) {
                 return preloadProperty(preloadParams);
             }
 
+            @Override
             public boolean handlePostProcess(TreeElement node, String params) {
                 saveProperty(params, node);
                 return false;
@@ -64,14 +70,17 @@ public class QuestionPreloader {
         };
 
         IPreloadHandler timestamp = new IPreloadHandler() {
+            @Override
             public String preloadHandled() {
                 return "timestamp";
             }
 
+            @Override
             public IAnswerData handlePreload(String preloadParams) {
                 return ("start".equals(preloadParams) ? getTimestamp() : null);
             }
 
+            @Override
             public boolean handlePostProcess(TreeElement node, String params) {
                 if ("end".equals(params)) {
                     node.setAnswer(getTimestamp());
@@ -83,14 +92,17 @@ public class QuestionPreloader {
         };
 
         IPreloadHandler uid = new IPreloadHandler() {
+            @Override
             public String preloadHandled() {
                 return "uid";
             }
 
+            @Override
             public IAnswerData handlePreload(String preloadParams) {
                 return new StringData(PropertyUtils.genGUID(25));
             }
 
+            @Override
             public boolean handlePostProcess(TreeElement node, String params) {
                 return false;
             }
@@ -221,7 +233,7 @@ public class QuestionPreloader {
      * null otherwise
      */
     private IAnswerData preloadProperty(String preloadParams) {
-        String propval = PropertyManager._().getSingularProperty(preloadParams);
+        String propval = PropertyManager.instance().getSingularProperty(preloadParams);
         StringData data = null;
         if (propval != null && propval.length() > 0) {
             data = new StringData(propval);
@@ -233,7 +245,7 @@ public class QuestionPreloader {
         IAnswerData answer = node.getValue();
         String value = (answer == null ? null : answer.getDisplayText());
         if (propName != null && propName.length() > 0 && value != null && value.length() > 0)
-            PropertyManager._().setProperty(propName, value);
+            PropertyManager.instance().setProperty(propName, value);
     }
 
     private DateTimeData getTimestamp() {

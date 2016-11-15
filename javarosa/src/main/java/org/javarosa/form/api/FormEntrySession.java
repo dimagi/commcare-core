@@ -23,6 +23,7 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
 
     private Vector<FormEntryAction> actions = new Vector<>();
     private String sessionStopRef;
+    private boolean stopRefWasReplayed;
 
     /**
      * For Externalization
@@ -81,6 +82,10 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
         return actions.elementAt(actions.size() - 1).getQuestionRefString();
     }
 
+    public boolean stopRefWasReplayed() {
+        return stopRefWasReplayed;
+    }
+
     /**
      * Remove and return the FormEntryAction corresponding to the given FormIndex, if there is
      * one in this session
@@ -89,6 +94,9 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
         for (int i = 0; i < actions.size(); i++) {
             FormEntryAction action = actions.elementAt(i);
             if (action.getQuestionRefString().equals(questionRef.toString())) {
+                if (sessionStopRef.equals(action.getQuestionRefString())) {
+                    stopRefWasReplayed = true;
+                }
                 actions.removeElementAt(i);
                 return action;
             }

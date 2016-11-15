@@ -54,8 +54,9 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         this.mPlatform = platform;
     }
 
+    @Override
     public ExternalDataInstance getSpecializedExternalDataInstance(ExternalDataInstance instance) {
-        if (CaseInstanceTreeElement.MODEL_NAME.equals(instance.getInstanceId())) {
+        if (instance.useCaseTemplate()) {
             return new CaseDataInstance(instance);
         } else {
             return instance;
@@ -73,6 +74,8 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             return setupFixtureData(instance);
         } else if (instance.getReference().contains("session")) {
             return setupSessionData(instance);
+        } else if (instance.getReference().startsWith(ExternalDataInstance.JR_REMOTE_REFERENCE)) {
+            return setupRemoteData(instance);
         } else if (ref.contains("migration")) {
             return setupMigrationData(instance);
         }
@@ -102,7 +105,6 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
     protected AbstractTreeElement setupFixtureData(ExternalDataInstance instance) {
         String ref = instance.getReference();
-        //TODO: This is all just copied from J2ME code. that's pretty silly. unify that.
         String userId = "";
         User u = mSandbox.getLoggedInUser();
 
@@ -137,6 +139,10 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                         u.getProperties()).getRoot();
         root.setParent(instance.getBase());
         return root;
+    }
+
+    protected AbstractTreeElement setupRemoteData(ExternalDataInstance instance) {
+        return instance.getRoot();
     }
 
     protected String getDeviceId(){

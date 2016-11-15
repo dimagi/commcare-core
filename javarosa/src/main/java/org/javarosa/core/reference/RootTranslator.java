@@ -47,12 +47,12 @@ public class RootTranslator implements ReferenceFactory, Externalizable {
 
     @Override
     public Reference derive(String URI) throws InvalidReferenceException {
-        return ReferenceManager._().DeriveReference(translatedPrefix + URI.substring(prefix.length()));
+        return ReferenceManager.instance().DeriveReference(translatedPrefix + URI.substring(prefix.length()));
     }
 
     @Override
     public Reference derive(String URI, String context) throws InvalidReferenceException {
-        return ReferenceManager._().DeriveReference(URI, translatedPrefix + context.substring(prefix.length()));
+        return ReferenceManager.instance().DeriveReference(URI, translatedPrefix + context.substring(prefix.length()));
     }
 
     @Override
@@ -60,12 +60,14 @@ public class RootTranslator implements ReferenceFactory, Externalizable {
         return URI.startsWith(prefix);
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         prefix = ExtUtil.readString(in);
         translatedPrefix = ExtUtil.readString(in);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, prefix);
         ExtUtil.writeString(out, translatedPrefix);

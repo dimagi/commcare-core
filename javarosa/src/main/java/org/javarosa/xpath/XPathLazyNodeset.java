@@ -42,7 +42,7 @@ public class XPathLazyNodeset extends XPathNodeset {
 
     private void performEvaluation() {
         synchronized (evaluated) {
-            if (evaluated.booleanValue()) {
+            if (evaluated) {
                 return;
             }
             Vector<TreeReference> nodes = ec.expandReference(unExpandedRef);
@@ -68,7 +68,7 @@ public class XPathLazyNodeset extends XPathNodeset {
     @Override
     public Object unpack() {
         synchronized (evaluated) {
-            if (evaluated.booleanValue()) {
+            if (evaluated) {
                 return super.unpack();
             }
 
@@ -115,7 +115,7 @@ public class XPathLazyNodeset extends XPathNodeset {
     }
 
     @Override
-    protected Vector<TreeReference> getReferences() {
+    public Vector<TreeReference> getReferences() {
         performEvaluation();
         return super.getReferences();
     }
@@ -143,6 +143,7 @@ public class XPathLazyNodeset extends XPathNodeset {
         performEvaluation();
         return super.nodeContents();
     }
+
     public String getUnexpandedRefString() {
         return unExpandedRef.toString();
     }

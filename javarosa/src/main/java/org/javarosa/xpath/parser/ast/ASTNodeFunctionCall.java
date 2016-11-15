@@ -5,25 +5,29 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathQName;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ASTNodeFunctionCall extends ASTNode {
     public final XPathQName name;
-    public Vector args;
+    public List<? extends ASTNode> args;
 
     public ASTNodeFunctionCall(XPathQName name) {
         this.name = name;
-        args = new Vector();
+        args = new ArrayList<>();
     }
 
-    public Vector getChildren() {
+    @Override
+    public List<? extends ASTNode> getChildren() {
         return args;
     }
 
+    @Override
     public XPathExpression build() throws XPathSyntaxException {
         XPathExpression[] xargs = new XPathExpression[args.size()];
-        for (int i = 0; i < args.size(); i++)
-            xargs[i] = ((ASTNode)args.elementAt(i)).build();
+        for (int i = 0; i < args.size(); i++) {
+            xargs[i] = args.get(i).build();
+        }
 
         return new XPathFuncExpr(name, xargs);
     }

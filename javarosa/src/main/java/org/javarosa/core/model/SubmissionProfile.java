@@ -67,14 +67,16 @@ public class SubmissionProfile implements Externalizable {
         return attributeMap.get(name);
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        ref = (XPathReference)ExtUtil.read(in, new ExtWrapTagged(XPathReference.class));
+        ref = (XPathReference)ExtUtil.read(in, new ExtWrapTagged(XPathReference.class), pf);
         method = ExtUtil.readString(in);
         action = ExtUtil.readString(in);
         mediaType = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-        attributeMap = (Hashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
+        attributeMap = (Hashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapTagged(ref));
         ExtUtil.writeString(out, method);

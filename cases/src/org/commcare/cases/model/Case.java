@@ -35,6 +35,8 @@ public class Case implements Persistable, IMetaData, Secure {
     public static final String INDEX_CASE_STATUS = "case-status";
     public static final String INDEX_CASE_INDEX_PRE = "case-in-";
 
+    private static final String ATTACHMENT_PREFIX = "attachmentdata";
+
     protected String typeId;
     protected String id;
     protected String name;
@@ -88,10 +90,12 @@ public class Case implements Persistable, IMetaData, Secure {
         this.closed = closed;
     }
 
+    @Override
     public int getID() {
         return recordId;
     }
 
+    @Override
     public void setID(int id) {
         this.recordId = id;
     }
@@ -128,7 +132,7 @@ public class Case implements Persistable, IMetaData, Secure {
         closed = ExtUtil.readBool(in);
         dateOpened = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
         recordId = ExtUtil.readInt(in);
-        indices = (Vector<CaseIndex>)ExtUtil.read(in, new ExtWrapList(CaseIndex.class));
+        indices = (Vector<CaseIndex>)ExtUtil.read(in, new ExtWrapList(CaseIndex.class), pf);
         data = (Hashtable)ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
     }
 
@@ -231,8 +235,6 @@ public class Case implements Persistable, IMetaData, Secure {
     public Vector<CaseIndex> getIndices() {
         return indices;
     }
-
-    private static final String ATTACHMENT_PREFIX = "attachmentdata";
 
     public void updateAttachment(String attachmentName, String reference) {
         data.put(ATTACHMENT_PREFIX + attachmentName, reference);

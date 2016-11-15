@@ -13,8 +13,8 @@ import static org.junit.Assert.fail;
 
 public class BufferedInputStreamTests {
 
-    static final int[] sizesToTest = new int[]{15, 64, 500, 1280, 2047, 2048, 2049, 5000, 10000, 23000};
-    static byte[][] arraysToTest;
+    private static final int[] sizesToTest = new int[]{15, 64, 500, 1280, 2047, 2048, 2049, 5000, 10000, 23000};
+    private static byte[][] arraysToTest;
 
     @BeforeClass
     public static void setUp() {

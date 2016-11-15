@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.cases.instance;
 
 import org.commcare.cases.model.Case;
@@ -125,12 +122,12 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     }
 
     @Override
-    public Vector getChildrenWithName(String name) {
+    public Vector<CaseChildElement> getChildrenWithName(String name) {
         if (name.equals("case")) {
             getCases();
             return cases;
         } else {
-            return new Vector();
+            return new Vector<>();
         }
 
     }
@@ -307,6 +304,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     }
 
 
+    @Override
     protected String translateFilterExpr(XPathPathExpr expressionTemplate, XPathPathExpr matchingExpr, Hashtable<XPathPathExpr, String> indices) {
         String filter = super.translateFilterExpr(expressionTemplate, matchingExpr, indices);
 

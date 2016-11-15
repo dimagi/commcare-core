@@ -1,9 +1,7 @@
 package org.javarosa.xpath.test;
 
-import org.javarosa.core.services.PrototypeManager;
-import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.test.ExternalizableTest;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -191,12 +189,6 @@ public class XPathParseTest {
         });
     }
 
-    static final PrototypeFactory pf;
-
-    static {
-        PrototypeManager.registerPrototypes(XPathParseTool.xpathClasses);
-        pf = ExtUtil.defaultPrototypes();
-    }
 
     private final String inputString;
     private final String expectedParseOutput;
@@ -228,7 +220,7 @@ public class XPathParseTest {
             }
 
             //test serialization of parse tree
-            ExternalizableTest.testExternalizable(new ExtWrapTagged(xpe), new ExtWrapTagged(), pf, "XPath");
+            ExternalizableTest.testExternalizable(new ExtWrapTagged(xpe), new ExtWrapTagged(), new LivePrototypeFactory(), "XPath");
         } catch (XPathSyntaxException xse) {
             fail("XPath Parse Failed! Unexpected syntax error." +
                     "\n    expression:[" + expr + "]");

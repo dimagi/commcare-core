@@ -151,8 +151,8 @@ public class ExprEvalUtils {
             if (exceptionExpected) {
                 fail("Expected exception, expression : " + expr);
             } else if ((result instanceof Double && expected instanceof Double)) {
-                Double o = ((Double)result).doubleValue();
-                Double t = ((Double)expected).doubleValue();
+                Double o = (Double)result;
+                Double t = (Double)expected;
                 if (Math.abs(o - t) > tolerance) {
                     fail("Doubles outside of tolerance: got " + o + ", expected " + t);
                 }

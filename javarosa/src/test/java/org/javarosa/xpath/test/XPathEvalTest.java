@@ -37,10 +37,8 @@ public class XPathEvalTest {
     }
 
     private void testEval(String expr, FormInstance model, EvaluationContext ec, Object expected, double tolerance) {
-        //System.out.println("[" + expr + "]");
-
-        XPathExpression xpe = null;
-        boolean exceptionExpected = (expected instanceof XPathException);
+        XPathExpression xpe;
+        boolean exceptionExpected = expected instanceof XPathException || expected instanceof XPathSyntaxException;
         if (ec == null) {
             ec = new EvaluationContext(model);
         }
@@ -48,6 +46,8 @@ public class XPathEvalTest {
         try {
             xpe = XPathParseTool.parseXPath(expr);
         } catch (XPathSyntaxException xpse) {
+            assertExceptionExpected(exceptionExpected, expected, xpse);
+            return;
         }
 
         if (xpe == null) {
@@ -85,11 +85,20 @@ public class XPathEvalTest {
         }
     }
 
+    private void assertExceptionExpected(boolean exceptionExpected, Object expected, Exception xpex) {
+        if (!exceptionExpected) {
+            fail("Did not expect " + xpex.getClass() + " exception");
+        } else if (xpex.getClass() != expected.getClass()) {
+            fail("Expected " + expected.getClass() +
+                    "exception type but was provided" + xpex.getClass());
+        }
+    }
+
     @Test
-    public void testTypeCoercion(){
+    public void testTypeCoercion() {
         Object str = XPathFuncExpr.InferType("notadouble");
         Assert.assertTrue("'notadouble' coerced to the wrong type, "
-                +str.getClass().toString(), str instanceof String);
+                + str.getClass().toString(), str instanceof String);
 
         Object d = XPathFuncExpr.InferType("5.0");
 
@@ -231,6 +240,8 @@ public class XPathEvalTest {
         testEval("date(date('1989-11-09'))", null, null, DateUtils.getDate(1989, 11, 9));
         testEval("date(true())", null, null, new XPathTypeMismatchException());
         testEval("date(convertible())", null, ec, new XPathTypeMismatchException());
+        testEval("format-date-for-calendar('', 'ethiopian')", null, null, "");
+        testEval("format-date-for-calendar(date('1970-01-01'), 'neverland')", null, null, new XPathUnsupportedException());
         //note: there are lots of time and timezone-like issues with dates that should be tested (particularly DST changes),
         //    but it's just too hard and client-dependent, so not doing it now
         //  basically:
@@ -249,6 +260,7 @@ public class XPathEvalTest {
         testEval("boolean-from-string(1.0)", null, null, Boolean.TRUE);
         testEval("boolean-from-string(1.0001)", null, null, Boolean.FALSE);
         testEval("boolean-from-string(true())", null, null, Boolean.TRUE);
+        testEval("if(true())", null, null, new XPathSyntaxException());
         testEval("if(true(), 5, 'abc')", null, null, new Double(5.0));
         testEval("if(false(), 5, 'abc')", null, null, "abc");
         testEval("if(6 > 7, 5, 'abc')", null, null, "abc");
@@ -380,6 +392,16 @@ public class XPathEvalTest {
 
         testEval("pow(-1, 2)", null, null, new Double(1.0));
         testEval("pow(-1, 3)", null, null, new Double(-1.0));
+        testEval("sin(0)", null, null, 0.0);
+        testEval("cos(0)", null, null, 1.0);
+        testEval("tan(0)", null, null, 0.0);
+        testEval("asin(0)", null, null, 0.0);
+        testEval("acos(1)", null, null, 0.0);
+        testEval("atan(0)", null, null, 0.0);
+        testEval("atan2(0, 0)", null, null, 0.0);
+        testEval("sqrt(4)", null, null, 2.0);
+        testEval("exp(1)", null, null, Math.E);
+        testEval("pi()", null, null, Math.PI);
 
         //So raising things to decimal powers is.... very hard
         //to evaluated exactly due to double floating point
@@ -425,6 +447,13 @@ public class XPathEvalTest {
         testEval("weighted-checklist(5, 5, 5)", null, null, new XPathArityException());
         testEval("substr('hello')", null, null, new XPathArityException());
         testEval("join()", null, null, new XPathArityException());
+        testEval("substring-before()", null, null, new XPathArityException());
+        testEval("substring-after()", null, null, new XPathArityException());
+        testEval("string-length('123')", null, null, 3.0);
+        testEval("join(',', '1', '2')", null, null, "1,2");
+        testEval("depend()", null, null, new XPathArityException());
+        testEval("depend('1', '2')", null, null, "1");
+        testEval("uuid('1', '2')", null, null, new XPathArityException());
         testEval("max()", null, null, new XPathArityException());
         testEval("min()", null, null, new XPathArityException());
         testEval("true(5)", null, null, new XPathArityException());
@@ -448,6 +477,9 @@ public class XPathEvalTest {
         // proto not setup for 4 arguments
         testEval("proto(1.1, 'asdf', true(), 16)", null, ec, new XPathArityException());
 
+        testEval("position(1.1, 'asdf')", null, ec, new XPathArityException());
+        testEval("sum(1)", null, ec, new XPathTypeMismatchException());
+
         testEval("raw()", null, ec, "[]");
         testEval("raw(5, 5)", null, ec, "[Double:5.0,Double:5.0]");
         testEval("raw('7', '7')", null, ec, "[String:7,String:7]");
@@ -460,8 +492,9 @@ public class XPathEvalTest {
         testEval("check-types(55, '55', false(), '1999-09-09', get-custom(false()))", null, ec, Boolean.TRUE);
         testEval("check-types(55, '55', false(), '1999-09-09', get-custom(true()))", null, ec, Boolean.TRUE);
         testEval("regex('12345','[0-9]+')", null, ec, Boolean.TRUE);
-        testEval("upper-case('SimpLY')", null, null, new String("SIMPLY"));
-        testEval("lower-case('rEd')", null, null, new String("red"));
+        testEval("regex('12345','[')", null, ec, new XPathException());
+        testEval("upper-case('SimpLY')", null, null, "SIMPLY");
+        testEval("lower-case('rEd')", null, null, "red");
         testEval("contains('', 'stuff')", null, null, Boolean.FALSE);
         testEval("contains('stuff', '')", null, null, Boolean.TRUE);
         testEval("contains('know', 'now')", null, null, Boolean.TRUE);
@@ -471,17 +504,20 @@ public class XPathEvalTest {
         testEval("starts-with('why', 'y')", null, null, Boolean.FALSE);
         testEval("ends-with('elements', 'nts')", null, null, Boolean.TRUE);
         testEval("ends-with('elements', 'xenon')", null, null, Boolean.FALSE);
-        testEval("translate('aBcdE', 'xyz', 'qrs')", null, null, new String("aBcdE"));
-        testEval("translate('bosco', 'bos', 'sfo')", null, null, new String("sfocf"));
-        testEval("translate('ramp', 'mapp', 'nbqr')", null, null, new String("rbnq"));
-        testEval("translate('yellow', 'low', 'or')", null, null, new String("yeoor"));
-        testEval("translate('bora bora', 'a', 'bc')", null, null, new String("borb borb"));
-        testEval("translate('squash me', 'aeiou ', '')", null, null, new String("sqshm"));
+        testEval("translate('aBcdE', 'xyz', 'qrs')", null, null, "aBcdE");
+        testEval("translate('bosco', 'bos', 'sfo')", null, null, "sfocf");
+        testEval("translate('ramp', 'mapp', 'nbqr')", null, null, "rbnq");
+        testEval("translate('yellow', 'low', 'or')", null, null, "yeoor");
+        testEval("translate('bora bora', 'a', 'bc')", null, null, "borb borb");
+        testEval("translate('squash me', 'aeiou ', '')", null, null, "sqshm");
         testEval("regex('aaaabfooaaabgarplyaaabwackyb', 'a*b')", null, null, Boolean.TRUE);
         testEval("regex('photo', 'a*b')", null, null, Boolean.FALSE);
-        testEval("replace('aaaabfooaaabgarplyaaabwackyb', 'a*b', '-')", null, null, new String("-foo-garply-wacky-"));
-        testEval("replace('abbc', 'a(.*)c', '$1')", null, null, new String("$1"));
-        testEval("replace('aaabb', '[ab][ab][ab]', '')", null, null, new String("bb"));
+        testEval("replace('aaaabfooaaabgarplyaaabwackyb', 'a*b', '-')", null, null, "-foo-garply-wacky-");
+        testEval("replace('abbc', 'a(.*)c', '$1')", null, null, "$1");
+        testEval("replace('aaabb', '[ab][ab][ab]', '')", null, null, "bb");
+        testEval("replace('12345','[', '')", null, ec, new XPathException());
+        testEval("checklist('12345')", null, ec, new XPathArityException());
+        testEval("weighted-checklist('12345')", null, ec, new XPathArityException());
         //Variables
         EvaluationContext varContext = getVariableContext();
         testEval("$var_float_five", null, varContext, new Double(5.0));
@@ -534,6 +570,8 @@ public class XPathEvalTest {
         addDataRef(instance, "/data/string_two", new StringData("2"));
         addDataRef(instance, "/data/predtest[1]/@val", new StringData("2.0"));
         addDataRef(instance, "/data/predtest[2]/@val", new StringData("2"));
+        addDataRef(instance, "/data/predtest[1]/@num", new StringData("2.0"));
+        addDataRef(instance, "/data/predtest[2]/@num", new StringData("2"));
         addDataRef(instance, "/data/predtest[3]/@val", new StringData("string"));
 
         addDataRef(instance, "/data/strtest[1]/@val", new StringData("a"));
@@ -552,6 +590,20 @@ public class XPathEvalTest {
         testEval("count(/data/strtest[@val = 'a'])", instance, null, new Double(1));
         testEval("count(/data/strtest[@val = 2])", instance, null, new Double(0));
         testEval("count(/data/strtest[@val = /data/string])", instance, null, new Double(1));
+
+        testEval("sum(/data/predtest/@num)", instance, null, 4.0);
+        testEval("concat(/data/predtest/@num)", instance, null, "2.02");
+        testEval("sum(1)", instance, null, new XPathTypeMismatchException());
+
+        testEval("checklist(-1, 2, /data/predtest[1]/@val = 2, /data/predtest[2]/@val = 2, /data/predtest[3]/@val = 2)", instance, null, Boolean.TRUE);
+        testEval("checklist(1, 2, /data/predtest[1]/@val = 2, /data/predtest[2]/@val = 2, /data/predtest[3]/@val = 2)", instance, null, Boolean.TRUE);
+        testEval("checklist(-1, 1, /data/predtest[1]/@val = 2, /data/predtest[2]/@val = 2, /data/predtest[3]/@val = 2)", instance, null, Boolean.FALSE);
+        testEval("checklist(3, 4, /data/predtest[1]/@val = 2, /data/predtest[2]/@val = 2, /data/predtest[3]/@val = 2)", instance, null, Boolean.FALSE);
+
+        testEval("weighted-checklist(-1, 2, /data/predtest[1]/@val = 2, 1, /data/predtest[2]/@val = 2, 1, /data/predtest[3]/@val = 2, 1)", instance, null, Boolean.TRUE);
+        testEval("weighted-checklist(1, 2, /data/predtest[1]/@val = 2, 1, /data/predtest[2]/@val = 2, 1, /data/predtest[3]/@val = 2, 1)", instance, null, Boolean.TRUE);
+        testEval("weighted-checklist(-1, 1, /data/predtest[1]/@val = 2, 1, /data/predtest[2]/@val = 2, 1, /data/predtest[3]/@val = 2, 1)", instance, null, Boolean.FALSE);
+        testEval("weighted-checklist(3, 4, /data/predtest[1]/@val = 2, 1, /data/predtest[2]/@val = 2, 1, /data/predtest[3]/@val = 2, 1)", instance, null, Boolean.FALSE);
     }
 
     @Test
@@ -658,59 +710,36 @@ public class XPathEvalTest {
         });
 
         ec.addFunctionHandler(new IFunctionHandler() {
-
-            public String getName() {
-                return "regex";
-            }
-
-            public Object eval(Object[] args, EvaluationContext ec) {
-                System.out.println("EVAL REGEX TESTS:");
-                for (int i = 0; i < args.length; i++) {
-                    System.out.println("REGEX ARGS: " + args[i].toString());
-                }
-
-
-                return new Boolean(true); // String.re  args[0].
-
-            }
-
-            public Vector getPrototypes() {
-                Vector p = new Vector();
-                p.addElement(allPrototypes[2]);
-                return p;
-            }
-
-            public boolean rawArgs() {
-                return false;
-            }
-        });
-
-
-        ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "add";
             }
 
+            @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
                 p.addElement(allPrototypes[0]);
                 return p;
             }
 
+            @Override
             public boolean rawArgs() {
                 return false;
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return new Double(((Double)args[0]).doubleValue() + ((Double)args[1]).doubleValue());
             }
         });
 
         ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "proto";
             }
 
+            @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
                 p.addElement(allPrototypes[0]);
@@ -720,99 +749,95 @@ public class XPathEvalTest {
                 return p;
             }
 
+            @Override
             public boolean rawArgs() {
                 return false;
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return printArgs(args);
             }
         });
 
         ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "raw";
             }
 
+            @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
                 p.addElement(allPrototypes[3]);
                 return p;
             }
 
+            @Override
             public boolean rawArgs() {
                 return true;
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return printArgs(args);
             }
         });
 
         ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "null-proto";
             }
 
+            @Override
             public Vector getPrototypes() {
                 return null;
             }
 
+            @Override
             public boolean rawArgs() {
                 return false;
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return Boolean.FALSE;
             }
         });
 
         ec.addFunctionHandler(new IFunctionHandler() {
-            public String getName() {
-                return "concat";
-            }
-
-            public Vector getPrototypes() {
-                return new Vector();
-            }
-
-            public boolean rawArgs() {
-                return true;
-            }
-
-            public Object eval(Object[] args, EvaluationContext ec) {
-                StringBuffer sb = new StringBuffer();
-                for (int i = 0; i < args.length; i++)
-                    sb.append(XPathFuncExpr.toString(args[i]));
-                return sb.toString();
-            }
-        });
-
-        ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "convertible";
             }
 
+            @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
                 p.addElement(new Class[0]);
                 return p;
             }
 
+            @Override
             public boolean rawArgs() {
                 return false;
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return new IExprDataType() {
+                    @Override
                     public Boolean toBoolean() {
                         return Boolean.TRUE;
                     }
 
+                    @Override
                     public Double toNumeric() {
                         return new Double(5.0);
                     }
 
+                    @Override
                     public String toString() {
                         return "hi";
                     }
@@ -821,60 +846,72 @@ public class XPathEvalTest {
         });
 
         ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "inconvertible";
             }
 
+            @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
                 p.addElement(new Class[0]);
                 return p;
             }
 
+            @Override
             public boolean rawArgs() {
                 return false;
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return new Object();
             }
         });
 
         ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "get-custom";
             }
 
+            @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
                 p.addElement(allPrototypes[4]);
                 return p;
             }
 
+            @Override
             public boolean rawArgs() {
                 return false;
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 return ((Boolean)args[0]).booleanValue() ? new CustomSubType() : new CustomType();
             }
         });
 
         ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "check-types";
             }
 
+            @Override
             public Vector getPrototypes() {
                 Vector p = new Vector();
                 p.addElement(allPrototypes[5]);
                 return p;
             }
 
+            @Override
             public boolean rawArgs() {
                 return false;
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 if (args.length != 5 || !(args[0] instanceof Boolean) || !(args[1] instanceof Double) ||
                         !(args[2] instanceof String) || !(args[3] instanceof Date) || !(args[4] instanceof CustomType))
@@ -941,32 +978,38 @@ public class XPathEvalTest {
     private abstract class StatefulFunc implements IFunctionHandler {
         public String val;
 
+        @Override
         public boolean rawArgs() {
             return false;
         }
     }
 
     final StatefulFunc read = new StatefulFunc() {
+        @Override
         public String getName() {
             return "read";
         }
 
+        @Override
         public Vector getPrototypes() {
             Vector p = new Vector();
             p.addElement(new Class[0]);
             return p;
         }
 
+        @Override
         public Object eval(Object[] args, EvaluationContext ec) {
             return val;
         }
     };
 
     final StatefulFunc write = new StatefulFunc() {
+        @Override
         public String getName() {
             return "write";
         }
 
+        @Override
         public Vector getPrototypes() {
             Vector p = new Vector();
             Class[] proto = {String.class};
@@ -974,6 +1017,7 @@ public class XPathEvalTest {
             return p;
         }
 
+        @Override
         public Object eval(Object[] args, EvaluationContext ec) {
             val = (String)args[0];
             return Boolean.TRUE;

@@ -9,12 +9,12 @@ import java.util.Vector;
  * Evaluated form of Callout class where all XPaths have been processed.
  */
 public class CalloutData {
-    final String actionName;
-    final String image;
-    final String displayName;
-    final String type;
-    final Hashtable<String, String> extras;
-    final Vector<String> responses;
+    private final String actionName;
+    private final String image;
+    private final String displayName;
+    private final String type;
+    private final Hashtable<String, String> extras;
+    private final Vector<String> responses;
 
     public CalloutData(String actionName, String image, String displayName, Hashtable<String, String> extras, Vector<String> responses, String type) {
         this.actionName = actionName;

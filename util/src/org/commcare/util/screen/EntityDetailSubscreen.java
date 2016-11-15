@@ -1,11 +1,10 @@
-package org.commcare.util.cli;
+package org.commcare.util.screen;
 
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.condition.EvaluationContext;
 
 import java.io.PrintStream;
-import java.util.Arrays;
 
 /**
  * An entity detail subscreen displays one of the detail screens associated with an
@@ -42,7 +41,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
         StringBuilder row = new StringBuilder();
         String header = field.getHeader().evaluate(ec);
 
-        CliUtils.addPaddedStringToBuilder(row, header, SCREEN_WIDTH / 2);
+        ScreenUtils.addPaddedStringToBuilder(row, header, SCREEN_WIDTH / 2);
         row.append(" | ");
 
         String value;
@@ -52,7 +51,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
         } else {
             value = (String)o;
         }
-        CliUtils.addPaddedStringToBuilder(row, value, SCREEN_WIDTH / 2);
+        ScreenUtils.addPaddedStringToBuilder(row, value, SCREEN_WIDTH / 2);
 
         return row.toString();
     }
@@ -66,8 +65,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
             multipleInputs = true;
         }
 
-        for (int i = 0; i < rows.length; ++i) {
-            String row = rows[i];
+        for (String row : rows) {
             out.println(row);
         }
 
@@ -94,7 +92,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
             if (i == this.mCurrentIndex) {
                 title = "[" + title + "]";
             }
-            CliUtils.addPaddedStringToBuilder(sb, title, widthPerTab);
+            ScreenUtils.addPaddedStringToBuilder(sb, title, widthPerTab);
         }
         out.println(sb.toString());
     }

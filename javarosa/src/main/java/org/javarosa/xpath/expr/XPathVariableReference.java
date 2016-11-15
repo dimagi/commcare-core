@@ -48,7 +48,7 @@ public class XPathVariableReference extends XPathExpression {
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        id = (XPathQName)ExtUtil.read(in, XPathQName.class);
+        id = (XPathQName)ExtUtil.read(in, XPathQName.class, pf);
     }
 
     @Override

@@ -127,11 +127,13 @@ public class BasicSessionNavigationTests {
 
     @Test
     public void testStepToSyncRequest() {
-        session.setCommand("patient-search");
+        session.setCommand("patient-case-search");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
 
-        TreeElement data = SessionStackTests.buildExampleInstanceRoot("some_patient_id");
-        session.setQueryDatum(ExternalDataInstance.buildFromRemote("patients", data));
+        ExternalDataInstance dataInstance =
+                SessionStackTests.buildRemoteExternalDataInstance(this.getClass(),
+                        session, "/session-tests-template/patient_query_result.xml");
+        session.setQueryDatum(dataInstance);
 
         // case_id
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
@@ -147,11 +149,13 @@ public class BasicSessionNavigationTests {
      */
     @Test
     public void testStepToIrrelevantSyncRequest() {
-        session.setCommand("patient-search");
+        session.setCommand("patient-case-search");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
 
-        TreeElement data = SessionStackTests.buildExampleInstanceRoot("some_patient_id");
-        session.setQueryDatum(ExternalDataInstance.buildFromRemote("patients", data));
+        ExternalDataInstance dataInstance =
+                SessionStackTests.buildRemoteExternalDataInstance(this.getClass(),
+                        session, "/session-tests-template/patient_query_result.xml");
+        session.setQueryDatum(dataInstance);
 
         // case_id
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);

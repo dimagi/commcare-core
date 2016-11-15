@@ -1,8 +1,7 @@
-package org.commcare.util.cli;
+package org.commcare.util.screen;
 
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.core.interfaces.UserSandbox;
-import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
@@ -35,7 +34,7 @@ public class MenuScreen extends Screen {
     //TODO: This is now ~entirely generic other than the wrapper, can likely be
     //moved and we can centralize its usage in the other platforms
     @Override
-    public void init(SessionWrapper session) throws CommCareSessionException{
+    public void init(SessionWrapper session) throws CommCareSessionException {
         
         String root = deriveMenuRoot(session);
         
@@ -123,6 +122,7 @@ public class MenuScreen extends Screen {
         choices.copyInto(mChoices);
     }
 
+    @Override
     protected String getScreenTitle() {
         return mTitle;
     }

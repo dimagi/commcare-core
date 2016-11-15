@@ -28,6 +28,7 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
         super(parser);
     }
 
+    @Override
     public SessionDatum parse() throws InvalidStructureException, IOException, XmlPullParserException {
         if ("query".equals(parser.getName())) {
             return parseRemoteQueryDatum();
@@ -78,6 +79,11 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
                 new OrderedHashtable<>();
         this.checkNode("query");
 
+        // The 'template' argument specifies whether the query result should follow a specific xml structure.
+        // Currently only 'case' is supported; asserting the casedb xml structure
+        String xpathTemplateType = parser.getAttributeValue(null, "template");
+        boolean useCaseTemplate = "case".equals(xpathTemplateType);
+
         String queryUrlString = parser.getAttributeValue(null, "url");
         String queryResultStorageInstance = parser.getAttributeValue(null, "storage-instance");
         if (queryUrlString == null || queryResultStorageInstance == null) {
@@ -112,6 +118,6 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
         }
 
         return new RemoteQueryDatum(queryUrl, queryResultStorageInstance,
-                                    hiddenQueryValues, userQueryPrompts);
+                hiddenQueryValues, userQueryPrompts, useCaseTemplate);
     }
 }

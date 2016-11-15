@@ -29,7 +29,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
 
     InputStream is;
 
-    String requiredRootEnvelope = null;
+    final String requiredRootEnvelope = null;
 
     CommCareOTARestoreListener rListener;
 
@@ -59,6 +59,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
         this.rListener = rListener;
     }
 
+    @Override
     public Boolean parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         try {
 
@@ -122,22 +123,22 @@ public class DataModelPullParser extends ElementParser<Boolean> {
 
             TransactionParser transaction = factory.getParser(parser);
             if (transaction == null) {
-                //nothing to be done for this element, recurse?
                 if (deep) {
+                    // nothing to be done for this element, try recursing
                     parseBlock(name);
                 } else {
                     this.skipBlock(name);
                 }
             } else {
-                if (!failfast) {
+                if (failfast) {
+                    transaction.parse();
+                } else {
                     try {
                         transaction.parse();
                     } catch (Exception e) {
                         e.printStackTrace();
                         deal(e, name);
                     }
-                } else {
-                    transaction.parse();
                 }
             }
         }
