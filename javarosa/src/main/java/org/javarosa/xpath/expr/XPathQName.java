@@ -71,7 +71,7 @@ public class XPathQName implements Externalizable {
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        namespace = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        namespace = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         name = ExtUtil.readString(in);
         cacheCode();
     }

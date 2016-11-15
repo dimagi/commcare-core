@@ -6,6 +6,9 @@ import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.AccumulatingReporter;
+import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
 import org.javarosa.xpath.XPathException;
 
 import java.io.PrintStream;
@@ -27,14 +30,19 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     private final Vector<Action> actions;
 
+    private final Detail shortDetail;
+    private final EvaluationContext rootContext;
+
     public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context) throws CommCareSessionException {
-        mHeader = this.createHeader(shortDetail, context);
+        mHeader = createHeader(shortDetail, context);
+        this.shortDetail = shortDetail;
+        this.rootContext = context;
 
         rows = new String[references.size()];
 
         int i = 0;
         for (TreeReference entity : references) {
-            rows[i] = createRow(entity, shortDetail, context);
+            rows[i] = createRow(entity);
             ++i;
         }
 
@@ -44,10 +52,22 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         actions = shortDetail.getCustomActions(context);
     }
 
-    private String createRow(TreeReference entity, Detail shortDetail, EvaluationContext ec) {
-        EvaluationContext context = new EvaluationContext(ec, entity);
+    private String createRow(TreeReference entity) {
+        return createRow(entity, false);
+    }
 
+    private String createRow(TreeReference entity, boolean collectDebug) {
+        EvaluationContext context = new EvaluationContext(rootContext, entity);
+        AccumulatingReporter reporter = new AccumulatingReporter();
+
+        if (collectDebug) {
+            context.setDebugModeOn(reporter);
+        }
         shortDetail.populateEvaluationContextVariables(context);
+
+        if (collectDebug) {
+            ScreenUtils.printAndClearTraces(reporter, "Variable Traces");
+        }
 
         DetailField[] fields = shortDetail.getFields();
 
@@ -57,7 +77,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             Object o;
             try {
                 o = field.getTemplate().evaluate(context);
-            } catch(XPathException e) {
+            } catch (XPathException e) {
                 o = "error (see output)";
                 e.printStackTrace();
             }
@@ -79,6 +99,10 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             if (i != fields.length) {
                 row.append(" | ");
             }
+        }
+
+        if (collectDebug) {
+            ScreenUtils.printAndClearTraces(reporter, "Template Traces:");
         }
         return row.toString();
     }
@@ -113,7 +137,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     }
 
     //So annoying how identical this is...
-    private String createHeader(Detail shortDetail, EvaluationContext context) {
+    private static String createHeader(Detail shortDetail, EvaluationContext context) {
         DetailField[] fields = shortDetail.getFields();
 
         StringBuilder row = new StringBuilder();
@@ -138,7 +162,6 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     @Override
     public void prompt(PrintStream out) {
-
         int maxLength = String.valueOf(mChoices.length).length();
         out.println(ScreenUtils.pad("", maxLength + 1) + mHeader);
         out.println("==============================================================================================");
@@ -148,7 +171,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             out.println(ScreenUtils.pad(String.valueOf(i), maxLength) + ")" + d);
         }
 
-        if(actions != null) {
+        if (actions != null) {
             int actionCount = 0;
             for (Action action : actions) {
                 out.println();
@@ -165,7 +188,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     @Override
     public boolean handleInputAndUpdateHost(String input, EntityScreen host) throws CommCareSessionException {
-        if(input.startsWith("action ") && actions != null) {
+        if (input.startsWith("action ") && actions != null) {
             int chosenActionIndex;
             try {
                 chosenActionIndex = Integer.valueOf(input.substring("action ".length()).trim());
@@ -176,6 +199,19 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                 host.setPendingAction(actions.elementAt(chosenActionIndex));
                 return true;
             }
+        }
+
+        if (input.startsWith("debug ")) {
+            String debugArg = input.substring("debug ".length());
+            try {
+                int chosenDebugIndex = Integer.valueOf(debugArg.trim());
+                createRow(this.mChoices[chosenDebugIndex], true);
+            } catch (NumberFormatException e) {
+                if ("list".equals(debugArg)) {
+                    host.printNodesetExpansionTrace();
+                }
+            }
+            return false;
         }
 
         try {

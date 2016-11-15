@@ -11,11 +11,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
- * <p>A resource location is a simple model containing a possible
- * location for a resource's definition.</p>
+ * A resource location is a simple model containing a possible
+ * location for a resource's definition.
  *
- * <p>Resource locations provide a URI (possibly a relative URI)
- * along with an authority for location.</p>
+ * Resource locations provide a URI (possibly a relative URI)
+ * along with an authority for location.
  *
  * @author ctsims
  */

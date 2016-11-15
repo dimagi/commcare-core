@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.services;
 
 import org.javarosa.core.services.properties.IPropertyRules;
@@ -51,7 +35,7 @@ public class PropertyManager implements IPropertyManager {
         setPropertyManager(new PropertyManager());
     }
 
-    public static IPropertyManager _() {
+    public static IPropertyManager instance() {
         if (instance == null) {
             initDefaultPropertyManager();
         }
@@ -68,7 +52,7 @@ public class PropertyManager implements IPropertyManager {
     /**
      * The list of rules
      */
-    private final Vector rulesList;
+    private final Vector<IPropertyRules> rulesList;
 
     /**
      * The persistent storage utility
@@ -80,7 +64,7 @@ public class PropertyManager implements IPropertyManager {
      */
     public PropertyManager() {
         this.properties = (IStorageUtilityIndexed)StorageManager.getStorage(STORAGE_KEY);
-        rulesList = new Vector();
+        rulesList = new Vector<>();
     }
 
     /**
@@ -131,7 +115,7 @@ public class PropertyManager implements IPropertyManager {
      */
     @Override
     public void setProperty(String propertyName, String propertyValue) {
-        Vector wrapper = new Vector();
+        Vector<String> wrapper = new Vector<>();
         wrapper.addElement(propertyValue);
         setProperty(propertyName, wrapper);
     }
@@ -143,7 +127,7 @@ public class PropertyManager implements IPropertyManager {
      * @param propertyValue The value that the property will be set to
      */
     @Override
-    public void setProperty(String propertyName, Vector propertyValue) {
+    public void setProperty(String propertyName, Vector<String> propertyValue) {
         Vector oldValue = getProperty(propertyName);
         if (oldValue != null && vectorEquals(oldValue, propertyValue)) {
             //No point in redundantly setting values!
@@ -216,7 +200,7 @@ public class PropertyManager implements IPropertyManager {
      * @param propertyName The name of the property to be set
      * @return true if the property is permitted to store values. false otherwise
      */
-    public boolean checkPropertyAllowed(String propertyName) {
+    private boolean checkPropertyAllowed(String propertyName) {
         if (rulesList.size() == 0) {
             return true;
         } else {
@@ -240,7 +224,7 @@ public class PropertyManager implements IPropertyManager {
      * @param propertyValue The value to be stored in the given property
      * @return true if the property given is allowed to be stored. false otherwise.
      */
-    public boolean checkValueAllowed(String propertyName,
+    private boolean checkValueAllowed(String propertyName,
                                      String propertyValue) {
         if (rulesList.size() == 0) {
             return true;
@@ -290,7 +274,7 @@ public class PropertyManager implements IPropertyManager {
         }
     }
 
-    public void writeValue(String propertyName, Vector value) {
+    private void writeValue(String propertyName, Vector value) {
         Property theProp = new Property();
         theProp.name = propertyName;
         theProp.value = value;
