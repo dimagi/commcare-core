@@ -12,6 +12,10 @@ import org.commcare.util.CommCarePlatform;
 import org.commcare.session.SessionFrame;
 import org.commcare.util.mocks.CLISessionWrapper;
 import org.commcare.util.mocks.MockUserDataSandbox;
+import org.commcare.util.screen.CommCareSessionException;
+import org.commcare.util.screen.EntityScreen;
+import org.commcare.util.screen.MenuScreen;
+import org.commcare.util.screen.Screen;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
@@ -86,6 +90,9 @@ public class ApplicationHost {
         mRestoreStrategySet = true;
     }
 
+    public void setRestoreToDemoUser() {
+        mRestoreStrategySet = true;
+    }
 
     public void run() {
         if (!mRestoreStrategySet) {
@@ -233,7 +240,7 @@ public class ApplicationHost {
                 return true;
             } else {
                 XFormPlayer player = new XFormPlayer(System.in, System.out, null);
-                player.setmPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
+                player.setPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
                 player.setSessionIIF(mSession.getIIF());
                 player.start(mEngine.loadFormByXmlns(formXmlns));
 
@@ -362,9 +369,11 @@ public class ApplicationHost {
 
         mSandbox = sandbox;
         if (mLocalUserCredentials != null) {
-            restoreUserToSandbox(mSandbox, mLocalUserCredentials);
-        } else {
+            restoreUserToSandbox(mSandbox, mLocalUserCredentials[0], mLocalUserCredentials[1]);
+        } else if (mRestoreFile != null) {
             restoreFileToSandbox(mSandbox, mRestoreFile);
+        } else {
+            restoreDemoUserToSandbox(mSandbox);
         }
     }
 
@@ -385,22 +394,23 @@ public class ApplicationHost {
             System.exit(-1);
         }
 
-        //Initialize our User
+        initUser();
+    }
+
+    private void initUser() {
         User u = mSandbox.getUserStorage().read(0);
         mSandbox.setLoggedInUser(u);
         System.out.println("Setting logged in user to: " + u.getUsername());
     }
 
-    private void restoreUserToSandbox(UserSandbox mSandbox, String[] userCredentials) {
-        final String username = userCredentials[0];
-        final String password = userCredentials[1];
-
+    public static void restoreUserToSandbox(UserSandbox sandbox, String username, final String password) {
         //fetch the restore data and set credentials
-        String otaRestoreURL = PropertyManager._().getSingularProperty("ota-restore-url") + "?version=2.0";
-        String domain = PropertyManager._().getSingularProperty("cc_user_domain");
+        String otaRestoreURL = PropertyManager.instance().getSingularProperty("ota-restore-url") + "?version=2.0";
+        String domain = PropertyManager.instance().getSingularProperty("cc_user_domain");
         final String qualifiedUsername = username + "@" + domain;
 
         Authenticator.setDefault(new Authenticator() {
+            @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(qualifiedUsername, password.toCharArray());
             }
@@ -418,7 +428,7 @@ public class ApplicationHost {
 
             System.out.println("Restoring user " + username + " to domain " + domain);
 
-            ParseUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), mSandbox);
+            ParseUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), sandbox);
         } catch (InvalidStructureException | IOException e) {
             e.printStackTrace();
             System.exit(-1);
@@ -427,12 +437,24 @@ public class ApplicationHost {
         }
 
         //Initialize our User
-        for (IStorageIterator<User> iterator = mSandbox.getUserStorage().iterate(); iterator.hasMore(); ) {
+        for (IStorageIterator<User> iterator = sandbox.getUserStorage().iterate(); iterator.hasMore(); ) {
             User u = iterator.nextRecord();
             if (username.equalsIgnoreCase(u.getUsername())) {
-                mSandbox.setLoggedInUser(u);
+                sandbox.setLoggedInUser(u);
             }
         }
+    }
+
+    private void restoreDemoUserToSandbox(UserSandbox sandbox) {
+        try {
+            ParseUtils.parseIntoSandbox(mPlatform.getDemoUserRestore().getRestoreStream(), sandbox, false);
+        } catch (Exception e) {
+            System.out.println("Error parsing demo user restore from app");
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+        initUser();
     }
 
     private void setLocale(String locale) {

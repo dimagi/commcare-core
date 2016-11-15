@@ -31,10 +31,16 @@ public class CaseDataInstance extends ExternalDataInstance {
     /**
      * Does the reference follow the statically defined CaseDB spec?
      */
+    @Override
     public boolean hasTemplatePath(TreeReference ref) {
-            loadTemplateSpecLazily();
+        loadTemplateSpecLazily();
 
-            return followsTemplateSpec(ref, caseDbSpecTemplate, 0);
+
+        // enforce (artificial) constraint that the instance name matches the
+        // root element name. For instance, instance('casedb')/casedb
+        boolean instanceNameMatch = ref.size() > 0 && instanceid.equals(ref.getName(0));
+
+        return instanceNameMatch && followsTemplateSpec(ref, caseDbSpecTemplate, 1);
     }
 
     private static synchronized void loadTemplateSpecLazily() {
@@ -44,9 +50,7 @@ public class CaseDataInstance extends ExternalDataInstance {
             try {
                 caseDbSpecTemplate =
                         FormLoadingUtils.xmlToTreeElement("/casedb_instance_structure.xml");
-            } catch (InvalidStructureException e) {
-                throw new RuntimeException(errorMsg);
-            } catch (IOException e) {
+            } catch (InvalidStructureException | IOException e) {
                 throw new RuntimeException(errorMsg);
             }
         }
@@ -77,5 +81,10 @@ public class CaseDataInstance extends ExternalDataInstance {
             }
             return followsTemplateSpec(refToCheck, nextTemplateNode, currRefDepth + 1);
         }
+    }
+
+    @Override
+    public boolean useCaseTemplate() {
+        return true;
     }
 }

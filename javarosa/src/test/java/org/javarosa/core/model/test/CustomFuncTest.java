@@ -61,16 +61,19 @@ public class CustomFuncTest {
 
         // Custom func to double the numeric argument passed in.
         IFunctionHandler myDouble = new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "my_double";
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 Double my_double = (Double)args[0];
                 assertEquals(2.0, my_double * 2.0, errorDelta);
                 return my_double * 2.0;
             }
 
+            @Override
             public Vector getPrototypes() {
                 Class[] proto = {Double.class};
                 Vector<Class[]> v = new Vector<>();
@@ -78,6 +81,7 @@ public class CustomFuncTest {
                 return v;
             }
 
+            @Override
             public boolean rawArgs() {
                 return false;
             }
@@ -110,10 +114,12 @@ public class CustomFuncTest {
 
         // Override true to take in one argument and return 4.0
         IFunctionHandler myTrue = new IFunctionHandler() {
+            @Override
             public String getName() {
                 return "true";
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
                 if (args.length != 1) {
                     throw new XPathArityException(getName(), 1, args.length);
@@ -121,6 +127,7 @@ public class CustomFuncTest {
                 return 4.0;
             }
 
+            @Override
             public Vector getPrototypes() {
                 Class[] proto = {Double.class};
                 Vector<Class[]> v = new Vector<>();
@@ -128,6 +135,7 @@ public class CustomFuncTest {
                 return v;
             }
 
+            @Override
             public boolean rawArgs() {
                 return false;
             }

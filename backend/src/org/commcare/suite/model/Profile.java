@@ -76,7 +76,7 @@ public class Profile implements Persistable {
         featureStatus = new Hashtable<>();
 
         //turn on default features
-        featureStatus.put("users", new Boolean(true));
+        featureStatus.put("users", true);
     }
 
     @Override
@@ -143,7 +143,7 @@ public class Profile implements Persistable {
      */
     public boolean isFeatureActive(String feature) {
         return featureStatus.containsKey(feature) &&
-                featureStatus.get(feature).booleanValue();
+                featureStatus.get(feature);
     }
 
     // The below methods should all be replaced by a model builder
@@ -170,7 +170,7 @@ public class Profile implements Persistable {
     }
 
     public void setFeatureActive(String feature, boolean active) {
-        this.featureStatus.put(feature, new Boolean(active));
+        this.featureStatus.put(feature, active);
     }
 
     /**
@@ -185,10 +185,10 @@ public class Profile implements Persistable {
      */
     public void initializeProperties(boolean enableForce) {
         for (PropertySetter setter : properties) {
-            String property = PropertyManager._().getSingularProperty(setter.getKey());
+            String property = PropertyManager.instance().getSingularProperty(setter.getKey());
             //We only want to set properties which are undefined or are forced
             if (property == null || (enableForce && setter.force)) {
-                PropertyManager._().setProperty(setter.getKey(), setter.getValue());
+                PropertyManager.instance().setProperty(setter.getKey(), setter.getValue());
             }
         }
     }

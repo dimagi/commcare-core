@@ -62,7 +62,7 @@ public class Ledger implements Persistable, IMetaData {
         if (!sections.containsKey(sectionId) || !sections.get(sectionId).containsKey(entryId)) {
             return 0;
         }
-        return sections.get(sectionId).get(entryId).intValue();
+        return sections.get(sectionId).get(entryId);
     }
 
     /**
@@ -101,7 +101,7 @@ public class Ledger implements Persistable, IMetaData {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         recordId = ExtUtil.readInt(in);
         entityId = ExtUtil.readString(in);
-        sections = (Hashtable<String, Hashtable<String, Integer>>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapMap(String.class, Integer.class)));
+        sections = (Hashtable<String, Hashtable<String, Integer>>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapMap(String.class, Integer.class)), pf);
     }
 
     @Override

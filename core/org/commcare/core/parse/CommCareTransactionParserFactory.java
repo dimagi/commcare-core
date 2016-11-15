@@ -10,7 +10,6 @@ import org.commcare.xml.FixtureXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
@@ -59,6 +58,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         this.initStockParser();
     }
 
+    @Override
     public TransactionParser getParser(KXmlParser parser) {
         String namespace = parser.getNamespace();
         String name = parser.getName();

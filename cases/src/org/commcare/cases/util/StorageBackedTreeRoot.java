@@ -174,7 +174,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
         //otherwise, remove all of the predicates we've already evaluated
         for (int i = toRemove.size() - 1; i >= 0; i--) {
-            predicates.removeElementAt(toRemove.elementAt(i).intValue());
+            predicates.removeElementAt(toRemove.elementAt(i));
         }
 
         TreeReference base = this.getRef();
@@ -186,7 +186,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
             //this takes _waaaaay_ too long, we need to refactor this
             TreeReference ref = base.clone();
             Integer realIndexInt = objectIdMapping.get(i);
-            int realIndex = realIndexInt.intValue();
+            int realIndex = realIndexInt;
             ref.add(this.getChildHintName(), realIndex);
             filtered.addElement(ref);
         }

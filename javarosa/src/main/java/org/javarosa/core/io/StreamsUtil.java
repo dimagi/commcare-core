@@ -59,6 +59,7 @@ public class StreamsUtil {
             return internal;
         }
 
+        @Override
         public void printStackTrace() {
             internal.printStackTrace();
         }

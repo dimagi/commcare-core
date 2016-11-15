@@ -36,11 +36,13 @@ public class SampleExtz implements Externalizable {
         this("", "");
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException {
         a = ExtUtil.readString(in);
         b = ExtUtil.readString(in);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, a);
         ExtUtil.writeString(out, b);

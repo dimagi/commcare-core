@@ -115,7 +115,7 @@ public class CommCareSession {
         }
     }
 
-    public Vector<Entry> getEntriesForCommand(String commandId) {
+    private Vector<Entry> getEntriesForCommand(String commandId) {
         return getEntriesForCommand(commandId, new OrderedHashtable<String, String>());
     }
 
@@ -128,6 +128,9 @@ public class CommCareSession {
     private Vector<Entry> getEntriesForCommand(String commandId,
                                                OrderedHashtable<String, String> currentSessionData) {
         Vector<Entry> entries = new Vector<>();
+        if (commandId == null) {
+            return entries;
+        }
         for (Suite s : platform.getInstalledSuites()) {
             List<Menu> menusWithId = s.getMenusWithId(commandId);
             if (menusWithId != null) {
@@ -369,17 +372,18 @@ public class CommCareSession {
     }
 
     private boolean shouldPopNext(EvaluationContext evalContext) {
-        if (this.getNeededData(evalContext) == null ||
-                this.getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED) ||
-                popped.getType().equals(SessionFrame.STATE_DATUM_COMPUTED) ||
+        String neededData = getNeededData(evalContext);
+        String poppedType = popped == null ? "" : popped.getType();
+
+        if (neededData == null ||
+                SessionFrame.STATE_DATUM_COMPUTED.equals(neededData) ||
+                SessionFrame.STATE_DATUM_COMPUTED.equals(poppedType) ||
                 topStepIsMark()) {
             return true;
         }
 
-        if (popped.getType().equals(SessionFrame.STATE_UNKNOWN)){
-            return guessUnknownType(popped).equals(SessionFrame.STATE_DATUM_COMPUTED);
-        }
-        return false;
+        return SessionFrame.STATE_UNKNOWN.equals(poppedType)
+                && guessUnknownType(popped).equals(SessionFrame.STATE_DATUM_COMPUTED);
 
     }
 
@@ -556,15 +560,16 @@ public class CommCareSession {
             String key = (String)en.nextElement();
             instancesInScope.put(key, instancesInScope.get(key).initialize(iif, key));
         }
-        addInstancesFromFrame(instancesInScope);
+        addInstancesFromFrame(instancesInScope, iif);
 
         return new EvaluationContext(null, instancesInScope);
     }
 
-    private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap) {
+    private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap,
+                                       InstanceInitializationFactory iif) {
         for (StackFrameStep step : frame.getSteps()) {
             if (step.hasXmlInstance()) {
-                instanceMap.put(step.getId(), step.getXmlInstance());
+                instanceMap.put(step.getId(), step.getXmlInstance().initialize(iif, step.getId()));
             }
         }
     }
@@ -590,6 +595,8 @@ public class CommCareSession {
      * against the most recent frame. (IE: If a new frame is pushed here, xpath expressions
      * calculated within it will be evaluated against the starting, but <push> actions
      * will happen against the newly pushed frame)
+     *
+     * @return True if stack ops triggered a rewind, used for determining stack clean-up logic
      */
     public boolean executeStackOperations(Vector<StackOperation> ops, EvaluationContext ec) {
         // The on deck frame is the frame that is the target of operations that execute
@@ -597,14 +604,17 @@ public class CommCareSession {
         // doesn't match the current (living) frame, it will become the the current frame
         SessionFrame onDeck = frame;
 
+        boolean didRewind = false;
         for (StackOperation op : ops) {
             if (!processStackOp(op, ec)) {
                 // rewind occurred, stop processing futher ops.
+                didRewind = true;
                 break;
             }
         }
 
-        return popOrSync(onDeck);
+        popOrSync(onDeck, didRewind);
+        return didRewind;
     }
 
     /**
@@ -645,7 +655,7 @@ public class CommCareSession {
     private boolean performPushInner(StackOperation op, SessionFrame frame, EvaluationContext ec) {
         for (StackFrameStep step : op.getStackFrameSteps()) {
             if (SessionFrame.STATE_REWIND.equals(step.getType())) {
-                if (frame.rewindToMarkAndSet(step.getValue())) {
+                if (frame.rewindToMarkAndSet(step, ec)) {
                     return false;
                 }
                 // if no mark is found ignore the rewind and continue
@@ -703,12 +713,12 @@ public class CommCareSession {
         }
     }
 
-    private boolean popOrSync(SessionFrame onDeck) {
+    private boolean popOrSync(SessionFrame onDeck, boolean didRewind) {
         if (!frame.isDead() && frame != onDeck) {
             // If the current frame isn't dead, and isn't on deck, that means we've pushed
             // in new frames and need to load up the correct one
 
-            if (!finishAndPop()) {
+            if (!finishAndPop(didRewind)) {
                 // Somehow we didn't end up with any frames after that? that's incredibly weird, I guess
                 // we should just start over.
                 clearAllState();
@@ -751,10 +761,11 @@ public class CommCareSession {
         markCurrentFrameForDeath();
 
         //First, see if we have operations to run
+        boolean didRewind = false;
         if (ops.size() > 0) {
-            executeStackOperations(ops, ec);
+            didRewind = executeStackOperations(ops, ec);
         }
-        return finishAndPop();
+        return finishAndPop(didRewind);
     }
 
     /**
@@ -762,15 +773,18 @@ public class CommCareSession {
      * check the stack for any pending frames, and load the top one
      * into the current session if so.
      *
+     * @param didRewind True if rewind occurred during stack pop.
+     *                  Helps determine post-pop stack cleanup logic
+     *
      * @return True if there was a pending frame and it has been
      * popped into the current session. False if the stack was empty
      * and the session is over.
      */
-    private boolean finishAndPop() {
+    private boolean finishAndPop(boolean didRewind) {
         cleanStack();
 
         if (frameStack.empty()) {
-            return false;
+            return didRewind;
         } else {
             frame = frameStack.pop();
             //Ok, so if _after_ popping from the stack, we still have
@@ -893,7 +907,7 @@ public class CommCareSession {
 
         CommCareSession restoredSession = new CommCareSession(ccPlatform);
         restoredSession.frame = restoredFrame;
-        Vector<SessionFrame> frames = (Vector<SessionFrame>) ExtUtil.read(inputStream, new ExtWrapList(SessionFrame.class));
+        Vector<SessionFrame> frames = (Vector<SessionFrame>) ExtUtil.read(inputStream, new ExtWrapList(SessionFrame.class), null);
         Stack<SessionFrame> stackFrames = new Stack<>();
         while(!frames.isEmpty()){
             SessionFrame lastElement = frames.lastElement();

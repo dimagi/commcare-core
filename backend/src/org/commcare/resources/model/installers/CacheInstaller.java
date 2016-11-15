@@ -2,7 +2,6 @@ package org.commcare.resources.model.installers;
 
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceInstaller;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
@@ -26,10 +25,6 @@ import java.util.Vector;
  * Used for any resources which:
  * 1) Are going to be stored in memory
  * 2) Possibly have derived resources
- * 3)
- *
- * NOTE: This functionality can probably be summed up into a
- * composite model, rather than an inheritance.
  *
  * @author ctsims
  */
@@ -51,7 +46,7 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
     public abstract boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException;
 
     @Override
-    public boolean initialize(CommCareInstance instance, boolean isUpgrade) throws ResourceInitializationException {
+    public boolean initialize(CommCareInstance instance, boolean isUpgrade) {
         return false;
     }
 

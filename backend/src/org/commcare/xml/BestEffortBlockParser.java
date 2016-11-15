@@ -19,7 +19,7 @@ import java.util.Hashtable;
  */
 public abstract class BestEffortBlockParser extends TransactionParser<Hashtable<String, String>> {
 
-    final String[] elements;
+    private final String[] elements;
 
     public BestEffortBlockParser(KXmlParser parser, String[] elements) {
         super(parser);

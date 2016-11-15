@@ -1,17 +1,12 @@
-/**
- *
- */
 package org.javarosa.engine.models;
-
 
 /**
  * @author ctsims
- *
  */
 public class Action {
-    ActionResponse response;
-    Command command;
-    String input;
+    private ActionResponse response;
+    private Command command;
+    private String input;
 
     public Action(String input) {
         this.input = input;

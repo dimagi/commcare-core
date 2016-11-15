@@ -8,7 +8,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.UTFDataFormatException;
 import java.util.Date;
@@ -17,8 +16,8 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 public class ExtUtil {
-    public static boolean interning = true;
-    public static Interner<String> stringCache;
+    private static final boolean interning = true;
+    private static Interner<String> stringCache;
 
     public static byte[] serialize(Object o) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -28,44 +27,6 @@ public class ExtUtil {
             throw new RuntimeException("IOException writing to ByteArrayOutputStream; shouldn't happen!");
         }
         return baos.toByteArray();
-    }
-
-    public static Object deserialize(byte[] data, Class type) throws DeserializationException {
-        ByteArrayInputStream bais = new ByteArrayInputStream(data);
-        try {
-            return read(new DataInputStream(bais), type);
-        } catch (EOFException eofe) {
-            throw new DeserializationException("Unexpectedly reached end of stream when deserializing");
-        } catch (UTFDataFormatException udfe) {
-            throw new DeserializationException("Tried to read malformed UTF-8 string while deserializing");
-        } catch (IOException e) {
-            throw new RuntimeException("Unknown IOException reading from ByteArrayInputStream; shouldn't happen!");
-        } finally {
-            try {
-                bais.close();
-            } catch (IOException e) {
-                //already closed. Don't sweat it
-            }
-        }
-    }
-
-    public static Object deserialize(byte[] data, ExternalizableWrapper ew) throws DeserializationException {
-        ByteArrayInputStream bais = new ByteArrayInputStream(data);
-        try {
-            return read(new DataInputStream(bais), ew);
-        } catch (EOFException eofe) {
-            throw new DeserializationException("Unexpectedly reached end of stream when deserializing");
-        } catch (UTFDataFormatException udfe) {
-            throw new DeserializationException("Tried to read malformed UTF-8 string while deserializing");
-        } catch (IOException e) {
-            throw new RuntimeException("Unknown IOException reading from ByteArrayInputStream; shouldn't happen!");
-        } finally {
-            try {
-                bais.close();
-            } catch (IOException e) {
-                //already closed. Don't sweat it
-            }
-        }
     }
 
     public static int getSize(Object o) {
@@ -127,7 +88,12 @@ public class ExtUtil {
     }
 
     public static void writeString(DataOutputStream out, String val) throws IOException {
-        out.writeUTF(val);
+        try {
+            out.writeUTF(val);
+        } catch (UTFDataFormatException e) {
+            int percentOversized = ((val.getBytes("UTF-8").length / (((int)Short.MAX_VALUE) * 2)) - 1) * 100;
+            throw new SerializationLimitationException(percentOversized);
+        }
         //we could easily come up with more efficient default encoding for string
     }
 
@@ -140,10 +106,6 @@ public class ExtUtil {
         ExtUtil.writeNumeric(out, bytes.length);
         if (bytes.length > 0) //i think writing zero-length array might close the stream
             out.write(bytes);
-    }
-
-    public static Object read(DataInputStream in, Class type) throws IOException, DeserializationException {
-        return read(in, type, null);
     }
 
     public static Object read(DataInputStream in, Class type, PrototypeFactory pf) throws IOException, DeserializationException {
@@ -178,10 +140,6 @@ public class ExtUtil {
         }
     }
 
-    public static Object read(DataInputStream in, ExternalizableWrapper ew) throws IOException, DeserializationException {
-        return read(in, ew, null);
-    }
-
     public static Object read(DataInputStream in, ExternalizableWrapper ew, PrototypeFactory pf) throws IOException, DeserializationException {
         ew.readExternal(in, pf == null ? defaultPrototypes() : pf);
         return ew.val;
@@ -193,7 +151,7 @@ public class ExtUtil {
 
     public static long readNumeric(DataInputStream in, ExtWrapIntEncoding encoding) throws IOException {
         try {
-            return (Long)read(in, encoding);
+            return (Long)read(in, encoding, null);
         } catch (DeserializationException de) {
             throw new RuntimeException("Shouldn't happen: Base-type encoding wrappers should never touch prototypes");
         }
@@ -419,12 +377,8 @@ public class ExtUtil {
     }
 
 
-    //**REMOVE THESE TWO FUNCTIONS//
+    //**REMOVE THIS FUNCTION//
     //original deserialization API (whose limits made us make this whole new framework!); here for backwards compatibility
-    public static void deserialize(byte[] data, Externalizable ext) throws IOException, DeserializationException {
-        ext.readExternal(new DataInputStream(new ByteArrayInputStream(data)), defaultPrototypes());
-    }
-
     public static Object deserialize(byte[] data, Class type, PrototypeFactory pf) throws IOException, DeserializationException {
         return read(new DataInputStream(new ByteArrayInputStream(data)), type, pf);
     }

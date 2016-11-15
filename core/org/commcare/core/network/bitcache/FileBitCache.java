@@ -89,6 +89,7 @@ public class FileBitCache implements BitCache {
         }
     }
 
+    @Override
     public void release() {
         key = null;
         cacheDirSetup = null;

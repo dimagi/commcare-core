@@ -164,7 +164,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
                 throw new RuntimeException("Can't handle serialized output for" + instanceNode.getValue().toString() + ", " + serializedAnswer);
             }
 
-            if (serializer.containsExternalData(instanceNode.getValue()).booleanValue()) {
+            if (serializer.containsExternalData(instanceNode.getValue())) {
                 IDataPointer[] pointers = serializer.retrieveExternalDataPointer(instanceNode.getValue());
                 for (IDataPointer pointer : pointers) {
                     dataPointers.addElement(pointer);

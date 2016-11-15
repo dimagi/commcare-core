@@ -2,7 +2,6 @@ package org.commcare.resources.model.installers;
 
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceInstaller;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
@@ -56,7 +55,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
     }
 
     @Override
-    public boolean initialize(CommCareInstance instance, boolean isUpgrade) throws ResourceInitializationException {
+    public boolean initialize(CommCareInstance instance, boolean isUpgrade) {
         if (cache == null) {
             Localization.registerLanguageReference(locale, localReference);
         } else {
@@ -129,12 +128,12 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
                 int copy = 0;
 
                 try {
-                    Reference destination = ReferenceManager._().DeriveReference("jr://file/" + uri);
+                    Reference destination = ReferenceManager.instance().DeriveReference("jr://file/" + uri);
                     while (destination.doesBinaryExist()) {
                         //Need a different location.
                         copy++;
                         String newUri = uri + "." + copy;
-                        destination = ReferenceManager._().DeriveReference("jr://file/" + newUri);
+                        destination = ReferenceManager.instance().DeriveReference("jr://file/" + newUri);
                     }
 
                     if (destination.isReadOnly()) {
@@ -238,7 +237,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
         }
         Reference reference;
         try {
-            reference = ReferenceManager._().DeriveReference(localReference);
+            reference = ReferenceManager.instance().DeriveReference(localReference);
             if (!reference.isReadOnly()) {
                 reference.remove();
             }
@@ -285,7 +284,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
                 //If we've gotten the cache into memory, we're fine
             } else {
                 try {
-                    if (!ReferenceManager._().DeriveReference(localReference).doesBinaryExist()) {
+                    if (!ReferenceManager.instance().DeriveReference(localReference).doesBinaryExist()) {
                         throw new MissingMediaException(r, "Locale data does note exist at: " + localReference);
                     }
                 } catch (IOException e) {

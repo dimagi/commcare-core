@@ -8,7 +8,6 @@ import com.csvreader.CsvWriter;
 
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.services.locale.Localizer;
-import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.XPathConditional;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
@@ -58,7 +57,7 @@ public class FormTranslationFormatter {
         try {
             csv.writeRecord(header);
         } catch (IOException e) {
-            messages.append("Error!" + e.getMessage());
+            messages.append("Error!").append(e.getMessage());
         }
 
         Hashtable<String, String> defaultLocales = localeData.get(f.getLocalizer().getLocale());
@@ -86,7 +85,7 @@ public class FormTranslationFormatter {
                         techStrings.get(Integer.valueOf(nArg))[index] = expr.xpath;
 
                     } catch (NumberFormatException e) {
-                        messages.append("Error!" + e.getMessage());
+                        messages.append("Error!").append(e.getMessage());
                         e.printStackTrace();
                     }
                 }
@@ -95,7 +94,7 @@ public class FormTranslationFormatter {
             try {
                 csv.writeRecord(rowOfTranslations);
             } catch (IOException e) {
-                messages.append("Error!" + e.getMessage());
+                messages.append("Error!").append(e.getMessage());
             }
         }
 
