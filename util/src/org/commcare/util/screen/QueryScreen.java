@@ -60,8 +60,7 @@ public class QueryScreen extends Screen {
 
     public boolean processSuccess(InputStream responseData) {
         Pair<ExternalDataInstance, String> instanceOrError =
-                buildExternalDataInstance(responseData,
-                        remoteQuerySessionManager.getStorageInstanceName());
+                remoteQuerySessionManager.buildExternalDataInstance(responseData);
         if (instanceOrError.first == null) {
             currentMessage = "Query response format error: " + instanceOrError.second;
             return false;
@@ -72,22 +71,6 @@ public class QueryScreen extends Screen {
             sessionWrapper.setQueryDatum(instanceOrError.first);
             return true;
         }
-    }
-
-    /**
-     * @return Data instance built from xml stream or the error message raised during parsing
-     */
-    public static Pair<ExternalDataInstance, String> buildExternalDataInstance(InputStream instanceStream,
-                                                                               String instanceId) {
-        TreeElement root;
-        try {
-            KXmlParser baseParser = ElementParser.instantiateParser(instanceStream);
-            root = new TreeElementParser(baseParser, 0, instanceId).parse();
-        } catch (InvalidStructureException | IOException
-                | XmlPullParserException | UnfullfilledRequirementsException e) {
-            return new Pair<>(null, e.getMessage());
-        }
-        return new Pair<>(ExternalDataInstance.buildFromRemote(instanceId, root), "");
     }
 
     private boolean isResponseEmpty(ExternalDataInstance instance) {
