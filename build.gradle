@@ -110,6 +110,7 @@ dependencies {
       apiCompile 'org.json:json:20140107'
       apiCompile 'org.xerial:sqlite-jdbc:3.8.11.1'
       apiCompile 'kxml2:kxml2:2.3.0'
+      apiCompile files('javarosa/lib/regexp-me.jar')
       apiCompile 'joda-time:joda-time:2.9.3'
 
       harnessCompile 'kxml2:kxml2:2.3.0'

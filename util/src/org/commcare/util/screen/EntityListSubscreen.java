@@ -1,5 +1,6 @@
 package org.commcare.util.screen;
 
+import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
@@ -106,6 +107,34 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         return row.toString();
     }
 
+    public static Pair<String[], int[]> getHeaders(Detail shortDetail, EvaluationContext context){
+        DetailField[] fields = shortDetail.getFields();
+        String[] headers = new String[fields.length];
+        int[] widthHints = new int[fields.length];
+
+        StringBuilder row = new StringBuilder();
+        int i = 0;
+        for (DetailField field : fields) {
+            String s = field.getHeader().evaluate(context);
+
+            int widthHint = SCREEN_WIDTH / fields.length;
+            try {
+                widthHint = Integer.parseInt(field.getHeaderWidthHint());
+            } catch (Exception e) {
+                //Really don't care if it didn't work
+            }
+            ScreenUtils.addPaddedStringToBuilder(row, s, widthHint);
+
+            headers[i] = s;
+            widthHints[i] = widthHint;
+
+            i++;
+            if (i != fields.length) {
+                row.append(" | ");
+            }
+        }
+        return new Pair<>(headers, widthHints);
+    }
 
     //So annoying how identical this is...
     private static String createHeader(Detail shortDetail, EvaluationContext context) {
@@ -186,11 +215,8 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         }
 
         try {
-            int i = Integer.parseInt(input);
-
-            host.setHighlightedEntity(this.mChoices[i]);
-
-            return !host.setCurrentScreenToDetail();
+            host.setHighlightedEntity(input);
+            return true;
         } catch (NumberFormatException e) {
             //This will result in things just executing again, which is fine.
         }

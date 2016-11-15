@@ -33,6 +33,8 @@ public class CommCarePlatform implements CommCareInstance {
     // TODO: We should make this unique using the parser to invalidate this ID or something
     public static final String APP_PROFILE_RESOURCE_ID = "commcare-application-profile";
     private int profile;
+    private Profile cachedProfile;
+
     private OfflineUserRestore offlineUserRestore;
 
     private final int majorVersion;
@@ -55,6 +57,9 @@ public class CommCarePlatform implements CommCareInstance {
     }
 
     public Profile getCurrentProfile() {
+        if(cachedProfile != null) {
+            return cachedProfile;
+        }
         return (Profile)(StorageManager.getStorage(Profile.STORAGE_KEY).read(profile));
     }
 
@@ -93,6 +98,7 @@ public class CommCarePlatform implements CommCareInstance {
     @Override
     public void setProfile(Profile p) {
         this.profile = p.getID();
+        this.cachedProfile = p;
     }
 
     @Override
