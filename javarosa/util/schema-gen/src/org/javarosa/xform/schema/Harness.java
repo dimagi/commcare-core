@@ -11,6 +11,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.engine.XFormPlayer;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
+import org.javarosa.xform.util.FormInstanceLoader;
 import org.javarosa.xform.util.XFormUtils;
 import org.kxml2.io.KXmlSerializer;
 import org.kxml2.kdom.Document;
