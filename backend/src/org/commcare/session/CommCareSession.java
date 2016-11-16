@@ -128,6 +128,9 @@ public class CommCareSession {
     private Vector<Entry> getEntriesForCommand(String commandId,
                                                OrderedHashtable<String, String> currentSessionData) {
         Vector<Entry> entries = new Vector<>();
+        if (commandId == null) {
+            return entries;
+        }
         for (Suite s : platform.getInstalledSuites()) {
             List<Menu> menusWithId = s.getMenusWithId(commandId);
             if (menusWithId != null) {
@@ -300,8 +303,11 @@ public class CommCareSession {
      * an entry on the stack
      */
     public SessionDatum getNeededDatum() {
-        Entry entry = getEntriesForCommand(getCommand()).elementAt(0);
-        return getNeededDatum(entry);
+        Vector<Entry> entries = getEntriesForCommand(getCommand());
+        if (entries.isEmpty()) {
+            throw new IllegalStateException("The current session has no valid entry");
+        }
+        return getNeededDatum(entries.firstElement());
     }
 
     /**
@@ -810,7 +816,7 @@ public class CommCareSession {
         if (e.size() > 1) {
             throw new IllegalStateException("The current session does not contain a single valid entry");
         }
-        if (e.size() == 0) {
+        if (e.isEmpty()) {
             throw new IllegalStateException("The current session has no valid entry");
         }
         return e.elementAt(0);

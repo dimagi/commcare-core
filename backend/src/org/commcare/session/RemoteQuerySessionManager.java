@@ -47,7 +47,7 @@ public class RemoteQuerySessionManager {
         SessionDatum datum;
         try {
             datum = session.getNeededDatum();
-        } catch (NullPointerException e) {
+        } catch (IllegalStateException e) {
             // tried loading session info when it wasn't there
             return null;
         }
