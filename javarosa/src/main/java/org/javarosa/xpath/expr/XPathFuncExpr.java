@@ -211,4 +211,8 @@ public abstract class XPathFuncExpr extends XPathExpression {
             throw new XPathArityException(name, expectedArgCount, args.length);
         }
     }
+
+    public String getDocs() {
+        return "docs...";
+    }
 }
