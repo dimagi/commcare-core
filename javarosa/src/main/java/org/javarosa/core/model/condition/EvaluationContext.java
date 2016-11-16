@@ -6,6 +6,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathLazyNodeset;
@@ -43,6 +44,11 @@ public class EvaluationContext {
      * The root of the current execution trace
      */
     private EvaluationTrace mTraceRoot = null;
+
+    /**
+     * An optional reporter for traced evaluations
+     */
+    private EvaluationTraceReporter mTraceReporter = null;
 
     // Unambiguous anchor reference for relative paths
     private final TreeReference contextNode;
@@ -529,6 +535,9 @@ public class EvaluationContext {
 
             if (mDebugCore.mCurrentTraceLevel.getParent() == null) {
                 mDebugCore.mTraceRoot = mDebugCore.mCurrentTraceLevel;
+                if(mDebugCore.mTraceReporter != null) {
+                    mDebugCore.mTraceReporter.reportTrace(mDebugCore.mTraceRoot);
+                }
             }
             mDebugCore.mCurrentTraceLevel = mDebugCore.mCurrentTraceLevel.getParent();
         }
@@ -538,8 +547,16 @@ public class EvaluationContext {
      * Sets this EC to be the base of a trace capture for debugging.
      */
     public void setDebugModeOn() {
+        setDebugModeOn(null);
+    }
+
+    /**
+     * Sets this EC to be the base of a trace capture for debugging.
+     */
+    public void setDebugModeOn(EvaluationTraceReporter reporter) {
         this.mAccumulateExprs = true;
         this.mDebugCore = this;
+        this.mTraceReporter = reporter;
     }
 
 

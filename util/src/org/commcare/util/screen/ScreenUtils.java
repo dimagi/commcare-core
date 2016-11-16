@@ -3,6 +3,9 @@ package org.commcare.util.screen;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.data.GeoPointData;
+import org.javarosa.core.model.trace.AccumulatingReporter;
+import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
 
 import java.util.Vector;
 
@@ -63,5 +66,20 @@ public class ScreenUtils {
         public Object eval(Object[] args, EvaluationContext ec) {
             return new GeoPointData(new double[]{lat, lon, 0, 10}).getDisplayText();
         }
+    }
+
+    public static void printAndClearTraces(AccumulatingReporter reporter, String description) {
+        if (reporter.getCollectedTraces().size() > 0) {
+            System.out.println(description);
+        }
+
+        StringEvaluationTraceSerializer serializer = new StringEvaluationTraceSerializer();
+
+        for (EvaluationTrace trace : reporter.getCollectedTraces()) {
+            System.out.println(trace.getExpression() + ": " + trace.getValue());
+            System.out.print(serializer.serializeEvaluationLevels(trace));
+        }
+
+        reporter.clearTraces();
     }
 }
