@@ -7,7 +7,7 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathCountFunc extends XPathFuncExpr {
-    private static final String NAME = "count";
+    public static final String NAME = "count";
     private static final int EXPECTED_ARG_COUNT = 1;
 
     public XPathCountFunc() {

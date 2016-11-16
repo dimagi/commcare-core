@@ -8,7 +8,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.util.Date;
 
 public class XPathTodayFunc extends XPathFuncExpr {
-    private static final String NAME = "today";
+    public static final String NAME = "today";
     private static final int EXPECTED_ARG_COUNT = 0;
 
     public XPathTodayFunc() {

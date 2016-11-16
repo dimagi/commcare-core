@@ -9,7 +9,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 public class XPathSelectedFunc extends XPathFuncExpr {
     // default to 'selected' but could be 'is-selected'
     // we could also serialize this if we wanted to really preserve it.
-    private static final String NAME = "selected";
+    public static final String NAME = "selected";
     private static final int EXPECTED_ARG_COUNT = 2;
 
     public XPathSelectedFunc() {

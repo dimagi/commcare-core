@@ -8,7 +8,7 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathWeightedChecklistFunc extends XPathFuncExpr {
-    private static final String NAME = "weighted-checklist";
+    public static final String NAME = "weighted-checklist";
     private static final int EXPECTED_ARG_COUNT = -1;
 
     public XPathWeightedChecklistFunc() {

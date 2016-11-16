@@ -5,7 +5,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathCosFunc extends XPathFuncExpr {
-    private static final String NAME = "cos";
+    public static final String NAME = "cos";
     private static final int EXPECTED_ARG_COUNT = 1;
 
     public XPathCosFunc() {

@@ -5,7 +5,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathSubstringBeforeFunc extends XPathFuncExpr {
-    private static final String NAME = "substring-before";
+    public static final String NAME = "substring-before";
     private static final int EXPECTED_ARG_COUNT = 2;
 
     public XPathSubstringBeforeFunc() {

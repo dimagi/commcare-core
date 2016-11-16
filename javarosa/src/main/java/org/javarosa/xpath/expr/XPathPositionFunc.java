@@ -10,7 +10,7 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathPositionFunc extends XPathFuncExpr {
-    private static final String NAME = "position";
+    public static final String NAME = "position";
     // 0 or 1 arguments
     private static final int EXPECTED_ARG_COUNT = -1;
 

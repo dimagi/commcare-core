@@ -4,15 +4,30 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
+import org.javarosa.test_utils.ClassLoadUtils;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.FunctionUtils;
+import org.javarosa.xpath.expr.XPathCustomRuntimeFunc;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Modifier;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertTrue;
 
@@ -56,6 +71,7 @@ public class XPathFuncExprTest {
         ExprEvalUtils.testEval("substring-after('', 'foo')", instance, null, "");
         ExprEvalUtils.testEval("substring-after('123', 2)", instance, null, "3");
     }
+
     /**
      * Test that `position(some_ref)` throws a XPathTypeMismatchException when
      * some_ref points to an empty nodeset
@@ -122,11 +138,27 @@ public class XPathFuncExprTest {
         }
         assertTrue(didParseFail);
     }
+
+    /**
+     * Ensure that static list of xpath functions is kept up-to-date
+     */
     @Test
-    public void funcListTest() {
-        Class<?>[] classes = XPathFuncExprTest.class.getClasses();
-        for (Class c : classes) {
-            assertTrue(FunctionUtils.funcList.containsKey(c));
+    public void funcListTest() throws ClassNotFoundException, IOException, URISyntaxException {
+        Set<Class> cls = ClassLoadUtils.getClasses(XPathFuncExpr.class.getPackage().getName());
+
+        List<Class> funcClasses = ClassLoadUtils.classesThatExtend(cls, XPathFuncExpr.class);
+
+        // exclude functions defined at runtime
+        funcClasses.remove(XPathCustomRuntimeFunc.class);
+
+        HashMap<Class, String> funcList = FunctionUtils.getXPathFuncListMap();
+        for (Class c : funcClasses) {
+            assertTrue(c + " is not in list of functions, please update it",
+                    funcList.containsKey(c));
+        }
+        for (Class c : funcList.keySet()) {
+            assertTrue(c + " is in the list of functions but no longer exists, please remove it.",
+                    funcClasses.contains(c));
         }
     }
 }

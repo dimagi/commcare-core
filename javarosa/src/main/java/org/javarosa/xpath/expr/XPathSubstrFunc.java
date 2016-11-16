@@ -6,7 +6,7 @@ import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathSubstrFunc extends XPathFuncExpr {
-    private static final String NAME = "substr";
+    public static final String NAME = "substr";
     // 2 or 3 arguments
     private static final int EXPECTED_ARG_COUNT = -1;
 

@@ -5,7 +5,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathTanFunc extends XPathFuncExpr {
-    private static final String NAME = "tan";
+    public static final String NAME = "tan";
     private static final int EXPECTED_ARG_COUNT = 1;
 
     public XPathTanFunc() {

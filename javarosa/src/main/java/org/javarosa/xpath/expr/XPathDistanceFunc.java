@@ -8,7 +8,7 @@ import org.javarosa.core.model.utils.GeoPointUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathDistanceFunc extends XPathFuncExpr {
-    private static final String NAME = "distance";
+    public static final String NAME = "distance";
     private static final int EXPECTED_ARG_COUNT = 2;
 
     public XPathDistanceFunc() {

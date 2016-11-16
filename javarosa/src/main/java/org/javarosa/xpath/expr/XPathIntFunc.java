@@ -6,7 +6,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 //non-standard
 public class XPathIntFunc extends XPathFuncExpr {
-    private static final String NAME = "int";
+    public static final String NAME = "int";
     private static final int EXPECTED_ARG_COUNT = 1;
 
     public XPathIntFunc() {

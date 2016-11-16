@@ -9,7 +9,7 @@ import me.regexp.RE;
 import me.regexp.RESyntaxException;
 
 public class XPathReplaceFunc extends XPathFuncExpr {
-    private static final String NAME = "replace";
+    public static final String NAME = "replace";
     private static final int EXPECTED_ARG_COUNT = 3;
 
     public XPathReplaceFunc() {

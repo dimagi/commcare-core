@@ -7,7 +7,7 @@ import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathChecklistFunc extends XPathFuncExpr {
-    private static final String NAME = "checklist";
+    public static final String NAME = "checklist";
     // two or more arguments
     private static final int EXPECTED_ARG_COUNT = -1;
 

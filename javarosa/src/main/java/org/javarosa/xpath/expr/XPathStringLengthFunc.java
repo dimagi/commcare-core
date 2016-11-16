@@ -5,7 +5,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathStringLengthFunc extends XPathFuncExpr {
-    private static final String NAME = "string-length";
+    public static final String NAME = "string-length";
     private static final int EXPECTED_ARG_COUNT = 1;
 
     public XPathStringLengthFunc() {

@@ -5,7 +5,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathAbsFunc extends XPathFuncExpr {
-    private static final String NAME = "abs";
+    public static final String NAME = "abs";
     private static final int EXPECTED_ARG_COUNT = 1;
 
     public XPathAbsFunc() {

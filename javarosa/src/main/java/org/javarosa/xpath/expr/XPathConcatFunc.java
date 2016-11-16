@@ -6,7 +6,7 @@ import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathConcatFunc extends XPathFuncExpr {
-    private static final String NAME = "concat";
+    public static final String NAME = "concat";
     // zero or more arguments
     private static final int EXPECTED_ARG_COUNT = -1;
 

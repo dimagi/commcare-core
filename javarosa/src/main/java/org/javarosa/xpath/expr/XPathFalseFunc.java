@@ -5,7 +5,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathFalseFunc extends XPathFuncExpr {
-    private static final String NAME = "false";
+    public static final String NAME = "false";
     private static final int EXPECTED_ARG_COUNT = 0;
 
     public XPathFalseFunc() {

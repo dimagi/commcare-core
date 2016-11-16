@@ -5,7 +5,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathPiFunc extends XPathFuncExpr {
-    private static final String NAME = "pi";
+    public static final String NAME = "pi";
     private static final int EXPECTED_ARG_COUNT = 0;
 
     public XPathPiFunc() {

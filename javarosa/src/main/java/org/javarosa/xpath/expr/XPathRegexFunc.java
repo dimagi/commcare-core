@@ -9,7 +9,7 @@ import me.regexp.RE;
 import me.regexp.RESyntaxException;
 
 public class XPathRegexFunc extends XPathFuncExpr {
-    private static final String NAME = "regex";
+    public static final String NAME = "regex";
     private static final int EXPECTED_ARG_COUNT = 2;
 
     public XPathRegexFunc() {
