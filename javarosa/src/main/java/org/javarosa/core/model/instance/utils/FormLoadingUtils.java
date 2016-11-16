@@ -32,9 +32,7 @@ public class FormLoadingUtils {
 
         try {
             return parser.parse();
-        } catch (XmlPullParserException e) {
-            throw new IOException(e.getMessage());
-        } catch (UnfullfilledRequirementsException e) {
+        } catch (UnfullfilledRequirementsException | XmlPullParserException e) {
             throw new IOException(e.getMessage());
         }
     }

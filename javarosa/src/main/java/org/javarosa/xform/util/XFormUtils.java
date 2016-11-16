@@ -22,15 +22,6 @@ import java.util.Vector;
 public class XFormUtils {
     private static XFormParserFactory _factory = new XFormParserFactory();
 
-    /**
-     * Used by J2ME
-     */
-    public static XFormParserFactory setXFormParserFactory(XFormParserFactory factory) {
-        XFormParserFactory oldFactory = _factory;
-        _factory = factory;
-        return oldFactory;
-    }
-
     public static FormDef getFormFromResource(String resource) throws XFormParseException {
         InputStream is = System.class.getResourceAsStream(resource);
         if (is == null) {
@@ -82,9 +73,6 @@ public class XFormUtils {
         }
     }
 
-    /*
-     * This method throws XFormParseException when the form has errors.
-     */
     public static FormDef getFormFromInputStream(InputStream is) throws XFormParseException {
         InputStreamReader isr;
         
@@ -176,9 +164,6 @@ public class XFormUtils {
 
     /**
      * Is this element an Output tag?
-     *
-     * @param e Element
-     * @return boolean
      */
     public static boolean isOutput(Element e) {
         return e.getName().toLowerCase().equals("output");

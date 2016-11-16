@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.cases.model;
 
 import org.javarosa.core.util.externalizable.DeserializationException;

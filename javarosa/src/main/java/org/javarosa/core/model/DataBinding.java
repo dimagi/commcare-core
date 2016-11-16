@@ -129,7 +129,7 @@ public class DataBinding implements Externalizable {
         setDataType(ExtUtil.readInt(in));
         setPreload((String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf));
         setPreloadParams((String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf));
-        ref = (XPathReference)ExtUtil.read(in, new ExtWrapTagged());
+        ref = (XPathReference)ExtUtil.read(in, new ExtWrapTagged(), pf);
 
         //don't bother reading relevancy/required/readonly/constraint/calculate right now; they're only used during parse anyway
     }

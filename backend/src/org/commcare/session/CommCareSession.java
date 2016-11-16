@@ -25,8 +25,8 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -128,6 +128,9 @@ public class CommCareSession {
     private Vector<Entry> getEntriesForCommand(String commandId,
                                                OrderedHashtable<String, String> currentSessionData) {
         Vector<Entry> entries = new Vector<>();
+        if (commandId == null) {
+            return entries;
+        }
         for (Suite s : platform.getInstalledSuites()) {
             List<Menu> menusWithId = s.getMenusWithId(commandId);
             if (menusWithId != null) {
@@ -300,8 +303,11 @@ public class CommCareSession {
      * an entry on the stack
      */
     public SessionDatum getNeededDatum() {
-        Entry entry = getEntriesForCommand(getCommand()).elementAt(0);
-        return getNeededDatum(entry);
+        Vector<Entry> entries = getEntriesForCommand(getCommand());
+        if (entries.isEmpty()) {
+            throw new IllegalStateException("The current session has no valid entry");
+        }
+        return getNeededDatum(entries.firstElement());
     }
 
     /**
@@ -449,10 +455,10 @@ public class CommCareSession {
             throw new RuntimeException(e.getMessage());
         }
         if (datum instanceof FormIdDatum) {
-            setXmlns(XPathFuncExpr.toString(form.eval(ec)));
+            setXmlns(FunctionUtils.toString(form.eval(ec)));
             setDatum("", "awful");
         } else if (datum instanceof ComputedDatum) {
-            setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
+            setDatum(datum.getDataId(), FunctionUtils.toString(form.eval(ec)));
         }
     }
 
@@ -557,15 +563,16 @@ public class CommCareSession {
             String key = (String)en.nextElement();
             instancesInScope.put(key, instancesInScope.get(key).initialize(iif, key));
         }
-        addInstancesFromFrame(instancesInScope);
+        addInstancesFromFrame(instancesInScope, iif);
 
         return new EvaluationContext(null, instancesInScope);
     }
 
-    private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap) {
+    private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap,
+                                       InstanceInitializationFactory iif) {
         for (StackFrameStep step : frame.getSteps()) {
             if (step.hasXmlInstance()) {
-                instanceMap.put(step.getId(), step.getXmlInstance());
+                instanceMap.put(step.getId(), step.getXmlInstance().initialize(iif, step.getId()));
             }
         }
     }
@@ -808,7 +815,7 @@ public class CommCareSession {
         if (e.size() > 1) {
             throw new IllegalStateException("The current session does not contain a single valid entry");
         }
-        if (e.size() == 0) {
+        if (e.isEmpty()) {
             throw new IllegalStateException("The current session has no valid entry");
         }
         return e.elementAt(0);
@@ -903,7 +910,7 @@ public class CommCareSession {
 
         CommCareSession restoredSession = new CommCareSession(ccPlatform);
         restoredSession.frame = restoredFrame;
-        Vector<SessionFrame> frames = (Vector<SessionFrame>) ExtUtil.read(inputStream, new ExtWrapList(SessionFrame.class));
+        Vector<SessionFrame> frames = (Vector<SessionFrame>) ExtUtil.read(inputStream, new ExtWrapList(SessionFrame.class), null);
         Stack<SessionFrame> stackFrames = new Stack<>();
         while(!frames.isEmpty()){
             SessionFrame lastElement = frames.lastElement();

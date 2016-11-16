@@ -71,7 +71,7 @@ public class DataPointerPayload implements IDataPayload {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
-        pointer = (IDataPointer)ExtUtil.read(in, new ExtWrapTagged());
+        pointer = (IDataPointer)ExtUtil.read(in, new ExtWrapTagged(), pf);
     }
 
     @Override

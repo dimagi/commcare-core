@@ -15,7 +15,7 @@ public interface IPropertyManager {
 
     void setProperty(String propertyName, String propertyValue);
 
-    void setProperty(String propertyName, Vector propertyValue);
+    void setProperty(String propertyName, Vector<String> propertyValue);
 
     String getSingularProperty(String propertyName);
 

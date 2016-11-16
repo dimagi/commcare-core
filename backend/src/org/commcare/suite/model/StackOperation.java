@@ -8,7 +8,7 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -70,7 +70,7 @@ public class StackOperation implements Externalizable {
     public boolean isOperationTriggered(EvaluationContext ec) {
         if (ifCondition != null) {
             try {
-                return XPathFuncExpr.toBoolean(XPathParseTool.parseXPath(ifCondition).eval(ec));
+                return FunctionUtils.toBoolean(XPathParseTool.parseXPath(ifCondition).eval(ec));
             } catch (XPathSyntaxException e) {
                 //This error makes no sense, since we parse the input for
                 //validation when we create it!
@@ -99,7 +99,7 @@ public class StackOperation implements Externalizable {
             throws IOException, DeserializationException {
         opType = ExtUtil.readInt(in);
         ifCondition = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-        elements = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class));
+        elements = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class), pf);
     }
 
     @Override

@@ -9,7 +9,7 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -70,7 +70,7 @@ public class Callout implements Externalizable, DetailTemplate {
         while (keys.hasMoreElements()) {
             String key = (String)keys.nextElement();
             try {
-                String evaluatedKey = XPathFuncExpr.toString(XPathParseTool.parseXPath(extras.get(key)).eval(context));
+                String evaluatedKey = FunctionUtils.toString(XPathParseTool.parseXPath(extras.get(key)).eval(context));
                 evaluatedExtras.put(key, evaluatedKey);
             } catch (XPathSyntaxException e) {
                 // do nothing
@@ -92,12 +92,12 @@ public class Callout implements Externalizable, DetailTemplate {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         displayName = ExtUtil.readString(in);
-        actionName = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
-        image = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
-        extras = (Hashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
+        actionName = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        image = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        extras = (Hashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
         responses = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
         responseDetail = (DetailField)ExtUtil.read(in, new ExtWrapNullable(DetailField.class), pf);
-        type = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        type = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         isAutoLaunching = ExtUtil.readBool(in);
     }
 

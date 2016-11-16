@@ -16,8 +16,8 @@ import org.javarosa.xform.parse.IElementHandler;
 import org.javarosa.xform.parse.XFormParser;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.kxml2.kdom.Element;
 
 import java.io.DataInputStream;
@@ -131,7 +131,7 @@ public class SetValueAction extends Action {
         if (explicitValue != null) {
             result = explicitValue;
         } else {
-            result = XPathFuncExpr.unpack(value.eval(model.getMainInstance(), context));
+            result = FunctionUtils.unpack(value.eval(model.getMainInstance(), context));
         }
 
         int dataType = node.getDataType();
