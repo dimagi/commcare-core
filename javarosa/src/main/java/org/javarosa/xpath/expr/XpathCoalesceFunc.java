@@ -47,4 +47,9 @@ public class XpathCoalesceFunc extends XPathFuncExpr {
             return o instanceof Double && ((Double)o).isNaN();
         }
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

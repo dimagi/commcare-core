@@ -50,4 +50,9 @@ public class XPathSelectedFunc extends XPathFuncExpr {
         return new XPathException("Bad argument to function '" + functionName + "'. Argument #" + argNumber + " should be a " + type + ", but instead evaluated to: " + String.valueOf(endValue));
     }
 
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

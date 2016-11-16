@@ -53,4 +53,9 @@ public class XPathRegexFunc extends XPathFuncExpr {
         return result;
     }
 
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

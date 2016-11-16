@@ -27,4 +27,9 @@ public class XPathCountFunc extends XPathFuncExpr {
             throw new XPathTypeMismatchException("not a nodeset");
         }
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

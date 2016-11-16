@@ -23,4 +23,9 @@ public class XPathAtanTwoFunc extends XPathFuncExpr {
         double value2 = FunctionUtils.toDouble(evaluatedArgs[1]);
         return Math.atan2(value1, value2);
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

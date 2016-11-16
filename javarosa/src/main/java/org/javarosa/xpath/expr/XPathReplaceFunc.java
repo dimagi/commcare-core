@@ -47,4 +47,9 @@ public class XPathReplaceFunc extends XPathFuncExpr {
         String replacement = FunctionUtils.toString(o3);
         return pattern.subst(source, replacement);
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

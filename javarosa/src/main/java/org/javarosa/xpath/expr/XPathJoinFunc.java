@@ -52,4 +52,9 @@ public class XPathJoinFunc extends XPathFuncExpr {
         return sb.toString();
     }
 
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

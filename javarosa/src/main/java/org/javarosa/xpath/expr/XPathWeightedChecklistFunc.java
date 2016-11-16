@@ -68,4 +68,9 @@ public class XPathWeightedChecklistFunc extends XPathFuncExpr {
 
         return sum >= min && sum <= max;
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

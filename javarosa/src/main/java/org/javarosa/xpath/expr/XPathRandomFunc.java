@@ -24,4 +24,9 @@ public class XPathRandomFunc extends XPathFuncExpr {
         //calculated expressions may be recomputed w/o warning! use with caution!!
         return new Double(MathUtils.getRand().nextDouble());
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

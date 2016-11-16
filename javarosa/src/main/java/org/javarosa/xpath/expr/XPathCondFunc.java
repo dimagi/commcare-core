@@ -40,4 +40,9 @@ public class XPathCondFunc extends XPathFuncExpr {
 
         return args[args.length-1].eval(model, evalContext);
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

@@ -37,4 +37,9 @@ public class XPathUuidFunc extends XPathFuncExpr {
         int len = FunctionUtils.toInt(evaluatedArgs[0]).intValue();
         return PropertyUtils.genGUID(len);
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

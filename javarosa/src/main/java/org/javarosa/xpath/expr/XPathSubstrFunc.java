@@ -61,4 +61,9 @@ public class XPathSubstrFunc extends XPathFuncExpr {
 
         return ((start <= end && end <= len) ? s.substring(start, end) : "");
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

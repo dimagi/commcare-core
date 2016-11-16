@@ -21,4 +21,9 @@ public class XPathRoundFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return new Double(Math.floor(FunctionUtils.toDouble(evaluatedArgs[0]) + 0.5));
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

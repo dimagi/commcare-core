@@ -21,4 +21,9 @@ public class XPathNumberFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return FunctionUtils.toNumeric(evaluatedArgs[0]);
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

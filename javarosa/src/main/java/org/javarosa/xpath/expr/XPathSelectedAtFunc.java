@@ -43,4 +43,9 @@ public class XPathSelectedAtFunc extends XPathFuncExpr {
             return entries[index];
         }
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

@@ -26,4 +26,9 @@ public class XPathBooleanFromStringFunc extends XPathFuncExpr {
             return Boolean.FALSE;
         }
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

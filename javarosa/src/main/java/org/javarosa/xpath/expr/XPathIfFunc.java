@@ -35,4 +35,9 @@ public class XPathIfFunc extends XPathFuncExpr {
             return args[2].eval(model, evalContext);
         }
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

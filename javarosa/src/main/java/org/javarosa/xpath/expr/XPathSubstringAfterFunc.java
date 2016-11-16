@@ -38,4 +38,9 @@ public class XPathSubstringAfterFunc extends XPathFuncExpr {
         }
     }
 
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

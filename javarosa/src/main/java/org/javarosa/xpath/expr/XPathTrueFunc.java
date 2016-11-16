@@ -21,4 +21,9 @@ public class XPathTrueFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return Boolean.TRUE;
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

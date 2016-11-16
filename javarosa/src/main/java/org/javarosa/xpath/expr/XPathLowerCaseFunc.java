@@ -21,4 +21,9 @@ public class XPathLowerCaseFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return FunctionUtils.normalizeCase(evaluatedArgs[0], false);
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

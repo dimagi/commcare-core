@@ -31,4 +31,9 @@ public class XPathConcatFunc extends XPathFuncExpr {
             return XPathJoinFunc.join("", evaluatedArgs);
         }
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

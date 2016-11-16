@@ -54,4 +54,9 @@ public class XPathPositionFunc extends XPathFuncExpr {
         return new Double(refAt.getMultLast());
     }
 
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

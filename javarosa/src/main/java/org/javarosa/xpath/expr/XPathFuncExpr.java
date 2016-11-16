@@ -212,7 +212,5 @@ public abstract class XPathFuncExpr extends XPathExpression {
         }
     }
 
-    public String getDocs() {
-        return "docs...";
-    }
+    public abstract String getDocumentation();
 }

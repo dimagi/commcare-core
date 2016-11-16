@@ -46,4 +46,9 @@ public class XPathMaxFunc extends XPathFuncExpr {
         }
         return max;
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

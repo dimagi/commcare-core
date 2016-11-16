@@ -34,4 +34,9 @@ public class XPathCountSelectedFunc extends XPathFuncExpr {
         String s = (String)evalResult;
         return new Double(DataUtil.splitOnSpaces(s).length);
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

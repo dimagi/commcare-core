@@ -21,4 +21,9 @@ public class XPathPiFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return Math.PI;
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

@@ -23,4 +23,9 @@ public class XPathNowFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return new Date();
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

@@ -128,18 +128,26 @@ public class FunctionExtensions {
 
         @Override
         public Object eval(Object[] args, EvaluationContext ec) {
-            String functionName = "string";
+            String functionName = (String)args[0];
+
+            Class functionClass = FunctionUtils.getXPathFuncListMap().get(functionName);
+            if (functionClass == null) {
+                return "Function '" + functionName + "' doesn't exist";
+            }
             try {
-                Class functionClass = FunctionUtils.getXPathFuncListMap().get(functionName);
-                Method method = functionClass.getDeclaredMethod("getDoc");
-                return (String)method.invoke(functionClass.newInstance());
+                Method method = functionClass.getDeclaredMethod("getDocumentation");
+                return method.invoke(functionClass.newInstance());
             } catch (NoSuchMethodException e) {
+                e.printStackTrace();
                 return null;
             } catch (InvocationTargetException e) {
+                e.printStackTrace();
                 return null;
             } catch (InstantiationException e) {
+                e.printStackTrace();
                 return null;
             } catch (IllegalAccessException e) {
+                e.printStackTrace();
                 return null;
             }
         }

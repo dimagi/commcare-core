@@ -21,4 +21,9 @@ public class XPathLogTenFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return Math.log10(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

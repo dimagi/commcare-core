@@ -22,4 +22,9 @@ public class XPathDateFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return FunctionUtils.toDate(evaluatedArgs[0]);
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

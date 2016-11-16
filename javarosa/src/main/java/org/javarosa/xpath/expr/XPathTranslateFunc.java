@@ -64,4 +64,9 @@ public class XPathTranslateFunc extends XPathFuncExpr {
 
         return returnValue;
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

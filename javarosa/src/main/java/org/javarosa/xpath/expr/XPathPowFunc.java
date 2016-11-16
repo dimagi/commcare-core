@@ -38,4 +38,9 @@ public class XPathPowFunc extends XPathFuncExpr {
 
         return Math.pow(a, b);
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

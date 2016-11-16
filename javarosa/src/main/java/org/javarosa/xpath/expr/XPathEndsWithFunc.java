@@ -21,4 +21,9 @@ public class XPathEndsWithFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return FunctionUtils.toString(evaluatedArgs[0]).endsWith(FunctionUtils.toString(evaluatedArgs[1]));
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

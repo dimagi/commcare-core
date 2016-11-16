@@ -62,4 +62,9 @@ public class XPathChecklistFunc extends XPathFuncExpr {
         return (min < 0 || count >= min) && (max < 0 || count <= max);
     }
 
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

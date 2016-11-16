@@ -21,4 +21,9 @@ public class XPathCeilingFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return new Double(Math.ceil(FunctionUtils.toDouble(evaluatedArgs[0])));
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

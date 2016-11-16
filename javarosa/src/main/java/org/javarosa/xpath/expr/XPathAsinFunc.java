@@ -21,4 +21,9 @@ public class XPathAsinFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return Math.asin(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

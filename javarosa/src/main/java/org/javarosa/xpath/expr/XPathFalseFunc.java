@@ -21,4 +21,9 @@ public class XPathFalseFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return Boolean.FALSE;
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

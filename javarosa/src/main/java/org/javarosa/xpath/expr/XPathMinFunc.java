@@ -44,4 +44,9 @@ public class XPathMinFunc extends XPathFuncExpr {
         return min;
     }
 
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

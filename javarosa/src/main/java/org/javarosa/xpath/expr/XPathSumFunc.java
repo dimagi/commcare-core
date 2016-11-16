@@ -39,4 +39,9 @@ public class XPathSumFunc extends XPathFuncExpr {
         return sum;
     }
 
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

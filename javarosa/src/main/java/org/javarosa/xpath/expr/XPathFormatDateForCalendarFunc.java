@@ -47,4 +47,9 @@ public class XPathFormatDateForCalendarFunc extends XPathFuncExpr {
             throw new XPathUnsupportedException("Unsupported calendar type: " + format);
         }
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

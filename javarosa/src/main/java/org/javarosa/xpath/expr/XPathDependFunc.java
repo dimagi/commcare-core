@@ -31,4 +31,9 @@ public class XPathDependFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return evaluatedArgs[0];
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

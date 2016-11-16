@@ -25,4 +25,9 @@ public class XPathStringLengthFunc extends XPathFuncExpr {
         }
         return new Double(s.length());
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

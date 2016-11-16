@@ -21,4 +21,9 @@ public class XPathTanFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return Math.tan(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }

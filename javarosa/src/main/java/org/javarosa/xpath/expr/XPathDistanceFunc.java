@@ -45,4 +45,9 @@ public class XPathDistanceFunc extends XPathFuncExpr {
 
         return new Double(GeoPointUtils.computeDistanceBetween(castedFrom, castedTo));
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
 }
