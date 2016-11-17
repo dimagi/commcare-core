@@ -70,10 +70,10 @@ public class EntityScreen extends CompoundScreenHost {
         evalContext = mSession.getEvaluationContext();
 
         Vector<TreeReference> references = expandEntityReferenceSet(evalContext);
-            referenceMap = new Hashtable<>();
-            for(TreeReference reference: references) {
-                referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), evalContext), reference);
-            }
+        referenceMap = new Hashtable<>();
+        for(TreeReference reference: references) {
+            referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), evalContext), reference);
+        }
 
         // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic setting
         evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56, -46.66));
