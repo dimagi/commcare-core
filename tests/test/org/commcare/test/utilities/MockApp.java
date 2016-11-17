@@ -38,6 +38,12 @@ public class MockApp {
         }
         APP_BASE = resourcePath;
         final LivePrototypeFactory mPrototypeFactory = setupStaticStorage();
+        CommCareConfigEngine.setStorageFactory(new IStorageIndexedFactory() {
+            @Override
+            public IStorageUtilityIndexed newStorage(String name, Class type) {
+                return new DummyIndexedStorageUtility(type, mPrototypeFactory);
+            }
+        });
         MockUserDataSandbox mSandbox = new MockUserDataSandbox(mPrototypeFactory);
         CommCareConfigEngine mEngine = new CommCareConfigEngine(mPrototypeFactory);
 
