@@ -6,6 +6,9 @@ import org.commcare.util.engine.CommCareConfigEngine;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.services.storage.IStorageIndexedFactory;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.form.api.FormEntryController;
@@ -34,7 +37,7 @@ public class MockApp {
             throw new IllegalArgumentException("Invalid resource path for a mock app " + resourcePath);
         }
         APP_BASE = resourcePath;
-        LivePrototypeFactory mPrototypeFactory = setupStaticStorage();
+        final LivePrototypeFactory mPrototypeFactory = setupStaticStorage();
         MockUserDataSandbox mSandbox = new MockUserDataSandbox(mPrototypeFactory);
         CommCareConfigEngine mEngine = new CommCareConfigEngine(mPrototypeFactory);
 

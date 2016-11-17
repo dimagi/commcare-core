@@ -47,6 +47,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
         try {
             c = getConnection();
             SqlHelper.createTable(c, tableName, prototype.newInstance());
+            c.prepareStatement("PRAGMA journal_mode=WAL;").execute();
             c.close();
         } catch (SQLException e) {
             e.printStackTrace();

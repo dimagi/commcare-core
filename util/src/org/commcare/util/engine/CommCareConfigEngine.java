@@ -29,10 +29,7 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.IStorageFactory;
-import org.javarosa.core.services.storage.IStorageUtility;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.services.storage.*;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -64,6 +61,8 @@ public class CommCareConfigEngine {
 
     private ArchiveFileRoot mArchiveRoot;
 
+    private static IStorageIndexedFactory storageFactory;
+
     public CommCareConfigEngine() {
         this(new LivePrototypeFactory());
     }
@@ -75,32 +74,43 @@ public class CommCareConfigEngine {
     public CommCareConfigEngine(OutputStream output, PrototypeFactory prototypeFactory) {
         this.print = new PrintStream(output);
         this.platform = new CommCarePlatform(2, 32);
-
         this.mLiveFactory = prototypeFactory;
+
+        if (storageFactory == null) {
+            setupDummyStorageFactory();
+        }
 
         setRoots();
 
-        table = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility<>(Resource.class, mLiveFactory));
-        updateTable = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility<>(Resource.class, mLiveFactory));
-        recoveryTable = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility<>(Resource.class, mLiveFactory));
+        table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class));
+        updateTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_UPGRADE_TABLE", Resource.class));
+        recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", Resource.class));
 
 
         //All of the below is on account of the fact that the installers
         //aren't going through a factory method to handle them differently
         //per device.
         StorageManager.forceClear();
-        StorageManager.setStorageFactory(new IStorageFactory() {
-            @Override
-            public IStorageUtility newStorage(String name, Class type) {
-                return new DummyIndexedStorageUtility(type, mLiveFactory);
-            }
-        });
+        StorageManager.setStorageFactory(storageFactory);
 
         StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
         StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
         StorageManager.registerStorage(FormDef.STORAGE_KEY, FormDef.class);
         StorageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
         StorageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
+    }
+
+    private void setupDummyStorageFactory() {
+        CommCareConfigEngine.setStorageFactory(new IStorageIndexedFactory() {
+            @Override
+            public IStorageUtilityIndexed newStorage(String name, Class type) {
+                return new DummyIndexedStorageUtility(type, mLiveFactory);
+            }
+        });
+    }
+
+    public static void setStorageFactory(IStorageIndexedFactory storageFactory) {
+        CommCareConfigEngine.storageFactory = storageFactory;
     }
 
     protected void setRoots() {
