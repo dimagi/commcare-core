@@ -183,9 +183,9 @@ public abstract class XPathExpression implements Externalizable {
         } else if (o instanceof XPathFuncExpr) {
             XPathFuncExpr x = (XPathFuncExpr)o;
             if (x.args.length == 0) {
-                printStr("func {" + x.id.toString() + ", args {none}}");
+                printStr("func {" + x.name + ", args {none}}");
             } else {
-                printStr("func {" + x.id.toString() + ", args {{");
+                printStr("func {" + x.name + ", args {{");
                 for (int i = 0; i < x.args.length; i++) {
                     print(x.args[i]);
                     if (i < x.args.length - 1)

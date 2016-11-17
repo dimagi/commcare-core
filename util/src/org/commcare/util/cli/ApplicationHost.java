@@ -31,8 +31,8 @@ import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -343,11 +343,11 @@ public class ApplicationHost {
         }
         EvaluationContext ec = mSession.getEvaluationContext();
         if (datum instanceof FormIdDatum) {
-            mSession.setXmlns(XPathFuncExpr.toString(form.eval(ec)));
+            mSession.setXmlns(FunctionUtils.toString(form.eval(ec)));
             mSession.setDatum("", "awful");
         } else {
             try {
-                mSession.setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
+                mSession.setDatum(datum.getDataId(), FunctionUtils.toString(form.eval(ec)));
             } catch (XPathException e) {
                 error(e);
             }

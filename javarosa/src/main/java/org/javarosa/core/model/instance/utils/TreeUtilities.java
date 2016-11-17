@@ -10,10 +10,10 @@ import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.expr.XPathStep;
 import org.javarosa.xpath.expr.XPathStringLiteral;
+import org.javarosa.xpath.expr.FunctionUtils;
 
 import java.util.Hashtable;
 import java.util.Vector;
@@ -107,8 +107,8 @@ public class TreeUtilities {
 
                         try {
                             //Otherwise, go pull out the right hand value
-                            Object o = XPathFuncExpr.unpack(right.eval(evalContext));
-                            literalMatch = XPathFuncExpr.toString(o);
+                            Object o = FunctionUtils.unpack(right.eval(evalContext));
+                            literalMatch = FunctionUtils.toString(o);
                         } catch (XPathException e) {
                             //We may have some weird lack of context that makes this not work, so don't choke on the bonus evaluation
                             //and just evaluate that traditional way
@@ -178,7 +178,7 @@ public class TreeUtilities {
                                 // did it's not available here) so we will try
                                 // to do some _very basic_ type inference on
                                 // this value before performing the match
-                                Object value = XPathFuncExpr.InferType(attrValue);
+                                Object value = FunctionUtils.InferType(attrValue);
 
                                 if (XPathEqExpr.testEquality(value, literalMatch)) {
                                     predicateMatches.addElement(kids.elementAt(kidI).getRef());

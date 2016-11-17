@@ -16,8 +16,8 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -428,7 +428,7 @@ public class Detail implements Externalizable {
         //in a 1.3 hashtable equivalent
         for (Enumeration en = variables.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
-            ec.setVariable(key, XPathFuncExpr.unpack(variables.get(key).eval(ec)));
+            ec.setVariable(key, FunctionUtils.unpack(variables.get(key).eval(ec)));
         }
     }
 
@@ -436,8 +436,8 @@ public class Detail implements Externalizable {
         if (focusFunction == null) {
             return false;
         }
-        Object value = XPathFuncExpr.unpack(focusFunction.eval(ec));
-        return XPathFuncExpr.toBoolean(value);
+        Object value = FunctionUtils.unpack(focusFunction.eval(ec));
+        return FunctionUtils.toBoolean(value);
     }
 
     public XPathExpression getFocusFunction() {
