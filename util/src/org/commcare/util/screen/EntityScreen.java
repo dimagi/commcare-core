@@ -10,6 +10,8 @@ import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.AccumulatingReporter;
+import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
 
@@ -55,29 +57,31 @@ public class EntityScreen extends CompoundScreenHost {
         this.mPlatform = mSession.getPlatform();
 
         String detailId = mNeededDatum.getShortDetail();
-        if(detailId == null) {
+        if (detailId == null) {
             throw new CommCareSessionException("Can't handle entity selection with blank detail definition for datum " + mNeededDatum.getDataId());
         }
 
         mShortDetail = this.mPlatform.getDetail(detailId);
 
-        if(mShortDetail == null) {
+        if (mShortDetail == null) {
             throw new CommCareSessionException("Missing detail definition for: " + detailId);
         }
 
         evalContext = mSession.getEvaluationContext();
-        Vector<TreeReference> references = evalContext.expandReference(mNeededDatum.getNodeset());
-        // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic setting
-        evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56,  -46.66));
 
+
+        Vector<TreeReference> references = expandEntityReferenceSet(evalContext);
         referenceMap = new Hashtable<>();
         for(TreeReference reference: references) {
             referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), evalContext), reference);
         }
 
-        if(mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
+        // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic setting
+        evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56, -46.66));
+
+        if (mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
             this.setHighlightedEntity(references.firstElement());
-            if(!this.setCurrentScreenToDetail()) {
+            if (!this.setCurrentScreenToDetail()) {
                 this.updateSession(session);
                 readyToSkip = true;
             }
@@ -85,6 +89,10 @@ public class EntityScreen extends CompoundScreenHost {
             mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext);
             initDetailScreens();
         }
+    }
+
+    private Vector<TreeReference> expandEntityReferenceSet(EvaluationContext context) {
+        return evalContext.expandReference(mNeededDatum.getNodeset());
     }
 
     @Override
@@ -96,7 +104,7 @@ public class EntityScreen extends CompoundScreenHost {
     public String getScreenTitle() {
         try {
             return mShortDetail.getTitle().evaluate(evalContext).getName();
-        }catch (NoLocalizedTextException nlte) {
+        } catch (NoLocalizedTextException nlte) {
             return "Select (error with title string)";
         }
     }
@@ -124,7 +132,7 @@ public class EntityScreen extends CompoundScreenHost {
 
     @Override
     protected void updateSession(CommCareSession session) {
-        if(mPendingAction != null) {
+        if (mPendingAction != null) {
             session.executeStackOperations(mPendingAction.getStackOperations(), evalContext);
             return;
         }
@@ -145,25 +153,25 @@ public class EntityScreen extends CompoundScreenHost {
 
     private void initDetailScreens() {
         String longDetailId = this.mNeededDatum.getLongDetail();
-        if(longDetailId == null) {
+        if (longDetailId == null) {
             mLongDetailList = null;
             return;
         }
         Detail d = mPlatform.getDetail(longDetailId);
-        if(d == null) {
+        if (d == null) {
             mLongDetailList = null;
             return;
         }
         mLongDetailList = d.getDetails();
-        if(mLongDetailList == null || mLongDetailList.length == 0) {
-            mLongDetailList = new Detail[] {d};
+        if (mLongDetailList == null || mLongDetailList.length == 0) {
+            mLongDetailList = new Detail[]{d};
         }
     }
 
     public boolean setCurrentScreenToDetail() throws CommCareSessionException {
         initDetailScreens();
 
-        if(mLongDetailList == null) {
+        if (mLongDetailList == null) {
             return false;
         }
 
@@ -178,8 +186,7 @@ public class EntityScreen extends CompoundScreenHost {
         if (detailNodeset != null) {
             TreeReference contextualizedNodeset = detailNodeset.contextualize(this.mCurrentSelection);
             this.mCurrentScreen = new EntityListSubscreen(this.mLongDetailList[index], subContext.expandReference(contextualizedNodeset), subContext);
-        }
-        else {
+        } else {
             this.mCurrentScreen = new EntityDetailSubscreen(index, this.mLongDetailList[index], subContext, getDetailListTitles(subContext));
         }
     }
@@ -190,7 +197,7 @@ public class EntityScreen extends CompoundScreenHost {
 
     public String[] getDetailListTitles(EvaluationContext subContext) {
         String[] titles = new String[mLongDetailList.length];
-        for(int i = 0 ; i < mLongDetailList.length ; ++i) {
+        for (int i = 0; i < mLongDetailList.length; ++i) {
             titles[i] = this.mLongDetailList[i].getTitle().getText().evaluate(subContext);
         }
         return titles;
@@ -199,10 +206,20 @@ public class EntityScreen extends CompoundScreenHost {
     public void setPendingAction(Action pendingAction) {
         this.mPendingAction = pendingAction;
     }
+
     public Detail getShortDetail(){
         return mShortDetail;
     }
-    public SessionWrapper getSession(){
+    public SessionWrapper getSession() {
         return mSession;
+    }
+
+    public void printNodesetExpansionTrace() {
+        AccumulatingReporter reporter = new AccumulatingReporter();
+
+        evalContext.setDebugModeOn(reporter);
+        this.expandEntityReferenceSet(evalContext);
+
+        ScreenUtils.printAndClearTraces(reporter, "Entity Nodeset");
     }
 }
