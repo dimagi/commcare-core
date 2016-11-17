@@ -7,7 +7,6 @@ import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -83,20 +82,6 @@ public class ResourceManager {
                 e.printStackTrace();
             }
         }
-    }
-
-    /**
-     * Loads the app's authoritative profile into the upgrade table.
-     *
-     * @param clearProgress Clear the 'incoming' table of any partial update
-     *                      info.
-     */
-    public void stageUpgradeTable(boolean clearProgress)
-            throws UnfullfilledRequirementsException, StorageFullException,
-            UnresolvedResourceException, InstallCancelledException {
-        Profile current = platform.getCurrentProfile();
-        String profileRef = current.getAuthReference();
-        stageUpgradeTable(profileRef, clearProgress);
     }
 
     /**
@@ -246,7 +231,10 @@ public class ResourceManager {
                 //everything here? Locale files are registered elsewhere, and we
                 //can't guarantee we're the only thing in there, so we can't
                 //straight up clear it...
-                platform.initialize(masterTable);
+                // NOTE PLM: if the upgrade is successful but crashes before
+                // reaching this point, any suite fixture updates won't be
+                // applied
+                platform.initialize(masterTable, true);
             }
         }
     }

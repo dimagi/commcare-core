@@ -6,6 +6,7 @@ import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
+import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -27,6 +28,7 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
         super(parser);
     }
 
+    @Override
     public SessionDatum parse() throws InvalidStructureException, IOException, XmlPullParserException {
         if ("query".equals(parser.getName())) {
             return parseRemoteQueryDatum();
@@ -73,9 +75,14 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
             throws InvalidStructureException, IOException, XmlPullParserException {
         Hashtable<String, XPathExpression> hiddenQueryValues =
                 new Hashtable<>();
-        Hashtable<String, DisplayUnit> userQueryPrompts =
-                new Hashtable<>();
+        OrderedHashtable<String, DisplayUnit> userQueryPrompts =
+                new OrderedHashtable<>();
         this.checkNode("query");
+
+        // The 'template' argument specifies whether the query result should follow a specific xml structure.
+        // Currently only 'case' is supported; asserting the casedb xml structure
+        String xpathTemplateType = parser.getAttributeValue(null, "template");
+        boolean useCaseTemplate = "case".equals(xpathTemplateType);
 
         String queryUrlString = parser.getAttributeValue(null, "url");
         String queryResultStorageInstance = parser.getAttributeValue(null, "storage-instance");
@@ -111,6 +118,6 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
         }
 
         return new RemoteQueryDatum(queryUrl, queryResultStorageInstance,
-                                    hiddenQueryValues, userQueryPrompts);
+                hiddenQueryValues, userQueryPrompts, useCaseTemplate);
     }
 }

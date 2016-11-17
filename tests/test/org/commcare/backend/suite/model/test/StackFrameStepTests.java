@@ -1,14 +1,21 @@
 package org.commcare.backend.suite.model.test;
 
+import org.commcare.modern.session.SessionWrapper;
+import org.commcare.suite.model.Action;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.StackFrameStep;
+import org.commcare.test.utilities.MockApp;
 import org.commcare.test.utilities.PersistableSandbox;
 import org.commcare.session.SessionFrame;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.util.Vector;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -102,5 +109,28 @@ public class StackFrameStepTests {
             failed = true;
         }
         assertTrue(failed);
+    }
+
+    /**
+     * Confirm that when stepping back after a stack push, we remove all pushed data
+     */
+    @Test
+    public void stepBackFromStackPush() throws Exception {
+        MockApp mApp = new MockApp("/case_title_form_loading/");
+        SessionWrapper session = mApp.getSession();
+        session.setCommand("m0");
+        session.setComputedDatum();
+        EntityDatum entityDatum = (EntityDatum) session.getNeededDatum();
+        Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(session.getEvaluationContext());
+        if (actions == null || actions.isEmpty()) {
+            Assert.fail("Detail screen stack action was missing from app!");
+        }
+        //We're using the second action for this screen which requires us to still need another datum
+        Action dblManagement = actions.elementAt(1);
+        assertEquals(1, session.getFrame().getSteps().size());
+        session.executeStackOperations(dblManagement.getStackOperations(), session.getEvaluationContext());
+        assertEquals(5, session.getFrame().getSteps().size());
+        session.stepBack();
+        assertEquals(1, session.getFrame().getSteps().size());
     }
 }

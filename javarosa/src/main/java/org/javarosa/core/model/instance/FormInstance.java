@@ -70,7 +70,6 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
 
     @Override
     public TreeElement getRoot() {
-
         if (root.getNumChildren() == 0)
             throw new RuntimeException("root node has no children");
 
@@ -186,7 +185,7 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         schema = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         dateSaved = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
 
-        namespaces = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
+        namespaces = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
         setRoot((TreeElement)ExtUtil.read(in, TreeElement.class, pf));
     }
 
@@ -270,10 +269,12 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         return new String[]{META_XMLNS, META_ID};
     }
 
-    // used by TouchForms
+    /**
+     * used by TouchForms
+     */
     @SuppressWarnings("unused")
     public Hashtable getMetaData() {
-        Hashtable data = new Hashtable();
+        Hashtable<String, Object> data = new Hashtable<>();
         for (String key : getMetaDataFields()) {
             data.put(key, getMetaData(key));
         }
@@ -289,7 +290,6 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         }
         throw new IllegalArgumentException("No metadata field " + fieldName + " in the form instance storage system");
     }
-
 
     /**
      * Custom deserializer for migrating fixtures off of CommCare 2.24.
@@ -310,7 +310,7 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         schema = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         dateSaved = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
 
-        namespaces = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
+        namespaces = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
         TreeElement newRoot;
         try {
             newRoot = TreeElement.class.newInstance();

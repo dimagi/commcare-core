@@ -11,12 +11,13 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
+import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -52,15 +53,31 @@ public class Detail implements Externalizable {
      */
     private String titleForm;
 
-    Detail[] details;
-    DetailField[] fields;
-    Callout callout;
+    private Detail[] details;
+    private DetailField[] fields;
+    private Callout callout;
 
-    OrderedHashtable<String, String> variables;
-    OrderedHashtable<String, XPathExpression> variablesCompiled;
+    private OrderedHashtable<String, String> variables;
+    private OrderedHashtable<String, XPathExpression> variablesCompiled;
 
-    //This will probably be a list sooner rather than later?
-    Vector<Action> actions;
+
+    private Vector<Action> actions;
+
+    // Force the activity that is showing this detail to show itself in landscape view only
+    private boolean forceLandscapeView;
+
+    private XPathExpression focusFunction;
+
+    // region -- These fields are only used if this detail is a case tile
+
+    // Allows for the possibility of case tiles being displayed in a grid
+    private int numEntitiesToDisplayPerRow;
+
+    // Indicates that the height of a single cell in the tile's grid layout should be treated as
+    // equal to its width, rather than being computed independently
+    private boolean useUniformUnitsInCaseTile;
+
+    // endregion
 
     /**
      * Serialization Only
@@ -70,31 +87,13 @@ public class Detail implements Externalizable {
     }
 
     public Detail(String id, DisplayUnit title, String nodeset,
-                  Vector<Detail> details,
-                  Vector<DetailField> fields,
+                  Vector<Detail> detailsVector,
+                  Vector<DetailField> fieldsVector,
                   OrderedHashtable<String, String> variables,
-                  Vector<Action> actions, Callout callout) {
-        this(id, title, nodeset, details, fields, variables, actions);
+                  Vector<Action> actions, Callout callout, String fitAcross,
+                  String uniformUnitsString, String forceLandscape, String focusFunction) {
 
-        this.callout = callout;
-    }
-
-    public Detail(String id, DisplayUnit title, String nodeset,
-                  Vector<Detail> details,
-                  Vector<DetailField> fields,
-                  OrderedHashtable<String, String> variables, Vector<Action> actions) {
-        this(id, title, nodeset,
-                ArrayUtilities.copyIntoArray(details, new Detail[details.size()]),
-                ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]),
-                variables, actions);
-    }
-
-    public Detail(String id, DisplayUnit title, String nodeset,
-                  Detail[] details,
-                  DetailField[] fields,
-                  OrderedHashtable<String, String> variables,
-                  Vector<Action> actions) {
-        if (details.length > 0 && fields.length > 0) {
+        if (detailsVector.size() > 0 && fieldsVector.size() > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
         }
 
@@ -103,10 +102,32 @@ public class Detail implements Externalizable {
         if (nodeset != null) {
             this.nodeset = XPathReference.getPathExpr(nodeset).getReference();
         }
-        this.details = details;
-        this.fields = fields;
+        this.details = ArrayUtilities.copyIntoArray(detailsVector, new Detail[detailsVector.size()]);
+        this.fields = ArrayUtilities.copyIntoArray(fieldsVector, new DetailField[fieldsVector.size()]);
         this.variables = variables;
         this.actions = actions;
+        this.callout = callout;
+        this.useUniformUnitsInCaseTile = "true".equals(uniformUnitsString);
+        this.forceLandscapeView = "true".equals(forceLandscape);
+
+        if (focusFunction != null) {
+            try {
+                this.focusFunction = XPathParseTool.parseXPath(focusFunction);
+            } catch (XPathSyntaxException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+
+        if (fitAcross != null) {
+            try {
+                this.numEntitiesToDisplayPerRow = Integer.parseInt(fitAcross);
+            } catch (NumberFormatException e) {
+                numEntitiesToDisplayPerRow = 1;
+            }
+        } else {
+            numEntitiesToDisplayPerRow = 1;
+        }
     }
 
     /**
@@ -152,19 +173,6 @@ public class Detail implements Externalizable {
     }
 
     /**
-     * Given an array of details, count their total number of fields.
-     */
-    @SuppressWarnings("unused")
-    public int getFlattenedFieldCount() {
-        Detail[] details = this.getFlattenedDetails();
-        int count = 0;
-        for (int i = 0; i < details.length; i++) {
-            count += details[i].getFields().length;
-        }
-        return count;
-    }
-
-    /**
      * @return Any fields belonging to this detail.
      */
     public DetailField[] getFields() {
@@ -194,9 +202,9 @@ public class Detail implements Externalizable {
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        id = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        id = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         title = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
-        titleForm = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        titleForm = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         nodeset = (TreeReference)ExtUtil.read(in, new ExtWrapNullable(TreeReference.class), pf);
         Vector<Detail> theDetails = (Vector<Detail>)ExtUtil.read(in, new ExtWrapList(Detail.class), pf);
         details = new Detail[theDetails.size()];
@@ -207,6 +215,10 @@ public class Detail implements Externalizable {
         variables = (OrderedHashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, ExtWrapMap.TYPE_ORDERED), pf);
         actions = (Vector<Action>)ExtUtil.read(in, new ExtWrapList(Action.class), pf);
         callout = (Callout)ExtUtil.read(in, new ExtWrapNullable(Callout.class), pf);
+        forceLandscapeView = ExtUtil.readBool(in);
+        focusFunction = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
+        numEntitiesToDisplayPerRow = (int)ExtUtil.readNumeric(in);
+        useUniformUnitsInCaseTile = ExtUtil.readBool(in);
     }
 
     @Override
@@ -220,6 +232,10 @@ public class Detail implements Externalizable {
         ExtUtil.write(out, new ExtWrapMap(variables));
         ExtUtil.write(out, new ExtWrapList(actions));
         ExtUtil.write(out, new ExtWrapNullable(callout));
+        ExtUtil.writeBool(out, forceLandscapeView);
+        ExtUtil.write(out, new ExtWrapNullable(focusFunction == null ? null : new ExtWrapTagged(focusFunction)));
+        ExtUtil.writeNumeric(out, numEntitiesToDisplayPerRow);
+        ExtUtil.writeBool(out, useUniformUnitsInCaseTile);
     }
 
     public OrderedHashtable<String, XPathExpression> getVariableDeclarations() {
@@ -246,8 +262,14 @@ public class Detail implements Externalizable {
      * @return An Action model definition if one is defined for this detail.
      * Null if there is no associated action.
      */
-    public Vector<Action> getCustomActions() {
-        return actions;
+    public Vector<Action> getCustomActions(EvaluationContext evaluationContext) {
+        Vector<Action> relevantActions = new Vector<>();
+        for (Action action : actions) {
+            if (action.isRelevant(evaluationContext)) {
+                relevantActions.addElement(action);
+            }
+        }
+        return relevantActions;
     }
 
     /**
@@ -262,13 +284,13 @@ public class Detail implements Externalizable {
                 continue;
             }
             for (int j = 0; j < indices.size(); ++j) {
-                if (order < fields[indices.elementAt(j).intValue()].getSortOrder()) {
-                    indices.insertElementAt(new Integer(i), j);
+                if (order < fields[indices.elementAt(j)].getSortOrder()) {
+                    indices.insertElementAt(i, j);
                     continue outer;
                 }
             }
             //otherwise it's larger than all of the other fields.
-            indices.addElement(new Integer(i));
+            indices.addElement(i);
             continue;
         }
         if (indices.size() == 0) {
@@ -276,7 +298,7 @@ public class Detail implements Externalizable {
         } else {
             int[] ret = new int[indices.size()];
             for (int i = 0; i < ret.length; ++i) {
-                ret[i] = indices.elementAt(i).intValue();
+                ret[i] = indices.elementAt(i);
             }
             return ret;
         }
@@ -285,23 +307,12 @@ public class Detail implements Externalizable {
     //These are just helpers around the old structure. Shouldn't really be
     //used if avoidable
 
-
-    /**
-     * Obsoleted - Don't use
-     */
-    public String[] getHeaderSizeHints() {
-        return new Map<String[]>(new String[fields.length]) {
-            protected void map(DetailField f, String[] a, int i) {
-                a[i] = f.getHeaderWidthHint();
-            }
-        }.go();
-    }
-
     /**
      * Obsoleted - Don't use
      */
     public String[] getTemplateSizeHints() {
         return new Map<String[]>(new String[fields.length]) {
+            @Override
             protected void map(DetailField f, String[] a, int i) {
                 a[i] = f.getTemplateWidthHint();
             }
@@ -313,6 +324,7 @@ public class Detail implements Externalizable {
      */
     public String[] getHeaderForms() {
         return new Map<String[]>(new String[fields.length]) {
+            @Override
             protected void map(DetailField f, String[] a, int i) {
                 a[i] = f.getHeaderForm();
             }
@@ -324,25 +336,38 @@ public class Detail implements Externalizable {
      */
     public String[] getTemplateForms() {
         return new Map<String[]>(new String[fields.length]) {
+            @Override
             protected void map(DetailField f, String[] a, int i) {
                 a[i] = f.getTemplateForm();
             }
         }.go();
     }
 
-    public boolean usesGridView() {
-
-        boolean usesGrid = false;
-
-        for (int i = 0; i < fields.length; i++) {
-            DetailField currentField = fields[i];
+    public boolean usesEntityTileView() {
+        boolean usingEntityTile = false;
+        for (DetailField currentField : fields) {
             if (currentField.getGridX() >= 0 && currentField.getGridY() >= 0 &&
                     currentField.getGridWidth() >= 0 && currentField.getGridHeight() > 0) {
-                usesGrid = true;
+                usingEntityTile = true;
             }
         }
+        return usingEntityTile;
+    }
 
-        return usesGrid;
+    public boolean shouldBeLaidOutInGrid() {
+        return numEntitiesToDisplayPerRow > 1 && usesEntityTileView();
+    }
+
+    public int getNumEntitiesToDisplayPerRow() {
+        return numEntitiesToDisplayPerRow;
+    }
+
+    public boolean useUniformUnitsInCaseTile() {
+        return useUniformUnitsInCaseTile;
+    }
+
+    public boolean forcesLandscape() {
+        return forceLandscapeView;
     }
 
     public GridCoordinate[] getGridCoordinates() {
@@ -403,7 +428,19 @@ public class Detail implements Externalizable {
         //in a 1.3 hashtable equivalent
         for (Enumeration en = variables.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
-            ec.setVariable(key, XPathFuncExpr.unpack(variables.get(key).eval(ec)));
+            ec.setVariable(key, FunctionUtils.unpack(variables.get(key).eval(ec)));
         }
+    }
+
+    public boolean evaluateFocusFunction(EvaluationContext ec) {
+        if (focusFunction == null) {
+            return false;
+        }
+        Object value = FunctionUtils.unpack(focusFunction.eval(ec));
+        return FunctionUtils.toBoolean(value);
+    }
+
+    public XPathExpression getFocusFunction() {
+        return focusFunction;
     }
 }

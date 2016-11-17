@@ -8,15 +8,14 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathPathExpr;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-
 
 /**
  * @author ctsims
@@ -76,7 +75,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
             XPathExpression xpe = predicates.elementAt(i);
             //what we want here is a static evaluation of the expression to see if it consists of evaluating
             //something we index with something static.
-            if (xpe instanceof XPathEqExpr) {
+            if (xpe instanceof XPathEqExpr && ((XPathEqExpr)xpe).op == XPathEqExpr.EQ) {
                 XPathExpression left = ((XPathEqExpr)xpe).a;
                 if (left instanceof XPathPathExpr) {
                     for (Enumeration en = indices.keys(); en.hasMoreElements(); ) {
@@ -87,7 +86,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                             //TODO: We need a way to determine that this value does not also depend on anything in the current context, not
                             //sure the best way to do that....? Maybe tell the evaluation context to skip out here if it detects a request
                             //to resolve in a certain area?
-                            Object o = XPathFuncExpr.unpack(((XPathEqExpr)xpe).b.eval(evalContext));
+                            Object o = FunctionUtils.unpack(((XPathEqExpr)xpe).b.eval(evalContext));
 
                             keysToFetch.addElement(filterIndex);
                             valuesToFetch.addElement(o);
@@ -118,7 +117,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
             if (keyMapping != null) {
                 //If so, go fetch that element's record id and skip the storage
                 //lookup
-                Integer uniqueValue = keyMapping.get(XPathFuncExpr.toString(o));
+                Integer uniqueValue = keyMapping.get(FunctionUtils.toString(o));
 
                 //Merge into the selected elements
                 if (uniqueValue != null) {
@@ -175,7 +174,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
         //otherwise, remove all of the predicates we've already evaluated
         for (int i = toRemove.size() - 1; i >= 0; i--) {
-            predicates.removeElementAt(toRemove.elementAt(i).intValue());
+            predicates.removeElementAt(toRemove.elementAt(i));
         }
 
         TreeReference base = this.getRef();
@@ -187,7 +186,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
             //this takes _waaaaay_ too long, we need to refactor this
             TreeReference ref = base.clone();
             Integer realIndexInt = objectIdMapping.get(i);
-            int realIndex = realIndexInt.intValue();
+            int realIndex = realIndexInt;
             ref.add(this.getChildHintName(), realIndex);
             filtered.addElement(ref);
         }

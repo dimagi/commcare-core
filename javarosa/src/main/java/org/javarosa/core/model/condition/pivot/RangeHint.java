@@ -7,7 +7,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IConditionExpr;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.expr.FunctionUtils;
 
 import java.util.Vector;
 
@@ -25,6 +25,7 @@ public abstract class RangeHint<T extends IAnswerData> implements ConstraintHint
     boolean minInclusive;
     boolean maxInclusive;
 
+    @Override
     public void init(EvaluationContext c, IConditionExpr conditional, FormInstance instance) throws UnpivotableExpressionException {
 
         Vector<Object> pivots = conditional.pivot(instance, c);
@@ -72,22 +73,22 @@ public abstract class RangeHint<T extends IAnswerData> implements ConstraintHint
         c.isConstraint = true;
 
         c.candidateValue = castToValue(val);
-        boolean eq = XPathFuncExpr.toBoolean(conditional.eval(instance, c)).booleanValue();
+        boolean eq = FunctionUtils.toBoolean(conditional.eval(instance, c));
 
         c.candidateValue = castToValue(lt);
-        boolean ltr = XPathFuncExpr.toBoolean(conditional.eval(instance, c)).booleanValue();
+        boolean ltr = FunctionUtils.toBoolean(conditional.eval(instance, c));
 
         c.candidateValue = castToValue(gt);
-        boolean gtr = XPathFuncExpr.toBoolean(conditional.eval(instance, c)).booleanValue();
+        boolean gtr = FunctionUtils.toBoolean(conditional.eval(instance, c));
         
         if (ltr && !gtr) {
-            max = new Double(val);
+            max = val;
             maxInclusive = eq;
             maxCast = castToValue(max);
         }
 
         if (!ltr && gtr) {
-            min = new Double(val);
+            min = val;
             minInclusive = eq;
             minCast = castToValue(min);
         }

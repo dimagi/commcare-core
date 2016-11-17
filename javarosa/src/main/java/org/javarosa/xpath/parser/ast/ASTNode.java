@@ -1,47 +1,23 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.xpath.parser.ast;
 
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.parser.Parser;
 import org.javarosa.xpath.parser.Token;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.Enumeration;
-import java.util.Vector;
+import java.util.List;
 
 public abstract class ASTNode {
-    public abstract Vector getChildren();
+    public abstract List<? extends ASTNode> getChildren();
 
     public abstract XPathExpression build() throws XPathSyntaxException;
 
-    //horrible debugging code
-
-    int indent;
+    private int indent;
 
     private void printStr(String s) {
         for (int i = 0; i < 2 * indent; i++)
             System.out.print(" ");
         System.out.println(s);
-    }
-
-    public void print() {
-        indent = -1;
-        print(this);
     }
 
     public void print(Object o) {
@@ -50,9 +26,9 @@ public abstract class ASTNode {
         if (o instanceof ASTNodeAbstractExpr) {
             ASTNodeAbstractExpr x = (ASTNodeAbstractExpr)o;
             printStr("abstractexpr {");
-            for (int i = 0; i < x.content.size(); i++) {
+            for (int i = 0; i < x.size(); i++) {
                 if (x.getType(i) == ASTNodeAbstractExpr.CHILD)
-                    print(x.content.elementAt(i));
+                    print(x.content.get(i));
                 else
                     printStr(x.getToken(i).toString());
             }
@@ -69,7 +45,7 @@ public abstract class ASTNode {
             } else {
                 printStr("func {" + x.name.toString() + ", args {{");
                 for (int i = 0; i < x.args.size(); i++) {
-                    print(x.args.elementAt(i));
+                    print(x.args.get(i));
                     if (i < x.args.size() - 1)
                         printStr(" } {");
                 }
@@ -79,9 +55,9 @@ public abstract class ASTNode {
             ASTNodeBinaryOp x = (ASTNodeBinaryOp)o;
             printStr("opexpr {");
             for (int i = 0; i < x.exprs.size(); i++) {
-                print(x.exprs.elementAt(i));
+                print(x.exprs.get(i));
                 if (i < x.exprs.size() - 1) {
-                    switch (Parser.vectInt(x.ops, i)) {
+                    switch (x.ops.get(i)) {
                         case Token.AND:
                             printStr("and:");
                             break;
@@ -146,7 +122,7 @@ public abstract class ASTNode {
                 if (offset == 0 || i > 0)
                     print(x.clauses.elementAt(i - offset));
                 if (i < x.separators.size()) {
-                    switch (Parser.vectInt(x.separators, i)) {
+                    switch (x.separators.get(i)) {
                         case Token.DBL_SLASH:
                             printStr("dbl-slash:");
                             break;

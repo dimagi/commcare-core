@@ -20,22 +20,32 @@ public class CliPlayCommand extends CliCommand {
     @Override
     protected Options getOptions() {
         Options options = super.getOptions();
-        options.addOption(Option.builder("r")
+        Option restoreFile = Option.builder("r")
                 .argName("FILE")
                 .hasArg()
                 .desc("Restore user data from FILE instead of querying the server")
                 .longOpt("restore-file")
                 .required(false)
                 .optionalArg(false)
-                .build());
+                .build();
+        Option demoUser = Option.builder("d")
+                .argName("DEMO_USER")
+                .desc("Use the demo user restore in the app")
+                .longOpt("use-demo-user")
+                .required(false)
+                .optionalArg(false)
+                .build();
+        options.addOption(restoreFile).addOption(demoUser);
+
         return options;
     }
 
     @Override
     public void parseArguments(String[] args) throws ParseException {
         super.parseArguments(args);
+
         resourcePath = this.args[0];
-        if (!cmd.hasOption("r")) {
+        if (!cmd.hasOption("r") && !cmd.hasOption("d")) {
             username = this.args[1];
             password = this.args[2];
         }
@@ -51,6 +61,8 @@ public class CliPlayCommand extends CliCommand {
 
             if (cmd.hasOption("r")) {
                 host.setRestoreToLocalFile(cmd.getOptionValue("r"));
+            } else if (cmd.hasOption("d")) {
+                host.setRestoreToDemoUser();
             } else {
                 username = username.trim().toLowerCase();
                 host.setRestoreToRemoteUser(username, password);

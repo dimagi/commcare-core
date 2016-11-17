@@ -1,17 +1,12 @@
 package org.commcare.modern.database;
 
 import org.commcare.modern.models.EncryptedModel;
-import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Setup of platform-agnostic DB helper functions IE for generating SQL
@@ -85,32 +80,35 @@ public class DatabaseHelper {
         return new Pair<>(stringBuilder.toString(), retArray);
     }
 
-    public static HashMap<String, Object> getMetaFieldsAndValues(Externalizable e) throws RecordTooLargeException{
+    public static HashMap<String, Object> getMetaFieldsAndValues(Externalizable e) {
         HashMap<String, Object> values = getNonDataMetaEntries(e);
-
         addDataToValues(values, e);
         return values;
     }
 
     private static void addDataToValues(HashMap<String, Object> values,
-                                        Externalizable e) throws RecordTooLargeException {
+                                        Externalizable e) {
         byte[] blob = TableBuilder.toBlob(e);
-        if (blob.length > 1000000) {
-            throw new RecordTooLargeException(blob.length / 1000000);
-        }
         values.put(DATA_COL, blob);
     }
 
     public static HashMap<String, Object> getNonDataMetaEntries(Externalizable e) {
         HashMap<String, Object> values = new HashMap<>();
 
-        if(e instanceof IMetaData) {
+        if (e instanceof IMetaData) {
             IMetaData m = (IMetaData)e;
-            for(String key : m.getMetaDataFields()) {
+            for (String key : m.getMetaDataFields()) {
                 Object o = m.getMetaData(key);
-                if(o == null ) { continue;}
-                String value = o.toString();
-                values.put(TableBuilder.scrubName(key), value);
+                if (o == null) {
+                    continue;
+                }
+                String scrubbedKey = TableBuilder.scrubName(key);
+                if (o instanceof Date) {
+                    // store date as seconds since epoch
+                    values.put(scrubbedKey, ((Date)o).getTime());
+                } else {
+                    values.put(scrubbedKey, o.toString());
+                }
             }
         }
         return values;

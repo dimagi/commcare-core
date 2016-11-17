@@ -1,11 +1,7 @@
-/**
- *
- */
 package org.commcare.resources.model.installers;
 
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceInstaller;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
@@ -20,7 +16,6 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.LocalizationUtils;
 import org.javarosa.core.services.locale.TableLocaleSource;
-import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
@@ -49,6 +44,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
     /**
      * Serialization only!
      */
+    @SuppressWarnings("unused")
     public LocaleFileInstaller() {
 
     }
@@ -59,7 +55,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
     }
 
     @Override
-    public boolean initialize(CommCareInstance instance) throws ResourceInitializationException {
+    public boolean initialize(CommCareInstance instance, boolean isUpgrade) {
         if (cache == null) {
             Localization.registerLanguageReference(locale, localReference);
         } else {
@@ -132,12 +128,12 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
                 int copy = 0;
 
                 try {
-                    Reference destination = ReferenceManager._().DeriveReference("jr://file/" + uri);
+                    Reference destination = ReferenceManager.instance().DeriveReference("jr://file/" + uri);
                     while (destination.doesBinaryExist()) {
                         //Need a different location.
                         copy++;
                         String newUri = uri + "." + copy;
-                        destination = ReferenceManager._().DeriveReference("jr://file/" + newUri);
+                        destination = ReferenceManager.instance().DeriveReference("jr://file/" + newUri);
                     }
 
                     if (destination.isReadOnly()) {
@@ -241,7 +237,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
         }
         Reference reference;
         try {
-            reference = ReferenceManager._().DeriveReference(localReference);
+            reference = ReferenceManager.instance().DeriveReference(localReference);
             if (!reference.isReadOnly()) {
                 reference.remove();
             }
@@ -267,7 +263,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
             throws IOException, DeserializationException {
         locale = ExtUtil.readString(in);
         localReference = ExtUtil.readString(in);
-        cache = (OrderedHashtable)ExtUtil.nullIfEmpty((OrderedHashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf));
+        cache = (Hashtable)ExtUtil.nullIfEmpty((Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf));
     }
 
     @Override
@@ -288,7 +284,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
                 //If we've gotten the cache into memory, we're fine
             } else {
                 try {
-                    if (!ReferenceManager._().DeriveReference(localReference).doesBinaryExist()) {
+                    if (!ReferenceManager.instance().DeriveReference(localReference).doesBinaryExist()) {
                         throw new MissingMediaException(r, "Locale data does note exist at: " + localReference);
                     }
                 } catch (IOException e) {

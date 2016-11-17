@@ -10,6 +10,7 @@ public class XPathArithExpr extends XPathBinaryOpExpr {
     public static final int DIVIDE = 3;
     public static final int MODULO = 4;
 
+    @SuppressWarnings("unused")
     public XPathArithExpr() {
     } //for deserialization
 
@@ -19,8 +20,8 @@ public class XPathArithExpr extends XPathBinaryOpExpr {
 
     @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
-        double aval = XPathFuncExpr.toNumeric(a.eval(model, evalContext)).doubleValue();
-        double bval = XPathFuncExpr.toNumeric(b.eval(model, evalContext)).doubleValue();
+        double aval = FunctionUtils.toNumeric(a.eval(model, evalContext));
+        double bval = FunctionUtils.toNumeric(b.eval(model, evalContext));
 
         double result = 0;
         switch (op) {

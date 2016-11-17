@@ -30,13 +30,17 @@ import static org.junit.Assert.fail;
         runnables = {CasePurgeTest.class, FrameworkMethod.class})
 public class CasePurgeFilterTests {
 
-    Case a,b,c,d,e;
-    DummyIndexedStorageUtility<Case> storage;
-    String owner;
-    String groupOwner;
-    String otherOwner;
-    Vector<String> groupOwned;
-    Vector<String> userOwned;
+    private Case a;
+    private Case b;
+    private Case c;
+    private Case d;
+    private Case e;
+    private DummyIndexedStorageUtility<Case> storage;
+    private String owner;
+    private String groupOwner;
+    private String otherOwner;
+    private Vector<String> groupOwned;
+    private Vector<String> userOwned;
 
 
     @Before
@@ -141,7 +145,7 @@ public class CasePurgeFilterTests {
             iterator.nextID();
         }
         if(present.size() > 0) {
-            fail("No case with index " + present.firstElement().intValue() + " in testdb");
+            fail("No case with index " + present.firstElement() + " in testdb");
         }
     }
 

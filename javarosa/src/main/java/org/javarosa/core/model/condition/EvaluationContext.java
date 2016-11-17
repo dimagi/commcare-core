@@ -6,11 +6,12 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathLazyNodeset;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import java.util.Date;
 import java.util.Enumeration;
@@ -44,6 +45,11 @@ public class EvaluationContext {
      */
     private EvaluationTrace mTraceRoot = null;
 
+    /**
+     * An optional reporter for traced evaluations
+     */
+    private EvaluationTraceReporter mTraceReporter = null;
+
     // Unambiguous anchor reference for relative paths
     private final TreeReference contextNode;
 
@@ -71,16 +77,6 @@ public class EvaluationContext {
     private int currentContextPosition = -1;
 
     private final DataInstance instance;
-
-    /**
-     * Two-element array to keep track of how many candidate references have
-     * had their (complex) predicates evaluated during reference expansion.
-     *
-     * 1st element counts how refs have been processed, 2nd counts total
-     * references with (complex) predicates. Complex meaning not handled by
-     * tryBatchChildFetch.
-     */
-    int[] predicateEvaluationProgress;
 
     public EvaluationContext(DataInstance instance) {
         this(instance, new Hashtable<String, DataInstance>());
@@ -171,7 +167,7 @@ public class EvaluationContext {
         functionHandlers.put(fh.getName(), fh);
     }
 
-    public Hashtable getFunctionHandlers() {
+    public Hashtable<String, IFunctionHandler> getFunctionHandlers() {
         return functionHandlers;
     }
 
@@ -310,11 +306,6 @@ public class EvaluationContext {
             childSet = loadReferencesChildren(node, name, mult, includeTemplates);
         }
 
-        if (predicates != null && predicates.size() > 0) {
-            // child references need to be filtered over remaining predicates
-            incRefsToFilterCount(childSet.size());
-        }
-
         // Create a place to store the current position markers
         int[] positionContext = new int[predicates == null ? 0 : predicates.size()];
 
@@ -333,7 +324,7 @@ public class EvaluationContext {
 
                     EvaluationContext evalContext = rescope(refToExpand, positionContext[predIndex]);
                     Object o = predExpr.eval(sourceInstance, evalContext);
-                    o = XPathFuncExpr.unpack(o);
+                    o = FunctionUtils.unpack(o);
 
                     boolean passed = false;
                     if (o instanceof Double) {
@@ -342,7 +333,7 @@ public class EvaluationContext {
 
                         // The spec just says "number" for when to use this;
                         // Not clear what to do with a non-integer/rounding.
-                        int intVal = XPathFuncExpr.toInt(o).intValue();
+                        int intVal = FunctionUtils.toInt(o).intValue();
                         passed = (intVal == positionContext[predIndex]);
                     } else if (o instanceof Boolean) {
                         passed = (Boolean)o;
@@ -353,7 +344,6 @@ public class EvaluationContext {
                         break;
                     }
                 }
-                incRefsFilteredCount();
             }
             if (passedAll) {
                 expandReferenceAccumulator(sourceRef, sourceInstance, refToExpand, refs, includeTemplates);
@@ -459,7 +449,7 @@ public class EvaluationContext {
     public AbstractTreeElement resolveReference(TreeReference qualifiedRef) {
         DataInstance instance = this.getMainInstance();
         if (qualifiedRef.getInstanceName() != null &&
-                (instance == null || !instance.getInstanceId().equals(qualifiedRef.getInstanceName()))) {
+                (instance == null || instance.getInstanceId() == null || !instance.getInstanceId().equals(qualifiedRef.getInstanceName()))) {
             instance = this.getInstance(qualifiedRef.getInstanceName());
         }
         return instance.resolveReference(qualifiedRef);
@@ -473,39 +463,6 @@ public class EvaluationContext {
     public int getContextPosition() {
         return currentContextPosition;
     }
-
-    /**
-     * Point the local progress tracking array to the address passed in. Used
-     * to enable processes that call expandReference to keep track of
-     * predicates evaluation over candidate reference results.
-     */
-    @SuppressWarnings("unused")
-    public void setPredicateProcessSet(int[] loadingDetails) {
-        if (loadingDetails != null && loadingDetails.length == 2) {
-            predicateEvaluationProgress = loadingDetails;
-        }
-    }
-
-    /**
-     * Increment the amount of references left to filter during reference
-     * expansion.
-     */
-    private void incRefsToFilterCount(int amount) {
-        if (predicateEvaluationProgress != null) {
-            predicateEvaluationProgress[1] += amount;
-        }
-    }
-
-    /**
-     * Increment the amount of references that have been filtered during
-     * reference expansion.
-     */
-    private void incRefsFilteredCount() {
-        if (predicateEvaluationProgress != null) {
-            predicateEvaluationProgress[0]++;
-        }
-    }
-
 
     /**
      * Get the relevant cache host for the provided ref, if one exists.
@@ -578,6 +535,9 @@ public class EvaluationContext {
 
             if (mDebugCore.mCurrentTraceLevel.getParent() == null) {
                 mDebugCore.mTraceRoot = mDebugCore.mCurrentTraceLevel;
+                if(mDebugCore.mTraceReporter != null) {
+                    mDebugCore.mTraceReporter.reportTrace(mDebugCore.mTraceRoot);
+                }
             }
             mDebugCore.mCurrentTraceLevel = mDebugCore.mCurrentTraceLevel.getParent();
         }
@@ -587,8 +547,16 @@ public class EvaluationContext {
      * Sets this EC to be the base of a trace capture for debugging.
      */
     public void setDebugModeOn() {
+        setDebugModeOn(null);
+    }
+
+    /**
+     * Sets this EC to be the base of a trace capture for debugging.
+     */
+    public void setDebugModeOn(EvaluationTraceReporter reporter) {
         this.mAccumulateExprs = true;
         this.mDebugCore = this;
+        this.mTraceReporter = reporter;
     }
 
 

@@ -1,7 +1,6 @@
 package org.javarosa.core.services.storage;
 
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.WrappingStorageUtility.SerializationWrapper;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -49,29 +48,11 @@ public class StorageManager {
     }
 
     public static void registerStorage(String key, Class type) {
-        registerStorage(key, key, type);
-    }
-
-    public static void registerStorage(String storageKey, String storageName, Class type) {
         if (storageFactory == null) {
             throw new RuntimeException("No storage factory has been set; I don't know what kind of storage utility to create. Either set a storage factory, or register your StorageUtilitys directly.");
         }
 
-        registerStorage(storageKey, storageFactory.newStorage(storageName, type));
-    }
-
-    /**
-     * It is strongly, strongly advised that you do not register storage in this way.
-     */
-    public static void registerStorage(String key, IStorageUtility storage) {
-        storageRegistry.put(key, storage);
-    }
-
-    /**
-     * Used by J2ME
-     */
-    public static void registerWrappedStorage(String key, String storeName, SerializationWrapper wrapper) {
-        StorageManager.registerStorage(key, new WrappingStorageUtility(storeName, wrapper, storageFactory));
+        storageRegistry.put(key, storageFactory.newStorage(key, type));
     }
 
     public static IStorageUtility getStorage(String key) {
@@ -80,28 +61,6 @@ public class StorageManager {
         } else {
             throw new RuntimeException("No storage utility has been registered to handle \"" + key + "\"; you must register one first with StorageManager.registerStorage()");
         }
-    }
-
-    /**
-     * Used by J2ME
-     */
-    public static void repairAll() {
-        for (Enumeration e = storageRegistry.elements(); e.hasMoreElements(); ) {
-            ((IStorageUtility)e.nextElement()).repair();
-        }
-    }
-
-    /**
-     * Used by J2ME
-     */
-    public static String[] listRegisteredUtilities() {
-        String[] returnVal = new String[storageRegistry.size()];
-        int i = 0;
-        for (Enumeration e = storageRegistry.keys(); e.hasMoreElements(); ) {
-            returnVal[i] = (String)e.nextElement();
-            i++;
-        }
-        return returnVal;
     }
 
     public static void halt() {

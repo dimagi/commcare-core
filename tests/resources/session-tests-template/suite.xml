@@ -103,15 +103,52 @@
     </session>
   </entry>
 
-  <sync-request>
+  <remote-request>
     <post url="http://fake.com/claim_patient/"
           relevant="count(instance('casedb')/casedb/case[@case_id=instance('session')/session/data/case_id]) = 0">
       <data key="selected_case_id" ref="instance('session')/session/data/case_id"/>
-      <data key="selected_name" ref="instance('patients')/case[@case_id=instance('session')/session/data/case_id]/name"/>
+      <data key="selected_name" ref="instance('patients')/patients/case[@case_id=instance('session')/session/data/case_id]/name"/>
     </post>
     <instance id="casedb" src="jr://instance/casedb"/>
     <instance id="session" src="jr://instance/session"/>
-    <command id="patient-search">
+    <command id="patient-case-search">
+      <display>
+        <text>Global search for person</text>
+      </display>
+    </command>
+    <session>
+      <query url="http://fake.com/patient_search/" storage-instance="patients" template="case">
+        <data key="device_id" ref="instance('session')/session/data/uuid"/>
+        <prompt key="name">
+          <display>
+            <text>Input patient name</text>
+          </display>
+        </prompt>
+        <prompt key="patient_id">
+          <display>
+            <text>Input patient id</text>
+          </display>
+        </prompt>
+      </query>
+      <datum id="case_id" nodeset="instance('patients')/patients/case" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+    </session>
+    <stack>
+      <create>
+        <command value="'m2-f0'"/>
+        <datum id="case_id" value="instance('patients')/patients/case[@id = '123']/name"/>
+      </create>
+    </stack>
+  </remote-request>
+
+  <remote-request>
+    <post url="http://fake.com/claim_patient/"
+          relevant="count(instance('casedb')/casedb/case[@case_id=instance('session')/session/data/case_id]) = 0">
+      <data key="selected_case_id" ref="instance('session')/session/data/case_id"/>
+      <data key="selected_name" ref="instance('patients')/patients/case[@case_id=instance('session')/session/data/case_id]/name"/>
+    </post>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="session" src="jr://instance/session"/>
+    <command id="patient-noncase-search">
       <display>
         <text>Global search for person</text>
       </display>
@@ -130,45 +167,45 @@
           </display>
         </prompt>
       </query>
-      <datum id="case_id" nodeset="instance('patients')/case" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+      <datum id="case_id" nodeset="instance('patients')/patients/case" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
     </session>
     <stack>
       <create>
         <command value="'m2-f0'"/>
-        <datum id="case_id" value="instance('patients')/patients/patient/bolivar"/>
+        <datum id="case_id" value="instance('patients')/patients/case[@id = '123']/name"/>
       </create>
     </stack>
-  </sync-request>
+  </remote-request>
 
-  <sync-request>
+  <remote-request>
     <post url="http://fake.com/claim_patient/"/>
-    <command id="empty-sync-request">
+    <command id="empty-remote-request">
       <display>
         <text>Global search for person</text>
       </display>
     </command>
     <session/>
-  </sync-request>
+  </remote-request>
 
-  <sync-request>
+  <remote-request>
     <post url="http://fake.com/claim_patient/" relevant="false()"/>
-    <command id="irrelevant-sync-request">
+    <command id="irrelevant-remote-request">
       <display>
         <text>Global search for person</text>
       </display>
     </command>
     <session/>
-  </sync-request>
+  </remote-request>
 
-  <sync-request>
+  <remote-request>
     <post url="http://fake.com/claim_patient/" relevant="true()"/>
-    <command id="relevant-sync-request">
+    <command id="relevant-remote-request">
       <display>
         <text>Global search for person</text>
       </display>
     </command>
     <session/>
-  </sync-request>
+  </remote-request>
 
   <menu id="m0">
     <text>
@@ -192,4 +229,53 @@
     <command id="m2-f0"/>
     <command id="m2-f1"/>
   </menu>
+
+  <!-- testing child modules and needed case id logic -->
+  <!-- NOTE: order of menu entries is important here -->
+  <menu id="parent-module">
+    <text>
+      <locale id="modules.m2"/>
+    </text>
+    <command id="baby-form"/>
+  </menu>
+  <menu id="parent-module">
+    <text>
+      <locale id="modules.m2"/>
+    </text>
+    <command id="adolescent-form"/>
+  </menu>
+  <menu id="parent-module">
+    <text>
+      <locale id="modules.m2"/>
+    </text>
+    <command id="dummy-form" relevant="1=2"/>
+  </menu>
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="dummy-form">
+      <text>Form that is never shown</text>
+    </command>
+    <session/>
+  </entry>
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="baby-form">
+      <text>baby child form</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="session" src="jr://instance/session"/>
+    <session>
+      <datum id="baby_case_id" nodeset="instance('casedb')/casedb/case[@case_type='baby'][@status='open']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long" />
+    </session>
+  </entry>
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="adolescent-form">
+      <text>Module 2 Form 1</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="adolescent_case_id" nodeset="instance('casedb')/casedb/case[@case_type='adolescent'][@status='open']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long" />
+    </session>
+  </entry>
 </suite>

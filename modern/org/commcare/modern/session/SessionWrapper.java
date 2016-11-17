@@ -2,8 +2,8 @@ package org.commcare.modern.session;
 
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.process.CommCareInstanceInitializer;
-import org.commcare.util.CommCarePlatform;
 import org.commcare.session.CommCareSession;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 
 /**
@@ -17,6 +17,12 @@ public class SessionWrapper extends CommCareSession {
     final protected UserSandbox mSandbox;
     final protected CommCarePlatform mPlatform;
     protected CommCareInstanceInitializer initializer;
+
+    public SessionWrapper(CommCareSession session, CommCarePlatform platform, UserSandbox sandbox) {
+        this(platform, sandbox);
+        this.frame = session.getFrame();
+        this.setFrameStack(session.getFrameStack());
+    }
     
     public SessionWrapper(CommCarePlatform platform, UserSandbox sandbox) {
         super(platform);
@@ -47,6 +53,7 @@ public class SessionWrapper extends CommCareSession {
         return initializer;
     }
 
+    @Override
     public CommCarePlatform getPlatform(){
         return this.mPlatform;
     }

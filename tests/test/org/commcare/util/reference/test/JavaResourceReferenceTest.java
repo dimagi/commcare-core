@@ -1,10 +1,10 @@
 package org.commcare.util.reference.test;
 
 import org.commcare.test.utilities.TestHelpers;
+import org.javarosa.core.reference.ResourceReference;
+import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.junit.Assert;
 
-import org.commcare.modern.reference.JavaResourceReference;
-import org.commcare.modern.reference.JavaResourceRoot;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.junit.Test;
@@ -16,14 +16,14 @@ import java.io.InputStream;
  */
 public class JavaResourceReferenceTest {
     @Test
-    public void testReferences() throws Exception{
-        ReferenceManager._().addReferenceFactory(new JavaResourceRoot(this.getClass()));
+    public void testReferences() throws Exception {
+        ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
 
         String referenceName = "jr://resource/reference/resource_reference_test.txt";
 
-        Reference r = ReferenceManager._().DeriveReference(referenceName);
+        Reference r = ReferenceManager.instance().DeriveReference(referenceName);
 
-        if(!(r instanceof JavaResourceReference)) {
+        if (!(r instanceof ResourceReference)) {
             Assert.fail("Incorrect reference type: " + r);
         }
 
@@ -31,7 +31,7 @@ public class JavaResourceReferenceTest {
 
         InputStream stream = r.getStream();
 
-        if(stream == null) {
+        if (stream == null) {
             Assert.fail("Couldn't find resource at: " + r.getURI());
         }
 

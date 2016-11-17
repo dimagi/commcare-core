@@ -15,7 +15,7 @@ import java.io.Reader;
  * @author mitchellsundt@gmail.com / csims@dimagi.com
  */
 public class XFormParserFactory {
-    Interner<String> stringCache;
+    private Interner<String> stringCache;
 
     public XFormParserFactory() {
     }

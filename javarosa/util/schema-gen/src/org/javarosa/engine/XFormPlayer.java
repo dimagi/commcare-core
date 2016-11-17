@@ -32,7 +32,7 @@ import org.javarosa.xform.util.XFormUtils;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.BufferedReader;
@@ -95,7 +95,7 @@ public class XFormPlayer {
         this.mockup = mockup;
     }
 
-    public void setmPreferredLocale(String locale) {
+    public void setPreferredLocale(String locale) {
         this.mPreferredLocale = locale;
     }
 
@@ -380,9 +380,9 @@ public class XFormPlayer {
 
     private static String getDisplayString(Object value) {
         if (value instanceof XPathNodeset) {
-            return XPathFuncExpr.getSerializedNodeset((XPathNodeset)value);
+            return FunctionUtils.getSerializedNodeset((XPathNodeset)value);
         } else {
-            return XPathFuncExpr.toString(value);
+            return FunctionUtils.toString(value);
         }
     }
 

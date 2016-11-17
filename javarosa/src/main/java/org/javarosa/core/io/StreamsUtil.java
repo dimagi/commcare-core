@@ -46,7 +46,6 @@ public class StreamsUtil {
         }
     }
 
-
     //Unify the functional aspects here
     private abstract class DirectionalIOException extends IOException {
         final IOException internal;
@@ -60,6 +59,7 @@ public class StreamsUtil {
             return internal;
         }
 
+        @Override
         public void printStackTrace() {
             internal.printStackTrace();
         }

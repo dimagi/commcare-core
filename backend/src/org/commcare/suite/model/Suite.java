@@ -11,7 +11,10 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -31,14 +34,15 @@ public class Suite implements Persistable {
     private int recordId = -1;
 
     /**
-     * String(detail id) -> Detail Object *
+     * Detail id -> Detail Object *
      */
     private Hashtable<String, Detail> details;
 
     /**
-     * String(Entry id (also the same for menus) ) -> Entry Object *
+     * Entry id (also the same for menus) -> Entry Object *
      */
     private Hashtable<String, Entry> entries;
+    private final HashMap<String, List<Menu>> idToMenus = new HashMap<>();
     private Vector<Menu> menus;
 
     @SuppressWarnings("unused")
@@ -52,6 +56,18 @@ public class Suite implements Persistable {
         this.details = details;
         this.entries = entries;
         this.menus = menus;
+        buildIdToMenus();
+    }
+
+    private void buildIdToMenus() {
+        for (Menu menu : menus) {
+            List<Menu> idMenus = idToMenus.get(menu.getId());
+            if (idMenus == null) {
+                idMenus = new ArrayList<>();
+                idToMenus.put(menu.getId(), idMenus);
+            }
+            idMenus.add(menu);
+        }
     }
 
     @Override
@@ -70,6 +86,10 @@ public class Suite implements Persistable {
      */
     public Vector<Menu> getMenus() {
         return menus;
+    }
+
+    public List<Menu> getMenusWithId(String id) {
+        return idToMenus.get(id);
     }
 
     /**
@@ -104,7 +124,7 @@ public class Suite implements Persistable {
         this.details = (Hashtable<String, Detail>)ExtUtil.read(in, new ExtWrapMap(String.class, Detail.class), pf);
         this.entries = (Hashtable)ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
         this.menus = (Vector<Menu>)ExtUtil.read(in, new ExtWrapList(Menu.class), pf);
-
+        buildIdToMenus();
     }
 
     @Override

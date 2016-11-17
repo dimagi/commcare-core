@@ -1,9 +1,7 @@
 package org.javarosa.xpath.test;
 
-import org.javarosa.core.services.PrototypeManager;
-import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.test.ExternalizableTest;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -105,6 +103,70 @@ public class XPathParseTest {
                 {"6*(3+4)and(5or2)", "{binop-expr:and,{binop-expr:*,{num:6.0},{binop-expr:+,{num:3.0},{num:4.0}}},{binop-expr:or,{num:5.0},{num:2.0}}}"},
                 // function calls
                 {"function()", "{func-expr:function,{}}"},
+
+                // test built-in xpath function parsing / serialization
+                // not necessarily sensical function inputs, but includes valid argument counts
+                {"abs(1)", "{func-expr:abs,{{num:1.0}}}"},
+                {"acos(1)", "{func-expr:acos,{{num:1.0}}}"},
+                {"asin(1)", "{func-expr:asin,{{num:1.0}}}"},
+                {"atan(1)", "{func-expr:atan,{{num:1.0}}}"},
+                {"atan2(1,1)", "{func-expr:atan2,{{num:1.0},{num:1.0}}}"},
+                {"boolean(1)", "{func-expr:boolean,{{num:1.0}}}"},
+                {"boolean-from-string(1)", "{func-expr:boolean-from-string,{{num:1.0}}}"},
+                {"ceiling(1)", "{func-expr:ceiling,{{num:1.0}}}"},
+                {"checklist(1, 1)", "{func-expr:checklist,{{num:1.0},{num:1.0}}}"},
+                {"coalesce(1)", "{func-expr:coalesce,{{num:1.0}}}"},
+                {"concat(1)", "{func-expr:concat,{{num:1.0}}}"},
+                {"cond(1,2,3)", "{func-expr:cond,{{num:1.0},{num:2.0},{num:3.0}}}"},
+                {"contains(1,1)", "{func-expr:contains,{{num:1.0},{num:1.0}}}"},
+                {"cos(1)", "{func-expr:cos,{{num:1.0}}}"},
+                {"count(1)", "{func-expr:count,{{num:1.0}}}"},
+                {"count-selected(1)", "{func-expr:count-selected,{{num:1.0}}}"},
+                {"date(1)", "{func-expr:date,{{num:1.0}}}"},
+                {"depend(1)", "{func-expr:depend,{{num:1.0}}}"},
+                {"distance(1,1)", "{func-expr:distance,{{num:1.0},{num:1.0}}}"},
+                {"double(1)", "{func-expr:double,{{num:1.0}}}"},
+                {"ends-with(1,1)", "{func-expr:ends-with,{{num:1.0},{num:1.0}}}"},
+                {"exp(1)", "{func-expr:exp,{{num:1.0}}}"},
+                {"false()", "{func-expr:false,{}}"},
+                {"floor(1)", "{func-expr:floor,{{num:1.0}}}"},
+                {"format-date-for-calendar(1,1)", "{func-expr:format-date-for-calendar,{{num:1.0},{num:1.0}}}"},
+                {"format-date(1,1)", "{func-expr:format-date,{{num:1.0},{num:1.0}}}"},
+                {"if(1,1,1)", "{func-expr:if,{{num:1.0},{num:1.0},{num:1.0}}}"},
+                {"int(1)", "{func-expr:int,{{num:1.0}}}"},
+                {"join(1)", "{func-expr:join,{{num:1.0}}}"},
+                {"log(1)", "{func-expr:log,{{num:1.0}}}"},
+                {"log10(1)", "{func-expr:log10,{{num:1.0}}}"},
+                {"lower-case(1)", "{func-expr:lower-case,{{num:1.0}}}"},
+                {"max(1)", "{func-expr:max,{{num:1.0}}}"},
+                {"min(1)", "{func-expr:min,{{num:1.0}}}"},
+                {"not(1)", "{func-expr:not,{{num:1.0}}}"},
+                {"now()", "{func-expr:now,{}}"},
+                {"number(1)", "{func-expr:number,{{num:1.0}}}"},
+                {"pi()", "{func-expr:pi,{}}"},
+                {"position()", "{func-expr:position,{}}"},
+                {"pow(1,1)", "{func-expr:pow,{{num:1.0},{num:1.0}}}"},
+                {"regex(1,1)", "{func-expr:regex,{{num:1.0},{num:1.0}}}"},
+                {"replace(1,1,1)", "{func-expr:replace,{{num:1.0},{num:1.0},{num:1.0}}}"},
+                {"round(1)", "{func-expr:round,{{num:1.0}}}"},
+                {"selected-at(1,1)", "{func-expr:selected-at,{{num:1.0},{num:1.0}}}"},
+                {"selected(1,1)", "{func-expr:selected,{{num:1.0},{num:1.0}}}"},
+                {"sin(1)", "{func-expr:sin,{{num:1.0}}}"},
+                {"sqrt(1)", "{func-expr:sqrt,{{num:1.0}}}"},
+                {"starts-with(1,1)", "{func-expr:starts-with,{{num:1.0},{num:1.0}}}"},
+                {"string(1)", "{func-expr:string,{{num:1.0}}}"},
+                {"string-length(1)", "{func-expr:string-length,{{num:1.0}}}"},
+                {"substr(1,1,1)", "{func-expr:substr,{{num:1.0},{num:1.0},{num:1.0}}}"},
+                {"substring-after(1,1)", "{func-expr:substring-after,{{num:1.0},{num:1.0}}}"},
+                {"substring-before(1,1)", "{func-expr:substring-before,{{num:1.0},{num:1.0}}}"},
+                {"sum(1)", "{func-expr:sum,{{num:1.0}}}"},
+                {"tan(1)", "{func-expr:tan,{{num:1.0}}}"},
+                {"today()", "{func-expr:today,{}}"},
+                {"translate(1,1,1)", "{func-expr:translate,{{num:1.0},{num:1.0},{num:1.0}}}"},
+                {"true()", "{func-expr:true,{}}"},
+                {"upper-case(1)", "{func-expr:upper-case,{{num:1.0}}}"},
+                {"weighted-checklist(1, 1)", "{func-expr:weighted-checklist,{{num:1.0},{num:1.0}}}"},
+
                 {"func:tion()", "{func-expr:func:tion,{}}"},
                 {"function(   )", "{func-expr:function,{}}"},
                 {"function (5)", "{func-expr:function,{{num:5.0}}}"},
@@ -191,12 +253,6 @@ public class XPathParseTest {
         });
     }
 
-    static final PrototypeFactory pf;
-
-    static {
-        PrototypeManager.registerPrototypes(XPathParseTool.xpathClasses);
-        pf = ExtUtil.defaultPrototypes();
-    }
 
     private final String inputString;
     private final String expectedParseOutput;
@@ -224,11 +280,11 @@ public class XPathParseTest {
                 fail("XPath Parse Failed! Incorrect parse tree." +
                         "\n    expression:[" + expr + "]" +
                         "\n    expected:[" + expected + "]" +
-                        "\n    result:[" + result + "]");
+                        "\n    result:  [" + result + "]");
             }
 
             //test serialization of parse tree
-            ExternalizableTest.testExternalizable(new ExtWrapTagged(xpe), new ExtWrapTagged(), pf, "XPath");
+            ExternalizableTest.testExternalizable(new ExtWrapTagged(xpe), new ExtWrapTagged(), new LivePrototypeFactory(), "XPath");
         } catch (XPathSyntaxException xse) {
             fail("XPath Parse Failed! Unexpected syntax error." +
                     "\n    expression:[" + expr + "]");

@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.xpath.parser.ast;
 
 import org.javarosa.xpath.expr.XPathArithExpr;
@@ -23,41 +7,43 @@ import org.javarosa.xpath.expr.XPathCmpExpr;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathUnionExpr;
-import org.javarosa.xpath.parser.Parser;
 import org.javarosa.xpath.parser.Token;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ASTNodeBinaryOp extends ASTNode {
     public static final int ASSOC_LEFT = 1;
     public static final int ASSOC_RIGHT = 2;
 
     public int associativity;
-    public Vector exprs;
-    public Vector ops;
+    public List<? extends ASTNode> exprs;
+    public List<Integer> ops;
 
     public ASTNodeBinaryOp() {
-        exprs = new Vector();
-        ops = new Vector();
+        exprs = new ArrayList<>();
+        ops = new ArrayList<>();
     }
 
-    public Vector getChildren() {
+    @Override
+    public List<? extends ASTNode> getChildren() {
         return exprs;
     }
 
+    @Override
     public XPathExpression build() throws XPathSyntaxException {
         XPathExpression x;
 
         if (associativity == ASSOC_LEFT) {
-            x = ((ASTNode)exprs.elementAt(0)).build();
+            x = exprs.get(0).build();
             for (int i = 1; i < exprs.size(); i++) {
-                x = getBinOpExpr(Parser.vectInt(ops, i - 1), x, ((ASTNode)exprs.elementAt(i)).build());
+                x = getBinOpExpr(ops.get(i - 1), x, exprs.get(i).build());
             }
         } else {
-            x = ((ASTNode)exprs.elementAt(exprs.size() - 1)).build();
+            x = exprs.get(exprs.size() - 1).build();
             for (int i = exprs.size() - 2; i >= 0; i--) {
-                x = getBinOpExpr(Parser.vectInt(ops, i), ((ASTNode)exprs.elementAt(i)).build(), x);
+                x = getBinOpExpr(ops.get(i), exprs.get(i).build(), x);
             }
         }
 

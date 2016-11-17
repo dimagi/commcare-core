@@ -16,8 +16,8 @@ import org.javarosa.xform.parse.IElementHandler;
 import org.javarosa.xform.parse.XFormParser;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.kxml2.kdom.Element;
 
 import java.io.DataInputStream;
@@ -58,6 +58,7 @@ public class SetValueAction extends Action {
 
     public static IElementHandler getHandler() {
         return new IElementHandler() {
+            @Override
             public void handle(XFormParser p, Element e, Object parent) {
                 // the generic parseAction() method in XFormParser already checks to make sure
                 // that parent is an IFormElement, and throws an exception if it is not
@@ -130,7 +131,7 @@ public class SetValueAction extends Action {
         if (explicitValue != null) {
             result = explicitValue;
         } else {
-            result = XPathFuncExpr.unpack(value.eval(model.getMainInstance(), context));
+            result = FunctionUtils.unpack(value.eval(model.getMainInstance(), context));
         }
 
         int dataType = node.getDataType();
@@ -139,12 +140,23 @@ public class SetValueAction extends Action {
         if (val == null) {
             model.setValue(null, targetReference);
         } else {
-            model.setValue(AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()),
+            IAnswerData targetData;
+            try {
+                targetData = AnswerDataFactory.templateByDataType(dataType).cast(val.uncast());
+            } catch(IllegalArgumentException e) {
+                XPathTypeMismatchException ne = new XPathTypeMismatchException("Invalid data type in " +
+                        "setvalue event targetting |" +
+                        targetReference.toString() + "|\nError: " + e.toString());
+                ne.initCause(e);
+                throw ne;
+            }
+            model.setValue(targetData,
                     targetReference);
         }
         return targetReference;
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         target = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
         explicitValue = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
@@ -154,6 +166,7 @@ public class SetValueAction extends Action {
 
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, target);
 

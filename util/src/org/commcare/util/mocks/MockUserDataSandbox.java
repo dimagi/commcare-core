@@ -9,8 +9,6 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-import java.util.Date;
-
 /**
  * A placeholder for the in-memory storage elements needed for an individual
  * CommCare user.
@@ -30,10 +28,7 @@ public class MockUserDataSandbox extends UserSandbox {
     private IStorageUtilityIndexed<FormInstance> appFixtureStorage;
     
     private User mUser;
-    
     private String mSyncToken;
-
-    private Date lastSync;
 
     /**
      * Create a sandbox of the necessary storage objects with the shared
@@ -49,38 +44,47 @@ public class MockUserDataSandbox extends UserSandbox {
         appFixtureStorage = new DummyIndexedStorageUtility<>(FormInstance.class, factory);
     }
 
+    @Override
     public IStorageUtilityIndexed<Case> getCaseStorage() {
         return caseStorage;
     }
 
+    @Override
     public IStorageUtilityIndexed<Ledger> getLedgerStorage() {
         return ledgerStorage;
     }
 
+    @Override
     public IStorageUtilityIndexed<User> getUserStorage() {
         return userStorage;
     }
 
+    @Override
     public IStorageUtilityIndexed<FormInstance> getUserFixtureStorage() {
         return userFixtureStorage;
     }
 
+    @Override
     public IStorageUtilityIndexed<FormInstance> getAppFixtureStorage() {
         return appFixtureStorage;
     }
     
+    @Override
     public void setSyncToken(String syncToken) {
         this.mSyncToken = syncToken;
     }
     
+    @Override
     public String getSyncToken() {
         return mSyncToken;
     }
     
+    @Override
     public void setLoggedInUser(User user) {
         this.mUser = user;
     }
     
+    @Override
     public User getLoggedInUser() {
         return mUser;
     }

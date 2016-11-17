@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.util.externalizable;
 
 import java.io.DataInputStream;
@@ -24,17 +8,17 @@ import java.util.Hashtable;
 
 public class ExtWrapTagged extends ExternalizableWrapper {
 
-    public static final Hashtable WRAPPER_CODES;
+    private static final Hashtable<Class, Integer> WRAPPER_CODES;
 
     static {
-        WRAPPER_CODES = new Hashtable();
-        WRAPPER_CODES.put(ExtWrapNullable.class, new Integer(0x00));
-        WRAPPER_CODES.put(ExtWrapList.class, new Integer(0x20));
-        WRAPPER_CODES.put(ExtWrapListPoly.class, new Integer(0x21));
-        WRAPPER_CODES.put(ExtWrapMap.class, new Integer(0x22));
-        WRAPPER_CODES.put(ExtWrapMapPoly.class, new Integer(0x23));
-        WRAPPER_CODES.put(ExtWrapIntEncodingUniform.class, new Integer(0x40));
-        WRAPPER_CODES.put(ExtWrapIntEncodingSmall.class, new Integer(0x41));
+        WRAPPER_CODES = new Hashtable<>();
+        WRAPPER_CODES.put(ExtWrapNullable.class, 0x00);
+        WRAPPER_CODES.put(ExtWrapList.class, 0x20);
+        WRAPPER_CODES.put(ExtWrapListPoly.class, 0x21);
+        WRAPPER_CODES.put(ExtWrapMap.class, 0x22);
+        WRAPPER_CODES.put(ExtWrapMapPoly.class, 0x23);
+        WRAPPER_CODES.put(ExtWrapIntEncodingUniform.class, 0x40);
+        WRAPPER_CODES.put(ExtWrapIntEncodingSmall.class, 0x41);
     }
 
     /* serialization */
@@ -55,15 +39,18 @@ public class ExtWrapTagged extends ExternalizableWrapper {
 
     }
 
+    @Override
     public ExternalizableWrapper clone(Object val) {
         return new ExtWrapTagged(val);
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         ExternalizableWrapper type = readTag(in, pf);
         val = ExtUtil.read(in, type, pf);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         writeTag(out, val);
         ExtUtil.write(out, val);
@@ -80,7 +67,7 @@ public class ExtWrapTagged extends ExternalizableWrapper {
             ExternalizableWrapper type = null;
             for (Enumeration e = WRAPPER_CODES.keys(); e.hasMoreElements(); ) {
                 Class t = (Class)e.nextElement();
-                if (((Integer)WRAPPER_CODES.get(t)).intValue() == wrapperCode) {
+                if ((WRAPPER_CODES.get(t)).intValue() == wrapperCode) {
                     try {
                         type = (ExternalizableWrapper)PrototypeFactory.getInstance(t);
                     } catch (CannotCreateObjectException ccoe) {
@@ -107,7 +94,7 @@ public class ExtWrapTagged extends ExternalizableWrapper {
     public static void writeTag(DataOutputStream out, Object o) throws IOException {
         if (o instanceof ExternalizableWrapper && !(o instanceof ExtWrapBase)) {
             out.write(PrototypeFactory.getWrapperTag(), 0, PrototypeFactory.getClassHashSize());
-            ExtUtil.writeNumeric(out, ((Integer)WRAPPER_CODES.get(o.getClass())).intValue());
+            ExtUtil.writeNumeric(out, WRAPPER_CODES.get(o.getClass()));
             ((ExternalizableWrapper)o).metaWriteExternal(out);
         } else {
             Class type = null;
@@ -129,10 +116,12 @@ public class ExtWrapTagged extends ExternalizableWrapper {
         }
     }
 
+    @Override
     public void metaReadExternal(DataInputStream in, PrototypeFactory pf) {
         throw new RuntimeException("Tagged wrapper should never be tagged");
     }
 
+    @Override
     public void metaWriteExternal(DataOutputStream out) {
         throw new RuntimeException("Tagged wrapper should never be tagged");
     }

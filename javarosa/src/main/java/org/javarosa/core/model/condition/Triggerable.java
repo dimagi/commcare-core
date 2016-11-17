@@ -52,20 +52,20 @@ public abstract class Triggerable implements Externalizable {
     /**
      * The first context provided to this triggerable before reducing to the common root.
      */
-    public TreeReference originalContextRef;
+    private TreeReference originalContextRef;
 
     private int stopContextualizingAt;
 
     /**
      * Whether this trigger is collecting debug traces *
      */
-    boolean mIsDebugOn = false;
+    private boolean mIsDebugOn = false;
 
     /**
      * Debug traces collecting during trigger execution. See the
      * getTriggerTraces method for details.
      */
-    Hashtable<TreeReference, EvaluationTrace> mTriggerDebugs;
+    private Hashtable<TreeReference, EvaluationTrace> mTriggerDebugs;
 
 
     public Triggerable() {
@@ -259,13 +259,14 @@ public abstract class Triggerable implements Externalizable {
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder("(");
         for (int i = 0; i < targets.size(); i++) {
             sb.append(targets.elementAt(i).toString());
             if (i < targets.size() - 1)
-                sb.append(",");
+                sb.append(") (");
         }
-        return "trig[expr:" + expr.toString() + ";targets[" + sb.toString() + "]]";
+        sb.append(")");
+        return "(trig (" + expr.toString() + ") -> (" + sb.toString() + "))";
     }
 
     /**

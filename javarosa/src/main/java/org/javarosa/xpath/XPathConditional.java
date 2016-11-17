@@ -10,6 +10,7 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathBinaryOpExpr;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
@@ -25,7 +26,7 @@ import java.util.Vector;
 public class XPathConditional implements IConditionExpr {
     private XPathExpression expr;
     public String xpath; //not serialized!
-    public boolean hasNow; //indicates whether this XpathConditional contains the now() function (used for timestamping)
+    private boolean hasNow; //indicates whether this XpathConditional contains the now() function (used for timestamping)
 
     public XPathConditional(String xpath) throws XPathSyntaxException {
         hasNow = xpath.contains("now()");
@@ -37,13 +38,15 @@ public class XPathConditional implements IConditionExpr {
         this.expr = expr;
     }
 
+    @SuppressWarnings("unused")
     public XPathConditional() {
 
     }
 
+    @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         try {
-            return XPathFuncExpr.unpack(expr.eval(model, evalContext));
+            return FunctionUtils.unpack(expr.eval(model, evalContext));
         } catch (XPathUnsupportedException e) {
             if (xpath != null) {
                 throw new XPathUnsupportedException(xpath);
@@ -55,14 +58,17 @@ public class XPathConditional implements IConditionExpr {
         }
     }
 
+    @Override
     public boolean eval(DataInstance model, EvaluationContext evalContext) {
-        return XPathFuncExpr.toBoolean(evalRaw(model, evalContext)).booleanValue();
+        return FunctionUtils.toBoolean(evalRaw(model, evalContext));
     }
 
+    @Override
     public String evalReadable(DataInstance model, EvaluationContext evalContext) {
-        return XPathFuncExpr.toString(evalRaw(model, evalContext));
+        return FunctionUtils.toString(evalRaw(model, evalContext));
     }
 
+    @Override
     public Vector<TreeReference> evalNodeset(DataInstance model, EvaluationContext evalContext) {
         if (expr instanceof XPathPathExpr) {
             return ((XPathPathExpr)expr).evalRaw(model, evalContext).getReferences();
@@ -153,10 +159,12 @@ public class XPathConditional implements IConditionExpr {
         }
     }
 
+    @Override
     public int hashCode() {
         return expr.hashCode();
     }
 
+    @Override
     public boolean equals(Object o) {
         if (o instanceof XPathConditional) {
             XPathConditional cond = (XPathConditional)o;
@@ -166,20 +174,24 @@ public class XPathConditional implements IConditionExpr {
         }
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         expr = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged(), pf);
         hasNow = ExtUtil.readBool(in);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapTagged(expr));
         ExtUtil.writeBool(out, hasNow);
     }
 
+    @Override
     public String toString() {
         return "xpath[" + expr.toString() + "]";
     }
 
+    @Override
     public Vector<Object> pivot(DataInstance model, EvaluationContext evalContext) throws UnpivotableExpressionException {
         return expr.pivot(model, evalContext);
     }

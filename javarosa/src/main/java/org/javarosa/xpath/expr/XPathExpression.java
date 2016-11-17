@@ -11,7 +11,7 @@ import java.util.Vector;
 public abstract class XPathExpression implements Externalizable {
 
     public Object eval(EvaluationContext evalContext) {
-        return this.eval(evalContext.getMainInstance(), evalContext);
+        return eval(evalContext.getMainInstance(), evalContext);
     }
 
     /**
@@ -22,7 +22,7 @@ public abstract class XPathExpression implements Externalizable {
      */
     public Object eval(DataInstance model, EvaluationContext evalContext) {
         evalContext.openTrace(this);
-        Object value = this.evalRaw(model, evalContext);
+        Object value = evalRaw(model, evalContext);
         evalContext.closeTrace(value);
         return value;
     }
@@ -72,7 +72,7 @@ public abstract class XPathExpression implements Externalizable {
 
     /* print out formatted expression tree */
 
-    int indent;
+    private int indent;
 
     private void printStr(String s) {
         for (int i = 0; i < 2 * indent; i++)
@@ -183,9 +183,9 @@ public abstract class XPathExpression implements Externalizable {
         } else if (o instanceof XPathFuncExpr) {
             XPathFuncExpr x = (XPathFuncExpr)o;
             if (x.args.length == 0) {
-                printStr("func {" + x.id.toString() + ", args {none}}");
+                printStr("func {" + x.name + ", args {none}}");
             } else {
-                printStr("func {" + x.id.toString() + ", args {{");
+                printStr("func {" + x.name + ", args {{");
                 for (int i = 0; i < x.args.length; i++) {
                     print(x.args[i]);
                     if (i < x.args.length - 1)
@@ -248,11 +248,9 @@ public abstract class XPathExpression implements Externalizable {
             }
         } else if (o instanceof XPathStep) {
             XPathStep x = (XPathStep)o;
-            String axis = null;
-            String test = null;
 
-            axis = XPathStep.axisStr(x.axis);
-            test = x.testStr();
+            String axis = XPathStep.axisStr(x.axis);
+            String test = x.testStr();
 
             if (x.predicates.length == 0) {
                 printStr("step {axis:" + axis + " test:" + test + " predicates {none}}");

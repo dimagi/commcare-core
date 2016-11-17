@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.xpath.parser.ast;
 
 import org.javarosa.xpath.expr.XPathExpression;
@@ -42,16 +26,18 @@ public class ASTNodePathStep extends ASTNode {
     public ASTNodeFunctionCall nodeTestFunc;
     public XPathQName nodeTestQName;
     public String nodeTestNamespace;
-    public final Vector predicates;
+    public final Vector<ASTNode> predicates;
 
     public ASTNodePathStep() {
-        predicates = new Vector();
+        predicates = new Vector<>();
     }
 
-    public Vector getChildren() {
+    @Override
+    public Vector<ASTNode> getChildren() {
         return predicates;
     }
 
+    @Override
     public XPathExpression build() {
         return null;
     }
@@ -78,22 +64,27 @@ public class ASTNodePathStep extends ASTNode {
             else {
                 String funcName = nodeTestFunc.name.toString();
                 int type;
-                if (funcName.equals("node")) type = XPathStep.TEST_TYPE_NODE;
-                else if (funcName.equals("text")) type = XPathStep.TEST_TYPE_TEXT;
-                else if (funcName.equals("comment")) type = XPathStep.TEST_TYPE_COMMENT;
-                else if (funcName.equals("processing-instruction"))
+                if (funcName.equals("node")) {
+                    type = XPathStep.TEST_TYPE_NODE;
+                } else if (funcName.equals("text")) {
+                    type = XPathStep.TEST_TYPE_TEXT;
+                } else if (funcName.equals("comment")) {
+                    type = XPathStep.TEST_TYPE_COMMENT;
+                } else if (funcName.equals("processing-instruction")) {
                     type = XPathStep.TEST_TYPE_PROCESSING_INSTRUCTION;
-                else throw new RuntimeException();
+                } else {
+                    throw new RuntimeException();
+                }
 
                 step = new XPathStep(axisVal, type);
                 if (nodeTestFunc.args.size() > 0) {
-                    step.literal = (String)((ASTNodeAbstractExpr)nodeTestFunc.args.elementAt(0)).getToken(0).val;
+                    step.literal = (String)((ASTNodeAbstractExpr)nodeTestFunc.args.get(0)).getToken(0).val;
                 }
             }
 
             XPathExpression[] preds = new XPathExpression[predicates.size()];
             for (int i = 0; i < preds.length; i++)
-                preds[i] = ((ASTNode)predicates.elementAt(i)).build();
+                preds[i] = predicates.elementAt(i).build();
             step.predicates = preds;
 
             return step;
@@ -126,8 +117,8 @@ public class ASTNodePathStep extends ASTNode {
             if (f.args.size() == 0) {
                 return true;
             } else if (name.equals("processing-instruction") && f.args.size() == 1) {
-                ASTNodeAbstractExpr x = (ASTNodeAbstractExpr)f.args.elementAt(0);
-                return x.content.size() == 1 && x.getTokenType(0) == Token.STR;
+                ASTNodeAbstractExpr x = (ASTNodeAbstractExpr)f.args.get(0);
+                return x.size() == 1 && x.getTokenType(0) == Token.STR;
             } else {
                 return false;
             }
@@ -135,5 +126,4 @@ public class ASTNodePathStep extends ASTNode {
             return false;
         }
     }
-
 }

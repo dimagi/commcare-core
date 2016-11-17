@@ -2,7 +2,6 @@ package org.javarosa.core.reference;
 
 import java.util.Vector;
 
-
 /**
  * <p>The reference manager is a singleton class which
  * is responsible for deriving reference URI's into
@@ -45,7 +44,7 @@ public class ReferenceManager {
      * @return Singleton accessor to the global
      * ReferenceManager.
      */
-    public static ReferenceManager _() {
+    public static ReferenceManager instance() {
         if (instance == null) {
             instance = new ReferenceManager();
         }
@@ -125,7 +124,7 @@ public class ReferenceManager {
      */
     public Reference DeriveReference(String uri, String context) throws InvalidReferenceException {
         if (uri == null) {
-            throw new InvalidReferenceException("Null references aren't valid", uri);
+            throw new InvalidReferenceException("Null references aren't valid", null);
         }
 
         //Relative URI's need to determine their context first.

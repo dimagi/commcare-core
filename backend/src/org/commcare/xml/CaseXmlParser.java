@@ -6,7 +6,7 @@ import org.commcare.data.xml.TransactionParser;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.xml.util.InvalidStorageStructureException;
+import org.javarosa.core.util.externalizable.SerializationLimitationException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.ActionableInvalidStructureException;
 import org.kxml2.io.KXmlParser;
@@ -54,6 +54,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
         this.storage = storage;
     }
 
+    @Override
     public Case parse() throws InvalidStructureException, IOException, XmlPullParserException {
         checkNode("case");
 
@@ -101,7 +102,13 @@ public class CaseXmlParser extends TransactionParser<Case> {
         if (caseForBlock != null) {
             caseForBlock.setLastModified(modified);
 
-            commit(caseForBlock);
+            try {
+                commit(caseForBlock);
+            } catch (SerializationLimitationException e) {
+                throw new InvalidStructureException("One of the property values for the case named '" +
+                        caseForBlock.getName() + "' is too large (by " + e.percentOversized +
+                        "%). Please show your supervisor.");
+            }
 
             if (isCreateOrUpdate) {
                 onCaseCreateUpdate(caseId);
@@ -188,12 +195,12 @@ public class CaseXmlParser extends TransactionParser<Case> {
         }
     }
 
-    private Case loadCase(Case caseForBlock, String caseId, boolean errorIfMissing) {
+    private Case loadCase(Case caseForBlock, String caseId, boolean errorIfMissing) throws InvalidStructureException {
         if (caseForBlock == null) {
             caseForBlock = retrieve(caseId);
         }
         if (errorIfMissing && caseForBlock == null) {
-            throw new InvalidStorageStructureException("Unable to update case " + caseId + ", it wasn't found", parser);
+            throw InvalidStructureException.readableInvalidStructureException("Unable to update or close case " + caseId + ", it wasn't found", parser);
         }
         return caseForBlock;
     }

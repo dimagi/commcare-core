@@ -149,7 +149,7 @@ public class TableBuilder {
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append("INSERT INTO " + scrubName(name) + " (");
+        stringBuilder.append("INSERT INTO ").append(scrubName(name)).append(" (");
         HashMap<String, Object> contentValues = DatabaseHelper.getMetaFieldsAndValues(p);
 
         ArrayList<Object> params = new ArrayList<>();
@@ -187,9 +187,9 @@ public class TableBuilder {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
             externalizable.writeExternal(new DataOutputStream(bos));
-        } catch (IOException e1) {
-            e1.printStackTrace();
-            throw new RuntimeException("Failed to serialize externalizable for content values");
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to serialize externalizable " + externalizable +
+                " for content values wth exception " + e);
         }
         return bos.toByteArray();
     }

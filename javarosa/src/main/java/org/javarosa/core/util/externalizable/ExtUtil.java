@@ -8,7 +8,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.UTFDataFormatException;
 import java.util.Date;
@@ -17,8 +16,8 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 public class ExtUtil {
-    public static boolean interning = true;
-    public static Interner<String> stringCache;
+    private static final boolean interning = true;
+    private static Interner<String> stringCache;
 
     public static byte[] serialize(Object o) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -28,44 +27,6 @@ public class ExtUtil {
             throw new RuntimeException("IOException writing to ByteArrayOutputStream; shouldn't happen!");
         }
         return baos.toByteArray();
-    }
-
-    public static Object deserialize(byte[] data, Class type) throws DeserializationException {
-        ByteArrayInputStream bais = new ByteArrayInputStream(data);
-        try {
-            return read(new DataInputStream(bais), type);
-        } catch (EOFException eofe) {
-            throw new DeserializationException("Unexpectedly reached end of stream when deserializing");
-        } catch (UTFDataFormatException udfe) {
-            throw new DeserializationException("Unexpectedly reached end of stream when deserializing");
-        } catch (IOException e) {
-            throw new RuntimeException("Unknown IOException reading from ByteArrayInputStream; shouldn't happen!");
-        } finally {
-            try {
-                bais.close();
-            } catch (IOException e) {
-                //already closed. Don't sweat it
-            }
-        }
-    }
-
-    public static Object deserialize(byte[] data, ExternalizableWrapper ew) throws DeserializationException {
-        ByteArrayInputStream bais = new ByteArrayInputStream(data);
-        try {
-            return read(new DataInputStream(bais), ew);
-        } catch (EOFException eofe) {
-            throw new DeserializationException("Unexpectedly reached end of stream when deserializing");
-        } catch (UTFDataFormatException udfe) {
-            throw new DeserializationException("Unexpectedly reached end of stream when deserializing");
-        } catch (IOException e) {
-            throw new RuntimeException("Unknown IOException reading from ByteArrayInputStream; shouldn't happen!");
-        } finally {
-            try {
-                bais.close();
-            } catch (IOException e) {
-                //already closed. Don't sweat it
-            }
-        }
     }
 
     public static int getSize(Object o) {
@@ -80,21 +41,21 @@ public class ExtUtil {
         if (data instanceof Externalizable) {
             ((Externalizable)data).writeExternal(out);
         } else if (data instanceof Byte) {
-            writeNumeric(out, ((Byte)data).byteValue());
+            writeNumeric(out, (Byte)data);
         } else if (data instanceof Short) {
-            writeNumeric(out, ((Short)data).shortValue());
+            writeNumeric(out, (Short)data);
         } else if (data instanceof Integer) {
-            writeNumeric(out, ((Integer)data).intValue());
+            writeNumeric(out, (Integer)data);
         } else if (data instanceof Long) {
-            writeNumeric(out, ((Long)data).longValue());
+            writeNumeric(out, (Long)data);
         } else if (data instanceof Character) {
-            writeChar(out, ((Character)data).charValue());
+            writeChar(out, (Character)data);
         } else if (data instanceof Float) {
-            writeDecimal(out, ((Float)data).floatValue());
+            writeDecimal(out, (Float)data);
         } else if (data instanceof Double) {
-            writeDecimal(out, ((Double)data).doubleValue());
+            writeDecimal(out, (Double)data);
         } else if (data instanceof Boolean) {
-            writeBool(out, ((Boolean)data).booleanValue());
+            writeBool(out, (Boolean)data);
         } else if (data instanceof String) {
             writeString(out, (String)data);
         } else if (data instanceof Date) {
@@ -111,7 +72,7 @@ public class ExtUtil {
     }
 
     public static void writeNumeric(DataOutputStream out, long val, ExtWrapIntEncoding encoding) throws IOException {
-        write(out, encoding.clone(new Long(val)));
+        write(out, encoding.clone(val));
     }
 
     public static void writeChar(DataOutputStream out, char val) throws IOException {
@@ -127,7 +88,12 @@ public class ExtUtil {
     }
 
     public static void writeString(DataOutputStream out, String val) throws IOException {
-        out.writeUTF(val);
+        try {
+            out.writeUTF(val);
+        } catch (UTFDataFormatException e) {
+            int percentOversized = ((val.getBytes("UTF-8").length / (((int)Short.MAX_VALUE) * 2)) - 1) * 100;
+            throw new SerializationLimitationException(percentOversized);
+        }
         //we could easily come up with more efficient default encoding for string
     }
 
@@ -142,31 +108,27 @@ public class ExtUtil {
             out.write(bytes);
     }
 
-    public static Object read(DataInputStream in, Class type) throws IOException, DeserializationException {
-        return read(in, type, null);
-    }
-
     public static Object read(DataInputStream in, Class type, PrototypeFactory pf) throws IOException, DeserializationException {
         if (Externalizable.class.isAssignableFrom(type)) {
             Externalizable ext = (Externalizable)PrototypeFactory.getInstance(type);
             ext.readExternal(in, pf == null ? defaultPrototypes() : pf);
             return ext;
         } else if (type == Byte.class) {
-            return new Byte(readByte(in));
+            return readByte(in);
         } else if (type == Short.class) {
-            return new Short(readShort(in));
+            return readShort(in);
         } else if (type == Integer.class) {
-            return new Integer(readInt(in));
+            return readInt(in);
         } else if (type == Long.class) {
-            return new Long(readNumeric(in));
+            return readNumeric(in);
         } else if (type == Character.class) {
-            return new Character(readChar(in));
+            return readChar(in);
         } else if (type == Float.class) {
-            return new Float((float)readDecimal(in));
+            return (float)readDecimal(in);
         } else if (type == Double.class) {
-            return new Double(readDecimal(in));
+            return readDecimal(in);
         } else if (type == Boolean.class) {
-            return new Boolean(readBool(in));
+            return readBool(in);
         } else if (type == String.class) {
             return readString(in);
         } else if (type == Date.class) {
@@ -176,10 +138,6 @@ public class ExtUtil {
         } else {
             throw new ClassCastException("Not a deserializable datatype: " + type.getName());
         }
-    }
-
-    public static Object read(DataInputStream in, ExternalizableWrapper ew) throws IOException, DeserializationException {
-        return read(in, ew, null);
     }
 
     public static Object read(DataInputStream in, ExternalizableWrapper ew, PrototypeFactory pf) throws IOException, DeserializationException {
@@ -193,7 +151,7 @@ public class ExtUtil {
 
     public static long readNumeric(DataInputStream in, ExtWrapIntEncoding encoding) throws IOException {
         try {
-            return ((Long)read(in, encoding)).longValue();
+            return (Long)read(in, encoding, null);
         } catch (DeserializationException de) {
             throw new RuntimeException("Shouldn't happen: Base-type encoding wrappers should never touch prototypes");
         }
@@ -265,15 +223,15 @@ public class ExtUtil {
 
     public static long toLong(Object o) {
         if (o instanceof Byte) {
-            return ((Byte)o).byteValue();
+            return (Byte)o;
         } else if (o instanceof Short) {
-            return ((Short)o).shortValue();
+            return (Short)o;
         } else if (o instanceof Integer) {
-            return ((Integer)o).intValue();
+            return (Integer)o;
         } else if (o instanceof Long) {
-            return ((Long)o).longValue();
+            return (Long)o;
         } else if (o instanceof Character) {
-            return ((Character)o).charValue();
+            return (Character)o;
         } else {
             throw new ClassCastException();
         }
@@ -419,12 +377,8 @@ public class ExtUtil {
     }
 
 
-    //**REMOVE THESE TWO FUNCTIONS//
+    //**REMOVE THIS FUNCTION//
     //original deserialization API (whose limits made us make this whole new framework!); here for backwards compatibility
-    public static void deserialize(byte[] data, Externalizable ext) throws IOException, DeserializationException {
-        ext.readExternal(new DataInputStream(new ByteArrayInputStream(data)), defaultPrototypes());
-    }
-
     public static Object deserialize(byte[] data, Class type, PrototypeFactory pf) throws IOException, DeserializationException {
         return read(new DataInputStream(new ByteArrayInputStream(data)), type, pf);
     }

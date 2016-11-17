@@ -8,8 +8,8 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -22,9 +22,10 @@ import java.util.Vector;
  */
 public class AssertionSet implements Externalizable {
 
-    Vector<String> xpathExpressions;
-    Vector<Text> messages;
+    private Vector<String> xpathExpressions;
+    private Vector<Text> messages;
 
+    @SuppressWarnings("unused")
     public AssertionSet() {
 
     }
@@ -51,7 +52,7 @@ public class AssertionSet implements Externalizable {
                 XPathExpression expression = XPathParseTool.parseXPath(xpathExpressions.elementAt(i));
                 try {
                     Object val = expression.eval(ec);
-                    if (!XPathFuncExpr.toBoolean(val).booleanValue()) {
+                    if (!FunctionUtils.toBoolean(val)) {
                         return messages.elementAt(i);
                     }
                 } catch (Exception e) {
@@ -64,20 +65,15 @@ public class AssertionSet implements Externalizable {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        this.xpathExpressions = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class));
-        this.messages = (Vector<Text>)ExtUtil.read(in, new ExtWrapList(Text.class));
+        this.xpathExpressions = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
+        this.messages = (Vector<Text>)ExtUtil.read(in, new ExtWrapList(Text.class), pf);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapList(xpathExpressions));
         ExtUtil.write(out, new ExtWrapList(messages));
     }
-
 }

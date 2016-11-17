@@ -7,6 +7,7 @@ public class XPathBoolExpr extends XPathBinaryOpExpr {
     public static final int AND = 0;
     public static final int OR = 1;
 
+    @SuppressWarnings("unused")
     public XPathBoolExpr() {
     } //for deserialization
 
@@ -16,14 +17,14 @@ public class XPathBoolExpr extends XPathBinaryOpExpr {
 
     @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
-        boolean aval = XPathFuncExpr.toBoolean(a.eval(model, evalContext)).booleanValue();
+        boolean aval = FunctionUtils.toBoolean(a.eval(model, evalContext));
 
         //short-circuiting
         if ((!aval && op == AND) || (aval && op == OR)) {
-            return new Boolean(aval);
+            return aval;
         }
 
-        boolean bval = XPathFuncExpr.toBoolean(b.eval(model, evalContext)).booleanValue();
+        boolean bval = FunctionUtils.toBoolean(b.eval(model, evalContext));
 
         boolean result = false;
         switch (op) {
@@ -34,7 +35,7 @@ public class XPathBoolExpr extends XPathBinaryOpExpr {
                 result = aval || bval;
                 break;
         }
-        return new Boolean(result);
+        return result;
     }
 
     @Override

@@ -1,22 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
-/**
- *
- */
 package org.javarosa.core.services.transport.payload;
 
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -34,18 +15,16 @@ import java.io.InputStream;
  * byte array.
  *
  * @author Clayton Sims
- * @date Dec 18, 2008
  */
 public class ByteArrayPayload implements IDataPayload {
-    byte[] payload;
-
-    String id;
-
-    int type;
+    private byte[] payload;
+    private String id;
+    private int type;
 
     /**
      * Note: Only useful for serialization.
      */
+    @SuppressWarnings("unused")
     public ByteArrayPayload() {
     }
 
@@ -69,17 +48,13 @@ public class ByteArrayPayload implements IDataPayload {
         this.type = IDataPayload.PAYLOAD_TYPE_XML;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.transport.IDataPayload#getPayloadStream()
-     */
+    @Override
     public InputStream getPayloadStream() {
 
         return new ByteArrayInputStream(payload);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         int length = in.readInt();
@@ -90,9 +65,7 @@ public class ByteArrayPayload implements IDataPayload {
         id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         out.writeInt(payload.length);
         if (payload.length > 0) {
@@ -101,30 +74,22 @@ public class ByteArrayPayload implements IDataPayload {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.transport.IDataPayload#accept(org.javarosa.core.services.transport.IDataPayloadVisitor)
-     */
+    @Override
     public Object accept(IDataPayloadVisitor visitor) {
         return visitor.visit(this);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.transport.IDataPayload#getPayloadId()
-     */
+    @Override
     public String getPayloadId() {
         return id;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.transport.IDataPayload#getPayloadType()
-     */
+    @Override
     public int getPayloadType() {
         return type;
     }
 
+    @Override
     public long getLength() {
         return payload.length;
     }

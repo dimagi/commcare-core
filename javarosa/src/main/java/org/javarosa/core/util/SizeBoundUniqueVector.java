@@ -14,13 +14,12 @@ public class SizeBoundUniqueVector<E> extends SizeBoundVector<E> {
         super(sizeLimit);
     }
 
-    /* (non-Javadoc)
-     * @see java.util.Vector#addElement(java.lang.Object)
-     */
+    @Override
     public synchronized void addElement(E obj) {
         add(obj);
     }
 
+    @Override
     public synchronized boolean add(E obj) {
         if (this.size() == limit) {
             additional++;

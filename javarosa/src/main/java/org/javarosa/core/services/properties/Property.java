@@ -16,18 +16,13 @@ import java.util.Vector;
  * value pair.
  *
  * @author ctsims
- * @date Jan-20-2008
  */
 public class Property implements Persistable, IMetaData {
     public String name;
-    public Vector value;
+    public Vector<String> value;
     public int recordId = -1;
 
-    /**
-     * (non-Javadoc)
-     *
-     * @see org.javarosa.core.util.externalizable.singlequestionscreen.storage.Externalizable#readExternal(DataInputStream)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException {
         String fullString = "";
 
@@ -39,7 +34,7 @@ public class Property implements Persistable, IMetaData {
             fullString = fullString + c;
         }
         int nameindex = fullString.indexOf(",");
-        value = new Vector();
+        value = new Vector<>();
         if (nameindex == -1) {
             //#if debug.output==verbose
             System.out.println("WARNING: Property in RMS with no value:" + fullString);
@@ -63,11 +58,7 @@ public class Property implements Persistable, IMetaData {
         in.close();
     }
 
-    /**
-     * (non-Javadoc)
-     *
-     * @see org.javarosa.core.util.externalizable.singlequestionscreen.storage.Externalizable#writeExternal(DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         String outputString = name;
         // Note that this enumeration should contain at least one element, otherwise the
@@ -84,19 +75,17 @@ public class Property implements Persistable, IMetaData {
 
     }
 
-    /**
-     * (non-Javadoc)
-     *
-     * @see org.javarosa.singlequestionscreen.storage.IDRecordable#setRecordId(int)
-     */
+    @Override
     public void setID(int recordId) {
         this.recordId = recordId;
     }
 
+    @Override
     public int getID() {
         return recordId;
     }
 
+    @Override
     public Object getMetaData(String fieldName) {
         if (fieldName.equals("NAME")) {
             return name;
@@ -105,6 +94,7 @@ public class Property implements Persistable, IMetaData {
         }
     }
 
+    @Override
     public String[] getMetaDataFields() {
         return new String[]{"NAME"};
     }

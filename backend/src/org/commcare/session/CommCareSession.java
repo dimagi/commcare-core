@@ -8,11 +8,11 @@ import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.RemoteQueryDatum;
+import org.commcare.suite.model.RemoteRequestEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
-import org.commcare.suite.model.SyncEntry;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
@@ -22,10 +22,11 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -33,6 +34,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -64,12 +66,12 @@ public class CommCareSession {
     /**
      * The current session frame data
      */
-    private SessionFrame frame;
+    protected SessionFrame frame;
 
     /**
      * The stack of pending Frames
      */
-    private final Stack<SessionFrame> frameStack;
+    private Stack<SessionFrame> frameStack;
 
     /**
      * Used by touchforms
@@ -113,7 +115,7 @@ public class CommCareSession {
         }
     }
 
-    public Vector<Entry> getEntriesForCommand(String commandId) {
+    private Vector<Entry> getEntriesForCommand(String commandId) {
         return getEntriesForCommand(commandId, new OrderedHashtable<String, String>());
     }
 
@@ -125,22 +127,24 @@ public class CommCareSession {
      */
     private Vector<Entry> getEntriesForCommand(String commandId,
                                                OrderedHashtable<String, String> currentSessionData) {
+        Vector<Entry> entries = new Vector<>();
+        if (commandId == null) {
+            return entries;
+        }
         for (Suite s : platform.getInstalledSuites()) {
-            for (Menu m : s.getMenus()) {
-                // We need to see if everything in this menu can be matched
-                if (commandId.equals(m.getId())) {
-                    return getEntriesFromMenu(m, currentSessionData);
+            List<Menu> menusWithId = s.getMenusWithId(commandId);
+            if (menusWithId != null) {
+                for (Menu menu : menusWithId) {
+                    entries.addAll(getEntriesFromMenu(menu, currentSessionData));
                 }
             }
 
             if (s.getEntries().containsKey(commandId)) {
-                Vector<Entry> entries = new Vector<>();
                 entries.addElement(s.getEntries().get(commandId));
-                return entries;
             }
         }
 
-        return new Vector<>();
+        return entries;
     }
 
     /**
@@ -168,6 +172,7 @@ public class CommCareSession {
     public OrderedHashtable<String, String> getData() {
         return collectedDatums;
     }
+
     private static boolean entryRequirementsSatsified(Entry entry,
                                                       OrderedHashtable<String, String> currentSessionData) {
         Vector<SessionDatum> requirements = entry.getSessionDataReqs();
@@ -202,9 +207,11 @@ public class CommCareSession {
 
         if (needDatum != null) {
             return needDatum;
+        } else if (entries.isEmpty()) {
+            throw new RuntimeException("Collected datums don't match required datums for entries at command " + currentCmd);
         } else if (entries.size() == 1
-                && entries.elementAt(0) instanceof SyncEntry
-                && ((SyncEntry)entries.elementAt(0)).getSyncPost().isRelevant(evalContext)) {
+                && entries.elementAt(0) instanceof RemoteRequestEntry
+                && ((RemoteRequestEntry)entries.elementAt(0)).getPostRequest().isRelevant(evalContext)) {
             return SessionFrame.STATE_SYNC_REQUEST;
         } else if (entries.size() > 1 || !entries.elementAt(0).getCommandId().equals(currentCmd)) {
             //the only other thing we can need is a form command. If there's
@@ -225,7 +232,7 @@ public class CommCareSession {
         String neededDatumId = null;
         for (Entry e : entries) {
             SessionDatum datumNeededForThisEntry =
-                getFirstMissingDatum(collectedDatums, e.getSessionDataReqs());
+                    getFirstMissingDatum(collectedDatums, e.getSessionDataReqs());
             if (datumNeededForThisEntry != null) {
                 if (neededDatumId == null) {
                     neededDatumId = datumNeededForThisEntry.getDataId();
@@ -296,8 +303,11 @@ public class CommCareSession {
      * an entry on the stack
      */
     public SessionDatum getNeededDatum() {
-        Entry entry = getEntriesForCommand(getCommand()).elementAt(0);
-        return getNeededDatum(entry);
+        Vector<Entry> entries = getEntriesForCommand(getCommand());
+        if (entries.isEmpty()) {
+            throw new IllegalStateException("The current session has no valid entry");
+        }
+        return getNeededDatum(entries.firstElement());
     }
 
     /**
@@ -332,49 +342,83 @@ public class CommCareSession {
         return null;
     }
 
-    public Menu getMenu(String id) {
-        for (Suite suite : platform.getInstalledSuites()) {
-            for (Menu m : suite.getMenus()) {
-                if (id.equals(m.getId())) {
-                    return m;
+    /**
+     * When StackFrameSteps are parsed, those that are "datum" operations will be marked as type
+     * "unknown". When we encounter a StackFrameStep of unknown type at runtime, we need to
+     * determine whether it should be interpreted as STATE_DATUM_COMPUTED, STATE_COMMAND_ID,
+     * or STATE_DATUM_VAL This primarily affects the behavior of stepBack().
+     *
+     * The logic being employed is: If there is a previous step on the stack whose entries would
+     * have added this command, interpret it as a command. If there is an EntityDatum that
+     * was have added this as an entity selection, interpret this as a datum_val. O
+     * Otherwise, interpret it as a computed datum.
+     */
+    private String guessUnknownType(StackFrameStep popped) {
+        String poppedId = popped.getId();
+        for (StackFrameStep stackFrameStep : frame.getSteps()) {
+            String commandId = stackFrameStep.getId();
+            Vector<Entry> entries = getEntriesForCommand(commandId);
+            for (Entry entry : entries) {
+                String childCommand = entry.getCommandId();
+                if (childCommand.equals(poppedId)) {
+                    return SessionFrame.STATE_COMMAND_ID;
+                }
+                Vector<SessionDatum> data = entry.getSessionDataReqs();
+                for (SessionDatum datum : data) {
+                    if (datum instanceof EntityDatum &&
+                            datum.getDataId().equals(poppedId)) {
+                        return SessionFrame.STATE_DATUM_VAL;
+                    }
                 }
             }
         }
-        return null;
+        return SessionFrame.STATE_DATUM_COMPUTED;
     }
 
-    @SuppressWarnings("unused")
-    public Suite getCurrentSuite() {
-        for (Suite s : platform.getInstalledSuites()) {
-            for (Menu m : s.getMenus()) {
-                //We need to see if everything in this menu can be matched
-                if (currentCmd.equals(m.getId())) {
-                    return s;
-                }
+    private boolean shouldPopNext(EvaluationContext evalContext) {
+        String neededData = getNeededData(evalContext);
+        String poppedType = popped == null ? "" : popped.getType();
 
-                if (s.getEntries().containsKey(currentCmd)) {
-                    return s;
-                }
-            }
+        if (neededData == null ||
+                SessionFrame.STATE_DATUM_COMPUTED.equals(neededData) ||
+                SessionFrame.STATE_DATUM_COMPUTED.equals(poppedType) ||
+                topStepIsMark()) {
+            return true;
         }
 
-        return null;
+        return SessionFrame.STATE_UNKNOWN.equals(poppedType)
+                && guessUnknownType(popped).equals(SessionFrame.STATE_DATUM_COMPUTED);
+
     }
 
     public void stepBack(EvaluationContext evalContext) {
         // Pop the first thing off of the stack frame, no matter what
-        popSessionFrameStack();
+        popStepInCurrentSessionFrame();
 
         // Keep popping things off until the value of needed data indicates that we are back to
         // somewhere where we are waiting for user-provided input
-        while (this.getNeededData(evalContext) == null ||
-                this.getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED)) {
-            popSessionFrameStack();
+        while (shouldPopNext(evalContext)) {
+            popStepInCurrentSessionFrame();
         }
     }
 
-    private void popSessionFrameStack() {
+    private boolean topStepIsMark() {
+        return !frame.getSteps().isEmpty()
+                && SessionFrame.STATE_MARK.equals(frame.getSteps().lastElement().getType());
+    }
+
+    public void popStep(EvaluationContext evalContext) {
+        popStepInCurrentSessionFrame();
+
+        while (getNeededData(evalContext) == null
+                || topStepIsMark()) {
+            popStepInCurrentSessionFrame();
+        }
+    }
+
+    private void popStepInCurrentSessionFrame() {
         StackFrameStep recentPop = frame.popStep();
+
         //TODO: Check the "base state" of the frame after popping to see if we invalidated the stack
         syncState();
         popped = recentPop;
@@ -412,10 +456,10 @@ public class CommCareSession {
             throw new RuntimeException(e.getMessage());
         }
         if (datum instanceof FormIdDatum) {
-            setXmlns(XPathFuncExpr.toString(form.eval(ec)));
+            setXmlns(FunctionUtils.toString(form.eval(ec)));
             setDatum("", "awful");
         } else if (datum instanceof ComputedDatum) {
-            setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
+            setDatum(datum.getDataId(), FunctionUtils.toString(form.eval(ec)));
         }
     }
 
@@ -436,7 +480,10 @@ public class CommCareSession {
         this.popped = null;
 
         for (StackFrameStep step : frame.getSteps()) {
-            if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
+            if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) ||
+                    SessionFrame.STATE_UNKNOWN.equals(step.getType()) &&
+                            (guessUnknownType(step).equals(SessionFrame.STATE_DATUM_COMPUTED)
+                            || guessUnknownType(step).equals(SessionFrame.STATE_DATUM_VAL))) {
                 String key = step.getId();
                 String value = step.getValue();
                 if (key != null && value != null) {
@@ -466,7 +513,7 @@ public class CommCareSession {
         }
 
         Entry e = platform.getMenuMap().get(command);
-        if (e.isView() || e.isSync()) {
+        if (e.isView() || e.isRemoteRequest()) {
             return null;
         } else {
             return ((FormEntry)e).getXFormNamespace();
@@ -517,22 +564,31 @@ public class CommCareSession {
             String key = (String)en.nextElement();
             instancesInScope.put(key, instancesInScope.get(key).initialize(iif, key));
         }
-        addInstancesFromFrame(instancesInScope);
+        addInstancesFromFrame(instancesInScope, iif);
 
         return new EvaluationContext(null, instancesInScope);
     }
 
-    private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap) {
+    private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap,
+                                       InstanceInitializationFactory iif) {
         for (StackFrameStep step : frame.getSteps()) {
             if (step.hasXmlInstance()) {
-                instanceMap.put(step.getId(), step.getXmlInstance());
+                instanceMap.put(step.getId(), step.getXmlInstance().initialize(iif, step.getId()));
             }
         }
     }
 
+    /**
+     * @return A copy of the current frame with UNKNOWN types evaluated to their best guess
+     */
     public SessionFrame getFrame() {
-        //TODO: Type safe copy
-        return frame;
+        SessionFrame copyFrame = new SessionFrame(frame);
+        for (StackFrameStep step: copyFrame.getSteps()) {
+            if (step.getType().equals(SessionFrame.STATE_UNKNOWN)) {
+                step.setType(guessUnknownType(step));
+            }
+        }
+        return copyFrame;
     }
 
     /**
@@ -543,128 +599,139 @@ public class CommCareSession {
      * against the most recent frame. (IE: If a new frame is pushed here, xpath expressions
      * calculated within it will be evaluated against the starting, but <push> actions
      * will happen against the newly pushed frame)
+     *
+     * @return True if stack ops triggered a rewind, used for determining stack clean-up logic
      */
     public boolean executeStackOperations(Vector<StackOperation> ops, EvaluationContext ec) {
-        //the on deck frame is the frame that is the target of operations that execute
-        //as part of this stack update. If at the end of the stack ops the frame on deck
-        //doesn't match the current (living) frame, it will become the the current frame
+        // The on deck frame is the frame that is the target of operations that execute
+        // as part of this stack update. If at the end of the stack ops the frame on deck
+        // doesn't match the current (living) frame, it will become the the current frame
         SessionFrame onDeck = frame;
 
-        //Whether the current frame is on the stack (we wanna treat it as a "phantom" bottom element
-        //at first, basically.
-        boolean currentFramePushed = false;
-
+        boolean didRewind = false;
         for (StackOperation op : ops) {
-            //First, see if there is a frame with a matching ID for this op
-            //(relevant for a couple reasons, and possibly prevents a costly XPath lookup)
-            String frameId = op.getFrameId();
-            SessionFrame matchingFrame = null;
-            if (frameId != null) {
-                //TODO: This is correct, right? We want to treat the current frame
-                //as part of the "environment" and not let people create a new frame
-                //with the same id? Possibly this should only be true if the current
-                //frame is live?
-                if (frameId.equals(frame.getFrameId())) {
-                    matchingFrame = frame;
-                } else {
-                    //Otherwise, peruse the stack looking for another
-                    //frame with a matching ID.
-                    for (Enumeration e = frameStack.elements(); e.hasMoreElements(); ) {
-                        SessionFrame stackFrame = (SessionFrame)e.nextElement();
-                        if (frameId.equals(stackFrame.getFrameId())) {
-                            matchingFrame = stackFrame;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            boolean newFrame = false;
-            switch (op.getOp()) {
-                //Note: the Create step and Push step utilize the same code,
-                //and the create step does some setup first
-                case StackOperation.OPERATION_CREATE:
-                    //First make sure we have no existing frames with this ID
-                    if (matchingFrame != null) {
-                        //If we do, just bail.
-                        continue;
-                    }
-                    //Otherwise, create our new frame (we'll only manipulate it
-                    //and add it if it is triggered)
-                    matchingFrame = new SessionFrame(frameId);
-
-                    //Ok, now fall through to the push case using that frame,
-                    //as the push operations are ~identical
-                    newFrame = true;
-                case StackOperation.OPERATION_PUSH:
-                    //Ok, first, see if we need to execute this op
-                    if (!op.isOperationTriggered(ec)) {
-                        //Otherwise, we're done.
-                        continue;
-                    }
-
-                    //If we don't have a frame yet, this push is targeting the
-                    //frame on deck
-                    if (matchingFrame == null) {
-                        matchingFrame = onDeck;
-                    }
-
-                    //Now, execute the steps in this operation
-                    for (StackFrameStep step : op.getStackFrameSteps()) {
-                        matchingFrame.pushStep(step.defineStep(ec));
-                    }
-
-                    //ok, frame should be appropriately modified now.
-                    //we also need to push this frame if it's new
-                    if (newFrame) {
-                        //Before we can push a frame onto the stack, we need to
-                        //make sure the stack is clean. This means that if the
-                        //current frame has a snapshot, we've gotta make sure
-                        //the existing frames are still valid.
-
-                        //TODO: We might want to handle this differently in the future,
-                        //so that we can account for the invalidated frames in the ui
-                        //somehow.
-                        cleanStack();
-
-                        //OK, now we want to take the current frame and put it up on the frame stack unless
-                        //this frame is dead (IE: We're closing it out). then we'll push the new frame
-                        //on top of it.
-                        if (!frame.isDead() && !currentFramePushed) {
-                            frameStack.push(frame);
-                            currentFramePushed = true;
-                        }
-
-                        frameStack.push(matchingFrame);
-                    }
-                    break;
-                case StackOperation.OPERATION_CLEAR:
-                    if (matchingFrame != null) {
-                        if (op.isOperationTriggered(ec)) {
-                            frameStack.removeElement(matchingFrame);
-                        }
-                    }
-                    break;
-                default:
-                    throw new RuntimeException("Undefined stack operation: " + op.getOp());
+            if (!processStackOp(op, ec)) {
+                // rewind occurred, stop processing futher ops.
+                didRewind = true;
+                break;
             }
         }
 
-        //All stack ops executed. Now we need to see if we're on the right frame.
-        if (!this.frame.isDead() && frame != onDeck) {
-            //If the current frame isn't dead, and isn't on deck, that means we've pushed
-            //in new frames and need to load up the correct one
+        popOrSync(onDeck, didRewind);
+        return didRewind;
+    }
 
-            if (!finishAndPop()) {
-                //Somehow we didn't end up with any frames after that? that's incredibly weird, I guess
-                //we should just start over.
-                this.clearAllState();
+    /**
+     * @return false if current frame was rewound
+     */
+    private boolean processStackOp(StackOperation op,
+                                   EvaluationContext ec) {
+        switch (op.getOp()) {
+            case StackOperation.OPERATION_CREATE:
+                createFrame(new SessionFrame(), op, ec);
+                break;
+            case StackOperation.OPERATION_PUSH:
+                if (!performPush(op, ec)) {
+                    return false;
+                }
+                break;
+            case StackOperation.OPERATION_CLEAR:
+                performClearOperation(op, ec);
+                break;
+            default:
+                throw new RuntimeException("Undefined stack operation: " + op.getOp());
+        }
+
+        return true;
+    }
+
+    private void createFrame(SessionFrame createdFrame,
+                             StackOperation op, EvaluationContext ec) {
+        if (op.isOperationTriggered(ec)) {
+            performPushInner(op, createdFrame, ec);
+            pushNewFrame(createdFrame);
+        }
+    }
+
+    /**
+     * @return false if push was terminated early by a 'rewind'
+     */
+    private boolean performPushInner(StackOperation op, SessionFrame frame, EvaluationContext ec) {
+        for (StackFrameStep step : op.getStackFrameSteps()) {
+            if (SessionFrame.STATE_REWIND.equals(step.getType())) {
+                if (frame.rewindToMarkAndSet(step, ec)) {
+                    return false;
+                }
+                // if no mark is found ignore the rewind and continue
+            } else {
+                pushFrameStep(step, frame, ec);
+            }
+        }
+        return true;
+    }
+
+    private void pushFrameStep(StackFrameStep step, SessionFrame frame, EvaluationContext ec) {
+        SessionDatum neededDatum = null;
+        if (SessionFrame.STATE_MARK.equals(step.getType())) {
+            neededDatum = getNeededDatumForFrame(this, frame);
+        }
+        frame.pushStep(step.defineStep(ec, neededDatum));
+    }
+
+    private static SessionDatum getNeededDatumForFrame(CommCareSession session,
+                                                       SessionFrame targetFrame) {
+        CommCareSession sessionCopy = new CommCareSession(session);
+        sessionCopy.frame = targetFrame;
+        sessionCopy.syncState();
+        return sessionCopy.getNeededDatum();
+    }
+
+    /**
+     * @return false if push was terminated early by a 'rewind'
+     */
+    private boolean performPush(StackOperation op, EvaluationContext ec) {
+        if (op.isOperationTriggered(ec)) {
+            return performPushInner(op, frame, ec);
+        }
+        return true;
+    }
+
+    private void pushNewFrame(SessionFrame matchingFrame) {
+        // Before we can push a frame onto the stack, we need to
+        // make sure the stack is clean. This means that if the
+        // current frame has a snapshot, we've gotta make sure
+        // the existing frames are still valid.
+
+        // TODO: We might want to handle this differently in the future,
+        // so that we can account for the invalidated frames in the ui
+        // somehow.
+        cleanStack();
+
+        frameStack.push(matchingFrame);
+    }
+
+    private void performClearOperation(StackOperation op,
+                                       EvaluationContext ec) {
+        if (op.isOperationTriggered(ec)) {
+            frameStack.removeElement(frame);
+        }
+    }
+
+    private boolean popOrSync(SessionFrame onDeck, boolean didRewind) {
+        if (!frame.isDead() && frame != onDeck) {
+            // If the current frame isn't dead, and isn't on deck, that means we've pushed
+            // in new frames and need to load up the correct one
+
+            if (!finishAndPop(didRewind)) {
+                // Somehow we didn't end up with any frames after that? that's incredibly weird, I guess
+                // we should just start over.
+                clearAllState();
             }
             return true;
+        } else {
+            syncState();
+            return false;
         }
-        //otherwise we still want to make sure we sync
-        this.syncState();
-        return false;
     }
 
     /**
@@ -673,11 +740,11 @@ public class CommCareSession {
      * only be relevant to the existing frames)
      */
     private void cleanStack() {
-        //See whether the current frame was incompatible with its start
-        //state.
+        // See whether the current frame was incompatible with its start
+        // state.
         if (frame.isSnapshotIncompatible()) {
-            //If it is, our frames can no longer make sense.
-            this.frameStack.removeAllElements();
+            // If it is, our frames can no longer make sense.
+            frameStack.removeAllElements();
             frame.clearSnapshot();
         }
     }
@@ -698,10 +765,11 @@ public class CommCareSession {
         markCurrentFrameForDeath();
 
         //First, see if we have operations to run
-        if(ops.size() > 0) {
-            executeStackOperations(ops, ec);
+        boolean didRewind = false;
+        if (ops.size() > 0) {
+            didRewind = executeStackOperations(ops, ec);
         }
-        return finishAndPop();
+        return finishAndPop(didRewind);
     }
 
     /**
@@ -709,15 +777,18 @@ public class CommCareSession {
      * check the stack for any pending frames, and load the top one
      * into the current session if so.
      *
+     * @param didRewind True if rewind occurred during stack pop.
+     *                  Helps determine post-pop stack cleanup logic
+     *
      * @return True if there was a pending frame and it has been
      * popped into the current session. False if the stack was empty
      * and the session is over.
      */
-    private boolean finishAndPop() {
+    private boolean finishAndPop(boolean didRewind) {
         cleanStack();
 
         if (frameStack.empty()) {
-            return false;
+            return didRewind;
         } else {
             frame = frameStack.pop();
             //Ok, so if _after_ popping from the stack, we still have
@@ -745,7 +816,7 @@ public class CommCareSession {
         if (e.size() > 1) {
             throw new IllegalStateException("The current session does not contain a single valid entry");
         }
-        if (e.size() == 0) {
+        if (e.isEmpty()) {
             throw new IllegalStateException("The current session has no valid entry");
         }
         return e.elementAt(0);
@@ -815,9 +886,9 @@ public class CommCareSession {
         return entries.size() == 1 && entries.elementAt(0).isView();
     }
 
-    public boolean isSyncCommand(String command) {
+    public boolean isRemoteRequestCommand(String command) {
         Vector<Entry> entries = this.getEntriesForCommand(command);
-        return entries.size() == 1 && entries.elementAt(0).isSync();
+        return entries.size() == 1 && entries.elementAt(0).isRemoteRequest();
     }
 
     public void addExtraToCurrentFrameStep(String key, Object value) {
@@ -840,6 +911,14 @@ public class CommCareSession {
 
         CommCareSession restoredSession = new CommCareSession(ccPlatform);
         restoredSession.frame = restoredFrame;
+        Vector<SessionFrame> frames = (Vector<SessionFrame>) ExtUtil.read(inputStream, new ExtWrapList(SessionFrame.class), null);
+        Stack<SessionFrame> stackFrames = new Stack<>();
+        while(!frames.isEmpty()){
+            SessionFrame lastElement = frames.lastElement();
+            frames.remove(lastElement);
+            stackFrames.push(lastElement);
+        }
+        restoredSession.setFrameStack(stackFrames);
         restoredSession.syncState();
 
         return restoredSession;
@@ -847,5 +926,14 @@ public class CommCareSession {
 
     public void serializeSessionState(DataOutputStream outputStream) throws IOException {
         frame.writeExternal(outputStream);
+        ExtUtil.write(outputStream, new ExtWrapList(frameStack));
+    }
+
+    public void setFrameStack(Stack<SessionFrame> frameStack) {
+        this.frameStack = frameStack;
+    }
+
+    public Stack<SessionFrame> getFrameStack(){
+        return this.frameStack;
     }
 }

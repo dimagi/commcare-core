@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.resources.model;
 
 import org.javarosa.core.reference.ReferenceManager;
@@ -14,11 +11,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
- * <p>A resource location is a simple model containing a possible
- * location for a resource's definition.</p>
+ * A resource location is a simple model containing a possible
+ * location for a resource's definition.
  *
- * <p>Resource locations provide a URI (possibly a relative URI)
- * along with an authority for location.</p>
+ * Resource locations provide a URI (possibly a relative URI)
+ * along with an authority for location.
  *
  * @author ctsims
  */
@@ -68,10 +65,7 @@ public class ResourceLocation implements Externalizable {
         return relative;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         this.authority = ExtUtil.readInt(in);
@@ -79,15 +73,10 @@ public class ResourceLocation implements Externalizable {
         this.relative = ReferenceManager.isRelative(location);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, authority);
         ExtUtil.writeString(out, location);
         this.relative = ReferenceManager.isRelative(location);
     }
-
-
 }

@@ -10,10 +10,12 @@ import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
 
@@ -33,7 +35,8 @@ public class PromptToJson {
         questionJson.put("help", jsonNullIfNull(prompt.getHelpText()));
         questionJson.put("binding", jsonNullIfNull(prompt.getQuestion().getBind().getReference().toString()));
         questionJson.put("style", jsonNullIfNull(parseStyle(prompt)));
-        questionJson.put("datatype", jsonNullIfNull(parseControlType(prompt)));
+        questionJson.put("datatype", jsonNullIfNull(parseDataType(prompt)));
+        questionJson.put("control", jsonNullIfNull(prompt.getControlType()));
         questionJson.put("required", prompt.isRequired() ? 1 : 0);
         parseQuestionAnswer(questionJson, prompt);
         questionJson.put("ix", jsonNullIfNull(prompt.getIndex()));
@@ -140,7 +143,10 @@ public class PromptToJson {
                 obj.put("answer", answerValue.getDisplayText());
                 return;
             case Constants.DATATYPE_DATE_TIME:
-                obj.put("answer", ((Date) answerValue.getValue()).getTime());
+                Date answer = (Date) answerValue.getValue();
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(answer);
+                obj.put("answer", new DateTime(calendar.getTime(), DateTimeZone.forTimeZone(calendar.getTimeZone())).toString("yyyy-MM-dd'T'HH:mm:ssZZ"));
                 return;
             case Constants.DATATYPE_CHOICE:
                 Selection singleSelection = ((Selection) answerValue.getValue());
@@ -188,7 +194,7 @@ public class PromptToJson {
     }
 
 
-    private static String parseControlType(FormEntryPrompt prompt) {
+    private static String parseDataType(FormEntryPrompt prompt) {
         if (prompt.getControlType() == Constants.CONTROL_TRIGGER) {
             return "info";
         }

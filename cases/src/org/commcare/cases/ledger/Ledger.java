@@ -62,7 +62,7 @@ public class Ledger implements Persistable, IMetaData {
         if (!sections.containsKey(sectionId) || !sections.get(sectionId).containsKey(entryId)) {
             return 0;
         }
-        return sections.get(sectionId).get(entryId).intValue();
+        return sections.get(sectionId).get(entryId);
     }
 
     /**
@@ -97,38 +97,26 @@ public class Ledger implements Persistable, IMetaData {
         return entryList;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         recordId = ExtUtil.readInt(in);
         entityId = ExtUtil.readString(in);
-        sections = (Hashtable<String, Hashtable<String, Integer>>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapMap(String.class, Integer.class)));
+        sections = (Hashtable<String, Hashtable<String, Integer>>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapMap(String.class, Integer.class)), pf);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, recordId);
         ExtUtil.writeString(out, entityId);
         ExtUtil.write(out, new ExtWrapMap(sections, new ExtWrapMap(String.class, Integer.class)));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.storage.Persistable#setID(int)
-     */
+    @Override
     public void setID(int ID) {
         recordId = ID;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.storage.Persistable#getID()
-     */
+    @Override
     public int getID() {
         return recordId;
     }
@@ -143,18 +131,12 @@ public class Ledger implements Persistable, IMetaData {
         sections.get(sectionId).put(entryId, new Integer(quantity));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IMetaData#getMetaDataFields()
-     */
+    @Override
     public String[] getMetaDataFields() {
         return new String[]{INDEX_ENTITY_ID};
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IMetaData#getMetaData(java.lang.String)
-     */
+    @Override
     public Object getMetaData(String fieldName) {
         if (fieldName.equals(INDEX_ENTITY_ID)) {
             return entityId;

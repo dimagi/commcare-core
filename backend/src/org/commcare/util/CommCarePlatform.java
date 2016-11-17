@@ -1,11 +1,11 @@
 package org.commcare.util;
 
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.services.storage.IStorageIterator;
@@ -14,6 +14,7 @@ import org.javarosa.core.services.storage.StorageManager;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -32,6 +33,7 @@ public class CommCarePlatform implements CommCareInstance {
     // TODO: We should make this unique using the parser to invalidate this ID or something
     public static final String APP_PROFILE_RESOURCE_ID = "commcare-application-profile";
     private int profile;
+    private OfflineUserRestore offlineUserRestore;
 
     private final int majorVersion;
     private final int minorVersion;
@@ -102,14 +104,10 @@ public class CommCarePlatform implements CommCareInstance {
      *
      * @param global Table with fully-installed resources
      */
-    public void initialize(ResourceTable global) {
-        try {
-            global.initializeResources(this);
-        } catch (ResourceInitializationException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error initializing Resource! " + e.getMessage());
-        }
+    public void initialize(ResourceTable global, boolean isUpgrade) {
+        global.initializeResources(this, isUpgrade);
     }
+
     public void clearAppState() {
         //Clear out any app state
         profile = -1;
@@ -155,10 +153,11 @@ public class CommCarePlatform implements CommCareInstance {
         Vector<Suite> installed = getInstalledSuites();
         String commonDisplayStyle = null;
         for(Suite s : installed) {
-            for(Menu m : s.getMenus()) {
-                if(menuId.equals(m.getId())) {
-                    if(m.getStyle() != null) {
-                        if(commonDisplayStyle != null && !m.getStyle().equals(commonDisplayStyle)){
+            List<Menu> menusWithId = s.getMenusWithId(menuId);
+            if (menusWithId != null) {
+                for (Menu m : menusWithId) {
+                    if (m.getStyle() != null) {
+                        if (commonDisplayStyle != null && !m.getStyle().equals(commonDisplayStyle)) {
                             return null;
                         }
                         commonDisplayStyle = m.getStyle();
@@ -167,5 +166,14 @@ public class CommCarePlatform implements CommCareInstance {
             }
         }
         return commonDisplayStyle;
+    }
+
+    public OfflineUserRestore getDemoUserRestore() {
+        return offlineUserRestore;
+    }
+
+    @Override
+    public void registerDemoUserRestore(OfflineUserRestore offlineUserRestore) {
+        this.offlineUserRestore = offlineUserRestore;
     }
 }

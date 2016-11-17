@@ -43,7 +43,6 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     public LedgerInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage) {
         this.instanceRoot = instanceRoot;
         this.storage = storage;
-        storage.setReadOnly();
     }
 
     /**
@@ -143,6 +142,7 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         }
     }
 
+    @Override
     public boolean isRepeatable() {
         return false;
     }
@@ -243,6 +243,7 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         return 0;
     }
 
+    @Override
     public String getNamespace() {
         return null;
     }

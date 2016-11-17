@@ -57,7 +57,7 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
         return false;
     }
 
-    public boolean isSync() {
+    public boolean isRemoteRequest() {
         return false;
     }
 
@@ -147,7 +147,7 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
         data = (Vector<SessionDatum>)ExtUtil.read(in, new ExtWrapListPoly(), pf);
         instances = (Hashtable<String, DataInstance>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapTagged()), pf);
         stackOperations = (Vector<StackOperation>)ExtUtil.read(in, new ExtWrapList(StackOperation.class), pf);
-        assertions = (AssertionSet)ExtUtil.read(in, new ExtWrapNullable(AssertionSet.class));
+        assertions = (AssertionSet)ExtUtil.read(in, new ExtWrapNullable(AssertionSet.class), pf);
     }
 
     @Override

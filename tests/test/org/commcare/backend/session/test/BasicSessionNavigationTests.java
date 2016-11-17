@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- *
  * Tests navigating through a CommCareSession (setting datum values and commands, using stepBack(),
  * etc.) for a sample app
  *
@@ -18,8 +17,8 @@ import org.junit.Test;
  */
 public class BasicSessionNavigationTests {
 
-    MockApp mApp;
-    SessionWrapper session;
+    private MockApp mApp;
+    private SessionWrapper session;
 
     @Before
     public void setUp() throws Exception {
@@ -128,11 +127,13 @@ public class BasicSessionNavigationTests {
 
     @Test
     public void testStepToSyncRequest() {
-        session.setCommand("patient-search");
+        session.setCommand("patient-case-search");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
 
-        TreeElement data = SessionStackTests.buildExampleInstanceRoot("some_patient_id");
-        session.setQueryDatum(ExternalDataInstance.buildFromRemote("patients", data));
+        ExternalDataInstance dataInstance =
+                SessionStackTests.buildRemoteExternalDataInstance(this.getClass(),
+                        session, "/session-tests-template/patient_query_result.xml");
+        session.setQueryDatum(dataInstance);
 
         // case_id
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
@@ -148,11 +149,13 @@ public class BasicSessionNavigationTests {
      */
     @Test
     public void testStepToIrrelevantSyncRequest() {
-        session.setCommand("patient-search");
+        session.setCommand("patient-case-search");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
 
-        TreeElement data = SessionStackTests.buildExampleInstanceRoot("some_patient_id");
-        session.setQueryDatum(ExternalDataInstance.buildFromRemote("patients", data));
+        ExternalDataInstance dataInstance =
+                SessionStackTests.buildRemoteExternalDataInstance(this.getClass(),
+                        session, "/session-tests-template/patient_query_result.xml");
+        session.setQueryDatum(dataInstance);
 
         // case_id
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
@@ -168,16 +171,16 @@ public class BasicSessionNavigationTests {
     public void testInvokeEmptySyncRequest() {
         SessionWrapper session = mApp.getSession();
 
-        session.setCommand("empty-sync-request");
+        session.setCommand("empty-remote-request");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SYNC_REQUEST);
     }
 
     @Test
     public void testStepToSyncRequestRelevancy() {
-        session.setCommand("irrelevant-sync-request");
+        session.setCommand("irrelevant-remote-request");
         Assert.assertEquals(session.getNeededData(), null);
 
-        session.setCommand("relevant-sync-request");
+        session.setCommand("relevant-remote-request");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SYNC_REQUEST);
     }
 }

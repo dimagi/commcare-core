@@ -79,6 +79,7 @@ public class Selection implements Externalizable {
         this.index = index;
     }
 
+    @Override
     public Selection clone() {
         Selection s = new Selection();
         s.choice = choice;
@@ -95,8 +96,10 @@ public class Selection implements Externalizable {
     }
 
     public void attachChoice(QuestionDef q) {
-        if (q.getDynamicChoices() != null) //can't attach dynamic choices because they aren't guaranteed to exist yet
+        if (q.getDynamicChoices() != null) {
+            // can't attach dynamic choices because they aren't guaranteed to exist yet
             return;
+        }
 
         SelectChoice choice = null;
 
@@ -122,22 +125,23 @@ public class Selection implements Externalizable {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         xmlValue = ExtUtil.readString(in);
         index = ExtUtil.readInt(in);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.utilities.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, getValue());
         ExtUtil.writeNumeric(out, index);
     }
-    // Compatibility index for Touchforms which expects 1-indexed selections
+    /**
+     * Used by touchforms
+     *
+     * Compatibility index for Touchforms which expects 1-indexed selections
+     */
+    @SuppressWarnings("unused")
     public int getTouchformsIndex(){
         return index + 1;
     }

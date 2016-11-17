@@ -16,7 +16,6 @@ import org.javarosa.xform.parse.XFormParser;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -74,10 +73,6 @@ public class QuestionDef implements IFormElement {
 
     public QuestionString getQuestionString(String key){
         return mQuestionStrings.get(key);
-    }
-
-    public boolean hasQuestionString(String key){
-        return (mQuestionStrings.get(key) != null);
     }
 
     @Override
@@ -216,8 +211,8 @@ public class QuestionDef implements IFormElement {
         for (int i = 0; i < getNumChoices(); i++) {
             choices.elementAt(i).setIndex(i);
         }
-        setDynamicChoices((ItemsetBinding)ExtUtil.read(dis, new ExtWrapNullable(ItemsetBinding.class)));
-        mQuestionStrings = (Hashtable<String, QuestionString>)ExtUtil.read(dis, new ExtWrapMap(String.class, QuestionString.class));
+        setDynamicChoices((ItemsetBinding)ExtUtil.read(dis, new ExtWrapNullable(ItemsetBinding.class), pf));
+        mQuestionStrings = (Hashtable<String, QuestionString>)ExtUtil.read(dis, new ExtWrapMap(String.class, QuestionString.class), pf);
         extensions = (Vector)ExtUtil.read(dis, new ExtWrapListPoly(), pf);
         actionController = (ActionController)ExtUtil.read(dis, new ExtWrapNullable(ActionController.class), pf);
     }

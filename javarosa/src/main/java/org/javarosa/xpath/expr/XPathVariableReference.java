@@ -13,6 +13,7 @@ import java.io.IOException;
 public class XPathVariableReference extends XPathExpression {
     public XPathQName id;
 
+    @SuppressWarnings("unused")
     public XPathVariableReference() {
     } //for deserialization
 
@@ -47,7 +48,7 @@ public class XPathVariableReference extends XPathExpression {
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        id = (XPathQName)ExtUtil.read(in, XPathQName.class);
+        id = (XPathQName)ExtUtil.read(in, XPathQName.class, pf);
     }
 
     @Override

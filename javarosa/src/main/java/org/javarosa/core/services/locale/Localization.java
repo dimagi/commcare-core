@@ -60,6 +60,11 @@ public class Localization {
         globalLocalizer.setLocale(locale);
     }
 
+    public static String getCurrentLocale() {
+        checkRep();
+        return globalLocalizer.getLocale();
+    }
+
     public static void setDefaultLocale(String defaultLocale) {
         checkRep();
         globalLocalizer.setDefaultLocale(defaultLocale);
@@ -76,5 +81,9 @@ public class Localization {
         if (globalLocalizer.getAvailableLocales().length == 0) {
             throw new LocaleTextException("There are no locales defined for the application. Please make sure to register locale text using the Locale.register() method");
         }
+    }
+
+    public static String[] getArray(String key) {
+        return Localization.get(key).split(",");
     }
 }

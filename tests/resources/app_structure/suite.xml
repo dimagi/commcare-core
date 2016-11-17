@@ -60,6 +60,29 @@
       </template>
     </field>
   </detail>
+
+  <detail id="m1_case_short">
+    <title>
+      <text>With focus function</text>
+    </title>
+    <focus function="case_name = 'Fake Case Name'"/>
+    <field>
+      <header>
+        <text>Name</text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+
   <entry>
     <form>http://commcarehq.org/test/placeholder</form>
     <command id="m0-f0">
@@ -82,7 +105,7 @@
     </session>
   </entry>
 
-  <sync-request>
+  <remote-request>
     <post url="http://fake.com/claim_patient/">
       <data key="selected_name" ref="instance('patients')/case/name"/>
       <data key="selected_case_id" ref="instance('patients')/case/@case_id"/>
@@ -116,7 +139,7 @@
         <datum id="calculated_data" value="'claimed'"/>
       </push>
     </stack>
-  </sync-request>
+  </remote-request>
 
   <menu id="m0">
     <text>Menu</text>

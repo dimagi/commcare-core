@@ -30,35 +30,38 @@ public class ArchiveFileReference implements Reference {
         this.GUID = GUID;
     }
 
+    @Override
     public boolean doesBinaryExist() throws IOException {
         return true;
     }
 
+    @Override
     public OutputStream getOutputStream() throws IOException {
         throw new IOException("Archive references are read only!");
     }
 
+    @Override
     public InputStream getStream() throws IOException {
         return mZipFile.getInputStream(mZipFile.getEntry(archiveURI));
     }
 
+    @Override
     public String getURI() {
         return "jr://archive/" + GUID + "/" + archiveURI;
     }
 
+    @Override
     public boolean isReadOnly() {
         return true;
     }
 
+    @Override
     public void remove() throws IOException {
         throw new IOException("Cannot remove files from the archive");
     }
 
+    @Override
     public String getLocalURI() {
         return null;
-    }
-
-    public Reference[] probeAlternativeReferences() {
-        return new Reference[0];
     }
 }

@@ -11,7 +11,7 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -33,7 +33,7 @@ public class StackFrameStep implements Externalizable {
 
     /**
      * XML instance collected during session navigation that is made available
-     * in the session's evaulation context. For instance, useful to store
+     * in the session's evaluation context. For instance, useful to store
      * results of a query command during case search and claim workflow
      */
     private ExternalDataInstance xmlInstance;
@@ -79,9 +79,8 @@ public class StackFrameStep implements Externalizable {
 
     public StackFrameStep(String type, String id,
                           String value, boolean valueIsXpath) throws XPathSyntaxException {
-        this.elementType = type;
-        this.id = id;
-        this.value = value;
+        this(type, id, value);
+
         this.valueIsXpath = valueIsXpath;
 
         if (valueIsXpath) {
@@ -101,10 +100,6 @@ public class StackFrameStep implements Externalizable {
 
     public String getValue() {
         return value;
-    }
-
-    public boolean getValueIsXPath() {
-        return valueIsXpath;
     }
 
     public boolean hasXmlInstance() {
@@ -131,32 +126,44 @@ public class StackFrameStep implements Externalizable {
     /**
      * Get a performed step to pass on to an actual frame
      *
-     * @param ec Context to evaluate any parameters with
+     * @param ec          Context to evaluate any parameters with
+     * @param neededDatum The current datum needed by the session, used by
+     *                    'mark' to know what datum to set in a 'rewind'
      * @return A step that can be added to a session frame
      */
-    public StackFrameStep defineStep(EvaluationContext ec) {
-        String finalValue;
+    public StackFrameStep defineStep(EvaluationContext ec, SessionDatum neededDatum) {
+        switch (elementType) {
+            case SessionFrame.STATE_DATUM_VAL:
+                return new StackFrameStep(SessionFrame.STATE_DATUM_VAL, id, evaluateValue(ec));
+            case SessionFrame.STATE_COMMAND_ID:
+                return new StackFrameStep(SessionFrame.STATE_COMMAND_ID, evaluateValue(ec), null);
+            case SessionFrame.STATE_UNKNOWN:
+                return new StackFrameStep(SessionFrame.STATE_UNKNOWN, id, evaluateValue(ec));
+            case SessionFrame.STATE_REWIND:
+                return new StackFrameStep(SessionFrame.STATE_REWIND, null, evaluateValue(ec));
+            case SessionFrame.STATE_MARK:
+                if (neededDatum == null) {
+                    throw new RuntimeException("Can't add a mark in a place where there is no needed datum");
+                }
+                return new StackFrameStep(SessionFrame.STATE_MARK, neededDatum.getDataId(), null);
+            case SessionFrame.STATE_FORM_XMLNS:
+                throw new RuntimeException("Form Definitions in Steps are not yet supported!");
+            default:
+                throw new RuntimeException("Invalid step [" + elementType + "] declared when constructing a new frame step");
+        }
+    }
+
+    public String evaluateValue(EvaluationContext ec) {
         if (!valueIsXpath) {
-            finalValue = value;
+            return value;
         } else {
             try {
-                finalValue = XPathFuncExpr.toString(XPathParseTool.parseXPath(value).eval(ec));
+                return FunctionUtils.toString(XPathParseTool.parseXPath(value).eval(ec));
             } catch (XPathSyntaxException e) {
                 //This error makes no sense, since we parse the input for
                 //validation when we create it!
                 throw new XPathException(e.getMessage());
             }
-        }
-
-        //figure out how to structure the step
-        if (elementType.equals(SessionFrame.STATE_DATUM_VAL)) {
-            return new StackFrameStep(SessionFrame.STATE_DATUM_VAL, id, finalValue);
-        } else if (elementType.equals(SessionFrame.STATE_COMMAND_ID)) {
-            return new StackFrameStep(SessionFrame.STATE_COMMAND_ID, finalValue, null);
-        } else if (elementType.equals(SessionFrame.STATE_FORM_XMLNS)) {
-            throw new RuntimeException("Form Definitions in Steps are not yet supported!");
-        } else {
-            throw new RuntimeException("Invalid step [" + elementType + "] declared when constructing a new frame step");
         }
     }
 
@@ -188,17 +195,17 @@ public class StackFrameStep implements Externalizable {
 
         StackFrameStep that = (StackFrameStep)o;
 
-        return ((propertiesEqual(this.getType(), that.getType())) &&
-                (propertiesEqual(this.getId(), that.getId())) &&
-                (propertiesEqual(this.getValue(), that.getValue())) &&
-                (this.getValueIsXPath() == that.getValueIsXPath()));
+        return ((propertiesEqual(this.elementType, that.elementType)) &&
+                (propertiesEqual(this.id, that.id)) &&
+                (propertiesEqual(this.value, that.value)) &&
+                (this.valueIsXpath == that.valueIsXpath));
     }
 
     @Override
     public int hashCode() {
-        final int valueIsXPathHash = getValueIsXPath() ? 1231 : 1237;
-        return (getType().hashCode() ^ getId().hashCode() ^
-                getValue().hashCode() ^ valueIsXPathHash);
+        final int valueIsXPathHash = valueIsXpath ? 1231 : 1237;
+        return (elementType.hashCode() ^ id.hashCode() ^
+                value.hashCode() ^ valueIsXPathHash);
     }
 
     private boolean propertiesEqual(String a, String b) {
@@ -216,5 +223,9 @@ public class StackFrameStep implements Externalizable {
         } else {
             return "(" + elementType + " " + id + " : " + value + ")";
         }
+    }
+
+    public void setType(String elementType) {
+        this.elementType = elementType;
     }
 }

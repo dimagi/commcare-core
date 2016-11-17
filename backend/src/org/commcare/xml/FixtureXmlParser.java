@@ -25,7 +25,7 @@ import java.util.Vector;
 public class FixtureXmlParser extends TransactionParser<FormInstance> {
 
     IStorageUtilityIndexed<FormInstance> storage;
-    boolean overwrite = true;
+    private final boolean overwrite;
 
     public FixtureXmlParser(KXmlParser parser) {
         this(parser, true, null);
@@ -74,7 +74,7 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
                 Vector<Integer> matchingUsers = storage().getIDsForValue(FormInstance.META_XMLNS, ExtUtil.emptyIfNull(userId));
                 for (Integer i : matchingFixtures) {
                     if (matchingUsers.indexOf(i) != -1) {
-                        recordId = i.intValue();
+                        recordId = i;
                     }
                 }
             }
