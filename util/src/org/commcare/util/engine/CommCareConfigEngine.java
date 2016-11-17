@@ -1,4 +1,4 @@
-package org.commcare.util;
+package org.commcare.util.engine;
 
 import org.commcare.modern.reference.ArchiveFileRoot;
 import org.commcare.modern.reference.JavaFileRoot;
@@ -20,6 +20,7 @@ import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.PropertySetter;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
@@ -54,12 +55,12 @@ import java.util.zip.ZipFile;
  * @author ctsims
  */
 public class CommCareConfigEngine {
-    private final ResourceTable table;
-    private final ResourceTable updateTable;
-    private final ResourceTable recoveryTable;
-    private final PrintStream print;
-    private final CommCarePlatform platform;
+    protected ResourceTable table;
+    protected ResourceTable updateTable;
+    protected ResourceTable recoveryTable;
+    protected CommCarePlatform platform;
     private final PrototypeFactory mLiveFactory;
+    private final PrintStream print;
 
     private ArchiveFileRoot mArchiveRoot;
 
@@ -102,7 +103,7 @@ public class CommCareConfigEngine {
         StorageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
     }
 
-    private void setRoots() {
+    protected void setRoots() {
         ReferenceManager.instance().addReferenceFactory(new JavaHttpRoot());
 
         this.mArchiveRoot = new ArchiveFileRoot();
@@ -124,7 +125,6 @@ public class CommCareConfigEngine {
         } catch (IOException e) {
             print.println("File at " + archiveURL + ": is not a valid CommCare Package. Downloaded to: " + fileName);
             e.printStackTrace(print);
-            System.exit(-1);
             return;
         }
         String archiveGUID = this.mArchiveRoot.addArchiveFile(zip);

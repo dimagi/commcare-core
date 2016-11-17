@@ -2,7 +2,7 @@ package org.commcare.test.utilities;
 
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.core.parse.ParseUtils;
-import org.commcare.util.CommCareConfigEngine;
+import org.commcare.util.engine.CommCareConfigEngine;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
