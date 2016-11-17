@@ -23,7 +23,7 @@ import java.util.Vector;
  */
 public class UploadExtensionTest {
 
-    Vector<QuestionExtensionParser> extensionParsers;
+    private Vector<QuestionExtensionParser> extensionParsers;
 
     @Rule
     public final ExpectedException exception = ExpectedException.none();

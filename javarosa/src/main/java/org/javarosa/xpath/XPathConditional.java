@@ -11,6 +11,7 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathBinaryOpExpr;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
@@ -46,7 +47,7 @@ public class XPathConditional implements IConditionExpr {
     @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         try {
-            return XPathFuncExpr.unpack(expr.eval(model, evalContext));
+            return FunctionUtils.unpack(expr.eval(model, evalContext));
         } catch (XPathUnsupportedException e) {
             if (xpath != null) {
                 throw new XPathUnsupportedException(xpath);
@@ -58,12 +59,12 @@ public class XPathConditional implements IConditionExpr {
 
     @Override
     public boolean eval(DataInstance model, EvaluationContext evalContext) {
-        return XPathFuncExpr.toBoolean(evalRaw(model, evalContext));
+        return FunctionUtils.toBoolean(evalRaw(model, evalContext));
     }
 
     @Override
     public String evalReadable(DataInstance model, EvaluationContext evalContext) {
-        return XPathFuncExpr.toString(evalRaw(model, evalContext));
+        return FunctionUtils.toString(evalRaw(model, evalContext));
     }
 
     @Override

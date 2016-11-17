@@ -8,9 +8,9 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathPathExpr;
 
 import java.util.Enumeration;
@@ -86,7 +86,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                             //TODO: We need a way to determine that this value does not also depend on anything in the current context, not
                             //sure the best way to do that....? Maybe tell the evaluation context to skip out here if it detects a request
                             //to resolve in a certain area?
-                            Object o = XPathFuncExpr.unpack(((XPathEqExpr)xpe).b.eval(evalContext));
+                            Object o = FunctionUtils.unpack(((XPathEqExpr)xpe).b.eval(evalContext));
 
                             keysToFetch.addElement(filterIndex);
                             valuesToFetch.addElement(o);
@@ -117,7 +117,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
             if (keyMapping != null) {
                 //If so, go fetch that element's record id and skip the storage
                 //lookup
-                Integer uniqueValue = keyMapping.get(XPathFuncExpr.toString(o));
+                Integer uniqueValue = keyMapping.get(FunctionUtils.toString(o));
 
                 //Merge into the selected elements
                 if (uniqueValue != null) {

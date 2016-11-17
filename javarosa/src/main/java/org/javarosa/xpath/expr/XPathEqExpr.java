@@ -27,8 +27,8 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
 
     @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
-        Object aval = XPathFuncExpr.unpack(a.eval(model, evalContext));
-        Object bval = XPathFuncExpr.unpack(b.eval(model, evalContext));
+        Object aval = FunctionUtils.unpack(a.eval(model, evalContext));
+        Object bval = FunctionUtils.unpack(b.eval(model, evalContext));
         boolean eq = testEquality(aval, bval);
 
         return isEqOp == eq;
@@ -70,9 +70,9 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
 
         if (aval instanceof Boolean || bval instanceof Boolean) {
             if (!(aval instanceof Boolean)) {
-                aval = XPathFuncExpr.toBoolean(aval);
+                aval = FunctionUtils.toBoolean(aval);
             } else if (!(bval instanceof Boolean)) {
-                bval = XPathFuncExpr.toBoolean(bval);
+                bval = FunctionUtils.toBoolean(bval);
             }
 
             boolean ba = (Boolean)aval;
@@ -80,17 +80,17 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
             eq = (ba == bb);
         } else if (aval instanceof Double || bval instanceof Double) {
             if (!(aval instanceof Double)) {
-                aval = XPathFuncExpr.toNumeric(aval);
+                aval = FunctionUtils.toNumeric(aval);
             } else if (!(bval instanceof Double)) {
-                bval = XPathFuncExpr.toNumeric(bval);
+                bval = FunctionUtils.toNumeric(bval);
             }
 
             double fa = (Double)aval;
             double fb = (Double)bval;
             eq = Math.abs(fa - fb) < 1.0e-12;
         } else {
-            aval = XPathFuncExpr.toString(aval);
-            bval = XPathFuncExpr.toString(bval);
+            aval = FunctionUtils.toString(aval);
+            bval = FunctionUtils.toString(bval);
             eq = (aval.equals(bval));
         }
         return eq;

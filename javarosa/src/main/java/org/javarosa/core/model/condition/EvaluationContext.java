@@ -6,11 +6,12 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathLazyNodeset;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.expr.XPathStep;
 
@@ -46,6 +47,11 @@ public class EvaluationContext implements HashRefResolver {
      * The root of the current execution trace
      */
     private EvaluationTrace mTraceRoot = null;
+
+    /**
+     * An optional reporter for traced evaluations
+     */
+    private EvaluationTraceReporter mTraceReporter = null;
 
     // Unambiguous anchor reference for relative paths
     private final TreeReference contextNode;
@@ -169,7 +175,7 @@ public class EvaluationContext implements HashRefResolver {
         functionHandlers.put(fh.getName(), fh);
     }
 
-    public Hashtable getFunctionHandlers() {
+    public Hashtable<String, IFunctionHandler> getFunctionHandlers() {
         return functionHandlers;
     }
 
@@ -369,7 +375,7 @@ public class EvaluationContext implements HashRefResolver {
 
                     EvaluationContext evalContext = rescope(refToExpand, positionContext[predIndex]);
                     Object o = predExpr.eval(sourceInstance, evalContext);
-                    o = XPathFuncExpr.unpack(o);
+                    o = FunctionUtils.unpack(o);
 
                     boolean passed = false;
                     if (o instanceof Double) {
@@ -378,7 +384,7 @@ public class EvaluationContext implements HashRefResolver {
 
                         // The spec just says "number" for when to use this;
                         // Not clear what to do with a non-integer/rounding.
-                        int intVal = XPathFuncExpr.toInt(o).intValue();
+                        int intVal = FunctionUtils.toInt(o).intValue();
                         passed = (intVal == positionContext[predIndex]);
                     } else if (o instanceof Boolean) {
                         passed = (Boolean)o;
@@ -580,6 +586,9 @@ public class EvaluationContext implements HashRefResolver {
 
             if (mDebugCore.mCurrentTraceLevel.getParent() == null) {
                 mDebugCore.mTraceRoot = mDebugCore.mCurrentTraceLevel;
+                if(mDebugCore.mTraceReporter != null) {
+                    mDebugCore.mTraceReporter.reportTrace(mDebugCore.mTraceRoot);
+                }
             }
             mDebugCore.mCurrentTraceLevel = mDebugCore.mCurrentTraceLevel.getParent();
         }
@@ -589,8 +598,16 @@ public class EvaluationContext implements HashRefResolver {
      * Sets this EC to be the base of a trace capture for debugging.
      */
     public void setDebugModeOn() {
+        setDebugModeOn(null);
+    }
+
+    /**
+     * Sets this EC to be the base of a trace capture for debugging.
+     */
+    public void setDebugModeOn(EvaluationTraceReporter reporter) {
         this.mAccumulateExprs = true;
         this.mDebugCore = this;
+        this.mTraceReporter = reporter;
     }
 
 

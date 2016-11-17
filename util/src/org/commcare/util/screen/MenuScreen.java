@@ -11,8 +11,8 @@ import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.PrintStream;
@@ -51,7 +51,7 @@ public class MenuScreen extends Screen {
                     XPathExpression relevance = m.getMenuRelevance();
                     if (m.getMenuRelevance() != null) {
                         ec = session.getEvaluationContext(m.getId());
-                        if (!XPathFuncExpr.toBoolean(relevance.eval(ec))) {
+                        if (!FunctionUtils.toBoolean(relevance.eval(ec))) {
                             continue;
                         }
                     }
@@ -72,7 +72,7 @@ public class MenuScreen extends Screen {
                                 ec = session.getEvaluationContext();
                                 Object ret = mRelevantCondition.eval(ec);
                                 try {
-                                    if (!XPathFuncExpr.toBoolean(ret)) {
+                                    if (!FunctionUtils.toBoolean(ret)) {
                                         continue;
                                     }
                                 } catch (XPathTypeMismatchException e) {
