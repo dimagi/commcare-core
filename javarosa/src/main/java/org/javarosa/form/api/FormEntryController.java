@@ -8,9 +8,6 @@ import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.InvalidReferenceException;
 import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.core.model.instance.TreeReference;
-
-import java.util.ArrayList;
 
 import java.util.ArrayList;
 
@@ -378,7 +375,7 @@ public class FormEntryController {
     public String getFormEntrySessionString() {
         return formEntrySession.toString();
     }
-
+    
     /**
      * getQuestionPrompts for the current index
      */
