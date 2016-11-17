@@ -5,7 +5,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathPowFunc extends XPathFuncExpr {
-    private static final String NAME = "pow";
+    public static final String NAME = "pow";
     private static final int EXPECTED_ARG_COUNT = 2;
 
     public XPathPowFunc() {

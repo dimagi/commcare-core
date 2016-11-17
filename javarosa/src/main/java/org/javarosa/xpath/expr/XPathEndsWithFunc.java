@@ -5,7 +5,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathEndsWithFunc extends XPathFuncExpr {
-    private static final String NAME = "ends-with";
+    public static final String NAME = "ends-with";
     private static final int EXPECTED_ARG_COUNT = 2;
 
     public XPathEndsWithFunc() {

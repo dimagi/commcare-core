@@ -7,7 +7,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.util.Date;
 
 public class XPathNowFunc extends XPathFuncExpr {
-    private static final String NAME = "now";
+    public static final String NAME = "now";
     private static final int EXPECTED_ARG_COUNT = 0;
 
     public XPathNowFunc() {

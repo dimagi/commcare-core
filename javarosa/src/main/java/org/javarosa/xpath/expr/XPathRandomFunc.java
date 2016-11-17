@@ -7,7 +7,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 // non-standard
 public class XPathRandomFunc extends XPathFuncExpr {
-    private static final String NAME = "random";
+    public static final String NAME = "random";
     private static final int EXPECTED_ARG_COUNT = 0;
 
     public XPathRandomFunc() {

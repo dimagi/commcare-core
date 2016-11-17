@@ -7,7 +7,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 // non-standard
 public class XPathDependFunc extends XPathFuncExpr {
-    private static final String NAME = "depend";
+    public static final String NAME = "depend";
     // at least one argument
     private static final int EXPECTED_ARG_COUNT = -1;
 

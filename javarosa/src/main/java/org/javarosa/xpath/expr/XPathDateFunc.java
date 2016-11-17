@@ -6,7 +6,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 // non-standard
 public class XPathDateFunc extends XPathFuncExpr {
-    private static final String NAME = "date";
+    public static final String NAME = "date";
     private static final int EXPECTED_ARG_COUNT = 1;
 
     public XPathDateFunc() {

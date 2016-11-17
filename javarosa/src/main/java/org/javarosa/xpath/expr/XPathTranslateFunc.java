@@ -7,7 +7,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.util.Hashtable;
 
 public class XPathTranslateFunc extends XPathFuncExpr {
-    private static final String NAME = "translate";
+    public static final String NAME = "translate";
     private static final int EXPECTED_ARG_COUNT = 3;
 
     public XPathTranslateFunc() {

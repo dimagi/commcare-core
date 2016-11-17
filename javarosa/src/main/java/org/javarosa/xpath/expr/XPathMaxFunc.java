@@ -7,7 +7,7 @@ import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathMaxFunc extends XPathFuncExpr {
-    private static final String NAME = "max";
+    public static final String NAME = "max";
     // one or more arguments
     private static final int EXPECTED_ARG_COUNT = -1;
 

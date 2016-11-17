@@ -12,7 +12,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  * (i.e, space-delimited choice values)
  */
 public class XPathCountSelectedFunc extends XPathFuncExpr {
-    private static final String NAME = "count-selected";
+    public static final String NAME = "count-selected";
     private static final int EXPECTED_ARG_COUNT = 1;
 
     public XPathCountSelectedFunc() {

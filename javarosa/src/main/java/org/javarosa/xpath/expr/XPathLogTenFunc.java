@@ -5,7 +5,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathLogTenFunc extends XPathFuncExpr {
-    private static final String NAME = "log10";
+    public static final String NAME = "log10";
     private static final int EXPECTED_ARG_COUNT = 1;
 
     public XPathLogTenFunc() {

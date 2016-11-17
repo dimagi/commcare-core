@@ -7,7 +7,7 @@ import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathSelectedAtFunc extends XPathFuncExpr {
-    private static final String NAME = "selected-at";
+    public static final String NAME = "selected-at";
     private static final int EXPECTED_ARG_COUNT = 2;
 
     public XPathSelectedAtFunc() {

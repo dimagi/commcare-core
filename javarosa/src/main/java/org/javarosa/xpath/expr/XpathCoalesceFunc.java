@@ -6,7 +6,7 @@ import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XpathCoalesceFunc extends XPathFuncExpr {
-    private static final String NAME = "coalesce";
+    public static final String NAME = "coalesce";
     // at least 1 argument
     private static final int EXPECTED_ARG_COUNT = -1;
 

@@ -5,7 +5,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathContainsFunc extends XPathFuncExpr {
-    private static final String NAME = "contains";
+    public static final String NAME = "contains";
     private static final int EXPECTED_ARG_COUNT = 2;
 
     public XPathContainsFunc() {

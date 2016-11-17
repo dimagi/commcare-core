@@ -7,9 +7,78 @@ import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 public class FunctionUtils {
+    private static final HashMap<String, Class> funcList = new HashMap<>();
+
+    static {
+        funcList.put(XPathDateFunc.NAME, XPathDateFunc.class);
+        funcList.put(XpathCoalesceFunc.NAME, XpathCoalesceFunc.class);
+        funcList.put(XPathTrueFunc.NAME, XPathTrueFunc.class);
+        funcList.put(XPathNowFunc.NAME, XPathNowFunc.class);
+        funcList.put(XPathNumberFunc.NAME, XPathNumberFunc.class);
+        funcList.put(XPathSelectedFunc.NAME, XPathSelectedFunc.class);
+        funcList.put(XPathBooleanFunc.NAME, XPathBooleanFunc.class);
+        funcList.put(XPathLogTenFunc.NAME, XPathLogTenFunc.class);
+        funcList.put(XPathExpFunc.NAME, XPathExpFunc.class);
+        funcList.put(XPathChecklistFunc.NAME, XPathChecklistFunc.class);
+        funcList.put(XPathAtanTwoFunc.NAME, XPathAtanTwoFunc.class);
+        funcList.put(XPathSubstrFunc.NAME, XPathSubstrFunc.class);
+        funcList.put(XPathStringFunc.NAME, XPathStringFunc.class);
+        funcList.put(XPathEndsWithFunc.NAME, XPathEndsWithFunc.class);
+        funcList.put(XPathDependFunc.NAME, XPathDependFunc.class);
+        funcList.put(XPathDoubleFunc.NAME, XPathDoubleFunc.class);
+        funcList.put(XPathTanFunc.NAME, XPathTanFunc.class);
+        funcList.put(XPathReplaceFunc.NAME, XPathReplaceFunc.class);
+        funcList.put(XPathJoinFunc.NAME, XPathJoinFunc.class);
+        funcList.put(XPathFloorFunc.NAME, XPathFloorFunc.class);
+        funcList.put(XPathPiFunc.NAME, XPathPiFunc.class);
+        funcList.put(XPathFormatDateFunc.NAME, XPathFormatDateFunc.class);
+        funcList.put(XPathFormatDateForCalendarFunc.NAME, XPathFormatDateForCalendarFunc.class);
+        funcList.put(XPathMinFunc.NAME, XPathMinFunc.class);
+        funcList.put(XPathSinFunc.NAME, XPathSinFunc.class);
+        funcList.put(XPathBooleanFromStringFunc.NAME, XPathBooleanFromStringFunc.class);
+        funcList.put(XPathCondFunc.NAME, XPathCondFunc.class);
+        funcList.put(XPathSubstringBeforeFunc.NAME, XPathSubstringBeforeFunc.class);
+        funcList.put(XPathCeilingFunc.NAME, XPathCeilingFunc.class);
+        funcList.put(XPathPositionFunc.NAME, XPathPositionFunc.class);
+        funcList.put(XPathStringLengthFunc.NAME, XPathStringLengthFunc.class);
+        funcList.put(XPathRandomFunc.NAME, XPathRandomFunc.class);
+        funcList.put(XPathMaxFunc.NAME, XPathMaxFunc.class);
+        funcList.put(XPathAcosFunc.NAME, XPathAcosFunc.class);
+        funcList.put(XPathAsinFunc.NAME, XPathAsinFunc.class);
+        funcList.put(XPathIfFunc.NAME, XPathIfFunc.class);
+        funcList.put(XPathLowerCaseFunc.NAME, XPathLowerCaseFunc.class);
+        funcList.put(XPathIntFunc.NAME, XPathIntFunc.class);
+        funcList.put(XPathDistanceFunc.NAME, XPathDistanceFunc.class);
+        funcList.put(XPathWeightedChecklistFunc.NAME, XPathWeightedChecklistFunc.class);
+        funcList.put(XPathUpperCaseFunc.NAME, XPathUpperCaseFunc.class);
+        funcList.put(XPathCosFunc.NAME, XPathCosFunc.class);
+        funcList.put(XPathFalseFunc.NAME, XPathFalseFunc.class);
+        funcList.put(XPathLogFunc.NAME, XPathLogFunc.class);
+        funcList.put(XPathRoundFunc.NAME, XPathRoundFunc.class);
+        funcList.put(XPathSubstringAfterFunc.NAME, XPathSubstringAfterFunc.class);
+        funcList.put(XPathAbsFunc.NAME, XPathAbsFunc.class);
+        funcList.put(XPathTranslateFunc.NAME, XPathTranslateFunc.class);
+        funcList.put(XPathCountSelectedFunc.NAME, XPathCountSelectedFunc.class);
+        funcList.put(XPathSelectedAtFunc.NAME, XPathSelectedAtFunc.class);
+        funcList.put(XPathCountFunc.NAME, XPathCountFunc.class);
+        funcList.put(XPathPowFunc.NAME, XPathPowFunc.class);
+        funcList.put(XPathContainsFunc.NAME, XPathContainsFunc.class);
+        funcList.put(XPathNotFunc.NAME, XPathNotFunc.class);
+        funcList.put(XPathSumFunc.NAME, XPathSumFunc.class);
+        funcList.put(XPathRegexFunc.NAME, XPathRegexFunc.class);
+        funcList.put(XPathAtanFunc.NAME, XPathAtanFunc.class);
+        funcList.put(XPathStartsWithFunc.NAME, XPathStartsWithFunc.class);
+        funcList.put(XPathTodayFunc.NAME, XPathTodayFunc.class);
+        funcList.put(XPathConcatFunc.NAME, XPathConcatFunc.class);
+        funcList.put(XPathSqrtFunc.NAME, XPathSqrtFunc.class);
+        funcList.put(XPathUuidFunc.NAME, XPathUuidFunc.class);
+    }
 
     private static final CacheTable<String, Double> mDoubleParseCache = new CacheTable<>();
     /**
@@ -360,5 +429,19 @@ public class FunctionUtils {
             return s.toUpperCase();
         }
         return s.toLowerCase();
+    }
+
+    /**
+     * Get list of base xpath functions
+     *
+     * (Used in formplayer for function auto-completion)
+     */
+    @SuppressWarnings("unused")
+    public static List<String> xPathFuncList() {
+        return new ArrayList<>(funcList.keySet());
+    }
+
+    public static HashMap<String, Class> getXPathFuncListMap() {
+        return funcList;
     }
 }

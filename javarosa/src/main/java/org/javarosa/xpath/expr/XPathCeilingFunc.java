@@ -5,7 +5,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathCeilingFunc extends XPathFuncExpr {
-    private static final String NAME = "ceiling";
+    public static final String NAME = "ceiling";
     private static final int EXPECTED_ARG_COUNT = 1;
 
     public XPathCeilingFunc() {

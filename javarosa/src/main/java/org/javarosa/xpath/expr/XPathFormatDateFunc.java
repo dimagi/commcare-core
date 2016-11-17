@@ -8,7 +8,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.util.Date;
 
 public class XPathFormatDateFunc extends XPathFuncExpr {
-    private static final String NAME = "format-date";
+    public static final String NAME = "format-date";
     private static final int EXPECTED_ARG_COUNT = 2;
 
     public XPathFormatDateFunc() {

@@ -7,7 +7,7 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathSumFunc extends XPathFuncExpr {
-    private static final String NAME = "sum";
+    public static final String NAME = "sum";
     private static final int EXPECTED_ARG_COUNT = 1;
 
     public XPathSumFunc() {

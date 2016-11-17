@@ -6,7 +6,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 // non-standard
 public class XPathDoubleFunc extends XPathFuncExpr {
-    private static final String NAME = "double";
+    public static final String NAME = "double";
     private static final int EXPECTED_ARG_COUNT = 1;
 
     public XPathDoubleFunc() {

@@ -9,7 +9,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.util.Date;
 
 public class XPathFormatDateForCalendarFunc extends XPathFuncExpr {
-    private static final String NAME = "format-date-for-calendar";
+    public static final String NAME = "format-date-for-calendar";
     private static final int EXPECTED_ARG_COUNT = 2;
 
     public XPathFormatDateForCalendarFunc() {

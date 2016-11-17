@@ -5,7 +5,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathStartsWithFunc extends XPathFuncExpr {
-    private static final String NAME = "starts-with";
+    public static final String NAME = "starts-with";
     private static final int EXPECTED_ARG_COUNT = 2;
 
     public XPathStartsWithFunc() {
