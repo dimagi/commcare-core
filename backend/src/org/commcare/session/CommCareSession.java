@@ -25,8 +25,8 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -303,8 +303,11 @@ public class CommCareSession {
      * an entry on the stack
      */
     public SessionDatum getNeededDatum() {
-        Entry entry = getEntriesForCommand(getCommand()).elementAt(0);
-        return getNeededDatum(entry);
+        Vector<Entry> entries = getEntriesForCommand(getCommand());
+        if (entries.isEmpty()) {
+            throw new IllegalStateException("The current session has no valid entry");
+        }
+        return getNeededDatum(entries.firstElement());
     }
 
     /**
@@ -452,10 +455,10 @@ public class CommCareSession {
             throw new RuntimeException(e.getMessage());
         }
         if (datum instanceof FormIdDatum) {
-            setXmlns(XPathFuncExpr.toString(form.eval(ec)));
+            setXmlns(FunctionUtils.toString(form.eval(ec)));
             setDatum("", "awful");
         } else if (datum instanceof ComputedDatum) {
-            setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
+            setDatum(datum.getDataId(), FunctionUtils.toString(form.eval(ec)));
         }
     }
 
@@ -812,7 +815,7 @@ public class CommCareSession {
         if (e.size() > 1) {
             throw new IllegalStateException("The current session does not contain a single valid entry");
         }
-        if (e.size() == 0) {
+        if (e.isEmpty()) {
             throw new IllegalStateException("The current session has no valid entry");
         }
         return e.elementAt(0);

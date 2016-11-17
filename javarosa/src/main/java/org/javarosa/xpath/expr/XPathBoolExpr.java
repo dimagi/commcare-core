@@ -17,14 +17,14 @@ public class XPathBoolExpr extends XPathBinaryOpExpr {
 
     @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
-        boolean aval = XPathFuncExpr.toBoolean(a.eval(model, evalContext));
+        boolean aval = FunctionUtils.toBoolean(a.eval(model, evalContext));
 
         //short-circuiting
         if ((!aval && op == AND) || (aval && op == OR)) {
             return aval;
         }
 
-        boolean bval = XPathFuncExpr.toBoolean(b.eval(model, evalContext));
+        boolean bval = FunctionUtils.toBoolean(b.eval(model, evalContext));
 
         boolean result = false;
         switch (op) {

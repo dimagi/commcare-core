@@ -11,7 +11,7 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -158,7 +158,7 @@ public class StackFrameStep implements Externalizable {
             return value;
         } else {
             try {
-                return XPathFuncExpr.toString(XPathParseTool.parseXPath(value).eval(ec));
+                return FunctionUtils.toString(XPathParseTool.parseXPath(value).eval(ec));
             } catch (XPathSyntaxException e) {
                 //This error makes no sense, since we parse the input for
                 //validation when we create it!

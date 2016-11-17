@@ -11,8 +11,8 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -202,7 +202,7 @@ public class Text implements Externalizable, DetailTemplate {
 
                         @Override
                         public Object eval(Object[] args, EvaluationContext ec) {
-                            Object o = XPathFuncExpr.toDate(args[0]);
+                            Object o = FunctionUtils.toDate(args[0]);
                             if (!(o instanceof Date)) {
                                 //return null, date is null.
                                 return "";
