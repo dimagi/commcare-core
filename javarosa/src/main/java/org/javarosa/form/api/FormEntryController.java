@@ -451,21 +451,4 @@ public class FormEntryController {
         GroupDef gd = (GroupDef)this.getModel().getForm().getChild(index); // exceptions?
         return (FIELD_LIST.equalsIgnoreCase(gd.getAppearanceAttr()));
     }
-
-
-    public void setOneQuestionPerScreen(boolean oneQuestionPerScreen) {
-        this.oneQuestionPerScreen = oneQuestionPerScreen;
-    }
-
-    public boolean getOneQuestionPerScreen() {
-        return oneQuestionPerScreen;
-    }
-
-    public void setCurrentIndex(FormIndex index) {
-        this.currentIndex = index;
-    }
-
-    public FormIndex getCurrentIndex() {
-        return currentIndex;
-    }
 }
