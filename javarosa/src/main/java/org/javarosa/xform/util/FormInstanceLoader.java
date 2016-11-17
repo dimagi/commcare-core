@@ -1,4 +1,4 @@
-package org.javarosa.xform.schema;
+package org.javarosa.xform.util;
 
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.FormInstance;
