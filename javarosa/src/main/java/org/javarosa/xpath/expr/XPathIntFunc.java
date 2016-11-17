@@ -25,6 +25,11 @@ public class XPathIntFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Return: Returns a whole number based on the passed in argument.\n"
+                + "Behavior: Will convert a string (ex. \"34.3\") or a decimal value into an integer.  It will round down (ex. 34.8 will be evaluated to 34).\n"
+                + "Arguments: The value to be converted\n"
+                + "Syntax: int(value_to_convert)\n"
+                + "Example: int(45.6) or int(\"45.6\") will return 45.  You can also directly reference another question - int(/data/my_question).";
     }
 }

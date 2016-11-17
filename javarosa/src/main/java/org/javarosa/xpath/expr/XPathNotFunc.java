@@ -24,6 +24,11 @@ public class XPathNotFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Behavior: Will evaluate to true if the argument is false.  Otherwise will return false.\n"
+                + "Return: Returns a boolean value (true or false)\n"
+                + "Arguments:  The value to be converted\n"
+                + "Syntax: not(value_to_convert)\n"
+                + "Example:  In some situations its easier to write the display or validation condition for when something shouldn't be shown.  You can then pass this to the not function which will reverse it, allowing it to be used as a display condition.  For example, not(/data/is_pregnant = \"yes\" and /data/has_young_children = \"yes\")";
     }
 }

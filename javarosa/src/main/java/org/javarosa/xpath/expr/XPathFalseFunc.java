@@ -24,6 +24,10 @@ public class XPathFalseFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Return:  Returns the boolean value False\n"
+                + "Arguments: None\n"
+                + "Usage: false()\n"
+                + "Example Usage: You may want to use false() when you have some advanced logic for a display or validation condition.  You could also use them if you want to calculate false for a hidden value.  For example, if(/data/question1 = \"yes\" and /data/question2 > 30, true(), false())";
     }
 }
