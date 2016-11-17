@@ -39,9 +39,6 @@ public class FormEntryController {
     public static final boolean STEP_OVER_GROUP = true;
     public static final boolean STEP_INTO_GROUP = false;
 
-    private boolean oneQuestionPerScreen = false;
-    private FormIndex currentIndex;
-
     /**
      * Creates a new form entry controller for the model provided
      */
