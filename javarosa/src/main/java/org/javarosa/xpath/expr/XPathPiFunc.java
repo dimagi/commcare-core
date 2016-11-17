@@ -24,6 +24,11 @@ public class XPathPiFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Behavior: Returns Pi\n"
+                + "Return: Pi\n"
+                + "Arguments: None\n"
+                + "Syntax: pi()";
+
     }
 }
