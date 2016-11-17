@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.TimeZone;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class DateUtilsTests {
@@ -202,6 +203,15 @@ public class DateUtilsTests {
             String formatted = DateUtils.format(novFifth2016Fields, escape);
             assertEquals("Fail: '" + escape + "' rendered unexpectedly", result, formatted);
         }
+
+
+        boolean didFail = false;
+        try {
+            DateUtils.format(novFifth2016Fields, "%c");
+        } catch (RuntimeException e) {
+            didFail = true;
+        }
+        assertTrue(didFail);
     }
 
 /*

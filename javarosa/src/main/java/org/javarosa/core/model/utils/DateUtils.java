@@ -287,7 +287,7 @@ public class DateUtils {
     }
 
     public static String format(DateFields f, String format) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < format.length(); i++) {
             char c = format.charAt(i);
