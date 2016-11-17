@@ -5,6 +5,7 @@ import org.javarosa.core.model.utils.DateUtils.DateFields;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.TimeZone;
@@ -13,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class DateUtilsTests {
-    static Date currentTime;
+    private static Date currentTime;
 
     @BeforeClass
     public static void setUp() {
@@ -184,9 +185,11 @@ public class DateUtilsTests {
 
     @Test
     public void testFormat() {
-        Date novFifth2016 = new Date(17110);
-        DateFields novFifth2016Fields = DateUtils.getFields(novFifth2016, null);
-        HashMap<String, String> escapesResults = new HashMap<String, String>();
+        Calendar novFifth2016 = Calendar.getInstance();
+        novFifth2016.set(2016, Calendar.NOVEMBER, 5);
+        Date novFifthDate = novFifth2016.getTime();
+        DateFields novFifth2016Fields = DateUtils.getFields(novFifthDate, null);
+        HashMap<String, String> escapesResults = new HashMap<>();
         escapesResults.put("%a", "Sat");
         escapesResults.put("%A", "Saturday");
         escapesResults.put("%b", "Nov");
