@@ -28,7 +28,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     private final Vector<Action> actions;
 
     public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context) throws CommCareSessionException {
-        mHeader = this.createHeader(shortDetail, context);
+        mHeader = createHeader(shortDetail, context);
 
         rows = new String[references.size()];
 
@@ -44,7 +44,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         actions = shortDetail.getCustomActions(context);
     }
 
-    private String createRow(TreeReference entity, Detail shortDetail, EvaluationContext ec) {
+    private static String createRow(TreeReference entity, Detail shortDetail, EvaluationContext ec) {
         EvaluationContext context = new EvaluationContext(ec, entity);
 
         shortDetail.populateEvaluationContextVariables(context);
@@ -113,7 +113,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     }
 
     //So annoying how identical this is...
-    private String createHeader(Detail shortDetail, EvaluationContext context) {
+    private static String createHeader(Detail shortDetail, EvaluationContext context) {
         DetailField[] fields = shortDetail.getFields();
 
         StringBuilder row = new StringBuilder();
@@ -138,7 +138,6 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     @Override
     public void prompt(PrintStream out) {
-
         int maxLength = String.valueOf(mChoices.length).length();
         out.println(ScreenUtils.pad("", maxLength + 1) + mHeader);
         out.println("==============================================================================================");

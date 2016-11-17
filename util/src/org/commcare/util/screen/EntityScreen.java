@@ -37,16 +37,17 @@ public class EntityScreen extends CompoundScreenHost {
     private EntityDatum mNeededDatum;
     private Action mPendingAction;
 
-    private org.commcare.util.screen.Subscreen<EntityScreen> mCurrentScreen;
+    private Subscreen<EntityScreen> mCurrentScreen;
 
     private boolean readyToSkip = false;
+    private EvaluationContext evalContext;
 
     private Hashtable<String, TreeReference> referenceMap;
 
     public void init(SessionWrapper session) throws CommCareSessionException {
         SessionDatum datum = session.getNeededDatum();
         if (!(datum instanceof EntityDatum)) {
-            throw new org.commcare.util.screen.CommCareSessionException("Didn't find an entity select action where one is expected.");
+            throw new CommCareSessionException("Didn't find an entity select action where one is expected.");
         }
         mNeededDatum = (EntityDatum)datum;
 
@@ -55,21 +56,23 @@ public class EntityScreen extends CompoundScreenHost {
 
         String detailId = mNeededDatum.getShortDetail();
         if(detailId == null) {
-            throw new org.commcare.util.screen.CommCareSessionException("Can't handle entity selection with blank detail definition for datum " + mNeededDatum.getDataId());
+            throw new CommCareSessionException("Can't handle entity selection with blank detail definition for datum " + mNeededDatum.getDataId());
         }
 
         mShortDetail = this.mPlatform.getDetail(detailId);
 
         if(mShortDetail == null) {
-            throw new org.commcare.util.screen.CommCareSessionException("Missing detail definition for: " + detailId);
+            throw new CommCareSessionException("Missing detail definition for: " + detailId);
         }
 
-        EvaluationContext ec = session.getEvaluationContext();
-        Vector<TreeReference> references = ec.expandReference(mNeededDatum.getNodeset());
+        evalContext = mSession.getEvaluationContext();
+        Vector<TreeReference> references = evalContext.expandReference(mNeededDatum.getNodeset());
+        // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic setting
+        evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56,  -46.66));
 
         referenceMap = new Hashtable<>();
         for(TreeReference reference: references) {
-            referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), ec), reference);
+            referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), evalContext), reference);
         }
 
         if(mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
@@ -79,7 +82,7 @@ public class EntityScreen extends CompoundScreenHost {
                 readyToSkip = true;
             }
         } else {
-            mCurrentScreen = new EntityListSubscreen(mShortDetail, references, ec);
+            mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext);
             initDetailScreens();
         }
     }
@@ -92,14 +95,14 @@ public class EntityScreen extends CompoundScreenHost {
     @Override
     public String getScreenTitle() {
         try {
-            return mShortDetail.getTitle().evaluate(mSession.getEvaluationContext()).getName();
+            return mShortDetail.getTitle().evaluate(evalContext).getName();
         }catch (NoLocalizedTextException nlte) {
             return "Select (error with title string)";
         }
     }
 
     @Override
-    public org.commcare.util.screen.Subscreen getCurrentScreen() {
+    public Subscreen getCurrentScreen() {
         return mCurrentScreen;
     }
 
@@ -122,12 +125,12 @@ public class EntityScreen extends CompoundScreenHost {
     @Override
     protected void updateSession(CommCareSession session) {
         if(mPendingAction != null) {
-            session.executeStackOperations(mPendingAction.getStackOperations(), mSession.getEvaluationContext());
+            session.executeStackOperations(mPendingAction.getStackOperations(), evalContext);
             return;
         }
 
         String selectedValue = this.getReturnValueFromSelection(this.mCurrentSelection,
-                mNeededDatum, mSession.getEvaluationContext());
+                mNeededDatum, evalContext);
         session.setDatum(mNeededDatum.getDataId(), selectedValue);
 
     }
@@ -157,7 +160,7 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
-    public boolean setCurrentScreenToDetail() throws org.commcare.util.screen.CommCareSessionException {
+    public boolean setCurrentScreenToDetail() throws CommCareSessionException {
         initDetailScreens();
 
         if(mLongDetailList == null) {
@@ -169,7 +172,7 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     public void setCurrentScreenToDetail(int index) throws CommCareSessionException {
-        EvaluationContext subContext = new EvaluationContext(mSession.getEvaluationContext(), this.mCurrentSelection);
+        EvaluationContext subContext = new EvaluationContext(evalContext, this.mCurrentSelection);
 
         TreeReference detailNodeset = this.mLongDetailList[index].getNodeset();
         if (detailNodeset != null) {
@@ -177,7 +180,7 @@ public class EntityScreen extends CompoundScreenHost {
             this.mCurrentScreen = new EntityListSubscreen(this.mLongDetailList[index], subContext.expandReference(contextualizedNodeset), subContext);
         }
         else {
-            this.mCurrentScreen = new org.commcare.util.screen.EntityDetailSubscreen(index, this.mLongDetailList[index], subContext, getDetailListTitles(subContext));
+            this.mCurrentScreen = new EntityDetailSubscreen(index, this.mLongDetailList[index], subContext, getDetailListTitles(subContext));
         }
     }
 

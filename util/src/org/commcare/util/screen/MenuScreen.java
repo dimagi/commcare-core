@@ -73,7 +73,7 @@ public class MenuScreen extends Screen {
                                         continue;
                                     }
                                 } catch (XPathTypeMismatchException e) {
-                                    throw new org.commcare.util.screen.CommCareSessionException("relevancy condition for menu item returned non-boolean value : " + ret, e);
+                                    throw new CommCareSessionException("relevancy condition for menu item returned non-boolean value : " + ret, e);
 
                                 }
                             }

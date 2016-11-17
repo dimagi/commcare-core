@@ -68,9 +68,7 @@ public class XFormEnvironment {
         }
 
         FormEntryModel fem = new FormEntryModel(form);
-        FormEntryController fec = FormEntryController.buildRecordingController(fem);
-
-        return fec;
+        return FormEntryController.buildRecordingController(fem);
     }
 
     public Step popStep() {
@@ -106,6 +104,7 @@ public class XFormEnvironment {
 
         ec.addFunctionHandler(new FunctionExtensions.TodayFunc("today", hardCodedDate));
         ec.addFunctionHandler(new FunctionExtensions.TodayFunc("now", hardCodedDate));
+        ec.addFunctionHandler(new FunctionExtensions.PrintFunc(createIIF()));
 
         return ec;
     }
