@@ -24,6 +24,11 @@ public class XPathSqrtFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Behavior: Calculates the square root of a number\n"
+                + "Return: A double value that represents the square root of the provided argument.\n"
+                + "Arguments: An expression that evaluates to a number\n"
+                + "Syntax: sqrt(expression)\n"
+                + "Example: sqrt(4) -> 2.0";
     }
 }

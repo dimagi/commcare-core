@@ -50,6 +50,6 @@ public class XPathFormatDateForCalendarFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "?";
     }
 }

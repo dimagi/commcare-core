@@ -26,6 +26,10 @@ public class XPathAtanTwoFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Behavior: Finds the arctan of two numbers.\n"
+                + "Return: The arctan of the 2 arguments passed to the function\n"
+                + "Arguments: Two numbers\n"
+                + "Syntax: atan2(number, number)";
     }
 }

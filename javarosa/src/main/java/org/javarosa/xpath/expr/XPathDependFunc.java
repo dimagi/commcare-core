@@ -34,6 +34,11 @@ public class XPathDependFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Behavior: Returns the value of the first argument passed in\n"
+                + "Return: The first argument passed in\n"
+                + "Arguments: 1 or more arguments\n"
+                + "Syntax: depend(expression, ..., expression)\n"
+                + "Example: depend(1, 2, 3) -> 1";
     }
 }

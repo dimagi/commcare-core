@@ -24,6 +24,10 @@ public class XPathAsinFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Behavior: Finds the arcsin of a number.\n"
+                + "Return: The arcsin of the argument passed to the function\n"
+                + "Arguments: One number\n"
+                + "Syntax: asin(number)";
     }
 }

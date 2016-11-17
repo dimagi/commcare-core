@@ -57,6 +57,6 @@ public class XPathPositionFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "?";
     }
 }

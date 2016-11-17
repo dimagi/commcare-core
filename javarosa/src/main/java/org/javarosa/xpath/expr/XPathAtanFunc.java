@@ -24,6 +24,10 @@ public class XPathAtanFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Behavior: Finds the arctan of a number.\n"
+                + "Return: The arctan of the argument passed to the function\n"
+                + "Arguments: One number\n"
+                + "Syntax: atan(number)";
     }
 }

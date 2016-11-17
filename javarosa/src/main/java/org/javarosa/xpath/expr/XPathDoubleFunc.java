@@ -25,6 +25,11 @@ public class XPathDoubleFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Behavior: Will convert a string (ex. \"34.3\") or a integer value into a double.\n"
+                + "Return: Returns a double number based on the passed in argument.\n"
+                + "Arguments: The value to be converted\n"
+                + "Syntax: double(value_to_convert)\n"
+                + "Example: double(45) or double(\"45\") will return 45.0. You can also directly reference another question - double(/data/my_question).";
     }
 }

@@ -24,6 +24,11 @@ public class XPathAbsFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Behavior: Finds the absolute value of a number.\n"
+                + "Return: The absolute value of the argument passed to the function\n"
+                + "Arguments: The only argument is the number whose absolute value you want\n"
+                + "Syntax: abs(number)\n"
+                + "Example: abs(-2.49)";
     }
 }

@@ -24,6 +24,10 @@ public class XPathTanFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Behavior: Finds the tan of a number.\n"
+                + "Return: The tan of the argument passed to the function\n"
+                + "Arguments: One number\n"
+                + "Syntax: tan(number)";
     }
 }
