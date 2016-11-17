@@ -67,6 +67,18 @@ public class XPathTranslateFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Behavior:  Replace each of a given set of characters in one string with one of another set of characters.\n"
+                + "Return: String with replacements made.\n"
+                + "Arguments:  Three arguments\n"
+                + "\tThe string to manipulate\n"
+                + "\tThe set of characters to replace\n"
+                + "\tThe set of replacement characters. Any occurrences of the first character in the second argument will be replaced by the first character in this argument; any occurrences of the second character in the second argument will be replaced by the second character in this argument; etc. If there are fewer replacement characters than characters to replace, the \"extra\" characters will be deleted. If there are fewer characters to replace than replacement characters, the \"extra\" replacement characters will be ignored.\n"
+                + "Syntax: translate(text, to-replace, replacements)\n"
+                + "Examples\n"
+                + "\ttranslate('aBcdE', 'xyz', 'qrs') returns \"aBcdE\"\n"
+                + "\ttranslate('bosco', 'bos', 'sfo') returns \"sfocf\"\n"
+                + "\ttranslate('yellow', 'low', 'or') returns \"yeoor\"\n"
+                + "\ttranslate('bora bora', 'a', 'bc') returns \"borb borb\"";
     }
 }

@@ -24,6 +24,11 @@ public class XPathLowerCaseFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Behavior:  Transforms all letters in a string to their lowercase equivalents.\n"
+                + "Return: Updated string\n"
+                + "Arguments: The string you want to transform.\n"
+                + "Syntax: lower-case(text)\n"
+                + "Example: lower-case(\"i AM a Test\") -> \"i am a test\"";
     }
 }

@@ -24,6 +24,11 @@ public class XPathCeilingFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Behavior: Finds the smallest integer that is greater than or equal to a number\n"
+                + "Return: The smallest integer that is greater than or equal to the given number\n"
+                + "Arguments: The only argument is the number whose ceiling you want\n"
+                + "Syntax: ceiling(number)\n"
+                + "Example: ceiling(2.49)";
     }
 }

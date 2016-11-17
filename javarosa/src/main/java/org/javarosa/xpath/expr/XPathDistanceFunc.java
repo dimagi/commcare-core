@@ -48,6 +48,12 @@ public class XPathDistanceFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Behavior: Calculates the distance between two locations\n"
+                + "\tNOTE: Although this function makes use of trig functions, it works on both Android and J2ME, using our custom implementation.\n"
+                + "Return: The distance between two locations, -1 if one of the locations is an empty string\n"
+                + "Arguments: The two locations. The locations may be passed in as strings consisting of four space-separated numbers denoting latitude, longitude, altitude, and accuracy. However, altitude and accuracy are optional, and are ignored by the distance function.\n"
+                + "Syntax: if(location1 = '', '', if(location2 = '', '', distance(location1, location2)))\n"
+                + "Example: distance(\"42 -71\", \"40 116\")";
     }
 }

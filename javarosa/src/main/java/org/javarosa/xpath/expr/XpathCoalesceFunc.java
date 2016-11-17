@@ -50,6 +50,11 @@ public class XpathCoalesceFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Behavior:  Useful for choosing which of two values to return.  Will return the non-null/empty value.  If both are not null, will return the first argument.\n"
+                + "Return: One of the values\n"
+                + "Arguments:  The two values to be coalesced\n"
+                + "Syntax: coalesce(value_1, value_2).\n"
+                + "Example:  This is useful if you want to use a default value when referring to a question which may or may not have been answered.  Ex. coalesce(/data/my_question, \"my default value\").";
     }
 }

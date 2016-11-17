@@ -50,6 +50,17 @@ public class XPathReplaceFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Behavior:  Searches a string for a pattern and replaces any occurrences of that pattern with another string.\n"
+                + "Return: String with any pattern matches replaced\n"
+                + "Arguments:  Three arguments\n"
+                + "\tThe string to search in\n"
+                + "\tA regular expression pattern to search for\n"
+                + "\tThe text with which to replace any matched patterns\n"
+                + "\tNOTE: Unlike the XPath spec, this function does not support backreferences (e.g., using $1 in the replacement string to represent a matched group).\n"
+                + "Syntax: replace(text, pattern, replacement)\n"
+                + "Examples\n"
+                + "\treplace(\"aaabbbaa\", \"a+\", \"a\") returns \"aba\"\n"
+                + "\treplace(\"abbbccd\", \"a.*c\", \"\") returns \"cd\"";
     }
 }

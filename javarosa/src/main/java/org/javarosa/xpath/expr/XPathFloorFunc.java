@@ -24,6 +24,11 @@ public class XPathFloorFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Behavior: Finds the largest integer that is less than or equal to a number\n"
+                + "Return: The largest integer that is less than or equal to the given number\n"
+                + "Arguments: The only argument is the number whose floor you want\n"
+                + "Syntax: floor(number)\n"
+                + "Example: floor(2.49)";
     }
 }

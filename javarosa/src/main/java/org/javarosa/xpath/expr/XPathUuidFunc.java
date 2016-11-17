@@ -40,6 +40,11 @@ public class XPathUuidFunc extends XPathFuncExpr {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return getDocHeader()
+                + "Behavior:  Calculates a unique identifier of a particular length.\n"
+                + "Return: The unique id.\n"
+                + "Arguments:  The length of the unique id\n"
+                + "Syntax: uuid(length)\n"
+                + "Example:  uuid(10).";
     }
 }
