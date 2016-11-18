@@ -1,5 +1,6 @@
 package org.javarosa.xpath.parser.ast;
 
+import org.javarosa.core.model.condition.HashRefResolver;
 import org.javarosa.xpath.expr.*;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
