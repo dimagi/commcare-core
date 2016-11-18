@@ -158,7 +158,13 @@ public class MenuScreen extends Screen {
         try {
             int i = Integer.parseInt(input);
             String commandId;
+            if(mChoices.length <= i) {
+                System.out.println("Invalid choice: " + i);
+                return true;
+            }
+
             MenuDisplayable menuDisplayable = mChoices[i];
+
             if (menuDisplayable instanceof Entry) {
                 commandId = ((Entry)menuDisplayable).getCommandId();
             } else {
