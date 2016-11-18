@@ -59,8 +59,7 @@ public class QueryScreen extends Screen {
 
 
     public boolean processSuccess(InputStream responseData) {
-        Pair<ExternalDataInstance, String> instanceOrError =
-                remoteQuerySessionManager.buildExternalDataInstance(responseData);
+        Pair<ExternalDataInstance, String> instanceOrError = remoteQuerySessionManager.buildExternalDataInstance(responseData);
         if (instanceOrError.first == null) {
             currentMessage = "Query response format error: " + instanceOrError.second;
             return false;

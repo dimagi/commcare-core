@@ -88,7 +88,10 @@ public class JsonActionUtils {
      * @return The JSON representation of the updated question tree
      */
     public static JSONObject questionAnswerToJson(FormEntryController controller,
-                                                  FormEntryModel model, String answer, FormEntryPrompt prompt) {
+                                                  FormEntryModel model, String answer,
+                                                  FormEntryPrompt prompt,
+                                                  boolean oneQuestionPerScreen,
+                                                  FormIndex formIndex) {
         JSONObject ret = new JSONObject();
         IAnswerData answerData;
 
@@ -113,9 +116,9 @@ public class JsonActionUtils {
             ret.put(ApiConstants.ERROR_TYPE_KEY, "constraint");
             ret.put(ApiConstants.ERROR_REASON_KEY, prompt.getConstraintText());
         } else if (result == FormEntryController.ANSWER_OK) {
-            if (controller.getOneQuestionPerScreen()) {
+            if (oneQuestionPerScreen) {
                 ret.put(ApiConstants.QUESTION_TREE_KEY, getOneQuestionPerScreenJSON(
-                    model, controller, controller.getCurrentIndex()));
+                    model, controller, formIndex));
             } else {
                 ret.put(ApiConstants.QUESTION_TREE_KEY, getFullFormJSON(model, controller));
             }
@@ -135,10 +138,11 @@ public class JsonActionUtils {
      * @return The JSON representation of the updated question tree
      */
     public static JSONObject questionAnswerToJson(FormEntryController controller,
-                                                  FormEntryModel model, String answer, String index) {
+                                                  FormEntryModel model, String answer,
+                                                  String index, boolean oneQuestionPerScreen) {
         FormIndex formIndex = indexFromString(index, model.getForm());
         FormEntryPrompt prompt = model.getQuestionPrompt(formIndex);
-        return questionAnswerToJson(controller, model, answer, prompt);
+        return questionAnswerToJson(controller, model, answer, prompt, oneQuestionPerScreen, formIndex);
     }
 
     /**

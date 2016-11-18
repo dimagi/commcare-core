@@ -88,7 +88,7 @@ public class XPathPathExpr extends XPathExpression {
             case XPathPathExpr.INIT_CONTEXT_EXPR:
                 if (this.filtExpr.x != null && this.filtExpr.x instanceof XPathFuncExpr) {
                     XPathFuncExpr func = (XPathFuncExpr)(this.filtExpr.x);
-                    if (func.id.toString().equals("instance")) {
+                    if (func.name.equals("instance")) {
                         // i assume when refering the non main instance you have to be absolute
                         parentsAllowed = false;
                         if (func.args.length != 1) {
@@ -101,7 +101,7 @@ public class XPathPathExpr extends XPathExpression {
                         XPathStringLiteral strLit = (XPathStringLiteral)(func.args[0]);
                         // we've got a non-standard instance in play, watch out
                         ref = new TreeReference(strLit.s, TreeReference.REF_ABSOLUTE);
-                    } else if (func.id.toString().equals("current")) {
+                    } else if (func.name.equals("current")) {
                         parentsAllowed = true;
                         ref = TreeReference.baseCurrentRef();
                     } else {
