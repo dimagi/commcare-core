@@ -69,7 +69,6 @@ public class EntityScreen extends CompoundScreenHost {
 
         evalContext = mSession.getEvaluationContext();
 
-
         Vector<TreeReference> references = expandEntityReferenceSet(evalContext);
         referenceMap = new Hashtable<>();
         for(TreeReference reference: references) {
@@ -206,7 +205,7 @@ public class EntityScreen extends CompoundScreenHost {
     public void setPendingAction(Action pendingAction) {
         this.mPendingAction = pendingAction;
     }
-
+    
     public Detail getShortDetail(){
         return mShortDetail;
     }

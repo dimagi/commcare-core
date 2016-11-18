@@ -7,8 +7,6 @@ import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.AccumulatingReporter;
-import org.javarosa.core.model.trace.EvaluationTrace;
-import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
 import org.javarosa.xpath.XPathException;
 
 import java.io.PrintStream;
