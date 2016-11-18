@@ -5,14 +5,17 @@ import org.javarosa.core.model.utils.DateUtils.DateFields;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.TimeZone;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class DateUtilsTests {
-    static Date currentTime;
+    private static Date currentTime;
 
     @BeforeClass
     public static void setUp() {
@@ -180,6 +183,37 @@ public class DateUtilsTests {
             fail("Error: " + in + e.getMessage());
         }
     }
+
+    @Test
+    public void testFormat() {
+        Calendar novFifth2016 = Calendar.getInstance();
+        novFifth2016.set(2016, Calendar.NOVEMBER, 5);
+        Date novFifthDate = novFifth2016.getTime();
+        DateFields novFifth2016Fields = DateUtils.getFields(novFifthDate, null);
+        HashMap<String, String> escapesResults = new HashMap<>();
+        escapesResults.put("%a", "Sat");
+        escapesResults.put("%A", "Saturday");
+        escapesResults.put("%b", "Nov");
+        escapesResults.put("%B", "November");
+        escapesResults.put("%d", "05");
+        escapesResults.put("%e", "5");
+
+        for (String escape : escapesResults.keySet()) {
+            String result = escapesResults.get(escape);
+            String formatted = DateUtils.format(novFifth2016Fields, escape);
+            assertEquals("Fail: '" + escape + "' rendered unexpectedly", result, formatted);
+        }
+
+
+        boolean didFail = false;
+        try {
+            DateUtils.format(novFifth2016Fields, "%c");
+        } catch (RuntimeException e) {
+            didFail = true;
+        }
+        assertTrue(didFail);
+    }
+
 /*
     private void testGetData() {
 
