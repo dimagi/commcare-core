@@ -4,6 +4,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.MathUtils;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -286,7 +287,7 @@ public class DateUtils {
     }
 
     public static String format(DateFields f, String format) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < format.length(); i++) {
             char c = format.charAt(i);
@@ -309,6 +310,9 @@ public class DateUtils {
                     sb.append(intPad(f.month, 2));
                 } else if (c == 'n') {    //numeric month
                     sb.append(f.month);
+                } else if (c == 'B') {    //long text month
+                    String[] months = new String[]{"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+                    sb.append(months[f.month - 1]);
                 } else if (c == 'b') {    //short text month
                     String[] months = new String[]{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
                     sb.append(months[f.month - 1]);
@@ -326,10 +330,14 @@ public class DateUtils {
                     sb.append(intPad(f.second, 2));
                 } else if (c == '3') {    //0-padded millisecond ticks (000-999)
                     sb.append(intPad(f.secTicks, 3));
+                } else if (c == 'A') {    //long text day
+                    String[] dayNames = new String[]{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+                    sb.append(dayNames[f.dow - 1]);
                 } else if (c == 'a') {    //Three letter short text day
                     String[] dayNames = new String[]{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
                     sb.append(dayNames[f.dow - 1]);
-                } else if (c == 'Z' || c == 'A' || c == 'B') {
+                } else if (Arrays.asList('c', 'C', 'D', 'F', 'g', 'G', 'I', 'j', 'k', 'l', 'p', 'P', 'r', 'R', 's', 't', 'T', 'u', 'U', 'V', 'w', 'W', 'x', 'X', 'z', 'Z').contains(c)) {
+                    // Format specifiers supported by libc's strftime: https://www.gnu.org/software/libc/manual/html_node/Formatting-Calendar-Time.html
                     throw new RuntimeException("unsupported escape in date format string [%" + c + "]");
                 } else {
                     throw new RuntimeException("unrecognized escape in date format string [%" + c + "]");
