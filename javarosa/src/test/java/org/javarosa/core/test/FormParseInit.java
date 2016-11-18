@@ -13,12 +13,6 @@ import org.javarosa.xform.util.XFormUtils;
 import java.io.InputStream;
 import java.util.Vector;
 
-/* TODO
- * Priority: Top priority is getting the localizations tested so that test coverage isn't lost
- *             Have a method to provide answers to test constraints
- */
-
-
 /**
  * This class sets up everything you need to perform tests on the models and form elements found in JR (such
  * as QuestionDef, FormDef, Selections, etc).  It exposes hooks to the FormEntryController,FormEntryModel and
@@ -27,7 +21,6 @@ import java.util.Vector;
  * REMEMBER to set the
  * PLM: ^^^ AAAhhh, set what?!! What do I need to remember to set?
  */
-
 public class FormParseInit {
     private FormDef xform;
     private FormEntryController fec;

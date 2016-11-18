@@ -161,6 +161,7 @@ public class ExprEvalUtils {
             }
         } catch (XPathException xpex) {
             if (!exceptionExpected) {
+                xpex.printStackTrace();
                 fail("Did not expect " + xpex.getClass() + " exception");
             } else if (xpex.getClass() != expected.getClass()) {
                 fail("Did not get expected exception type");

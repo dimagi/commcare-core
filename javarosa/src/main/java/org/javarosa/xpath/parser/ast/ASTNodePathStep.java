@@ -50,18 +50,19 @@ public class ASTNodePathStep extends ASTNode {
         } else {
             XPathStep step;
 
-            if (axisType == AXIS_TYPE_NULL)
+            if (axisType == AXIS_TYPE_NULL) {
                 axisVal = XPathStep.AXIS_CHILD;
-            else if (axisType == AXIS_TYPE_ABBR)
+            } else if (axisType == AXIS_TYPE_ABBR) {
                 axisVal = XPathStep.AXIS_ATTRIBUTE;
+            }
 
-            if (nodeTestType == NODE_TEST_TYPE_QNAME)
+            if (nodeTestType == NODE_TEST_TYPE_QNAME) {
                 step = new XPathStep(axisVal, nodeTestQName);
-            else if (nodeTestType == NODE_TEST_TYPE_WILDCARD)
+            } else if (nodeTestType == NODE_TEST_TYPE_WILDCARD) {
                 step = new XPathStep(axisVal, XPathStep.TEST_NAME_WILDCARD);
-            else if (nodeTestType == NODE_TEST_TYPE_NSWILDCARD)
+            } else if (nodeTestType == NODE_TEST_TYPE_NSWILDCARD) {
                 step = new XPathStep(axisVal, nodeTestNamespace);
-            else {
+            } else {
                 String funcName = nodeTestFunc.name.toString();
                 int type;
                 if (funcName.equals("node")) {
@@ -83,8 +84,9 @@ public class ASTNodePathStep extends ASTNode {
             }
 
             XPathExpression[] preds = new XPathExpression[predicates.size()];
-            for (int i = 0; i < preds.length; i++)
+            for (int i = 0; i < preds.length; i++) {
                 preds[i] = predicates.elementAt(i).build();
+            }
             step.predicates = preds;
 
             return step;

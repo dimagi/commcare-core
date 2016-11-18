@@ -21,6 +21,7 @@ import org.javarosa.xpath.XPathException;
 import java.util.Date;
 
 public class Recalculate extends Triggerable {
+    @SuppressWarnings("unused")
     public Recalculate() {
         // for externalization
     }
