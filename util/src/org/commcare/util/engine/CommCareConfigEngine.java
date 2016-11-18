@@ -28,6 +28,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
+import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.*;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
@@ -92,7 +93,7 @@ public class CommCareConfigEngine {
         //per device.
         StorageManager.forceClear();
         StorageManager.setStorageFactory(storageFactory);
-
+        PropertyManager.initDefaultPropertyManager();
         StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
         StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
         StorageManager.registerStorage(FormDef.STORAGE_KEY, FormDef.class);
