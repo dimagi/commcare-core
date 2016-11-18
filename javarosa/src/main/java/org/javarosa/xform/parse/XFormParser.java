@@ -728,7 +728,10 @@ public class XFormParser {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
         }
 
-        boolean isPastLetRefs = false;
+        // 'letref' entries must appear before bindings because letref
+        // expansion occurs at parse time
+        boolean hasFinishedParsingLetRefs = false;
+
         for (int i = 0; i < e.getChildCount(); i++) {
             int type = e.getType(i);
             Element child = (type == Node.ELEMENT ? e.getElement(i) : null);
@@ -741,10 +744,10 @@ public class XFormParser {
                 //binds and data types and such
                 saveInstanceNode(child);
             } else if (BIND_ATTR.equals(childName)) { //<instance> must come before <bind>s
-                isPastLetRefs = true;
+                hasFinishedParsingLetRefs = true;
                 parseBind(child);
             } else if (LET_REF_ATTR.equals(childName)) {
-                if (isPastLetRefs) {
+                if (hasFinishedParsingLetRefs) {
                     throw new XFormParseException("letref elements must come before binds");
                 } else {
                     LetRefBinding letRefBinding = parseLetRef(child);
