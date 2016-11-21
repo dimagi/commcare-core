@@ -425,7 +425,11 @@ public class CommCareSession {
     }
 
     public void setDatum(String keyId, String value) {
-        frame.pushStep(new StackFrameStep(SessionFrame.STATE_DATUM_VAL, keyId, value));
+        setDatum(SessionFrame.STATE_DATUM_VAL, keyId, value);
+    }
+
+    public void setDatum(String action, String keyId, String value) {
+        frame.pushStep(new StackFrameStep(action, keyId, value));
         syncState();
     }
 
