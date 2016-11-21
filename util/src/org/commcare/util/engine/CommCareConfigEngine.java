@@ -53,11 +53,11 @@ import java.util.zip.ZipFile;
  * @author ctsims
  */
 public class CommCareConfigEngine {
-    protected ResourceTable table;
-    protected ResourceTable updateTable;
-    protected ResourceTable recoveryTable;
-    protected CommCarePlatform platform;
-    private final PrototypeFactory mLiveFactory;
+    private final ResourceTable table;
+    private final ResourceTable updateTable;
+    private final ResourceTable recoveryTable;
+    private final CommCarePlatform platform;
+    private final PrototypeFactory liveFactory;
     private final PrintStream print;
 
     private ArchiveFileRoot mArchiveRoot;
@@ -75,7 +75,7 @@ public class CommCareConfigEngine {
     public CommCareConfigEngine(OutputStream output, PrototypeFactory prototypeFactory) {
         this.print = new PrintStream(output);
         this.platform = new CommCarePlatform(2, 32);
-        this.mLiveFactory = prototypeFactory;
+        this.liveFactory = prototypeFactory;
 
         if (storageFactory == null) {
             setupDummyStorageFactory();
@@ -105,7 +105,7 @@ public class CommCareConfigEngine {
         CommCareConfigEngine.setStorageFactory(new IStorageIndexedFactory() {
             @Override
             public IStorageUtilityIndexed newStorage(String name, Class type) {
-                return new DummyIndexedStorageUtility(type, mLiveFactory);
+                return new DummyIndexedStorageUtility(type, liveFactory);
             }
         });
     }
