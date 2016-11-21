@@ -24,7 +24,6 @@ import java.util.Map;
  * @author wspride
  */
 public class QueryScreen extends Screen {
-[]
     protected RemoteQuerySessionManager remoteQuerySessionManager;
     private Hashtable<String, DisplayUnit> userInputDisplays;
     private SessionWrapper sessionWrapper;
