@@ -217,9 +217,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
         try {
             int i = Integer.parseInt(input);
-
             host.setHighlightedEntity(this.mChoices[i]);
-
             return !host.setCurrentScreenToDetail();
         } catch (NumberFormatException e) {
             //This will result in things just executing again, which is fine.
