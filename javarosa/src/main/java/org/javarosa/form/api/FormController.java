@@ -222,7 +222,7 @@ public class FormController {
 
     /**
      * Navigates backward in the form.
-     *
+     * Used by Formplayer
      * @return FormIndex that we're currently on
      */
     public FormIndex getPreviousFormIndex() {
