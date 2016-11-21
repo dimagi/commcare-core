@@ -19,7 +19,6 @@ public class JdbcSqlStorageIterator<E extends Persistable> implements IStorageIt
     private int count = -1;
     private final SqliteIndexedStorageUtility<E> storage;
     private Connection connection;
-    private IStorageIterator<E> backingIterator;
 
     public JdbcSqlStorageIterator(PreparedStatement preparedStatement,
                                   ResultSet resultSet,
