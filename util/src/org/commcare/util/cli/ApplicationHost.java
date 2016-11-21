@@ -17,7 +17,6 @@ import org.commcare.util.screen.EntityScreen;
 import org.commcare.util.screen.MenuScreen;
 import org.commcare.util.screen.QueryScreen;
 import org.commcare.util.screen.Screen;
-import org.commcare.util.screen.SyncScreen;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
