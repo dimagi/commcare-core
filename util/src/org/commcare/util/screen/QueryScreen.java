@@ -7,15 +7,7 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.DisplayUnit;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.xml.ElementParser;
-import org.javarosa.xml.TreeElementParser;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.kxml2.io.KXmlParser;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -60,7 +52,7 @@ public class QueryScreen extends Screen {
         try {
             URL urlObject = getBaseUrl();
             Hashtable<String, String> params = getQueryParams();
-            URIBuilder uriBuilder = new URIBuilder(urlObject.getRef());
+            URIBuilder uriBuilder = new URIBuilder(urlObject.toString());
             for(String key: params.keySet()) {
                 uriBuilder.addParameter(key, params.get(key));
             }
@@ -69,8 +61,6 @@ public class QueryScreen extends Screen {
             con = (HttpURLConnection) urlObject.openConnection();
             con.setRequestMethod("GET");
             int responseCode = con.getResponseCode();
-            System.out.println("\nSending 'GET' request to URL : " + urlObject);
-            System.out.println("Response Code : " + responseCode);
             return con.getInputStream();
 
         } catch (IOException e) {
@@ -141,7 +131,7 @@ public class QueryScreen extends Screen {
         }
         answerPrompts(userAnswers);
         InputStream response = makeQueryRequestReturnStream();
-        return processSuccess(response);
+        return !processSuccess(response);
     }
 
     public Hashtable<String, DisplayUnit> getUserInputDisplays(){

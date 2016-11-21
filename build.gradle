@@ -61,7 +61,7 @@ sourceSets {
     api {
         java {
             srcDir 'api'
-            srcDir 'util/src/org/commcare/util/screen'
+            srcDir 'util/src'
             compileClasspath += main.output
         }
     }
