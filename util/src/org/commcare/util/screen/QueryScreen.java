@@ -26,11 +26,11 @@ import java.util.Map;
 public class QueryScreen extends Screen {
 
     protected RemoteQuerySessionManager remoteQuerySessionManager;
-    Hashtable<String, DisplayUnit> userInputDisplays;
-    SessionWrapper sessionWrapper;
-    String[] fields;
-    String mTitle;
-    String currentMessage;
+    private Hashtable<String, DisplayUnit> userInputDisplays;
+    private SessionWrapper sessionWrapper;
+    private String[] fields;
+    private String mTitle;
+    private String currentMessage;
 
     @Override
     public void init(SessionWrapper sessionWrapper) throws CommCareSessionException {
