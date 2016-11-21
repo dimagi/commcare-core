@@ -222,35 +222,13 @@ public class FormController {
 
     /**
      * Navigates backward in the form.
-     *
+     * Used by Formplayer
      * @return FormIndex that we're currently on
      */
     public FormIndex getPreviousFormIndex() {
-        /*
-         * Right now this will always skip to the beginning of a group if that group is represented
-         * as a 'field-list'. Should a need ever arise to step backwards by only one step in a
-         * 'field-list', this method will have to be updated.
-         */
-
-        int event = mFormEntryController.stepToPreviousEvent();
-
-        if (event == FormEntryController.EVENT_PROMPT_NEW_REPEAT &&
-                this.mReadOnly) {
-            return getPreviousFormIndex();
-        }
-
-
-        // If after we've stepped, we're in a field-list, jump back to the beginning of the group
-        FormIndex host = getFieldListHost(this.getFormIndex());
-        if (host != null) {
-            mFormEntryController.jumpToIndex(host);
-        }
-
+        stepToPreviousEvent();
         return getFormIndex();
-
     }
-
-
 
     /**
      * Navigates backward in the form.
