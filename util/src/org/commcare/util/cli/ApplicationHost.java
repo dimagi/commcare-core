@@ -327,8 +327,6 @@ public class ApplicationHost {
             return new EntityScreen();
         } else if (next.equals(SessionFrame.STATE_QUERY_REQUEST)) {
             return new QueryScreen();
-        } else if (next.equals(SessionFrame.STATE_SYNC_REQUEST)) {
-            return new SyncScreen();
         } else if (next.equalsIgnoreCase(SessionFrame.STATE_DATUM_COMPUTED)) {
             computeDatum();
             return getNextScreen();
