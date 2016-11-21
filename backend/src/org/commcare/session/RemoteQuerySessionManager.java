@@ -8,6 +8,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.TreeElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -46,7 +47,7 @@ public class RemoteQuerySessionManager {
         SessionDatum datum;
         try {
             datum = session.getNeededDatum();
-        } catch (NullPointerException e) {
+        } catch (IllegalStateException e) {
             // tried loading session info when it wasn't there
             return null;
         }
@@ -94,7 +95,7 @@ public class RemoteQuerySessionManager {
 
     public static String evalXpathExpression(XPathExpression expr,
                                              EvaluationContext evaluationContext) {
-        return XPathFuncExpr.toString(expr.eval(evaluationContext));
+        return FunctionUtils.toString(expr.eval(evaluationContext));
     }
 
     /**

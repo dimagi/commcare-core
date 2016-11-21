@@ -2,8 +2,8 @@ package org.commcare.test.utilities;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 
@@ -18,7 +18,7 @@ public class CaseTestUtils {
             throws XPathSyntaxException {
         XPathExpression expr;
         expr = XPathParseTool.parseXPath(input);
-        Object output = XPathFuncExpr.unpack(expr.eval(evalContext));
+        Object output = FunctionUtils.unpack(expr.eval(evalContext));
         return expectedOutput.equals(output);
     }
 
@@ -28,7 +28,7 @@ public class CaseTestUtils {
             throws XPathSyntaxException {
         XPathExpression expr;
         expr = XPathParseTool.parseXPath(input);
-        Object output = XPathFuncExpr.unpack(expr.eval(evalContext));
+        Object output = FunctionUtils.unpack(expr.eval(evalContext));
         Assert.assertEquals("XPath: " + input, expectedOutput, output);
     }
 
@@ -36,6 +36,6 @@ public class CaseTestUtils {
                                    String input)
             throws XPathSyntaxException {
         XPathExpression expr = XPathParseTool.parseXPath(input);
-        return XPathFuncExpr.unpack(expr.eval(evalContext));
+        return FunctionUtils.unpack(expr.eval(evalContext));
     }
 }

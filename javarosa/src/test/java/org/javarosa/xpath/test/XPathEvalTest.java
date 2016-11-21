@@ -19,9 +19,9 @@ import org.javarosa.xpath.XPathUnhandledException;
 import org.javarosa.xpath.XPathUnsupportedException;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathNumericLiteral;
 import org.javarosa.xpath.expr.XPathPathExpr;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,11 +32,9 @@ import java.util.Vector;
 import static org.junit.Assert.fail;
 
 public class XPathEvalTest {
-    private void testEval(String expr, FormInstance model, EvaluationContext ec, Object expected) {
-        testEval(expr, model, ec, expected, 1.0e-12);
-    }
+    public static final double DOUBLE_TOLERANCE = 1.0e-12;
 
-    private void testEval(String expr, FormInstance model, EvaluationContext ec, Object expected, double tolerance) {
+    private void testEval(String expr, FormInstance model, EvaluationContext ec, Object expected) {
         XPathExpression xpe;
         boolean exceptionExpected = expected instanceof XPathException || expected instanceof XPathSyntaxException;
         if (ec == null) {
@@ -45,8 +43,8 @@ public class XPathEvalTest {
 
         try {
             xpe = XPathParseTool.parseXPath(expr);
-        } catch (XPathSyntaxException xpse) {
-            assertExceptionExpected(exceptionExpected, expected, xpse);
+        } catch (XPathArityException | XPathSyntaxException e) {
+            assertExceptionExpected(exceptionExpected, expected, e);
             return;
         }
 
@@ -55,17 +53,14 @@ public class XPathEvalTest {
         }
 
         try {
-            Object result = XPathFuncExpr.unpack(xpe.eval(model, ec));
-            if (tolerance != XPathFuncExpr.DOUBLE_TOLERANCE) {
-                System.out.println(expr + " = " + result);
-            }
+            Object result = FunctionUtils.unpack(xpe.eval(model, ec));
 
             if (exceptionExpected) {
                 fail("Expected exception, expression : " + expr);
             } else if ((result instanceof Double && expected instanceof Double)) {
-                Double o = ((Double)result).doubleValue();
-                Double t = ((Double)expected).doubleValue();
-                if (Math.abs(o - t) > tolerance) {
+                Double o = (Double)result;
+                Double t = (Double)expected;
+                if (Math.abs(o - t) > DOUBLE_TOLERANCE) {
                     fail("Doubles outside of tolerance [" + o + "," + t + " ]");
                 } else if (Double.isNaN(o) && !Double.isNaN(t)) {
                     fail("Result was NaN when not expected");
@@ -76,12 +71,7 @@ public class XPathEvalTest {
                 fail("Expected " + expected + ", got " + result);
             }
         } catch (XPathException xpex) {
-            if (!exceptionExpected) {
-                fail("Did not expect " + xpex.getClass() + " exception");
-            } else if (xpex.getClass() != expected.getClass()) {
-                fail("Expected " + expected.getClass() +
-                        "exception type but was provided" + xpex.getClass());
-            }
+            assertExceptionExpected(exceptionExpected, expected, xpex);
         }
     }
 
@@ -95,12 +85,12 @@ public class XPathEvalTest {
     }
 
     @Test
-    public void testTypeCoercion() {
-        Object str = XPathFuncExpr.InferType("notadouble");
+    public void testTypeCoercion(){
+        Object str = FunctionUtils.InferType("notadouble");
         Assert.assertTrue("'notadouble' coerced to the wrong type, "
                 + str.getClass().toString(), str instanceof String);
 
-        Object d = XPathFuncExpr.InferType("5.0");
+        Object d = FunctionUtils.InferType("5.0");
 
         Assert.assertTrue("'5.0' coerced to the wrong type, "
                 + d.getClass().toString(), d instanceof Double);
@@ -608,7 +598,7 @@ public class XPathEvalTest {
 
     @Test
     public void testDoNotInferScientificNotationAsDouble() {
-        Object dbl = XPathFuncExpr.InferType("100E5");
+        Object dbl = FunctionUtils.InferType("100E5");
         Assert.assertTrue("We should not evaluate strings with scientific notation as doubles",
                 XPathEqExpr.testEquality(dbl, "100E5"));
     }
