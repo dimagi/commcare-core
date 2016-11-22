@@ -158,7 +158,6 @@ public class CommCareConfigEngine {
         } catch (IOException e) {
             print.println("Issue downloading or create stream for " + resource);
             e.printStackTrace(print);
-            System.exit(-1);
             return null;
         }
     }
@@ -202,15 +201,12 @@ public class CommCareConfigEngine {
         } catch (InstallCancelledException e) {
             print.println("Install was cancelled by the user or system");
             e.printStackTrace(print);
-            System.exit(-1);
         } catch (UnresolvedResourceException e) {
             print.println("While attempting to resolve the necessary resources, one couldn't be found: " + e.getResource().getResourceId());
             e.printStackTrace(print);
-            System.exit(-1);
         } catch (UnfullfilledRequirementsException e) {
             print.println("While attempting to resolve the necessary resources, a requirement wasn't met");
             e.printStackTrace(print);
-            System.exit(-1);
         }
     }
 
@@ -226,7 +222,6 @@ public class CommCareConfigEngine {
         } catch (RuntimeException e) {
             print.println("Error while initializing one of the resolved resources");
             e.printStackTrace(print);
-            System.exit(-1);
         }
         //Make sure there's a default locale, since the app doesn't necessarily use the
         //localization engine
