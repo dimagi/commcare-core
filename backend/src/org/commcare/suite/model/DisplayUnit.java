@@ -88,7 +88,7 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
         if (numericBadgeFunction == null) {
             return -1;
         }
-        return (int)numericBadgeFunction.eval(ec);
+        return (int)(double)numericBadgeFunction.eval(ec);
     }
 
     @Override
