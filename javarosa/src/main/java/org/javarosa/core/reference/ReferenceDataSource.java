@@ -19,20 +19,17 @@ import java.util.Hashtable;
  */
 public class ReferenceDataSource implements LocaleDataSource {
 
-    String referenceURI;
+    private String referenceURI;
 
-    /**
-     * NOTE: FOR SERIALIZATION ONLY!
-     */
+    @SuppressWarnings("unused")
     public ReferenceDataSource() {
-
+        // for serialization
     }
 
     /**
      * Creates a new Data Source for Locale data with the given resource URI.
      *
      * @param referenceURI URI to the resource file from which data should be loaded
-     * @throws NullPointerException if resourceURI is null
      */
     public ReferenceDataSource(String referenceURI) {
         if (referenceURI == null) {
