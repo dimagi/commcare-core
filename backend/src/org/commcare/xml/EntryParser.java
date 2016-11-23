@@ -122,7 +122,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
         DisplayUnit display = null;
         String tagName = parser.getName();
         if ("text".equals(tagName)) {
-            display = new DisplayUnit(new TextParser(parser).parse(), null, null);
+            display = new DisplayUnit(new TextParser(parser).parse());
         } else if ("display".equals(tagName)) {
             display = parseDisplayBlock();
             //check that we have text to display;

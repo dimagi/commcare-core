@@ -1,5 +1,6 @@
 package org.commcare.suite.model;
 
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -187,6 +188,11 @@ public class Menu implements Externalizable, MenuDisplayable {
             return null;
         }
         return display.getText().evaluate();
+    }
+
+    @Override
+    public int getCountForNumericBadge(EvaluationContext ec) {
+        return display.evaluateBadgeFunction(ec);
     }
 
     // unsafe! assumes that xpath expressions evaluate properly...

@@ -4,6 +4,8 @@ import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Text;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -49,6 +51,7 @@ public abstract class CommCareElementParser<T> extends ElementParser<T> {
         Text imageValue = null;
         Text audioValue = null;
         Text displayText = null;
+        String badgeFunction = null;
 
         while (nextTagInBlock("display")) {
             if (parser.getName().equals("text")) {
@@ -62,10 +65,7 @@ public abstract class CommCareElementParser<T> extends ElementParser<T> {
                 } else {
                     displayText = new TextParser(parser).parse();
                 }
-            }
-            // check and parse media stuff
-            // still default to using this for now if it exists
-            else if ("media".equals(parser.getName())) {
+            } else if ("media".equals(parser.getName())) {
                 String imagePath = parser.getAttributeValue(null, "image");
                 if (imagePath != null) {
                     imageValue = Text.PlainText(imagePath);
@@ -77,9 +77,22 @@ public abstract class CommCareElementParser<T> extends ElementParser<T> {
                 }
                 //only ends up grabbing the last entries with
                 //each attribute, but we can only use one of each anyway.
+            } else if ("numeric-badge".equals(parser.getName())) {
+                badgeFunction = parser.getAttributeValue(null, "function");
+                if (badgeFunction == null) {
+                    throw new InvalidStructureException(
+                            "No function in numeric-badge declaration " + parser.getName(), parser);
+                }
+                try {
+                    XPathParseTool.parseXPath(badgeFunction);
+                } catch (XPathSyntaxException e) {
+                    e.printStackTrace();
+                    throw new InvalidStructureException(
+                            "Invalid XPath function " + badgeFunction + ". " + e.getMessage(), parser);
+                }
             }
         }
 
-        return new DisplayUnit(displayText, imageValue, audioValue);
+        return new DisplayUnit(displayText, imageValue, audioValue, badgeFunction);
     }
 }

@@ -6,6 +6,9 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -22,6 +25,7 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
     private Text name;
     private Text imageReference;
     private Text audioReference;
+    private XPathExpression numericBadgeFunction;
 
     /**
      * Serialization only!!!
@@ -30,11 +34,25 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
 
     }
 
+    public DisplayUnit(Text name) {
+        this(name, null, null, null);
+    }
 
-    public DisplayUnit(Text name, Text imageReference, Text audioReference) {
+
+    public DisplayUnit(Text name, Text imageReference, Text audioReference,
+                       String badgeFunction) {
         this.name = name;
         this.imageReference = imageReference;
         this.audioReference = audioReference;
+
+        if (badgeFunction != null) {
+            try {
+                this.numericBadgeFunction = XPathParseTool.parseXPath(badgeFunction);
+            } catch (XPathSyntaxException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e.getMessage());
+            }
+        }
     }
 
     public DisplayData evaluate() {
@@ -64,6 +82,13 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
 
     public Text getAudioURI() {
         return audioReference;
+    }
+
+    public int evaluateBadgeFunction(EvaluationContext ec) {
+        if (numericBadgeFunction == null) {
+            return -1;
+        }
+        return (int)numericBadgeFunction.eval(ec);
     }
 
     @Override
