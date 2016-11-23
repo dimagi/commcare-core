@@ -29,7 +29,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     protected final CommCareSession session;
     protected CaseInstanceTreeElement casebase;
     protected LedgerInstanceTreeElement stockbase;
-    protected CacheTable<String, TreeElement> fixtureBases = new CacheTable();
+    private final CacheTable<String, TreeElement> fixtureBases = new CacheTable();
     protected final UserSandbox mSandbox;
     protected final CommCarePlatform mPlatform;
 
@@ -115,27 +115,33 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             userId = u.getUniqueId();
         }
 
-        String refId = ref.substring(ref.lastIndexOf('/') + 1, ref.length());
+        TreeElement fixtureRoot = loadFixtureRoot(ref, userId);
+        fixtureRoot.setParent(instance.getBase());
+        return fixtureRoot;
+    }
+
+    protected TreeElement loadFixtureRoot(String reference, String userId) {
+        String refId = reference.substring(reference.lastIndexOf('/') + 1, reference.length());
+
         try {
             String key = refId + userId;
 
             TreeElement root = fixtureBases.retrieve(key);
             if (root == null) {
-
                 FormInstance fixture = SandboxUtils.loadFixture(mSandbox, refId, userId);
 
                 if (fixture == null) {
-                    throw new FixtureInitializationException(ref);
+                    throw new FixtureInitializationException(reference);
                 }
 
                 root = fixture.getRoot();
 
                 fixtureBases.register(key, root);
             }
-            root.setParent(instance.getBase());
+
             return root;
         } catch (IllegalStateException ise) {
-            throw new FixtureInitializationException(ref);
+            throw new FixtureInitializationException(reference);
         }
     }
 
