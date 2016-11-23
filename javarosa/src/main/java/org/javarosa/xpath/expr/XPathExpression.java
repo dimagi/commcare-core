@@ -197,7 +197,7 @@ public abstract class XPathExpression implements Externalizable {
             XPathPathExpr x = (XPathPathExpr)o;
             String init = null;
 
-            switch (x.init_context) {
+            switch (x.initContext) {
                 case XPathPathExpr.INIT_CONTEXT_ROOT:
                     init = "root";
                     break;
@@ -211,7 +211,7 @@ public abstract class XPathExpression implements Externalizable {
 
             printStr("path {init-context:" + init + ",");
 
-            if (x.init_context == XPathPathExpr.INIT_CONTEXT_EXPR) {
+            if (x.initContext == XPathPathExpr.INIT_CONTEXT_EXPR) {
                 printStr(" init-expr:{");
                 print(x.filtExpr);
                 printStr(" }");
