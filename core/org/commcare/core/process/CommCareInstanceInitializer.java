@@ -15,10 +15,11 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.CacheTable;
 
 /**
- *  Initializes a CommCare DataInstance against a UserDataInterface and (sometimes) optional
- *  CommCareSession/Platform
+ * Initializes a CommCare DataInstance against a UserDataInterface and (sometimes) optional
+ * CommCareSession/Platform
  *
  * @author ctsims
  * @author wspride
@@ -28,8 +29,10 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     protected final CommCareSession session;
     protected CaseInstanceTreeElement casebase;
     protected LedgerInstanceTreeElement stockbase;
+    protected CacheTable<String, TreeElement> fixtureBases = new CacheTable();
     protected final UserSandbox mSandbox;
     protected final CommCarePlatform mPlatform;
+
 
     // default constructor because Jython is annoying
     public CommCareInstanceInitializer() {
@@ -114,13 +117,21 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
         String refId = ref.substring(ref.lastIndexOf('/') + 1, ref.length());
         try {
-            FormInstance fixture = SandboxUtils.loadFixture(mSandbox, refId, userId);
+            String key = refId + userId;
 
-            if (fixture == null) {
-                throw new FixtureInitializationException(ref);
+            TreeElement root = fixtureBases.retrieve(key);
+            if (root == null) {
+
+                FormInstance fixture = SandboxUtils.loadFixture(mSandbox, refId, userId);
+
+                if (fixture == null) {
+                    throw new FixtureInitializationException(ref);
+                }
+
+                root = fixture.getRoot();
+
+                fixtureBases.register(key, root);
             }
-
-            TreeElement root = fixture.getRoot();
             root.setParent(instance.getBase());
             return root;
         } catch (IllegalStateException ise) {
@@ -145,11 +156,11 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         return instance.getRoot();
     }
 
-    protected String getDeviceId(){
+    protected String getDeviceId() {
         return "----";
     }
 
-    protected String getVersionString(){
+    protected String getVersionString() {
         return "CommCare Version: " + mPlatform.getMajorVersion() + "." + mPlatform.getMinorVersion();
     }
 
@@ -161,7 +172,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
         public FixtureInitializationException(String lookupReference) {
             super(Localization.getWithDefault("lookup.table.missing.error",
-                    new String[] {lookupReference},
+                    new String[]{lookupReference},
                     "Unable to find lookup table: " + lookupReference));
         }
     }
