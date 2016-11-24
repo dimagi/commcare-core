@@ -608,20 +608,24 @@ public class XPathEvalTest {
         EvaluationContext ec = new EvaluationContext(null);
 
         ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
             public String getName() {
               return "now";
             }
 
+            @Override
             public Vector getPrototypes() {
-              Vector p = new Vector();
+              Vector<Class[]> p = new Vector<>();
               p.addElement(new Class[0]);
               return p;
             }
 
+            @Override
             public boolean rawArgs() {
               return false;
             }
 
+            @Override
             public Object eval(Object[] args, EvaluationContext ec) {
               return "pass";
             }
