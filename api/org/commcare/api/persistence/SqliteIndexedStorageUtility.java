@@ -135,7 +135,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
     }
 
     @Override
-    public Vector getIDsForValue(String fieldName, Object value) {
+    public Vector<Integer> getIDsForValue(String fieldName, Object value) {
         Connection c = null;
         PreparedStatement preparedStatement = null;
         try {

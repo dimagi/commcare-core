@@ -82,13 +82,11 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 
     @Override
     public boolean isLeaf() {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean isChildable() {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -111,7 +109,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         //name is always "case", so multiplicities are the only relevant component here
         if (name.equals("case")) {
             getCases();
-            if (cases.size() == 0) {
+            if (cases.isEmpty()) {
                 //If we have no cases, we still need to be able to return a template element so as to not
                 //break xpath evaluation
                 return CaseChildElement.buildCaseChildTemplate(this);
@@ -186,13 +184,11 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 
     @Override
     public boolean isRepeatable() {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean isAttribute() {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -293,19 +289,18 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 
     @Override
     public IAnswerData getValue() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public int getDataType() {
-        // TODO Auto-generated method stub
         return 0;
     }
 
 
     @Override
-    protected String translateFilterExpr(XPathPathExpr expressionTemplate, XPathPathExpr matchingExpr, Hashtable<XPathPathExpr, String> indices) {
+    protected String translateFilterExpr(XPathPathExpr expressionTemplate, XPathPathExpr matchingExpr,
+                                         Hashtable<XPathPathExpr, String> indices) {
         String filter = super.translateFilterExpr(expressionTemplate, matchingExpr, indices);
 
         //If we're matching a case index, we've got some magic to take care of. First,
