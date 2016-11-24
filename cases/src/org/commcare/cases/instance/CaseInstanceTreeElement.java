@@ -38,7 +38,6 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     private AbstractTreeElement instanceRoot;
 
     protected final IStorageUtilityIndexed storage;
-    private String[] caseRecords;
 
     protected Vector<CaseChildElement> cases;
 
@@ -54,11 +53,6 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
      * level case node (not the whole thing)
      */
     final boolean reportMode;
-
-    public CaseInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage, String[] caseIDs) {
-        this(instanceRoot, storage, false);
-        this.caseRecords = caseIDs;
-    }
 
     public CaseInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage, boolean reportMode) {
         this.instanceRoot = instanceRoot;
@@ -134,14 +128,10 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 
     @Override
     public int getNumChildren() {
-        if (caseRecords != null) {
-            return caseRecords.length;
-        } else {
-            if (numRecords == -1) {
-                numRecords = storage.getNumRecords();
-            }
-            return numRecords;
+        if (numRecords == -1) {
+            numRecords = storage.getNumRecords();
         }
+        return numRecords;
     }
 
     @Override
@@ -156,20 +146,12 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         }
         objectIdMapping = new Hashtable<>();
         cases = new Vector<>();
-        if (caseRecords != null) {
-            int i = 0;
-            for (String id : caseRecords) {
-                cases.addElement(new CaseChildElement(this, -1, id, i));
-                ++i;
-            }
-        } else {
-            int mult = 0;
-            for (IStorageIterator i = storage.iterate(); i.hasMore(); ) {
-                int id = i.nextID();
-                cases.addElement(new CaseChildElement(this, id, null, mult));
-                objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
-                mult++;
-            }
+        int mult = 0;
+        for (IStorageIterator i = storage.iterate(); i.hasMore(); ) {
+            int id = i.nextID();
+            cases.addElement(new CaseChildElement(this, id, null, mult));
+            objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
+            mult++;
         }
     }
 
