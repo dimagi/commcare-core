@@ -58,16 +58,38 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
             return null;
         }
 
-        Vector<Integer> selectedElements = null;
-        Vector<Integer> toRemove = new Vector<>();
+        Vector<Integer> selectedElements = new Vector<>();
 
-        IStorageUtilityIndexed<?> storage = getStorage();
         Hashtable<XPathPathExpr, String> indices = getStorageIndexMap();
 
         Vector<String> keysToFetch = new Vector<>();
         Vector<Object> valuesToFetch = new Vector<>();
 
         //First, go get a list of predicates that we _might_be able to evaluate
+        collectProcessablePredicates(predicates, indices, evalContext, keysToFetch, valuesToFetch);
+
+        //Now go through each of the key/value pairs and try to evaluate them, we'll
+        //break if we can't process one
+        Vector<Integer> toRemove = processPredicates(selectedElements, keysToFetch, valuesToFetch);
+
+        //if we weren't able to evaluate any predicates, signal that.
+        if (selectedElements.isEmpty()) {
+            return null;
+        }
+
+        //otherwise, remove all of the predicates we've already evaluated
+        for (int i = toRemove.size() - 1; i >= 0; i--) {
+            predicates.removeElementAt(toRemove.elementAt(i));
+        }
+
+        return buildReferencesFromFetchResults(selectedElements);
+    }
+
+    private void collectProcessablePredicates(Vector<XPathExpression> predicates,
+                                              Hashtable<XPathPathExpr, String> indices,
+                                              EvaluationContext evalContext,
+                                              Vector<String> keysToFetch,
+                                              Vector<Object> valuesToFetch) {
         predicate:
         for (int i = 0; i < predicates.size(); ++i) {
             XPathExpression xpe = predicates.elementAt(i);
@@ -98,11 +120,14 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
             //so otherwise, just get outta here.
             break;
         }
+    }
 
+    private Vector<Integer> processPredicates(Vector<Integer> selectedElements,
+                                              Vector<String> keysToFetch,
+                                              Vector<Object> valuesToFetch) {
+        Vector<Integer> toRemove = new Vector<>();
+        IStorageUtilityIndexed<?> storage = getStorage();
         int predicatesProcessed = 0;
-
-        //Now go through each of the key/value pairs and try to evaluate them, we'll
-        //break if we can't process one
         while (keysToFetch.size() > 0) {
             //Get the first set of values.
             String key = keysToFetch.elementAt(0);
@@ -119,13 +144,8 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
                 //Merge into the selected elements
                 if (uniqueValue != null) {
-                    if (selectedElements == null) {
-                        selectedElements = new Vector<>();
+                    if (!selectedElements.contains(uniqueValue)) {
                         selectedElements.addElement(uniqueValue);
-                    } else {
-                        if (!selectedElements.contains(uniqueValue)) {
-                            selectedElements.addElement(uniqueValue);
-                        }
                     }
                 }
 
@@ -163,18 +183,10 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                 predicatesProcessed++;
             }
         }
+        return toRemove;
+    }
 
-
-        //if we weren't able to evaluate any predicates, signal that.
-        if (selectedElements == null) {
-            return null;
-        }
-
-        //otherwise, remove all of the predicates we've already evaluated
-        for (int i = toRemove.size() - 1; i >= 0; i--) {
-            predicates.removeElementAt(toRemove.elementAt(i));
-        }
-
+    private Vector<TreeReference> buildReferencesFromFetchResults(Vector<Integer> selectedElements) {
         TreeReference base = this.getRef();
 
         initStorageCache();
@@ -206,7 +218,8 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
      * @throws IllegalArgumentException If there was no index matching possible on the provided key and the key/value vectors
      *                                  won't be shortened.
      */
-    protected Vector<Integer> getNextIndexMatch(Vector<String> keys, Vector<Object> values, IStorageUtilityIndexed<?> storage) throws IllegalArgumentException {
+    protected Vector<Integer> getNextIndexMatch(Vector<String> keys, Vector<Object> values,
+                                                IStorageUtilityIndexed<?> storage) throws IllegalArgumentException {
         String key = keys.elementAt(0);
         Object o = values.elementAt(0);
 
