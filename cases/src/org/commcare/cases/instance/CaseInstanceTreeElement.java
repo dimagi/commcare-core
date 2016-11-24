@@ -38,11 +38,8 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     private AbstractTreeElement instanceRoot;
 
     protected final IStorageUtilityIndexed storage;
-
     protected Vector<CaseChildElement> cases;
-
     protected final Interner<TreeElement> treeCache = new Interner<>();
-
     private Interner<String> stringCache;
 
     private int numRecords = -1;
@@ -54,7 +51,9 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
      */
     final boolean reportMode;
 
-    public CaseInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage, boolean reportMode) {
+    public CaseInstanceTreeElement(AbstractTreeElement instanceRoot,
+                                   IStorageUtilityIndexed storage,
+                                   boolean reportMode) {
         this.instanceRoot = instanceRoot;
         this.storage = storage;
         this.reportMode = reportMode;
@@ -123,7 +122,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 
     @Override
     public boolean hasChildren() {
-        return (getNumChildren() > 0);
+        return getNumChildren() > 0;
     }
 
     @Override
@@ -279,7 +278,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         }
     }
 
-    public Case getCase(int recordId) {
+    protected Case getCase(int recordId) {
         return (Case)storage.read(recordId);
     }
 
