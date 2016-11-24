@@ -43,7 +43,7 @@ public class User implements Persistable, Restorable, IMetaData {
     private String syncToken;
     private byte[] wrappedKey;
 
-    private Hashtable<String, String> properties = new Hashtable<>();
+    public Hashtable<String, String> properties = new Hashtable<>();
 
     public User() {
         setUserType(STANDARD);
