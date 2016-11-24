@@ -58,8 +58,6 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
             return null;
         }
 
-        Vector<Integer> selectedElements = new Vector<>();
-
         Hashtable<XPathPathExpr, String> indices = getStorageIndexMap();
 
         Vector<String> keysToFetch = new Vector<>();
@@ -70,10 +68,11 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
         //Now go through each of the key/value pairs and try to evaluate them, we'll
         //break if we can't process one
-        Vector<Integer> toRemove = processPredicates(selectedElements, keysToFetch, valuesToFetch);
+        Vector<Integer> toRemove = new Vector<>();
+        Vector<Integer> selectedElements = processPredicates(toRemove, keysToFetch, valuesToFetch);
 
         //if we weren't able to evaluate any predicates, signal that.
-        if (selectedElements.isEmpty()) {
+        if (selectedElements == null) {
             return null;
         }
 
@@ -122,10 +121,10 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         }
     }
 
-    private Vector<Integer> processPredicates(Vector<Integer> selectedElements,
+    private Vector<Integer> processPredicates(Vector<Integer> toRemove,
                                               Vector<String> keysToFetch,
                                               Vector<Object> valuesToFetch) {
-        Vector<Integer> toRemove = new Vector<>();
+        Vector<Integer> selectedElements = null;
         IStorageUtilityIndexed<?> storage = getStorage();
         int predicatesProcessed = 0;
         while (keysToFetch.size() > 0) {
@@ -144,7 +143,10 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
                 //Merge into the selected elements
                 if (uniqueValue != null) {
-                    if (!selectedElements.contains(uniqueValue)) {
+                    if (selectedElements == null) {
+                        selectedElements = new Vector<>();
+                        selectedElements.addElement(uniqueValue);
+                    } else if (!selectedElements.contains(uniqueValue)) {
                         selectedElements.addElement(uniqueValue);
                     }
                 }
@@ -183,7 +185,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                 predicatesProcessed++;
             }
         }
-        return toRemove;
+        return selectedElements;
     }
 
     private Vector<TreeReference> buildReferencesFromFetchResults(Vector<Integer> selectedElements) {
