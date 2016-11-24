@@ -3,7 +3,6 @@ package org.commcare.cases.model;
 import org.javarosa.core.model.utils.PreloadUtils;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.Secure;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -26,7 +25,7 @@ import java.util.Vector;
  *
  * @author Clayton Sims
  */
-public class Case implements Persistable, IMetaData, Secure {
+public class Case implements Persistable, IMetaData {
     public static final String USER_ID_KEY = "userid";
     public static final String STORAGE_KEY = "CASE";
 
