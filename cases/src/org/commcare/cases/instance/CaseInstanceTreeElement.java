@@ -212,7 +212,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 
     @Override
     public String getAttributeValue(String namespace, String name) {
-        return getAttributeValue("syncToken".equals(name) ? 0 : "stateHash".equals(name) ? 1 : -1);
+        return null;
     }
 
     @Override
