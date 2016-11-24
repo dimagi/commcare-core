@@ -61,11 +61,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
                 meta.put(key, new Hashtable<Object, Vector<Integer>>());
             }
         }
-        for (String key : dynamicIndices) {
-            if (!meta.containsKey(key)) {
-                meta.put(key, new Hashtable<Object, Vector<Integer>>());
-            }
-        }
     }
 
     @Override
@@ -253,11 +248,5 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
                 }
             }
         }
-    }
-
-    @Override
-    public void registerIndex(String filterIndex) {
-        dynamicIndices.addElement(filterIndex);
-        syncMeta();
     }
 }
