@@ -18,7 +18,7 @@ public class SessionDescriptorUtil {
             } else if (action.equals(SessionFrame.STATE_DATUM_VAL) ||
                     action.equals(SessionFrame.STATE_DATUM_COMPUTED) ||
                     action.equals(SessionFrame.STATE_UNKNOWN)) {
-                session.setDatum(tokenStream[++current], tokenStream[++current]);
+                session.setDatum(action, tokenStream[++current], tokenStream[++current]);
             }
             current++;
         }
