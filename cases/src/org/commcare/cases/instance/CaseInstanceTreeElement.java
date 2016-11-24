@@ -46,8 +46,6 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 
     private Interner<String> stringCache;
 
-    private String syncToken;
-    private String stateHash;
     private int numRecords = -1;
     private TreeReference cachedRef = null;
 
@@ -127,7 +125,6 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         } else {
             return new Vector<>();
         }
-
     }
 
     @Override
@@ -173,13 +170,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
                 objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
                 mult++;
             }
-
         }
-    }
-
-    public void setState(String syncToken, String stateHash) {
-        this.syncToken = syncToken;
-        this.stateHash = stateHash;
     }
 
     @Override
@@ -210,15 +201,11 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     @Override
     public void accept(ITreeVisitor visitor) {
         visitor.visit(this);
-
     }
 
     @Override
     public int getAttributeCount() {
-        if (syncToken == null) {
-            return 0;
-        }
-        return 2;
+        return 0;
     }
 
     @Override
@@ -228,29 +215,16 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 
     @Override
     public String getAttributeName(int index) {
-        if (index == 0) {
-            return "syncToken";
-        } else if (index == 1) {
-            return "stateHash";
-        } else {
-            return null;
-        }
+        return null;
     }
 
     @Override
     public String getAttributeValue(int index) {
-        if (index == 0) {
-            return syncToken;
-        } else if (index == 1) {
-            return stateHash;
-        } else {
-            return null;
-        }
+        return null;
     }
 
     @Override
     public CaseChildElement getAttribute(String namespace, String name) {
-        //Oooooof, this is super janky;
         return null;
     }
 
@@ -258,7 +232,6 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     public String getAttributeValue(String namespace, String name) {
         return getAttributeValue("syncToken".equals(name) ? 0 : "stateHash".equals(name) ? 1 : -1);
     }
-
 
     @Override
     public TreeReference getRef() {
@@ -296,7 +269,6 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     public int getDataType() {
         return 0;
     }
-
 
     @Override
     protected String translateFilterExpr(XPathPathExpr expressionTemplate, XPathPathExpr matchingExpr,
