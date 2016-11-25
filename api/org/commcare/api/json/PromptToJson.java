@@ -126,6 +126,7 @@ public class PromptToJson {
         }
         switch (prompt.getDataType()) {
             case Constants.DATATYPE_NULL:
+            case Constants.DATATYPE_BARCODE:
             case Constants.DATATYPE_TEXT:
                 obj.put("answer", answerValue.getDisplayText());
                 return;
