@@ -289,7 +289,7 @@ public class ResourceTable {
      * installed?
      */
     public boolean isReady() {
-        return getUnreadyResources().size() == 0;
+        return getUnreadyResources().isEmpty();
     }
 
     public void commitCompoundResource(Resource r, int status, int version)
@@ -635,13 +635,10 @@ public class ResourceTable {
      * relevant.
      *
      * @param incoming Table for which resource upgrades are applied
-     * @return True if this table was prepared and the incoming table can be
-     * fully installed. False if something is this table couldn't be unstaged.
-     * @throws UnresolvedResourceException
      */
-    public boolean upgradeTable(ResourceTable incoming) throws UnresolvedResourceException {
+    public void upgradeTable(ResourceTable incoming) throws UnresolvedResourceException {
         if (!incoming.isReady()) {
-            return false;
+            throw new RuntimeException("Incoming table is not ready to be upgraded");
         }
 
         // Everything incoming should be marked either ready or upgrade.
@@ -677,7 +674,7 @@ public class ResourceTable {
                             Logger.log("Resource",
                                     "Failed to upgrade resource: " + r.getDescriptor());
                             // REVERT!
-                            return false;
+                            throw new RuntimeException("Failed to upgrade resource " + r.getDescriptor());
                         }
                     }
                 }
@@ -686,8 +683,6 @@ public class ResourceTable {
                 // resource locations could change
             }
         }
-
-        return true;
     }
 
     /**

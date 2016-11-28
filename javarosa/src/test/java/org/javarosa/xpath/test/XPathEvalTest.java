@@ -603,6 +603,37 @@ public class XPathEvalTest {
                 XPathEqExpr.testEquality(dbl, "100E5"));
     }
 
+    @Test
+    public void testOverrideNow() {
+        EvaluationContext ec = new EvaluationContext(null);
+
+        ec.addFunctionHandler(new IFunctionHandler() {
+            @Override
+            public String getName() {
+              return "now";
+            }
+
+            @Override
+            public Vector getPrototypes() {
+              Vector<Class[]> p = new Vector<>();
+              p.addElement(new Class[0]);
+              return p;
+            }
+
+            @Override
+            public boolean rawArgs() {
+              return false;
+            }
+
+            @Override
+            public Object eval(Object[] args, EvaluationContext ec) {
+              return "pass";
+            }
+        });
+
+        testEval("now()", null, ec, "pass");
+    }
+
     protected void addDataRef(FormInstance dm, String ref, IAnswerData data) {
         TreeReference treeRef = XPathReference.getPathExpr(ref).getReference();
         treeRef = inlinePositionArgs(treeRef);

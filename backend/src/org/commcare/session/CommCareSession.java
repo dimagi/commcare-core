@@ -424,7 +424,11 @@ public class CommCareSession {
     }
 
     public void setDatum(String keyId, String value) {
-        frame.pushStep(new StackFrameStep(SessionFrame.STATE_DATUM_VAL, keyId, value));
+        setDatum(SessionFrame.STATE_DATUM_VAL, keyId, value);
+    }
+
+    public void setDatum(String action, String keyId, String value) {
+        frame.pushStep(new StackFrameStep(action, keyId, value));
         syncState();
     }
 
@@ -480,6 +484,7 @@ public class CommCareSession {
 
         for (StackFrameStep step : frame.getSteps()) {
             if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) ||
+                    SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType()) ||
                     SessionFrame.STATE_UNKNOWN.equals(step.getType()) &&
                             (guessUnknownType(step).equals(SessionFrame.STATE_DATUM_COMPUTED)
                             || guessUnknownType(step).equals(SessionFrame.STATE_DATUM_VAL))) {

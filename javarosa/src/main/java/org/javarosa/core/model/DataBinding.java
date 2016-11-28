@@ -3,17 +3,7 @@ package org.javarosa.core.model;
 import org.javarosa.core.model.condition.Condition;
 import org.javarosa.core.model.condition.IConditionExpr;
 import org.javarosa.core.model.condition.Recalculate;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapNullable;
-import org.javarosa.core.util.externalizable.ExtWrapTagged;
-import org.javarosa.core.util.externalizable.Externalizable;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 
 /**
  * A data binding is an object that represents how a
@@ -29,7 +19,7 @@ import java.io.IOException;
  *
  * @author Drew Roos
  */
-public class DataBinding implements Externalizable {
+public class DataBinding {
     private String id;
     private XPathReference ref;
     private int dataType;
@@ -53,97 +43,43 @@ public class DataBinding implements Externalizable {
         readonlyAbsolute = false;
     }
 
-    /**
-     * @return The data reference
-     */
     public XPathReference getReference() {
         return ref;
     }
 
-    /**
-     * @param ref the reference to set
-     */
     public void setReference(XPathReference ref) {
         this.ref = ref;
     }
 
-    /**
-     * @return the id
-     */
     public String getId() {
         return id;
     }
 
-    /**
-     * @param id the id to set
-     */
     public void setId(String id) {
         this.id = id;
     }
 
-    /**
-     * @return the dataType
-     */
     public int getDataType() {
         return dataType;
     }
 
-    /**
-     * @param dataType the dataType to set
-     */
     public void setDataType(int dataType) {
         this.dataType = dataType;
     }
 
-    /**
-     * @return the preload
-     */
     public String getPreload() {
         return preload;
     }
 
-    /**
-     * @param preload the preload to set
-     */
     public void setPreload(String preload) {
         this.preload = preload;
     }
 
-    /**
-     * @return the preloadParams
-     */
     public String getPreloadParams() {
         return preloadParams;
     }
 
-    /**
-     * @param preloadParams the preloadParams to set
-     */
     public void setPreloadParams(String preloadParams) {
         this.preloadParams = preloadParams;
     }
-
-    @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        setId((String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf));
-        setDataType(ExtUtil.readInt(in));
-        setPreload((String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf));
-        setPreloadParams((String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf));
-        ref = (XPathReference)ExtUtil.read(in, new ExtWrapTagged(), pf);
-
-        //don't bother reading relevancy/required/readonly/constraint/calculate right now; they're only used during parse anyway
-    }
-
-    @Override
-    public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.write(out, new ExtWrapNullable(getId()));
-        ExtUtil.writeNumeric(out, getDataType());
-        ExtUtil.write(out, new ExtWrapNullable(getPreload()));
-        ExtUtil.write(out, new ExtWrapNullable(getPreloadParams()));
-        ExtUtil.write(out, new ExtWrapTagged(ref));
-
-        //don't bother writing relevancy/required/readonly/constraint/calculate right now; they're only used during parse anyway
-    }
-
-
 }

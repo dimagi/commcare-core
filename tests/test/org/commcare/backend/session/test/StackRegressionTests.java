@@ -34,4 +34,17 @@ public class StackRegressionTests {
         blankSession.stepBack();
         assertEquals(SessionFrame.STATE_COMMAND_ID, blankSession.getNeededData());
     }
+
+    @Test
+    public void testKeepComputedDatum() throws Exception {
+        MockApp mockApp = new MockApp("/nav_back/");
+        SessionWrapper session = mockApp.getSession();
+        UserSandbox sandbox = session.getSandbox();
+        SessionWrapper blankSession = new SessionWrapper(session.getPlatform(), sandbox);
+        String descriptor = "COMMAND_ID m0-f0 " +
+                "COMPUTED_DATUM case_id_new_mother_0 test_id " +
+                "COMPUTED_DATUM return_to m1";
+        SessionDescriptorUtil.loadSessionFromDescriptor(descriptor, blankSession);
+        assertEquals(2, blankSession.getData().size());
+    }
 }

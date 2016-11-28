@@ -56,10 +56,10 @@ public abstract class XPathFuncExpr extends XPathExpression {
     }
 
     private void evaluateArguments(DataInstance model, EvaluationContext evalContext) {
+        if (evaluatedArgs == null) {
+            evaluatedArgs = new Object[args.length];
+        }
         if (evaluateArgsFirst) {
-            if (evaluatedArgs == null) {
-                evaluatedArgs = new Object[args.length];
-            }
             for (int i = 0; i < args.length; i++) {
                 evaluatedArgs[i] = args[i].eval(model, evalContext);
             }
