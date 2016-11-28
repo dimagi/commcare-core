@@ -13,7 +13,6 @@ import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathCustomRuntimeFunc;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -22,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import static org.junit.Assert.fail;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -82,7 +82,7 @@ public class XPathFuncExprTest {
         } catch (XPathTypeMismatchException e) {
             return;
         }
-        Assert.fail("form entry should fail on bad `position` usage before getting here");
+        fail("form entry should fail on bad `position` usage before getting here");
     }
 
     @Test
