@@ -140,8 +140,16 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
     }
 
     @Override
-    public int getCountForNumericBadge(EvaluationContext ec) {
-        return display.evaluateBadgeFunction(ec);
+    public String getTextForBadge(EvaluationContext ec) {
+        if (display.getBadgeText() == null) {
+            return null;
+        }
+        return display.getBadgeText().evaluate(ec);
+    }
+
+    @Override
+    public String getCommandID() {
+        return commandId;
     }
 
     @Override

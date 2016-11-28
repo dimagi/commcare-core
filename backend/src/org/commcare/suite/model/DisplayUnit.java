@@ -4,12 +4,8 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
-import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -26,7 +22,7 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
     private Text name;
     private Text imageReference;
     private Text audioReference;
-    private XPathExpression numericBadgeFunction;
+    private Text badgeFunction;
 
     /**
      * Serialization only!!!
@@ -41,19 +37,11 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
 
 
     public DisplayUnit(Text name, Text imageReference, Text audioReference,
-                       String badgeFunction) {
+                       Text badge) {
         this.name = name;
         this.imageReference = imageReference;
         this.audioReference = audioReference;
-
-        if (badgeFunction != null) {
-            try {
-                this.numericBadgeFunction = XPathParseTool.parseXPath(badgeFunction);
-            } catch (XPathSyntaxException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e.getMessage());
-            }
-        }
+        this.badgeFunction = badge;
     }
 
     public DisplayData evaluate() {
@@ -64,8 +52,8 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
     public DisplayData evaluate(EvaluationContext ec) {
         String imageRef = imageReference == null ? null : imageReference.evaluate(ec);
         String audioRef = audioReference == null ? null : audioReference.evaluate(ec);
-        int numericBadgeCount = evaluateBadgeFunction(ec);
-        return new DisplayData(name.evaluate(ec), imageRef, audioRef, numericBadgeCount);
+        String textForBadge = badgeFunction == null ? null : badgeFunction.evaluate(ec);
+        return new DisplayData(name.evaluate(ec), imageRef, audioRef, textForBadge);
     }
 
     /**
@@ -84,16 +72,8 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
         return audioReference;
     }
 
-    public int evaluateBadgeFunction(EvaluationContext ec) {
-        if (numericBadgeFunction == null) {
-            return -1;
-        }
-        return (int)(double)numericBadgeFunction.eval(ec);
-    }
-
-    // For testing only
-    public String getBadgeFunctionString() {
-        return numericBadgeFunction.toPrettyString();
+    public Text getBadgeText() {
+        return badgeFunction;
     }
 
     @Override
@@ -102,8 +82,7 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
         name = (Text)ExtUtil.read(in, Text.class, pf);
         imageReference = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
         audioReference = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
-        numericBadgeFunction =
-                (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
+        badgeFunction = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
     }
 
     @Override
@@ -111,8 +90,7 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
         ExtUtil.write(out, name);
         ExtUtil.write(out, new ExtWrapNullable(imageReference));
         ExtUtil.write(out, new ExtWrapNullable(audioReference));
-        ExtUtil.write(out, new ExtWrapNullable(numericBadgeFunction == null ? null :
-                new ExtWrapTagged(numericBadgeFunction)));
+        ExtUtil.write(out, new ExtWrapNullable(badgeFunction));
     }
 
 }

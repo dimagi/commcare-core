@@ -51,17 +51,17 @@ public abstract class CommCareElementParser<T> extends ElementParser<T> {
         Text imageValue = null;
         Text audioValue = null;
         Text displayText = null;
-        String badgeFunction = null;
+        Text badgeText = null;
 
         while (nextTagInBlock("display")) {
             if (parser.getName().equals("text")) {
-
                 String attributeValue = parser.getAttributeValue(null, "form");
-
-                if (attributeValue != null && attributeValue.equals("image")) {
+                if ("image".equals(attributeValue)) {
                     imageValue = new TextParser(parser).parse();
-                } else if (attributeValue != null && attributeValue.equals("audio")) {
+                } else if ("audio".equals(attributeValue)) {
                     audioValue = new TextParser(parser).parse();
+                } else if ("badge".equals(attributeValue) ) {
+                    badgeText = new TextParser(parser).parse();
                 } else {
                     displayText = new TextParser(parser).parse();
                 }
@@ -77,26 +77,9 @@ public abstract class CommCareElementParser<T> extends ElementParser<T> {
                 }
                 //only ends up grabbing the last entries with
                 //each attribute, but we can only use one of each anyway.
-            } else if ("numeric-badge".equals(parser.getName())) {
-                if (badgeFunction != null) {
-                    throw new InvalidStructureException(
-                            "Only 1 numeric-badge declaration allowed per display block", parser);
-                }
-                badgeFunction = parser.getAttributeValue(null, "function");
-                if (badgeFunction == null) {
-                    throw new InvalidStructureException(
-                            "No function provided in numeric-badge declaration", parser);
-                }
-                try {
-                    XPathParseTool.parseXPath(badgeFunction);
-                } catch (XPathSyntaxException e) {
-                    e.printStackTrace();
-                    throw new InvalidStructureException(
-                            "Invalid XPath function " + badgeFunction + ". " + e.getMessage(), parser);
-                }
             }
         }
 
-        return new DisplayUnit(displayText, imageValue, audioValue, badgeFunction);
+        return new DisplayUnit(displayText, imageValue, audioValue, badgeText);
     }
 }

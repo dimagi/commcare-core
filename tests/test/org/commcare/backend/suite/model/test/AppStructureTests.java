@@ -144,66 +144,30 @@ public class AppStructureTests {
     }
 
     @Test
-    public void testDisplayBlockNumericBadgeParsing_good() throws Exception {
+    public void testDisplayBlockParsing_good() throws Exception {
         MockApp appWithGoodUserRestore = new MockApp("/app_with_good_numeric_badge/");
         Suite s = appWithGoodUserRestore.getSession().getPlatform().getInstalledSuites().get(0);
         Menu menuWithDisplayBlock = s.getMenusWithId("m1").get(0);
         assertEquals("Menu 1 Text", menuWithDisplayBlock.getDisplayText());
-        assertEquals("8.0", menuWithDisplayBlock.getBadgeFunctionString());
+        EvaluationContext ec =
+                appWithGoodUserRestore.getSession().getEvaluationContext(menuWithDisplayBlock.getId());
+        assertEquals("8", menuWithDisplayBlock.getTextForBadge(ec));
     }
 
     @Test
-    public void testDisplayBlockNumericBadgeParsing_noFunctionAttr() throws Exception {
+    public void testDisplayBlockParsing_invalidXPathExpr() throws Exception {
         boolean exceptionThrown = false;
         try {
-            new MockApp("/app_with_bad_numeric_badge1/");
+            new MockApp("/app_with_bad_numeric_badge/");
         } catch (UnresolvedResourceException e) {
             exceptionThrown = true;
-            String expectedErrorMsg = "No function provided in numeric-badge declaration";
+            String expectedErrorMsg = "Invalid XPath Expression : ,3";
             Assert.assertTrue(
                     "The exception that was thrown was due to an unexpected cause",
                     e.getMessage().contains(expectedErrorMsg));
         }
         if (!exceptionThrown) {
-            fail("A numeric-badge block that does not have a function attribute should throw " +
-                    "an exception");
-        }
-    }
-
-    @Test
-    public void testDisplayBlockNumericBadgeParsing_invalidXPathExpr() throws Exception {
-        boolean exceptionThrown = false;
-        try {
-            new MockApp("/app_with_bad_numeric_badge2/");
-        } catch (UnresolvedResourceException e) {
-            exceptionThrown = true;
-            System.out.println(e.getMessage());
-            String expectedErrorMsg = "Invalid XPath function ,3";
-            Assert.assertTrue(
-                    "The exception that was thrown was due to an unexpected cause",
-                    e.getMessage().contains(expectedErrorMsg));
-        }
-        if (!exceptionThrown) {
-            fail("A numeric-badge block whose function attribute contains an invalid xpath " +
-                    "expression should throw an exception");
-        }
-    }
-
-    @Test
-    public void testDisplayBlockNumericBadgeParsing_multipleFunctionAttributes() throws Exception {
-        boolean exceptionThrown = false;
-        try {
-            new MockApp("/app_with_bad_numeric_badge3/");
-        } catch (UnresolvedResourceException e) {
-            exceptionThrown = true;
-            System.out.println(e.getMessage());
-            String expectedErrorMsg = "Only 1 numeric-badge declaration allowed per display block";
-            Assert.assertTrue(
-                    "The exception that was thrown was due to an unexpected cause",
-                    e.getMessage().contains(expectedErrorMsg));
-        }
-        if (!exceptionThrown) {
-            fail("A numeric-badge block whose function attribute contains an invalid xpath " +
+            fail("A Text block of form badge whose xpath element contains an invalid xpath " +
                     "expression should throw an exception");
         }
     }

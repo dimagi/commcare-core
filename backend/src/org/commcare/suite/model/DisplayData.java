@@ -10,13 +10,13 @@ public class DisplayData {
     final String name;
     final String imageURI;
     final String audioURI;
-    final int numericBadgeCount;
+    final String textForBadge;
 
-    public DisplayData(String name, String imageURI, String audioURI, int numericBadgeCount) {
+    public DisplayData(String name, String imageURI, String audioURI, String badgeText) {
         this.name = name;
         this.imageURI = imageURI;
         this.audioURI = audioURI;
-        this.numericBadgeCount = numericBadgeCount;
+        this.textForBadge = badgeText;
     }
 
     public String getName() {
@@ -31,7 +31,7 @@ public class DisplayData {
         return audioURI;
     }
 
-    public int getNumericBadgeCount() {
-        return numericBadgeCount;
+    public String getTextForBadge() {
+        return textForBadge;
     }
 }

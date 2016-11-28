@@ -153,7 +153,9 @@
   <menu id="m1" style="list">
     <display>
       <text>Menu 1 Text</text>
-      <numeric-badge function=",3"/>
+      <text form="badge">
+        <xpath function=",3"/>
+      </text>
     </display>
     <command id="m0-f0"/>
   </menu>

@@ -16,5 +16,7 @@ public interface MenuDisplayable {
 
     String getDisplayText();
 
-    int getCountForNumericBadge(EvaluationContext ec);
+    String getTextForBadge(EvaluationContext ec);
+
+    String getCommandID();
 }
