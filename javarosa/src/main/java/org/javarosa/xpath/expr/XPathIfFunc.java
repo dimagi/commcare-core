@@ -35,4 +35,14 @@ public class XPathIfFunc extends XPathFuncExpr {
             return args[2].eval(model, evalContext);
         }
     }
+
+    @Override
+    public String getDocumentation() {
+        return getDocHeader()
+                + "Behavior:  Can be used to test a condition and return one value if it is true and another if that condition is false.  Behaves like the Excel if function.\n"
+                + "Return: Will return either the value of the true or false branch.\n"
+                + "Arguments:  The condition, the true value and the false value.\n"
+                + "Syntax: if(condition_to_test, value_if_true, value_if_false)\n"
+                + "Example:  This function is very useful for complex logic.  Ex. if(/data/mother_is_pregnant = \"yes\" and /data/mother_age > 40, \"High Risk Mother\", \"Normal Mother\"). If you need more complex logic (if a, do this, otherwise if b, do this, otherwise do c), you can nest if statements.  Ex. if(data/mother_is_pregnant = \"yes\", \"Is Pregnant\", if(/data/mother_has_young_children = \"yes\", \"Newborn Child Care\", \"Not Tracked\"))";
+    }
 }

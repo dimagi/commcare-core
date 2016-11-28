@@ -23,4 +23,13 @@ public class XPathNowFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return new Date();
     }
+
+    @Override
+    public String getDocumentation() {
+        return getDocHeader()
+                + "Return:  Returns the current date.and time\n"
+                + "Arguments: None\n"
+                + "Usage: now()\n"
+                + "Example Usage: You may want to use this if you want to calculate the current date and time in a hidden value. When saved to a case, will only save the date portion without the time. If the time portion is important, convert to a number before saving to a case: double(now()).";
+    }
 }

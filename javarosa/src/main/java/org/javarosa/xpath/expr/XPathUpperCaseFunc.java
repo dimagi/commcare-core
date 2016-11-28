@@ -21,4 +21,14 @@ public class XPathUpperCaseFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return FunctionUtils.normalizeCase(evaluatedArgs[0], true);
     }
+
+    @Override
+    public String getDocumentation() {
+        return getDocHeader()
+                + "Behavior:  Transforms all letters in a string to their uppercase equivalents.\n"
+                + "Return: Updated string\n"
+                + "Arguments: The string you want to transform.\n"
+                + "Syntax: upper-case(text)\n"
+                + "Example: upper-case(\"i AM a Test\") -> \"I AM A TEST\"";
+    }
 }

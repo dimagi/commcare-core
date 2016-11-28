@@ -53,4 +53,14 @@ public class XPathRegexFunc extends XPathFuncExpr {
         return result;
     }
 
+
+    @Override
+    public String getDocumentation() {
+        return getDocHeader()
+                + "Behavior:  Evaluates a value against a regular expression and returns true if the value matches that regular expression.\n"
+                + "Return: true or false\n"
+                + "Arguments:  There are two arguments, the value to be validated and the regular expression as a string.\n"
+                + "Syntax: regex(value, regular_expression)\n"
+                + "Example:  This is useful when doing complex validation against some value.  For example, to validate that a string contains only numbers, you can use regex(/data/my_question, \"[0 - 9] + \").   You can test and develop other regular expressions using http://www.regexr.com/.  Also see the Advanced Validation Conditions page.";
+    }
 }

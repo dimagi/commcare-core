@@ -21,4 +21,14 @@ public class XPathExpFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return Math.exp(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
+
+    @Override
+    public String getDocumentation() {
+        return getDocHeader()
+                + "Behavior: Raises Euler's constant to the power of the provided number\n"
+                + "Return: A number representing e^x, where e is Euler's number and x is the argument.\n"
+                + "Arguments: A number to act as the exponent\n"
+                + "Syntax: exp(value_to_convert)\n"
+                + "Example: exp(0) -> 1";
+    }
 }
