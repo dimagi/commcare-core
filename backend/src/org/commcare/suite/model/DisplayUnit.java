@@ -91,6 +91,11 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
         return (int)(double)numericBadgeFunction.eval(ec);
     }
 
+    // For testing only
+    public String getBadgeFunctionString() {
+        return numericBadgeFunction.toPrettyString();
+    }
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {

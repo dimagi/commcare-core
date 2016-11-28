@@ -195,6 +195,11 @@ public class Menu implements Externalizable, MenuDisplayable {
         return display.evaluateBadgeFunction(ec);
     }
 
+    // For testing only
+    public String getBadgeFunctionString() {
+        return display.getBadgeFunctionString();
+    }
+
     // unsafe! assumes that xpath expressions evaluate properly...
     public int indexOfCommand(String cmd) {
         return commandIds.indexOf(cmd);

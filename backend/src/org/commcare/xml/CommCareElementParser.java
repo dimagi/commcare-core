@@ -78,10 +78,14 @@ public abstract class CommCareElementParser<T> extends ElementParser<T> {
                 //only ends up grabbing the last entries with
                 //each attribute, but we can only use one of each anyway.
             } else if ("numeric-badge".equals(parser.getName())) {
+                if (badgeFunction != null) {
+                    throw new InvalidStructureException(
+                            "Only 1 numeric-badge declaration allowed per display block", parser);
+                }
                 badgeFunction = parser.getAttributeValue(null, "function");
                 if (badgeFunction == null) {
                     throw new InvalidStructureException(
-                            "No function in numeric-badge declaration " + parser.getName(), parser);
+                            "No function provided in numeric-badge declaration", parser);
                 }
                 try {
                     XPathParseTool.parseXPath(badgeFunction);

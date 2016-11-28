@@ -1,0 +1,178 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="1" descriptor="Suite File">
+  <xform>
+    <resource id="546d5695ad31d060faac835fea2bc436810c81f9" version="1" descriptor="Form: Placeholder">
+      <location authority="local">./form_placeholder.xml</location>
+    </resource>
+  </xform>
+
+  <detail id="m0_case_short">
+    <title>
+      <text>Case List</text>
+    </title>
+    <lookup name="Scan fingerprint"
+            action="com.simprints.id.IDENTIFY"
+            image="jr://file/commcare/image/module1_case_list_lookup.png"
+            type="text/plain">
+      <extra key="deviceId" value="123"/>
+      <response key="fake"/>
+      <field>
+        <header>
+          <text>
+            <locale id="m1.case_short.callout.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="@case_id"/>
+          </text>
+        </template>
+      </field>
+    </lookup>
+    <field>
+      <header>
+        <text>Name</text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m0_case_long">
+    <title>
+      <text>Case Detail</text>
+    </title>
+    <field>
+      <header>
+        <text>Name</text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+
+  <detail id="m1_case_short">
+    <title>
+      <text>With focus function</text>
+    </title>
+    <focus function="case_name = 'Fake Case Name'"/>
+    <field>
+      <header>
+        <text>Name</text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="m0-f0">
+      <text>Form</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+    </session>
+  </entry>
+
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="m0-f1">
+      <text>Form</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+    </session>
+  </entry>
+
+  <remote-request>
+    <post url="http://fake.com/claim_patient/">
+      <data key="selected_name" ref="instance('patients')/case/name"/>
+      <data key="selected_case_id" ref="instance('patients')/case/@case_id"/>
+    </post>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <command id="patient-search">
+      <display>
+        <text>Global search for person</text>
+      </display>
+    </command>
+    <session>
+      <query url="http://fake.com/patient_search/" storage-instance="patients">
+        <data key="device_id" ref="instance('session')/session/data/uuid"/>
+        <data key="device_case_count" ref="instance('session')/session/data/case_count"/>
+        <prompt key="name">
+          <display>
+            <text>Input patient name</text>
+          </display>
+        </prompt>
+        <prompt key="patient_id">
+          <display>
+            <text>Input patient id</text>
+          </display>
+        </prompt>
+      </query>
+      <datum id="case_id" nodeset="instance('patients')/case[@case_type='geriatric'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+    </session>
+    <stack>
+      <push>
+        <command value="'m1-f0'"/>
+        <datum id="calculated_data" value="'claimed'"/>
+      </push>
+    </stack>
+  </remote-request>
+
+  <menu id="m0">
+    <text>Menu</text>
+    <command id="m0-f0"/>
+  </menu>
+
+  <menu id="root" style="grid">
+    <text/>
+  </menu>
+
+  <menu id="m1" style="list">
+    <display>
+      <text>Menu 1 Text</text>
+      <numeric-badge function=",3"/>
+    </display>
+    <command id="m0-f0"/>
+  </menu>
+  <menu id="m2" style="grid">
+    <text>Menu</text>
+    <command id="m0-f0"/>
+  </menu>
+  <menu id="m2" style="list">
+    <text>Menu</text>
+    <command id="m0-f1"/>
+  </menu>
+
+  <menu id="m3" style="grid">
+    <text>Menu</text>
+    <command id="m0-f0"/>
+  </menu>
+  <menu id="m3">
+    <text>Menu</text>
+    <command id="m0-f1"/>
+  </menu>
+
+</suite>
