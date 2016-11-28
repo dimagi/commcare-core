@@ -437,8 +437,8 @@ public class FunctionUtils {
      * (Used in formplayer for function auto-completion)
      */
     @SuppressWarnings("unused")
-    public static List<String> xPathFuncList() {
-        return new ArrayList<>(funcList.keySet());
+    public static List<Class> xPathFuncList() {
+        return new ArrayList<>(funcList.values());
     }
 
     public static HashMap<String, Class> getXPathFuncListMap() {

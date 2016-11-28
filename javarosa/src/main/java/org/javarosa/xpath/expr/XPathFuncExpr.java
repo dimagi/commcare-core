@@ -211,4 +211,12 @@ public abstract class XPathFuncExpr extends XPathExpression {
             throw new XPathArityException(name, expectedArgCount, args.length);
         }
     }
+
+    public int getExpectedArgCount() {
+        return expectedArgCount;
+    }
+
+    public String getName() {
+        return name;
+    }
 }
