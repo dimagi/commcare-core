@@ -54,9 +54,12 @@ public class XPathPositionFunc extends XPathFuncExpr {
         return new Double(refAt.getMultLast());
     }
 
-
     @Override
     public String getDocumentation() {
-        return "?";
+        return getDocHeader()
+                + "Behavior: Returns the current index of the given reference. \n"
+                + "Return: the greatest extant multiplicity of the reference. \n"
+                + "Arguments: The reference to be checked, or none for current position "
+                + "Example: position(/data/repeat) returns '2' if two iterations have been created";
     }
 }
