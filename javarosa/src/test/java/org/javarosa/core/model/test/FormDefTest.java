@@ -214,7 +214,7 @@ public class FormDefTest {
         stepThroughEntireForm(fec);
 
         ExprEvalUtils.assertEqualsXpathEval("Nested repeats did not evaluate to the proper outcome",
-                30.0,
+                60.0,
                 "/data/sum",
                 fpi.getFormDef().getEvaluationContext());
     }

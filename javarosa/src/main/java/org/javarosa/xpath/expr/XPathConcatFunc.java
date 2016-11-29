@@ -31,4 +31,14 @@ public class XPathConcatFunc extends XPathFuncExpr {
             return XPathJoinFunc.join("", evaluatedArgs);
         }
     }
+
+    @Override
+    public String getDocumentation() {
+        return getDocHeader()
+                + "Behavior:  Joins multiple strings together.  The arguments can either reference a question or be a directly type string.\n"
+                + "Return: Joined string\n"
+                + "Arguments:  Multiple arguments (as many as needed) that represent the strings to be joined in order.\n"
+                + "Syntax: concat(text1, text2, text3, ...)\n"
+                + "Example:  concat(\"Full name: \", /data/first_name, \" \", /data/last_name)";
+    }
 }
