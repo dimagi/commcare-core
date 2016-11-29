@@ -21,4 +21,14 @@ public class XPathBooleanFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return FunctionUtils.toBoolean(evaluatedArgs[0]);
     }
+
+    @Override
+    public String getDocumentation() {
+        return getDocHeader()
+                + "Behavior: When passed a number, will return true if the number is not zero.  Otherwise it will return false.   When passed a string, will return true if the string is non-empty.\n"
+                + "Return: Returns true or false based on the argument.\n"
+                + "Arguments:  The value to be converted\n"
+                + "Syntax: boolean(value_to_convert)\n"
+                + "Example:  You may have stored a value that is 1 or 0 into a boolean for other logic.  boolean(/data/my_question) or boolean(23)";
+    }
 }

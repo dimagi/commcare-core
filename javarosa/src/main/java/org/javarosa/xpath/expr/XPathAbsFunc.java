@@ -21,4 +21,14 @@ public class XPathAbsFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return Math.abs(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
+
+    @Override
+    public String getDocumentation() {
+        return getDocHeader()
+                + "Behavior: Finds the absolute value of a number.\n"
+                + "Return: The absolute value of the argument passed to the function\n"
+                + "Arguments: The only argument is the number whose absolute value you want\n"
+                + "Syntax: abs(number)\n"
+                + "Example: abs(-2.49)";
+    }
 }
