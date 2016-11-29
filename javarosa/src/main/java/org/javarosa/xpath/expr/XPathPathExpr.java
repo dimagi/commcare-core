@@ -33,6 +33,7 @@ import org.javarosa.xpath.XPathUnsupportedException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Vector;
 
 public class XPathPathExpr extends XPathExpression {
@@ -192,7 +193,9 @@ public class XPathPathExpr extends XPathExpression {
                     throw new XPathMissingInstanceException(ref.getInstanceName(), "Instance referenced by " + ref.toString(true) + " has not been loaded");
                 }
             } else {
-                throw new XPathMissingInstanceException(ref.getInstanceName(), "Instance referenced by " + ref.toString(true) + " does not exist");
+                Object[] args = new Object[] {ref.getInstanceName(), ref.toString(true), ec.getContextRef()};
+                MessageFormat msg = new MessageFormat("The instance \"{0}\" in expression \"{1}\" used by \"{2}\" does not exist in the form. Please correct your form or application.");
+                throw new XPathMissingInstanceException(ref.getInstanceName(), msg.format(args));
             }
         } else {
             //TODO: We should really stop passing 'm' around and start just getting the right instance from ec
