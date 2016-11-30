@@ -89,5 +89,7 @@ public abstract class CliCommand {
             System.out.println("While attempting to resolve the necessary resources, a requirement wasn't met");;
             e.printStackTrace();
         }
+        System.exit(-1);
+        return null;
     }
 }
