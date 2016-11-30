@@ -123,7 +123,7 @@ public class CommCareConfigEngine {
         ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
     }
 
-    public void initFromArchive(String archiveURL) throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
+    public void initFromArchive(String archiveURL) {
         String fileName;
         if (archiveURL.startsWith("http")) {
             fileName = downloadToTemp(archiveURL);
@@ -146,7 +146,7 @@ public class CommCareConfigEngine {
     protected String downloadToTemp(String resource) {
         try {
             URL url = new URL(resource);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
             conn.setInstanceFollowRedirects(true);  //you still need to handle redirect manully.
             HttpURLConnection.setFollowRedirects(true);
 
@@ -162,8 +162,9 @@ public class CommCareConfigEngine {
         }
     }
 
-    public void initFromLocalFileResource(String resource) throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
+    public void initFromLocalFileResource(String resource) {
         String reference = setFileSystemRootFromResourceAndReturnRelativeRef(resource);
+
         init(reference);
     }
 
@@ -192,8 +193,21 @@ public class CommCareConfigEngine {
     }
 
 
-    protected void init(String profileRef) throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
-        installAppFromReference(profileRef);
+    private void init(String profileRef) {
+        try {
+            installAppFromReference(profileRef);
+            print.println("Table resources intialized and fully resolved.");
+            print.println(table);
+        } catch (InstallCancelledException e) {
+            print.println("Install was cancelled by the user or system");
+            e.printStackTrace(print);
+        } catch (UnresolvedResourceException e) {
+            print.println("While attempting to resolve the necessary resources, one couldn't be found: " + e.getResource().getResourceId());
+            e.printStackTrace(print);
+        } catch (UnfullfilledRequirementsException e) {
+            print.println("While attempting to resolve the necessary resources, a requirement wasn't met");
+            e.printStackTrace(print);
+        }
     }
 
     public void installAppFromReference(String profileReference) throws UnresolvedResourceException,
@@ -298,7 +312,7 @@ public class CommCareConfigEngine {
 
     public FormDef loadFormByXmlns(String xmlns) {
         IStorageUtilityIndexed<FormDef> formStorage =
-                (IStorageUtilityIndexed) StorageManager.getStorage(FormDef.STORAGE_KEY);
+                (IStorageUtilityIndexed)StorageManager.getStorage(FormDef.STORAGE_KEY);
         return formStorage.getRecordForValue("XMLNS", xmlns);
     }
 
@@ -318,7 +332,7 @@ public class CommCareConfigEngine {
             if (datum instanceof FormIdDatum) {
                 print.println(emptyhead + "Form: " + datum.getValue());
             } else if (datum instanceof EntityDatum) {
-                String shortDetailId = ((EntityDatum) datum).getShortDetail();
+                String shortDetailId = ((EntityDatum)datum).getShortDetail();
                 if (shortDetailId != null) {
                     Detail d = s.getDetail(shortDetailId);
                     try {
