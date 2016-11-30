@@ -7,7 +7,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.commcare.util.CommCareConfigEngine;
+import org.commcare.util.engine.CommCareConfigEngine;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 public abstract class CliCommand {
