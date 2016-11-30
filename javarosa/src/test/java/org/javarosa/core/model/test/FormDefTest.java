@@ -577,7 +577,7 @@ public class FormDefTest {
     public void testFormShortCircuit() {
         FormParseInit fpi = new FormParseInit("/IfShortCircuitTest.xhtml");
 
-        // Custom func to double the numeric argument passed in.
+        // Custom function that will fail if called
         IFunctionHandler functionFailer = new IFunctionHandler() {
             @Override
             public String getName() {
@@ -586,7 +586,7 @@ public class FormDefTest {
 
             @Override
             public Object eval(Object[] args, EvaluationContext ec) {
-                throw new RuntimeException("You failed the test!");
+                throw new RuntimeException("False portion of if() statement called");
             }
 
             @Override
