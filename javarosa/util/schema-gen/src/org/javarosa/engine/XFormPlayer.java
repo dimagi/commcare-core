@@ -21,7 +21,7 @@ import org.javarosa.engine.models.Mockup;
 import org.javarosa.engine.models.Session;
 import org.javarosa.engine.models.Step;
 import org.javarosa.engine.playback.BadPlaybackException;
-import org.commcare.api.process.XmlUtil;
+import org.javarosa.engine.xml.XmlUtil;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.form.api.FormEntrySession;

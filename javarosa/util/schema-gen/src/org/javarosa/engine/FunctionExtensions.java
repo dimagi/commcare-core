@@ -2,9 +2,10 @@ package org.javarosa.engine;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
+import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeReference;
-import org.commcare.api.process.XmlUtil;
+import org.javarosa.engine.xml.XmlUtil;
 import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.expr.FunctionUtils;
