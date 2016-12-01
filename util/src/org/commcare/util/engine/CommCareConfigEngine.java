@@ -49,22 +49,24 @@ public class CommCareConfigEngine {
     }
 
     public CommCareConfigEngine(PrototypeFactory prototypeFactory) {
-        this(System.out, prototypeFactory, new DummyIndexedStorageFactory(prototypeFactory));
+        this(new DummyIndexedStorageFactory(prototypeFactory));
     }
 
-    public CommCareConfigEngine(PrototypeFactory prototypeFactory, IStorageIndexedFactory storageFactory) {
-        this(System.out, prototypeFactory, storageFactory);
+    public CommCareConfigEngine(IStorageIndexedFactory storageFactory) {
+        this(System.out, storageFactory);
     }
 
-    public CommCareConfigEngine(OutputStream output, PrototypeFactory prototypeFactory, IStorageIndexedFactory storageFactory) {
+    public CommCareConfigEngine(OutputStream output, IStorageIndexedFactory storageFactory) {
         this.print = new PrintStream(output);
         this.platform = new CommCarePlatform(2, 32, storageFactory);
 
         setRoots();
-
-        table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class));
-        updateTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_UPGRADE_TABLE", Resource.class));
-        recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", Resource.class));
+        table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class),
+                new InstallerFactory(storageFactory));
+        updateTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_UPGRADE_TABLE", Resource.class),
+                new InstallerFactory(storageFactory));
+        recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", Resource.class),
+                new InstallerFactory(storageFactory));
 
 
         //All of the below is on account of the fact that the installers

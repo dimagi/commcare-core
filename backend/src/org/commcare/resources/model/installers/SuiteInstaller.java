@@ -12,6 +12,7 @@ import org.commcare.util.CommCarePlatform;
 import org.commcare.xml.SuiteParser;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.storage.IStorageIndexedFactory;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -26,6 +27,12 @@ import java.util.Vector;
  * @author ctsims
  */
 public class SuiteInstaller extends CacheInstaller<Suite> {
+
+    public SuiteInstaller(){};
+
+    public SuiteInstaller(IStorageIndexedFactory factory) {
+        super(factory);
+    }
 
     @Override
     public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {

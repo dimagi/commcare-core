@@ -10,6 +10,7 @@ import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localizer;
+import org.javarosa.core.services.storage.IStorageIndexedFactory;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.form.api.FormEntryCaption;
@@ -30,6 +31,12 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
     private static final String UPGRADE_EXT = "_TEMP";
     private static final String STAGING_EXT = "_STAGING-OPENROSA";
     private static final String[] exts = new String[]{UPGRADE_EXT, STAGING_EXT};
+
+    public XFormInstaller(){}
+
+    public XFormInstaller(IStorageIndexedFactory factory) {
+        super(factory);
+    }
 
     @Override
     protected String getCacheKey() {

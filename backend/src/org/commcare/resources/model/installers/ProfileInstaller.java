@@ -10,6 +10,7 @@ import org.commcare.util.CommCarePlatform;
 import org.commcare.xml.ProfileParser;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.storage.IStorageIndexedFactory;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -34,10 +35,12 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
 
     @SuppressWarnings("unused")
     public ProfileInstaller() {
+        super();
         forceVersion = false;
     }
 
-    public ProfileInstaller(boolean forceVersion) {
+    public ProfileInstaller(boolean forceVersion, IStorageIndexedFactory factory) {
+        super(factory);
         this.forceVersion = forceVersion;
     }
 
