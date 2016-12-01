@@ -6,7 +6,7 @@ import org.commcare.resources.model.ResourceInstaller;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.util.CommCareInstance;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.Persistable;
@@ -28,7 +28,7 @@ import java.util.Vector;
  *
  * @author ctsims
  */
-public abstract class CacheInstaller<T extends Persistable> implements ResourceInstaller<CommCareInstance> {
+public abstract class CacheInstaller<T extends Persistable> implements ResourceInstaller<CommCarePlatform> {
 
     private IStorageUtility<T> cacheStorage;
     protected int cacheLocation;
@@ -43,10 +43,10 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
     }
 
     @Override
-    public abstract boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException;
+    public abstract boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException;
 
     @Override
-    public boolean initialize(CommCareInstance instance, boolean isUpgrade) {
+    public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
         return false;
     }
 
