@@ -59,7 +59,7 @@ public class SuiteParser extends ElementParser<Suite> {
         this.isUpgrade = false;
     }
 
-    protected SuiteParser(InputStream suiteStream,
+    public SuiteParser(InputStream suiteStream,
                           ResourceTable table, String resourceGuid,
                           IStorageUtilityIndexed<FormInstance> fixtureStorage,
                           boolean skipResources, boolean isValidationPass,

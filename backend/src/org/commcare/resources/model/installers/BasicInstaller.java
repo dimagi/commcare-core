@@ -6,7 +6,7 @@ import org.commcare.resources.model.ResourceInstaller;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.util.CommCareInstance;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -22,10 +22,10 @@ import java.util.Vector;
  *
  * @author ctsims
  */
-public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
+public class BasicInstaller implements ResourceInstaller<CommCarePlatform> {
 
     @Override
-    public boolean initialize(CommCareInstance instance, boolean isUpgrade) {
+    public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
         return true;
     }
 
@@ -35,7 +35,7 @@ public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
     }
 
     @Override
-    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException {
+    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException {
         //If we have local resource authority, and the file exists, things are golden. We can just use that file.
         if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
             try {

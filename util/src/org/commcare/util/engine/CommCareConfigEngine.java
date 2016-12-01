@@ -4,22 +4,8 @@ import org.commcare.modern.reference.ArchiveFileRoot;
 import org.commcare.modern.reference.JavaFileRoot;
 import org.commcare.modern.reference.JavaHttpRoot;
 import org.commcare.resources.ResourceManager;
-import org.commcare.resources.model.InstallCancelledException;
-import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceTable;
-import org.commcare.resources.model.TableStateListener;
-import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.DetailField;
-import org.commcare.suite.model.EntityDatum;
-import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.FormIdDatum;
-import org.commcare.suite.model.Menu;
-import org.commcare.suite.model.OfflineUserRestore;
-import org.commcare.suite.model.Profile;
-import org.commcare.suite.model.PropertySetter;
-import org.commcare.suite.model.SessionDatum;
-import org.commcare.suite.model.Suite;
+import org.commcare.resources.model.*;
+import org.commcare.suite.model.*;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.io.StreamsUtil;
@@ -30,18 +16,15 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.*;
-import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
+import org.javarosa.core.services.storage.IStorageIndexedFactory;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathMissingInstanceException;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -57,29 +40,25 @@ public class CommCareConfigEngine {
     protected ResourceTable updateTable;
     protected ResourceTable recoveryTable;
     protected CommCarePlatform platform;
-    private final PrototypeFactory mLiveFactory;
     private final PrintStream print;
 
     private ArchiveFileRoot mArchiveRoot;
-
-    private static IStorageIndexedFactory storageFactory;
 
     public CommCareConfigEngine() {
         this(new LivePrototypeFactory());
     }
 
     public CommCareConfigEngine(PrototypeFactory prototypeFactory) {
-        this(System.out, prototypeFactory);
+        this(System.out, prototypeFactory, new DummyIndexedStorageFactory(prototypeFactory));
     }
 
-    public CommCareConfigEngine(OutputStream output, PrototypeFactory prototypeFactory) {
-        this.print = new PrintStream(output);
-        this.platform = new CommCarePlatform(2, 32);
-        this.mLiveFactory = prototypeFactory;
+    public CommCareConfigEngine(PrototypeFactory prototypeFactory, IStorageIndexedFactory storageFactory) {
+        this(System.out, prototypeFactory, storageFactory);
+    }
 
-        if (storageFactory == null) {
-            setupDummyStorageFactory();
-        }
+    public CommCareConfigEngine(OutputStream output, PrototypeFactory prototypeFactory, IStorageIndexedFactory storageFactory) {
+        this.print = new PrintStream(output);
+        this.platform = new CommCarePlatform(2, 32, storageFactory);
 
         setRoots();
 
@@ -99,19 +78,6 @@ public class CommCareConfigEngine {
         StorageManager.registerStorage(FormDef.STORAGE_KEY, FormDef.class);
         StorageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
         StorageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
-    }
-
-    private void setupDummyStorageFactory() {
-        CommCareConfigEngine.setStorageFactory(new IStorageIndexedFactory() {
-            @Override
-            public IStorageUtilityIndexed newStorage(String name, Class type) {
-                return new DummyIndexedStorageUtility(type, mLiveFactory);
-            }
-        });
-    }
-
-    public static void setStorageFactory(IStorageIndexedFactory storageFactory) {
-        CommCareConfigEngine.storageFactory = storageFactory;
     }
 
     protected void setRoots() {

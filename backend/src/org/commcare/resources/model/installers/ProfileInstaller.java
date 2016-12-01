@@ -6,7 +6,7 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
-import org.commcare.util.CommCareInstance;
+import org.commcare.util.CommCarePlatform;
 import org.commcare.xml.ProfileParser;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.Logger;
@@ -49,7 +49,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
     }
 
     @Override
-    public boolean initialize(CommCareInstance instance, boolean isUpgrade) {
+    public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
         //Certain properties may not have been able to set during install, so we'll make sure they're
         //set here.
         Profile p = storage().read(cacheLocation);
@@ -72,7 +72,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
     @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
-                           CommCareInstance instance, boolean upgrade)
+                           CommCarePlatform instance, boolean upgrade)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //Install for the profile installer is a two step process. Step one is to parse the file and read the relevant data.
         //Step two is to actually install the resource if it needs to be (whether or not it should will be handled

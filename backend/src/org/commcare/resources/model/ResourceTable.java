@@ -1,7 +1,7 @@
 package org.commcare.resources.model;
 
 import org.commcare.resources.model.installers.ProfileInstaller;
-import org.commcare.util.CommCareInstance;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -356,7 +356,7 @@ public class ResourceTable {
     private void findResourceLocationAndInstall(Resource r,
                                                 Vector<Reference> invalid,
                                                 boolean upgrade,
-                                                CommCareInstance instance,
+                                                CommCarePlatform instance,
                                                 ResourceTable master)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
@@ -436,7 +436,7 @@ public class ResourceTable {
      *                                           incompatible with the current
      *                                           version of CommCare
      */
-    public void prepareResources(ResourceTable master, CommCareInstance instance)
+    public void prepareResources(ResourceTable master, CommCarePlatform instance)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
         Hashtable<String, Resource> masterResourceMap = null;
@@ -481,7 +481,7 @@ public class ResourceTable {
      *                                           current CommCare version
      */
     public void prepareResourcesUpTo(ResourceTable master,
-                                     CommCareInstance instance,
+                                     CommCarePlatform instance,
                                      String toInitialize)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
@@ -506,7 +506,7 @@ public class ResourceTable {
      *                          table. Null when 'master' is, or when
      *                          pre-loading the resource map isn't worth it.
      */
-    private void prepareResource(ResourceTable master, CommCareInstance instance,
+    private void prepareResource(ResourceTable master, CommCarePlatform instance,
                                  Resource r, Hashtable<String, Resource> masterResourceMap)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         boolean upgrade = false;
@@ -579,7 +579,7 @@ public class ResourceTable {
      */
     private boolean installResource(Resource r, ResourceLocation location,
                                     Reference ref, ResourceTable table,
-                                    CommCareInstance instance, boolean upgrade)
+                                    CommCarePlatform instance, boolean upgrade)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         UnreliableSourceException aFailure = null;
 
@@ -887,7 +887,7 @@ public class ResourceTable {
      * Register the available resources in this table with the provided
      * CommCare instance.
      */
-    public void initializeResources(CommCareInstance instance, boolean isUpgrade) {
+    public void initializeResources(CommCarePlatform instance, boolean isUpgrade) {
         // HHaaaacckkk. (Some properties cannot be handled until after others
         // TODO: Replace this with some sort of sorted priority queue.
         Vector<ResourceInstaller> lateInit = new Vector<>();
