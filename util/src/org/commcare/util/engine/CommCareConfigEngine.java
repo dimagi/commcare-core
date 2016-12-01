@@ -265,8 +265,7 @@ public class CommCareConfigEngine {
     }
 
     public FormDef loadFormByXmlns(String xmlns) {
-        IStorageUtilityIndexed<FormDef> formStorage =
-                (IStorageUtilityIndexed) StorageManager.getStorage(FormDef.STORAGE_KEY);
+        IStorageUtilityIndexed<FormDef> formStorage = platform.storage(FormDef.STORAGE_KEY, FormDef.class);
         return formStorage.getRecordForValue("XMLNS", xmlns);
     }
 

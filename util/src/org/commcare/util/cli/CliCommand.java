@@ -66,7 +66,7 @@ public abstract class CliCommand {
     }
 
     protected static CommCareConfigEngine configureApp(String resourcePath, PrototypeFactory factory) {
-        CommCareConfigEngine engine = new CommCareConfigEngine(System.out, factory);
+        CommCareConfigEngine engine = new CommCareConfigEngine(factory);
 
         //TODO: check arg for whether it's a local or global file resource and
         //make sure it's absolute

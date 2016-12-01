@@ -33,15 +33,8 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
 
     private IStorageUtility<T> cacheStorage;
     protected int cacheLocation;
-    private IStorageIndexedFactory factory;
 
     protected abstract String getCacheKey();
-
-    public CacheInstaller(){};
-
-    public CacheInstaller(IStorageIndexedFactory factory) {
-        this.factory = factory;
-    }
 
     protected IStorageUtility<T> storage() {
         if (cacheStorage == null) {

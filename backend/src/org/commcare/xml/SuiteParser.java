@@ -48,12 +48,12 @@ public class SuiteParser extends ElementParser<Suite> {
 
     public SuiteParser(InputStream suiteStream,
                        ResourceTable table,
-                       String resourceGuid) throws IOException {
+                       String resourceGuid,
+                       IStorageUtilityIndexed<FormInstance> fixtureStorage) throws IOException {
         super(ElementParser.instantiateParser(suiteStream));
         this.table = table;
         this.resourceGuid = resourceGuid;
-        this.fixtureStorage =
-                (IStorageUtilityIndexed<FormInstance>)StorageManager.getStorage(FormInstance.STORAGE_KEY);
+        this.fixtureStorage = fixtureStorage;
         this.skipResources = false;
         this.isValidationPass = false;
         this.isUpgrade = false;

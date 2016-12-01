@@ -16,7 +16,9 @@ public class InstallerFactory {
 
     private IStorageIndexedFactory storageFactory;
 
-    public InstallerFactory() {}
+    public InstallerFactory() {
+        System.out.println("This one is happening.");
+    }
 
     public InstallerFactory(IStorageIndexedFactory storageFactory) {
         this.storageFactory = storageFactory;
