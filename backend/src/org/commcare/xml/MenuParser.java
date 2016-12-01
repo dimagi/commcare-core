@@ -46,7 +46,7 @@ public class MenuParser extends CommCareElementParser<Menu> {
 
         DisplayUnit display;
         if (parser.getName().equals("text")) {
-            display = new DisplayUnit(new TextParser(parser).parse(), null, null);
+            display = new DisplayUnit(new TextParser(parser).parse());
         } else if (parser.getName().equals("display")) {
             display = parseDisplayBlock();
             //check that we have a commandText;
