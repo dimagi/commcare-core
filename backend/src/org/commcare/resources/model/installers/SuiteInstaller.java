@@ -1,19 +1,12 @@
 package org.commcare.resources.model.installers;
 
-import org.commcare.resources.model.MissingMediaException;
-import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceLocation;
-import org.commcare.resources.model.ResourceTable;
-import org.commcare.resources.model.UnreliableSourceException;
-import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.resources.model.*;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.xml.SuiteParser;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.IStorageIndexedFactory;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -30,10 +23,6 @@ import java.util.Vector;
 public class SuiteInstaller extends CacheInstaller<Suite> {
 
     public SuiteInstaller(){}
-
-    public SuiteInstaller(IStorageIndexedFactory factory) {
-        super(factory);
-    }
 
     @Override
     public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {

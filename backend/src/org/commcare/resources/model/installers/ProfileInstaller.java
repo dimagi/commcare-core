@@ -38,11 +38,10 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
         super();
         forceVersion = false;
     }
-
-    public ProfileInstaller(boolean forceVersion, IStorageIndexedFactory factory) {
-        super(factory);
+    public ProfileInstaller(boolean forceVersion) {
         this.forceVersion = forceVersion;
     }
+
 
     private Hashtable<String, Profile> getlocal() {
         if (localTable == null) {

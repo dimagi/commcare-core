@@ -6,6 +6,7 @@ import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.reference.Reference;
@@ -31,12 +32,6 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
     private static final String UPGRADE_EXT = "_TEMP";
     private static final String STAGING_EXT = "_STAGING-OPENROSA";
     private static final String[] exts = new String[]{UPGRADE_EXT, STAGING_EXT};
-
-    public XFormInstaller(){}
-
-    public XFormInstaller(IStorageIndexedFactory factory) {
-        super(factory);
-    }
 
     @Override
     protected String getCacheKey() {
@@ -66,13 +61,13 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
                     //There's already a record in the cache with this namespace, so we can't ovewrite it.
                     //TODO: If something broke, this record might already exist. Might be worth checking.
                     formDef.getInstance().schema = formDef.getInstance().schema + UPGRADE_EXT;
-                    storage().write(formDef);
+                    instance.storage(Profile.STORAGE_KEY, Profile.class).write(formDef);
                     cacheLocation = formDef.getID();
 
                     //Resource is installed and ready for upgrade
                     table.commit(r, Resource.RESOURCE_STATUS_UPGRADE);
                 } else {
-                    storage().write(formDef);
+                    instance.storage(Profile.STORAGE_KEY, Profile.class).write(formDef);
                     cacheLocation = formDef.getID();
                     //Resource is fully installed
                     table.commit(r, Resource.RESOURCE_STATUS_INSTALLED);

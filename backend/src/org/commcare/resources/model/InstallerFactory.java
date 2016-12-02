@@ -7,37 +7,26 @@ import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.resources.model.installers.SuiteInstaller;
 import org.commcare.resources.model.installers.OfflineUserRestoreInstaller;
 import org.commcare.resources.model.installers.XFormInstaller;
-import org.javarosa.core.services.storage.IStorageIndexedFactory;
 
 /**
  * @author ctsims
  */
 public class InstallerFactory {
 
-    private IStorageIndexedFactory storageFactory;
-
-    public InstallerFactory() {
-        System.out.println("This one is happening.");
-    }
-
-    public InstallerFactory(IStorageIndexedFactory storageFactory) {
-        this.storageFactory = storageFactory;
-    }
-
     public ResourceInstaller getProfileInstaller(boolean forceInstall) {
-        return new ProfileInstaller(forceInstall, storageFactory);
+        return new ProfileInstaller(forceInstall);
     }
 
     public ResourceInstaller getXFormInstaller() {
-        return new XFormInstaller(storageFactory);
+        return new XFormInstaller();
     }
 
     public ResourceInstaller getUserRestoreInstaller() {
-        return new OfflineUserRestoreInstaller(this.storageFactory);
+        return new OfflineUserRestoreInstaller();
     }
 
     public ResourceInstaller getSuiteInstaller() {
-        return new SuiteInstaller(this.storageFactory);
+        return new SuiteInstaller();
     }
 
     public ResourceInstaller getLocaleFileInstaller(String locale) {
@@ -51,4 +40,5 @@ public class InstallerFactory {
     public ResourceInstaller getMediaInstaller(String path) {
         return new MediaInstaller();
     }
+
 }

@@ -49,24 +49,24 @@ public class CommCareConfigEngine {
     }
 
     public CommCareConfigEngine(PrototypeFactory prototypeFactory) {
-        this(new DummyIndexedStorageFactory(prototypeFactory));
+        this(new    DummyIndexedStorageFactory(prototypeFactory), new InstallerFactory());
     }
 
     public CommCareConfigEngine(IStorageIndexedFactory storageFactory) {
-        this(System.out, storageFactory);
+        this(storageFactory, new InstallerFactory());
     }
 
-    public CommCareConfigEngine(OutputStream output, IStorageIndexedFactory storageFactory) {
-        this.print = new PrintStream(output);
+    public CommCareConfigEngine(IStorageIndexedFactory storageFactory, InstallerFactory installerFactory) {
+        this.print = new PrintStream(System.out);
         this.platform = new CommCarePlatform(2, 32, storageFactory);
 
         setRoots();
         table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class),
-                new InstallerFactory(storageFactory));
+                installerFactory);
         updateTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_UPGRADE_TABLE", Resource.class),
-                new InstallerFactory(storageFactory));
+                installerFactory);
         recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", Resource.class),
-                new InstallerFactory(storageFactory));
+                installerFactory);
 
 
         //All of the below is on account of the fact that the installers

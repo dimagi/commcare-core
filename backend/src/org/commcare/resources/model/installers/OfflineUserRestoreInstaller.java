@@ -22,10 +22,6 @@ import java.io.IOException;
  */
 public class OfflineUserRestoreInstaller extends CacheInstaller<OfflineUserRestore> {
 
-    public OfflineUserRestoreInstaller(IStorageIndexedFactory factory) {
-        super(factory);
-    }
-
     @Override
     protected String getCacheKey() {
         return OfflineUserRestore.STORAGE_KEY;
