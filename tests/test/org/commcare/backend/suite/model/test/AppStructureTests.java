@@ -3,10 +3,16 @@ package org.commcare.backend.suite.model.test;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.DisplayUnit;
+import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.OfflineUserRestore;
+import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 import org.commcare.test.utilities.MockApp;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -136,4 +142,34 @@ public class AppStructureTests {
                     "an UnfulfilledRequirementsException");
         }
     }
+
+    @Test
+    public void testDisplayBlockParsing_good() throws Exception {
+        MockApp appWithGoodUserRestore = new MockApp("/app_with_good_numeric_badge/");
+        Suite s = appWithGoodUserRestore.getSession().getPlatform().getInstalledSuites().get(0);
+        Menu menuWithDisplayBlock = s.getMenusWithId("m1").get(0);
+        assertEquals("Menu 1 Text", menuWithDisplayBlock.getDisplayText());
+        EvaluationContext ec =
+                appWithGoodUserRestore.getSession().getEvaluationContext(menuWithDisplayBlock.getId());
+        assertEquals("1", menuWithDisplayBlock.getTextForBadge(ec));
+    }
+
+    @Test
+    public void testDisplayBlockParsing_invalidXPathExpr() throws Exception {
+        boolean exceptionThrown = false;
+        try {
+            new MockApp("/app_with_bad_numeric_badge/");
+        } catch (UnresolvedResourceException e) {
+            exceptionThrown = true;
+            String expectedErrorMsg = "Invalid XPath Expression : ,3";
+            Assert.assertTrue(
+                    "The exception that was thrown was due to an unexpected cause",
+                    e.getMessage().contains(expectedErrorMsg));
+        }
+        if (!exceptionThrown) {
+            fail("A Text block of form badge whose xpath element contains an invalid xpath " +
+                    "expression should throw an exception");
+        }
+    }
+
 }
