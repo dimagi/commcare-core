@@ -61,13 +61,13 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
                     //There's already a record in the cache with this namespace, so we can't ovewrite it.
                     //TODO: If something broke, this record might already exist. Might be worth checking.
                     formDef.getInstance().schema = formDef.getInstance().schema + UPGRADE_EXT;
-                    instance.storage(Profile.STORAGE_KEY, Profile.class).write(formDef);
+                    storage().write(formDef);
                     cacheLocation = formDef.getID();
 
                     //Resource is installed and ready for upgrade
                     table.commit(r, Resource.RESOURCE_STATUS_UPGRADE);
                 } else {
-                    instance.storage(Profile.STORAGE_KEY, Profile.class).write(formDef);
+                    storage().write(formDef);
                     cacheLocation = formDef.getID();
                     //Resource is fully installed
                     table.commit(r, Resource.RESOURCE_STATUS_INSTALLED);

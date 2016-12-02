@@ -43,13 +43,14 @@ public class CommCareConfigEngine {
     private final PrintStream print;
 
     private ArchiveFileRoot mArchiveRoot;
+    private IStorageIndexedFactory storageFactory;
 
     public CommCareConfigEngine() {
         this(new LivePrototypeFactory());
     }
 
     public CommCareConfigEngine(PrototypeFactory prototypeFactory) {
-        this(new    DummyIndexedStorageFactory(prototypeFactory), new InstallerFactory());
+        this(new DummyIndexedStorageFactory(prototypeFactory), new InstallerFactory());
     }
 
     public CommCareConfigEngine(IStorageIndexedFactory storageFactory) {
@@ -59,6 +60,7 @@ public class CommCareConfigEngine {
     public CommCareConfigEngine(IStorageIndexedFactory storageFactory, InstallerFactory installerFactory) {
         this.print = new PrintStream(System.out);
         this.platform = new CommCarePlatform(2, 32, storageFactory);
+        this.storageFactory = storageFactory;
 
         setRoots();
         table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class),
@@ -265,7 +267,7 @@ public class CommCareConfigEngine {
     }
 
     public FormDef loadFormByXmlns(String xmlns) {
-        IStorageUtilityIndexed<FormDef> formStorage = platform.storage(FormDef.STORAGE_KEY, FormDef.class);
+        IStorageUtilityIndexed<FormDef> formStorage = storageFactory.newStorage(FormDef.STORAGE_KEY, FormDef.class);
         return formStorage.getRecordForValue("XMLNS", xmlns);
     }
 
