@@ -4,8 +4,23 @@ import org.commcare.modern.reference.ArchiveFileRoot;
 import org.commcare.modern.reference.JavaFileRoot;
 import org.commcare.modern.reference.JavaHttpRoot;
 import org.commcare.resources.ResourceManager;
-import org.commcare.resources.model.*;
-import org.commcare.suite.model.*;
+import org.commcare.resources.model.InstallCancelledException;
+import org.commcare.resources.model.InstallerFactory;
+import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.TableStateListener;
+import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.EntityDatum;
+import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormIdDatum;
+import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.OfflineUserRestore;
+import org.commcare.suite.model.Profile;
+import org.commcare.suite.model.PropertySetter;
+import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.io.StreamsUtil;
@@ -24,7 +39,10 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathMissingInstanceException;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -36,10 +54,10 @@ import java.util.zip.ZipFile;
  * @author ctsims
  */
 public class CommCareConfigEngine {
-    protected ResourceTable table;
-    protected ResourceTable updateTable;
-    protected ResourceTable recoveryTable;
-    protected CommCarePlatform platform;
+    private final ResourceTable table;
+    private final ResourceTable updateTable;
+    private final ResourceTable recoveryTable;
+    private final CommCarePlatform platform;
     private final PrintStream print;
 
     private ArchiveFileRoot mArchiveRoot;

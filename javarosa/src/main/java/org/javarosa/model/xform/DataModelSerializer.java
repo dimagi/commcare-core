@@ -51,6 +51,7 @@ public class DataModelSerializer {
     public void serialize(AbstractTreeElement root) throws IOException {
         serializer.startTag(root.getNamespace(), root.getName());
 
+        serializeAttributes(root);
         for (int i = 0; i < root.getNumChildren(); i++) {
             AbstractTreeElement childAt = root.getChildAt(i);
             serializeNode(childAt);
@@ -67,11 +68,7 @@ public class DataModelSerializer {
         }
 
         serializer.startTag(instanceNode.getNamespace(), instanceNode.getName());
-        for (int i = 0; i < instanceNode.getAttributeCount(); ++i) {
-            String val = instanceNode.getAttributeValue(i);
-            val = val == null ? "" : val;
-            serializer.attribute(instanceNode.getAttributeNamespace(i), instanceNode.getAttributeName(i), val);
-        }
+        serializeAttributes(instanceNode);
 
         if (instanceNode.getValue() != null) {
             serializer.text(instanceNode.getValue().uncast().getString());
@@ -82,5 +79,13 @@ public class DataModelSerializer {
         }
 
         serializer.endTag(instanceNode.getNamespace(), instanceNode.getName());
+    }
+
+    private void serializeAttributes(AbstractTreeElement instanceNode) throws IOException {
+        for (int i = 0; i < instanceNode.getAttributeCount(); ++i) {
+            String val = instanceNode.getAttributeValue(i);
+            val = val == null ? "" : val;
+            serializer.attribute(instanceNode.getAttributeNamespace(i), instanceNode.getAttributeName(i), val);
+        }
     }
 }
