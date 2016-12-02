@@ -154,7 +154,7 @@
     <display>
       <text>Menu 1 Text</text>
       <text form="badge">
-        <xpath function="8"/>
+        <xpath function="count(instance('casedb')/casedb/case[@case_type='test_case'][@status='open'])"/>
       </text>
     </display>
     <command id="m0-f0"/>
