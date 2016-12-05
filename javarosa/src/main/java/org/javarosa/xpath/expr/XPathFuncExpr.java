@@ -26,6 +26,7 @@ public abstract class XPathFuncExpr extends XPathExpression {
     protected Object[] evaluatedArgs;
     protected int expectedArgCount;
     private boolean evaluateArgsFirst;
+    protected static final String DOC_HEADER = "--------------------\n";
 
     @SuppressWarnings("unused")
     public XPathFuncExpr() {
@@ -210,5 +211,11 @@ public abstract class XPathFuncExpr extends XPathExpression {
         if (expectedArgCount != args.length) {
             throw new XPathArityException(name, expectedArgCount, args.length);
         }
+    }
+
+    public abstract String getDocumentation();
+
+    protected String getDocHeader() {
+        return DOC_HEADER + name + "\n" + DOC_HEADER;
     }
 }

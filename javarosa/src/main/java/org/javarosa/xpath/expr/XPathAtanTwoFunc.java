@@ -23,4 +23,13 @@ public class XPathAtanTwoFunc extends XPathFuncExpr {
         double value2 = FunctionUtils.toDouble(evaluatedArgs[1]);
         return Math.atan2(value1, value2);
     }
+
+    @Override
+    public String getDocumentation() {
+        return getDocHeader()
+                + "Behavior: Finds the arctan of two numbers.\n"
+                + "Return: The arctan of the 2 arguments passed to the function\n"
+                + "Arguments: Two numbers\n"
+                + "Syntax: atan2(number, number)";
+    }
 }

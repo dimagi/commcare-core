@@ -21,4 +21,14 @@ public class XPathStringFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return FunctionUtils.toString(evaluatedArgs[0]);
     }
+
+    @Override
+    public String getDocumentation() {
+        return getDocHeader()
+                + "Behavior: Will convert a value into an equivalent string.\n"
+                + "Return: Returns a string based on the passed in argument.\n"
+                + "Arguments:  The value to be converted\n"
+                + "Syntax: string(value_to_convert)\n"
+                + "Example:  If you need to combine some information into a single string (using concatenate for example), you may need to convert some of those values into a string first.  concat(\"You are \", string(/data/age_question), \" years old\").";
+    }
 }

@@ -5,6 +5,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
@@ -27,6 +28,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Vector;
 
 import static org.junit.Assert.*;
 
@@ -214,7 +216,7 @@ public class FormDefTest {
         stepThroughEntireForm(fec);
 
         ExprEvalUtils.assertEqualsXpathEval("Nested repeats did not evaluate to the proper outcome",
-                30.0,
+                60.0,
                 "/data/sum",
                 fpi.getFormDef().getEvaluationContext());
     }
@@ -566,5 +568,50 @@ public class FormDefTest {
         fpi.getFormDef().initialize(true, null, locale);
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
         return fec;
+    }
+
+    /**
+     * Test that the untrue portion of an if() statement won't evaluate
+     */
+    @Test
+    public void testFormShortCircuit() {
+        FormParseInit fpi = new FormParseInit("/IfShortCircuitTest.xhtml");
+
+        // Custom function that will fail if called
+        IFunctionHandler functionFailer = new IFunctionHandler() {
+            @Override
+            public String getName() {
+                return "fail_function";
+            }
+
+            @Override
+            public Object eval(Object[] args, EvaluationContext ec) {
+                throw new RuntimeException("False portion of if() statement called");
+            }
+
+            @Override
+            public Vector getPrototypes() {
+                Vector<Class[]> p = new Vector<>();
+                p.addElement(new Class[0]);
+                return p;
+            }
+
+            @Override
+            public boolean rawArgs() {
+                return false;
+            }
+        };
+
+        fpi.getFormDef().exprEvalContext.addFunctionHandler(functionFailer);
+
+        FormEntryController fec = fpi.getFormEntryController();
+
+        do {
+            QuestionDef q = fpi.getCurrentQuestion();
+            if (q == null) {
+                continue;
+            }
+            fec.answerQuestion(new SelectOneData(new Selection("yes")));
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
     }
 }
