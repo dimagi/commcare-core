@@ -91,6 +91,7 @@ dependencies {
       compile 'commons-cli:commons-cli:1.3.1'
       compile 'xpp3:xpp3:1.1.4c'
       compile 'joda-time:joda-time:2.9.3'
+      compile 'org.apache.httpcomponents:httpclient:4.3.5'
 
       cliCompile 'org.json:json:20140107'
       cliCompile files('javarosa/lib/regexp-me.jar')
@@ -98,6 +99,7 @@ dependencies {
       cliCompile 'commons-cli:commons-cli:1.3.1'
       cliCompile 'xpp3:xpp3:1.1.4c'
       cliCompile 'joda-time:joda-time:2.9.3'
+      cliCompile 'org.apache.httpcomponents:httpclient:4.3.5'
 
       testCompile sourceSets.main.output
       testCompile sourceSets.api.output
@@ -106,12 +108,14 @@ dependencies {
       testCompile 'org.json:json:20140107'
       testCompile 'org.xerial:sqlite-jdbc:3.8.11.1'
       testCompile 'joda-time:joda-time:2.9.3'
+      testCompile 'org.apache.httpcomponents:httpclient:4.3.5'
 
       apiCompile sourceSets.main.output
       apiCompile 'org.json:json:20140107'
       apiCompile 'org.xerial:sqlite-jdbc:3.8.11.1'
       apiCompile 'kxml2:kxml2:2.3.0'
       apiCompile 'joda-time:joda-time:2.9.3'
+      apiCompile 'org.apache.httpcomponents:httpclient:4.3.5'
 
       harnessCompile 'kxml2:kxml2:2.3.0'
       harnessCompile 'xpp3:xpp3:1.1.4c'
@@ -119,6 +123,7 @@ dependencies {
       harnessCompile files('javarosa/lib/regexp-me.jar')
       harnessCompile 'org.json:json:20140107'
       harnessCompile 'joda-time:joda-time:2.9.3'
+      harnessCompile 'org.apache.httpcomponents:httpclient:4.3.5'
 
       translateCompile 'kxml2:kxml2:2.3.0'
       translateCompile 'xpp3:xpp3:1.1.4c'
@@ -127,6 +132,7 @@ dependencies {
       translateCompile files('javarosa/util/schema-gen/lib/json-simple-1.1.1.jar')
       translateCompile 'joda-time:joda-time:2.9.3'
       translateCompile 'org.json:json:20140107'
+      translateCompile 'org.apache.httpcomponents:httpclient:4.3.5'
 }
 
 jar {

@@ -4,17 +4,18 @@ import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.engine.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.session.SessionFrame;
 import org.commcare.util.mocks.CLISessionWrapper;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.screen.CommCareSessionException;
 import org.commcare.util.screen.EntityScreen;
 import org.commcare.util.screen.MenuScreen;
+import org.commcare.util.screen.QueryScreen;
 import org.commcare.util.screen.Screen;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -323,6 +324,8 @@ public class ApplicationHost {
             return new MenuScreen();
         } else if (next.equals(SessionFrame.STATE_DATUM_VAL)) {
             return new EntityScreen();
+        } else if (next.equals(SessionFrame.STATE_QUERY_REQUEST)) {
+            return new QueryScreen();
         } else if (next.equalsIgnoreCase(SessionFrame.STATE_DATUM_COMPUTED)) {
             computeDatum();
             return getNextScreen();
