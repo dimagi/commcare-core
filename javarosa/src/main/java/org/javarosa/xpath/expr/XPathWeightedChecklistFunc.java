@@ -68,4 +68,17 @@ public class XPathWeightedChecklistFunc extends XPathFuncExpr {
 
         return sum >= min && sum <= max;
     }
+
+    @Override
+    public String getDocumentation() {
+        return getDocHeader()
+                + "Behavior:  Similar to a checklist but each item is assigned a weight.  Will return true if the total weight of the true items is between the range specified.\n"
+                + "Return: True or false depending on the weighted-checklist (if value of the weighting is within the specified range).\n"
+                + "Arguments:\n"
+                + "\tThe first argument is a numeric value expressing the minimum value.  If -1, no minimum is applicable\n"
+                + "\tThe second argument is a numeric value expressing the maximum value.  If -1, no maximum is applicable\n"
+                + "\targuments 3 through the end come in pairs.  The first is the value to be checked and the second is the weight of that value.\n"
+                + "Syntax: weighted-checklist(min_num, max_num, checklist_item_1, checklist_item_weight_1, checklist_item_2, checklist_item_weight_2, ...)\n"
+                + "Example:  weighted-checklist(-1, 2, /data/high_risk_condition_1 = \"yes\", 0.5, /data/high_risk_condition_2 = \"yes\", 2.5, /data/high_risk_condition_3 = \"yes\", 0.75)";
+    }
 }

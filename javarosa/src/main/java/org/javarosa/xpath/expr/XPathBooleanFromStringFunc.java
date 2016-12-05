@@ -26,4 +26,14 @@ public class XPathBooleanFromStringFunc extends XPathFuncExpr {
             return Boolean.FALSE;
         }
     }
+
+    @Override
+    public String getDocumentation() {
+        return getDocHeader()
+                + "Behavior: Will convert a string value of \"1\" or \"true\" to true.  Otherwise will return false.\n"
+                + "Return: Returns true or false based on the argument.\n"
+                + "Arguments:  The value to be converted\n"
+                + "Syntax: boolean-from-string(value_to_convert)\n"
+                + "Example:  boolean(/data/my_question) or boolean(\"1\")";
+    }
 }

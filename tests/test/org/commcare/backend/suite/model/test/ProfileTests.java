@@ -4,7 +4,7 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;
 import org.commcare.test.utilities.PersistableSandbox;
-import org.commcare.util.CommCareConfigEngine;
+import org.commcare.util.engine.CommCareConfigEngine;
 import org.commcare.xml.ProfileParser;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.ArrayUtilities;

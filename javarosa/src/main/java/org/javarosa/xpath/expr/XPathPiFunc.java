@@ -21,4 +21,14 @@ public class XPathPiFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return Math.PI;
     }
+
+    @Override
+    public String getDocumentation() {
+        return getDocHeader()
+                + "Behavior: Returns Pi\n"
+                + "Return: Pi\n"
+                + "Arguments: None\n"
+                + "Syntax: pi()";
+
+    }
 }

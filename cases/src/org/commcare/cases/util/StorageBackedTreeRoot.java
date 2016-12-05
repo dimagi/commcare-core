@@ -27,10 +27,6 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
     protected abstract IStorageUtilityIndexed<?> getStorage();
 
-    protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
-        return DataUtil.intersection(selectedCases, cases);
-    }
-
     protected abstract void initStorageCache();
 
     protected String translateFilterExpr(XPathPathExpr expressionTemplate, XPathPathExpr matchingExpr,
@@ -174,7 +170,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                 if (selectedElements == null) {
                     selectedElements = cases;
                 } else {
-                    selectedElements = union(selectedElements, cases);
+                    selectedElements = DataUtil.intersection(selectedElements, cases);
                 }
             }
 

@@ -14,7 +14,7 @@
             FormEntrySessionReplayer FormEntrySessionReplayer$ReplayError]
            [org.javarosa.model.xform XFormSerializingVisitor]
            [org.javarosa.xpath XPathNodeset XPathParseTool]
-           [org.javarosa.xpath.expr XPathFuncExpr]
+           [org.javarosa.xpath.expr FunctionUtils]
            [org.javarosa.xpath.parser XPathSyntaxException]))
 
 (def debug-mode? (atom false))
@@ -116,8 +116,8 @@
 
 (defn print-result [value in-debug-mode? eval-ctx]
   (println (if (instance? XPathNodeset value)
-             (XPathFuncExpr/getSerializedNodeset (cast XPathNodeset value))
-             (XPathFuncExpr/toString value)))
+             (FunctionUtils/getSerializedNodeset (cast XPathNodeset value))
+             (FunctionUtils/toString value)))
   (when (and in-debug-mode? (not (nil? (.getEvaluationTrace eval-ctx))))
     (println (.serializeEvaluationLevels
                (StringEvaluationTraceSerializer.)

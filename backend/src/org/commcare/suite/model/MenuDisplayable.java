@@ -1,5 +1,7 @@
 package org.commcare.suite.model;
 
+import org.javarosa.core.model.condition.EvaluationContext;
+
 /**
  * Created by wpride1 on 4/27/15.
  *
@@ -13,4 +15,8 @@ public interface MenuDisplayable {
     String getImageURI();
 
     String getDisplayText();
+
+    String getTextForBadge(EvaluationContext ec);
+
+    String getCommandID();
 }

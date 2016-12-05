@@ -27,4 +27,14 @@ public class XPathCountFunc extends XPathFuncExpr {
             throw new XPathTypeMismatchException("not a nodeset");
         }
     }
+
+    @Override
+    public String getDocumentation() {
+        return getDocHeader()
+                + "Behavior:  Counts the number of items in a group (ex. a repeat group)\n"
+                + "Return: Will return a number of items in the group.\n"
+                + "Arguments:  The group of items to be counted.\n"
+                + "Syntax: count(/data/group)\n"
+                + "Example:  This is useful if you have repeats in your form that allow the end user to choose the number of items.  You may want to calculate how many items were chosen and store them in a hidden value. Ex. count(data/repeat_group)";
+    }
 }
