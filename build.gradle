@@ -97,6 +97,7 @@ configurations {
 
 task cliJar(type: Jar, dependsOn: cliClasses) {
     baseName = "commcare-cli"
+    from sourceSets.translate.output
     from sourceSets.cli.output
     from sourceSets.main.output
     from {
