@@ -21,7 +21,6 @@ sourceSets {
     translate {
         java {
             srcDir 'javarosa/util/schema-gen/src'
-            srcDir 'javarosa/util/validator/org.javarosa.xform.validator/src'
             compileClasspath += main.output
         }
     }
