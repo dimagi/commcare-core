@@ -38,7 +38,6 @@ sourceSets {
   }
     api {
         java {
-            srcDir 'api'
             srcDir 'util/src/org/commcare/util/screen'
             srcDir 'util/src/org/commcare/util/engine'
             compileClasspath += main.output
@@ -136,7 +135,7 @@ task cliJar(type: Jar, dependsOn: cliClasses) {
     manifest {
         attributes 'Main-Class': 'org.commcare.util.cli.CliMain'
     }
-    
+
 }
 
 task apiJar(type: Jar, dependsOn: apiClasses) {
