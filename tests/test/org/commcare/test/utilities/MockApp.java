@@ -61,7 +61,7 @@ public class MockApp {
      * Loads the provided form and properly initializes external data instances,
      * such as the casedb and commcare session.
      */
-    public FormParseInit loadAndInitForm(String formFileInApp) {
+    public FormEntryController loadAndInitForm(String formFileInApp) {
         FormParseInit fpi = new FormParseInit(APP_BASE + formFileInApp);
         FormEntryController fec = fpi.getFormEntryController();
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
@@ -70,7 +70,7 @@ public class MockApp {
         // run initialization to ensure xforms-ready event and binds are
         // triggered.
         fd.initialize(true, mSessionWrapper.getIIF());
-        return fpi;
+        return fec;
     }
 
 

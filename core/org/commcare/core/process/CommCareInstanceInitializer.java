@@ -115,16 +115,18 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             userId = u.getUniqueId();
         }
 
-        TreeElement fixtureRoot = loadFixtureRoot(ref, userId);
+        TreeElement fixtureRoot = loadFixtureRoot(instance, ref, userId);
         fixtureRoot.setParent(instance.getBase());
         return fixtureRoot;
     }
 
-    protected TreeElement loadFixtureRoot(String reference, String userId) {
+    protected TreeElement loadFixtureRoot(ExternalDataInstance instance, String reference, String userId) {
         String refId = reference.substring(reference.lastIndexOf('/') + 1, reference.length());
+        String instanceBase = instance.getBase().getInstanceName();
 
         try {
-            String key = refId + userId;
+
+            String key = refId + userId + instanceBase;
 
             TreeElement root = fixtureBases.retrieve(key);
             if (root == null) {
