@@ -34,14 +34,18 @@ public class FormInstanceLoader {
                                        InputStream instanceInput)
             throws IOException {
         FormDef formDef;
-        FormInstance savedModel;
 
         try {
             formDef = XFormUtils.getFormFromInputStream(formInput);
+            return loadInstance(formDef, instanceInput);
         } catch (XFormParseException e) {
             throw new IOException(e.getMessage());
         }
+    }
 
+    public static FormDef loadInstance(FormDef formDef,
+                                       InputStream instanceInput) throws IOException {
+        FormInstance savedModel;
         savedModel = XFormParser.restoreDataModel(instanceInput, null);
 
         // get the root of the saved and template instances
