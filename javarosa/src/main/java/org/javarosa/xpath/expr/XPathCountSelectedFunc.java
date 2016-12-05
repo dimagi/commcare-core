@@ -7,6 +7,7 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 // non-standard
+
 /**
  * return the number of choices in a multi-select answer
  * (i.e, space-delimited choice values)
@@ -33,5 +34,15 @@ public class XPathCountSelectedFunc extends XPathFuncExpr {
 
         String s = (String)evalResult;
         return new Double(DataUtil.splitOnSpaces(s).length);
+    }
+
+    @Override
+    public String getDocumentation() {
+        return getDocHeader()
+                + "Behavior:  Counts the number of items selected in a multi-selected.\n"
+                + "Return: Returns the number of items selected.\n"
+                + "Arguments:  The multi-select question  (or a space-separated list of items).\n"
+                + "Syntax: count-selected(my_question)\n"
+                + "Example:  You may want to check that at least three items were chosen in a multi-select question.  Ex. count-selected(/data/my_question) >= 3";
     }
 }

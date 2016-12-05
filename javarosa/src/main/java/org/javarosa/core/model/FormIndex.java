@@ -153,6 +153,25 @@ public class FormIndex {
     }
 
     /**
+     * Use this method to get the multiplicity of the deepest repeat group being referenced.
+     *
+     * IE: If this index is to 1, 1_2, 2, 1_3 this reference will return 3.
+     *
+     * @return The multiplicity of the "most specific" repeated instance of a question or group.
+     */
+    public int getLastRepeatInstanceIndex() {
+        if(this.getNextLevel() == null) {
+            return getInstanceIndex();
+        }
+        int childIndex = this.getNextLevel().getInstanceIndex();
+        if(childIndex == -1) {
+            return getInstanceIndex();
+        } else {
+            return childIndex;
+        }
+    }
+
+    /**
      * For the fully qualified element, get the multiplicity of the element's reference
      *
      * @return The terminal element (fully qualified)'s instance index

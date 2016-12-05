@@ -2,15 +2,17 @@ package org.javarosa.engine;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
-import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.engine.xml.XmlUtil;
 import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.xpath.XPathLazyNodeset;
+import org.javarosa.xpath.expr.FunctionUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Vector;
 
@@ -102,6 +104,52 @@ public class FunctionExtensions {
             }
 
             return "";
+        }
+    }
+
+    static class DocFunc implements IFunctionHandler {
+
+        @Override
+        public String getName() {
+            return "doc";
+        }
+
+        @Override
+        public Vector getPrototypes() {
+            Vector<Class[]> p = new Vector<>();
+            p.addElement(new Class[0]);
+            return p;
+        }
+
+        @Override
+        public boolean rawArgs() {
+            return true;
+        }
+
+        @Override
+        public Object eval(Object[] args, EvaluationContext ec) {
+            String functionName = (String)args[0];
+
+            Class functionClass = FunctionUtils.getXPathFuncListMap().get(functionName);
+            if (functionClass == null) {
+                return "Function '" + functionName + "' doesn't exist";
+            }
+            try {
+                Method method = functionClass.getDeclaredMethod("getDocumentation");
+                return method.invoke(functionClass.newInstance());
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+                return null;
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+                return null;
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+                return null;
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
     }
 

@@ -21,4 +21,15 @@ public class XPathRoundFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return new Double(Math.floor(FunctionUtils.toDouble(evaluatedArgs[0]) + 0.5));
     }
+
+    @Override
+    public String getDocumentation() {
+        return getDocHeader()
+                + "Behavior: Rounds a number to the nearest integer\n"
+                + "Return: The argument passed to the function, rounded to the nearest integer.\n"
+                + "\tNOTE: Rounding negative numbers can be counter-intuitive. round(1.5) returns 2, while round(-1.5) returns -1.\n"
+                + "Arguments: The only argument is the number you want to round\n"
+                + "Syntax: round(number)\n"
+                + "Example: round(2.49)";
+    }
 }

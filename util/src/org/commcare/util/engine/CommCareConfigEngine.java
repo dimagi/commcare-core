@@ -1,4 +1,4 @@
-package org.commcare.util;
+package org.commcare.util.engine;
 
 import org.commcare.modern.reference.ArchiveFileRoot;
 import org.commcare.modern.reference.JavaFileRoot;
@@ -20,6 +20,7 @@ import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.PropertySetter;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
@@ -27,11 +28,9 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
+import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.IStorageFactory;
-import org.javarosa.core.services.storage.IStorageUtility;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.services.storage.*;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -57,11 +56,13 @@ public class CommCareConfigEngine {
     private final ResourceTable table;
     private final ResourceTable updateTable;
     private final ResourceTable recoveryTable;
-    private final PrintStream print;
     private final CommCarePlatform platform;
-    private final PrototypeFactory mLiveFactory;
+    private final PrototypeFactory liveFactory;
+    private final PrintStream print;
 
     private ArchiveFileRoot mArchiveRoot;
+
+    private static IStorageIndexedFactory storageFactory;
 
     public CommCareConfigEngine() {
         this(new LivePrototypeFactory());
@@ -73,28 +74,26 @@ public class CommCareConfigEngine {
 
     public CommCareConfigEngine(OutputStream output, PrototypeFactory prototypeFactory) {
         this.print = new PrintStream(output);
-        this.platform = new CommCarePlatform(2, 32);
+        this.platform = new CommCarePlatform(2, 33);
+        this.liveFactory = prototypeFactory;
 
-        this.mLiveFactory = prototypeFactory;
+        if (storageFactory == null) {
+            setupDummyStorageFactory();
+        }
 
         setRoots();
 
-        table = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility<>(Resource.class, mLiveFactory));
-        updateTable = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility<>(Resource.class, mLiveFactory));
-        recoveryTable = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility<>(Resource.class, mLiveFactory));
+        table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class));
+        updateTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_UPGRADE_TABLE", Resource.class));
+        recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", Resource.class));
 
 
         //All of the below is on account of the fact that the installers
         //aren't going through a factory method to handle them differently
         //per device.
         StorageManager.forceClear();
-        StorageManager.setStorageFactory(new IStorageFactory() {
-            @Override
-            public IStorageUtility newStorage(String name, Class type) {
-                return new DummyIndexedStorageUtility(type, mLiveFactory);
-            }
-        });
-
+        StorageManager.setStorageFactory(storageFactory);
+        PropertyManager.initDefaultPropertyManager();
         StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
         StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
         StorageManager.registerStorage(FormDef.STORAGE_KEY, FormDef.class);
@@ -102,7 +101,20 @@ public class CommCareConfigEngine {
         StorageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
     }
 
-    private void setRoots() {
+    private void setupDummyStorageFactory() {
+        CommCareConfigEngine.setStorageFactory(new IStorageIndexedFactory() {
+            @Override
+            public IStorageUtilityIndexed newStorage(String name, Class type) {
+                return new DummyIndexedStorageUtility(type, liveFactory);
+            }
+        });
+    }
+
+    public static void setStorageFactory(IStorageIndexedFactory storageFactory) {
+        CommCareConfigEngine.storageFactory = storageFactory;
+    }
+
+    protected void setRoots() {
         ReferenceManager.instance().addReferenceFactory(new JavaHttpRoot());
 
         this.mArchiveRoot = new ArchiveFileRoot();
@@ -124,7 +136,6 @@ public class CommCareConfigEngine {
         } catch (IOException e) {
             print.println("File at " + archiveURL + ": is not a valid CommCare Package. Downloaded to: " + fileName);
             e.printStackTrace(print);
-            System.exit(-1);
             return;
         }
         String archiveGUID = this.mArchiveRoot.addArchiveFile(zip);

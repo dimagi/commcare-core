@@ -21,4 +21,13 @@ public class XPathAsinFunc extends XPathFuncExpr {
     public Object evalBody(DataInstance model, EvaluationContext evalContext) {
         return Math.asin(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
+
+    @Override
+    public String getDocumentation() {
+        return getDocHeader()
+                + "Behavior: Finds the arcsin of a number.\n"
+                + "Return: The arcsin of the argument passed to the function\n"
+                + "Arguments: One number\n"
+                + "Syntax: asin(number)";
+    }
 }

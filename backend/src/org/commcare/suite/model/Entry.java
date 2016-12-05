@@ -1,5 +1,6 @@
 package org.commcare.suite.model;
 
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -136,6 +137,19 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
             return null;
         }
         return display.getText().evaluate();
+    }
+
+    @Override
+    public String getTextForBadge(EvaluationContext ec) {
+        if (display.getBadgeText() == null) {
+            return null;
+        }
+        return display.getBadgeText().evaluate(ec);
+    }
+
+    @Override
+    public String getCommandID() {
+        return commandId;
     }
 
     @Override
