@@ -42,7 +42,6 @@ sourceSets {
             srcDir 'javarosa/src/main/java'
             srcDir 'cases/src'
             srcDir 'backend/src'
-            srcDir 'core'
             srcDir 'modern'
         }
         resources {
