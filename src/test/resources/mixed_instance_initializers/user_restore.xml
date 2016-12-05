@@ -1,0 +1,21 @@
+<OpenRosaResponse>
+	<message nature="ota_restore_success">Successfully restored account test!</message>
+	<Sync xmlns="http://commcarehq.org/sync">
+		<restore_id>sync_token</restore_id>
+	</Sync>
+	<Registration xmlns="http://openrosa.org/user/registration">
+		<username>test</username>
+		<password>sha1$60441$53cf77c2ac3608a944db96af177a6dfe1579e4ba</password>
+		<uuid>test_uuid</uuid>
+		<date>2012-04-30</date>
+	</Registration>
+	<fixture id="data-list" user_id="test_uuid">
+		<list>
+			<item id="1">one</item>
+			<item id="2">two</item>
+			<item id="3">three</item>
+			<item id="4">four</item>
+	</list>
+	</fixture>
+
+</OpenRosaResponse>
