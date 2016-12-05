@@ -8,7 +8,7 @@
            [org.commcare.core.parse CommCareTransactionParserFactory ParseUtils]
            [org.commcare.data.xml DataModelPullParser]
            [org.commcare.session SessionFrame]
-           [org.commcare.util CommCareConfigEngine]
+           [org.commcare.util.engine CommCareConfigEngine]
            [org.commcare.util.cli ApplicationHost]
            [org.commcare.util.screen MenuScreen EntityScreen]
            [org.commcare.util.mocks CLISessionWrapper MockUserDataSandbox]
