@@ -51,10 +51,6 @@ sourceSets {
             srcDir 'javarosa/src/test/java'
             compileClasspath += api.output
         }
-        resources{
-            srcDir 'tests/resources'
-            srcDir 'javarosa/src/test/resources'
-        }
     }
 
 }
