@@ -11,16 +11,10 @@ test {
 }
 
 sourceSets {
-    // javarosa configs
-    javarosa {
-          java {
-              srcDir 'javarosa/src/main/java'
-          }
-    }
     harness {
         java {
             srcDir 'javarosa/util/schema-gen/src'
-            srcDir 'javarosa/src/main/java'
+            srcDir 'src/main/java/org/javarosa'
         }
         resources{
             srcDir 'javarosa/src/test/resources'
@@ -31,23 +25,14 @@ sourceSets {
         java {
             srcDir 'javarosa/util/schema-gen/src'
             srcDir 'javarosa/util/validator/org.javarosa.xform.validator/src'
-            srcDir 'javarosa/src/main/java'
             compileClasspath += main.output
         }
     }
-
-    // commcare configs
-  main {
-        java {
-            srcDir 'javarosa/src/main/java'
-        }
-  }
 
   cli {
       java {
           srcDir 'util/src'
           srcDir 'javarosa/util/schema-gen/src'
-          srcDir 'javarosa/src/main/java'
           compileClasspath += main.output
       }
   }
