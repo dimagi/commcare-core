@@ -19,22 +19,21 @@ sourceSets {
 
   cli {
       java {
-          srcDir 'util/src'
           compileClasspath += main.output
           compileClasspath += translate.output
       }
   }
     api {
         java {
-            srcDir 'util/src/org/commcare/util/screen'
-            srcDir 'util/src/org/commcare/util/engine'
+            srcDir 'src/cli/java/org/commcare/util/screen'
+            srcDir 'src/cli/java/org/commcare/util/engine'
             compileClasspath += main.output
         }
     }
 
     test {
         java {
-            srcDir 'util/src'
+            compileClasspath += cli.output
             compileClasspath += api.output
             compileClasspath += translate.output
         }
