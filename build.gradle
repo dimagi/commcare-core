@@ -14,7 +14,7 @@ sourceSets {
     harness {
         java {
             srcDir 'javarosa/util/schema-gen/src'
-            srcDir 'src/main/java/org/javarosa'
+            compileClasspath += main.output
         }
         resources{
             srcDir 'javarosa/src/test/resources'
