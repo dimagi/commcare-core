@@ -48,7 +48,8 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             c = getConnection();
             SqlHelper.createTable(c, tableName, prototype.newInstance());
             // This enables concurrent reads and writes, needed for updates
-            c.prepareStatement("PRAGMA journal_mode=WAL;").execute();
+            // current turned off as we're not using updates and this might have caused I/O errors
+            // c.prepareStatement("PRAGMA journal_mode=WAL;").execute();
             c.close();
         } catch (SQLException e) {
             e.printStackTrace();
