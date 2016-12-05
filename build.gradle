@@ -40,7 +40,6 @@ sourceSets {
   main {
         java {
             srcDir 'javarosa/src/main/java'
-            srcDir 'backend/src'
             srcDir 'modern'
         }
   }
