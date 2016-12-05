@@ -1,9 +1,6 @@
 package org.commcare.backend.session.test;
 
-import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.modern.session.SessionWrapper;
-import org.commcare.session.SessionDescriptorUtil;
-import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigator;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.test.utilities.MockSessionNavigationResponder;
@@ -12,23 +9,20 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * Created by ctsims on 12/2/2016
  */
-
 public class InstanceEvaluationTests {
 
     private MockApp mApp;
-    private MockSessionNavigationResponder mSessionNavigationResponder;
     private SessionNavigator sessionNavigator;
 
     @Before
     public void setUp() throws Exception {
         mApp = new MockApp("/mixed_instance_initializers/");
-        mSessionNavigationResponder = new MockSessionNavigationResponder(mApp.getSession());
-        sessionNavigator = new SessionNavigator(mSessionNavigationResponder);
+        MockSessionNavigationResponder mockSessionNavigationResponder =
+                new MockSessionNavigationResponder(mApp.getSession());
+        sessionNavigator = new SessionNavigator(mockSessionNavigationResponder);
         mApp.getSession().clearVolitiles();
     }
 
@@ -55,6 +49,6 @@ public class InstanceEvaluationTests {
 
         fec.stepToNextEvent();
 
-        Assert.assertEquals("one",fec.getQuestionPrompts()[0].getQuestionText());
+        Assert.assertEquals("one", fec.getQuestionPrompts()[0].getQuestionText());
     }
 }
