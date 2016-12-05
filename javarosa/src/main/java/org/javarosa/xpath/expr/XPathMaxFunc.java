@@ -46,4 +46,16 @@ public class XPathMaxFunc extends XPathFuncExpr {
         }
         return max;
     }
+
+    @Override
+    public String getDocumentation() {
+        return getDocHeader()
+                + "Behavior:  Return the maximum value of the passed in values.  These can either be a reference to a group of questions or a direct set of values.\n"
+                + "Return: Number that is the maximum.\n"
+                + "Arguments:  There are two potential ways this function will work\n"
+                + "\tSingle argument that is the group of questions in which to find the maximum\n"
+                + "\tMultiple arguments (an unlimited number) in which to find the maximum.\n"
+                + "Syntax: max(question_group) or max(value_1, value_2, value_3, ...)\n"
+                + "Example:  You can use this when you want to find the maximum number entered in a repeat group.  Ex. max(/data/repeat_group/my_number_question).  Or when you have multiple questions.  Ex. max(/data/question_1, /data/question_2, /data/question_3, /data/question_4).";
+    }
 }
