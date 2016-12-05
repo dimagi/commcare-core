@@ -16,9 +16,6 @@ sourceSets {
             srcDir 'javarosa/util/schema-gen/src'
             compileClasspath += main.output
         }
-        resources{
-            srcDir 'javarosa/src/test/resources'
-        }
     }
 
     translate {
