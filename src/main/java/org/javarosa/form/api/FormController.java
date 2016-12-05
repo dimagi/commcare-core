@@ -222,6 +222,16 @@ public class FormController {
 
     /**
      * Navigates backward in the form.
+     * Used by Formplayer
+     * @return FormIndex that we're currently on
+     */
+    public FormIndex getPreviousFormIndex() {
+        stepToPreviousEvent();
+        return getFormIndex();
+    }
+
+    /**
+     * Navigates backward in the form.
      *
      * @return the event that should be handled by a view.
      */
