@@ -94,17 +94,11 @@ dependencies {
       translateCompile 'joda-time:joda-time:2.9.3'
       translateCompile 'org.json:json:20140107'
 
+    // 'compile' dep also needed to run 'gradle jmh' for some reason
     compile 'org.openjdk.jmh:jmh-core:1.17.1'
     compile 'org.openjdk.jmh:jmh-generator-annprocess:1.17.1'
     jmhCompile 'org.openjdk.jmh:jmh-core:1.17.1'
     jmhCompile 'org.openjdk.jmh:jmh-generator-annprocess:1.17.1'
-    jmhCompile sourceSets.main.output
-    jmhCompile sourceSets.test.output
-}
-
-jmhJar {
-    from sourceSets.main.output
-    from sourceSets.test.output
 }
 
 jar {
@@ -235,6 +229,7 @@ task jenkinsTest {
 }
 
 check.dependsOn(jenkinsTest)
+
 jmh {
     duplicateClassesStrategy = 'warn'
     fork = 1
