@@ -29,6 +29,14 @@ sourceSets {
             compileClasspath += main.output
         }
     }
+    jmh {
+        java {
+            compileClasspath += main.output
+            compileClasspath += test.output
+            runtimeClasspath += main.output
+            runtimeClasspath += test.output
+        }
+    }
 
   cli {
       java {
@@ -98,6 +106,14 @@ dependencies {
     compile 'org.openjdk.jmh:jmh-generator-annprocess:1.17.1'
     jmhCompile 'org.openjdk.jmh:jmh-core:1.17.1'
     jmhCompile 'org.openjdk.jmh:jmh-generator-annprocess:1.17.1'
+    jmhCompile sourceSets.main.output
+    jmhCompile sourceSets.test.output
+    jmhCompile project
+}
+
+jmhJar {
+    from sourceSets.main.output
+    from sourceSets.test.output
 }
 
 jar {
