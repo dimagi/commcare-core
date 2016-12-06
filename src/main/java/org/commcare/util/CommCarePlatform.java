@@ -88,7 +88,6 @@ public class CommCarePlatform {
     }
 
     public void registerSuite(Suite s) {
-        System.out.println("Register suite " + s);
         installedSuites.add(s);
     }
 
