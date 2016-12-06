@@ -559,7 +559,7 @@ public class FormDefTest {
     }
 
 
-    public static FormEntryController initFormEntry(FormParseInit fpi) {
+    private static FormEntryController initFormEntry(FormParseInit fpi) {
         return initFormEntry(fpi, null);
     }
 

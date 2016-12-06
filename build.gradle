@@ -100,7 +100,6 @@ dependencies {
     jmhCompile 'org.openjdk.jmh:jmh-generator-annprocess:1.17.1'
     jmhCompile sourceSets.main.output
     jmhCompile sourceSets.test.output
-    jmhCompile project
 }
 
 jmhJar {

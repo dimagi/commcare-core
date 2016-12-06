@@ -8,8 +8,6 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import java.util.Random;
-
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.test.utilities.MockSessionNavigationResponder;
@@ -38,7 +36,7 @@ public class LoadAndInitLargeForm {
                 "593ef28a-34ff-421d-a29c-6a0fd975df95");
         sessionNavigator.startNextSessionStep();
 
-        FormEntryController fec = mockApp.loadAndInitForm("form_placeholder.xml");
+        FormEntryController fec = mockApp.loadAndInitForm("large_tdh_form.xml");
         fec.getModel().getEvent();
     }
 
