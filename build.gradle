@@ -29,14 +29,6 @@ sourceSets {
             compileClasspath += main.output
         }
     }
-    jmh {
-        java {
-            compileClasspath += main.output
-            compileClasspath += test.output
-            runtimeClasspath += main.output
-            runtimeClasspath += test.output
-        }
-    }
 
   cli {
       java {
@@ -249,4 +241,5 @@ jmh {
     fork = 1
     iterations = 2
     warmupIterations = 3
+    includeTests = true
 }
