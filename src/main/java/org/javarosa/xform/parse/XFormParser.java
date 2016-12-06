@@ -1947,7 +1947,11 @@ public class XFormParser {
             } catch (XPathSyntaxException xpse) {
                 throw buildParseException(nodeset, xpse.getMessage(), xpathCalc, "calculate");
             }
-            r = (Recalculate)_f.addTriggerable(r);
+            try {
+                r = (Recalculate)_f.addTriggerable(r);
+            } catch (XPathException xpe) {
+                throw buildParseException(nodeset, xpe.getMessage(), xpathCalc, "calculate");
+            }
             binding.calculate = r;
         }
 
