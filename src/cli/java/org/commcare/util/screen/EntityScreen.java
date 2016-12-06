@@ -1,12 +1,12 @@
 package org.commcare.util.screen;
 
 import org.commcare.modern.session.SessionWrapper;
+import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -15,6 +15,7 @@ import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
 
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -43,7 +44,8 @@ public class EntityScreen extends CompoundScreenHost {
     private boolean readyToSkip = false;
     private EvaluationContext evalContext;
 
-    @Override
+    private Hashtable<String, TreeReference> referenceMap;
+
     public void init(SessionWrapper session) throws CommCareSessionException {
         SessionDatum datum = session.getNeededDatum();
         if (!(datum instanceof EntityDatum)) {
@@ -68,6 +70,10 @@ public class EntityScreen extends CompoundScreenHost {
         evalContext = mSession.getEvaluationContext();
 
         Vector<TreeReference> references = expandEntityReferenceSet(evalContext);
+        referenceMap = new Hashtable<>();
+        for(TreeReference reference: references) {
+            referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), evalContext), reference);
+        }
 
         // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic setting
         evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56, -46.66));
@@ -80,6 +86,7 @@ public class EntityScreen extends CompoundScreenHost {
             }
         } else {
             mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext);
+            initDetailScreens();
         }
     }
 
@@ -93,7 +100,7 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     @Override
-    protected String getScreenTitle() {
+    public String getScreenTitle() {
         try {
             return mShortDetail.getTitle().evaluate(evalContext).getName();
         } catch (NoLocalizedTextException nlte) {
@@ -106,7 +113,7 @@ public class EntityScreen extends CompoundScreenHost {
         return mCurrentScreen;
     }
 
-    private String getReturnValueFromSelection(TreeReference contextRef, EntityDatum needed, EvaluationContext context) {
+    public String getReturnValueFromSelection(TreeReference contextRef, EntityDatum needed, EvaluationContext context) {
         // grab the session's (form) element reference, and load it.
         TreeReference elementRef =
                 XPathReference.getPathExpr(needed.getValue()).getReference();
@@ -137,6 +144,10 @@ public class EntityScreen extends CompoundScreenHost {
 
     public void setHighlightedEntity(TreeReference selection) {
         this.mCurrentSelection = selection;
+    }
+
+    public void setHighlightedEntity(String id) {
+        this.mCurrentSelection = referenceMap.get(id);
     }
 
     private void initDetailScreens() {
@@ -179,7 +190,11 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
-    private String[] getDetailListTitles(EvaluationContext subContext) {
+    public Detail[] getLongDetailList(){
+        return mLongDetailList;
+    }
+
+    public String[] getDetailListTitles(EvaluationContext subContext) {
         String[] titles = new String[mLongDetailList.length];
         for (int i = 0; i < mLongDetailList.length; ++i) {
             titles[i] = this.mLongDetailList[i].getTitle().getText().evaluate(subContext);
@@ -189,6 +204,13 @@ public class EntityScreen extends CompoundScreenHost {
 
     public void setPendingAction(Action pendingAction) {
         this.mPendingAction = pendingAction;
+    }
+    
+    public Detail getShortDetail(){
+        return mShortDetail;
+    }
+    public SessionWrapper getSession() {
+        return mSession;
     }
 
     public void printNodesetExpansionTrace() {

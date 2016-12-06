@@ -168,7 +168,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         return "----";
     }
 
-    protected String getVersionString() {
+    public String getVersionString(){
         return "CommCare Version: " + mPlatform.getMajorVersion() + "." + mPlatform.getMinorVersion();
     }
 

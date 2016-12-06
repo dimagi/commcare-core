@@ -7,8 +7,11 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.commcare.resources.model.InstallCancelledException;
+import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.engine.CommCareConfigEngine;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 public abstract class CliCommand {
     public final String commandName;
@@ -63,17 +66,30 @@ public abstract class CliCommand {
     }
 
     protected static CommCareConfigEngine configureApp(String resourcePath, PrototypeFactory factory) {
-        CommCareConfigEngine engine = new CommCareConfigEngine(System.out, factory);
+        CommCareConfigEngine engine = new CommCareConfigEngine(factory);
 
         //TODO: check arg for whether it's a local or global file resource and
         //make sure it's absolute
-
-        if (resourcePath.endsWith(".ccz")) {
-            engine.initFromArchive(resourcePath);
-        } else {
-            engine.initFromLocalFileResource(resourcePath);
+        try {
+            if (resourcePath.endsWith(".ccz")) {
+                engine.initFromArchive(resourcePath);
+            } else {
+                engine.initFromLocalFileResource(resourcePath);
+            }
+            engine.initEnvironment();
+            return engine;
+        } catch (InstallCancelledException e) {
+            System.out.println("Install was cancelled by the user or system");
+            e.printStackTrace();
+        } catch (UnresolvedResourceException e) {
+            System.out.println("While attempting to resolve the necessary resources, one couldn't be found: "
+                    + e.getResource().getResourceId());
+            e.printStackTrace();
+        } catch (UnfullfilledRequirementsException e) {
+            System.out.println("While attempting to resolve the necessary resources, a requirement wasn't met");;
+            e.printStackTrace();
         }
-        engine.initEnvironment();
-        return engine;
+        System.exit(-1);
+        return null;
     }
 }

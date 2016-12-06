@@ -6,10 +6,12 @@ import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.util.CommCareInstance;
+import org.commcare.suite.model.Profile;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localizer;
+import org.javarosa.core.services.storage.IStorageIndexedFactory;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.form.api.FormEntryCaption;
@@ -38,7 +40,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
 
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
-                           ResourceTable table, CommCareInstance instance,
+                           ResourceTable table, CommCarePlatform instance,
                            boolean upgrade) throws UnresolvedResourceException {
         InputStream incoming = null;
         try {

@@ -5,8 +5,9 @@ import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.OfflineUserRestore;
-import org.commcare.util.CommCareInstance;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.reference.Reference;
+import org.javarosa.core.services.storage.IStorageIndexedFactory;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -20,13 +21,14 @@ import java.io.IOException;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class OfflineUserRestoreInstaller extends CacheInstaller<OfflineUserRestore> {
+
     @Override
     protected String getCacheKey() {
         return OfflineUserRestore.STORAGE_KEY;
     }
 
     @Override
-    public boolean initialize(CommCareInstance instance, boolean isUpgrade) {
+    public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
         instance.registerDemoUserRestore(storage().read(cacheLocation));
         return true;
     }
@@ -39,7 +41,7 @@ public class OfflineUserRestoreInstaller extends CacheInstaller<OfflineUserResto
     @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
-                           CommCareInstance instance, boolean upgrade)
+                           CommCarePlatform instance, boolean upgrade)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
             OfflineUserRestore offlineUserRestore = OfflineUserRestore.buildInMemoryUserRestore(ref.getStream());

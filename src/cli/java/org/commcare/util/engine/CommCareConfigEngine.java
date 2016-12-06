@@ -5,6 +5,7 @@ import org.commcare.modern.reference.JavaFileRoot;
 import org.commcare.modern.reference.JavaHttpRoot;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelledException;
+import org.commcare.resources.model.InstallerFactory;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -30,8 +31,9 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.*;
-import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
+import org.javarosa.core.services.storage.IStorageIndexedFactory;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -40,7 +42,6 @@ import org.javarosa.xpath.XPathMissingInstanceException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -57,35 +58,35 @@ public class CommCareConfigEngine {
     private final ResourceTable updateTable;
     private final ResourceTable recoveryTable;
     private final CommCarePlatform platform;
-    private final PrototypeFactory liveFactory;
     private final PrintStream print;
 
     private ArchiveFileRoot mArchiveRoot;
-
-    private static IStorageIndexedFactory storageFactory;
+    private IStorageIndexedFactory storageFactory;
 
     public CommCareConfigEngine() {
         this(new LivePrototypeFactory());
     }
 
     public CommCareConfigEngine(PrototypeFactory prototypeFactory) {
-        this(System.out, prototypeFactory);
+        this(new DummyIndexedStorageFactory(prototypeFactory), new InstallerFactory());
     }
 
-    public CommCareConfigEngine(OutputStream output, PrototypeFactory prototypeFactory) {
-        this.print = new PrintStream(output);
-        this.platform = new CommCarePlatform(2, 33);
-        this.liveFactory = prototypeFactory;
+    public CommCareConfigEngine(IStorageIndexedFactory storageFactory) {
+        this(storageFactory, new InstallerFactory());
+    }
 
-        if (storageFactory == null) {
-            setupDummyStorageFactory();
-        }
+    public CommCareConfigEngine(IStorageIndexedFactory storageFactory, InstallerFactory installerFactory) {
+        this.print = new PrintStream(System.out);
+        this.platform = new CommCarePlatform(2, 32, storageFactory);
+        this.storageFactory = storageFactory;
 
         setRoots();
-
-        table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class));
-        updateTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_UPGRADE_TABLE", Resource.class));
-        recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", Resource.class));
+        table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class),
+                installerFactory);
+        updateTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_UPGRADE_TABLE", Resource.class),
+                installerFactory);
+        recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", Resource.class),
+                installerFactory);
 
 
         //All of the below is on account of the fact that the installers
@@ -101,19 +102,6 @@ public class CommCareConfigEngine {
         StorageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
     }
 
-    private void setupDummyStorageFactory() {
-        CommCareConfigEngine.setStorageFactory(new IStorageIndexedFactory() {
-            @Override
-            public IStorageUtilityIndexed newStorage(String name, Class type) {
-                return new DummyIndexedStorageUtility(type, liveFactory);
-            }
-        });
-    }
-
-    public static void setStorageFactory(IStorageIndexedFactory storageFactory) {
-        CommCareConfigEngine.storageFactory = storageFactory;
-    }
-
     protected void setRoots() {
         ReferenceManager.instance().addReferenceFactory(new JavaHttpRoot());
 
@@ -123,7 +111,7 @@ public class CommCareConfigEngine {
         ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
     }
 
-    public void initFromArchive(String archiveURL) {
+    public void initFromArchive(String archiveURL) throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
         String fileName;
         if (archiveURL.startsWith("http")) {
             fileName = downloadToTemp(archiveURL);
@@ -143,10 +131,10 @@ public class CommCareConfigEngine {
         init("jr://archive/" + archiveGUID + "/profile.ccpr");
     }
 
-    private String downloadToTemp(String resource) {
+    protected String downloadToTemp(String resource) {
         try {
             URL url = new URL(resource);
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setInstanceFollowRedirects(true);  //you still need to handle redirect manully.
             HttpURLConnection.setFollowRedirects(true);
 
@@ -158,14 +146,12 @@ public class CommCareConfigEngine {
         } catch (IOException e) {
             print.println("Issue downloading or create stream for " + resource);
             e.printStackTrace(print);
-            System.exit(-1);
             return null;
         }
     }
 
-    public void initFromLocalFileResource(String resource) {
+    public void initFromLocalFileResource(String resource) throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
         String reference = setFileSystemRootFromResourceAndReturnRelativeRef(resource);
-
         init(reference);
     }
 
@@ -194,24 +180,8 @@ public class CommCareConfigEngine {
     }
 
 
-    private void init(String profileRef) {
-        try {
-            installAppFromReference(profileRef);
-            print.println("Table resources intialized and fully resolved.");
-            print.println(table);
-        } catch (InstallCancelledException e) {
-            print.println("Install was cancelled by the user or system");
-            e.printStackTrace(print);
-            System.exit(-1);
-        } catch (UnresolvedResourceException e) {
-            print.println("While attempting to resolve the necessary resources, one couldn't be found: " + e.getResource().getResourceId());
-            e.printStackTrace(print);
-            System.exit(-1);
-        } catch (UnfullfilledRequirementsException e) {
-            print.println("While attempting to resolve the necessary resources, a requirement wasn't met");
-            e.printStackTrace(print);
-            System.exit(-1);
-        }
+    protected void init(String profileRef) throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
+        installAppFromReference(profileRef);
     }
 
     public void installAppFromReference(String profileReference) throws UnresolvedResourceException,
@@ -226,7 +196,6 @@ public class CommCareConfigEngine {
         } catch (RuntimeException e) {
             print.println("Error while initializing one of the resolved resources");
             e.printStackTrace(print);
-            System.exit(-1);
         }
         //Make sure there's a default locale, since the app doesn't necessarily use the
         //localization engine
@@ -316,8 +285,7 @@ public class CommCareConfigEngine {
     }
 
     public FormDef loadFormByXmlns(String xmlns) {
-        IStorageUtilityIndexed<FormDef> formStorage =
-                (IStorageUtilityIndexed)StorageManager.getStorage(FormDef.STORAGE_KEY);
+        IStorageUtilityIndexed<FormDef> formStorage = storageFactory.newStorage(FormDef.STORAGE_KEY, FormDef.class);
         return formStorage.getRecordForValue("XMLNS", xmlns);
     }
 
@@ -337,7 +305,7 @@ public class CommCareConfigEngine {
             if (datum instanceof FormIdDatum) {
                 print.println(emptyhead + "Form: " + datum.getValue());
             } else if (datum instanceof EntityDatum) {
-                String shortDetailId = ((EntityDatum)datum).getShortDetail();
+                String shortDetailId = ((EntityDatum) datum).getShortDetail();
                 if (shortDetailId != null) {
                     Detail d = s.getDetail(shortDetailId);
                     try {
