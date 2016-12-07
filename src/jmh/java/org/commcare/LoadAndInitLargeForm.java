@@ -41,7 +41,7 @@ public class LoadAndInitLargeForm {
     }
 
     // Execute using:
-    //  java -jar build\libs\MicroBenchmarking-1.0-jmh.jar -wi 5 -i 5 search
+    //  java -jar build\libs\commcare-core-jmh.jar -wi 5 -i 5 form_init
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(LoadAndInitLargeForm.class.getSimpleName())

@@ -233,8 +233,9 @@ check.dependsOn(jenkinsTest)
 
 jmh {
     duplicateClassesStrategy = 'warn'
-    fork = 1
-    iterations = 2
-    warmupIterations = 3
+    fork = 2
+    iterations = 10
+    warmupIterations = 20
     includeTests = true
+    // default mode is 'throughput'; where a larger score is better
 }
