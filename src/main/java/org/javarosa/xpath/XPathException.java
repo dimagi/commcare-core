@@ -1,17 +1,24 @@
 package org.javarosa.xpath;
 
+import java.text.MessageFormat;
+
 public class XPathException extends RuntimeException {
 
     // A reference to the "Source" of this message helpful
     // for tracking down where the invalid xpath was declared
     private String sourceRef;
+    private String prefix;
 
     public XPathException() {
 
     }
 
     public XPathException(String s) {
-        super("XPath evaluation: " + s);
+        super(s);
+    }
+
+    public void setMessagePrefix(String prefix){
+        this.prefix = prefix;
     }
 
     public void setSource(String source) {
@@ -24,10 +31,15 @@ public class XPathException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        if (sourceRef == null) {
-            return super.getMessage();
+        if (prefix != null) {
+            return MessageFormat.format("{0}\n{1)", prefix, super.getMessage());
+        }
+        if (sourceRef != null) {
+            return MessageFormat.format(
+                "The problem was located in {0}:\n{1)", sourceRef, super.getMessage()
+            );
         } else {
-            return "The problem was located in " + sourceRef + "\n" + super.getMessage();
+            return super.getMessage();
         }
     }
 }

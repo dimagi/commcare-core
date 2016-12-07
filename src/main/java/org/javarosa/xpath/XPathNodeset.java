@@ -5,6 +5,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.expr.XPathPathExpr;
 
+import java.text.MessageFormat;
 import java.util.Vector;
 
 /**
@@ -125,14 +126,21 @@ public class XPathNodeset {
 
     protected XPathTypeMismatchException getInvalidNodesetException() {
         if (!pathEvaluated.equals(originalPath)) {
-            // use indexOf instead of contains due to not having 1.5
             if (!originalPath.contains("/data")) {
-                throw new XPathTypeMismatchException("It looks like this question contains a reference to path " + originalPath + " which evaluated to " + pathEvaluated + " which was not found. This often means you forgot to include the full path to the question -- e.g. /data/[node]");
+                throw new XPathTypeMismatchException(MessageFormat.format(
+                        "Logic references {0} which is not a valid question or value." +
+                        " You may have forgotten to include the full path to the question " +
+                        "(e.g. /data/{0}). (Expanded reference: {1})", originalPath, pathEvaluated));
             } else {
-                throw new XPathTypeMismatchException("There was a problem with the path " + originalPath + " which refers to the location " + pathEvaluated + " which was not found. This often means you made a typo in the question reference, or the question no longer exists in the form.");
+                throw new XPathTypeMismatchException(MessageFormat.format(
+                        "There was a problem with the path {0}" +
+                        " which refers to location which was not found ({1}). " +
+                        "This often means you made a typo in the question reference, " +
+                        "or the question no longer exists in the form.", originalPath, pathEvaluated));
             }
         } else {
-            throw new XPathTypeMismatchException("Location " + pathEvaluated + " was not found");
+            throw new XPathTypeMismatchException(MessageFormat.format(
+                    "Logic references {0} which is not a valid question or value.", pathEvaluated));
         }
     }
     

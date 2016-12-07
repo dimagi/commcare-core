@@ -35,7 +35,7 @@ public class Recalculate extends Triggerable {
         try {
             return expr.evalRaw(model, ec);
         } catch (XPathException e) {
-            e.setSource("calculate expression for " + contextRef.toString(true));
+            e.setMessagePrefix("Calculation Error: Error in calculation for " + contextRef.toString(true));
             throw e;
         }
     }
