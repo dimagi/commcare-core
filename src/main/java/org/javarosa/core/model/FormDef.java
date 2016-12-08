@@ -95,7 +95,7 @@ public class FormDef implements IFormElement, IMetaData,
 
     // <IConditionExpr> contents of <output> tags that serve as parameterized
     // arguments to captions
-    private Vector outputFragments;
+    private Vector<IConditionExpr> outputFragments;
 
     /**
      * Map references to the calculate/relevancy conditions that depend on that
@@ -149,7 +149,7 @@ public class FormDef implements IFormElement, IMetaData,
         triggerIndex = new HashMap<>();
         //This is kind of a wreck...
         setEvaluationContext(new EvaluationContext(null));
-        outputFragments = new Vector();
+        outputFragments = new Vector<>();
         submissionProfiles = new Hashtable<>();
         formInstances = new Hashtable<>();
         extensions = new Vector<>();
@@ -1091,7 +1091,7 @@ public class FormDef implements IFormElement, IMetaData,
                         continue;
                     }
 
-                    IConditionExpr expr = (IConditionExpr)outputFragments.elementAt(ix);
+                    IConditionExpr expr = outputFragments.elementAt(ix);
                     EvaluationContext ec = new EvaluationContext(exprEvalContext, contextRef);
                     ec.setOriginalContext(contextRef);
                     ec.setVariables(variables);
@@ -1294,7 +1294,7 @@ public class FormDef implements IFormElement, IMetaData,
         }
         finalizeTriggerables();
 
-        outputFragments = (Vector)ExtUtil.read(dis, new ExtWrapListPoly(), pf);
+        outputFragments = (Vector<IConditionExpr>)ExtUtil.read(dis, new ExtWrapListPoly(), pf);
 
         submissionProfiles = (Hashtable<String, SubmissionProfile>)ExtUtil.read(dis, new ExtWrapMap(String.class, SubmissionProfile.class), pf);
 
@@ -1499,11 +1499,11 @@ public class FormDef implements IFormElement, IMetaData,
         return localizer;
     }
 
-    public Vector getOutputFragments() {
+    public Vector<IConditionExpr> getOutputFragments() {
         return outputFragments;
     }
 
-    public void setOutputFragments(Vector outputFragments) {
+    public void setOutputFragments(Vector<IConditionExpr> outputFragments) {
         this.outputFragments = outputFragments;
     }
 

@@ -77,7 +77,7 @@ public class FormTranslationFormatter {
                 for (String arg : arguments) {
                     try {
                         int nArg = Integer.parseInt(arg);
-                        XPathConditional expr = (XPathConditional) f.getOutputFragments().elementAt((nArg));
+                        XPathConditional expr = (XPathConditional) f.getOutputFragments().elementAt(nArg);
                         //println(sb, indent + 1, expr.xpath);
                         if(!techStrings.containsKey(Integer.valueOf(nArg))) {
                             techStrings.put(Integer.valueOf(nArg),new String[locales.length + 1]);
