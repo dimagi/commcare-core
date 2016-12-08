@@ -1,5 +1,6 @@
 package org.commcare.api.json;
 
+import org.javarosa.core.model.FormDefUtils;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
@@ -68,9 +69,9 @@ public class Walker {
                 currentIndex = walker.walk();
             } else if (obj.get("type").equals("repeat-juncture")) {
                 JSONArray children = new JSONArray();
-                for (int i = 0; i < fem.getForm().getNumRepetitions(currentIndex); i++) {
+                for (int i = 0; i < FormDefUtils.getNumRepetitions(fem.getForm(), currentIndex); i++) {
                     JSONObject subEvent = new JSONObject();
-                    FormIndex ix = fem.getForm().descendIntoRepeat(currentIndex, i);
+                    FormIndex ix = FormDefUtils.descendIntoRepeat(fem.getForm(), currentIndex, i);
                     JSONArray subChildren = new JSONArray();
                     subEvent.put("type", "sub-group");
                     subEvent.put("ix", ix);

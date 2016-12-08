@@ -1,5 +1,6 @@
 package org.javarosa.form.api;
 
+import org.javarosa.core.model.FormDefUtils;
 import org.javarosa.core.model.GroupDef;
 import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.actions.Action;
@@ -314,7 +315,7 @@ public class FormEntryController {
      */
     @SuppressWarnings("unused")
     public FormIndex descendIntoNewRepeat() {
-        jumpToIndex(model.getForm().descendIntoRepeat(model.getFormIndex(), -1));
+        jumpToIndex(FormDefUtils.descendIntoRepeat(model.getForm(), model.getFormIndex(), -1));
         newRepeat(model.getFormIndex());
         return model.getFormIndex();
     }
@@ -324,7 +325,7 @@ public class FormEntryController {
      */
     @SuppressWarnings("unused")
     public FormIndex descendIntoRepeat(int n) {
-        jumpToIndex(model.getForm().descendIntoRepeat(model.getFormIndex(), n));
+        jumpToIndex(FormDefUtils.descendIntoRepeat(model.getForm(), model.getFormIndex(), n));
         return model.getFormIndex();
     }
 
@@ -362,7 +363,7 @@ public class FormEntryController {
      */
     @SuppressWarnings("unused")
     public void deleteRepeat(int n) {
-        deleteRepeat(model.getForm().descendIntoRepeat(model.getFormIndex(), n));
+        deleteRepeat(FormDefUtils.descendIntoRepeat(model.getForm(), model.getFormIndex(), n));
     }
 
     /**

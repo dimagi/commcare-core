@@ -231,4 +231,48 @@ public class FormDefUtils {
             }
         }
     }
+
+    public static int getNumRepetitions(FormDef formDef, FormIndex index) {
+        Vector<Integer> indexes = new Vector<>();
+        Vector<Integer> multiplicities = new Vector<>();
+        Vector<IFormElement> elements = new Vector<>();
+
+        if (!index.isInForm()) {
+            throw new RuntimeException("not an in-form index");
+        }
+
+        collapseIndex(formDef, index, indexes, multiplicities, elements);
+
+        if (!(elements.lastElement() instanceof GroupDef) || !((GroupDef)elements.lastElement()).getRepeat()) {
+            throw new RuntimeException("current element not a repeat");
+        }
+
+        //so painful
+        TreeElement templNode = formDef.getMainInstance().getTemplate(index.getReference());
+        TreeReference parentPath = templNode.getParent().getRef().genericize();
+        TreeElement parentNode = formDef.getMainInstance().resolveReference(parentPath.contextualize(index.getReference()));
+        return parentNode.getChildMultiplicity(templNode.getName());
+    }
+
+    //repIndex == -1 => next repetition about to be created
+    public static FormIndex descendIntoRepeat(FormDef formDef, FormIndex index, int repIndex) {
+        int numRepetitions = getNumRepetitions(formDef, index);
+
+        Vector<Integer> indexes = new Vector<>();
+        Vector<Integer> multiplicities = new Vector<>();
+        Vector<IFormElement> elements = new Vector<>();
+        collapseIndex(formDef, index, indexes, multiplicities, elements);
+
+        if (repIndex == -1) {
+            repIndex = numRepetitions;
+        } else {
+            if (repIndex < 0 || repIndex >= numRepetitions) {
+                throw new RuntimeException("selection exceeds current number of repetitions");
+            }
+        }
+
+        multiplicities.setElementAt(DataUtil.integer(repIndex), multiplicities.size() - 1);
+
+        return buildIndex(indexes, multiplicities, elements);
+    }
 }

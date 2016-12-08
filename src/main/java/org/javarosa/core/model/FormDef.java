@@ -29,7 +29,6 @@ import org.javarosa.core.model.utils.QuestionPreloader;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.util.CacheTable;
-import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -1403,50 +1402,6 @@ public class FormDef implements IFormElement, IMetaData,
         ExtUtil.write(dos, new ExtWrapMap(formInstances, new ExtWrapTagged()));
         ExtUtil.write(dos, new ExtWrapListPoly(extensions));
         ExtUtil.write(dos, actionController);
-    }
-
-    public int getNumRepetitions(FormIndex index) {
-        Vector<Integer> indexes = new Vector<>();
-        Vector<Integer> multiplicities = new Vector<>();
-        Vector<IFormElement> elements = new Vector<>();
-
-        if (!index.isInForm()) {
-            throw new RuntimeException("not an in-form index");
-        }
-
-        FormDefUtils.collapseIndex(this, index, indexes, multiplicities, elements);
-
-        if (!(elements.lastElement() instanceof GroupDef) || !((GroupDef)elements.lastElement()).getRepeat()) {
-            throw new RuntimeException("current element not a repeat");
-        }
-
-        //so painful
-        TreeElement templNode = mainInstance.getTemplate(index.getReference());
-        TreeReference parentPath = templNode.getParent().getRef().genericize();
-        TreeElement parentNode = mainInstance.resolveReference(parentPath.contextualize(index.getReference()));
-        return parentNode.getChildMultiplicity(templNode.getName());
-    }
-
-    //repIndex == -1 => next repetition about to be created
-    public FormIndex descendIntoRepeat(FormIndex index, int repIndex) {
-        int numRepetitions = getNumRepetitions(index);
-
-        Vector<Integer> indexes = new Vector<>();
-        Vector<Integer> multiplicities = new Vector<>();
-        Vector<IFormElement> elements = new Vector<>();
-        FormDefUtils.collapseIndex(this, index, indexes, multiplicities, elements);
-
-        if (repIndex == -1) {
-            repIndex = numRepetitions;
-        } else {
-            if (repIndex < 0 || repIndex >= numRepetitions) {
-                throw new RuntimeException("selection exceeds current number of repetitions");
-            }
-        }
-
-        multiplicities.setElementAt(DataUtil.integer(repIndex), multiplicities.size() - 1);
-
-        return FormDefUtils.buildIndex(indexes, multiplicities, elements);
     }
 
     @Override

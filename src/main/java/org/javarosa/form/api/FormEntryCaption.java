@@ -268,7 +268,7 @@ public class FormEntryCaption {
 
     //this should probably be somewhere better
     public int getNumRepetitions() {
-        return form.getNumRepetitions(index);
+        return FormDefUtils.getNumRepetitions(form, index);
     }
 
     public String getRepetitionText(boolean newrep) {
@@ -316,7 +316,7 @@ public class FormEntryCaption {
         int numRepetitions = getNumRepetitions();
         Vector<String> reps = new Vector<>();
         for (int i = 0; i < numRepetitions; i++) {
-            reps.addElement(getRepetitionText("choose", form.descendIntoRepeat(index, i), false));
+            reps.addElement(getRepetitionText("choose", FormDefUtils.descendIntoRepeat(form, index, i), false));
         }
         return reps;
     }
