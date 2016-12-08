@@ -198,7 +198,6 @@ public class FormDef implements IFormElement, IMetaData,
         return getMainInstance();
     }
 
-    // ---------- child elements
     @Override
     public void addChild(IFormElement fe) {
         this.children.addElement(fe);
@@ -223,14 +222,10 @@ public class FormDef implements IFormElement, IMetaData,
         return element;
     }
 
-    // take a reference, find the instance node it refers to (factoring in
-    // multiplicities)
-
     public void setLocalizer(Localizer l) {
         this.localizer = l;
     }
 
-    // don't think this should ever be called(!)
     @Override
     public XPathReference getBind() {
         throw new RuntimeException("method not implemented");
