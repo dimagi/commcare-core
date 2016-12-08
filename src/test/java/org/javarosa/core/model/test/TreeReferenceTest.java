@@ -428,9 +428,4 @@ public class TreeReferenceTest {
                     aRef.toString());
         }
     }
-
-    @Test
-    public void testHashCollision() {
-        assertTrue(h2aRef.hashCode() != h3BRef.hashCode());
-    }
 }
