@@ -1,6 +1,7 @@
 package org.javarosa.form.api;
 
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.FormDefUtils;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.GroupDef;
 import org.javarosa.core.model.IFormElement;
@@ -90,7 +91,7 @@ public class FormEntryModel {
         IFormElement element = form.getChild(index);
         if (element instanceof GroupDef) {
             if (((GroupDef)element).getRepeat()) {
-                if (repeatStructure != REPEAT_STRUCTURE_NON_LINEAR && form.getMainInstance().resolveReference(form.getChildInstanceRef(index)) == null) {
+                if (repeatStructure != REPEAT_STRUCTURE_NON_LINEAR && form.getMainInstance().resolveReference(FormDefUtils.getChildInstanceRef(form, index)) == null) {
                     return FormEntryController.EVENT_PROMPT_NEW_REPEAT;
                 } else if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR && index.getElementMultiplicity() == TreeReference.INDEX_REPEAT_JUNCTURE) {
                     return FormEntryController.EVENT_REPEAT_JUNCTURE;
@@ -279,7 +280,7 @@ public class FormEntryModel {
         if (index.isBeginningOfFormIndex() || index.isEndOfFormIndex())
             return true;
 
-        TreeReference ref = form.getChildInstanceRef(index);
+        TreeReference ref = FormDefUtils.getChildInstanceRef(form, index);
         boolean isAskNewRepeat = (getEvent(index) == FormEntryController.EVENT_PROMPT_NEW_REPEAT ||
                 getEvent(index) == FormEntryController.EVENT_REPEAT_JUNCTURE);
 
@@ -298,13 +299,13 @@ public class FormEntryModel {
      * @return true if current element at FormIndex is relevant
      */
     public boolean isIndexRelevant(FormIndex index) {
-        TreeReference ref = form.getChildInstanceRef(index);
+        TreeReference ref = FormDefUtils.getChildInstanceRef(form, index);
         boolean isAskNewRepeat = (getEvent(index) == FormEntryController.EVENT_PROMPT_NEW_REPEAT);
         boolean isRepeatJuncture = (getEvent(index) == FormEntryController.EVENT_REPEAT_JUNCTURE);
 
         boolean relevant;
         if (isAskNewRepeat) {
-            relevant = form.isRepeatRelevant(ref) && form.canCreateRepeat(ref, index);
+            relevant = form.isRepeatRelevant(ref) && FormDefUtils.canCreateRepeat(form, ref, index);
             //repeat junctures are still relevant if no new repeat can be created; that option
             //is simply missing from the menu
         } else if (isRepeatJuncture) {
@@ -365,7 +366,7 @@ public class FormEntryModel {
                         } catch (IllegalArgumentException iae) {
                             throw new RuntimeException("The repeat count value \"" + count.uncast().getString() + "\" at " + g.getConextualizedCountReference(index.getReference()).toString() + " must be a number!");
                         }
-                        TreeReference ref = getForm().getChildInstanceRef(index);
+                        TreeReference ref = FormDefUtils.getChildInstanceRef(getForm(), index);
                         TreeElement element = getForm().getMainInstance().resolveReference(ref);
                         if (element == null) {
                             if (index.getLastRepeatInstanceIndex() < fullcount) {
@@ -447,7 +448,7 @@ public class FormEntryModel {
                 return FormIndex.createEndOfFormIndex();
             }
         } else {
-            form.collapseIndex(index, indexes, multiplicities, elements);
+            FormDefUtils.collapseIndex(form, index, indexes, multiplicities, elements);
         }
 
         incrementHelper(indexes, multiplicities, elements, descend);
@@ -455,7 +456,7 @@ public class FormEntryModel {
         if (indexes.size() == 0) {
             return FormIndex.createEndOfFormIndex();
         } else {
-            return form.buildIndex(indexes, multiplicities, elements);
+            return FormDefUtils.buildIndex(indexes, multiplicities, elements);
         }
     }
 
@@ -477,7 +478,7 @@ public class FormEntryModel {
                             exitRepeat = true;
                         }
                     } else {
-                        if (form.getMainInstance().resolveReference(form.getChildInstanceRef(elements, multiplicities)) == null) {
+                        if (form.getMainInstance().resolveReference(FormDefUtils.getChildInstanceRef(elements, multiplicities)) == null) {
                             descend = false; // repeat instance does not exist; do not descend into it
                             exitRepeat = true;
                         }
@@ -554,7 +555,7 @@ public class FormEntryModel {
                 return FormIndex.createBeginningOfFormIndex();
             }
         } else {
-            form.collapseIndex(index, indexes, multiplicities, elements);
+            FormDefUtils.collapseIndex(form, index, indexes, multiplicities, elements);
         }
 
         decrementHelper(indexes, multiplicities, elements);
@@ -562,7 +563,7 @@ public class FormEntryModel {
         if (indexes.size() == 0) {
             return FormIndex.createBeginningOfFormIndex();
         } else {
-            return form.buildIndex(indexes, multiplicities, elements);
+            return FormDefUtils.buildIndex(indexes, multiplicities, elements);
         }
     }
 
@@ -617,7 +618,7 @@ public class FormEntryModel {
 
     private boolean setRepeatNextMultiplicity(Vector<IFormElement> elements, Vector<Integer> multiplicities) {
         // find out if node is repeatable
-        TreeReference nodeRef = form.getChildInstanceRef(elements, multiplicities);
+        TreeReference nodeRef = FormDefUtils.getChildInstanceRef(elements, multiplicities);
         TreeElement node = form.getMainInstance().resolveReference(nodeRef);
         if (node == null || node.isRepeatable()) { // node == null if there are no
             // instances of the repeat

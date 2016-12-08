@@ -2,6 +2,7 @@ package org.javarosa.xform.schema;
 
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.FormDefUtils;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.DateData;
@@ -85,7 +86,7 @@ public class FormInstanceValidator {
             //Get the index for this question
             FormIndex index = model.getFormIndex();
 
-            TreeReference ref = theForm.getChildInstanceRef(index);
+            TreeReference ref = FormDefUtils.getChildInstanceRef(theForm, index);
 
             TreeElement element = savedModel.resolveReference(ref);
 

@@ -12,7 +12,6 @@ import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.condition.Recalculate;
 import org.javarosa.core.model.condition.Triggerable;
 import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.SelectOneData;
@@ -41,7 +40,6 @@ import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -229,53 +227,6 @@ public class FormDef implements IFormElement, IMetaData,
     // take a reference, find the instance node it refers to (factoring in
     // multiplicities)
 
-    public TreeReference getChildInstanceRef(FormIndex index) {
-        Vector<Integer> indexes = new Vector<>();
-        Vector<Integer> multiplicities = new Vector<>();
-        Vector<IFormElement> elements = new Vector<>();
-
-        collapseIndex(index, indexes, multiplicities, elements);
-        return getChildInstanceRef(elements, multiplicities);
-    }
-
-    /**
-     * Return a tree reference which follows the path down the concrete elements provided
-     * along with the multiplicities provided.
-     */
-    public TreeReference getChildInstanceRef(Vector<IFormElement> elements,
-                                             Vector<Integer> multiplicities) {
-        if (elements.size() == 0) {
-            return null;
-        }
-
-        // get reference for target element
-        TreeReference ref = FormInstance.unpackReference(elements.lastElement().getBind()).clone();
-        for (int i = 0; i < ref.size(); i++) {
-            //There has to be a better way to encapsulate this
-            if (ref.getMultiplicity(i) != TreeReference.INDEX_ATTRIBUTE) {
-                ref.setMultiplicity(i, 0);
-            }
-        }
-
-        // fill in multiplicities for repeats along the way
-        for (int i = 0; i < elements.size(); i++) {
-            IFormElement temp = elements.elementAt(i);
-            if (temp instanceof GroupDef && ((GroupDef)temp).getRepeat()) {
-                TreeReference repRef = FormInstance.unpackReference(temp.getBind());
-                if (repRef.isParentOf(ref, false)) {
-                    int repMult = multiplicities.elementAt(i);
-                    ref.setMultiplicity(repRef.size() - 1, repMult);
-                } else {
-                    // question/repeat hierarchy is not consistent with
-                    // instance instance and bindings
-                    return null;
-                }
-            }
-        }
-
-        return ref;
-    }
-
     public void setLocalizer(Localizer l) {
         this.localizer = l;
     }
@@ -313,7 +264,7 @@ public class FormDef implements IFormElement, IMetaData,
         Vector<Integer> indexes = new Vector<>();
         Vector<Integer> multiplicities = new Vector<>();
         Vector<IFormElement> elements = new Vector<>();
-        collapseIndex(index, indexes, multiplicities, elements);
+        FormDefUtils.collapseIndex(this, index, indexes, multiplicities, elements);
 
         // loop backwards through the elements, removing objects from each
         // vector, until we find a repeat
@@ -331,16 +282,16 @@ public class FormDef implements IFormElement, IMetaData,
 
         // build new formIndex which includes everything
         // up to the node we're going to remove
-        FormIndex newIndex = buildIndex(indexes, multiplicities, elements);
+        FormIndex newIndex = FormDefUtils.buildIndex(indexes, multiplicities, elements);
 
-        TreeReference deleteRef = getChildInstanceRef(newIndex);
+        TreeReference deleteRef = FormDefUtils.getChildInstanceRef(this, newIndex);
         TreeElement deleteElement = mainInstance.resolveReference(deleteRef);
         TreeReference parentRef = deleteRef.getParentRef();
         TreeElement parentElement = mainInstance.resolveReference(parentRef);
 
         parentElement.removeChild(deleteElement);
 
-        reduceTreeSiblingMultiplicities(parentElement, deleteElement);
+        FormDefUtils.reduceTreeSiblingMultiplicities(parentElement, deleteElement);
 
         this.getMainInstance().cleanCache();
 
@@ -348,27 +299,8 @@ public class FormDef implements IFormElement, IMetaData,
         return newIndex;
     }
 
-    /**
-     * When a repeat is deleted, we need to reduce the multiplicities of its siblings that were higher than it
-     * by one.
-     * @param parentElement the parent of the deleted element
-     * @param deleteElement the deleted element
-     */
-    private void reduceTreeSiblingMultiplicities(TreeElement parentElement, TreeElement deleteElement){
-        int childMult = deleteElement.getMult();
-        // update multiplicities of other child nodes
-        for (int i = 0; i < parentElement.getNumChildren(); i++) {
-            TreeElement child = parentElement.getChildAt(i);
-            // We also need to check that this element matches the deleted element (besides multiplicity)
-            // in the case where the deleted repeat's parent isn't a subgroup
-            if (child.doFieldsMatch(deleteElement) && child.getMult() > childMult) {
-                child.setMult(child.getMult() - 1);
-            }
-        }
-    }
-
     public void createNewRepeat(FormIndex index) throws InvalidReferenceException {
-        TreeReference repeatContextRef = getChildInstanceRef(index);
+        TreeReference repeatContextRef = FormDefUtils.getChildInstanceRef(this, index);
         TreeElement template = mainInstance.getTemplate(repeatContextRef);
 
         mainInstance.copyNode(template, repeatContextRef);
@@ -416,64 +348,6 @@ public class FormDef implements IFormElement, IMetaData,
         }
 
         return relev;
-    }
-
-    /**
-     * Does the repeat group at the given index enable users to add more items,
-     * and if so, has the user reached the item limit?
-     *
-     * @param repeatRef   Reference pointing to a particular repeat item
-     * @param repeatIndex Id for looking up the repeat group
-     * @return Do the current constraints on the repeat group allow for adding
-     * more children?
-     */
-    public boolean canCreateRepeat(TreeReference repeatRef, FormIndex repeatIndex) {
-        GroupDef repeat = (GroupDef)this.getChild(repeatIndex);
-
-        //Check to see if this repeat can have children added by the user
-        if (repeat.noAddRemove) {
-            //Check to see if there's a count to use to determine how many children this repeat
-            //should have
-            if (repeat.getCountReference() != null) {
-                int currentMultiplicity = repeatIndex.getElementMultiplicity();
-
-                TreeReference absPathToCount = repeat.getConextualizedCountReference(repeatRef);
-                AbstractTreeElement countNode = this.getMainInstance().resolveReference(absPathToCount);
-                if (countNode == null) {
-                    throw new XPathTypeMismatchException("Could not find the location " +
-                            absPathToCount.toString() + " where the repeat at " +
-                            repeatRef.toString(false) + " is looking for its count");
-                }
-                //get the total multiplicity possible
-                IAnswerData boxedCount = countNode.getValue();
-                int count;
-                if (boxedCount == null) {
-                    count = 0;
-                } else {
-                    try {
-                        count = ((Integer)new IntegerData().cast(boxedCount.uncast()).getValue());
-                    } catch (IllegalArgumentException iae) {
-                        throw new XPathTypeMismatchException("The repeat count value \"" +
-                                boxedCount.uncast().getString() +
-                                "\" at " + absPathToCount.toString() +
-                                " must be a number!");
-                    }
-                }
-
-                if (count <= currentMultiplicity) {
-                    return false;
-                }
-            } else {
-                //Otherwise the user can never add repeat instances
-                return false;
-            }
-        }
-
-        //TODO: If we think the node is still relevant, we also need to figure out a way to test that assumption against
-        //the repeat's constraints.
-
-
-        return true;
     }
 
     public void copyItemsetAnswer(QuestionDef q, TreeElement targetNode, IAnswerData data) throws InvalidReferenceException {
@@ -675,7 +549,7 @@ public class FormDef implements IFormElement, IMetaData,
         return roots;
     }
 
-    private void throwGraphCyclesException(List<Triggerable> vertices) {
+    private static void throwGraphCyclesException(List<Triggerable> vertices) {
         String hints = "";
         for (Triggerable t : vertices) {
             for (TreeReference r : t.getTargets()) {
@@ -774,7 +648,7 @@ public class FormDef implements IFormElement, IMetaData,
                 if (expandedRefs.size() > 0) {
                     AbstractTreeElement template = mainInstance.getTemplatePath(target);
                     if (template != null) {
-                        addChildrenOfElement(template, updatedNodes);
+                        FormDefUtils.addChildrenOfElement(template, updatedNodes);
                         cachedCascadingChildren.register(target, updatedNodes);
                     } else {
                         // NOTE PLM: entirely possible this can be removed if
@@ -803,35 +677,7 @@ public class FormDef implements IFormElement, IMetaData,
     private void addChildrenOfReference(List<TreeReference> expandedRefs,
                                         List<TreeReference> genericRefs) {
         for (TreeReference ref : expandedRefs) {
-            addChildrenOfElement(exprEvalContext.resolveReference(ref), genericRefs);
-        }
-    }
-
-    /**
-     * Gathers generic children and attribute references for the provided
-     * element into the genericRefs list.
-     */
-    private static void addChildrenOfElement(AbstractTreeElement treeElem,
-                                             List<TreeReference> genericRefs) {
-        // recursively add children of element
-        for (int i = 0; i < treeElem.getNumChildren(); ++i) {
-            AbstractTreeElement child = treeElem.getChildAt(i);
-            TreeReference genericChild = child.getRef().genericize();
-            if (!genericRefs.contains(genericChild)) {
-                genericRefs.add(genericChild);
-            }
-            addChildrenOfElement(child, genericRefs);
-        }
-
-        // add all the attributes of this element
-        for (int i = 0; i < treeElem.getAttributeCount(); ++i) {
-            AbstractTreeElement child =
-                    treeElem.getAttribute(treeElem.getAttributeNamespace(i),
-                            treeElem.getAttributeName(i));
-            TreeReference genericChild = child.getRef().genericize();
-            if (!genericRefs.contains(genericChild)) {
-                genericRefs.add(genericChild);
-            }
+            FormDefUtils.addChildrenOfElement(exprEvalContext.resolveReference(ref), genericRefs);
         }
     }
 
@@ -1078,7 +924,7 @@ public class FormDef implements IFormElement, IMetaData,
 
     public void setEvaluationContext(EvaluationContext ec) {
         ec = new EvaluationContext(mainInstance, formInstances, ec);
-        initEvalContext(ec);
+        initEvalContext(this, ec);
         this.exprEvalContext = ec;
     }
 
@@ -1086,9 +932,8 @@ public class FormDef implements IFormElement, IMetaData,
         return this.exprEvalContext;
     }
 
-    private void initEvalContext(EvaluationContext ec) {
+    private static void initEvalContext(final FormDef f, EvaluationContext ec) {
         if (!ec.getFunctionHandlers().containsKey("jr:itext")) {
-            final FormDef f = this;
             ec.addFunctionHandler(new IFunctionHandler() {
                 @Override
                 public String getName() {
@@ -1142,7 +987,6 @@ public class FormDef implements IFormElement, IMetaData,
          * it's mainly intended for the simple case of reversing a question with compile-time-static fields, for use inside an <output>
          */
         if (!ec.getFunctionHandlers().containsKey("jr:choice-name")) {
-            final FormDef f = this;
             ec.addFunctionHandler(new IFunctionHandler() {
                 @Override
                 public String getName() {
@@ -1156,7 +1000,7 @@ public class FormDef implements IFormElement, IMetaData,
                         String questionXpath = (String)args[1];
                         TreeReference ref = RestoreUtils.ref(questionXpath);
 
-                        QuestionDef q = FormDef.findQuestionByRef(ref, f);
+                        QuestionDef q = FormDefUtils.findQuestionByRef(ref, f);
                         if (q == null || (q.getControlType() != Constants.CONTROL_SELECT_ONE &&
                                 q.getControlType() != Constants.CONTROL_SELECT_MULTI)) {
                             return "";
@@ -1561,54 +1405,6 @@ public class FormDef implements IFormElement, IMetaData,
         ExtUtil.write(dos, actionController);
     }
 
-    public void collapseIndex(FormIndex index,
-                              Vector<Integer> indexes,
-                              Vector<Integer> multiplicities,
-                              Vector<IFormElement> elements) {
-        if (!index.isInForm()) {
-            return;
-        }
-
-        IFormElement element = this;
-        while (index != null) {
-            int i = index.getLocalIndex();
-            element = element.getChild(i);
-
-            indexes.addElement(DataUtil.integer(i));
-            multiplicities.addElement(DataUtil.integer(index.getInstanceIndex() == -1 ? 0 : index.getInstanceIndex()));
-            elements.addElement(element);
-
-            index = index.getNextLevel();
-        }
-    }
-
-    public FormIndex buildIndex(Vector<Integer> indexes, Vector<Integer> multiplicities, Vector<IFormElement> elements) {
-        FormIndex cur = null;
-        Vector<Integer> curMultiplicities = new Vector<>();
-        for (int j = 0; j < multiplicities.size(); ++j) {
-            curMultiplicities.addElement(multiplicities.elementAt(j));
-        }
-
-        Vector<IFormElement> curElements = new Vector<>();
-        for (int j = 0; j < elements.size(); ++j) {
-            curElements.addElement(elements.elementAt(j));
-        }
-
-        for (int i = indexes.size() - 1; i >= 0; i--) {
-            int ix = indexes.elementAt(i);
-            int mult = multiplicities.elementAt(i);
-
-            if (!(elements.elementAt(i) instanceof GroupDef && ((GroupDef)elements.elementAt(i)).getRepeat())) {
-                mult = -1;
-            }
-
-            cur = new FormIndex(cur, ix, mult, getChildInstanceRef(curElements, curMultiplicities));
-            curMultiplicities.removeElementAt(curMultiplicities.size() - 1);
-            curElements.removeElementAt(curElements.size() - 1);
-        }
-        return cur;
-    }
-
     public int getNumRepetitions(FormIndex index) {
         Vector<Integer> indexes = new Vector<>();
         Vector<Integer> multiplicities = new Vector<>();
@@ -1618,7 +1414,7 @@ public class FormDef implements IFormElement, IMetaData,
             throw new RuntimeException("not an in-form index");
         }
 
-        collapseIndex(index, indexes, multiplicities, elements);
+        FormDefUtils.collapseIndex(this, index, indexes, multiplicities, elements);
 
         if (!(elements.lastElement() instanceof GroupDef) || !((GroupDef)elements.lastElement()).getRepeat()) {
             throw new RuntimeException("current element not a repeat");
@@ -1638,7 +1434,7 @@ public class FormDef implements IFormElement, IMetaData,
         Vector<Integer> indexes = new Vector<>();
         Vector<Integer> multiplicities = new Vector<>();
         Vector<IFormElement> elements = new Vector<>();
-        collapseIndex(index, indexes, multiplicities, elements);
+        FormDefUtils.collapseIndex(this, index, indexes, multiplicities, elements);
 
         if (repIndex == -1) {
             repIndex = numRepetitions;
@@ -1650,7 +1446,7 @@ public class FormDef implements IFormElement, IMetaData,
 
         multiplicities.setElementAt(DataUtil.integer(repIndex), multiplicities.size() - 1);
 
-        return buildIndex(indexes, multiplicities, elements);
+        return FormDefUtils.buildIndex(indexes, multiplicities, elements);
     }
 
     @Override
@@ -1752,7 +1548,7 @@ public class FormDef implements IFormElement, IMetaData,
         }
 
         if (selections != null) {
-            QuestionDef q = findQuestionByRef(node.getRef(), this);
+            QuestionDef q = FormDefUtils.findQuestionByRef(node.getRef(), this);
             if (q == null) {
                 throw new RuntimeException("FormDef.attachControlsToInstanceData: can't find question to link");
             }
@@ -1769,25 +1565,6 @@ public class FormDef implements IFormElement, IMetaData,
                 Selection s = (Selection)selections.elementAt(i);
                 s.attachChoice(q);
             }
-        }
-    }
-
-    public static QuestionDef findQuestionByRef(TreeReference ref, IFormElement fe) {
-        if (fe instanceof FormDef) {
-            ref = ref.genericize();
-        }
-
-        if (fe instanceof QuestionDef) {
-            QuestionDef q = (QuestionDef)fe;
-            TreeReference bind = FormInstance.unpackReference(q.getBind());
-            return (ref.equals(bind) ? q : null);
-        } else {
-            for (int i = 0; i < fe.getChildren().size(); i++) {
-                QuestionDef ret = findQuestionByRef(ref, fe.getChild(i));
-                if (ret != null)
-                    return ret;
-            }
-            return null;
         }
     }
 

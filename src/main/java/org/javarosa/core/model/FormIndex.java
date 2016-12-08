@@ -415,7 +415,7 @@ public class FormIndex {
         Vector<Integer> indexes = new Vector<>();
         Vector<Integer> multiplicities = new Vector<>();
         Vector<IFormElement> elements = new Vector<>();
-        f.collapseIndex(this, indexes, multiplicities, elements);
+        FormDefUtils.collapseIndex(f, this, indexes, multiplicities, elements);
 
         Vector<Integer> curMults = new Vector<>();
         Vector<IFormElement> curElems = new Vector<>();
@@ -425,7 +425,7 @@ public class FormIndex {
             curMults.addElement(multiplicities.elementAt(i));
             curElems.addElement(elements.elementAt(i));
 
-            cur.reference = f.getChildInstanceRef(curElems, curMults);
+            cur.reference = FormDefUtils.getChildInstanceRef(curElems, curMults);
 
             cur = cur.getNextLevel();
             i++;

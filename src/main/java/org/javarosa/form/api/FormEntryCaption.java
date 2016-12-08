@@ -1,6 +1,7 @@
 package org.javarosa.form.api;
 
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.FormDefUtils;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.GroupDef;
 import org.javarosa.core.model.IFormElement;
@@ -339,7 +340,7 @@ public class FormEntryCaption {
         ro.header = getRepeatText("mainheader");
 
         ro.add = null;
-        if (form.canCreateRepeat(form.getChildInstanceRef(index), index)) {
+        if (FormDefUtils.canCreateRepeat(form, FormDefUtils.getChildInstanceRef(form, index), index)) {
             ro.add = getRepeatText(has_repetitions ? "add" : "add-empty");
         }
         ro.delete = null;
