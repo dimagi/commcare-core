@@ -226,22 +226,6 @@ public class FormDef implements IFormElement, IMetaData,
         return element;
     }
 
-    /**
-     * Dereference the form index and return a Vector of all interstitial nodes
-     * (top-level parent first; index target last)
-     *
-     * Ignore 'new-repeat' node for now; just return/stop at ref to
-     * yet-to-be-created repeat node (similar to repeats that already exist)
-     */
-    public Vector explodeIndex(FormIndex index) {
-        Vector<Integer> indexes = new Vector<>();
-        Vector<Integer> multiplicities = new Vector<>();
-        Vector<IFormElement> elements = new Vector<>();
-
-        collapseIndex(index, indexes, multiplicities, elements);
-        return elements;
-    }
-
     // take a reference, find the instance node it refers to (factoring in
     // multiplicities)
 
@@ -959,10 +943,7 @@ public class FormDef implements IFormElement, IMetaData,
         // Use all triggerables because we can assume they are rooted by rootRef
         TreeReference rootRef = TreeReference.rootRef();
 
-        Vector<Triggerable> applicable = new Vector<>();
-        for (Triggerable triggerable : triggerables) {
-            applicable.addElement(triggerable);
-        }
+        Vector<Triggerable> applicable = new Vector<>(triggerables);
 
         evaluateTriggerables(applicable, rootRef, false);
     }
@@ -1857,7 +1838,6 @@ public class FormDef implements IFormElement, IMetaData,
         throw new RuntimeException("This method call is not relevant for FormDefs [setTextID()]");
     }
 
-
     public void setDefaultSubmission(SubmissionProfile profile) {
         submissionProfiles.put(DEFAULT_SUBMISSION_PROFILE, profile);
     }
@@ -1889,19 +1869,5 @@ public class FormDef implements IFormElement, IMetaData,
         }
         extensions.addElement(newEx);
         return newEx;
-    }
-
-
-    /**
-     * Frees all of the components of this form which are no longer needed once it is completed.
-     *
-     * Once this is called, the form is no longer capable of functioning, but all data should be retained.
-     */
-    public void seal() {
-        triggerables = null;
-        triggerIndex = null;
-        conditionRepeatTargetIndex = null;
-        //We may need ths one, actually
-        exprEvalContext = null;
     }
 }
