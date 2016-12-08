@@ -47,6 +47,8 @@ public class TreeReferenceTest {
     private TreeReference acPredNotRef;
     private Vector<XPathExpression> apreds;
 
+    private TreeReference h2aRef;
+    private TreeReference h3BRef;
 
     @Before
     public void initStuff() {
@@ -58,6 +60,9 @@ public class TreeReferenceTest {
 
         acdRef = acRef.extendRef("d", TreeReference.DEFAULT_MUTLIPLICITY);
         aceRef = acRef.extendRef("e", TreeReference.DEFAULT_MUTLIPLICITY);
+
+        h2aRef = root.extendRef("H2a", TreeReference.DEFAULT_MUTLIPLICITY);
+        h3BRef = root.extendRef("H3B", TreeReference.DEFAULT_MUTLIPLICITY);
 
         abcRef = XPathReference.getPathExpr("/a/b/c").getReference();
         ac2Ref = XPathReference.getPathExpr("/a/c").getReference();
@@ -422,5 +427,10 @@ public class TreeReferenceTest {
                     ", which should, once genericized, should match" +
                     aRef.toString());
         }
+    }
+
+    @Test
+    public void testHashCollision() {
+        assertTrue(h2aRef.hashCode() != h3BRef.hashCode());
     }
 }
