@@ -1,18 +1,29 @@
 package org.javarosa.core.model;
 
+import org.javarosa.core.log.WrappedException;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.IConditionExpr;
+import org.javarosa.core.model.condition.IFunctionHandler;
+import org.javarosa.core.model.condition.Triggerable;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.util.restorable.RestoreUtils;
+import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
+import java.util.Hashtable;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Vector;
 
 public class FormDefUtils {
+    private static final int TEMPLATING_RECURSION_LIMIT = 10;
+
     public static QuestionDef findQuestionByRef(TreeReference ref, IFormElement fe) {
         if (fe instanceof FormDef) {
             ref = ref.genericize();
@@ -274,5 +285,209 @@ public class FormDefUtils {
         multiplicities.setElementAt(DataUtil.integer(repIndex), multiplicities.size() - 1);
 
         return buildIndex(indexes, multiplicities, elements);
+    }
+
+    static void initEvalContext(final FormDef f, EvaluationContext ec) {
+        if (!ec.getFunctionHandlers().containsKey("jr:itext")) {
+            ec.addFunctionHandler(new IFunctionHandler() {
+                @Override
+                public String getName() {
+                    return "jr:itext";
+                }
+
+                @Override
+                public Object eval(Object[] args, EvaluationContext ec) {
+                    String textID = (String)args[0];
+                    try {
+                        //SUUUUPER HACKY
+                        String form = ec.getOutputTextForm();
+                        if (form != null) {
+                            textID = textID + ";" + form;
+                            String result = f.getLocalizer().getRawText(f.getLocalizer().getLocale(), textID);
+                            return result == null ? "" : result;
+                        } else {
+                            String text = f.getLocalizer().getText(textID);
+                            return text == null ? "[itext:" + textID + "]" : text;
+                        }
+                    } catch (NoSuchElementException nsee) {
+                        return "[nolocale]";
+                    }
+                }
+
+                @Override
+                public Vector getPrototypes() {
+                    Class[] proto = {String.class};
+                    Vector<Class[]> v = new Vector<>();
+                    v.addElement(proto);
+                    return v;
+                }
+
+                @Override
+                public boolean rawArgs() {
+                    return false;
+                }
+            });
+        }
+
+        /* function to reverse a select value into the display label for that choice in the question it came from
+         *
+         * arg 1: select value
+         * arg 2: string xpath referring to origin question; must be absolute path
+         *
+         * this won't work at all if the original label needed to be processed/calculated in some way (<output>s, etc.) (is this even allowed?)
+         * likely won't work with multi-media labels
+         * _might_ work for itemsets, but probably not very well or at all; could potentially work better if we had some context info
+         * DOES work with localization
+         *
+         * it's mainly intended for the simple case of reversing a question with compile-time-static fields, for use inside an <output>
+         */
+        if (!ec.getFunctionHandlers().containsKey("jr:choice-name")) {
+            ec.addFunctionHandler(new IFunctionHandler() {
+                @Override
+                public String getName() {
+                    return "jr:choice-name";
+                }
+
+                @Override
+                public Object eval(Object[] args, EvaluationContext ec) {
+                    try {
+                        String value = (String)args[0];
+                        String questionXpath = (String)args[1];
+                        TreeReference ref = RestoreUtils.ref(questionXpath);
+
+                        QuestionDef q = findQuestionByRef(ref, f);
+                        if (q == null || (q.getControlType() != Constants.CONTROL_SELECT_ONE &&
+                                q.getControlType() != Constants.CONTROL_SELECT_MULTI)) {
+                            return "";
+                        }
+
+                        System.out.println("here!!");
+
+                        Vector<SelectChoice> choices = q.getChoices();
+                        for (SelectChoice ch : choices) {
+                            if (ch.getValue().equals(value)) {
+                                //this is really not ideal. we should hook into the existing code (FormEntryPrompt) for pulling
+                                //display text for select choices. however, it's hard, because we don't really have
+                                //any context to work with, and all the situations where that context would be used
+                                //don't make sense for trying to reverse a select value back to a label in an unrelated
+                                //expression
+
+                                String textID = ch.getTextID();
+                                if (textID != null) {
+                                    return f.getLocalizer().getText(textID);
+                                } else {
+                                    return ch.getLabelInnerText();
+                                }
+                            }
+                        }
+                        return "";
+                    } catch (Exception e) {
+                        throw new WrappedException("error in evaluation of xpath function [choice-name]", e);
+                    }
+                }
+
+                @Override
+                public Vector getPrototypes() {
+                    Class[] proto = {String.class, String.class};
+                    Vector<Class[]> v = new Vector<>();
+                    v.addElement(proto);
+                    return v;
+                }
+
+                @Override
+                public boolean rawArgs() {
+                    return false;
+                }
+            });
+        }
+    }
+
+    /**
+     * Performs substitutions on place-holder template from form text by
+     * evaluating args in template using the current context.
+     *
+     * @param template   String
+     * @param contextRef TreeReference
+     * @param variables  Hashtable<String, ?>
+     * @return String with the all args in the template filled with appropriate
+     * context values.
+     */
+    public static String fillTemplateString(FormDef formDef, String template,
+                                            TreeReference contextRef,
+                                            Hashtable<String, ?> variables) {
+        // argument to value mapping
+        Hashtable<String, String> args = new Hashtable<>();
+
+        int depth = 0;
+        // grab all template arguments that need to have substitutions performed
+        Vector outstandingArgs = Localizer.getArgs(template);
+
+        String templateAfterSubstitution;
+
+        // Step through outstandingArgs from the template, looking up the value
+        // they map to, evaluating that under the evaluation context and
+        // storing in the local args mapping.
+        // Then perform substitutions over the template until a fixpoint is found
+        while (outstandingArgs.size() > 0) {
+            for (int i = 0; i < outstandingArgs.size(); i++) {
+                String argName = (String)outstandingArgs.elementAt(i);
+                // lookup value an arg points to if it isn't in our local mapping
+                if (!args.containsKey(argName)) {
+                    int ix = -1;
+                    try {
+                        ix = Integer.parseInt(argName);
+                    } catch (NumberFormatException nfe) {
+                        System.err.println("Warning: expect arguments to be numeric [" + argName + "]");
+                    }
+
+                    if (ix < 0 || ix >= formDef.getOutputFragments().size()) {
+                        continue;
+                    }
+
+                    IConditionExpr expr = formDef.getOutputFragments().elementAt(ix);
+                    EvaluationContext ec = new EvaluationContext(formDef.getEvaluationContext(), contextRef);
+                    ec.setOriginalContext(contextRef);
+                    ec.setVariables(variables);
+                    String value = expr.evalReadable(formDef.getMainInstance(), ec);
+                    args.put(argName, value);
+                }
+            }
+
+            templateAfterSubstitution = Localizer.processArguments(template, args);
+
+            // The last substitution made no progress, probably because the
+            // argument isn't in outputFragments, so stop looping and
+            // attempting more subs!
+            if (template.equals(templateAfterSubstitution)) {
+                return template;
+            }
+
+            template = templateAfterSubstitution;
+
+            // Since strings being substituted might themselves have arguments that
+            // need to be further substituted, we must recompute the unperformed
+            // substitutions and continue to loop.
+            outstandingArgs = Localizer.getArgs(template);
+
+            if (depth++ >= TEMPLATING_RECURSION_LIMIT) {
+                throw new RuntimeException("Dependency cycle in <output>s; recursion limit exceeded!!");
+            }
+        }
+
+        return template;
+    }
+
+    static void throwGraphCyclesException(List<Triggerable> vertices) {
+        String hints = "";
+        for (Triggerable t : vertices) {
+            for (TreeReference r : t.getTargets()) {
+                hints += "\n" + r.toString(true);
+            }
+        }
+        String message = "Cycle detected in form's relevant and calculation logic!";
+        if (!hints.equals("")) {
+            message += "\nThe following nodes are likely involved in the loop:" + hints;
+        }
+        throw new IllegalStateException(message);
     }
 }

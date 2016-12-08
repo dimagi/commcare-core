@@ -1,14 +1,12 @@
 package org.javarosa.core.model;
 
 import org.commcare.modern.util.Pair;
-import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.actions.Action;
 import org.javarosa.core.model.actions.ActionController;
 import org.javarosa.core.model.condition.Condition;
 import org.javarosa.core.model.condition.Constraint;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IConditionExpr;
-import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.condition.Recalculate;
 import org.javarosa.core.model.condition.Triggerable;
 import org.javarosa.core.model.data.IAnswerData;
@@ -24,7 +22,6 @@ import org.javarosa.core.model.instance.InvalidReferenceException;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
-import org.javarosa.core.model.util.restorable.RestoreUtils;
 import org.javarosa.core.model.utils.QuestionPreloader;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
@@ -49,7 +46,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Vector;
 
 /**
@@ -61,7 +57,6 @@ import java.util.Vector;
 public class FormDef implements IFormElement, IMetaData,
         ActionController.ActionResultProcessor {
     public static final String STORAGE_KEY = "FORMDEF";
-    private static final int TEMPLATING_RECURSION_LIMIT = 10;
 
     /**
      * Hierarchy of questions, groups and repeats in the form
@@ -509,7 +504,7 @@ public class FormDef implements IFormElement, IMetaData,
 
             if (roots.isEmpty()) {
                 // if no root nodes while graph still has nodes, graph has cycles
-                throwGraphCyclesException(vertices);
+                FormDefUtils.throwGraphCyclesException(vertices);
             }
 
             setOrderOfTriggerable(roots, vertices, partialOrdering);
@@ -541,20 +536,6 @@ public class FormDef implements IFormElement, IMetaData,
             roots.remove(edge.second);
         }
         return roots;
-    }
-
-    private static void throwGraphCyclesException(List<Triggerable> vertices) {
-        String hints = "";
-        for (Triggerable t : vertices) {
-            for (TreeReference r : t.getTargets()) {
-                hints += "\n" + r.toString(true);
-            }
-        }
-        String message = "Cycle detected in form's relevant and calculation logic!";
-        if (!hints.equals("")) {
-            message += "\nThe following nodes are likely involved in the loop:" + hints;
-        }
-        throw new IllegalStateException(message);
     }
 
     private void setOrderOfTriggerable(List<Triggerable> roots,
@@ -918,7 +899,7 @@ public class FormDef implements IFormElement, IMetaData,
 
     public void setEvaluationContext(EvaluationContext ec) {
         ec = new EvaluationContext(mainInstance, formInstances, ec);
-        initEvalContext(this, ec);
+        FormDefUtils.initEvalContext(this, ec);
         this.exprEvalContext = ec;
     }
 
@@ -926,196 +907,8 @@ public class FormDef implements IFormElement, IMetaData,
         return this.exprEvalContext;
     }
 
-    private static void initEvalContext(final FormDef f, EvaluationContext ec) {
-        if (!ec.getFunctionHandlers().containsKey("jr:itext")) {
-            ec.addFunctionHandler(new IFunctionHandler() {
-                @Override
-                public String getName() {
-                    return "jr:itext";
-                }
-
-                @Override
-                public Object eval(Object[] args, EvaluationContext ec) {
-                    String textID = (String)args[0];
-                    try {
-                        //SUUUUPER HACKY
-                        String form = ec.getOutputTextForm();
-                        if (form != null) {
-                            textID = textID + ";" + form;
-                            String result = f.getLocalizer().getRawText(f.getLocalizer().getLocale(), textID);
-                            return result == null ? "" : result;
-                        } else {
-                            String text = f.getLocalizer().getText(textID);
-                            return text == null ? "[itext:" + textID + "]" : text;
-                        }
-                    } catch (NoSuchElementException nsee) {
-                        return "[nolocale]";
-                    }
-                }
-
-                @Override
-                public Vector getPrototypes() {
-                    Class[] proto = {String.class};
-                    Vector<Class[]> v = new Vector<>();
-                    v.addElement(proto);
-                    return v;
-                }
-
-                @Override
-                public boolean rawArgs() {
-                    return false;
-                }
-            });
-        }
-
-        /* function to reverse a select value into the display label for that choice in the question it came from
-         *
-         * arg 1: select value
-         * arg 2: string xpath referring to origin question; must be absolute path
-         *
-         * this won't work at all if the original label needed to be processed/calculated in some way (<output>s, etc.) (is this even allowed?)
-         * likely won't work with multi-media labels
-         * _might_ work for itemsets, but probably not very well or at all; could potentially work better if we had some context info
-         * DOES work with localization
-         *
-         * it's mainly intended for the simple case of reversing a question with compile-time-static fields, for use inside an <output>
-         */
-        if (!ec.getFunctionHandlers().containsKey("jr:choice-name")) {
-            ec.addFunctionHandler(new IFunctionHandler() {
-                @Override
-                public String getName() {
-                    return "jr:choice-name";
-                }
-
-                @Override
-                public Object eval(Object[] args, EvaluationContext ec) {
-                    try {
-                        String value = (String)args[0];
-                        String questionXpath = (String)args[1];
-                        TreeReference ref = RestoreUtils.ref(questionXpath);
-
-                        QuestionDef q = FormDefUtils.findQuestionByRef(ref, f);
-                        if (q == null || (q.getControlType() != Constants.CONTROL_SELECT_ONE &&
-                                q.getControlType() != Constants.CONTROL_SELECT_MULTI)) {
-                            return "";
-                        }
-
-                        System.out.println("here!!");
-
-                        Vector<SelectChoice> choices = q.getChoices();
-                        for (SelectChoice ch : choices) {
-                            if (ch.getValue().equals(value)) {
-                                //this is really not ideal. we should hook into the existing code (FormEntryPrompt) for pulling
-                                //display text for select choices. however, it's hard, because we don't really have
-                                //any context to work with, and all the situations where that context would be used
-                                //don't make sense for trying to reverse a select value back to a label in an unrelated
-                                //expression
-
-                                String textID = ch.getTextID();
-                                if (textID != null) {
-                                    return f.getLocalizer().getText(textID);
-                                } else {
-                                    return ch.getLabelInnerText();
-                                }
-                            }
-                        }
-                        return "";
-                    } catch (Exception e) {
-                        throw new WrappedException("error in evaluation of xpath function [choice-name]", e);
-                    }
-                }
-
-                @Override
-                public Vector getPrototypes() {
-                    Class[] proto = {String.class, String.class};
-                    Vector<Class[]> v = new Vector<>();
-                    v.addElement(proto);
-                    return v;
-                }
-
-                @Override
-                public boolean rawArgs() {
-                    return false;
-                }
-            });
-        }
-    }
-
     public String fillTemplateString(String template, TreeReference contextRef) {
-        return fillTemplateString(template, contextRef, new Hashtable());
-    }
-
-    /**
-     * Performs substitutions on place-holder template from form text by
-     * evaluating args in template using the current context.
-     *
-     * @param template   String
-     * @param contextRef TreeReference
-     * @param variables  Hashtable<String, ?>
-     * @return String with the all args in the template filled with appropriate
-     * context values.
-     */
-    public String fillTemplateString(String template, TreeReference contextRef, Hashtable<String, ?> variables) {
-        // argument to value mapping
-        Hashtable<String, String> args = new Hashtable<>();
-
-        int depth = 0;
-        // grab all template arguments that need to have substitutions performed
-        Vector outstandingArgs = Localizer.getArgs(template);
-
-        String templateAfterSubstitution;
-
-        // Step through outstandingArgs from the template, looking up the value
-        // they map to, evaluating that under the evaluation context and
-        // storing in the local args mapping.
-        // Then perform substitutions over the template until a fixpoint is found
-        while (outstandingArgs.size() > 0) {
-            for (int i = 0; i < outstandingArgs.size(); i++) {
-                String argName = (String)outstandingArgs.elementAt(i);
-                // lookup value an arg points to if it isn't in our local mapping
-                if (!args.containsKey(argName)) {
-                    int ix = -1;
-                    try {
-                        ix = Integer.parseInt(argName);
-                    } catch (NumberFormatException nfe) {
-                        System.err.println("Warning: expect arguments to be numeric [" + argName + "]");
-                    }
-
-                    if (ix < 0 || ix >= outputFragments.size()) {
-                        continue;
-                    }
-
-                    IConditionExpr expr = outputFragments.elementAt(ix);
-                    EvaluationContext ec = new EvaluationContext(exprEvalContext, contextRef);
-                    ec.setOriginalContext(contextRef);
-                    ec.setVariables(variables);
-                    String value = expr.evalReadable(this.getMainInstance(), ec);
-                    args.put(argName, value);
-                }
-            }
-
-            templateAfterSubstitution = Localizer.processArguments(template, args);
-
-            // The last substitution made no progress, probably because the
-            // argument isn't in outputFragments, so stop looping and
-            // attempting more subs!
-            if (template.equals(templateAfterSubstitution)) {
-                return template;
-            }
-
-            template = templateAfterSubstitution;
-
-            // Since strings being substituted might themselves have arguments that
-            // need to be further substituted, we must recompute the unperformed
-            // substitutions and continue to loop.
-            outstandingArgs = Localizer.getArgs(template);
-
-            if (depth++ >= TEMPLATING_RECURSION_LIMIT) {
-                throw new RuntimeException("Dependency cycle in <output>s; recursion limit exceeded!!");
-            }
-        }
-
-        return template;
+        return FormDefUtils.fillTemplateString(this, template, contextRef, new Hashtable());
     }
 
     /**
@@ -1198,17 +991,15 @@ public class FormDef implements IFormElement, IMetaData,
      * data bindings.
      */
     public void preloadInstance(TreeElement node) {
-        // if (node.isLeaf()) {
         IAnswerData preload = null;
         if (node.getPreloadHandler() != null) {
             preload = preloader.getQuestionPreload(node.getPreloadHandler(),
                     node.getPreloadParams());
         }
-        if (preload != null) { // what if we want to wipe out a value in the
-            // instance?
+        if (preload != null) {
+            // what if we want to wipe out a value in the instance?
             node.setAnswer(preload);
         }
-        // } else {
         if (!node.isLeaf()) {
             for (int i = 0; i < node.getNumChildren(); i++) {
                 TreeElement child = node.getChildAt(i);
@@ -1217,7 +1008,6 @@ public class FormDef implements IFormElement, IMetaData,
                     preloadInstance(child);
             }
         }
-        // }
     }
 
     public boolean postProcessInstance() {
@@ -1289,11 +1079,8 @@ public class FormDef implements IFormElement, IMetaData,
         finalizeTriggerables();
 
         outputFragments = (Vector<IConditionExpr>)ExtUtil.read(dis, new ExtWrapListPoly(), pf);
-
         submissionProfiles = (Hashtable<String, SubmissionProfile>)ExtUtil.read(dis, new ExtWrapMap(String.class, SubmissionProfile.class), pf);
-
         formInstances = (Hashtable<String, DataInstance>)ExtUtil.read(dis, new ExtWrapMap(String.class, new ExtWrapTagged()), pf);
-
         extensions = (Vector)ExtUtil.read(dis, new ExtWrapListPoly(), pf);
 
         setEvaluationContext(new EvaluationContext(null));

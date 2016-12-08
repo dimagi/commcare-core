@@ -263,7 +263,7 @@ public class FormEntryCaption {
         Hashtable<String, Object> vars = new Hashtable<>();
         vars.put("name", title);
         vars.put("n", new Integer(count));
-        return form.fillTemplateString(caption, index.getReference(), vars);
+        return FormDefUtils.fillTemplateString(form, caption, index.getReference(), vars);
     }
 
     //this should probably be somewhere better
@@ -301,7 +301,7 @@ public class FormEntryCaption {
             vars.put("i", ix);
             vars.put("n", count);
             vars.put("new", newrep);
-            return form.fillTemplateString(caption, index.getReference(), vars);
+            return FormDefUtils.fillTemplateString(form, caption, index.getReference(), vars);
         } else {
             return null;
         }
