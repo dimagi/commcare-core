@@ -1,7 +1,5 @@
 package org.javarosa.core.reference;
 
-import org.javarosa.core.services.locale.Localizer;
-
 import java.util.Vector;
 
 /**
