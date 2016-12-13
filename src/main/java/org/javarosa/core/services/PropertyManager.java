@@ -25,11 +25,10 @@ public class PropertyManager implements IPropertyManager {
 
     ///// manage global property manager /////
 
-    private static ThreadLocal<IPropertyManager> instance = new ThreadLocal<IPropertyManager>(){
+    private static final ThreadLocal<IPropertyManager> instance = new ThreadLocal<IPropertyManager>(){
         @Override
         protected IPropertyManager initialValue()
         {
-            StorageManager.registerStorage(PropertyManager.STORAGE_KEY, Property.class);
             return new PropertyManager();
         }
     };
