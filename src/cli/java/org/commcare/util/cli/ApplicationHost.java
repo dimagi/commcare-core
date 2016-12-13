@@ -1,15 +1,18 @@
 package org.commcare.util.cli;
 
+import org.commcare.cases.util.CaseDBUtils;
+import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
+import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
-import org.commcare.util.engine.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.session.SessionFrame;
+import org.commcare.util.engine.CommCareConfigEngine;
 import org.commcare.util.mocks.CLISessionWrapper;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.screen.CommCareSessionException;
@@ -172,7 +175,7 @@ public class ApplicationHost {
                             if (input.contains(("--latest")) || input.contains("-f")) {
                                 mUpdateTarget = "build";
                                 System.out.println("Updating to most recent build");
-                            } else if(input.contains(("--preview")) || input.contains("-p")) {
+                            } else if (input.contains(("--preview")) || input.contains("-p")) {
                                 mUpdateTarget = "save";
                                 System.out.println("Updating to latest app preview");
                             } else {
@@ -208,6 +211,11 @@ public class ApplicationHost {
                             String newLocale = langArgs[1];
                             setLocale(newLocale);
 
+                            continue;
+                        }
+
+                        if (input.startsWith(":sync")) {
+                            syncAndReport();
                             continue;
                         }
                     }
@@ -403,9 +411,34 @@ public class ApplicationHost {
         System.out.println("Setting logged in user to: " + u.getUsername());
     }
 
-    public static void restoreUserToSandbox(UserSandbox sandbox, String username, final String password) {
+    public static void restoreUserToSandbox(UserSandbox sandbox, String username,
+                                            final String password) {
+        String urlStateParams = "";
+
+        boolean failed = true;
+
+        boolean incremental = false;
+
+        if (sandbox.getLoggedInUser() != null) {
+            String syncToken = sandbox.getSyncToken();
+            String caseStateHash = CaseDBUtils.computeCaseDbHash(sandbox.getCaseStorage());
+
+            urlStateParams = String.format("&since=%s&state=ccsh:%s", syncToken, caseStateHash);
+            incremental = true;
+
+            if (incremental) {
+                System.out.println(String.format(
+                        "\nIncremental sync requested. \nSync Token: %s\nState Hash: %s",
+                        syncToken, caseStateHash));
+            }
+        }
+
         //fetch the restore data and set credentials
-        String otaRestoreURL = PropertyManager.instance().getSingularProperty("ota-restore-url") + "?version=2.0";
+        String otaFreshRestoreUrl = PropertyManager.instance().getSingularProperty("ota-restore-url") +
+                "?version=2.0";
+
+        String otaSyncUrl = otaFreshRestoreUrl + urlStateParams;
+
         String domain = PropertyManager.instance().getSingularProperty("cc_user_domain");
         final String qualifiedUsername = username + "@" + domain;
 
@@ -418,29 +451,44 @@ public class ApplicationHost {
 
         //Go get our sandbox!
         try {
-            URL url = new URL(otaRestoreURL);
+            System.out.println("GET: " + otaSyncUrl);
+            URL url = new URL(otaSyncUrl);
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 
-            if (conn.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            if (conn.getResponseCode() == 412) {
+                System.out.println("Server Response 412 - The user sandbox is not consistent with " +
+                        "the server's data. \n\nThis is expected if you have changed cases locally, " +
+                        "since data is not sent to the server for updates");
+            } else if (conn.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
                 System.out.println("\nInvalid username or password!");
-                System.exit(-1);
+            } else if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
+
+                System.out.println("Restoring user " + username + " to domain " + domain);
+
+                ParseUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), sandbox);
+
+                System.out.println("User data processed, new state token: " + sandbox.getSyncToken());
+                failed = false;
+            } else {
+                System.out.println("Unclear/Unexpected server response code: " + conn.getResponseCode());
             }
-
-            System.out.println("Restoring user " + username + " to domain " + domain);
-
-            ParseUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), sandbox);
         } catch (InvalidStructureException | IOException e) {
             e.printStackTrace();
-            System.exit(-1);
         } catch (XmlPullParserException | UnfullfilledRequirementsException e) {
             e.printStackTrace();
         }
 
-        //Initialize our User
-        for (IStorageIterator<User> iterator = sandbox.getUserStorage().iterate(); iterator.hasMore(); ) {
-            User u = iterator.nextRecord();
-            if (username.equalsIgnoreCase(u.getUsername())) {
-                sandbox.setLoggedInUser(u);
+        if (failed) {
+            if (!incremental) {
+                System.exit(-1);
+            }
+        } else {
+            //Initialize our User
+            for (IStorageIterator<User> iterator = sandbox.getUserStorage().iterate(); iterator.hasMore(); ) {
+                User u = iterator.nextRecord();
+                if (username.equalsIgnoreCase(u.getUsername())) {
+                    sandbox.setLoggedInUser(u);
+                }
             }
         }
     }
@@ -475,4 +523,41 @@ public class ApplicationHost {
         System.out.println("---------------------");
         System.out.println(availableLocales);
     }
+
+    private void syncAndReport() {
+        performCasePurge();
+
+        if (mLocalUserCredentials != null) {
+            System.out.println("Requesting sync...");
+
+            restoreUserToSandbox(mSandbox, mLocalUserCredentials[0], mLocalUserCredentials[1]);
+        } else {
+            System.out.println("Syncing is only available when using raw user credentials");
+        }
+    }
+
+    private void performCasePurge() {
+        System.out.println("Performing Case Purge");
+        CasePurgeFilter purger = new CasePurgeFilter(mSandbox.getCaseStorage(),
+                SandboxUtils.extractEntityOwners(mSandbox));
+
+        int removedCases = mSandbox.getCaseStorage().removeAll(purger).size();
+
+        System.out.println("");
+        System.out.println("Purge Report");
+        System.out.println("=========================");
+        if (removedCases == 0) {
+            System.out.println("0 Cases Purged");
+        } else {
+            System.out.println("Cases Removed from device[" + removedCases + "]: " +
+                    purger.getRemovedCasesString());
+        }
+        if (!("".equals(purger.getRemovedCasesString()))) {
+            System.out.println("[Error/Warning] Cases Missing from Device: " + purger.getMissingCasesString());
+        }
+        if (purger.invalidEdgesWereRemoved()) {
+            System.out.println("[Error/Warning] During Purge Invalid Edges were Detected");
+        }
+    }
+
 }
