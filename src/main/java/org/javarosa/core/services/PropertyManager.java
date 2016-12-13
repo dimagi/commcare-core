@@ -1,5 +1,6 @@
 package org.javarosa.core.services;
 
+import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.properties.IPropertyRules;
 import org.javarosa.core.services.properties.Property;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -24,22 +25,17 @@ public class PropertyManager implements IPropertyManager {
 
     ///// manage global property manager /////
 
-    private static IPropertyManager instance; //a global instance of the property manager
-
-    public static void setPropertyManager(IPropertyManager pm) {
-        instance = pm;
-    }
-
-    public static void initDefaultPropertyManager() {
-        StorageManager.registerStorage(PropertyManager.STORAGE_KEY, Property.class);
-        setPropertyManager(new PropertyManager());
-    }
+    private static ThreadLocal<IPropertyManager> instance = new ThreadLocal<IPropertyManager>(){
+        @Override
+        protected IPropertyManager initialValue()
+        {
+            StorageManager.registerStorage(PropertyManager.STORAGE_KEY, Property.class);
+            return new PropertyManager();
+        }
+    };
 
     public static IPropertyManager instance() {
-        if (instance == null) {
-            initDefaultPropertyManager();
-        }
-        return instance;
+        return instance.get();
     }
 
     //////////////////////////////////////////
