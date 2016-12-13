@@ -18,6 +18,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -179,5 +180,10 @@ public class MenuScreen extends Screen {
         } catch (NoLocalizedTextException nlte) {
             return "CommCare";
         }
+    }
+
+    @Override
+    public String toString() {
+        return "MenuScreen " + mTitle + " with choices " + Arrays.toString(mChoices);
     }
 }
