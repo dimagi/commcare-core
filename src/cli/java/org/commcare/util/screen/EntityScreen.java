@@ -11,7 +11,6 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.AccumulatingReporter;
-import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
 
@@ -146,8 +145,12 @@ public class EntityScreen extends CompoundScreenHost {
         this.mCurrentSelection = selection;
     }
 
-    public void setHighlightedEntity(String id) {
+    public void setHighlightedEntity(String id) throws CommCareSessionException {
         this.mCurrentSelection = referenceMap.get(id);
+        if (this.mCurrentSelection == null) {
+            throw new CommCareSessionException("EntityScreen " + this.toString() + " could not select case " + id + "." +
+                    " If this error persists please report a bug to CommCareHQ.");
+        }
     }
 
     private void initDetailScreens() {
