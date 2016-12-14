@@ -458,7 +458,8 @@ public class ApplicationHost {
             if (conn.getResponseCode() == 412) {
                 System.out.println("Server Response 412 - The user sandbox is not consistent with " +
                         "the server's data. \n\nThis is expected if you have changed cases locally, " +
-                        "since data is not sent to the server for updates");
+                        "since data is not sent to the server for updates. \n\nServer response cannot be restored," +
+                        " you will need to restart the user's session.");
             } else if (conn.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
                 System.out.println("\nInvalid username or password!");
             } else if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
