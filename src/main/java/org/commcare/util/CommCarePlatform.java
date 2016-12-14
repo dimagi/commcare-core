@@ -61,7 +61,7 @@ public class CommCarePlatform {
         if(cachedProfile != null) {
             return cachedProfile;
         }
-        return (Profile)(StorageManager.getStorage(Profile.STORAGE_KEY).read(profile));
+        return (Profile)(storage(Profile.STORAGE_KEY, Profile.class).read(profile));
     }
 
     public Vector<Suite> getInstalledSuites() {
