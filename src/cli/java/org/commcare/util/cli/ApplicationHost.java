@@ -411,7 +411,7 @@ public class ApplicationHost {
         System.out.println("Setting logged in user to: " + u.getUsername());
     }
 
-    public static void restoreUserToSandbox(UserSandbox sandbox, String username,
+    public void restoreUserToSandbox(UserSandbox sandbox, String username,
                                             final String password) {
         String urlStateParams = "";
 
@@ -491,6 +491,11 @@ public class ApplicationHost {
                     sandbox.setLoggedInUser(u);
                 }
             }
+        }
+
+        if(mSession != null) {
+            //old session data is now no longer valid
+            mSession.clearVolitiles();
         }
     }
 
