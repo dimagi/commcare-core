@@ -32,11 +32,11 @@ public class XPathException extends RuntimeException {
     @Override
     public String getMessage() {
         if (prefix != null) {
-            return MessageFormat.format("{0}\n{1)", prefix, super.getMessage());
+            return MessageFormat.format("{0}\n{1}", prefix, super.getMessage());
         }
         if (sourceRef != null) {
             return MessageFormat.format(
-                "The problem was located in {0}:\n{1)", sourceRef, super.getMessage()
+                "The problem was located in {0}:\n{1}", sourceRef, super.getMessage()
             );
         } else {
             return super.getMessage();
