@@ -160,14 +160,11 @@ public class FormIndex {
      * @return The multiplicity of the "most specific" repeated instance of a question or group.
      */
     public int getLastRepeatInstanceIndex() {
-        if(this.getNextLevel() == null) {
-            return getInstanceIndex();
-        }
-        int childIndex = this.getNextLevel().getInstanceIndex();
-        if(childIndex == -1) {
+        int lastRepeatIndex = getDeepestLevel().getInstanceIndex();
+        if (lastRepeatIndex == -1) {
             return getInstanceIndex();
         } else {
-            return childIndex;
+            return lastRepeatIndex;
         }
     }
 
@@ -187,6 +184,16 @@ public class FormIndex {
      */
     public FormIndex getNextLevel() {
         return nextLevel;
+    }
+
+    /**
+     * @return An index into the deepest level of specificity referenced by this index.
+     */
+    public FormIndex getDeepestLevel() {
+        if (nextLevel == null) {
+            return this;
+        }
+        return nextLevel.getDeepestLevel();
     }
 
     public TreeReference getLocalReference() {
