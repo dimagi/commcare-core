@@ -278,30 +278,27 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
             final boolean[] done = new boolean[]{false};
 
-            //If we're not in report node, fill in all of this data
-            if (!parent.reportMode) {
-                TreeElement scratch = new TreeElement("case_name");
-                String name = c.getName();
-                //This shouldn't be possible
-                scratch.setAnswer(new StringData(name == null ? "" : name));
-                cacheBuilder.addChild(scratch);
+            TreeElement scratch = new TreeElement("case_name");
+            String name = c.getName();
+            //This shouldn't be possible
+            scratch.setAnswer(new StringData(name == null ? "" : name));
+            cacheBuilder.addChild(scratch);
 
-                scratch = new TreeElement("date_opened");
-                scratch.setAnswer(new DateData(c.getDateOpened()));
-                cacheBuilder.addChild(scratch);
+            scratch = new TreeElement("date_opened");
+            scratch.setAnswer(new DateData(c.getDateOpened()));
+            cacheBuilder.addChild(scratch);
 
-                scratch = new TreeElement(LAST_MODIFIED_KEY);
-                scratch.setAnswer(new DateData(c.getLastModified()));
-                cacheBuilder.addChild(scratch);
+            scratch = new TreeElement(LAST_MODIFIED_KEY);
+            scratch.setAnswer(new DateData(c.getLastModified()));
+            cacheBuilder.addChild(scratch);
 
-                setCaseProperties(c, cacheBuilder);
+            setCaseProperties(c, cacheBuilder);
 
-                TreeElement index = buildIndexTreeElement(c, done);
-                cacheBuilder.addChild(index);
+            TreeElement index = buildIndexTreeElement(c, done);
+            cacheBuilder.addChild(index);
 
-                TreeElement attachments = buildAttachmentTreeElement(c, done);
-                cacheBuilder.addChild(attachments);
-            }
+            TreeElement attachments = buildAttachmentTreeElement(c, done);
+            cacheBuilder.addChild(attachments);
 
             cacheBuilder.setParent(this.parent);
             done[0] = true;

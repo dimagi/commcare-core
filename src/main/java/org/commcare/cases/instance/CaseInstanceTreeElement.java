@@ -45,18 +45,10 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     private int numRecords = -1;
     private TreeReference cachedRef = null;
 
-    /**
-     * In report mode, casedb is not the root of a document, and we only build the top
-     * level case node (not the whole thing)
-     */
-    final boolean reportMode;
-
     public CaseInstanceTreeElement(AbstractTreeElement instanceRoot,
-                                   IStorageUtilityIndexed storage,
-                                   boolean reportMode) {
+                                   IStorageUtilityIndexed storage) {
         this.instanceRoot = instanceRoot;
         this.storage = storage;
-        this.reportMode = reportMode;
     }
 
     /**

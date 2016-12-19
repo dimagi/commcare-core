@@ -97,7 +97,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
     protected AbstractTreeElement setupCaseData(ExternalDataInstance instance) {
         if (casebase == null) {
-            casebase = new CaseInstanceTreeElement(instance.getBase(), mSandbox.getCaseStorage(), false);
+            casebase = new CaseInstanceTreeElement(instance.getBase(), mSandbox.getCaseStorage());
         } else {
             //re-use the existing model if it exists.
             casebase.rebase(instance.getBase());
