@@ -22,6 +22,6 @@ public class XPathTypeMismatchException extends XPathException {
     }
 
     public XPathTypeMismatchException(String s) {
-        super("type mismatch \n" + s);
+        super(s);
     }
 }
