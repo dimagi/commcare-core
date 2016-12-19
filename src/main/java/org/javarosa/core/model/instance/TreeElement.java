@@ -165,7 +165,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         } else {
             for (TreeElement child : children) {
                 if (child.getMult() == multiplicity &&
-                        (name.hashCode() == child.getName().hashCode() || name.equals(child.getName()))) {
+                        (name.hashCode() == child.getName().hashCode() && name.equals(child.getName()))) {
                     return child;
                 }
             }
