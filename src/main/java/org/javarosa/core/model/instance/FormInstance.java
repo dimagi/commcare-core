@@ -30,13 +30,13 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
     /**
      * The date that this model was taken and recorded
      */
-    Date dateSaved;
+    private Date dateSaved;
 
     public String schema;
     public String formVersion;
     public String uiVersion;
 
-    Hashtable namespaces = new Hashtable();
+    private Hashtable<String, String> namespaces = new Hashtable<>();
 
     /**
      * The root of this tree
@@ -137,10 +137,6 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         return dest;
     }
 
-    public Date getDateSaved() {
-        return this.dateSaved;
-    }
-
     public void addNamespace(String prefix, String URI) {
         namespaces.put(prefix, URI);
     }
@@ -156,7 +152,7 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
     }
 
     public String getNamespaceURI(String prefix) {
-        return (String)namespaces.get(prefix);
+        return namespaces.get(prefix);
     }
 
     @Override
@@ -166,15 +162,11 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         cloned.setID(this.getID());
         cloned.setFormId(this.getFormId());
         cloned.setName(this.getName());
-        cloned.setDateSaved(this.getDateSaved());
+        cloned.dateSaved = this.dateSaved;
         cloned.schema = this.schema;
         cloned.formVersion = this.formVersion;
         cloned.uiVersion = this.uiVersion;
-        cloned.namespaces = new Hashtable();
-        for (Enumeration e = this.namespaces.keys(); e.hasMoreElements(); ) {
-            Object key = e.nextElement();
-            cloned.namespaces.put(key, this.namespaces.get(key));
-        }
+        cloned.namespaces = new Hashtable<>(namespaces);
 
         return cloned;
     }
@@ -185,7 +177,7 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         schema = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         dateSaved = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
 
-        namespaces = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
+        namespaces = (Hashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
         setRoot((TreeElement)ExtUtil.read(in, TreeElement.class, pf));
     }
 
@@ -197,10 +189,6 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         ExtUtil.write(out, new ExtWrapMap(namespaces));
 
         ExtUtil.write(out, getRoot());
-    }
-
-    public void setDateSaved(Date dateSaved) {
-        this.dateSaved = dateSaved;
     }
 
     public void copyItemsetNode(TreeElement copyNode, TreeReference destRef, FormDef f)

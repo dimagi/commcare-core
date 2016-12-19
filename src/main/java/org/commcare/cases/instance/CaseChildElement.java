@@ -22,7 +22,7 @@ import java.util.Vector;
  */
 public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
-    private CaseInstanceTreeElement parent;
+    private final CaseInstanceTreeElement parent;
     private int recordId;
     private String caseId;
     private int mult;
