@@ -377,7 +377,7 @@ public class ApplicationHost {
 
         mSandbox = sandbox;
         if (mLocalUserCredentials != null) {
-            restoreUserToSandbox(mSandbox, mLocalUserCredentials[0], mLocalUserCredentials[1]);
+            restoreUserToSandbox(mSandbox, mSession, mLocalUserCredentials[0], mLocalUserCredentials[1]);
         } else if (mRestoreFile != null) {
             restoreFileToSandbox(mSandbox, mRestoreFile);
         } else {
@@ -411,8 +411,8 @@ public class ApplicationHost {
         System.out.println("Setting logged in user to: " + u.getUsername());
     }
 
-    public void restoreUserToSandbox(UserSandbox sandbox, String username,
-                                            final String password) {
+    public static void restoreUserToSandbox(UserSandbox sandbox, CLISessionWrapper session,
+                                            String username, final String password) {
         String urlStateParams = "";
 
         boolean failed = true;
@@ -493,9 +493,9 @@ public class ApplicationHost {
             }
         }
 
-        if(mSession != null) {
-            //old session data is now no longer valid
-            mSession.clearVolitiles();
+        if (session != null) {
+            // old session data is now no longer valid
+            session.clearVolitiles();
         }
     }
 
@@ -531,23 +531,23 @@ public class ApplicationHost {
     }
 
     private void syncAndReport() {
-        performCasePurge();
+        performCasePurge(mSandbox);
 
         if (mLocalUserCredentials != null) {
             System.out.println("Requesting sync...");
 
-            restoreUserToSandbox(mSandbox, mLocalUserCredentials[0], mLocalUserCredentials[1]);
+            restoreUserToSandbox(mSandbox, mSession, mLocalUserCredentials[0], mLocalUserCredentials[1]);
         } else {
             System.out.println("Syncing is only available when using raw user credentials");
         }
     }
 
-    private void performCasePurge() {
+    public static void performCasePurge(UserSandbox sandbox) {
         System.out.println("Performing Case Purge");
-        CasePurgeFilter purger = new CasePurgeFilter(mSandbox.getCaseStorage(),
-                SandboxUtils.extractEntityOwners(mSandbox));
+        CasePurgeFilter purger = new CasePurgeFilter(sandbox.getCaseStorage(),
+                SandboxUtils.extractEntityOwners(sandbox));
 
-        int removedCases = mSandbox.getCaseStorage().removeAll(purger).size();
+        int removedCases = sandbox.getCaseStorage().removeAll(purger).size();
 
         System.out.println("");
         System.out.println("Purge Report");
