@@ -318,7 +318,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
                 continue;
             }
 
-            TreeElement scratch = new TreeElement(parent.intern(key));
+            TreeElement scratch = new TreeElement(key);
             Object temp = c.getProperty(key);
             if (temp instanceof String) {
                 scratch.setValue(new UncastData((String)temp));
@@ -333,7 +333,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         TreeElement index = new TreeElement("index") {
             @Override
             public TreeElement getChild(String name, int multiplicity) {
-                TreeElement child = super.getChild(CaseChildElement.this.parent.intern(name), multiplicity);
+                TreeElement child = super.getChild(name, multiplicity);
 
                 //TODO: Skeeeetchy, this is not a good way to do this,
                 //should extract pattern instead.
@@ -346,7 +346,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
                 //blank template index for repeats and such to not crash
                 if (multiplicity >= 0 && child == null) {
-                    TreeElement emptyNode = new TreeElement(CaseChildElement.this.parent.intern(name));
+                    TreeElement emptyNode = new TreeElement(name);
                     emptyNode.setAttribute(null, "case_type", "");
                     emptyNode.setAttribute(null, "relationship", "");
                     this.addChild(emptyNode);
@@ -358,7 +358,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
             @Override
             public Vector<TreeElement> getChildrenWithName(String name) {
-                Vector<TreeElement> children = super.getChildrenWithName(CaseChildElement.this.parent.intern(name));
+                Vector<TreeElement> children = super.getChildrenWithName(name);
 
                 //If we haven't finished caching yet, we can safely not return
                 //something useful here, so we can construct as normal.
@@ -382,8 +382,8 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         Vector<CaseIndex> indices = c.getIndices();
         for (CaseIndex i : indices) {
             TreeElement scratch = new TreeElement(i.getName());
-            scratch.setAttribute(null, "case_type", this.parent.intern(i.getTargetType()));
-            scratch.setAttribute(null, "relationship", this.parent.intern(i.getRelationship()));
+            scratch.setAttribute(null, "case_type", i.getTargetType());
+            scratch.setAttribute(null, "relationship", i.getRelationship());
             scratch.setValue(new UncastData(i.getTarget()));
             index.addChild(scratch);
         }
@@ -394,7 +394,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         TreeElement attachments = new TreeElement("attachment") {
             @Override
             public TreeElement getChild(String name, int multiplicity) {
-                TreeElement child = super.getChild(CaseChildElement.this.parent.intern(name), multiplicity);
+                TreeElement child = super.getChild(name, multiplicity);
 
                 //TODO: Skeeeetchy, this is not a good way to do this,
                 //should extract pattern instead.
@@ -405,7 +405,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
                     return child;
                 }
                 if (multiplicity >= 0 && child == null) {
-                    TreeElement emptyNode = new TreeElement(CaseChildElement.this.parent.intern(name));
+                    TreeElement emptyNode = new TreeElement(name);
                     this.addChild(emptyNode);
                     emptyNode.setParent(this);
                     return emptyNode;
