@@ -17,8 +17,7 @@ import java.util.Vector;
  */
 public class CaseChildElement extends StorageBackedChildElement<Case> {
 
-    private int recordId;
-    private String caseId;
+    private static final String NAME_ID = "case_id";
 
     private TreeElement empty;
 
@@ -26,14 +25,7 @@ public class CaseChildElement extends StorageBackedChildElement<Case> {
 
     public CaseChildElement(StorageInstanceTreeElement<Case, ?> parent,
                             int recordId, String caseId, int mult) {
-        super(parent, mult);
-
-        if (recordId == -1 && caseId == null) {
-            throw new RuntimeException("Cannot create a lazy case element with no lookup identifiers!");
-        }
-        this.recordId = recordId;
-        this.caseId = caseId;
-        this.mult = mult;
+        super(parent, mult, recordId, caseId, NAME_ID);
     }
 
     /**
@@ -41,15 +33,12 @@ public class CaseChildElement extends StorageBackedChildElement<Case> {
      * but never look up values)
      */
     private CaseChildElement(CaseInstanceTreeElement parent) {
-        super(parent, TreeReference.INDEX_TEMPLATE);
-        //Template
-        this.recordId = TreeReference.INDEX_TEMPLATE;
-        this.caseId = null;
+        super(parent, TreeReference.INDEX_TEMPLATE, TreeReference.INDEX_TEMPLATE, null, NAME_ID);
 
         empty = new TreeElement("case");
         empty.setMult(this.mult);
 
-        empty.setAttribute(null, "case_id", "");
+        empty.setAttribute(null, nameId, "");
         empty.setAttribute(null, "case_type", "");
         empty.setAttribute(null, "status", "");
 
@@ -67,43 +56,23 @@ public class CaseChildElement extends StorageBackedChildElement<Case> {
     }
 
     @Override
-    public TreeElement getAttribute(String namespace, String name) {
-        if (name.equals("case_id")) {
-            if (recordId != TreeReference.INDEX_TEMPLATE) {
-                //if we're already cached, don't bother with this nonsense
-                synchronized (parent.treeCache) {
-                    TreeElement element = parent.treeCache.retrieve(recordId);
-                    if (element != null) {
-                        return cache().getAttribute(namespace, name);
-                    }
-                }
-            }
-
-            //TODO: CACHE GET ID THING
-            if (caseId == null) {
-                return cache().getAttribute(namespace, name);
-            }
-
-            //otherwise, don't cache this just yet if we have the ID handy
-            TreeElement caseid = TreeElement.constructAttributeElement(null, name);
-            caseid.setValue(new StringData(caseId));
-            caseid.setParent(this);
-            return caseid;
-        }
-        return cache().getAttribute(namespace, name);
-    }
-
-    @Override
-    public String getAttributeValue(String namespace, String name) {
-        if (name.equals("case_id")) {
-            return caseId;
-        }
-        return cache().getAttributeValue(namespace, name);
-    }
-
-    @Override
     public String getName() {
         return "case";
+    }
+
+    @Override
+    public Vector<TreeElement> getChildrenWithName(String name) {
+        //In order
+        TreeElement cached = cache();
+        Vector<TreeElement> children = cached.getChildrenWithName(name);
+
+        if (children.size() == 0) {
+            TreeElement emptyNode = new TreeElement(name);
+            cached.addChild(emptyNode);
+            emptyNode.setParent(cached);
+            children.addElement(emptyNode);
+        }
+        return children;
     }
 
     //TODO: THIS IS NOT THREAD SAFE
@@ -119,16 +88,16 @@ public class CaseChildElement extends StorageBackedChildElement<Case> {
             }
             //For now this seems impossible
             if (recordId == -1) {
-                Vector<Integer> ids = parent.storage.getIDsForValue("case_id", caseId);
+                Vector<Integer> ids = parent.storage.getIDsForValue(nameId, entityId);
                 recordId = ids.elementAt(0);
             }
 
             Case c = parent.getElement(recordId);
-            caseId = c.getCaseId();
+            entityId = c.getCaseId();
             TreeElement cacheBuilder = new TreeElement("case");
             cacheBuilder.setMult(this.mult);
 
-            cacheBuilder.setAttribute(null, "case_id", c.getCaseId());
+            cacheBuilder.setAttribute(null, nameId, c.getCaseId());
             cacheBuilder.setAttribute(null, "case_type", c.getTypeId());
             cacheBuilder.setAttribute(null, "status", c.isClosed() ? "closed" : "open");
 

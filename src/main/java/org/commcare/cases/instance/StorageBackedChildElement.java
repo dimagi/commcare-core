@@ -2,6 +2,7 @@ package org.commcare.cases.instance;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -21,11 +22,22 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
     private TreeReference ref;
     private int numChildren = -1;
     protected int mult;
+    protected int recordId;
+    protected String entityId;
+    protected final String nameId;
 
     protected StorageBackedChildElement(StorageInstanceTreeElement<Model, ?> parent,
-                                        int mult) {
+                                        int mult, int recordId, String entityId,
+                                        String nameId) {
+        if (recordId == -1 && entityId == null) {
+            throw new RuntimeException("Cannot create a lazy case element with no lookup identifiers!");
+        }
+
         this.parent = parent;
         this.mult = mult;
+        this.recordId = recordId;
+        this.entityId = entityId;
+        this.nameId = nameId;
     }
 
     @Override
@@ -59,16 +71,7 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
 
     @Override
     public Vector<TreeElement> getChildrenWithName(String name) {
-        //In order
-        TreeElement cached = cache();
-        Vector<TreeElement> children = cached.getChildrenWithName(name);
-        if (children.size() == 0) {
-            TreeElement emptyNode = new TreeElement(name);
-            cached.addChild(emptyNode);
-            emptyNode.setParent(cached);
-            children.addElement(emptyNode);
-        }
-        return children;
+        return cache().getChildrenWithName(name);
     }
 
     @Override
@@ -176,6 +179,41 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
             ref = TreeReference.buildRefFromTreeElement(this);
         }
         return ref;
+    }
+
+    @Override
+    public TreeElement getAttribute(String namespace, String name) {
+        if (name.equals(nameId)) {
+            if (recordId != TreeReference.INDEX_TEMPLATE) {
+                //if we're already cached, don't bother with this nonsense
+                synchronized (parent.treeCache) {
+                    TreeElement element = parent.treeCache.retrieve(recordId);
+                    if (element != null) {
+                        return cache().getAttribute(namespace, name);
+                    }
+                }
+            }
+
+            //TODO: CACHE GET ID THING
+            if (entityId == null) {
+                return cache().getAttribute(namespace, name);
+            }
+
+            //otherwise, don't cache this just yet if we have the ID handy
+            TreeElement entity = TreeElement.constructAttributeElement(null, name);
+            entity.setValue(new StringData(entityId));
+            entity.setParent(this);
+            return entity;
+        }
+        return cache().getAttribute(namespace, name);
+    }
+
+    @Override
+    public String getAttributeValue(String namespace, String name) {
+        if (name.equals(nameId)) {
+            return entityId;
+        }
+        return cache().getAttributeValue(namespace, name);
     }
 
     protected abstract TreeElement cache();

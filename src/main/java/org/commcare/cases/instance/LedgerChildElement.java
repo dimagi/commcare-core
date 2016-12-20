@@ -3,7 +3,6 @@ package org.commcare.cases.instance;
 import org.commcare.cases.ledger.Ledger;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IntegerData;
-import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.utils.TreeUtilities;
@@ -27,34 +26,24 @@ public class LedgerChildElement extends StorageBackedChildElement<Ledger> {
 
     private Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> childAttributeHintMap = null;
 
-    private int recordId;
-    private String entityId;
     private TreeElement empty;
 
     public LedgerChildElement(StorageInstanceTreeElement<Ledger, ?> parent,
                               int recordId, String entityId, int mult) {
-        super(parent, mult);
-        if (recordId == -1 && entityId == null) {
-            throw new RuntimeException("Cannot create a lazy case element with no lookup identifiers!");
-        }
-        this.recordId = recordId;
-        this.entityId = entityId;
+        super(parent, mult, recordId, entityId, NAME_ID);
+
     }
 
     /*
      * Template constructor (For elements that need to create reference nodesets but never look up values)
      */
     private LedgerChildElement(StorageInstanceTreeElement<Ledger, ?> parent) {
-        super(parent, TreeReference.INDEX_TEMPLATE);
-        //Template
-        this.recordId = TreeReference.INDEX_TEMPLATE;
-        this.entityId = null;
+        super(parent, TreeReference.INDEX_TEMPLATE, TreeReference.INDEX_TEMPLATE, null, NAME_ID);
 
-        empty = new TreeElement();
         empty = new TreeElement(NAME);
         empty.setMult(this.mult);
 
-        empty.setAttribute(null, NAME_ID, "");
+        empty.setAttribute(null, nameId, "");
 
         TreeElement blankLedger = new TreeElement(SUBNAME);
         blankLedger.setAttribute(null, SUBNAME_ID, "");
@@ -65,46 +54,6 @@ public class LedgerChildElement extends StorageBackedChildElement<Ledger> {
 
         blankLedger.addChild(scratch);
         empty.addChild(blankLedger);
-    }
-
-    @Override
-    public Vector<TreeElement> getChildrenWithName(String name) {
-        return cache().getChildrenWithName(name);
-    }
-
-    @Override
-    public TreeElement getAttribute(String namespace, String name) {
-        if (name.equals(NAME_ID)) {
-            if (recordId != TreeReference.INDEX_TEMPLATE) {
-                //if we're already cached, don't bother with this nonsense
-                synchronized (parent.treeCache) {
-                    TreeElement element = parent.treeCache.retrieve(recordId);
-                    if (element != null) {
-                        return cache().getAttribute(namespace, name);
-                    }
-                }
-            }
-
-            //TODO: CACHE GET ID THING
-            if (entityId == null) {
-                return cache().getAttribute(namespace, name);
-            }
-
-            //otherwise, don't cache this just yet if we have the ID handy
-            TreeElement caseid = TreeElement.constructAttributeElement(null, name);
-            caseid.setValue(new StringData(entityId));
-            caseid.setParent(this);
-            return caseid;
-        }
-        return cache().getAttribute(namespace, name);
-    }
-
-    @Override
-    public String getAttributeValue(String namespace, String name) {
-        if (name.equals(NAME_ID)) {
-            return entityId;
-        }
-        return cache().getAttributeValue(namespace, name);
     }
 
     @Override
@@ -129,7 +78,7 @@ public class LedgerChildElement extends StorageBackedChildElement<Ledger> {
             entityId = ledger.getEntiyId();
             cacheBuilder.setMult(this.mult);
 
-            cacheBuilder.setAttribute(null, NAME_ID, ledger.getEntiyId());
+            cacheBuilder.setAttribute(null, nameId, ledger.getEntiyId());
 
             TreeElement ledgerElement;
 
