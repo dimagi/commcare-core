@@ -66,7 +66,6 @@ public class FormIndex {
     public FormIndex(int localIndex, TreeReference reference) {
         this.localIndex = localIndex;
         this.reference = reference;
-
     }
 
     /**
@@ -158,9 +157,9 @@ public class FormIndex {
      * If no level of the current index has a multiplicity, this method will return -1
      *
      * Examples:
-     * - If this index is to 1, 1_2, 2, 1_3 this method will return 3
-     * - If this index is to 1, 1_2, 3 this method will return 2
-     * - If this index is to 1, 0, 2 this method will return -1
+     * - If this index is to 0, 1_1, 0, 1_1, 1_2 this method will return 2
+     * - If this index is to 0, 1_1, 1_2, 1_3, 0 this method will return 3
+     * - If this index is to 0, 1, 2 this method will return -1
      */
     public int getLastRepeatInstanceIndex() {
         FormIndex deepestIndexWithMultiplicity = getDeepestLevelWithInstanceIndex();
@@ -203,6 +202,10 @@ public class FormIndex {
      */
     public FormIndex getNextLevel() {
         return nextLevel;
+    }
+
+    public void setNextLevel(FormIndex nextLevel) {
+        this.nextLevel = nextLevel;
     }
 
     public TreeReference getLocalReference() {
