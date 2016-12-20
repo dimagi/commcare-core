@@ -82,7 +82,7 @@ public class SandboxUtils {
      * @return The form instance matching the refId in the sandbox
      */
     public static FormInstance loadFixture(UserSandbox sandbox,
-                                            String refId, String userId) {
+                                           String refId, String userId) {
         IStorageUtilityIndexed<FormInstance> userFixtureStorage =
                 sandbox.getUserFixtureStorage();
         IStorageUtilityIndexed<FormInstance> appFixtureStorage =

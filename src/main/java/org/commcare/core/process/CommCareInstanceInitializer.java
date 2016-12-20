@@ -120,12 +120,12 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         return fixtureRoot;
     }
 
-    protected TreeElement loadFixtureRoot(ExternalDataInstance instance, String reference, String userId) {
+    protected TreeElement loadFixtureRoot(ExternalDataInstance instance,
+                                          String reference, String userId) {
         String refId = reference.substring(reference.lastIndexOf('/') + 1, reference.length());
         String instanceBase = instance.getBase().getInstanceName();
 
         try {
-
             String key = refId + userId + instanceBase;
 
             TreeElement root = fixtureBases.retrieve(key);
@@ -137,7 +137,6 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                 }
 
                 root = fixture.getRoot();
-
                 fixtureBases.register(key, root);
             }
 

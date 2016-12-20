@@ -30,7 +30,7 @@ public class LedgerInstanceTreeElement
     }
 
     @Override
-    protected LedgerChildElement getChildTemplate(StorageInstanceTreeElement parent) {
+    protected LedgerChildElement getChildTemplate() {
         return LedgerChildElement.TemplateElement(this);
     }
 
