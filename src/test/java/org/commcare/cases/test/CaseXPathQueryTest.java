@@ -75,7 +75,7 @@ public class CaseXPathQueryTest {
                         CaseTestUtils.CASE_INSTANCE);
 
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
-                "count(instance('casedb')/casedb/case[case_name = 'case'])", 2.0));
+                "count(instance('casedb')/casedb/case[@case_id = 'case_one'])", 1.0));
     }
 
     @Test
@@ -87,6 +87,6 @@ public class CaseXPathQueryTest {
                         CaseTestUtils.CASE_INSTANCE);
 
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
-                "count(instance('casedb')/casedb/case[case_name != 'case'])", 1.0));
+                "count(instance('casedb')/casedb/case[@case_id != 'case_one'])", 2.0));
     }
 }

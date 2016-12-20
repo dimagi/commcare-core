@@ -90,9 +90,9 @@ public class XPathPathExprTest {
         FormInstance casedb = (FormInstance)fd.getNonMainInstance("casedb");
         EvaluationContext ec = fd.getEvaluationContext();
 
-        ExprEvalUtils.testEval("count(instance('casedb')/casedb/case[case_name = 'case'])",
-                casedb, ec, 2.0);
-        ExprEvalUtils.testEval("count(instance('casedb')/casedb/case[case_name != 'case'])",
+        ExprEvalUtils.testEval("count(instance('casedb')/casedb/case[@case_id = 'case_one'])",
                 casedb, ec, 1.0);
+        ExprEvalUtils.testEval("count(instance('casedb')/casedb/case[@case_id != 'case_one'])",
+                casedb, ec, 2.0);
     }
 }
