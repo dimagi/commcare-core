@@ -52,7 +52,6 @@ public class XPathPathExprTest {
     public void testNestedPreds() {
         FormParseInit fpi = new FormParseInit("/test_nested_preds_with_rel_refs.xml");
         FormDef fd = fpi.getFormDef();
-        FormInstance fi = fd.getInstance();
         FormInstance groupsInstance = (FormInstance)fd.getNonMainInstance("groups");
         EvaluationContext ec = fd.getEvaluationContext();
 
@@ -82,5 +81,18 @@ public class XPathPathExprTest {
 
         ExprEvalUtils.testEval("if(count(instance('groups')/root/groups/group/group_data/data) > 0 and count(instance('groups')/root/groups/group[count(group_data/data[@key = 'all_field_staff' and . ='yes']) > 0]) = 1, instance('groups')/root/groups/group[count(group_data/data[@key = 'all_field_staff' and . ='yes']) > 0]/@id, '')",
                 groupsInstance, ec, "inc");
+    }
+
+    @Test
+    public void testCaseDbQueriesFromForm() {
+        FormParseInit fpi = new FormParseInit("/test_casedb_query_from_form.xml");
+        FormDef fd = fpi.getFormDef();
+        FormInstance casedb = (FormInstance)fd.getNonMainInstance("casedb");
+        EvaluationContext ec = fd.getEvaluationContext();
+
+        ExprEvalUtils.testEval("count(instance('casedb')/casedb/case[case_name = 'case'])",
+                casedb, ec, 2.0);
+        ExprEvalUtils.testEval("count(instance('casedb')/casedb/case[case_name != 'case'])",
+                casedb, ec, 1.0);
     }
 }
