@@ -85,34 +85,41 @@ public class SandboxUtils {
                                            String refId, String userId) {
         IStorageUtilityIndexed<FormInstance> userFixtureStorage =
                 sandbox.getUserFixtureStorage();
-        IStorageUtilityIndexed<FormInstance> appFixtureStorage =
-                sandbox.getAppFixtureStorage();
 
         Vector<Integer> userFixtures =
                 userFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);
-        // ... Nooooot so clean.
         if (userFixtures.size() == 1) {
-            // easy case, one fixture, use it
             return userFixtureStorage.read(userFixtures.elementAt(0));
             // TODO: Userid check anyway?
         } else if (userFixtures.size() > 1) {
-            // intersect userid and fixtureid set.
-            // TODO: Replace context call here with something from the session,
-            // need to stop relying on that coupling
-            Vector<Integer> relevantUserFixtures =
-                    userFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, userId);
-
-            if (relevantUserFixtures.size() != 0) {
-                Integer userFixture =
-                        ArrayUtilities.intersectSingle(userFixtures, relevantUserFixtures);
-                if (userFixture != null) {
-                    return userFixtureStorage.read(userFixture);
-                }
+            FormInstance result = intersectFixtureSets(userFixtureStorage, userId, userFixtures);
+            if (result != null) {
+                return result;
             }
         }
 
-        // ok, so if we've gotten here there were no fixtures for the user,
-        // let's try the app fixtures.
+        return loadAppFixture(sandbox, refId, userId);
+    }
+
+    private static FormInstance intersectFixtureSets(IStorageUtilityIndexed<FormInstance> userFixtureStorage,
+                                                     String userId,
+                                                     Vector<Integer> userFixtures) {
+        Vector<Integer> relevantUserFixtures =
+                userFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, userId);
+
+        if (!relevantUserFixtures.isEmpty()) {
+            Integer userFixture =
+                    ArrayUtilities.intersectSingle(userFixtures, relevantUserFixtures);
+            if (userFixture != null) {
+                return userFixtureStorage.read(userFixture);
+            }
+        }
+        return null;
+    }
+
+    private static FormInstance loadAppFixture(UserSandbox sandbox, String refId, String userId) {
+        IStorageUtilityIndexed<FormInstance> appFixtureStorage =
+                sandbox.getAppFixtureStorage();
         Vector<Integer> appFixtures = appFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);
         Integer globalFixture =
                 ArrayUtilities.intersectSingle(appFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, ""), appFixtures);
