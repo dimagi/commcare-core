@@ -6,9 +6,13 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
+import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.Interner;
+import org.javarosa.core.util.externalizable.Externalizable;
 
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -16,7 +20,7 @@ import java.util.Vector;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public abstract class StorageInstanceTreeElement<T extends AbstractTreeElement>
+public abstract class StorageInstanceTreeElement<Model extends Externalizable, T extends AbstractTreeElement>
         extends StorageBackedTreeRoot<T> {
 
     private String modelName;
@@ -24,7 +28,7 @@ public abstract class StorageInstanceTreeElement<T extends AbstractTreeElement>
 
     private AbstractTreeElement instanceRoot;
 
-    protected final IStorageUtilityIndexed storage;
+    protected final IStorageUtilityIndexed<Model> storage;
     protected Vector<T> elements;
     protected final Interner<TreeElement> treeCache = new Interner<>();
 
@@ -32,7 +36,7 @@ public abstract class StorageInstanceTreeElement<T extends AbstractTreeElement>
     private TreeReference cachedRef = null;
 
     public StorageInstanceTreeElement(AbstractTreeElement instanceRoot,
-                                      IStorageUtilityIndexed storage,
+                                      IStorageUtilityIndexed<Model> storage,
                                       String modelName, String childName) {
         this.instanceRoot = instanceRoot;
         this.storage = storage;
@@ -85,6 +89,21 @@ public abstract class StorageInstanceTreeElement<T extends AbstractTreeElement>
             return elements.elementAt(multiplicity);
         }
         return null;
+    }
+
+    protected synchronized void loadElements() {
+        if (elements != null) {
+            return;
+        }
+        objectIdMapping = new Hashtable<>();
+        elements = new Vector<>();
+        int mult = 0;
+        for (IStorageIterator i = storage.iterate(); i.hasMore(); ) {
+            int id = i.nextID();
+            elements.add(buildElement(this, id, null, mult));
+            objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
+            mult++;
+        }
     }
 
     @Override
@@ -233,7 +252,12 @@ public abstract class StorageInstanceTreeElement<T extends AbstractTreeElement>
         loadElements();
     }
 
-    protected abstract void loadElements();
+    protected abstract T buildElement(StorageInstanceTreeElement<Model, T> storageInstance,
+                                      int recordId, String id, int mult);
+
+    protected Model getElement(int recordId) {
+        return storage.read(recordId);
+    }
 
     protected abstract T getChildTemplate(StorageInstanceTreeElement parent);
 }

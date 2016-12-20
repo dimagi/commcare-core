@@ -22,7 +22,7 @@ import java.util.Vector;
  */
 public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
-    private final CaseInstanceTreeElement parent;
+    private final StorageInstanceTreeElement<Case, ?> parent;
     private int recordId;
     private String caseId;
     private int mult;
@@ -34,7 +34,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
     private static final String LAST_MODIFIED_KEY = "last_modified";
 
-    public CaseChildElement(CaseInstanceTreeElement parent, int recordId, String caseId, int mult) {
+    public CaseChildElement(StorageInstanceTreeElement<Case, ?> parent, int recordId, String caseId, int mult) {
         if (recordId == -1 && caseId == null) {
             throw new RuntimeException("Cannot create a lazy case element with no lookup identifiers!");
         }
@@ -264,7 +264,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
                 recordId = ids.elementAt(0);
             }
 
-            Case c = parent.getCase(recordId);
+            Case c = parent.getElement(recordId);
             caseId = c.getCaseId();
             TreeElement cacheBuilder = new TreeElement("case");
             cacheBuilder.setMult(this.mult);

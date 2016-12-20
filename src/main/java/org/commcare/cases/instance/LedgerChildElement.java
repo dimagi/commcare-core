@@ -1,7 +1,4 @@
-/**
- *
- */
-package org.commcare.cases.ledger.instance;
+package org.commcare.cases.instance;
 
 import org.commcare.cases.ledger.Ledger;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -31,7 +28,7 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
     public static final String FINALNAME = "entry";
     public static final String FINALNAME_ID = "id";
 
-    LedgerInstanceTreeElement parent;
+    StorageInstanceTreeElement<Ledger, ?> parent;
     int recordId;
     String entityId;
     int mult;
@@ -40,7 +37,7 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
 
     int numChildren = -1;
 
-    public LedgerChildElement(LedgerInstanceTreeElement parent, int recordId, String entityId, int mult) {
+    public LedgerChildElement(StorageInstanceTreeElement<Ledger, ?> parent, int recordId, String entityId, int mult) {
         if (recordId == -1 && entityId == null) {
             throw new RuntimeException("Cannot create a lazy case element with no lookup identifiers!");
         }
@@ -53,7 +50,7 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
     /*
      * Template constructor (For elements that need to create reference nodesets but never look up values)
      */
-    private LedgerChildElement(LedgerInstanceTreeElement parent) {
+    private LedgerChildElement(StorageInstanceTreeElement<Ledger, ?> parent) {
         //Template
         this.parent = parent;
         this.recordId = TreeReference.INDEX_TEMPLATE;
@@ -256,7 +253,7 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
             }
 
             TreeElement cacheBuilder = new TreeElement(NAME);
-            Ledger ledger = parent.storage.read(recordId);
+            Ledger ledger = parent.getElement(recordId);
             entityId = ledger.getEntiyId();
             cacheBuilder.setMult(this.mult);
 

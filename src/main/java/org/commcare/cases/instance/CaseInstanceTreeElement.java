@@ -2,14 +2,11 @@ package org.commcare.cases.instance;
 
 import org.commcare.cases.model.Case;
 import org.javarosa.core.model.instance.AbstractTreeElement;
-import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.util.DataUtil;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.expr.XPathPathExpr;
 
 import java.util.Hashtable;
-import java.util.Vector;
 
 /**
  * The root element for the <casedb> abstract type. All children are
@@ -18,7 +15,7 @@ import java.util.Vector;
  *
  * @author ctsims
  */
-public class CaseInstanceTreeElement extends StorageInstanceTreeElement<CaseChildElement> {
+public class CaseInstanceTreeElement extends StorageInstanceTreeElement<Case, CaseChildElement> {
 
     public static final String MODEL_NAME = "casedb";
 
@@ -35,19 +32,9 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<CaseChil
     }
 
     @Override
-    protected synchronized void loadElements() {
-        if (elements != null) {
-            return;
-        }
-        objectIdMapping = new Hashtable<>();
-        elements = new Vector<>();
-        int mult = 0;
-        for (IStorageIterator i = storage.iterate(); i.hasMore(); ) {
-            int id = i.nextID();
-            elements.addElement(new CaseChildElement(this, id, null, mult));
-            objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
-            mult++;
-        }
+    protected CaseChildElement buildElement(StorageInstanceTreeElement storageInstance,
+                                            int recordId, String id, int mult) {
+        return new CaseChildElement(storageInstance, recordId, null, mult);
     }
 
     @Override
@@ -67,10 +54,6 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<CaseChil
         }
 
         return filter;
-    }
-
-    protected Case getCase(int recordId) {
-        return (Case)storage.read(recordId);
     }
 
     @Override
