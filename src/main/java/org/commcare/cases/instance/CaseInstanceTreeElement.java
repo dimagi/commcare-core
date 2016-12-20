@@ -27,12 +27,12 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<Case, Ca
     private final static XPathPathExpr CASE_INDEX_EXPR = XPathReference.getPathExpr("index/*");
 
     public CaseInstanceTreeElement(AbstractTreeElement instanceRoot,
-                                   IStorageUtilityIndexed storage) {
+                                   IStorageUtilityIndexed<Case> storage) {
         super(instanceRoot, storage, MODEL_NAME, "case");
     }
 
     @Override
-    protected CaseChildElement buildElement(StorageInstanceTreeElement storageInstance,
+    protected CaseChildElement buildElement(StorageInstanceTreeElement<Case, CaseChildElement> storageInstance,
                                             int recordId, String id, int mult) {
         return new CaseChildElement(storageInstance, recordId, null, mult);
     }
