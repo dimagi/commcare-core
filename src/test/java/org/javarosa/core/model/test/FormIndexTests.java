@@ -51,7 +51,8 @@ public class FormIndexTests {
         Assert.assertEquals(index1x0x1_1x1_2, current = current.getNextLevel());
         Assert.assertEquals(index0x1_1x1_2, current = current.getNextLevel());
         Assert.assertEquals(index1_1x1_2, current = current.getNextLevel());
-        Assert.assertEquals(index1_2,  current.getNextLevel());
+        Assert.assertEquals(index1_2,  current = current.getNextLevel());
+        Assert.assertNull(current.getNextLevel());
     }
 
     @Test
@@ -82,10 +83,9 @@ public class FormIndexTests {
 
     @Test
     public void testGetLastRepeatInstanceIndex_notVeryLastIndex() {
-        // Add indices to the end of the hierarchy that does NOT have an instance index
+        // Add indices to the end of the hierarchy that do NOT have an instance index
         FormIndex index3 = new FormIndex(3, TreeReference.rootRef());
         FormIndex index2x3 = new FormIndex(index3, 2, TreeReference.rootRef());
-
         index1_2.setNextLevel(index2x3);
 
         Assert.assertEquals(2, index0x1x0x1_1x1_2.getLastRepeatInstanceIndex());
