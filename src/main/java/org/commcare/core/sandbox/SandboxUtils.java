@@ -2,18 +2,13 @@ package org.commcare.core.sandbox;
 
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.process.CommCareInstanceInitializer;
-import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
-import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.ArrayUtilities;
-import org.javarosa.model.xform.XPathReference;
 
 import java.util.Hashtable;
 import java.util.Vector;
@@ -22,39 +17,6 @@ import java.util.Vector;
  * Created by wpride1 on 8/11/15.
  */
 public class SandboxUtils {
-    /**
-     * For the users and groups in the provided sandbox, extracts out the list
-     * of valid "owners" for entities (cases, ledgers, etc) in the universe.
-     *
-     */
-    public static Vector<String> extractEntityOwners(UserSandbox sandbox) {
-        Vector<String> owners = new Vector<>();
-        Vector<String> users = new Vector<>();
-
-        for (IStorageIterator<User> userIterator = sandbox.getUserStorage().iterate(); userIterator.hasMore(); ) {
-            String id = userIterator.nextRecord().getUniqueId();
-            owners.addElement(id);
-            users.addElement(id);
-        }
-
-        //Now add all of the relevant groups
-        //TODO: Wow. This is.... kind of megasketch
-        for (String userId : users) {
-            DataInstance instance = loadFixture(sandbox, "user-groups", userId);
-            if (instance == null) {
-                continue;
-            }
-            EvaluationContext ec = new EvaluationContext(instance);
-            for (TreeReference ref : ec.expandReference(XPathReference.getPathExpr("/groups/group/@id").getReference())) {
-                AbstractTreeElement idElement = ec.resolveReference(ref);
-                if (idElement.getValue() != null) {
-                    owners.addElement(idElement.getValue().uncast().getString());
-                }
-            }
-        }
-
-        return owners;
-    }
 
     /**
      * A quick way to request an evaluation context with an abstract instance available.

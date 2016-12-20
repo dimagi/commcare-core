@@ -1,7 +1,6 @@
 package org.commcare.cases.util.test;
 
 import org.commcare.cases.util.CasePurgeFilter;
-import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
@@ -27,7 +26,7 @@ public class CasePurgeIntegrationTest {
         sandbox = MockDataUtils.getStaticStorage();
 
         ParseUtils.parseIntoSandbox(this.getClass().getClassLoader().getResourceAsStream("case_create_purge.xml"), sandbox);
-        owners = SandboxUtils.extractEntityOwners(sandbox);
+        owners = CasePurgeRegressions.extractEntityOwners(sandbox);
     }
 
     @Test

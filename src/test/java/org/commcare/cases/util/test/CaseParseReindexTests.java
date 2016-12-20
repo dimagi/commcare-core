@@ -3,7 +3,6 @@ package org.commcare.cases.util.test;
 import org.commcare.cases.model.Case;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
-import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -35,7 +34,7 @@ public class CaseParseReindexTests {
         sandbox = MockDataUtils.getStaticStorage();
 
         ParseUtils.parseIntoSandbox(this.getClass().getClassLoader().getResourceAsStream("index_disruption/base_transactions.xml"), sandbox);
-        SandboxUtils.extractEntityOwners(sandbox);
+        CasePurgeRegressions.extractEntityOwners(sandbox);
     }
 
     @Test
