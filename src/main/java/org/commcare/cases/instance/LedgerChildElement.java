@@ -31,7 +31,6 @@ public class LedgerChildElement extends StorageBackedChildElement<Ledger> {
     public LedgerChildElement(StorageInstanceTreeElement<Ledger, ?> parent,
                               int recordId, String entityId, int mult) {
         super(parent, mult, recordId, entityId, NAME_ID);
-
     }
 
     /*

@@ -21,7 +21,7 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
     protected final StorageInstanceTreeElement<Model, ?> parent;
     private TreeReference ref;
     private int numChildren = -1;
-    protected int mult;
+    protected final int mult;
     protected int recordId;
     protected String entityId;
     protected final String nameId;
