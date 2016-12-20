@@ -36,7 +36,7 @@ public class CaseXPathQueryTest {
     @Test
     public void elementQueryWithCaseInstance() throws Exception {
         ParseUtils.parseIntoSandbox(
-                this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
+                this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
         EvaluationContext ec = MockDataUtils.buildContextWithInstance(sandbox, "casedb",
                 CaseTestUtils.CASE_INSTANCE);
 
@@ -47,7 +47,7 @@ public class CaseXPathQueryTest {
     @Test
     public void referenceNonExistentCaseId() throws Exception {
         ParseUtils.parseIntoSandbox(
-                this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
+                this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
         EvaluationContext ec = MockDataUtils.buildContextWithInstance(sandbox, "casedb",
                 CaseTestUtils.CASE_INSTANCE);
 
@@ -58,7 +58,7 @@ public class CaseXPathQueryTest {
     @Test
     public void caseQueryWithBadPath() throws Exception {
         ParseUtils.parseIntoSandbox(
-                this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
+                this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
         EvaluationContext ec = MockDataUtils.buildContextWithInstance(sandbox, "casedb",
                 CaseTestUtils.CASE_INSTANCE);
 
@@ -69,7 +69,7 @@ public class CaseXPathQueryTest {
     @Test
     public void caseQueryEqualsTest() throws Exception {
         ParseUtils.parseIntoSandbox(
-                this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
+                this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(sandbox, "casedb",
                         CaseTestUtils.CASE_INSTANCE);
@@ -81,7 +81,7 @@ public class CaseXPathQueryTest {
     @Test
     public void caseQueryNotEqualsTest() throws Exception {
         ParseUtils.parseIntoSandbox(
-                this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
+                this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(sandbox, "casedb",
                         CaseTestUtils.CASE_INSTANCE);

@@ -27,23 +27,4 @@
 		</create>
 	</case>
 
-	<case case_id="case_two"
-		date_modified="2014-08-04T21:09:07.000000Z" user_id="test_example"
-		xmlns="http://commcarehq.org/case/transaction/v2">
-		<create>
-			<case_type>retain_test</case_type>
-			<case_name>case</case_name>
-			<owner_id>test_group</owner_id>
-		</create>
-	</case>
-
-	<case case_id="case_three"
-		date_modified="2014-08-04T21:09:07.000000Z" user_id="test_example"
-		xmlns="http://commcarehq.org/case/transaction/v2">
-		<create>
-			<case_type>retain_test</case_type>
-			<case_name>case name</case_name>
-			<owner_id>test_group</owner_id>
-		</create>
-	</case>
 </OpenRosaResponse>
