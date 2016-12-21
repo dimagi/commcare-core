@@ -18,12 +18,12 @@ public class FlatFixtureInstanceTreeElement extends StorageInstanceTreeElement<S
 
     @Override
     protected FixtureChildElement buildElement(StorageInstanceTreeElement<StorageBackedModel, FixtureChildElement> storageInstance, int recordId, String id, int mult) {
-        return null;
+        return new FixtureChildElement(storageInstance, mult, recordId, null);
     }
 
     @Override
     protected FixtureChildElement getChildTemplate() {
-        return null;
+        return FixtureChildElement.buildFixtureChildTemplate(this);
     }
 
     @Override

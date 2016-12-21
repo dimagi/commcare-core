@@ -17,7 +17,8 @@ public class FixtureChildElement extends StorageBackedChildElement<StorageBacked
     private TreeElement empty;
     private Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> childAttributeHintMap = null;
 
-    protected FixtureChildElement(StorageInstanceTreeElement<StorageBackedModel, ?> parent, int mult, int recordId, String name) {
+    protected FixtureChildElement(StorageInstanceTreeElement<StorageBackedModel, ?> parent,
+                                  int mult, int recordId, String name) {
         super(parent, mult, recordId, null, null);
         this.name = name;
     }
@@ -90,5 +91,9 @@ public class FixtureChildElement extends StorageBackedChildElement<StorageBacked
     @Override
     public String getName() {
         return name;
+    }
+
+    public static FixtureChildElement buildFixtureChildTemplate(FlatFixtureInstanceTreeElement parent) {
+        return new FixtureChildElement(parent);
     }
 }
