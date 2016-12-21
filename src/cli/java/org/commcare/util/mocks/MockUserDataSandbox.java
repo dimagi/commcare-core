@@ -2,6 +2,7 @@ package org.commcare.util.mocks;
 
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
+import org.commcare.cases.model.StorageBackedModel;
 import org.commcare.core.interfaces.UserSandbox;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
@@ -24,6 +25,7 @@ public class MockUserDataSandbox extends UserSandbox {
     private final IStorageUtilityIndexed<Case> caseStorage;
     private final IStorageUtilityIndexed<Ledger> ledgerStorage;
     private final IStorageUtilityIndexed<User> userStorage;
+    private final IStorageUtilityIndexed<StorageBackedModel> flatFixtureStorage;
     private final IStorageUtilityIndexed<FormInstance> userFixtureStorage;
     private IStorageUtilityIndexed<FormInstance> appFixtureStorage;
     
@@ -40,6 +42,7 @@ public class MockUserDataSandbox extends UserSandbox {
         caseStorage = new DummyIndexedStorageUtility<>(Case.class, factory);
         ledgerStorage = new DummyIndexedStorageUtility<>(Ledger.class, factory);
         userStorage = new DummyIndexedStorageUtility<>(User.class, factory);
+        flatFixtureStorage = new DummyIndexedStorageUtility<>(StorageBackedModel.class, factory);
         userFixtureStorage = new DummyIndexedStorageUtility<>(FormInstance.class, factory);
         appFixtureStorage = new DummyIndexedStorageUtility<>(FormInstance.class, factory);
     }
@@ -57,6 +60,11 @@ public class MockUserDataSandbox extends UserSandbox {
     @Override
     public IStorageUtilityIndexed<User> getUserStorage() {
         return userStorage;
+    }
+
+    @Override
+    public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage() {
+        return flatFixtureStorage;
     }
 
     @Override

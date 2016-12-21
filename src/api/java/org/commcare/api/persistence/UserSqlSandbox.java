@@ -2,9 +2,11 @@ package org.commcare.api.persistence;
 
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
+import org.commcare.cases.model.StorageBackedModel;
 import org.commcare.core.interfaces.UserSandbox;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
 /**
  * A sandbox for user data using SqliteIndexedStorageUtility. Sandbox is per-User
@@ -15,6 +17,7 @@ public class UserSqlSandbox extends UserSandbox {
     private final SqliteIndexedStorageUtility<Case> caseStorage;
     private final SqliteIndexedStorageUtility<Ledger> ledgerStorage;
     private final SqliteIndexedStorageUtility<User> userStorage;
+    private final SqliteIndexedStorageUtility<StorageBackedModel> flatFixtureStorage;
     private final SqliteIndexedStorageUtility<FormInstance> userFixtureStorage;
     private final SqliteIndexedStorageUtility<FormInstance> appFixtureStorage;
     private User user = null;
@@ -29,6 +32,7 @@ public class UserSqlSandbox extends UserSandbox {
         caseStorage = new SqliteIndexedStorageUtility<>(Case.class, username, "CCCase", path);
         ledgerStorage = new SqliteIndexedStorageUtility<>(Ledger.class, username, Ledger.STORAGE_KEY, path);
         userStorage = new SqliteIndexedStorageUtility<>(User.class, username, User.STORAGE_KEY, path);
+        flatFixtureStorage = new SqliteIndexedStorageUtility<>(StorageBackedModel.class, username, StorageBackedModel.STORAGE_KEY, path);
         userFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, "UserFixture", path);
         appFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, "AppFixture", path);
     }
@@ -50,6 +54,11 @@ public class UserSqlSandbox extends UserSandbox {
     @Override
     public SqliteIndexedStorageUtility<User> getUserStorage() {
         return userStorage;
+    }
+
+    @Override
+    public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage() {
+        return flatFixtureStorage;
     }
 
     @Override

@@ -17,6 +17,7 @@ import java.util.Hashtable;
  */
 public class StorageBackedModel implements Persistable, IMetaData {
 
+    public static final String STORAGE_KEY = "FLATFIX";
     private Hashtable<String, String> attributes = new Hashtable<>();
     private Hashtable<String, String> elements = new Hashtable<>();
     protected int recordId;
