@@ -426,11 +426,9 @@ public class ApplicationHost {
             urlStateParams = String.format("&since=%s&state=ccsh:%s", syncToken, caseStateHash);
             incremental = true;
 
-            if (incremental) {
-                System.out.println(String.format(
-                        "\nIncremental sync requested. \nSync Token: %s\nState Hash: %s",
-                        syncToken, caseStateHash));
-            }
+            System.out.println(String.format(
+                    "\nIncremental sync requested. \nSync Token: %s\nState Hash: %s",
+                    syncToken, caseStateHash));
         }
 
         //fetch the restore data and set credentials
@@ -473,9 +471,8 @@ public class ApplicationHost {
             } else {
                 System.out.println("Unclear/Unexpected server response code: " + conn.getResponseCode());
             }
-        } catch (InvalidStructureException | IOException e) {
-            e.printStackTrace();
-        } catch (XmlPullParserException | UnfullfilledRequirementsException e) {
+        } catch (InvalidStructureException | IOException
+                | XmlPullParserException | UnfullfilledRequirementsException e) {
             e.printStackTrace();
         }
 
