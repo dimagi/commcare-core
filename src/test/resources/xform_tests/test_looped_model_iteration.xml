@@ -84,15 +84,17 @@
         <group>
             <label ref="jr:itext('outer_repeat-label')"/>
             <repeat nodeset="/data/outer_repeat" jr:count="/data/number" jr:noAddRemove="true()">
-                <group>
-                    <label ref="jr:itext('outer_repeat/iterator/item-label')"/>
-                    <repeat nodeset="/data/outer_repeat/iterator/item" jr:count="/data/outer_repeat/iterator/@count"
-                            jr:noAddRemove="true()">
-                        <trigger appearance="minimal"
-                                 ref="/data/outer_repeat/iterator/item/placeholder">
-                            <label ref="jr:itext('outer_repeat/iterator/item/placeholder-label')"/>
-                        </trigger>
-                    </repeat>
+                <group ref="/data/outer_repeat/iterator" appearance="field-list">
+                    <group>
+                        <label ref="jr:itext('outer_repeat/iterator/item-label')"/>
+                        <repeat nodeset="/data/outer_repeat/iterator/item" jr:count="/data/outer_repeat/iterator/@count"
+                                jr:noAddRemove="true()">
+                            <trigger appearance="minimal"
+                                     ref="/data/outer_repeat/iterator/item/placeholder">
+                                <label ref="jr:itext('outer_repeat/iterator/item/placeholder-label')"/>
+                            </trigger>
+                        </repeat>
+                    </group>
                 </group>
             </repeat>
         </group>
