@@ -17,7 +17,7 @@
            [org.javarosa.core.services.storage StorageManager]
            [org.javarosa.core.model.instance FormInstance]))
 
-(defrecord App [session engine sandbox])
+(defrecord App [session engine sandbox username password])
 
 (def today-date (atom nil))
 
@@ -28,6 +28,7 @@
     ":update (-f/-p) - Update the application live against the newest version on the server. --latest/-f optional flag to grab the newest build instead of the newest starred build. --preview/-p is for latest saved version of app"
     ":home - Navigate to the home menu of the app"
     ":lang <lang> - change the language to <lang> (e.g. :lang en)"
+    ":sync - perform user data pull with server (does not submit data)"
     ":today <date> - change the date returned by today()/now() (e.g. :today 2015-07-25). ':today' resets to today's date"
     ":stack - Show the stack of session frames"
     ":frame - Show the current session frame"
@@ -46,7 +47,7 @@
 (defn build-remote-user-sandbox [prototype-factory username password]
   (let [sandbox (MockUserDataSandbox. prototype-factory)]
     (.setAppFixtureStorageLocation sandbox (StorageManager/getStorage FormInstance/STORAGE_KEY))
-    (ApplicationHost/restoreUserToSandbox sandbox username password)
+    (ApplicationHost/restoreUserToSandbox sandbox nil username password)
     sandbox))
 
 (defn install-app-with-restore [ccz restore-file]
@@ -57,7 +58,9 @@
           (doto engine
             (.initFromArchive ccz)
             (.initEnvironment))
-          user-sandbox)))
+          user-sandbox
+          nil
+          nil)))
 
 (defn install-app-with-creds [ccz username password]
   (let [prototype-factory (LivePrototypeFactory.)
@@ -68,7 +71,9 @@
   (let [user-sandbox (build-remote-user-sandbox prototype-factory username password)]
       (App. (CLISessionWrapper. (.getPlatform engine) user-sandbox)
             engine
-            user-sandbox))))
+            user-sandbox
+            username
+            password))))
 
 (defn get-next-screen [session]
   (let [eval-context (.getEvaluationContext session)
@@ -135,6 +140,18 @@
         (println "Locale '" locale "' is undefined. Available locales:")
         (map (fn [l] (println "* " l)) available-locales)))))
 
+(defn perform-sync [app]
+  (let [sandbox (:sandbox app)
+        username (:username app)
+        password (:password app)
+        session (:session app)]
+    (ApplicationHost/performCasePurge sandbox)
+    (if (nil? username)
+      (println "Syncing is only available when using raw user credentials")
+      (do
+        (println "Requesting sync...")
+        (ApplicationHost/restoreUserToSandbox sandbox session username password)))))
+
 ;; String App Screen -> Action
 ;; where Action is one of [:quit :refresh :stay]
 (defn process-command [user-input app]
@@ -160,6 +177,9 @@
             :stay)
         (= command ":lang")
         (do (set-locale arg)
+            :stay)
+        (= command ":sync")
+        (do (perform-sync app)
             :stay)
         (= command ":today")
         (do (reset! today-date arg)

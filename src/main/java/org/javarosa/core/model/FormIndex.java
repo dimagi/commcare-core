@@ -16,8 +16,9 @@ import java.util.Vector;
  * FormIndex's, IE, no form index's ancestor can be itself.
  *
  * Datatype Productions:
- * FormIndex = BOF | EOF | CompoundIndex(nextIndex:FormIndex,Location)
- * Location = Empty | Simple(localLevel:int) | WithMult(localLevel:int, multiplicity:int)
+ * FormIndex =  Null | BOF | EOF |
+ *              SimpleIndex(nextIndex:FormIndex, localIndex:int) |
+ *              IndexWithMult(nextIndex:FormIndex, localIndex:int, instanceIndex:int)
  *
  * @author Clayton Sims
  */
@@ -65,7 +66,6 @@ public class FormIndex {
     public FormIndex(int localIndex, TreeReference reference) {
         this.localIndex = localIndex;
         this.reference = reference;
-
     }
 
     /**
@@ -153,21 +153,36 @@ public class FormIndex {
     }
 
     /**
-     * Use this method to get the multiplicity of the deepest repeat group being referenced.
+     * Use this method to get the multiplicity of the deepest repeat group in the index.
+     * If no level of the current index has a multiplicity, this method will return -1
      *
-     * IE: If this index is to 1, 1_2, 2, 1_3 this reference will return 3.
-     *
-     * @return The multiplicity of the "most specific" repeated instance of a question or group.
+     * Examples:
+     * - If this index is to 0, 1_1, 0, 1_1, 1_2 this method will return 2
+     * - If this index is to 0, 1_1, 1_2, 1_3, 0 this method will return 3
+     * - If this index is to 0, 1, 2 this method will return -1
      */
     public int getLastRepeatInstanceIndex() {
-        if(this.getNextLevel() == null) {
-            return getInstanceIndex();
-        }
-        int childIndex = this.getNextLevel().getInstanceIndex();
-        if(childIndex == -1) {
-            return getInstanceIndex();
+        FormIndex deepestIndexWithMultiplicity = getDeepestLevelWithInstanceIndex();
+        if (deepestIndexWithMultiplicity == null) {
+            return -1;
         } else {
-            return childIndex;
+            return deepestIndexWithMultiplicity.getInstanceIndex();
+        }
+    }
+
+    /**
+     * @return An index into the deepest level of specificity referenced by this index that has
+     * an instance index
+     */
+    private FormIndex getDeepestLevelWithInstanceIndex() { return getDeepestLevelWithInstanceIndex(null); }
+    private FormIndex getDeepestLevelWithInstanceIndex(FormIndex deepestSoFar) {
+        if (this.getInstanceIndex() != -1) {
+            deepestSoFar = this;
+        }
+        if (this.isTerminal()) {
+            return deepestSoFar;
+        } else {
+            return nextLevel.getDeepestLevelWithInstanceIndex(deepestSoFar);
         }
     }
 
@@ -187,6 +202,10 @@ public class FormIndex {
      */
     public FormIndex getNextLevel() {
         return nextLevel;
+    }
+
+    public void setNextLevel(FormIndex nextLevel) {
+        this.nextLevel = nextLevel;
     }
 
     public TreeReference getLocalReference() {

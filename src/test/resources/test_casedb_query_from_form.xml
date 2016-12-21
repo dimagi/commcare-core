@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<h:html xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.w3.org/2002/xforms"
+    >
+    <h:head>
+        <h:title>Nested predicates with relative references</h:title>
+        <model>
+            <instance>
+                <data xmlns="http://openrosa.org/formdesigner/73BD6623-B13A-4C07-850E-583899531924" uiVersion="1" version="1" name="New Form">
+                    <q1/>
+                    <q2/>
+                    <q3/>
+                </data>
+            </instance>
+
+            <instance id="casedb">
+                <casedb>
+                    <case case_id="case_one">
+                        <case_type>retain_test</case_type>
+                        <case_name>case</case_name>
+                        <owner_id>test_group</owner_id>
+                    </case>
+                    <case case_id="case_two">
+                        <case_type>retain_test</case_type>
+                        <case_name>case</case_name>
+                        <owner_id>test_group</owner_id>
+                    </case>
+                    <case case_id="case_three">
+                        <case_type>retain_test</case_type>
+                        <case_name>case name</case_name>
+                        <owner_id>test_group</owner_id>
+                    </case>
+                </casedb>
+            </instance>
+
+        </model>
+    </h:head>
+    <h:body>
+    </h:body>
+</h:html>
