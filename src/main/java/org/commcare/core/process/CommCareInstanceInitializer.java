@@ -2,6 +2,7 @@ package org.commcare.core.process;
 
 import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
+import org.commcare.cases.instance.FlatFixtureInstanceTreeElement;
 import org.commcare.cases.instance.LedgerInstanceTreeElement;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.sandbox.SandboxUtils;
@@ -29,7 +30,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     protected final CommCareSession session;
     protected CaseInstanceTreeElement casebase;
     protected LedgerInstanceTreeElement stockbase;
-    private final CacheTable<String, TreeElement> fixtureBases = new CacheTable();
+    private final CacheTable<String, TreeElement> fixtureBases = new CacheTable<>();
     protected final UserSandbox mSandbox;
     protected final CommCarePlatform mPlatform;
 
@@ -115,9 +116,13 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             userId = u.getUniqueId();
         }
 
-        TreeElement fixtureRoot = loadFixtureRoot(instance, ref, userId);
-        fixtureRoot.setParent(instance.getBase());
-        return fixtureRoot;
+        boolean isStorageBacked = instance.getReference().contains("flat");
+        if (isStorageBacked) {
+            // TODO PLM: cache this
+            return new FlatFixtureInstanceTreeElement(instance.getBase(), mSandbox.getFlatFixtureStorage(), "foo", "bar");
+        } else {
+            return loadFixtureRoot(instance, ref, userId);
+        }
     }
 
     protected TreeElement loadFixtureRoot(ExternalDataInstance instance,
@@ -140,6 +145,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                 fixtureBases.register(key, root);
             }
 
+            root.setParent(instance.getBase());
             return root;
         } catch (IllegalStateException ise) {
             throw new FixtureInitializationException(reference);
