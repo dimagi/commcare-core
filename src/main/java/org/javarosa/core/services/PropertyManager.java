@@ -37,6 +37,10 @@ public class PropertyManager implements IPropertyManager {
         return instance.get();
     }
 
+    public static void setPropertyManager(IStorageUtilityIndexed storageUtility) {
+        instance.set(new PropertyManager(storageUtility));
+    }
+
     //////////////////////////////////////////
 
     /**
@@ -59,6 +63,11 @@ public class PropertyManager implements IPropertyManager {
      */
     public PropertyManager() {
         this.properties = (IStorageUtilityIndexed)StorageManager.getStorage(STORAGE_KEY);
+        rulesList = new Vector<>();
+    }
+
+    public PropertyManager(IStorageUtilityIndexed storageUtilityIndexed) {
+        this.properties = storageUtilityIndexed;
         rulesList = new Vector<>();
     }
 

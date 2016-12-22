@@ -96,7 +96,7 @@ public class CommCareConfigEngine {
         StorageManager.forceClear();
         StorageManager.setStorageFactory(storageFactory);
         StorageManager.registerStorage(PropertyManager.STORAGE_KEY, Property.class);
-        PropertyManager.instance();
+        PropertyManager.setPropertyManager(storageFactory.newStorage(PropertyManager.STORAGE_KEY, Property.class));
         StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
         StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
         StorageManager.registerStorage(FormDef.STORAGE_KEY, FormDef.class);
