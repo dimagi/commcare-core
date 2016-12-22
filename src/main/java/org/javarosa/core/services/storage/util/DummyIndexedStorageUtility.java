@@ -69,7 +69,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     @Override
-    public Vector getIDsForValue(String fieldName, Object value) {
+    public Vector<Integer> getIDsForValue(String fieldName, Object value) {
         //We don't support all index types
         if(meta.get(fieldName) == null) {
             throw new IllegalArgumentException("Unsupported index: "+ fieldName + " for storage of " + prototype.getName());

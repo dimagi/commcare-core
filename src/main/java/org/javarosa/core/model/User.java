@@ -13,7 +13,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Hashtable;
 
 /**
@@ -25,9 +24,7 @@ import java.util.Hashtable;
 public class User implements Persistable, Restorable, IMetaData {
     public static final String STORAGE_KEY = "USER";
 
-    public static final String ADMINUSER = "admin";
     public static final String STANDARD = "standard";
-    public static final String DEMO_USER = "demo_user";
     public static final String KEY_USER_TYPE = "user_type";
     public static final String TYPE_DEMO = "demo";
 
@@ -42,13 +39,9 @@ public class User implements Persistable, Restorable, IMetaData {
     private String passwordHash;
     private String uniqueId;  //globally-unique id
 
-    static private User demo_user;
-
-    public boolean rememberMe = false;
-
-    public String syncToken;
-
-    public byte[] wrappedKey;
+    private boolean rememberMe = false;
+    private String syncToken;
+    private byte[] wrappedKey;
 
     public Hashtable<String, String> properties = new Hashtable<>();
 
@@ -91,10 +84,6 @@ public class User implements Persistable, Restorable, IMetaData {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(syncToken));
         ExtUtil.write(out, new ExtWrapMap(properties));
         ExtUtil.writeBytes(out, ExtUtil.emptyIfNull(wrappedKey));
-    }
-
-    public boolean isAdminUser() {
-        return ADMINUSER.equals(getUserType());
     }
 
     public String getUsername() {
@@ -147,10 +136,6 @@ public class User implements Persistable, Restorable, IMetaData {
         return uniqueId;
     }
 
-    public Enumeration listProperties() {
-        return this.properties.keys();
-    }
-
     public void setProperty(String key, String val) {
         this.properties.put(key, val);
     }
@@ -161,11 +146,6 @@ public class User implements Persistable, Restorable, IMetaData {
 
     public Hashtable<String, String> getProperties() {
         return this.properties;
-    }
-
-    @Override
-    public String getRestorableType() {
-        return "user";
     }
 
     @Override
@@ -185,7 +165,7 @@ public class User implements Persistable, Restorable, IMetaData {
         } else if(META_USERNAME.equals(fieldName)) {
             return username;
         } else if(META_ID.equals(fieldName)) {
-            return new Integer(recordId);
+            return recordId;
         } else if (META_WRAPPED_KEY.equals(fieldName)) {
             return wrappedKey;
         } else if (META_SYNC_TOKEN.equals(fieldName)) {
@@ -193,6 +173,7 @@ public class User implements Persistable, Restorable, IMetaData {
         }
         throw new IllegalArgumentException("No metadata field " + fieldName + " for User Models");
     }
+
     // TODO: Add META_WRAPPED_KEY back in?
     @Override
     public String[] getMetaDataFields() {
@@ -216,17 +197,6 @@ public class User implements Persistable, Restorable, IMetaData {
         this.syncToken = syncToken;
     }
 
-    public static User FactoryDemoUser() {
-        if (demo_user == null) {
-            demo_user = new User();
-            demo_user.setUsername(User.DEMO_USER); // NOTE: Using a user type as a
-            // username also!
-            demo_user.setUserType(User.DEMO_USER);
-            demo_user.setUuid(User.DEMO_USER);
-        }
-        return demo_user;
-    }
-
     public void setWrappedKey(byte[] key) {
         this.wrappedKey = key;
     }
@@ -234,5 +204,4 @@ public class User implements Persistable, Restorable, IMetaData {
     public byte[] getWrappedKey() {
         return wrappedKey;
     }
-
 }

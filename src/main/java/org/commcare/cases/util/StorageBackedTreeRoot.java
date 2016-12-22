@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.cases.util;
 
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -32,7 +29,8 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
     protected abstract void initStorageCache();
 
-    protected String translateFilterExpr(XPathPathExpr expressionTemplate, XPathPathExpr matchingExpr, Hashtable<XPathPathExpr, String> indices) {
+    protected String translateFilterExpr(XPathPathExpr expressionTemplate, XPathPathExpr matchingExpr,
+                                         Hashtable<XPathPathExpr, String> indices) {
         return indices.get(expressionTemplate);
     }
 
@@ -181,8 +179,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         for (Integer i : selectedElements) {
             //this takes _waaaaay_ too long, we need to refactor this
             TreeReference ref = base.clone();
-            Integer realIndexInt = objectIdMapping.get(i);
-            int realIndex = realIndexInt;
+            int realIndex = objectIdMapping.get(i);
             ref.add(this.getChildHintName(), realIndex);
             filtered.addElement(ref);
         }
