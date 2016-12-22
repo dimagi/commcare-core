@@ -24,28 +24,69 @@ public class CaseXPathQueryTest {
     }
 
     @Test
-    public void caseQueryWithNoCaseInstance() throws XPathSyntaxException {
+    public void elementQueryWithNoCaseInstance() throws XPathSyntaxException {
         MockUserDataSandbox emptySandbox = MockDataUtils.getStaticStorage();
+        EvaluationContext ec = MockDataUtils.buildContextWithInstance(emptySandbox, "casedb",
+                CaseTestUtils.CASE_INSTANCE);
 
-        EvaluationContext ec =
-                MockDataUtils.buildContextWithInstance(emptySandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
-        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", ""));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", ""));
+    }
+
+    @Test
+    public void elementQueryWithCaseInstance() throws Exception {
+        ParseUtils.parseIntoSandbox(
+                this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
+        EvaluationContext ec = MockDataUtils.buildContextWithInstance(sandbox, "casedb",
+                CaseTestUtils.CASE_INSTANCE);
+
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", "case"));
     }
 
     @Test
     public void referenceNonExistentCaseId() throws Exception {
-        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
-        EvaluationContext ec =
-                MockDataUtils.buildContextWithInstance(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
+        ParseUtils.parseIntoSandbox(
+                this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
+        EvaluationContext ec = MockDataUtils.buildContextWithInstance(sandbox, "casedb",
+                CaseTestUtils.CASE_INSTANCE);
 
-        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'no-case']", ""));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[@case_id = 'no-case'])", 0.0));
     }
 
     @Test
     public void caseQueryWithBadPath() throws Exception {
-        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
+        ParseUtils.parseIntoSandbox(
+                this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
+        EvaluationContext ec = MockDataUtils.buildContextWithInstance(sandbox, "casedb",
+                CaseTestUtils.CASE_INSTANCE);
+
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "instance('casedb')/casedb/case[@case_id = 'case_one']/doesnt_exist", ""));
+    }
+
+    @Test
+    public void caseQueryEqualsTest() throws Exception {
+        ParseUtils.parseIntoSandbox(
+                this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
         EvaluationContext ec =
-                MockDataUtils.buildContextWithInstance(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
-        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/doesnt_exist", ""));
+                MockDataUtils.buildContextWithInstance(sandbox, "casedb",
+                        CaseTestUtils.CASE_INSTANCE);
+
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[@case_id = 'case_one'])", 1.0));
+    }
+
+    @Test
+    public void caseQueryNotEqualsTest() throws Exception {
+        ParseUtils.parseIntoSandbox(
+                this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
+        EvaluationContext ec =
+                MockDataUtils.buildContextWithInstance(sandbox, "casedb",
+                        CaseTestUtils.CASE_INSTANCE);
+
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[@case_id != 'case_one'])", 2.0));
     }
 }
