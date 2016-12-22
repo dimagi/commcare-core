@@ -356,32 +356,41 @@ public class FormEntryModel {
             IFormElement e = getForm().getChild(index);
             if (e instanceof GroupDef) {
                 GroupDef g = (GroupDef)e;
-                if (g.getRepeat() && g.getCountReference() != null) {
-                    IAnswerData count = getForm().getMainInstance().resolveReference(g.getConextualizedCountReference(index.getReference())).getValue();
-                    if (count != null) {
-                        int fullcount = -1;
-                        try {
-                            fullcount = ((Integer)new IntegerData().cast(count.uncast()).getValue());
-                        } catch (IllegalArgumentException iae) {
-                            throw new RuntimeException("The repeat count value \"" + count.uncast().getString() + "\" at " + g.getConextualizedCountReference(index.getReference()).toString() + " must be a number!");
-                        }
-                        TreeReference ref = getForm().getChildInstanceRef(index);
-                        TreeElement element = getForm().getMainInstance().resolveReference(ref);
-                        if (element == null) {
-                            int instanceIndexOfDeepestRepeat = index.getLastRepeatInstanceIndex();
-                            if (instanceIndexOfDeepestRepeat == -1) {
-                                throw new RuntimeException("Attempting to expand a repeat for a form index where no repeats were present: " + index);
-                            }
-                            if (instanceIndexOfDeepestRepeat < fullcount) {
-                                try {
-                                    getForm().createNewRepeat(index);
-                                } catch (InvalidReferenceException ire) {
-                                    ire.printStackTrace();
-                                    throw new RuntimeException("Invalid Reference while creating new repeat!" + ire.getMessage());
-                                }
-                            }
-                        }
-                    }
+                createModelForGroup(g, index, getForm());
+            }
+        }
+    }
+
+    private static void createModelForGroup(GroupDef g, FormIndex index, FormDef form) {
+        if (g.getRepeat() && g.getCountReference() != null) {
+            IAnswerData count = form.getMainInstance().resolveReference(g.getConextualizedCountReference(index.getReference())).getValue();
+            if (count != null) {
+                int fullcount = -1;
+                try {
+                    fullcount = ((Integer)new IntegerData().cast(count.uncast()).getValue());
+                } catch (IllegalArgumentException iae) {
+                    throw new RuntimeException("The repeat count value \"" + count.uncast().getString() + "\" at " + g.getConextualizedCountReference(index.getReference()).toString() + " must be a number!");
+                }
+
+                createModelIfBelowMaxCount(index, form, fullcount);
+            }
+        }
+    }
+
+    private static void createModelIfBelowMaxCount(FormIndex index, FormDef form, int fullcount) {
+        TreeReference ref = form.getChildInstanceRef(index);
+        TreeElement element = form.getMainInstance().resolveReference(ref);
+        if (element == null) {
+            int instanceIndexOfDeepestRepeat = index.getLastRepeatInstanceIndex();
+            if (instanceIndexOfDeepestRepeat == -1) {
+                throw new RuntimeException("Attempting to expand a repeat for a form index where no repeats were present: " + index);
+            }
+            if (instanceIndexOfDeepestRepeat < fullcount) {
+                try {
+                    form.createNewRepeat(index);
+                } catch (InvalidReferenceException ire) {
+                    ire.printStackTrace();
+                    throw new RuntimeException("Invalid Reference while creating new repeat!" + ire.getMessage());
                 }
             }
         }
