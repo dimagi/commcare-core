@@ -363,13 +363,17 @@ public class FormEntryModel {
 
     private static void createModelForGroup(GroupDef g, FormIndex index, FormDef form) {
         if (g.getRepeat() && g.getCountReference() != null) {
-            IAnswerData count = form.getMainInstance().resolveReference(g.getConextualizedCountReference(index.getReference())).getValue();
+            TreeReference countRef = g.getConextualizedCountReference(index.getReference());
+            IAnswerData count = form.getMainInstance().resolveReference(countRef).getValue();
             if (count != null) {
-                int fullcount = -1;
+                int fullcount;
                 try {
                     fullcount = ((Integer)new IntegerData().cast(count.uncast()).getValue());
                 } catch (IllegalArgumentException iae) {
-                    throw new RuntimeException("The repeat count value \"" + count.uncast().getString() + "\" at " + g.getConextualizedCountReference(index.getReference()).toString() + " must be a number!");
+                    throw new RuntimeException("The repeat count value \""
+                            + count.uncast().getString() + "\" at "
+                            + g.getConextualizedCountReference(index.getReference()).toString()
+                            + " must be a number!");
                 }
 
                 createModelIfBelowMaxCount(index, form, fullcount);
