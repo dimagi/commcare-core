@@ -109,7 +109,6 @@ public class FormEntryModel {
         return form.getMainInstance().resolveReference(index.getReference());
     }
 
-
     /**
      * @return the event for the current FormIndex
      * @see FormEntryController
@@ -154,7 +153,6 @@ public class FormEntryModel {
         return new FormEntryCaption(form, index);
     }
 
-
     /**
      * When you have a non-question event, a CaptionPrompt will have all the
      * information needed to display to the user.
@@ -166,7 +164,6 @@ public class FormEntryModel {
         return getCaptionPrompt(currentFormIndex);
     }
 
-
     /**
      * @return an array of Strings of the current langauges. Null if there are
      * none.
@@ -176,14 +173,6 @@ public class FormEntryModel {
             return form.getLocalizer().getAvailableLocales();
         }
         return null;
-    }
-
-    /**
-     * Used by J2ME
-     * @return total number of questions in the form, regardless of relevancy
-     */
-    public int getNumQuestions() {
-        return form.getDeepChildCount();
     }
 
     /**
@@ -270,25 +259,6 @@ public class FormEntryModel {
      */
     public FormEntryCaption[] getCaptionHierarchy() {
         return getCaptionHierarchy(currentFormIndex);
-    }
-
-    /**
-     * @return true if the element at the specified index is read only
-     */
-    public boolean isIndexReadonly(FormIndex index) {
-        if (index.isBeginningOfFormIndex() || index.isEndOfFormIndex())
-            return true;
-
-        TreeReference ref = form.getChildInstanceRef(index);
-        boolean isAskNewRepeat = (getEvent(index) == FormEntryController.EVENT_PROMPT_NEW_REPEAT ||
-                getEvent(index) == FormEntryController.EVENT_REPEAT_JUNCTURE);
-
-        if (isAskNewRepeat) {
-            return false;
-        } else {
-            TreeElement node = form.getMainInstance().resolveReference(ref);
-            return !node.isEnabled();
-        }
     }
 
     /**
@@ -398,58 +368,6 @@ public class FormEntryModel {
                 }
             }
         }
-    }
-
-    public boolean isIndexCompoundContainer(FormIndex index) {
-        FormEntryCaption caption = getCaptionPrompt(index);
-        return getEvent(index) == FormEntryController.EVENT_GROUP && caption.getAppearanceHint() != null && caption.getAppearanceHint().toLowerCase().equals("full");
-    }
-
-    public boolean isIndexCompoundElement(FormIndex index) {
-        //Can't be a subquestion if it's not even a question!
-        if (getEvent(index) != FormEntryController.EVENT_QUESTION) {
-            return false;
-        }
-
-        //get the set of nested groups that this question is in.
-        FormEntryCaption[] captions = getCaptionHierarchy(index);
-        for (FormEntryCaption caption : captions) {
-
-            //If one of this question's parents is a group, this question is inside of it.
-            if (isIndexCompoundContainer(caption.getIndex())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public FormIndex[] getCompoundIndices(FormIndex container) {
-        //ArrayLists are a no-go for J2ME
-        Vector<FormIndex> indices = new Vector<>();
-        FormIndex walker = incrementIndex(container);
-        while (FormIndex.isSubElement(container, walker)) {
-            if (isIndexRelevant(walker)) {
-                indices.addElement(walker);
-            }
-            walker = incrementIndex(walker);
-        }
-        FormIndex[] array = new FormIndex[indices.size()];
-        for (int i = 0; i < indices.size(); ++i) {
-            array[i] = indices.elementAt(i);
-        }
-        return array;
-    }
-
-    /**
-     * Used by J2ME
-     * @return The Current Repeat style which should be used.
-     */
-    public int getRepeatStructure() {
-        return this.repeatStructure;
-    }
-
-    public FormIndex incrementIndex(FormIndex index) {
-        return incrementIndex(index, true);
     }
 
     public FormIndex incrementIndex(FormIndex index, boolean descend) {
