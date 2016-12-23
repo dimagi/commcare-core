@@ -14,8 +14,6 @@ import org.javarosa.core.model.instance.TreeReference;
 /**
  * Use the session state descriptor attached to saved forms to load case
  * information, such as the case name.
- *
- * @author Phillip Mates (pmates@dimagi.com)
  */
 public class FormDataUtil {
     public static String getTitleFromSession(UserSandbox userSandbox,
