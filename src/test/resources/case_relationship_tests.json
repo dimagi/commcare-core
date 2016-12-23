@@ -19,9 +19,7 @@
             "d"
         ],
         "outcome": [
-            "a",
-            "b",
-            "c"
+           
         ]
     },
     {
@@ -547,7 +545,7 @@
     {
         "name": "Delegate_Closure",
         "owned": [
-            "d"
+            "a"
         ],
         "closed": [
             "a"
@@ -559,6 +557,25 @@
             ]
         ],
         "outcome": []
+    },
+    {
+        "name": "Owned_Delegate_Non_Closure",
+        "owned": [
+            "d"
+        ],
+        "closed": [
+            "a"
+        ],
+        "extensions": [
+            [
+                "d",
+                "a"
+            ]
+        ],
+        "outcome": [
+            "a",
+            "d"
+        ]
     },
     {
         "name": "chain_with_owned_closed",
@@ -755,6 +772,43 @@
         ],
         "outcome": [
             "a"
+        ]
+    },
+    {
+        "name": "open_extension_of_closed_extension",
+        "owned": [
+            "c"
+        ],
+        "subcases": [
+
+        ],
+        "extensions": [
+            ["b", "a"],
+            ["c", "b"]
+        ],
+        "closed": [
+            "a", "b"
+        ],
+        "outcome": [
+            "a", "b", "c"
+        ]
+    },
+    {
+        "name": "open_child_of_closed_extension",
+        "owned": [
+            "c"
+        ],
+        "subcases": [
+            ["c", "b"]
+        ],
+        "extensions": [
+            ["b", "a"]
+        ],
+        "closed": [
+            "a", "b"
+        ],
+        "outcome": [
+            "a", "b", "c"
         ]
     }
 ]
