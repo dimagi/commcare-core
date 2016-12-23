@@ -561,6 +561,25 @@
         "outcome": []
     },
     {
+        "name": "Owned_Delegate_Non_Closure",
+        "owned": [
+            "d"
+        ],
+        "closed": [
+            "a"
+        ],
+        "extensions": [
+            [
+                "d",
+                "a"
+            ]
+        ],
+        "outcome": [
+            "a",
+            "d"
+        ]
+    },
+    {
         "name": "chain_with_owned_closed",
         "owned": [
             "b"
