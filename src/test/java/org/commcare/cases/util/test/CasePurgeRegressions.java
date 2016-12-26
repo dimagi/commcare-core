@@ -1,15 +1,8 @@
 package org.commcare.cases.util.test;
 
 import org.commcare.cases.model.Case;
-import org.commcare.core.interfaces.UserSandbox;
-import org.javarosa.core.model.User;
-import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.AbstractTreeElement;
-import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.model.xform.XPathReference;
 import org.junit.Assert;
 
 import org.commcare.cases.util.CasePurgeFilter;
@@ -37,39 +30,6 @@ import java.util.Vector;
  */
 public class CasePurgeRegressions {
 
-    /**
-     * For the users and groups in the provided sandbox, extracts out the list
-     * of valid "owners" for entities (cases, ledgers, etc) in the universe.
-     */
-    public static Vector<String> extractEntityOwners(UserSandbox sandbox) {
-        Vector<String> owners = new Vector<>();
-        Vector<String> users = new Vector<>();
-
-        for (IStorageIterator<User> userIterator = sandbox.getUserStorage().iterate(); userIterator.hasMore(); ) {
-            String id = userIterator.nextRecord().getUniqueId();
-            owners.addElement(id);
-            users.addElement(id);
-        }
-
-        //Now add all of the relevant groups
-        //TODO: Wow. This is.... kind of megasketch
-        for (String userId : users) {
-            DataInstance instance = SandboxUtils.loadFixture(sandbox, "user-groups", userId);
-            if (instance == null) {
-                continue;
-            }
-            EvaluationContext ec = new EvaluationContext(instance);
-            for (TreeReference ref : ec.expandReference(XPathReference.getPathExpr("/groups/group/@id").getReference())) {
-                AbstractTreeElement idElement = ec.resolveReference(ref);
-                if (idElement.getValue() != null) {
-                    owners.addElement(idElement.getValue().uncast().getString());
-                }
-            }
-        }
-
-        return owners;
-    }
-
     @Test
     public void testSimpleExtensions() throws Exception {
         MockUserDataSandbox sandbox;
@@ -78,7 +38,7 @@ public class CasePurgeRegressions {
 
         ParseUtils.parseIntoSandbox(this.getClass().getClassLoader().
                 getResourceAsStream("case_purge/simple_extension_test.xml"), sandbox);
-        owners = extractEntityOwners(sandbox);
+        owners = SandboxUtils.extractEntityOwners(sandbox);
 
         CasePurgeFilter purger = new CasePurgeFilter(sandbox.getCaseStorage(), owners);
         int removedCases = sandbox.getCaseStorage().removeAll(purger).size();
