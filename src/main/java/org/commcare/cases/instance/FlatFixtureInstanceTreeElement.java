@@ -12,12 +12,15 @@ import java.util.Hashtable;
  */
 public class FlatFixtureInstanceTreeElement extends StorageInstanceTreeElement<StorageBackedModel, FixtureChildElement> {
 
-    public FlatFixtureInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed<StorageBackedModel> storage, String modelName, String childName) {
+    public FlatFixtureInstanceTreeElement(AbstractTreeElement instanceRoot,
+                                          IStorageUtilityIndexed<StorageBackedModel> storage,
+                                          String modelName, String childName) {
         super(instanceRoot, storage, modelName, childName);
     }
 
     @Override
-    protected FixtureChildElement buildElement(StorageInstanceTreeElement<StorageBackedModel, FixtureChildElement> storageInstance, int recordId, String id, int mult) {
+    protected FixtureChildElement buildElement(StorageInstanceTreeElement<StorageBackedModel, FixtureChildElement> storageInstance,
+                                               int recordId, String id, int mult) {
         return new FixtureChildElement(storageInstance, mult, recordId, null);
     }
 
