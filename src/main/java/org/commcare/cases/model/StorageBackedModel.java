@@ -23,6 +23,12 @@ public class StorageBackedModel implements Persistable, IMetaData {
     protected int recordId;
     protected String entityId;
 
+    public StorageBackedModel(Hashtable<String, String> attributes,
+                              Hashtable<String, String> elements) {
+        this.attributes = attributes;
+        this.elements = elements;
+    }
+
     public Hashtable<String, String> getAttributes() {
         return attributes;
     }

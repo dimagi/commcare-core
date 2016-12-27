@@ -1,5 +1,6 @@
 package org.commcare.core.parse;
 
+import org.commcare.cases.model.StorageBackedModel;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
@@ -7,6 +8,7 @@ import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.FixtureXmlParser;
+import org.commcare.xml.FlatFixtureXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -45,6 +47,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     protected TransactionParserFactory caseParser;
     protected TransactionParserFactory stockParser;
     protected TransactionParserFactory fixtureParser;
+    protected TransactionParserFactory flatfixtureParser;
 
     protected final UserSandbox sandbox;
 
@@ -53,6 +56,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     public CommCareTransactionParserFactory(UserSandbox sandbox) {
         this.sandbox = sandbox;
         this.initFixtureParser();
+        this.initFlatFixtureParser();
         this.initUserParser();
         this.initCaseParser();
         this.initStockParser();
@@ -141,7 +145,6 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             public TransactionParser getParser(KXmlParser parser) {
                 if (created == null) {
                     created = new FixtureXmlParser(parser) {
-                        //TODO: store these on the file system instead of in DB?
                         private IStorageUtilityIndexed<FormInstance> fixtureStorage;
 
                         @Override
@@ -150,6 +153,31 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                                 fixtureStorage = sandbox.getUserFixtureStorage();
                             }
                             return fixtureStorage;
+                        }
+                    };
+                }
+
+                return created;
+            }
+        };
+    }
+
+    public void initFlatFixtureParser() {
+        flatfixtureParser = new TransactionParserFactory() {
+            FlatFixtureXmlParser created = null;
+
+            @Override
+            public TransactionParser getParser(KXmlParser parser) {
+                if (created == null) {
+                    created = new FlatFixtureXmlParser(parser) {
+                        private IStorageUtilityIndexed<StorageBackedModel> flatfixtureStorage;
+
+                        @Override
+                        public IStorageUtilityIndexed<StorageBackedModel> storage() {
+                            if (flatfixtureStorage == null) {
+                                flatfixtureStorage = sandbox.getFlatFixtureStorage();
+                            }
+                            return flatfixtureStorage;
                         }
                     };
                 }
