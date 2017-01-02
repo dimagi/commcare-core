@@ -21,7 +21,6 @@ import static org.junit.Assert.fail;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-
 public class DataInstanceTest {
 
     private static final String formPath = "/test_xpathpathexpr.xml";
