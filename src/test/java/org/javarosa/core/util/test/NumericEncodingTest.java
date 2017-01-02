@@ -62,7 +62,6 @@ public class NumericEncodingTest {
     }
 
     public void testNumericEncoding(long val, ExtWrapIntEncoding encoding) {
-        // TODO PLM: when the call to this test fails, who is blamed in the test suite?
         ExternalizableTest.testExternalizable(encoding.clone(new Long(val)), encoding, null, null);
     }
 

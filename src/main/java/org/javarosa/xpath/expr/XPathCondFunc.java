@@ -5,6 +5,8 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
+ * Conditional function that is an alternative to nested if-statements
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class XPathCondFunc extends XPathFuncExpr {
