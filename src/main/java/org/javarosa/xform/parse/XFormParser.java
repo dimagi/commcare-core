@@ -1034,8 +1034,9 @@ public class XFormParser {
             }
         } else {
             if (controlType == Constants.CONTROL_TRIGGER) {
-                // TODO: special handling for triggers? also, not all triggers created equal
-                // Currently, trigger and input tags are treated identically --PLM
+                // TODO PLM: special handling for triggers? also, not all
+                // triggers created equal. Currently, trigger and input tags are
+                // treated identically
             } else {
                 throw new XFormParseException("XForm Parse: input control with neither 'ref' nor 'bind'", e);
             }

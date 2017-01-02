@@ -113,4 +113,17 @@ public class XPathPathExprTest {
         XPathPathExpr unpackedExpr = XPathPathExpr.fromRef(ref);
         assertEquals(pathExpr, unpackedExpr);
     }
+
+    @Test
+    public void testCaseDbQueriesFromForm() {
+        FormParseInit fpi = new FormParseInit("/test_casedb_query_from_form.xml");
+        FormDef fd = fpi.getFormDef();
+        FormInstance casedb = (FormInstance)fd.getNonMainInstance("casedb");
+        EvaluationContext ec = fd.getEvaluationContext();
+
+        ExprEvalUtils.testEval("count(instance('casedb')/casedb/case[@case_id = 'case_one'])",
+                casedb, ec, 1.0);
+        ExprEvalUtils.testEval("count(instance('casedb')/casedb/case[@case_id != 'case_one'])",
+                casedb, ec, 2.0);
+    }
 }
