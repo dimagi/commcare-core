@@ -41,14 +41,4 @@ public class XPathCondFunc extends XPathFuncExpr {
         return args[args.length-1].eval(model, evalContext);
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior: Takes a set of test/expression pairs along with a default expression. The test conditions are evaluated in sequence and once one returns to true, 'cond' evaluates and returns the value of the corresponding expression and doesn't evaluate any of the other tests or expressions. If none of the test conditions evaluate to true, the default expression is returned.\n"
-                + "Return: Will return the value corresponding to one of the expression or the default expression.\n"
-                + "Arguments:  Any number of test condition & expression pairs along with a default expression.\n"
-                + "Syntax: cond(first_condition, value_if_first_true, second_condition, value_if_second_true, ..., default_value)\n"
-                + "Example:  This function is useful for avoiding nested if-statements. Instead of writing if(data/mother_is_pregnant = \"yes\", \"Is Pregnant\", if(/data/mother_has_young_children = \"yes\", \"Newborn Child Care\", \"Not Tracked\")) you can write cond(data/mother_is_pregnant = \"yes\", \"Is Pregnant\", /data/mother_has_young_children = \"yes\", \"Newborn Child Care\", \"Not Tracked\")\n"
-                + "Since: This function is available on CommCare 2.31 and later";
-    }
 }

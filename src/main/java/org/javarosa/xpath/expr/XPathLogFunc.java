@@ -22,14 +22,4 @@ public class XPathLogFunc extends XPathFuncExpr {
         return Math.log(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior: Takes the natural logarithm of a number\n"
-                + "Return: The natural logarithm of the argument passed to the function\n"
-                + "Arguments: The only argument is the number whose natural logarithm you want to take\n"
-                + "NOTE: A negative argument will return a blank value.\n"
-                + "Syntax: log(number)\n"
-                + "Example: log(2.49)";
-    }
 }
