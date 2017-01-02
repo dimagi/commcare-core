@@ -1,6 +1,248 @@
 {
+  "uuid": {
+      "doc": "Behavior:  Calculates a unique identifier of a particular length.\n Return: The unique id.\n Arguments:  The length of the unique id\n Syntax: uuid(length)\n Example:  uuid(10)."
+  },
+  "sqrt": {
+      "doc": "Behavior: Calculates the square root of a number\n Return: A double value that represents the square root of the provided argument.\n Arguments: An expression that evaluates to a number\n Syntax: sqrt(expression)\n Example: sqrt(4) -> 2.0"
+  },
+
+  "concat": {
+      "doc": "Behavior:  Joins multiple strings together.  The arguments can either reference a question or be a directly type string.\n Return: Joined string\n Arguments:  Multiple arguments (as many as needed) that represent the strings to be joined in order.\n Syntax: concat(text1, text2, text3, ...)\n Example:  concat(\"Full name: \", /data/first_name, \" \", /data/last_name)"
+  },
+
+  "today": {
+      "doc": "Return:  Returns the current date.\n Arguments: None\n Usage: today()\n Example Usage: You may want to use this when comparing against a user entered date.  For example, you may want to check that entered EDD is in the future (/data/edd > today())."
+  },
+
+  "starts-with": {
+      "doc": "Behavior:  Tests if one string begins with another string.\n Return: True or false.\n Arguments:  The string to search in, followed by the string to search for.\n Syntax: contains(text, prefix)\n Example:  Ex. starts-with(/data/last_name, \"Mc\")"
+  },
+
+  "atan": {
+      "doc": "Behavior: Finds the arctan of a number.\n Return: The arctan of the argument passed to the function\n Arguments: One number\n Syntax: atan(number)"
+  },
+
+  "regex": {
+      "doc": "Behavior:  Evaluates a value against a regular expression and returns true if the value matches that regular expression.\n Return: true or false\n Arguments:  There are two arguments, the value to be validated and the regular expression as a string.\n Syntax: regex(value, regular_expression)\n Example:  This is useful when doing complex validation against some value.  For example, to validate that a string contains only numbers, you can use regex(/data/my_question, \"[0 - 9] \").   You can test and develop other regular expressions using http://www.regexr.com/.  Also see the Advanced Validation Conditions page."
+  },
+
+  "sum": {
+      "doc": "Behavior:  Sum the items in a group (ex. a question in a repeat group)\n Return: Will return the sum of all items.\n Arguments:  The group of questions to be summed.\n Syntax: sum(question_group_to_be_summed)\n Example:  This is useful if you have a repeat and need to add up the values entered for one of the questions. Ex.  sum(/data/my_repeat_group/some_number_question)."
+  },
+
+  "not": {
+      "doc": "Behavior: Will evaluate to true if the argument is false.  Otherwise will return false.\n Return: Returns a boolean value (true or false)\n Arguments:  The value to be converted\n Syntax: not(value_to_convert)\n Example:  In some situations its easier to write the display or validation condition for when something shouldn't be shown.  You can then pass this to the not function which will reverse it, allowing it to be used as a display condition.  For example, not(/data/is_pregnant = \"yes\" and /data/has_young_children = \"yes\")"
+  },
+
+  "contains": {
+      "doc": "Behavior:  Tests if one string is contained within another string.\n Return: True or false.\n Arguments:  The string to search in, followed by the string to search for.\n Syntax: contains(haystack, needle)\n Example:  Ex. contains(/data/start_date, \"2014\")"
+  },
+
+  "pow": {
+      "doc": "Behavior:  Raises a number to an exponent, b^n\n Return: The value of the the first argument, raised to the power of the second argument\n Arguments:\n \tThe first argument is a numeric value\n \tThe second argument is the numeric exponent to which the first argument should be raised. It can be a negative value.\n NOTE: Due to technical restrictions the Exponent can only be an integer (non-decimal) value on Java Phones (Nokia, etc.). Decimal values can be used elsewhere.\n Syntax: pow(value, exponent)\n Example:  pow(2.5, 2)"
+  },
+
+  "count": {
+      "doc": "Behavior:  Counts the number of items in a group (ex. a repeat group)\n Return: Will return a number of items in the group.\n Arguments:  The group of items to be counted.\n Syntax: count(/data/group)\n Example:  This is useful if you have repeats in your form that allow the end user to choose the number of items.  You may want to calculate how many items were chosen and store them in a hidden value. Ex. count(data/repeat_group)"
+  },
+
+  "selected-at": {
+      "doc": "Behavior:  Extracts the nth word from a space-separated string.\n Return: The nth word from the string\n Arguments:  The space-separated string and the position of the word that is to be returned. The count is zero-indexed so the first word is at position 0.\n Syntax: selected-at(text, string_position)\n Example: selected-at(\"I am a sentence to test\", 3) -> \"sentence\""
+  },
+
+  "count-selected": {
+      "doc": "Behavior:  Counts the number of items selected in a multi-selected.\n Return: Returns the number of items selected.\n Arguments:  The multi-select question  (or a space-separated list of items).\n Syntax: count-selected(my_question)\n Example:  You may want to check that at least three items were chosen in a multi-select question.  Ex. count-selected(/data/my_question) >= 3"
+  },
+
+  "translate": {
+      "doc": "Behavior: Replace each of a given set of characters in one string with one of another set of characters.\n Return: String with replacements made.\n Arguments:  Three arguments\n \tThe string to manipulate\n \tThe set of characters to replace\n \tThe set of replacement characters. Any occurrences of the first character in the second argument will be replaced by the first character in this argument; any occurrences of the second character in the second argument will be replaced by the second character in this argument; etc. If there are fewer replacement characters than characters to replace, the \"extra\" characters will be deleted. If there are fewer characters to replace than replacement characters, the \"extra\" replacement characters will be ignored.\n Syntax: translate(text, to-replace, replacements)\n Examples\n \ttranslate('aBcdE', 'xyz', 'qrs') returns \"aBcdE\"\n \ttranslate('bosco', 'bos', 'sfo') returns \"sfocf\"\n \ttranslate('yellow', 'low', 'or') returns \"yeoor\"\n \ttranslate('bora bora', 'a', 'bc') returns \"borb borb\""
+  },
+
   "abs": {
-    "doc": "",
-    "arg_count": ""
+      "doc": "Behavior: Finds the absolute value of a number.\n Return: The absolute value of the argument passed to the function\n Arguments: The only argument is the number whose absolute value you want\n Syntax: abs(number)\n Example: abs(-2.49)"
+  },
+
+  "substring-after": {
+      "doc": "Behavior: Takes two strings, a base string and a query string and returns the substring of the base string that follows the first occurrence of the query string, or the empty string if the base string does not contain the query string\n Return: A substring of the first argument\n Arguments: A base string and a query string.\n Syntax: substring-after(full_string, substring)\n Example: substring-after('hello_there', 'hello_') -> \"there\""
+  },
+
+  "round": {
+      "doc": "Behavior: Rounds a number to the nearest integer\n Return: The argument passed to the function, rounded to the nearest integer.\n \tNOTE: Rounding negative numbers can be counter-intuitive. round(1.5) returns 2, while round(-1.5) returns -1.\n Arguments: The only argument is the number you want to round\n Syntax: round(number)\n Example: round(2.49)"
+  },
+
+  "log": {
+      "doc": "Behavior: Takes the natural logarithm of a number\n Return: The natural logarithm of the argument passed to the function\n Arguments: The only argument is the number whose natural logarithm you want to take\n NOTE: A negative argument will return a blank value.\n Syntax: log(number)\n Example: log(2.49)"
+  },
+
+  "false": {
+      "doc": "Return:  Returns the boolean value False\n Arguments: None\n Usage: false()\n Example Usage: You may want to use false() when you have some advanced logic for a display or validation condition.  You could also use them if you want to calculate false for a hidden value.  For example, if(/data/question1 = \"yes\" and /data/question2 > 30, true(), false())"
+  },
+
+  "cos": {
+      "doc": "Behavior: Finds the cos of a number.\n Return: The cos of the argument passed to the function\n Arguments: One number\n Syntax: cos(number)"
+  },
+
+  "upper-case": {
+      "doc": "Behavior:  Transforms all letters in a string to their uppercase equivalents.\n Return: Updated string\n Arguments: The string you want to transform.\n Syntax: upper-case(text)\n Example: upper-case(\"i AM a Test\") -> \"I AM A TEST\""
+  },
+
+  "weighted-checklist": {
+      "doc": "Behavior:  Similar to a checklist but each item is assigned a weight.  Will return true if the total weight of the true items is between the range specified.\n Return: True or false depending on the weighted-checklist (if value of the weighting is within the specified range).\n Arguments:\n \tThe first argument is a numeric value expressing the minimum value.  If -1, no minimum is applicable\n \tThe second argument is a numeric value expressing the maximum value.  If -1, no maximum is applicable\n \targuments 3 through the end come in pairs.  The first is the value to be checked and the second is the weight of that value.\n Syntax: weighted-checklist(min_num, max_num, checklist_item_1, checklist_item_weight_1, checklist_item_2, checklist_item_weight_2, ...)\n Example:  weighted-checklist(-1, 2, /data/high_risk_condition_1 = \"yes\", 0.5, /data/high_risk_condition_2 = \"yes\", 2.5, /data/high_risk_condition_3 = \"yes\", 0.75)"
+  },
+
+  "distance": {
+      "doc": "Behavior: Calculates the distance between two locations\n \tNOTE: Although this function makes use of trig functions, it works on both Android and J2ME, using our custom implementation.\n Return: The distance between two locations, -1 if one of the locations is an empty string\n Arguments: The two locations. The locations may be passed in as strings consisting of four space-separated numbers denoting latitude, longitude, altitude, and accuracy. However, altitude and accuracy are optional, and are ignored by the distance function.\n Syntax: if(location1 = '', '', if(location2 = '', '', distance(location1, location2)))\n Example: distance(\"42 -71\", \"40 116\")"
+  },
+
+  "int": {
+      "doc": "Return: Returns a whole number based on the passed in argument.\n Behavior: Will convert a string (ex. \"34.3\") or a decimal value into an integer.  It will round down (ex. 34.8 will be evaluated to 34).\n Arguments: The value to be converted\n Syntax: int(value_to_convert)\n Example: int(45.6) or int(\"45.6\") will return 45.  You can also directly reference another question - int(/data/my_question)."
+  },
+
+  "lower-case": {
+      "doc": "Behavior:  Transforms all letters in a string to their lowercase equivalents.\n Return: Updated string\n Arguments: The string you want to transform.\n Syntax: lower-case(text)\n Example: lower-case(\"i AM a Test\") -> \"i am a test\""
+  },
+
+  "asin": {
+      "doc": "Behavior: Finds the arcsin of a number.\n Return: The arcsin of the argument passed to the function\n Arguments: One number\n Syntax: asin(number)"
+  },
+
+  "if": {
+      "doc": "Behavior:  Can be used to test a condition and return one value if it is true and another if that condition is false.  Behaves like the Excel if function.\n Return: Will return either the value of the true or false branch.\n Arguments:  The condition, the true value and the false value.\n Syntax: if(condition_to_test, value_if_true, value_if_false)\n Example:  This function is very useful for complex logic.  Ex. if(/data/mother_is_pregnant = \"yes\" and /data/mother_age > 40, \"High Risk Mother\", \"Normal Mother\"). If you need more complex logic (if a, do this, otherwise if b, do this, otherwise do c), you can nest if statements.  Ex. if(data/mother_is_pregnant = \"yes\", \"Is Pregnant\", if(/data/mother_has_young_children = \"yes\", \"Newborn Child Care\", \"Not Tracked\"))"
+  },
+
+  "acos": {
+      "doc": "Behavior: Finds the arccos of a number.\n Return: The arccos of the argument passed to the function\n Arguments: One number\n Syntax: acos(number)"
+  },
+
+  "max": {
+      "doc": "Behavior:  Return the maximum value of the passed in values.  These can either be a reference to a group of questions or a direct set of values.\n Return: Number that is the maximum.\n Arguments:  There are two potential ways this function will work\n \tSingle argument that is the group of questions in which to find the maximum\n \tMultiple arguments (an unlimited number) in which to find the maximum.\n Syntax: max(question_group) or max(value_1, value_2, value_3, ...)\n Example:  You can use this when you want to find the maximum number entered in a repeat group.  Ex. max(/data/repeat_group/my_number_question).  Or when you have multiple questions.  Ex. max(/data/question_1, /data/question_2, /data/question_3, /data/question_4)."
+  },
+
+  "random": {
+      "doc": "Return:  Returns a random number between 0.0 (inclusive) and 1.0 (exclusive). For instance: 0.738\n Arguments: None\n Usage: random()\n Example Usage: When you need to generate a random number.  For example, to generate a number between 5 and 23, you can use (random()*(23 - 5)) 5.  This will be something like 12.43334.  You can convert that to a whole number by using int((random()*(23 - 5)) 5).  You can also reference questions instead of directly typing numbers.  Ex. int(random()*(/data/high_num - /data/low_num) /data/low_num)."
+  },
+
+  "string-length": {
+      "doc": "Behavior:  The number of characters in a string.\n Return: A number (characters)\n Arguments:  The string for which you need the length.\n Syntax: string-length(text_value)\n Example:  You may have users entering some identifier (numbers and letters) and you'd like to validate that is of a specific length.  Ex. string-length(/data/my_id_question)"
+  },
+
+  "position": {
+      "doc": "Behavior: Returns the current index of the given reference. \n Return: the greatest extant multiplicity of the reference. \n Arguments: The reference to be checked, or none for current position \n Example: position(/data/repeat) returns '2' if two iterations have been created"
+  },
+
+  "ceiling": {
+      "doc": "Behavior: Finds the smallest integer that is greater than or equal to a number\n Return: The smallest integer that is greater than or equal to the given number\n Arguments: The only argument is the number whose ceiling you want\n Syntax: ceiling(number)\n Example: ceiling(2.49)"
+  },
+
+  "substring-before": {
+      "doc": "Behavior: Takes two strings, a base string and a query string and returns the substring of the base string that precedes the first occurrence of the query string, or the empty string if the base string does not contain the query string\n Return: A substring of the first argument\n Arguments: A base string and a query string.\n Syntax: substring-before(full_string, substring)\n Example: substring-before('hello_there', '_there'). In conjunction with string-length, this can calculate the index of the 1st occurrence of a query string: string-length(substring-before(base_string, query_string))+1"
+  },
+
+  "cond": {
+      "doc": "Behavior: Takes a set of test/expression pairs along with a default expression. The test conditions are evaluated in sequence and once one returns to true, 'cond' evaluates and returns the value of the corresponding expression and doesn't evaluate any of the other tests or expressions. If none of the test conditions evaluate to true, the default expression is returned.\n Return: Will return the value corresponding to one of the expression or the default expression.\n Arguments:  Any number of test condition & expression pairs along with a default expression.\n Syntax: cond(first_condition, value_if_first_true, second_condition, value_if_second_true, ..., default_value)\n Example:  This function is useful for avoiding nested if-statements. Instead of writing if(data/mother_is_pregnant = \"yes\", \"Is Pregnant\", if(/data/mother_has_young_children = \"yes\", \"Newborn Child Care\", \"Not Tracked\")) you can write cond(data/mother_is_pregnant = \"yes\", \"Is Pregnant\", /data/mother_has_young_children = \"yes\", \"Newborn Child Care\", \"Not Tracked\")\n Since: This function is available on CommCare 2.31 and later"
+  },
+
+  "boolean-from-string": {
+      "doc": "Behavior: Will convert a string value of \"1\" or \"true\" to true.  Otherwise will return false.\n Return: Returns true or false based on the argument.\n Arguments:  The value to be converted\n Syntax: boolean-from-string(value_to_convert)\n Example:  boolean(/data/my_question) or boolean(\"1\")"
+  },
+
+  "min": {
+      "doc": "Behavior:  Return the minimum value of the passed in values.  These can either be a reference to a group of questions or a direct set of values.\n Return: Number that is the minimum.\n Arguments:  There are two potential ways this function will work\n \tSingle argument that is the group of questions in which to find the minimum\n \tMultiple arguments (an unlimited number) in which to find the minimum.\n Syntax: min(question_group) or min(value_1, value_2, value_3, ...)\n Example:  You can use this when you want to find the minimum number entered in a repeat group.  Ex. min(/data/repeat_group/my_number_question).  Or when you have multiple questions.  Ex. min(/data/question_1, /data/question_2, /data/question_3, /data/question_4)."
+  },
+
+  "format-date-for-calendar": {
+      "doc": "Behavior: Converts a Gregorian formatted date to a different calendar format. \n Return: a String of the input date formatted for the specified calendar. \n Arguments: The date to be converted and the format to convert to (currently 'ethiopian' or 'nepali'). \n Example: format-date-for-calendar('19070-01-1', 'nepali')"
+  },
+
+  "sin": {
+      "doc": "Behavior: Finds the sin of a number.\n Return: The sin of the argument passed to the function\n Arguments: One number\n Syntax: sin(number)"
+  },
+
+  "format-date": {
+      "doc": "Behavior: Will change the format of a date for display\n Return: Returns a string conversion of the provided date.\n Arguments:  the date to be converted, and a string describing how it should be formatted.  The syntax for the display format string is below\n \t'%Y' = year\n \t'%y' = 2 digit year\n \t'%m' = 0-padded month\n \t'%n' = numeric month\n \t'%b' = short text month (Jan, Feb, etc)\n \t'%d' = 0-padded day of month\n \t'%e' = day of month\n \t'%H' = 0-padded hour (24 hour time)\n \t'%h' = hour (24 hour time)\n \t'%M' = 0-padded minutes\n \t'%S' = 0-padded second\n \t'%3' = 0-padded milliseconds\n \t'%a' = three letter short text day (Sun, Mon, etc)\n \t'short' = the date will be formatted based on the user's current language and phone settings\n \t'nepali' = displays the date in the Nepali calendar\n Syntax: format-date(date_to_convert, display_format_string)\n Example:  When you are displaying a date in the display text, its useful to format it in a manner that is readable for your end users (the default is YYYY-MM-DD).  Some examples\n \tformat-date(date(/data/my_date), \"%e/%n/%y\") will return a date that looks like D/M/YY\n \tformat-date(date(/data/my_date), \"%a, %e %b %Y\") will return a date that looks like Sun, 7 Apr 2012.\n \tformat-date(now(), '%y/%n/%e - %H:%M:%S') will return the current date and time in the format YY/M/D - HH:MM:SS\n \tformat-date(now(), '%H:%M:%S') will return the current time in the format HH:MM:SS"
+  },
+
+  "pi": {
+      "doc": "Behavior: Returns Pi\n Return: Pi\n Arguments: None\n Syntax: pi()"
+  },
+
+  "join": {
+      "doc": "Behavior: Joins the values of all nodes in a given nodeset with a given string. This can be used to get all the values of a node in a repeat group.\n Return: Joined string\n Arguments: A string to join the values of the nodeset with, and a nodeset.\n Syntax: join(text, my_nodeset)\n Example: join(\", \", /data/my_repeat/child_name)"
+  },
+
+  "floor": {
+      "doc": "Behavior: Finds the largest integer that is less than or equal to a number\n Return: The largest integer that is less than or equal to the given number\n Arguments: The only argument is the number whose floor you want\n Syntax: floor(number)\n Example: floor(2.49)"
+  },
+
+  "replace": {
+      "doc": "Behavior:  Searches a string for a pattern and replaces any occurrences of that pattern with another string.\n Return: String with any pattern matches replaced\n Arguments:  Three arguments\n \tThe string to search in\n \tA regular expression pattern to search for\n \tThe text with which to replace any matched patterns\n \tNOTE: Unlike the XPath spec, this function does not support backreferences (e.g., using $1 in the replacement string to represent a matched group).\n Syntax: replace(text, pattern, replacement)\n Examples\n \treplace(\"aaabbbaa\", \"a+\", \"a\") returns \"aba\"\n \treplace(\"abbbccd\", \"a.*c\", \"\") returns \"cd\""
+  },
+
+  "tan": {
+      "doc": "Behavior: Finds the tan of a number.\n Return: The tan of the argument passed to the function\n Arguments: One number\n Syntax: tan(number)"
+  },
+
+  "depend": {
+      "doc": "Behavior: Used to force the engine to re-calculate the first argument when any of the other arguments change\n Return: The first argument passed in\n Arguments: 1 or more arguments\n Syntax: depend(expression, ..., expression)\n Example: depend(/data/some_variable, /data/count, /data/dob)"
+  },
+
+  "double": {
+      "doc": "Behavior: Will convert a string (ex. \"34.3\") or a integer value into a double.\n Return: Returns a double number based on the passed in argument.\n Arguments: The value to be converted\n Syntax: double(value_to_convert)\n Example: double(45) or double(\"45\") will return 45.0. You can also directly reference another question - double(/data/my_question)."
+  },
+
+  "string": {
+      "doc": "Behavior: Will convert a value into an equivalent string.\n Return: Returns a string based on the passed in argument.\n Arguments:  The value to be converted\n Syntax: string(value_to_convert)\n Example:  If you need to combine some information into a single string (using concatenate for example), you may need to convert some of those values into a string first.  concat(\"You are \", string(/data/age_question), \" years old\")."
+  },
+
+  "ends-with": {
+      "doc": "Behavior:  Tests if one string ends with another string.\n Return: True or false.\n Arguments:  The string to search in, followed by the string to search for.\n Syntax: contains(text, suffix)\n Example:  Ex. ends-with(/data/word, \"ita\")"
+  },
+
+  "substr": {
+      "doc": "Behavior:  A substring function.  Finds a specific part of the string (based on a start position and end position).\n Return: The substring identified.\n Arguments:  Three arguments\n \tThe text value in which to find the sub string\n \tThe start position in the string.  This is inclusive (so will include that character). The characters are numbered starting at 0.\n \tThe end position in the string.  This is exclusive (so will not include that character). The characters are numbered starting at 0.\n Syntax: substr(text_value, start_position, end_position)\n Example:  For example, you would like to grab just the year from the string \"2012-09-21\". You can use substr(/data/string_date, 0, 4)"
+  },
+
+  "atan2": {
+      "doc": "Behavior: Finds the arctan of two numbers.\n Return: The arctan of the 2 arguments passed to the function\n Arguments: Two numbers\n Syntax: atan2(number, number)"
+  },
+
+  "checklist": {
+      "doc": "Behavior:  Performs a checklist computation, calculating if at least some number or a maximum number of items are answered a particular way.\n Return: True or false depending on the checklist (if number of true items is between the minimum and maximum specified).\n Arguments:\n \tThe first argument is a numeric value expressing the minimum number of factors required.  If -1, no minimum is applicable\n \tThe second argument is a numeric value expressing the maximum number of allowed factors.  If -1, no maximum is applicable\n \targuments 3 through the end are the individual factors, each treated as a boolean.\n Syntax: checklist(min_num, max_num, checklist_item_1, checklist_item_2, ...)\n Example:  You may want to check that the mother has at least 2 out of 4 high risk symptoms.  Ex. checklist(-1, 2, /data/high_risk_condition_1 = \"yes\", /data/high_risk_condition_2 = \"yes\", /data/high_risk_condition_3 = \"yes\", /data/high_risk_condition_4 = \"yes\")"
+  },
+
+  "exp": {
+      "doc": "Behavior: Raises Euler's constant to the power of the provided number\n Return: A number representing e^x, where e is Euler's number and x is the argument.\n Arguments: A number to act as the exponent\n Syntax: exp(value_to_convert)\n Example: exp(0) -> 1"
+  },
+
+  "log10": {
+      "doc": "Behavior: Takes the base-10 logarithm of a number\n Return: The base-10 logarithm of the argument passed to the function\n Arguments: The only argument is the number whose base-10 logarithm you want to take\n NOTE: A negative argument will return a blank value\n Syntax: log10(number)\n Example: log10(2.49)"
+  },
+
+  "boolean": {
+      "doc": "Behavior: When passed a number, will return true if the number is not zero.  Otherwise it will return false.   When passed a string, will return true if the string is non-empty.\n Return: Returns true or false based on the argument.\n Arguments:  The value to be converted\n Syntax: boolean(value_to_convert)\n Example:  You may have stored a value that is 1 or 0 into a boolean for other logic.  boolean(/data/my_question) or boolean(23)"
+  },
+
+  "number": {
+      "doc": "Return: Returns a number based on the passed in argument.\n Behavior: Will convert a string (ex. \"34.3\") into a number.  Will cause an error if the passed in argument is not a number (ex. \"two\").\n Arguments:  The value to be converted\n Syntax: number(value_to_convert)\n Example:  If your application has a string value that needs to be stored as number.  number(/data/my_string_number) or number(\"453\")"
+  },
+
+  "selected": {
+      "doc": "Behavior:  Checks to see if a value was selected from a multiselect question. You cannot just do /data/my_question = \"my_value_1\" - this will fail if both \"my_value_1\" and \"my_value_2\" were selected.\n Return: True if that particular value was selected.  Otherwise false.\n Arguments:  Two arguments, the multi-select question and the value to check.\n Syntax: selected(my_question, value_to_check)\n Example:  selected(/data/my_multi_select_question, \"my_value_4\")."
+  },
+
+  "now": {
+      "doc": "Return:  Returns the current date.and time\n Arguments: None\n Usage: now()\n Example Usage: You may want to use this if you want to calculate the current date and time in a hidden value. When saved to a case, will only save the date portion without the time. If the time portion is important, convert to a number before saving to a case: double(now())."
+  },
+
+  "true": {
+      "doc": "Return:  Returns the boolean value True\n Arguments: None\n Syntax: true()\n Example: You may want to use true() when you have some advanced logic for a display or validation condition.  You could also use them if you want to calculate true for a hidden value.  For example, if(/data/question1 = \"yes\" and /data/question2 > 30, true(), false())" 
+  },
+
+  "coalesce": {
+      "doc": "Behavior:  Useful for choosing which of two values to return.  Will return the non-null/empty value.  If both are not null, will return the first argument.\n Return: One of the values\n Arguments:  The two values to be coalesced\n Syntax: coalesce(value_1, value_2).\n Example:  This is useful if you want to use a default value when referring to a question which may or may not have been answered.  Ex. coalesce(/data/my_question, \"my default value\")."
+  },
+
+  "date": {
+      "doc": "Behavior: Will convert a string or a number value into an equivalent date.  Will throw an error if the format of the string is wrong or an invalid date is passed.\n Return: Returns a date\n Arguments:  The value to be converted (either a string in the format YYYY-MM-DD or a number).\n Syntax: date(value_to_convert)\n Example:  If you have stored any date values in a case, they are actually stored as a string in the format YYYY-MM-DD.  You will need to convert them into a date prior to using that for date math or when formatting for display.  (ex. date(/data/case_edd)).\n Notes: When working with dates prior to 1970 you should use date(floor(value_to_convert)) in order to avoid an issue where negative numbers are rounded incorrectly."
   }
 }
