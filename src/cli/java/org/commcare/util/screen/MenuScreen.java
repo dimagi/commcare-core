@@ -54,15 +54,15 @@ public class MenuScreen extends Screen {
         for(Suite s : mPlatform.getInstalledSuites()) {
             for(Menu m : s.getMenus()) {
                 try {
-                    XPathExpression relevance = m.getMenuRelevance();
-                    if (m.getMenuRelevance() != null) {
-                        ec = session.getEvaluationContext(m.getId());
-                        if (!FunctionUtils.toBoolean(relevance.eval(ec))) {
-                            continue;
-                        }
-                    }
-
                     if (m.getId().equals(root)) {
+
+                        XPathExpression relevance = m.getMenuRelevance();
+                        if (m.getMenuRelevance() != null) {
+                            ec = session.getEvaluationContext(m.getId());
+                            if (!FunctionUtils.toBoolean(relevance.eval(ec))) {
+                                continue;
+                            }
+                        }
 
                         for (String command : m.getCommandIds()) {
                             XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
