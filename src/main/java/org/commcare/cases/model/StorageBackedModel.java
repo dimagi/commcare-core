@@ -10,6 +10,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 /**
@@ -39,11 +40,27 @@ public class StorageBackedModel implements Persistable, IMetaData {
 
     @Override
     public String[] getMetaDataFields() {
-        return new String[0];
+        String[] fields = new String[attributes.size() + elements.size()];
+        int i = 0;
+        for (Enumeration<String> e = attributes.keys(); e.hasMoreElements();) {
+            String key = e.nextElement();
+            fields[i++] = key;
+        }
+        for (Enumeration<String> e = elements.keys(); e.hasMoreElements();) {
+            String key = e.nextElement();
+            fields[i++] = key;
+        }
+        return fields;
     }
 
     @Override
     public Object getMetaData(String fieldName) {
+        if (attributes.containsKey(fieldName)) {
+            return attributes.get(fieldName);
+        } else if (elements.containsKey(fieldName)) {
+            return elements.get(fieldName);
+        }
+
         return null;
     }
 

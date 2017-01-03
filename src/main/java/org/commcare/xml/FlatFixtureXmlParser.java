@@ -60,6 +60,7 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
                 processChild(child, expectedElements, expectedAttributes);
             }
         }
+        return null;
     }
 
     private static HashSet<String> buildAttributeKeys(TreeElement root) {

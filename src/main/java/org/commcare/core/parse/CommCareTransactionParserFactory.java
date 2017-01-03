@@ -18,7 +18,6 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.util.Hashtable;
 
 /**
  * The CommCare Transaction Parser Factory (whew!) wraps all of the current
@@ -84,11 +83,13 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             req();
             return userParser.getParser(parser);
         } else if ("fixture".equalsIgnoreCase(name)) {
+            String id = parser.getAttributeValue(null, "id");
             req();
-            return fixtureParser.getParser(parser);
-        } else if ("flatfixture".equalsIgnoreCase(name)) {
-            req();
-            return buildFlatFixtureParser(parser.getAttributeValue(null, "id")).getParser(parser);
+            if (id != null && id.startsWith("flat")) {
+                return buildFlatFixtureParser(parser.getAttributeValue(null, "id")).getParser(parser);
+            } else {
+                return fixtureParser.getParser(parser);
+            }
         } else if ("sync".equalsIgnoreCase(name) &&
                 "http://commcarehq.org/sync".equals(namespace)) {
             return new TransactionParser<String>(parser) {
