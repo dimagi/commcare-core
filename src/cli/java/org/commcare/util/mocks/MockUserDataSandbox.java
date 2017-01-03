@@ -10,6 +10,8 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+import java.util.HashMap;
+
 /**
  * A placeholder for the in-memory storage elements needed for an individual
  * CommCare user.
@@ -25,12 +27,13 @@ public class MockUserDataSandbox extends UserSandbox {
     private final IStorageUtilityIndexed<Case> caseStorage;
     private final IStorageUtilityIndexed<Ledger> ledgerStorage;
     private final IStorageUtilityIndexed<User> userStorage;
-    private final IStorageUtilityIndexed<StorageBackedModel> flatFixtureStorage;
+    private final HashMap<String, IStorageUtilityIndexed<StorageBackedModel>> flatFixtureStorages;
     private final IStorageUtilityIndexed<FormInstance> userFixtureStorage;
     private IStorageUtilityIndexed<FormInstance> appFixtureStorage;
     
     private User mUser;
     private String mSyncToken;
+    private final PrototypeFactory factory;
 
     /**
      * Create a sandbox of the necessary storage objects with the shared
@@ -42,9 +45,11 @@ public class MockUserDataSandbox extends UserSandbox {
         caseStorage = new DummyIndexedStorageUtility<>(Case.class, factory);
         ledgerStorage = new DummyIndexedStorageUtility<>(Ledger.class, factory);
         userStorage = new DummyIndexedStorageUtility<>(User.class, factory);
-        flatFixtureStorage = new DummyIndexedStorageUtility<>(StorageBackedModel.class, factory);
+        flatFixtureStorages = new HashMap<>();
         userFixtureStorage = new DummyIndexedStorageUtility<>(FormInstance.class, factory);
         appFixtureStorage = new DummyIndexedStorageUtility<>(FormInstance.class, factory);
+
+        this.factory = factory;
     }
 
     @Override
@@ -63,8 +68,11 @@ public class MockUserDataSandbox extends UserSandbox {
     }
 
     @Override
-    public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage() {
-        return flatFixtureStorage;
+    public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName) {
+        if (!flatFixtureStorages.containsKey(fixtureName)) {
+            flatFixtureStorages.put(fixtureName, new DummyIndexedStorageUtility<>(StorageBackedModel.class, factory));
+        }
+        return flatFixtureStorages.get(fixtureName);
     }
 
     @Override

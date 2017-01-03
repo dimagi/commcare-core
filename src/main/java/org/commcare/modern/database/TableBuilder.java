@@ -178,9 +178,13 @@ public class TableBuilder {
         return new Pair<String, List<Object>>(stringBuilder.toString(), params);
     }
 
-    //sqlite doesn't like dashes
     public static String scrubName(String input) {
+        // sqlite doesn't like dashes
         return input.replace("-", "_");
+    }
+
+    public static String cleanTableName(String name) {
+        return name.replace(":", "_").replace(".", "_").replace("-", "_");
     }
 
     public static byte[] toBlob(Externalizable externalizable){

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.api.persistence;
 
 import org.javarosa.core.services.PrototypeManager;

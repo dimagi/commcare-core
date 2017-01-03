@@ -47,7 +47,6 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     protected TransactionParserFactory caseParser;
     protected TransactionParserFactory stockParser;
     protected TransactionParserFactory fixtureParser;
-    protected TransactionParserFactory flatfixtureParser;
 
     protected final UserSandbox sandbox;
 
@@ -56,7 +55,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     public CommCareTransactionParserFactory(UserSandbox sandbox) {
         this.sandbox = sandbox;
         this.initFixtureParser();
-        this.initFlatFixtureParser();
+        this.buildFlatFixtureParser();
         this.initUserParser();
         this.initCaseParser();
         this.initStockParser();
@@ -87,6 +86,9 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         } else if ("fixture".equalsIgnoreCase(name)) {
             req();
             return fixtureParser.getParser(parser);
+        } else if ("flatfixture".equalsIgnoreCase(name)) {
+            req();
+            return buildFlatFixtureParser(parser.getAttributeValue(null, "id")).getParser(parser);
         } else if ("sync".equalsIgnoreCase(name) &&
                 "http://commcarehq.org/sync".equals(namespace)) {
             return new TransactionParser<String>(parser) {
@@ -162,8 +164,8 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         };
     }
 
-    public void initFlatFixtureParser() {
-        flatfixtureParser = new TransactionParserFactory() {
+    public TransactionParserFactory buildFlatFixtureParser(final String fixtureName) {
+        return new TransactionParserFactory() {
             FlatFixtureXmlParser created = null;
 
             @Override
@@ -175,7 +177,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                         @Override
                         public IStorageUtilityIndexed<StorageBackedModel> storage() {
                             if (flatfixtureStorage == null) {
-                                flatfixtureStorage = sandbox.getFlatFixtureStorage();
+                                flatfixtureStorage = sandbox.getFlatFixtureStorage(fixtureName);
                             }
                             return flatfixtureStorage;
                         }

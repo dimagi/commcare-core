@@ -22,7 +22,7 @@ public abstract class UserSandbox {
 
     public abstract IStorageUtilityIndexed<User> getUserStorage();
 
-    public abstract IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage();
+    public abstract IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName);
 
     public abstract IStorageUtilityIndexed<FormInstance> getUserFixtureStorage();
 
