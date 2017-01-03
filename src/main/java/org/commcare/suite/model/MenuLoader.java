@@ -3,6 +3,7 @@ package org.commcare.suite.model;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.modern.session.SessionWrapperInterface;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.LoggerInterface;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathException;
@@ -23,19 +24,25 @@ public class MenuLoader {
     private Exception loadException;
     private String xPathErrorMessage;
     private MenuDisplayable[] menus;
+    private LoggerInterface loggerInterface;
 
-    public MenuLoader(CommCarePlatform platform, SessionWrapperInterface sessionWrapper, String menuId) {
+    public MenuLoader(CommCarePlatform platform,
+                      SessionWrapperInterface sessionWrapper,
+                      String menuId,
+                      LoggerInterface loggerInterface) {
+        this.loggerInterface = loggerInterface;
         this.getMenuDisplayables(platform, sessionWrapper, menuId);
     }
 
     public String getErrorMessage() {
         if (loadException != null) {
             String errorMessage = loadException.getMessage();
-
             if (loadException instanceof XPathSyntaxException) {
                 errorMessage = Localization.get("app.menu.display.cond.bad.xpath", new String[]{xPathErrorMessage, loadException.getMessage()});
+                loggerInterface.logError(errorMessage);
             } else if (loadException instanceof XPathException) {
                 errorMessage = Localization.get("app.menu.display.cond.xpath.err", new String[]{xPathErrorMessage, loadException.getMessage()});
+                loggerInterface.logError(errorMessage, (XPathException)loadException);
             }
             return errorMessage;
         }
@@ -122,9 +129,10 @@ public class MenuLoader {
                     }
                 } catch (XPathTypeMismatchException e) {
                     final String msg = "relevancy condition for menu item returned non-boolean value : " + ret;
-                    //XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e.getSource(), msg);
-                    //Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, msg);
-                    throw new RuntimeException(msg);
+                    xPathErrorMessage = msg;
+                    loadException = e;
+                    loggerInterface.logError(msg, e);
+                    throw e;
                 }
             }
 

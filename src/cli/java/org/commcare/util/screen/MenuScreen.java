@@ -6,6 +6,9 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.MenuLoader;
+import org.commcare.util.LoggerInterface;
+import org.javarosa.core.services.Logger;
+import org.javarosa.xpath.XPathException;
 
 import java.io.PrintStream;
 
@@ -18,20 +21,30 @@ public class MenuScreen extends Screen {
 
     private MenuDisplayable[] mChoices;
 
-    String mTitle;
+    private String mTitle;
+
+    class ScreenLogger implements LoggerInterface {
+
+        @Override
+        public void logError(String message, XPathException cause) {
+            Logger.exception(message, cause);
+        }
+
+        @Override
+        public void logError(String message) {
+            Logger.log("exception", message);
+        }
+    }
 
     @Override
     public void init(SessionWrapper session) throws CommCareSessionException {
         String root = deriveMenuRoot(session);
-        MenuLoader menuLoader = new MenuLoader(session.getPlatform(), session, root);
+        MenuLoader menuLoader = new MenuLoader(session.getPlatform(), session, root, new ScreenLogger());
         this.mChoices = menuLoader.getMenus();
-
         Exception loadException = menuLoader.getLoadException();
-
         if (loadException != null) {
             throw new CommCareSessionException(menuLoader.getErrorMessage());
         }
-
     }
 
     @Override
