@@ -5,7 +5,6 @@ import org.commcare.data.xml.TransactionParser;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.xml.TreeElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -22,20 +21,12 @@ import java.util.Hashtable;
  *
  * @author ctsims
  */
-public class FlatFixtureXmlParser extends TransactionParser<StorageBackedModel> {
+public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBackedModel> {
 
     IStorageUtilityIndexed<StorageBackedModel> storage;
-    private final boolean overwrite;
 
     public FlatFixtureXmlParser(KXmlParser parser) {
-        this(parser, true, null);
-    }
-
-    public FlatFixtureXmlParser(KXmlParser parser, boolean overwrite,
-                                IStorageUtilityIndexed<StorageBackedModel> storage) {
         super(parser);
-        this.overwrite = overwrite;
-        this.storage = storage;
     }
 
     @Override
@@ -47,8 +38,6 @@ public class FlatFixtureXmlParser extends TransactionParser<StorageBackedModel> 
         if (fixtureId == null) {
             throw new InvalidStructureException("fixture is lacking id attribute", parser);
         }
-
-        String userId = parser.getAttributeValue(null, "user_id");
 
         TreeElement root;
         if (!nextTagInBlock("fixture")) {
@@ -134,17 +123,12 @@ public class FlatFixtureXmlParser extends TransactionParser<StorageBackedModel> 
     @Override
     protected void commit(StorageBackedModel parsed) throws IOException {
         try {
-            storage().write(parsed);
+            storage(parsed).write(parsed);
         } catch (StorageFullException e) {
             e.printStackTrace();
             throw new IOException("Storage full while writing case!");
         }
     }
 
-    public IStorageUtilityIndexed<StorageBackedModel> storage() {
-        if (storage == null) {
-            storage = (IStorageUtilityIndexed)StorageManager.getStorage(StorageBackedModel.STORAGE_KEY);
-        }
-        return storage;
-    }
+    public abstract IStorageUtilityIndexed<StorageBackedModel> storage(StorageBackedModel exampleEntry);
 }

@@ -7,6 +7,7 @@ import org.commcare.core.interfaces.UserSandbox;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -68,8 +69,9 @@ public class MockUserDataSandbox extends UserSandbox {
     }
 
     @Override
-    public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName) {
+    public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName, Persistable exampleEntry) {
         if (!flatFixtureStorages.containsKey(fixtureName)) {
+            // TODO PLM: use exampleEntry instead of StorageBackedModel.class to get meta data correct
             flatFixtureStorages.put(fixtureName, new DummyIndexedStorageUtility<>(StorageBackedModel.class, factory));
         }
         return flatFixtureStorages.get(fixtureName);

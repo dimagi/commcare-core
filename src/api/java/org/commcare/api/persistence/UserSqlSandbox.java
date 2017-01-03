@@ -8,6 +8,7 @@ import org.commcare.modern.database.TableBuilder;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.Persistable;
 
 /**
  * A sandbox for user data using SqliteIndexedStorageUtility. Sandbox is per-User
@@ -60,8 +61,9 @@ public class UserSqlSandbox extends UserSandbox {
     }
 
     @Override
-    public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName) {
+    public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName, Persistable exampleEntry) {
         String tableName = StorageBackedModel.STORAGE_KEY + TableBuilder.cleanTableName(fixtureName);
+        // TODO PLM: use exampleEntry instead of StorageBackedModel.class to get meta data correct
         return new SqliteIndexedStorageUtility<>(StorageBackedModel.class, username, tableName, path);
     }
 

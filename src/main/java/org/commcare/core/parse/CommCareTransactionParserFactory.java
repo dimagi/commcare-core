@@ -18,6 +18,7 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.Hashtable;
 
 /**
  * The CommCare Transaction Parser Factory (whew!) wraps all of the current
@@ -55,7 +56,6 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     public CommCareTransactionParserFactory(UserSandbox sandbox) {
         this.sandbox = sandbox;
         this.initFixtureParser();
-        this.buildFlatFixtureParser();
         this.initUserParser();
         this.initCaseParser();
         this.initStockParser();
@@ -175,9 +175,9 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                         private IStorageUtilityIndexed<StorageBackedModel> flatfixtureStorage;
 
                         @Override
-                        public IStorageUtilityIndexed<StorageBackedModel> storage() {
+                        public IStorageUtilityIndexed<StorageBackedModel> storage(StorageBackedModel exampleEntry) {
                             if (flatfixtureStorage == null) {
-                                flatfixtureStorage = sandbox.getFlatFixtureStorage(fixtureName);
+                                flatfixtureStorage = sandbox.getFlatFixtureStorage(fixtureName, exampleEntry);
                             }
                             return flatfixtureStorage;
                         }

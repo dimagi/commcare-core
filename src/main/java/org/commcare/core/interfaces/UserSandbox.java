@@ -6,6 +6,7 @@ import org.commcare.cases.model.StorageBackedModel;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.Persistable;
 
 /**
  *  Interface to be implemented by sandboxes for a user's CommCare instance data
@@ -22,7 +23,7 @@ public abstract class UserSandbox {
 
     public abstract IStorageUtilityIndexed<User> getUserStorage();
 
-    public abstract IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName);
+    public abstract IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName, Persistable exampleEntry);
 
     public abstract IStorageUtilityIndexed<FormInstance> getUserFixtureStorage();
 
