@@ -12,7 +12,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 public interface SessionWrapperInterface {
     CommCareInstanceInitializer getIIF();
     String getNeededData();
-    SessionDatum getNeededDatum(Entry entr);
+    SessionDatum getNeededDatum(Entry entry);
     EvaluationContext getEvaluationContext(String commandId);
     EvaluationContext getEvaluationContext();
 }
