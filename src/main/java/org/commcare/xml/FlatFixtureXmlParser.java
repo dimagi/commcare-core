@@ -2,6 +2,7 @@ package org.commcare.xml;
 
 import org.commcare.cases.model.StorageBackedModel;
 import org.commcare.data.xml.TransactionParser;
+import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -65,7 +66,7 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
 
     private static HashSet<String> buildAttributeKeys(TreeElement root) {
         HashSet<String> attributeSet = new HashSet<>();
-        for (int i = 0; i <= root.getAttributeCount(); i++) {
+        for (int i = 0; i < root.getAttributeCount(); i++) {
             attributeSet.add(root.getAttributeName(i));
         }
 
@@ -74,7 +75,7 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
 
     private static HashSet<String> buildChildKeys(TreeElement root) {
         HashSet<String> elementSet = new HashSet<>();
-        for (int i = 0; i <= root.getNumChildren(); i++) {
+        for (int i = 0; i < root.getNumChildren(); i++) {
             elementSet.add(root.getChildAt(i).getName());
         }
 
@@ -97,12 +98,13 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
     private Hashtable<String, String> loadElements(TreeElement child,
                                                    HashSet<String> expectedElementsCopy) {
         Hashtable<String, String> elements = new Hashtable<>();
-        for (int i = 0; i <= child.getNumChildren(); i++) {
+        for (int i = 0; i < child.getNumChildren(); i++) {
             TreeElement entry = child.getChildAt(i);
             if (!expectedElementsCopy.remove(entry.getName())) {
                 throw new RuntimeException("Flat fixture is heterogeneous");
             }
-            elements.put(entry.getName(), entry.getValue().uncast().getString());
+            IAnswerData value = entry.getValue();
+            elements.put(entry.getName(), value == null ? "" : value.uncast().getString());
         }
         return elements;
     }
@@ -110,7 +112,7 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
     private Hashtable<String, String> loadAttributes(TreeElement child,
                                                      HashSet<String> expectedAttributesCopy) {
         Hashtable<String, String> attributes = new Hashtable<>();
-        for (int i = 0; i <= child.getAttributeCount(); i++) {
+        for (int i = 0; i < child.getAttributeCount(); i++) {
             String attrName = child.getAttributeName(i);
             TreeElement attr = child.getAttribute(null, attrName);
             if (!expectedAttributesCopy.remove(attr.getName())) {
