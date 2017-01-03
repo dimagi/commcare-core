@@ -1,5 +1,6 @@
 package org.commcare.util.mocks;
 
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -103,7 +104,7 @@ public class MockDataUtils {
     /**
      * Create an evaluation context with an abstract instance available.
      */
-    public static EvaluationContext buildContextWithInstance(MockUserDataSandbox sandbox, String instanceId, String instanceRef){
+    public static EvaluationContext buildContextWithInstance(UserSandbox sandbox, String instanceId, String instanceRef){
         Hashtable<String, String> instanceRefToId = new Hashtable<>();
         instanceRefToId.put(instanceRef, instanceId);
         return buildContextWithInstances(sandbox, instanceRefToId);
@@ -112,7 +113,7 @@ public class MockDataUtils {
     /**
      * Create an evaluation context with an abstract instances available.
      */
-    public static EvaluationContext buildContextWithInstances(MockUserDataSandbox sandbox,
+    public static EvaluationContext buildContextWithInstances(UserSandbox sandbox,
                                                               Hashtable<String, String> instanceRefToId) {
         InstanceInitializationFactory iif = new CommCareInstanceInitializer(sandbox);
 
