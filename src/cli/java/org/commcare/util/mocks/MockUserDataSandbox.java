@@ -4,6 +4,7 @@ import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageBackedModel;
 import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -75,6 +76,17 @@ public class MockUserDataSandbox extends UserSandbox {
             flatFixtureStorages.put(fixtureName, new DummyIndexedStorageUtility<>(StorageBackedModel.class, factory));
         }
         return flatFixtureStorages.get(fixtureName);
+    }
+
+    @Override
+    public Pair<String, String> getFlatFixturePathBases(String fixtureName) {
+        // TODO PLM
+        return null;
+    }
+
+    @Override
+    public void setFlatFixturePathBases(String fixtureName, String baseName, String childName) {
+        // TODO PLM
     }
 
     @Override

@@ -57,6 +57,8 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
             }
             HashSet<String> expectedAttributes = buildAttributeKeys(firstChild);
 
+            writeFixtureIndex(fixtureId, root.getName(), firstChild.getName());
+
             for (TreeElement child : root.getChildrenWithName(firstChild.getName())) {
                 processChild(child, expectedElements, expectedAttributes);
             }
@@ -126,12 +128,14 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
     @Override
     protected void commit(StorageBackedModel parsed) throws IOException {
         try {
-            storage(parsed).write(parsed);
+            fixtureStorage(parsed).write(parsed);
         } catch (StorageFullException e) {
             e.printStackTrace();
             throw new IOException("Storage full while writing case!");
         }
     }
 
-    public abstract IStorageUtilityIndexed<StorageBackedModel> storage(StorageBackedModel exampleEntry);
+    public abstract IStorageUtilityIndexed<StorageBackedModel> fixtureStorage(StorageBackedModel exampleEntry);
+
+    public abstract void writeFixtureIndex(String fixtureName, String baseName, String childName);
 }

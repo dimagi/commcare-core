@@ -27,6 +27,8 @@ public abstract class UserSandbox {
     public abstract IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName, Persistable exampleEntry);
 
     public abstract Pair<String, String> getFlatFixturePathBases(String fixtureName);
+    
+    public abstract void setFlatFixturePathBases(String fixtureName, String baseName, String childName);
 
     public abstract IStorageUtilityIndexed<FormInstance> getUserFixtureStorage();
 

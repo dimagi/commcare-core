@@ -94,12 +94,13 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             return new TransactionParser<String>(parser) {
 
                 @Override
-                public void commit(String parsed) throws IOException {}
+                public void commit(String parsed) throws IOException {
+                }
 
                 @Override
                 public String parse() throws InvalidStructureException,
-                       IOException, XmlPullParserException,
-                       UnfullfilledRequirementsException {
+                        IOException, XmlPullParserException,
+                        UnfullfilledRequirementsException {
                     this.checkNode("sync");
                     this.nextTag("restore_id");
                     String syncToken = parser.nextText();
@@ -138,7 +139,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             }
         };
     }
-    
+
     public void initFixtureParser() {
         fixtureParser = new TransactionParserFactory() {
             FixtureXmlParser created = null;
@@ -172,14 +173,19 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             public TransactionParser getParser(KXmlParser parser) {
                 if (created == null) {
                     created = new FlatFixtureXmlParser(parser) {
-                        private IStorageUtilityIndexed<StorageBackedModel> flatfixtureStorage;
+                        private IStorageUtilityIndexed<StorageBackedModel> flatFixtureStorage;
 
                         @Override
-                        public IStorageUtilityIndexed<StorageBackedModel> storage(StorageBackedModel exampleEntry) {
-                            if (flatfixtureStorage == null) {
-                                flatfixtureStorage = sandbox.getFlatFixtureStorage(fixtureName, exampleEntry);
+                        public IStorageUtilityIndexed<StorageBackedModel> fixtureStorage(StorageBackedModel exampleEntry) {
+                            if (flatFixtureStorage == null) {
+                                flatFixtureStorage = sandbox.getFlatFixtureStorage(fixtureName, exampleEntry);
                             }
-                            return flatfixtureStorage;
+                            return flatFixtureStorage;
+                        }
+
+                        @Override
+                        public void writeFixtureIndex(String fixtureName, String baseName, String childName) {
+                            sandbox.setFlatFixturePathBases(fixtureName, baseName, childName);
                         }
                     };
                 }

@@ -5,6 +5,7 @@ import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageBackedModel;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.modern.database.TableBuilder;
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -65,6 +66,17 @@ public class UserSqlSandbox extends UserSandbox {
         String tableName = StorageBackedModel.STORAGE_KEY + TableBuilder.cleanTableName(fixtureName);
         // TODO PLM: use exampleEntry instead of StorageBackedModel.class to get meta data correct
         return new SqliteIndexedStorageUtility<>(StorageBackedModel.class, username, tableName, path);
+    }
+
+    @Override
+    public Pair<String, String> getFlatFixturePathBases(String fixtureName) {
+        // TODO PLM
+        return null;
+    }
+
+    @Override
+    public void setFlatFixturePathBases(String fixtureName, String baseName, String childName) {
+        // TODO PLM
     }
 
     @Override
