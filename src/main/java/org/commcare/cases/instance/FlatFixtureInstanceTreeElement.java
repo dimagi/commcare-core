@@ -1,7 +1,10 @@
 package org.commcare.cases.instance;
 
 import org.commcare.cases.model.StorageBackedModel;
+import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.InstanceBase;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.xpath.expr.XPathPathExpr;
 
@@ -12,10 +15,19 @@ import java.util.Hashtable;
  */
 public class FlatFixtureInstanceTreeElement extends StorageInstanceTreeElement<StorageBackedModel, FixtureChildElement> {
 
-    public FlatFixtureInstanceTreeElement(AbstractTreeElement instanceRoot,
+    private FlatFixtureInstanceTreeElement(AbstractTreeElement instanceRoot,
                                           IStorageUtilityIndexed<StorageBackedModel> storage,
                                           String modelName, String childName) {
         super(instanceRoot, storage, modelName, childName);
+    }
+
+    public static FlatFixtureInstanceTreeElement get(UserSandbox sandbox,
+                                                     InstanceBase instanceBase,
+                                                     String ref) {
+        Pair<String, String> modelAndChild = sandbox.getFlatFixturePathBases(ref);
+        IStorageUtilityIndexed<StorageBackedModel> storage =
+                sandbox.getFlatFixtureStorage(ref, null);
+        return new FlatFixtureInstanceTreeElement(instanceBase, storage, modelAndChild.first, modelAndChild.second);
     }
 
     @Override

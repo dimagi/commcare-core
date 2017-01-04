@@ -39,7 +39,6 @@ import java.io.IOException;
  *
  * @author ctsims
  * @author wspride
- *
  */
 public class CommCareTransactionParserFactory implements TransactionParserFactory {
 
