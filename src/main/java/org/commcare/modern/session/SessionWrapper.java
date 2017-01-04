@@ -12,7 +12,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
  *
  * @author ctsims
  */
-public class SessionWrapper extends CommCareSession {
+public class SessionWrapper extends CommCareSession implements SessionWrapperInterface {
 
     final protected UserSandbox mSandbox;
     final protected CommCarePlatform mPlatform;

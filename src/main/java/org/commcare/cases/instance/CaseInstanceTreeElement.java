@@ -38,16 +38,10 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     private AbstractTreeElement instanceRoot;
 
     protected final IStorageUtilityIndexed storage;
-    private String[] caseRecords;
-
     protected Vector<CaseChildElement> cases;
-
     protected final Interner<TreeElement> treeCache = new Interner<>();
-
     private Interner<String> stringCache;
 
-    private String syncToken;
-    private String stateHash;
     private int numRecords = -1;
     private TreeReference cachedRef = null;
 
@@ -57,12 +51,9 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
      */
     final boolean reportMode;
 
-    public CaseInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage, String[] caseIDs) {
-        this(instanceRoot, storage, false);
-        this.caseRecords = caseIDs;
-    }
-
-    public CaseInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage, boolean reportMode) {
+    public CaseInstanceTreeElement(AbstractTreeElement instanceRoot,
+                                   IStorageUtilityIndexed storage,
+                                   boolean reportMode) {
         this.instanceRoot = instanceRoot;
         this.storage = storage;
         this.reportMode = reportMode;
@@ -82,13 +73,11 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 
     @Override
     public boolean isLeaf() {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean isChildable() {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -111,7 +100,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         //name is always "case", so multiplicities are the only relevant component here
         if (name.equals("case")) {
             getCases();
-            if (cases.size() == 0) {
+            if (cases.isEmpty()) {
                 //If we have no cases, we still need to be able to return a template element so as to not
                 //break xpath evaluation
                 return CaseChildElement.buildCaseChildTemplate(this);
@@ -129,24 +118,19 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         } else {
             return new Vector<>();
         }
-
     }
 
     @Override
     public boolean hasChildren() {
-        return (getNumChildren() > 0);
+        return getNumChildren() > 0;
     }
 
     @Override
     public int getNumChildren() {
-        if (caseRecords != null) {
-            return caseRecords.length;
-        } else {
-            if (numRecords == -1) {
-                numRecords = storage.getNumRecords();
-            }
-            return numRecords;
+        if (numRecords == -1) {
+            numRecords = storage.getNumRecords();
         }
+        return numRecords;
     }
 
     @Override
@@ -161,38 +145,22 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         }
         objectIdMapping = new Hashtable<>();
         cases = new Vector<>();
-        if (caseRecords != null) {
-            int i = 0;
-            for (String id : caseRecords) {
-                cases.addElement(new CaseChildElement(this, -1, id, i));
-                ++i;
-            }
-        } else {
-            int mult = 0;
-            for (IStorageIterator i = storage.iterate(); i.hasMore(); ) {
-                int id = i.nextID();
-                cases.addElement(new CaseChildElement(this, id, null, mult));
-                objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
-                mult++;
-            }
-
+        int mult = 0;
+        for (IStorageIterator i = storage.iterate(); i.hasMore(); ) {
+            int id = i.nextID();
+            cases.addElement(new CaseChildElement(this, id, null, mult));
+            objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
+            mult++;
         }
-    }
-
-    public void setState(String syncToken, String stateHash) {
-        this.syncToken = syncToken;
-        this.stateHash = stateHash;
     }
 
     @Override
     public boolean isRepeatable() {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean isAttribute() {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -214,15 +182,11 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     @Override
     public void accept(ITreeVisitor visitor) {
         visitor.visit(this);
-
     }
 
     @Override
     public int getAttributeCount() {
-        if (syncToken == null) {
-            return 0;
-        }
-        return 2;
+        return 0;
     }
 
     @Override
@@ -232,37 +196,23 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 
     @Override
     public String getAttributeName(int index) {
-        if (index == 0) {
-            return "syncToken";
-        } else if (index == 1) {
-            return "stateHash";
-        } else {
-            return null;
-        }
+        return null;
     }
 
     @Override
     public String getAttributeValue(int index) {
-        if (index == 0) {
-            return syncToken;
-        } else if (index == 1) {
-            return stateHash;
-        } else {
-            return null;
-        }
+        return null;
     }
 
     @Override
     public CaseChildElement getAttribute(String namespace, String name) {
-        //Oooooof, this is super janky;
         return null;
     }
 
     @Override
     public String getAttributeValue(String namespace, String name) {
-        return getAttributeValue("syncToken".equals(name) ? 0 : "stateHash".equals(name) ? 1 : -1);
+        return null;
     }
-
 
     @Override
     public TreeReference getRef() {
@@ -293,19 +243,17 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 
     @Override
     public IAnswerData getValue() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public int getDataType() {
-        // TODO Auto-generated method stub
         return 0;
     }
 
-
     @Override
-    protected String translateFilterExpr(XPathPathExpr expressionTemplate, XPathPathExpr matchingExpr, Hashtable<XPathPathExpr, String> indices) {
+    protected String translateFilterExpr(XPathPathExpr expressionTemplate, XPathPathExpr matchingExpr,
+                                         Hashtable<XPathPathExpr, String> indices) {
         String filter = super.translateFilterExpr(expressionTemplate, matchingExpr, indices);
 
         //If we're matching a case index, we've got some magic to take care of. First,
@@ -330,7 +278,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         }
     }
 
-    public Case getCase(int recordId) {
+    protected Case getCase(int recordId) {
         return (Case)storage.read(recordId);
     }
 

@@ -50,7 +50,7 @@ public class Condition extends Triggerable {
         try {
             return expr.eval(model, evalContext);
         } catch (XPathException e) {
-            e.setSource("Relevant expression for " + contextRef.toString(true));
+            e.setMessagePrefix("Display Condition Error: Error in calculation for " + contextRef.toString(true));
             throw e;
         }
     }

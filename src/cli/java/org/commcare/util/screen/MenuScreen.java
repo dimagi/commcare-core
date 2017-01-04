@@ -1,26 +1,21 @@
 package org.commcare.util.screen;
 
-import org.commcare.core.interfaces.UserSandbox;
+
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
-import org.commcare.suite.model.Suite;
-import org.commcare.util.CommCarePlatform;
-import org.javarosa.core.model.condition.EvaluationContext;
+import org.commcare.suite.model.MenuLoader;
+import org.commcare.util.LoggerInterface;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.XPathTypeMismatchException;
-import org.javarosa.xpath.expr.FunctionUtils;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.Vector;
+
 
 /**
  * Screen to allow users to choose items from session menus.
@@ -28,96 +23,33 @@ import java.util.Vector;
  * @author ctsims
  */
 public class MenuScreen extends Screen {
+
     private MenuDisplayable[] mChoices;
-    CommCarePlatform mPlatform;
-    UserSandbox mSandbox;
-    
-    String mTitle;
-    
-    //TODO: This is now ~entirely generic other than the wrapper, can likely be
-    //moved and we can centralize its usage in the other platforms
-    @Override
-    public void init(SessionWrapper session) throws CommCareSessionException {
-        
-        String root = deriveMenuRoot(session);
-        
-        this.mPlatform = session.getPlatform();
-        this.mSandbox = session.getSandbox();
-        
-        Vector<MenuDisplayable> choices = new Vector<>();
-        
-        Hashtable<String, Entry> map = mPlatform.getMenuMap();
-        EvaluationContext ec = null;
 
-        mTitle = this.getBestTitle();
+    private String mTitle;
 
-        for(Suite s : mPlatform.getInstalledSuites()) {
-            for(Menu m : s.getMenus()) {
-                try {
-                    if (m.getId().equals(root)) {
+    class ScreenLogger implements LoggerInterface {
 
-                        XPathExpression relevance = m.getMenuRelevance();
-                        if (m.getMenuRelevance() != null) {
-                            ec = session.getEvaluationContext(m.getId());
-                            if (!FunctionUtils.toBoolean(relevance.eval(ec))) {
-                                continue;
-                            }
-                        }
-
-                        for (String command : m.getCommandIds()) {
-                            XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
-                            if (mRelevantCondition != null) {
-                                ec = session.getEvaluationContext();
-                                Object ret = mRelevantCondition.eval(ec);
-                                try {
-                                    if (!FunctionUtils.toBoolean(ret)) {
-                                        continue;
-                                    }
-                                } catch (XPathTypeMismatchException e) {
-                                    throw new CommCareSessionException("relevancy condition for menu item returned non-boolean value : " + ret, e);
-
-                                }
-                            }
-
-                            Entry e = map.get(command);
-                            if (e.isView()) {
-                                //If this is a "view", not an "entry"
-                                //we only want to display it if all of its 
-                                //datums are not already present
-                                if (session.getNeededDatum(e) == null) {
-                                    continue;
-                                }
-                            }
-
-                            choices.add(e);
-                        }
-                        continue;
-                    }
-                    if (root.equals(m.getRoot())) {
-                        //make sure we didn't already add this ID
-                        boolean idExists = false;
-                        for (Object o : choices) {
-                            if (o instanceof Menu) {
-                                if (((Menu)o).getId().equals(m.getId())) {
-                                    idExists = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (!idExists) {
-                            choices.add(m);
-                        }
-                    }
-                } catch(XPathSyntaxException xpse) {
-                    throw new CommCareSessionException("Invalid XPath Expression in Text entry or module condition", xpse);
-                } catch(XPathException xpe) {
-                    throw new CommCareSessionException("Error evaluating expression in Text or module condition",xpe);
-                }
-            }
+        @Override
+        public void logError(String message, XPathException cause) {
+            Logger.exception(message, cause);
         }
 
-        this.mChoices = new MenuDisplayable[choices.size()];
-        choices.copyInto(mChoices);
+        @Override
+        public void logError(String message) {
+            Logger.log("exception", message);
+        }
+    }
+
+    @Override
+    public void init(SessionWrapper session) throws CommCareSessionException {
+        String root = deriveMenuRoot(session);
+        MenuLoader menuLoader = new MenuLoader(session.getPlatform(), session, root, new ScreenLogger());
+        this.mChoices = menuLoader.getMenus();
+        Exception loadException = menuLoader.getLoadException();
+        if (loadException != null) {
+            throw new CommCareSessionException(menuLoader.getErrorMessage());
+        }
     }
 
     @Override

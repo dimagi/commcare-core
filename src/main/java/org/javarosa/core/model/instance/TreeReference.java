@@ -127,7 +127,6 @@ public class TreeReference implements Externalizable {
      */
     public static TreeReference baseCurrentRef() {
         TreeReference currentRef = new TreeReference(null, 0, CONTEXT_ORIGINAL);
-        // TODO PLM, make this unneeded
         currentRef.contextType = CONTEXT_ORIGINAL;
         return currentRef;
     }

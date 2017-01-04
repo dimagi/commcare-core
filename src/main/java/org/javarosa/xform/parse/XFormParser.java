@@ -1021,8 +1021,9 @@ public class XFormParser {
             }
         } else {
             if (controlType == Constants.CONTROL_TRIGGER) {
-                // TODO: special handling for triggers? also, not all triggers created equal
-                // Currently, trigger and input tags are treated identically --PLM
+                // TODO PLM: special handling for triggers? also, not all
+                // triggers created equal. Currently, trigger and input tags are
+                // treated identically
             } else {
                 throw new XFormParseException("XForm Parse: input control with neither 'ref' nor 'bind'", e);
             }
@@ -1947,7 +1948,11 @@ public class XFormParser {
             } catch (XPathSyntaxException xpse) {
                 throw buildParseException(nodeset, xpse.getMessage(), xpathCalc, "calculate");
             }
-            r = (Recalculate)_f.addTriggerable(r);
+            try {
+                r = (Recalculate)_f.addTriggerable(r);
+            } catch (XPathException xpe) {
+                throw buildParseException(nodeset, xpe.getMessage(), xpathCalc, "calculate");
+            }
             binding.calculate = r;
         }
 
@@ -2871,14 +2876,14 @@ public class XFormParser {
         }
 
         if (!acyclic) {
-            String errorMessage = "XPath Dependency Cycle:\n";
+            String errorMessage = "Logic Dependency Cycle:\n";
             for (int i = 0; i < edges.size(); i++) {
                 TreeReference[] edge = (TreeReference[])edges.elementAt(i);
-                errorMessage += edge[0].toString() + " => " + edge[1].toString() + "\n";
+                errorMessage += edge[0].toString() + " references " + edge[1].toString() + "\n";
             }
             reporter.error(errorMessage);
 
-            throw new RuntimeException("Dependency cycles amongst the xpath expressions in relevant/calculate");
+            throw new RuntimeException("Logic is cyclical, referencing itself.");
         }
     }
 

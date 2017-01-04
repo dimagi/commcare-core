@@ -368,7 +368,11 @@ public class FormEntryModel {
                         TreeReference ref = getForm().getChildInstanceRef(index);
                         TreeElement element = getForm().getMainInstance().resolveReference(ref);
                         if (element == null) {
-                            if (index.getLastRepeatInstanceIndex() < fullcount) {
+                            int instanceIndexOfDeepestRepeat = index.getLastRepeatInstanceIndex();
+                            if (instanceIndexOfDeepestRepeat == -1) {
+                                throw new RuntimeException("Attempting to expand a repeat for a form index where no repeats were present: " + index);
+                            }
+                            if (instanceIndexOfDeepestRepeat < fullcount) {
                                 try {
                                     getForm().createNewRepeat(index);
                                 } catch (InvalidReferenceException ire) {

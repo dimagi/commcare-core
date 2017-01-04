@@ -76,9 +76,9 @@ public class RestoreUtils {
         int dataType = getDataType(type);
         TreeReference ref = childRef(path, parent);
 
-        Vector v = new EvaluationContext(dm).expandReference(ref);
+        Vector<TreeReference> v = new EvaluationContext(dm).expandReference(ref);
         for (int i = 0; i < v.size(); i++) {
-            TreeElement e = dm.resolveReference((TreeReference)v.elementAt(i));
+            TreeElement e = dm.resolveReference(v.elementAt(i));
             e.setDataType(dataType);
         }
     }
