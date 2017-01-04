@@ -224,4 +224,8 @@ public class EntityScreen extends CompoundScreenHost {
 
         ScreenUtils.printAndClearTraces(reporter, "Entity Nodeset");
     }
+
+    public TreeReference resolveTreeReference(String reference) {
+        return referenceMap.get(reference);
+    }
 }
