@@ -4,32 +4,27 @@ import org.commcare.cases.model.StorageBackedModel;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.xpath.expr.XPathPathExpr;
 
 import java.util.Hashtable;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-
 public class FixtureChildElement extends StorageBackedChildElement<StorageBackedModel> {
-    private String name;
     private TreeElement empty;
-    private Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> childAttributeHintMap = null;
 
     protected FixtureChildElement(StorageInstanceTreeElement<StorageBackedModel, ?> parent,
-                                  int mult, int recordId, String name) {
-        super(parent, mult, recordId, null, null);
-        this.name = name;
+                                  int mult, int recordId) {
+        super(parent, mult, recordId, parent.getName(), parent.getChildHintName());
     }
 
-    /*
+    /**
      * Template constructor (For elements that need to create reference nodesets but never look up values)
      */
     private FixtureChildElement(StorageInstanceTreeElement<StorageBackedModel, ?> parent) {
-        super(parent, TreeReference.INDEX_TEMPLATE, TreeReference.INDEX_TEMPLATE, null, null);
+        super(parent, TreeReference.INDEX_TEMPLATE, TreeReference.INDEX_TEMPLATE, parent.getName(), parent.getChildHintName());
 
-        empty = new TreeElement(name);
+        empty = new TreeElement(nameId);
         empty.setMult(this.mult);
         empty.setAttribute(null, nameId, "");
 
@@ -60,7 +55,7 @@ public class FixtureChildElement extends StorageBackedChildElement<StorageBacked
                 return element;
             }
 
-            TreeElement cacheBuilder = new TreeElement(name);
+            TreeElement cacheBuilder = new TreeElement(nameId);
 
             StorageBackedModel model = parent.getElement(recordId);
             entityId = model.getEntityId();
@@ -90,7 +85,7 @@ public class FixtureChildElement extends StorageBackedChildElement<StorageBacked
 
     @Override
     public String getName() {
-        return name;
+        return nameId;
     }
 
     public static FixtureChildElement buildFixtureChildTemplate(FlatFixtureInstanceTreeElement parent) {

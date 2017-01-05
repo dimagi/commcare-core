@@ -119,7 +119,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         boolean isStorageBacked = instance.getReference().contains("flat");
         if (isStorageBacked) {
             // TODO PLM: cache this
-            return FlatFixtureInstanceTreeElement.get(mSandbox, instance.getBase(), ref);
+            return FlatFixtureInstanceTreeElement.get(mSandbox, instance.getBase());
         } else {
             return loadFixtureRoot(instance, ref, userId);
         }

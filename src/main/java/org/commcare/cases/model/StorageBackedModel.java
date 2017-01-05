@@ -21,7 +21,7 @@ public class StorageBackedModel implements Persistable, IMetaData {
     public static final String STORAGE_KEY = "FLATFIX";
     private Hashtable<String, String> attributes = new Hashtable<>();
     private Hashtable<String, String> elements = new Hashtable<>();
-    protected int recordId;
+    protected int recordId = -1;
     protected String entityId;
 
     public StorageBackedModel() {
@@ -43,6 +43,7 @@ public class StorageBackedModel implements Persistable, IMetaData {
 
     @Override
     public String[] getMetaDataFields() {
+        // TODO PLM: deal with collision of attrs and element names
         String[] fields = new String[attributes.size() + elements.size()];
         int i = 0;
         for (Enumeration<String> e = attributes.keys(); e.hasMoreElements();) {

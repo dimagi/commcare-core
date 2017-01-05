@@ -22,18 +22,17 @@ public class FlatFixtureInstanceTreeElement extends StorageInstanceTreeElement<S
     }
 
     public static FlatFixtureInstanceTreeElement get(UserSandbox sandbox,
-                                                     InstanceBase instanceBase,
-                                                     String ref) {
-        Pair<String, String> modelAndChild = sandbox.getFlatFixturePathBases(ref);
+                                                     InstanceBase instanceBase) {
+        Pair<String, String> modelAndChild = sandbox.getFlatFixturePathBases(instanceBase.getInstanceName());
         IStorageUtilityIndexed<StorageBackedModel> storage =
-                sandbox.getFlatFixtureStorage(ref, null);
+                sandbox.getFlatFixtureStorage(instanceBase.getInstanceName(), null);
         return new FlatFixtureInstanceTreeElement(instanceBase, storage, modelAndChild.first, modelAndChild.second);
     }
 
     @Override
     protected FixtureChildElement buildElement(StorageInstanceTreeElement<StorageBackedModel, FixtureChildElement> storageInstance,
                                                int recordId, String id, int mult) {
-        return new FixtureChildElement(storageInstance, mult, recordId, null);
+        return new FixtureChildElement(storageInstance, mult, recordId);
     }
 
     @Override

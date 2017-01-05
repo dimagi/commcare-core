@@ -260,7 +260,7 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
     }
 
     protected Model getModelTemplate() {
-        return storage.read(0);
+        return storage.read(1);
     }
 
     protected abstract T getChildTemplate();
