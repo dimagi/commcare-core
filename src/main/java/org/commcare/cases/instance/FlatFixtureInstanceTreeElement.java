@@ -50,11 +50,11 @@ public class FlatFixtureInstanceTreeElement extends StorageInstanceTreeElement<S
 
             StorageBackedModel template = getModelTemplate();
             for (String elementName : template.getElements().keySet()) {
-                storageIndexMap.put(XPathReference.getPathExpr(elementName), elementName);
+                storageIndexMap.put(XPathReference.getPathExpr(elementName), FlatFixtureXmlParser.getColumnName(elementName));
             }
             for (String attrName : template.getAttributes().keySet()) {
                 String uniqueAttrColName =
-                        FlatFixtureXmlParser.getAttributeColumnName(attrName, template.getElements().keySet());
+                        FlatFixtureXmlParser.getUniqueColumnName(attrName, template.getElements().keySet());
                 storageIndexMap.put(XPathReference.getPathExpr(attrName), uniqueAttrColName);
             }
         }

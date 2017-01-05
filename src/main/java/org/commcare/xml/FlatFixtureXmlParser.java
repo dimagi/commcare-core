@@ -92,7 +92,7 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
         Hashtable<String, String> elements = loadElements(child, expectedElementsCopy);
 
         HashSet<String> expectedAttributesCopy = new HashSet<>(expectedAttributes);
-        Hashtable<String, String> attributes = loadAttributes(child, expectedAttributesCopy, expectedElements);
+        Hashtable<String, String> attributes = loadAttributes(child, expectedAttributesCopy, elements.keySet());
 
         StorageBackedModel model = new StorageBackedModel(attributes, elements);
         commit(model);
@@ -107,14 +107,14 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
                 throw new RuntimeException("Flat fixture is heterogeneous");
             }
             IAnswerData value = entry.getValue();
-            elements.put(entry.getName(), value == null ? "" : value.uncast().getString());
+            elements.put(getColumnName(entry.getName()), value == null ? "" : value.uncast().getString());
         }
         return elements;
     }
 
     private static Hashtable<String, String> loadAttributes(TreeElement child,
                                                             HashSet<String> expectedAttributesCopy,
-                                                            HashSet<String> elementNames) {
+                                                            Set<String> elementNames) {
         Hashtable<String, String> attributes = new Hashtable<>();
         for (int i = 0; i < child.getAttributeCount(); i++) {
             String attrName = child.getAttributeName(i);
@@ -122,13 +122,21 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
             if (!expectedAttributesCopy.remove(attr.getName())) {
                 throw new RuntimeException("Flat fixture is heterogeneous");
             }
-            String attrKey = getAttributeColumnName(attr.getName(), elementNames);
+            String attrKey = getUniqueColumnName(attr.getName(), elementNames);
             attributes.put(attrKey, attr.getValue().uncast().getString());
         }
         return attributes;
     }
 
-    public static String getAttributeColumnName(String colName, Set<String> otherColumns) {
+    /**
+     * escape SQL column name because user may have chosen a fixture element name that collides with a SQL keyword
+     */
+    public static String getColumnName(String colName) {
+        return "_" + colName;
+    }
+
+    public static String getUniqueColumnName(String colName, Set<String> otherColumns) {
+        colName = "_" + colName;
         while (otherColumns.contains(colName)) {
             colName = "_" + colName;
         }
