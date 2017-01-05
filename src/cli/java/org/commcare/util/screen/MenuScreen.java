@@ -46,6 +46,7 @@ public class MenuScreen extends Screen {
         String root = deriveMenuRoot(session);
         MenuLoader menuLoader = new MenuLoader(session.getPlatform(), session, root, new ScreenLogger());
         this.mChoices = menuLoader.getMenus();
+        this.mTitle = this.getBestTitle();
         Exception loadException = menuLoader.getLoadException();
         if (loadException != null) {
             throw new CommCareSessionException(menuLoader.getErrorMessage());
