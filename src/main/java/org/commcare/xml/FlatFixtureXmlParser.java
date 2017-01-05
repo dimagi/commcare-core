@@ -91,14 +91,14 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
         Hashtable<String, String> elements = loadElements(child, expectedElementsCopy);
 
         HashSet<String> expectedAttributesCopy = new HashSet<>(expectedAttributes);
-        Hashtable<String, String> attributes = loadAttributes(child, expectedAttributesCopy);
+        Hashtable<String, String> attributes = loadAttributes(child, expectedAttributesCopy, expectedElements);
 
         StorageBackedModel model = new StorageBackedModel(attributes, elements);
         commit(model);
     }
 
-    private Hashtable<String, String> loadElements(TreeElement child,
-                                                   HashSet<String> expectedElementsCopy) {
+    private static Hashtable<String, String> loadElements(TreeElement child,
+                                                          HashSet<String> expectedElementsCopy) {
         Hashtable<String, String> elements = new Hashtable<>();
         for (int i = 0; i < child.getNumChildren(); i++) {
             TreeElement entry = child.getChildAt(i);
@@ -111,8 +111,9 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
         return elements;
     }
 
-    private Hashtable<String, String> loadAttributes(TreeElement child,
-                                                     HashSet<String> expectedAttributesCopy) {
+    private static Hashtable<String, String> loadAttributes(TreeElement child,
+                                                            HashSet<String> expectedAttributesCopy,
+                                                            HashSet<String> elementNames) {
         Hashtable<String, String> attributes = new Hashtable<>();
         for (int i = 0; i < child.getAttributeCount(); i++) {
             String attrName = child.getAttributeName(i);
@@ -120,7 +121,12 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
             if (!expectedAttributesCopy.remove(attr.getName())) {
                 throw new RuntimeException("Flat fixture is heterogeneous");
             }
-            attributes.put(attr.getName(), attr.getValue().uncast().getString());
+            String attrKey = attr.getName();
+            while (elementNames.contains(attrKey)) {
+                attrKey = "_" + attrKey;
+            }
+
+            attributes.put(attrKey, attr.getValue().uncast().getString());
         }
         return attributes;
     }

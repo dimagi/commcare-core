@@ -18,7 +18,7 @@ import java.util.Hashtable;
  */
 public class StorageBackedModel implements Persistable, IMetaData {
 
-    public static final String STORAGE_KEY = "FLATFIX";
+    public static final String STORAGE_KEY_PREFIX = "FLATFIX_";
     private Hashtable<String, String> attributes = new Hashtable<>();
     private Hashtable<String, String> elements = new Hashtable<>();
     protected int recordId = -1;
@@ -27,6 +27,10 @@ public class StorageBackedModel implements Persistable, IMetaData {
     public StorageBackedModel() {
     }
 
+    /**
+     * Input contract: attribute and element hashtable keys must be distinct
+     * from each other
+     */
     public StorageBackedModel(Hashtable<String, String> attributes,
                               Hashtable<String, String> elements) {
         this.attributes = attributes;
@@ -43,7 +47,6 @@ public class StorageBackedModel implements Persistable, IMetaData {
 
     @Override
     public String[] getMetaDataFields() {
-        // TODO PLM: deal with collision of attrs and element names
         String[] fields = new String[attributes.size() + elements.size()];
         int i = 0;
         for (Enumeration<String> e = attributes.keys(); e.hasMoreElements();) {

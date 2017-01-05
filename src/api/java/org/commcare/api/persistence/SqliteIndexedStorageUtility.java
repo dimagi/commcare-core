@@ -63,7 +63,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
     }
 
     Connection getConnection() throws SQLException, ClassNotFoundException {
-
         if (!databaseFolder.exists()) {
             databaseFolder.mkdir();
         }
