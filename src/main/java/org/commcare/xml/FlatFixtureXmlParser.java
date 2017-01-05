@@ -15,6 +15,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 
 /**
  * The Fixture XML Parser is responsible for parsing incoming fixture data and
@@ -121,14 +122,17 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
             if (!expectedAttributesCopy.remove(attr.getName())) {
                 throw new RuntimeException("Flat fixture is heterogeneous");
             }
-            String attrKey = attr.getName();
-            while (elementNames.contains(attrKey)) {
-                attrKey = "_" + attrKey;
-            }
-
+            String attrKey = getAttributeColumnName(attr.getName(), elementNames);
             attributes.put(attrKey, attr.getValue().uncast().getString());
         }
         return attributes;
+    }
+
+    public static String getAttributeColumnName(String colName, Set<String> otherColumns) {
+        while (otherColumns.contains(colName)) {
+            colName = "_" + colName;
+        }
+        return colName;
     }
 
     @Override

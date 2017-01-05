@@ -18,6 +18,7 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.HashSet;
 
 /**
  * The CommCare Transaction Parser Factory (whew!) wraps all of the current
@@ -46,6 +47,25 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     protected TransactionParserFactory caseParser;
     protected TransactionParserFactory stockParser;
     protected TransactionParserFactory fixtureParser;
+    private static final HashSet<String> flatSet = new HashSet<>();
+    static {
+        flatSet.add("item-list:wfl_0_2_zscores");
+        flatSet.add("item-list:wfa_0_5_zscores");
+        flatSet.add("item-list:wfa_0_13_zscores");
+        flatSet.add("item-list:lhfa_0_13_zscores");
+        flatSet.add("item-list:amu_meds_g1");
+        flatSet.add("item-list:amu_acts");
+        flatSet.add("item-list:amu_equipments1");
+        flatSet.add("item-list:amu_meds_g4");
+        flatSet.add("item-list:wfh_2_5_zscores");
+        flatSet.add("item-list:amu_meds_g5");
+        flatSet.add("item-list:amu_meds_g3");
+        flatSet.add("item-list:amu_group_eq");
+        flatSet.add("item-list:lhfa_0_5_zscores");
+        flatSet.add("item-list:amu_meds_g2");
+        flatSet.add("item-list:amu_group_meds");
+        flatSet.add("item-list:amu_equipments2");
+    }
 
     protected final UserSandbox sandbox;
 
@@ -84,7 +104,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         } else if ("fixture".equalsIgnoreCase(name)) {
             String id = parser.getAttributeValue(null, "id");
             req();
-            if (id != null && id.startsWith("flat")) {
+            if (id != null && (flatSet.contains(id) || id.startsWith("flat"))) {
                 return buildFlatFixtureParser(parser.getAttributeValue(null, "id")).getParser(parser);
             } else {
                 return fixtureParser.getParser(parser);
