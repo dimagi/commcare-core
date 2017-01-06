@@ -5,6 +5,7 @@ import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.instance.FlatFixtureInstanceTreeElement;
 import org.commcare.cases.instance.LedgerInstanceTreeElement;
 import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.util.CommCarePlatform;
@@ -116,10 +117,14 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             userId = u.getUniqueId();
         }
 
-        boolean isStorageBacked = instance.getReference().contains("flat");
+        String fixtureRef = instance.getReference();
+        if (fixtureRef.startsWith("jr://fixture/")) {
+            fixtureRef = fixtureRef.substring(13);
+        }
+        boolean isStorageBacked = CommCareTransactionParserFactory.isFlat(fixtureRef);
         if (isStorageBacked) {
             // TODO PLM: cache this
-            return FlatFixtureInstanceTreeElement.get(mSandbox, instance.getBase());
+            return FlatFixtureInstanceTreeElement.get(mSandbox, fixtureRef, instance.getBase());
         } else {
             return loadFixtureRoot(instance, ref, userId);
         }

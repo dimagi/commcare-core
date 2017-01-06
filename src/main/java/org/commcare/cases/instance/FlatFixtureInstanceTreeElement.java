@@ -3,7 +3,6 @@ package org.commcare.cases.instance;
 import org.commcare.cases.model.StorageBackedModel;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.modern.util.Pair;
-import org.commcare.xml.FlatFixtureXmlParser;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.InstanceBase;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -25,10 +24,12 @@ public class FlatFixtureInstanceTreeElement extends StorageInstanceTreeElement<S
     }
 
     public static FlatFixtureInstanceTreeElement get(UserSandbox sandbox,
+                                                     String instanceName,
                                                      InstanceBase instanceBase) {
-        Pair<String, String> modelAndChild = sandbox.getFlatFixturePathBases(instanceBase.getInstanceName());
+        Pair<String, String> modelAndChild =
+                sandbox.getFlatFixturePathBases(instanceName);
         IStorageUtilityIndexed<StorageBackedModel> storage =
-                sandbox.getFlatFixtureStorage(instanceBase.getInstanceName(), null);
+                sandbox.getFlatFixtureStorage(instanceName, null);
         return new FlatFixtureInstanceTreeElement(instanceBase, storage, modelAndChild.first, modelAndChild.second);
     }
 
@@ -49,13 +50,12 @@ public class FlatFixtureInstanceTreeElement extends StorageInstanceTreeElement<S
             storageIndexMap = new Hashtable<>();
 
             StorageBackedModel template = getModelTemplate();
-            for (String elementName : template.getElements().keySet()) {
-                storageIndexMap.put(XPathReference.getPathExpr(elementName), FlatFixtureXmlParser.getColumnName(elementName));
-            }
             for (String attrName : template.getAttributes().keySet()) {
-                String uniqueAttrColName =
-                        FlatFixtureXmlParser.getUniqueColumnName(attrName, template.getElements().keySet());
-                storageIndexMap.put(XPathReference.getPathExpr(attrName), uniqueAttrColName);
+                storageIndexMap.put(XPathReference.getPathExpr(attrName), StorageBackedModel.getColumnName(attrName));
+            }
+            for (String elementName : template.getElements().keySet()) {
+                storageIndexMap.put(XPathReference.getPathExpr(elementName),
+                        StorageBackedModel.getUniqueColumnName(elementName, template.getEscapedAttributeKeys()));
             }
         }
 

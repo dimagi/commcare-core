@@ -104,7 +104,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         } else if ("fixture".equalsIgnoreCase(name)) {
             String id = parser.getAttributeValue(null, "id");
             req();
-            if (id != null && (flatSet.contains(id) || id.startsWith("flat"))) {
+            if (id != null && isFlat(id)) {
                 return buildFlatFixtureParser(parser.getAttributeValue(null, "id")).getParser(parser);
             } else {
                 return fixtureParser.getParser(parser);
@@ -241,5 +241,12 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 
     public String getSyncToken() {
         return sandbox.getSyncToken();
+    }
+
+    public static boolean isFlat(String id) {
+        if (id.startsWith("jr://fixture/")) {
+            id = id.substring(13);
+        }
+        return flatSet.contains(id) || id.startsWith("flat");
     }
 }

@@ -11,7 +11,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -21,8 +23,11 @@ public class StorageBackedModel implements Persistable, IMetaData {
     public static final String STORAGE_KEY_PREFIX = "FLATFIX_";
     private Hashtable<String, String> attributes = new Hashtable<>();
     private Hashtable<String, String> elements = new Hashtable<>();
+    private HashSet<String> escapedAttributeKeys = new HashSet<>();
+    private HashSet<String> escapedElementKeys = new HashSet<>();
     protected int recordId = -1;
     protected String entityId;
+    private String[] metaDataFields = null;
 
     public StorageBackedModel() {
     }
@@ -41,34 +46,76 @@ public class StorageBackedModel implements Persistable, IMetaData {
         return attributes;
     }
 
+    public Set<String> getEscapedAttributeKeys() {
+        loadMetaData();
+        return escapedAttributeKeys;
+    }
+
     public Hashtable<String, String> getElements() {
         return elements;
     }
 
+    public Set<String> getEscapedElementKeys() {
+        loadMetaData();
+        return escapedElementKeys;
+    }
+
     @Override
     public String[] getMetaDataFields() {
-        String[] fields = new String[attributes.size() + elements.size()];
-        int i = 0;
-        for (Enumeration<String> e = attributes.keys(); e.hasMoreElements();) {
-            String key = e.nextElement();
-            fields[i++] = key;
+        loadMetaData();
+        return metaDataFields;
+    }
+
+    private void loadMetaData() {
+        if (metaDataFields == null) {
+            metaDataFields = new String[attributes.size() + elements.size()];
+            int i = 0;
+            for (Enumeration<String> e = attributes.keys(); e.hasMoreElements();) {
+                String key = e.nextElement();
+                String escapedAttr = getColumnName(key);
+                escapedAttributeKeys.add(escapedAttr);
+                metaDataFields[i++] = escapedAttr;
+            }
+            for (Enumeration<String> e = elements.keys(); e.hasMoreElements();) {
+                String key = e.nextElement();
+                String escapedElement = getUniqueColumnName(key, escapedAttributeKeys);
+                metaDataFields[i++] = escapedElement;
+                escapedElementKeys.add(escapedElement);
+            }
         }
-        for (Enumeration<String> e = elements.keys(); e.hasMoreElements();) {
-            String key = e.nextElement();
-            fields[i++] = key;
-        }
-        return fields;
     }
 
     @Override
     public Object getMetaData(String fieldName) {
-        if (attributes.containsKey(fieldName)) {
-            return attributes.get(fieldName);
-        } else if (elements.containsKey(fieldName)) {
-            return elements.get(fieldName);
+        String unescapedFieldName = removeEscape(fieldName);
+        if (escapedAttributeKeys.contains(fieldName)) {
+            return attributes.get(unescapedFieldName);
+        } else if (escapedElementKeys.contains(fieldName)) {
+            return elements.get(unescapedFieldName);
         }
 
         return null;
+    }
+
+    /**
+     * escape SQL column name because user may have chosen a fixture element name that collides with a SQL keyword
+     */
+    public static String getColumnName(String colName) {
+        return "_$_" + colName;
+    }
+
+    private static String removeEscape(String colName) {
+        return colName.substring(colName.indexOf("_", 1));
+    }
+
+    public static String getUniqueColumnName(String colName, Set<String> otherColumns) {
+        String colNamePre = "_$";
+        String uniqColName = "_$_" + colName;
+        while (otherColumns.contains(uniqColName)) {
+            colNamePre = colNamePre + "$";
+            uniqColName = colNamePre + "_" + colName;
+        }
+        return uniqColName;
     }
 
     @Override
