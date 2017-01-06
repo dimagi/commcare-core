@@ -20,7 +20,6 @@ import static org.junit.Assert.fail;
  *
  * @author Phillip Mates
  */
-
 public class ExprEvalUtils {
     private static final double DOUBLE_TOLERANCE = 1.0e-12;
 

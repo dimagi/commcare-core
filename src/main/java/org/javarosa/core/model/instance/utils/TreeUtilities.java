@@ -86,6 +86,7 @@ public class TreeUtilities {
             if (xpe instanceof XPathEqExpr) {
                 XPathExpression left = ((XPathEqExpr)xpe).a;
                 XPathExpression right = ((XPathEqExpr)xpe).b;
+                boolean isEqOp = ((XPathEqExpr)xpe).op == XPathEqExpr.EQ;
 
                 //For now, only cheat when this is a string literal (this basically just means that we're
                 //handling attribute based referencing with very reasonable timing, but it's complex otherwise)
@@ -180,7 +181,7 @@ public class TreeUtilities {
                                 // this value before performing the match
                                 Object value = FunctionUtils.InferType(attrValue);
 
-                                if (XPathEqExpr.testEquality(value, literalMatch)) {
+                                if (isEqOp == XPathEqExpr.testEquality(value, literalMatch)) {
                                     predicateMatches.addElement(kids.elementAt(kidI).getRef());
                                 }
                             }

@@ -146,11 +146,12 @@ task harnessJar(type: Jar, dependsOn: translateClasses) {
     }
 }
 
-// used to provide the test source files to external projects, such as odk,
+// used to provide the test source files to external projects, such as commcare-android,
 // which might want to import classes
 task testsrcJar(type: Jar, dependsOn: testClasses) {
     classifier = 'tests'
     from files(sourceSets.test.output.classesDir)
+    from files(sourceSets.cli.output.classesDir)
 }
 
 
