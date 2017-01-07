@@ -20,9 +20,9 @@ import java.util.Set;
  * flat TreeElement.
  *
  * Flat TreeElements have the following structural constraints:
- *  - attributes only appear at the top level
- *  - there is only one occurence of every element (they have multiplicity 1)
- *  - nested elements are allowed but must follow the aforementioned constraints
+ * - attributes only appear at the top level
+ * - there is only one occurence of every element (they have multiplicity 1)
+ * - nested elements are allowed but must follow the aforementioned constraints
  *
  * All attributes and first-level elements will be turned into columns in the
  * associated DB table
@@ -56,6 +56,8 @@ public class StorageBackedModel implements Persistable, IMetaData {
                               Hashtable<String, String> elements) {
         this.attributes = attributes;
         this.elements = elements;
+
+        loadMetaData();
     }
 
     public Hashtable<String, String> getAttributes() {
@@ -67,7 +69,6 @@ public class StorageBackedModel implements Persistable, IMetaData {
      * column names which are unique from the element column names
      */
     public Set<String> getEscapedAttributeKeys() {
-        loadMetaData();
         return escapedAttributeKeys;
     }
 
@@ -80,32 +81,28 @@ public class StorageBackedModel implements Persistable, IMetaData {
      * column names which are unique from the attribute column names
      */
     public Set<String> getEscapedElementKeys() {
-        loadMetaData();
         return escapedElementKeys;
     }
 
     @Override
     public String[] getMetaDataFields() {
-        loadMetaData();
         return metaDataFields;
     }
 
     private void loadMetaData() {
-        if (metaDataFields == null) {
-            metaDataFields = new String[attributes.size() + elements.size()];
-            int i = 0;
-            for (Enumeration<String> e = attributes.keys(); e.hasMoreElements();) {
-                String key = e.nextElement();
-                String escapedAttr = getColumnName(key);
-                escapedAttributeKeys.add(escapedAttr);
-                metaDataFields[i++] = escapedAttr;
-            }
-            for (Enumeration<String> e = elements.keys(); e.hasMoreElements();) {
-                String key = e.nextElement();
-                String escapedElement = getUniqueColumnName(key, escapedAttributeKeys);
-                metaDataFields[i++] = escapedElement;
-                escapedElementKeys.add(escapedElement);
-            }
+        metaDataFields = new String[attributes.size() + elements.size()];
+        int i = 0;
+        for (Enumeration<String> e = attributes.keys(); e.hasMoreElements(); ) {
+            String key = e.nextElement();
+            String escapedAttr = getColumnName(key);
+            escapedAttributeKeys.add(escapedAttr);
+            metaDataFields[i++] = escapedAttr;
+        }
+        for (Enumeration<String> e = elements.keys(); e.hasMoreElements(); ) {
+            String key = e.nextElement();
+            String escapedElement = getUniqueColumnName(key, escapedAttributeKeys);
+            metaDataFields[i++] = escapedElement;
+            escapedElementKeys.add(escapedElement);
         }
     }
 
@@ -135,7 +132,7 @@ public class StorageBackedModel implements Persistable, IMetaData {
     }
 
     public static String removeEscape(String colName) {
-        return colName.substring(colName.indexOf("_", 1));
+        return colName.substring(colName.indexOf("_", 1) + 1);
     }
 
     /**
@@ -172,6 +169,8 @@ public class StorageBackedModel implements Persistable, IMetaData {
         entityId = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         attributes = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
         elements = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
+
+        loadMetaData();
     }
 
     @Override

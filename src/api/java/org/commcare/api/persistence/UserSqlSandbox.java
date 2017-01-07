@@ -62,7 +62,8 @@ public class UserSqlSandbox extends UserSandbox {
     }
 
     @Override
-    public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName, Persistable exampleEntry) {
+    public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName,
+                                                                            StorageBackedModel exampleEntry) {
         String tableName = StorageBackedModel.getTableName(fixtureName);
         // TODO PLM: use exampleEntry instead of StorageBackedModel.class to get meta data correct
         return new SqliteIndexedStorageUtility<>(StorageBackedModel.class, username, tableName, path);

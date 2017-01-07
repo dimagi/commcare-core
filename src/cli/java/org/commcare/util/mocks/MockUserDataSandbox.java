@@ -72,9 +72,9 @@ public class MockUserDataSandbox extends UserSandbox {
     }
 
     @Override
-    public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName, Persistable exampleEntry) {
+    public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName, StorageBackedModel exampleEntry) {
         if (!flatFixtureStorages.containsKey(fixtureName)) {
-            flatFixtureStorages.put(fixtureName, new DummyIndexedStorageUtility<>(StorageBackedModel.class, factory));
+            flatFixtureStorages.put(fixtureName, new DummyIndexedStorageUtility<>(exampleEntry, factory));
         }
         return flatFixtureStorages.get(fixtureName);
     }
@@ -86,7 +86,7 @@ public class MockUserDataSandbox extends UserSandbox {
 
     @Override
     public void setFlatFixturePathBases(String fixtureName, String baseName, String childName) {
-        flatFixtureBaseMap.put(fixtureName, Pair.create(baseName, baseName));
+        flatFixtureBaseMap.put(fixtureName, Pair.create(baseName, childName));
     }
 
     @Override
