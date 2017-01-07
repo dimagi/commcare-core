@@ -33,15 +33,12 @@ public class InstanceEvaluationTests {
     @Test
     public void testMixedInstanceIdCaching() throws Exception {
         SessionWrapper session = mApp.getSession();
-
         sessionNavigator.startNextSessionStep();
 
         session.setCommand("m0");
-
         sessionNavigator.startNextSessionStep();
 
         session.setCommand("m0-f0");
-
         sessionNavigator.startNextSessionStep();
 
         FormEntryController fec = mApp.loadAndInitForm("form_placeholder.xml");
@@ -53,9 +50,6 @@ public class InstanceEvaluationTests {
         assertEquals("one", fec.getQuestionPrompts()[0].getQuestionText());
     }
 
-    /**
-     * Testing cases where instances are used with different ID's in multiple contexts
-     */
     @Test
     public void loadFlatInstanceInForm() throws Exception {
         FormEntryController fec = mApp.loadAndInitForm("form_placeholder.xml");

@@ -115,7 +115,8 @@ public class StorageBackedModel implements Persistable, IMetaData {
             return elements.get(unescapedFieldName);
         }
 
-        return null;
+        throw new IllegalArgumentException("No metadata field " + fieldName +
+                " in the storage backed fixture system");
     }
 
     public static String getTableName(String fixtureName) {

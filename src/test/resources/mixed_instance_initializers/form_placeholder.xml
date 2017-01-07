@@ -21,7 +21,7 @@
             <setvalue event="xforms-ready" ref="/data/value"
                       value="instance('data-list-key-two')/list/item[@id ='1' and true()]"/>
             <setvalue event="xforms-ready" ref="/data/bike-name"
-                      value="instance('bikey-bikes')/bikes/bike[@id ='1' and true()]/name"/>
+                      value="instance('bikey-bikes')/bikes/bike[@id ='1']/name"/>
         </model>
     </h:head>
     <h:body>

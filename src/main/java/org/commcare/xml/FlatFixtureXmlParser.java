@@ -17,6 +17,15 @@ import java.util.HashSet;
 import java.util.Hashtable;
 
 /**
+ * Creates a table for the flat fixture and parses each element into a
+ * StorageBackedModel and stores that as a table row.
+ *
+ * Also stores base and child names associated with fixture in another database.
+ * For example, if we have a fixture referenced by
+ * instance('product-list')/products/product/... then we need to associate
+ * ('product-list', 'products', 'product') to be able to reconstruct the
+ * fixture instance
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBackedModel> {
@@ -24,22 +33,6 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
     private static final HashSet<String> flatSet = new HashSet<>();
     static {
         FlatFixtureXmlParser.flatSet.add("locations");
-        FlatFixtureXmlParser.flatSet.add("item-list:wfl_0_2_zscores");
-        FlatFixtureXmlParser.flatSet.add("item-list:wfa_0_5_zscores");
-        FlatFixtureXmlParser.flatSet.add("item-list:wfa_0_13_zscores");
-        FlatFixtureXmlParser.flatSet.add("item-list:lhfa_0_13_zscores");
-        FlatFixtureXmlParser.flatSet.add("item-list:amu_meds_g1");
-        FlatFixtureXmlParser.flatSet.add("item-list:amu_acts");
-        FlatFixtureXmlParser.flatSet.add("item-list:amu_equipments1");
-        FlatFixtureXmlParser.flatSet.add("item-list:amu_meds_g4");
-        FlatFixtureXmlParser.flatSet.add("item-list:wfh_2_5_zscores");
-        FlatFixtureXmlParser.flatSet.add("item-list:amu_meds_g5");
-        FlatFixtureXmlParser.flatSet.add("item-list:amu_meds_g3");
-        FlatFixtureXmlParser.flatSet.add("item-list:amu_group_eq");
-        FlatFixtureXmlParser.flatSet.add("item-list:lhfa_0_5_zscores");
-        FlatFixtureXmlParser.flatSet.add("item-list:amu_meds_g2");
-        FlatFixtureXmlParser.flatSet.add("item-list:amu_group_meds");
-        FlatFixtureXmlParser.flatSet.add("item-list:amu_equipments2");
     }
 
     IStorageUtilityIndexed<StorageBackedModel> storage;
@@ -72,7 +65,12 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
         }
 
         root = new TreeElementParser(parser, 0, fixtureId).parse();
+        processRoot(root, fixtureId);
 
+        return null;
+    }
+
+    private void processRoot(TreeElement root, String fixtureId) throws IOException {
         if (root.hasChildren()) {
             TreeElement firstChild = root.getChildAt(0);
             int childCount = firstChild.getNumChildren();
@@ -88,7 +86,6 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
                 processChild(child, expectedElements, expectedAttributes);
             }
         }
-        return null;
     }
 
     private static HashSet<String> buildAttributeKeys(TreeElement root) {
@@ -128,7 +125,7 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
         for (int i = 0; i < child.getNumChildren(); i++) {
             TreeElement entry = child.getChildAt(i);
             if (!expectedElementsCopy.remove(entry.getName())) {
-                throw new RuntimeException("Flat fixture is heterogeneous");
+                throw new RuntimeException("Flat fixture isn't homogeneous");
             }
             IAnswerData value = entry.getValue();
             elements.put(entry.getName(), value == null ? "" : value.uncast().getString());
@@ -143,7 +140,7 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
             String attrName = child.getAttributeName(i);
             TreeElement attr = child.getAttribute(null, attrName);
             if (!expectedAttributesCopy.remove(attr.getName())) {
-                throw new RuntimeException("Flat fixture is heterogeneous");
+                throw new RuntimeException("Flat fixture isn't homogeneous");
             }
             attributes.put(attr.getName(), attr.getValue().uncast().getString());
         }
