@@ -30,6 +30,7 @@ public class MockUserDataSandbox extends UserSandbox {
     private final IStorageUtilityIndexed<Ledger> ledgerStorage;
     private final IStorageUtilityIndexed<User> userStorage;
     private final HashMap<String, IStorageUtilityIndexed<StorageBackedModel>> flatFixtureStorages;
+    private final HashMap<String, Pair<String, String>> flatFixtureBaseMap;
     private final IStorageUtilityIndexed<FormInstance> userFixtureStorage;
     private IStorageUtilityIndexed<FormInstance> appFixtureStorage;
     
@@ -48,6 +49,7 @@ public class MockUserDataSandbox extends UserSandbox {
         ledgerStorage = new DummyIndexedStorageUtility<>(Ledger.class, factory);
         userStorage = new DummyIndexedStorageUtility<>(User.class, factory);
         flatFixtureStorages = new HashMap<>();
+        flatFixtureBaseMap = new HashMap<>();
         userFixtureStorage = new DummyIndexedStorageUtility<>(FormInstance.class, factory);
         appFixtureStorage = new DummyIndexedStorageUtility<>(FormInstance.class, factory);
 
@@ -72,7 +74,6 @@ public class MockUserDataSandbox extends UserSandbox {
     @Override
     public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName, Persistable exampleEntry) {
         if (!flatFixtureStorages.containsKey(fixtureName)) {
-            // TODO PLM: use exampleEntry instead of StorageBackedModel.class to get meta data correct
             flatFixtureStorages.put(fixtureName, new DummyIndexedStorageUtility<>(StorageBackedModel.class, factory));
         }
         return flatFixtureStorages.get(fixtureName);
@@ -80,13 +81,12 @@ public class MockUserDataSandbox extends UserSandbox {
 
     @Override
     public Pair<String, String> getFlatFixturePathBases(String fixtureName) {
-        // TODO PLM
-        return null;
+        return flatFixtureBaseMap.get(fixtureName);
     }
 
     @Override
     public void setFlatFixturePathBases(String fixtureName, String baseName, String childName) {
-        // TODO PLM
+        flatFixtureBaseMap.put(fixtureName, Pair.create(baseName, baseName));
     }
 
     @Override

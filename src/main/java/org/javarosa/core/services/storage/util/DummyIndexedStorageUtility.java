@@ -31,7 +31,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     private int curCount;
     private final Class<T> prototype;
     private final PrototypeFactory mFactory;
-    private final Vector<String> dynamicIndices = new Vector<>();
 
     public DummyIndexedStorageUtility(Class<T> prototype, PrototypeFactory factory) {
         meta = new Hashtable<>();
@@ -105,8 +104,8 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         return curCount - 1;
     }
 
+    @Override
     public void close() {
-        // TODO Auto-generated method stub
     }
 
     @Override
@@ -116,7 +115,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 
     @Override
     public Object getAccessLock() {
-        // TODO Auto-generated method stub
         return null;
     }
 
