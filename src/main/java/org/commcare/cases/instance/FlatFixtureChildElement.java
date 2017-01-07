@@ -65,7 +65,7 @@ public class FlatFixtureChildElement extends StorageBackedChildElement<StorageBa
 
             Hashtable<String, String> attributes = model.getAttributes();
             for (String key : attributes.keySet()) {
-                empty.setAttribute(null, key, attributes.get(key));
+                cacheBuilder.setAttribute(null, key, attributes.get(key));
             }
 
             Hashtable<String, String> elements = model.getElements();
@@ -74,7 +74,7 @@ public class FlatFixtureChildElement extends StorageBackedChildElement<StorageBa
                 String data = elements.get(key);
                 // TODO PLM: do we want smarter type dispatch?
                 scratch.setAnswer(new StringData(data == null ? "" : data));
-                empty.addChild(scratch);
+                cacheBuilder.addChild(scratch);
             }
 
             cacheBuilder.setParent(this.parent);
