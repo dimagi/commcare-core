@@ -15,13 +15,9 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Set;
 
 /**
- * The Fixture XML Parser is responsible for parsing incoming fixture data and
- * storing it as a file with a pointer in a db.
- *
- * @author ctsims
+ * @author Phillip Mates (pmates@dimagi.com)
  */
 public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBackedModel> {
 

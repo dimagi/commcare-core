@@ -10,19 +10,21 @@ import java.util.Hashtable;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class FixtureChildElement extends StorageBackedChildElement<StorageBackedModel> {
+public class FlatFixtureChildElement extends StorageBackedChildElement<StorageBackedModel> {
     private TreeElement empty;
 
-    protected FixtureChildElement(StorageInstanceTreeElement<StorageBackedModel, ?> parent,
-                                  int mult, int recordId) {
+    protected FlatFixtureChildElement(StorageInstanceTreeElement<StorageBackedModel, ?> parent,
+                                      int mult, int recordId) {
         super(parent, mult, recordId, parent.getName(), parent.getChildHintName());
     }
 
     /**
      * Template constructor (For elements that need to create reference nodesets but never look up values)
      */
-    private FixtureChildElement(StorageInstanceTreeElement<StorageBackedModel, ?> parent) {
-        super(parent, TreeReference.INDEX_TEMPLATE, TreeReference.INDEX_TEMPLATE, parent.getName(), parent.getChildHintName());
+    private FlatFixtureChildElement(StorageInstanceTreeElement<StorageBackedModel, ?> parent) {
+        super(parent, TreeReference.INDEX_TEMPLATE,
+                TreeReference.INDEX_TEMPLATE, parent.getName(),
+                parent.getChildHintName());
 
         empty = new TreeElement(nameId);
         empty.setMult(this.mult);
@@ -88,7 +90,7 @@ public class FixtureChildElement extends StorageBackedChildElement<StorageBacked
         return nameId;
     }
 
-    public static FixtureChildElement buildFixtureChildTemplate(FlatFixtureInstanceTreeElement parent) {
-        return new FixtureChildElement(parent);
+    public static FlatFixtureChildElement buildFixtureChildTemplate(FlatFixtureInstanceTreeElement parent) {
+        return new FlatFixtureChildElement(parent);
     }
 }

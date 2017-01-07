@@ -14,7 +14,8 @@ import java.util.Hashtable;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class FlatFixtureInstanceTreeElement extends StorageInstanceTreeElement<StorageBackedModel, FixtureChildElement> {
+public class FlatFixtureInstanceTreeElement
+        extends StorageInstanceTreeElement<StorageBackedModel, FlatFixtureChildElement> {
     private Hashtable<XPathPathExpr, String> storageIndexMap = null;
 
     private FlatFixtureInstanceTreeElement(AbstractTreeElement instanceRoot,
@@ -30,18 +31,19 @@ public class FlatFixtureInstanceTreeElement extends StorageInstanceTreeElement<S
                 sandbox.getFlatFixturePathBases(instanceName);
         IStorageUtilityIndexed<StorageBackedModel> storage =
                 sandbox.getFlatFixtureStorage(instanceName, null);
-        return new FlatFixtureInstanceTreeElement(instanceBase, storage, modelAndChild.first, modelAndChild.second);
+        return new FlatFixtureInstanceTreeElement(instanceBase, storage,
+                modelAndChild.first, modelAndChild.second);
     }
 
     @Override
-    protected FixtureChildElement buildElement(StorageInstanceTreeElement<StorageBackedModel, FixtureChildElement> storageInstance,
-                                               int recordId, String id, int mult) {
-        return new FixtureChildElement(storageInstance, mult, recordId);
+    protected FlatFixtureChildElement buildElement(StorageInstanceTreeElement<StorageBackedModel, FlatFixtureChildElement> storageInstance,
+                                                   int recordId, String id, int mult) {
+        return new FlatFixtureChildElement(storageInstance, mult, recordId);
     }
 
     @Override
-    protected FixtureChildElement getChildTemplate() {
-        return FixtureChildElement.buildFixtureChildTemplate(this);
+    protected FlatFixtureChildElement getChildTemplate() {
+        return FlatFixtureChildElement.buildFixtureChildTemplate(this);
     }
 
     @Override
@@ -51,11 +53,13 @@ public class FlatFixtureInstanceTreeElement extends StorageInstanceTreeElement<S
 
             StorageBackedModel template = getModelTemplate();
             for (String attrName : template.getAttributes().keySet()) {
-                storageIndexMap.put(XPathReference.getPathExpr(attrName), StorageBackedModel.getColumnName(attrName));
+                storageIndexMap.put(XPathReference.getPathExpr(attrName),
+                        StorageBackedModel.getColumnName(attrName));
             }
             for (String elementName : template.getElements().keySet()) {
-                storageIndexMap.put(XPathReference.getPathExpr(elementName),
-                        StorageBackedModel.getUniqueColumnName(elementName, template.getEscapedAttributeKeys()));
+                String escapedElem =
+                        StorageBackedModel.getUniqueColumnName(elementName, template.getEscapedAttributeKeys());
+                storageIndexMap.put(XPathReference.getPathExpr(elementName), escapedElem);
             }
         }
 

@@ -49,6 +49,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     protected TransactionParserFactory fixtureParser;
     private static final HashSet<String> flatSet = new HashSet<>();
     static {
+        flatSet.add("locations");
         flatSet.add("item-list:wfl_0_2_zscores");
         flatSet.add("item-list:wfa_0_5_zscores");
         flatSet.add("item-list:wfa_0_13_zscores");
@@ -69,7 +70,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 
     protected final UserSandbox sandbox;
 
-    int requests = 0;
+    private int requests = 0;
 
     public CommCareTransactionParserFactory(UserSandbox sandbox) {
         this.sandbox = sandbox;
