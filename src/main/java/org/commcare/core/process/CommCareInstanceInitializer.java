@@ -5,10 +5,10 @@ import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.instance.FlatFixtureInstanceTreeElement;
 import org.commcare.cases.instance.LedgerInstanceTreeElement;
 import org.commcare.core.interfaces.UserSandbox;
-import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.xml.FlatFixtureXmlParser;
 import org.javarosa.core.model.User;
 import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -117,22 +117,22 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             userId = u.getUniqueId();
         }
 
-        String fixtureRef = instance.getReference();
-        if (fixtureRef.startsWith("jr://fixture/")) {
-            fixtureRef = fixtureRef.substring(13);
-        }
-        boolean isStorageBacked = CommCareTransactionParserFactory.isFlat(fixtureRef);
-        if (isStorageBacked) {
+        AbstractTreeElement flatFixture =
+                FlatFixtureInstanceTreeElement.get(mSandbox, getRefId(ref), instance.getBase());
+        if (flatFixture != null) {
             // TODO PLM: cache this
-            return FlatFixtureInstanceTreeElement.get(mSandbox, fixtureRef, instance.getBase());
+            return flatFixture;
         } else {
             return loadFixtureRoot(instance, ref, userId);
         }
     }
 
+    private static String getRefId(String reference) {
+        return reference.substring(reference.lastIndexOf('/') + 1, reference.length());
+    }
     protected TreeElement loadFixtureRoot(ExternalDataInstance instance,
                                           String reference, String userId) {
-        String refId = reference.substring(reference.lastIndexOf('/') + 1, reference.length());
+        String refId = getRefId(reference);
         String instanceBase = instance.getBase().getInstanceName();
 
         try {

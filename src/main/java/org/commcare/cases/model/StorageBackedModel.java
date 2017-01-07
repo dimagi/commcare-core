@@ -16,20 +16,36 @@ import java.util.Hashtable;
 import java.util.Set;
 
 /**
+ * DB object model, which includes key/value indexes, that gets turned into a
+ * flat TreeElement.
+ *
+ * Flat TreeElements have the following structural constraints:
+ *  - attributes only appear at the top level
+ *  - there is only one occurence of every element (they have multiplicity 1)
+ *  - nested elements are allowed but must follow the aforementioned constraints
+ *
+ * All attributes and first-level elements will be turned into columns in the
+ * associated DB table
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class StorageBackedModel implements Persistable, IMetaData {
 
-    public static final String STORAGE_KEY_PREFIX = "FLATFIX_";
+    private static final String STORAGE_KEY_PREFIX = "FLATFIX_";
+
     private Hashtable<String, String> attributes = new Hashtable<>();
     private Hashtable<String, String> elements = new Hashtable<>();
     private HashSet<String> escapedAttributeKeys = new HashSet<>();
     private HashSet<String> escapedElementKeys = new HashSet<>();
-    protected int recordId = -1;
-    protected String entityId;
+
     private String[] metaDataFields = null;
 
+    protected int recordId = -1;
+    protected String entityId;
+
+    @SuppressWarnings("unused")
     public StorageBackedModel() {
+        // for serialization
     }
 
     /**
@@ -46,6 +62,10 @@ public class StorageBackedModel implements Persistable, IMetaData {
         return attributes;
     }
 
+    /**
+     * @return Attribute names that have been escaped to safely be used as DB
+     * column names which are unique from the element column names
+     */
     public Set<String> getEscapedAttributeKeys() {
         loadMetaData();
         return escapedAttributeKeys;
@@ -55,6 +75,10 @@ public class StorageBackedModel implements Persistable, IMetaData {
         return elements;
     }
 
+    /**
+     * @return Element names that have been escaped to safely be used as DB
+     * column names which are unique from the attribute column names
+     */
     public Set<String> getEscapedElementKeys() {
         loadMetaData();
         return escapedElementKeys;
@@ -97,17 +121,27 @@ public class StorageBackedModel implements Persistable, IMetaData {
         return null;
     }
 
+    public static String getTableName(String fixtureName) {
+        String cleanedName = fixtureName.replace(":", "_").replace(".", "_").replace("-", "_");
+        return STORAGE_KEY_PREFIX + cleanedName;
+    }
+
     /**
-     * escape SQL column name because user may have chosen a fixture element name that collides with a SQL keyword
+     * Escape SQL column name because user may have chosen a fixture element
+     * name that collides with a SQL keyword
      */
     public static String getColumnName(String colName) {
         return "_$_" + colName;
     }
 
-    private static String removeEscape(String colName) {
+    public static String removeEscape(String colName) {
         return colName.substring(colName.indexOf("_", 1));
     }
 
+    /**
+     * Escapes SQL columnn name in a way that guarantees uniqueness from other
+     * existing column names
+     */
     public static String getUniqueColumnName(String colName, Set<String> otherColumns) {
         String colNamePre = "_$";
         String uniqColName = "_$_" + colName;

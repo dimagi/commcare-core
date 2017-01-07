@@ -19,8 +19,8 @@ public class FlatFixtureInstanceTreeElement
     private Hashtable<XPathPathExpr, String> storageIndexMap = null;
 
     private FlatFixtureInstanceTreeElement(AbstractTreeElement instanceRoot,
-                                          IStorageUtilityIndexed<StorageBackedModel> storage,
-                                          String modelName, String childName) {
+                                           IStorageUtilityIndexed<StorageBackedModel> storage,
+                                           String modelName, String childName) {
         super(instanceRoot, storage, modelName, childName);
     }
 
@@ -29,10 +29,14 @@ public class FlatFixtureInstanceTreeElement
                                                      InstanceBase instanceBase) {
         Pair<String, String> modelAndChild =
                 sandbox.getFlatFixturePathBases(instanceName);
-        IStorageUtilityIndexed<StorageBackedModel> storage =
-                sandbox.getFlatFixtureStorage(instanceName, null);
-        return new FlatFixtureInstanceTreeElement(instanceBase, storage,
-                modelAndChild.first, modelAndChild.second);
+        if (modelAndChild == null) {
+            return null;
+        } else {
+            IStorageUtilityIndexed<StorageBackedModel> storage =
+                    sandbox.getFlatFixtureStorage(instanceName, null);
+            return new FlatFixtureInstanceTreeElement(instanceBase, storage,
+                    modelAndChild.first, modelAndChild.second);
+        }
     }
 
     @Override

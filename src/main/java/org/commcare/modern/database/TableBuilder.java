@@ -183,10 +183,6 @@ public class TableBuilder {
         return input.replace("-", "_");
     }
 
-    public static String cleanTableName(String name) {
-        return name.replace(":", "_").replace(".", "_").replace("-", "_");
-    }
-
     public static byte[] toBlob(Externalizable externalizable){
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {

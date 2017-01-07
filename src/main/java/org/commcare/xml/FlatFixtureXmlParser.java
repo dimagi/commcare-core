@@ -21,10 +21,38 @@ import java.util.Hashtable;
  */
 public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBackedModel> {
 
+    private static final HashSet<String> flatSet = new HashSet<>();
+    static {
+        FlatFixtureXmlParser.flatSet.add("locations");
+        FlatFixtureXmlParser.flatSet.add("item-list:wfl_0_2_zscores");
+        FlatFixtureXmlParser.flatSet.add("item-list:wfa_0_5_zscores");
+        FlatFixtureXmlParser.flatSet.add("item-list:wfa_0_13_zscores");
+        FlatFixtureXmlParser.flatSet.add("item-list:lhfa_0_13_zscores");
+        FlatFixtureXmlParser.flatSet.add("item-list:amu_meds_g1");
+        FlatFixtureXmlParser.flatSet.add("item-list:amu_acts");
+        FlatFixtureXmlParser.flatSet.add("item-list:amu_equipments1");
+        FlatFixtureXmlParser.flatSet.add("item-list:amu_meds_g4");
+        FlatFixtureXmlParser.flatSet.add("item-list:wfh_2_5_zscores");
+        FlatFixtureXmlParser.flatSet.add("item-list:amu_meds_g5");
+        FlatFixtureXmlParser.flatSet.add("item-list:amu_meds_g3");
+        FlatFixtureXmlParser.flatSet.add("item-list:amu_group_eq");
+        FlatFixtureXmlParser.flatSet.add("item-list:lhfa_0_5_zscores");
+        FlatFixtureXmlParser.flatSet.add("item-list:amu_meds_g2");
+        FlatFixtureXmlParser.flatSet.add("item-list:amu_group_meds");
+        FlatFixtureXmlParser.flatSet.add("item-list:amu_equipments2");
+    }
+
     IStorageUtilityIndexed<StorageBackedModel> storage;
 
     public FlatFixtureXmlParser(KXmlParser parser) {
         super(parser);
+    }
+
+    public static boolean isFlatDebug(String id) {
+        if (id.startsWith("jr://fixture/")) {
+            id = id.substring(13);
+        }
+        return flatSet.contains(id);
     }
 
     @Override
