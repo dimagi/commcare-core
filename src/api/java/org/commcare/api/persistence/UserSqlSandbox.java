@@ -65,8 +65,11 @@ public class UserSqlSandbox extends UserSandbox {
     public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName,
                                                                             StorageBackedModel exampleEntry) {
         String tableName = StorageBackedModel.getTableName(fixtureName);
-        // TODO PLM: use exampleEntry instead of StorageBackedModel.class to get meta data correct
-        return new SqliteIndexedStorageUtility<>(StorageBackedModel.class, username, tableName, path);
+        if (exampleEntry != null) {
+            return new SqliteIndexedStorageUtility<>(exampleEntry, username, tableName, path);
+        } else {
+            return new SqliteIndexedStorageUtility<>(StorageBackedModel.class, username, tableName, path);
+        }
     }
 
     @Override

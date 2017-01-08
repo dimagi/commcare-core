@@ -29,20 +29,37 @@ import java.util.Vector;
  */
 public class SqliteIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T>, Iterable<T> {
 
-    private final Class<T> prototype;
+    private Class<T> prototype;
     private final String tableName;
     private final String sandboxId;
     private final File databaseFolder;
 
-    public SqliteIndexedStorageUtility(Class<T> prototype, String sandboxId, String tableName, String databasePath) {
+    private SqliteIndexedStorageUtility(String sandboxId, String tableName, String databasePath) {
         this.tableName = tableName;
         this.sandboxId = sandboxId;
-        this.prototype = prototype;
         databaseFolder = new File(databasePath);
+    }
+
+    public SqliteIndexedStorageUtility(Class<T> prototype, String sandboxId,
+                                       String tableName, String databasePath) {
+        this(sandboxId, tableName, databasePath);
+        this.prototype = prototype;
 
         try {
             buildTableFromInstance(prototype.newInstance());
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public SqliteIndexedStorageUtility(T prototypeInstance, String sandboxId,
+                                       String tableName, String databasePath) {
+        this(sandboxId, tableName, databasePath);
+        this.prototype = (Class<T>)prototypeInstance.getClass();
+
+        try {
+            buildTableFromInstance(prototypeInstance);
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
