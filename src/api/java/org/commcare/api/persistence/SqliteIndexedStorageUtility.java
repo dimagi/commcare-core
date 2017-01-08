@@ -40,17 +40,23 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
         this.prototype = prototype;
         databaseFolder = new File(databasePath);
 
+        try {
+            buildTableFromInstance(prototype.newInstance());
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void buildTableFromInstance(T instance) throws ClassNotFoundException {
         Connection c = null;
         try {
             c = getConnection();
-            SqlHelper.createTable(c, tableName, prototype.newInstance());
+            SqlHelper.createTable(c, tableName, instance);
             // This enables concurrent reads and writes, needed for updates
             c.prepareStatement("PRAGMA journal_mode=WAL;").execute();
             c.close();
         } catch (SQLException e) {
             e.printStackTrace();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
         } finally {
             try {
                 if (c != null) {
