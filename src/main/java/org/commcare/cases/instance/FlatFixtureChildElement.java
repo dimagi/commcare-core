@@ -6,8 +6,13 @@ import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.Hashtable;
+import java.util.Set;
 
 /**
+ * Child TreeElement of a flat fixture whose data is loaded from a DB.
+ *
+ * i.e. 'product' of "instance('product-list')/products/product"
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class FlatFixtureChildElement extends StorageBackedChildElement<StorageBackedModel> {
@@ -32,16 +37,23 @@ public class FlatFixtureChildElement extends StorageBackedChildElement<StorageBa
 
         StorageBackedModel modelTemplate = parent.getModelTemplate();
 
-        Hashtable<String, String> attributes = modelTemplate.getAttributes();
-        for (String key : attributes.keySet()) {
-            empty.setAttribute(null, key, "");
-        }
+        addBlankAttributes(empty, modelTemplate.getAttributes().keySet());
+        addBlankElements(empty, modelTemplate.getElements().keySet());
+    }
 
-        Hashtable<String, String> elements = modelTemplate.getElements();
-        for (String key : elements.keySet()) {
+    private static void addBlankAttributes(TreeElement template,
+                                           Set<String> attributeKeys) {
+        for (String key : attributeKeys) {
+            template.setAttribute(null, key, "");
+        }
+    }
+
+    private static void addBlankElements(TreeElement template,
+                                         Set<String> elementKeys) {
+        for (String key : elementKeys) {
             TreeElement scratch = new TreeElement(key);
             scratch.setAnswer(null);
-            empty.addChild(scratch);
+            template.addChild(scratch);
         }
     }
 
@@ -57,31 +69,41 @@ public class FlatFixtureChildElement extends StorageBackedChildElement<StorageBa
                 return element;
             }
 
-            TreeElement cacheBuilder = new TreeElement(nameId);
-
             StorageBackedModel model = parent.getElement(recordId);
-            entityId = model.getEntityId();
-            cacheBuilder.setMult(mult);
-
-            Hashtable<String, String> attributes = model.getAttributes();
-            for (String key : attributes.keySet()) {
-                cacheBuilder.setAttribute(null, key, attributes.get(key));
-            }
-
-            Hashtable<String, String> elements = model.getElements();
-            for (String key : elements.keySet()) {
-                TreeElement scratch = new TreeElement(key);
-                String data = elements.get(key);
-                // TODO PLM: do we want smarter type dispatch?
-                scratch.setAnswer(new StringData(data == null ? "" : data));
-                cacheBuilder.addChild(scratch);
-            }
-
-            cacheBuilder.setParent(this.parent);
+            TreeElement cacheBuilder = buildElementFromModel(model);
 
             parent.treeCache.register(recordId, cacheBuilder);
 
             return cacheBuilder;
+        }
+    }
+
+    private TreeElement buildElementFromModel(StorageBackedModel model) {
+        TreeElement cacheBuilder = new TreeElement(nameId);
+        entityId = model.getEntityId();
+        cacheBuilder.setMult(mult);
+
+        addAttributes(cacheBuilder, model.getAttributes());
+        addElements(cacheBuilder, model.getElements());
+        cacheBuilder.setParent(this.parent);
+
+        return cacheBuilder;
+    }
+
+    private static void addAttributes(TreeElement treeElement,
+                                      Hashtable<String, String> attributes) {
+        for (String key : attributes.keySet()) {
+            treeElement.setAttribute(null, key, attributes.get(key));
+        }
+    }
+    private static void addElements(TreeElement treeElement,
+                                    Hashtable<String, String> elements) {
+        for (String key : elements.keySet()) {
+            TreeElement scratch = new TreeElement(key);
+            String data = elements.get(key);
+            // TODO PLM: do we want smarter type dispatch?
+            scratch.setAnswer(new StringData(data == null ? "" : data));
+            treeElement.addChild(scratch);
         }
     }
 

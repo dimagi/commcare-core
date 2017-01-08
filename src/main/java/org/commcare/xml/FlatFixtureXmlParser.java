@@ -35,8 +35,6 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
         FlatFixtureXmlParser.flatSet.add("locations");
     }
 
-    IStorageUtilityIndexed<StorageBackedModel> storage;
-
     public FlatFixtureXmlParser(KXmlParser parser) {
         super(parser);
     }
@@ -120,11 +118,11 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
     }
 
     private static Hashtable<String, String> loadElements(TreeElement child,
-                                                          HashSet<String> expectedElementsCopy) {
+                                                          HashSet<String> expectedElements) {
         Hashtable<String, String> elements = new Hashtable<>();
         for (int i = 0; i < child.getNumChildren(); i++) {
             TreeElement entry = child.getChildAt(i);
-            if (!expectedElementsCopy.remove(entry.getName())) {
+            if (!expectedElements.remove(entry.getName())) {
                 throw new RuntimeException("Flat fixture isn't homogeneous");
             }
             IAnswerData value = entry.getValue();
@@ -134,12 +132,12 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
     }
 
     private static Hashtable<String, String> loadAttributes(TreeElement child,
-                                                            HashSet<String> expectedAttributesCopy) {
+                                                            HashSet<String> expectedAttributes) {
         Hashtable<String, String> attributes = new Hashtable<>();
         for (int i = 0; i < child.getAttributeCount(); i++) {
             String attrName = child.getAttributeName(i);
             TreeElement attr = child.getAttribute(null, attrName);
-            if (!expectedAttributesCopy.remove(attr.getName())) {
+            if (!expectedAttributes.remove(attr.getName())) {
                 throw new RuntimeException("Flat fixture isn't homogeneous");
             }
             attributes.put(attr.getName(), attr.getValue().uncast().getString());
@@ -150,14 +148,21 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
     @Override
     protected void commit(StorageBackedModel parsed) throws IOException {
         try {
-            fixtureStorage(parsed).write(parsed);
+            getFlatFixtureStorage(parsed).write(parsed);
         } catch (StorageFullException e) {
             e.printStackTrace();
             throw new IOException("Storage full while writing case!");
         }
     }
 
-    public abstract IStorageUtilityIndexed<StorageBackedModel> fixtureStorage(StorageBackedModel exampleEntry);
+    /**
+     * Get storage that stores fixture element entries as table rows
+     */
+    public abstract IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(StorageBackedModel exampleEntry);
 
+    /**
+     * Store base and child node names associated with a fixture.
+     * Used for reconstructiong fixture instance
+     */
     public abstract void writeFixtureIndex(String fixtureName, String baseName, String childName);
 }

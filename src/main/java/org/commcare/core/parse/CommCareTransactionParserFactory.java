@@ -178,7 +178,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                         private IStorageUtilityIndexed<StorageBackedModel> flatFixtureStorage;
 
                         @Override
-                        public IStorageUtilityIndexed<StorageBackedModel> fixtureStorage(StorageBackedModel exampleEntry) {
+                        public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(StorageBackedModel exampleEntry) {
                             if (flatFixtureStorage == null) {
                                 flatFixtureStorage = sandbox.getFlatFixtureStorage(fixtureName, exampleEntry);
                             }
