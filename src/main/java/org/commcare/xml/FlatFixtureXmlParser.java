@@ -49,21 +49,18 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
     @Override
     public StorageBackedModel parse() throws InvalidStructureException, IOException,
             XmlPullParserException, UnfullfilledRequirementsException {
-        this.checkNode("fixture");
+        checkNode("fixture");
 
         String fixtureId = parser.getAttributeValue(null, "id");
         if (fixtureId == null) {
             throw new InvalidStructureException("fixture is lacking id attribute", parser);
         }
 
-        TreeElement root;
-        if (!nextTagInBlock("fixture")) {
-            // fixture with no body; don't commit to storage
-            return null;
+        if (nextTagInBlock("fixture")) {
+            // only commit fixtures with bodies to storage
+            TreeElement root = new TreeElementParser(parser, 0, fixtureId).parse();
+            processRoot(root, fixtureId);
         }
-
-        root = new TreeElementParser(parser, 0, fixtureId).parse();
-        processRoot(root, fixtureId);
 
         return null;
     }
