@@ -39,13 +39,4 @@ public class XPathSubstringBeforeFunc extends XPathFuncExpr {
     }
 
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior: Takes two strings, a base string and a query string and returns the substring of the base string that precedes the first occurrence of the query string, or the empty string if the base string does not contain the query string\n"
-                + "Return: A substring of the first argument\n"
-                + "Arguments: A base string and a query string.\n"
-                + "Syntax: substring-before(full_string, substring)\n"
-                + "Example: substring-before('hello_there', '_there'). In conjunction with string-length, this can calculate the index of the 1st occurrence of a query string: string-length(substring-before(base_string, query_string))+1";
-    }
 }

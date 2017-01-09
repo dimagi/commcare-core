@@ -45,15 +45,4 @@ public class XPathMinFunc extends XPathFuncExpr {
     }
 
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior:  Return the minimum value of the passed in values.  These can either be a reference to a group of questions or a direct set of values.\n"
-                + "Return: Number that is the minimum.\n"
-                + "Arguments:  There are two potential ways this function will work\n"
-                + "\tSingle argument that is the group of questions in which to find the minimum\n"
-                + "\tMultiple arguments (an unlimited number) in which to find the minimum.\n"
-                + "Syntax: min(question_group) or min(value_1, value_2, value_3, ...)\n"
-                + "Example:  You can use this when you want to find the minimum number entered in a repeat group.  Ex. min(/data/repeat_group/my_number_question).  Or when you have multiple questions.  Ex. min(/data/question_1, /data/question_2, /data/question_3, /data/question_4).";
-    }
 }
