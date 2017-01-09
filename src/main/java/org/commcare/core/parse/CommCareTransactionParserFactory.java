@@ -1,5 +1,6 @@
 package org.commcare.core.parse;
 
+import org.commcare.cases.instance.FlatFixtureSchema;
 import org.commcare.cases.model.StorageBackedModel;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.cases.ledger.Ledger;
@@ -7,6 +8,7 @@ import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
+import org.commcare.xml.FixtureSchemaParser;
 import org.commcare.xml.FixtureXmlParser;
 import org.commcare.xml.FlatFixtureXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
@@ -18,6 +20,8 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The CommCare Transaction Parser Factory (whew!) wraps all of the current
@@ -46,6 +50,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     protected TransactionParserFactory caseParser;
     protected TransactionParserFactory stockParser;
     protected TransactionParserFactory fixtureParser;
+    private final Map<String, FlatFixtureSchema> fixtureSchemas = new HashMap<>();
 
     protected final UserSandbox sandbox;
 
@@ -81,6 +86,8 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             }
             req();
             return userParser.getParser(parser);
+        } else if ("schema".equalsIgnoreCase(name)) {
+            return new FixtureSchemaParser(parser, fixtureSchemas);
         } else if ("fixture".equalsIgnoreCase(name)) {
             String id = parser.getAttributeValue(null, "id");
             String isFlatAttr = parser.getAttributeValue(null, "flat");
@@ -168,13 +175,14 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     }
 
     public TransactionParserFactory buildFlatFixtureParser(final String fixtureName) {
+        final FlatFixtureSchema schema = fixtureSchemas.get(fixtureName);
         return new TransactionParserFactory() {
             FlatFixtureXmlParser created = null;
 
             @Override
             public TransactionParser getParser(KXmlParser parser) {
                 if (created == null) {
-                    created = new FlatFixtureXmlParser(parser) {
+                    created = new FlatFixtureXmlParser(parser, schema) {
                         private IStorageUtilityIndexed<StorageBackedModel> flatFixtureStorage;
 
                         @Override

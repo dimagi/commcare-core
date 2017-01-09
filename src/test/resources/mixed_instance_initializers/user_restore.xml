@@ -17,7 +17,22 @@
             <item id="4">four</item>
         </list>
     </fixture>
-    <fixture id="bike-list" user_id="test_uuid" flat="true">
+    <schema id="bike-list">
+        <indices>
+            <entry>@id</entry>
+            <entry>id</entry>
+        </indices>
+        <structure>
+            <bikes>
+                <bike id="">
+                    <name/>
+                    <year/>
+                    <id/>
+                </bike>
+            </bikes>
+        </structure>
+    </schema>
+    <fixture flat="true" id="bike-list" user_id="test_uuid">
         <bikes>
             <bike id="1">
                 <name>Huffy</name>
