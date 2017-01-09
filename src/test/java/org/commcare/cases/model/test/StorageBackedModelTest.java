@@ -24,7 +24,15 @@ public class StorageBackedModelTest {
         elements.put("age", "44");
         elements.put("id", "svens_national_id");
 
-        StorageBackedModel model = new StorageBackedModel(attributes, elements);
+        Hashtable<String, String> nestedElements = new Hashtable<>();
+        nestedElements.put("extra_data/debugging", "true");
+        nestedElements.put("extra_data/code", "aaa");
+
+        StorageBackedModel model = new StorageBackedModel(attributes, elements, nestedElements);
+
+        // ensure nested elements aren't included in metadata fields
+        assertEquals(elements.size() + attributes.size(), model.getMetaDataFields().length);
+        assertEquals(nestedElements.size(), model.getNestedElements().size());
 
         // check that DB column names created from attributes and elements
         // don't collide when the attributes and elements do

@@ -85,6 +85,7 @@ public class FlatFixtureChildElement extends StorageBackedChildElement<StorageBa
 
         addAttributes(cacheBuilder, model.getAttributes());
         addElements(cacheBuilder, model.getElements());
+        addNestedElements(cacheBuilder, model.getNestedElements());
         cacheBuilder.setParent(this.parent);
 
         return cacheBuilder;
@@ -104,6 +105,19 @@ public class FlatFixtureChildElement extends StorageBackedChildElement<StorageBa
             // TODO PLM: do we want smarter type dispatch?
             scratch.setAnswer(new StringData(data == null ? "" : data));
             treeElement.addChild(scratch);
+        }
+    }
+
+    private static void addNestedElements(TreeElement treeElement,
+                                          Hashtable<String, String> nestedElements) {
+        for (String key : nestedElements.keySet()) {
+            String[] segments = key.split("/");
+            TreeElement child = treeElement.getChild(segments[0], 0);
+            TreeElement scratch = new TreeElement(segments[1]);
+            String data = nestedElements.get(key);
+            // TODO PLM: do we want smarter type dispatch?
+            scratch.setAnswer(new StringData(data == null ? "" : data));
+            child.addChild(scratch);
         }
     }
 

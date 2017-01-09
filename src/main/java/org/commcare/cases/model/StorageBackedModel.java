@@ -35,6 +35,7 @@ public class StorageBackedModel implements Persistable, IMetaData {
 
     private Hashtable<String, String> attributes = new Hashtable<>();
     private Hashtable<String, String> elements = new Hashtable<>();
+    private Hashtable<String, String> nestedElements = new Hashtable<>();
     private HashSet<String> escapedAttributeKeys = new HashSet<>();
     private HashSet<String> escapedElementKeys = new HashSet<>();
 
@@ -53,9 +54,11 @@ public class StorageBackedModel implements Persistable, IMetaData {
      * from each other
      */
     public StorageBackedModel(Hashtable<String, String> attributes,
-                              Hashtable<String, String> elements) {
+                              Hashtable<String, String> elements,
+                              Hashtable<String, String> nestedElements) {
         this.attributes = attributes;
         this.elements = elements;
+        this.nestedElements = nestedElements;
 
         loadMetaData();
     }
@@ -74,6 +77,10 @@ public class StorageBackedModel implements Persistable, IMetaData {
 
     public Hashtable<String, String> getElements() {
         return elements;
+    }
+
+    public Hashtable<String, String> getNestedElements() {
+        return nestedElements;
     }
 
     /**
@@ -170,6 +177,7 @@ public class StorageBackedModel implements Persistable, IMetaData {
         entityId = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         attributes = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
         elements = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
+        nestedElements = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
 
         loadMetaData();
     }
@@ -180,5 +188,6 @@ public class StorageBackedModel implements Persistable, IMetaData {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(entityId));
         ExtUtil.write(out, new ExtWrapMap(attributes));
         ExtUtil.write(out, new ExtWrapMap(elements));
+        ExtUtil.write(out, new ExtWrapMap(nestedElements));
     }
 }

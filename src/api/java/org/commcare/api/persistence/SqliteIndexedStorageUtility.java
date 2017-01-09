@@ -127,7 +127,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
     }
 
     public T readFromBytes(byte[] mBytes) {
-
         T returnPrototype;
         ByteArrayInputStream mByteStream = null;
         try {
@@ -152,7 +151,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
     public T read(int id) {
         byte[] mBytes = readBytes(id);
         return readFromBytes(mBytes);
-
     }
 
     @Override

@@ -15,6 +15,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 
 /**
  * Creates a table for the flat fixture and parses each element into a
@@ -31,6 +32,7 @@ import java.util.Hashtable;
 public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBackedModel> {
 
     private static final HashSet<String> flatSet = new HashSet<>();
+
     static {
         FlatFixtureXmlParser.flatSet.add("locations");
     }
@@ -68,17 +70,13 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
     private void processRoot(TreeElement root, String fixtureId) throws IOException {
         if (root.hasChildren()) {
             TreeElement firstChild = root.getChildAt(0);
-            int childCount = firstChild.getNumChildren();
-            HashSet<String> expectedElements = buildChildKeys(firstChild);
-            if (expectedElements.size() != childCount) {
-                throw new RuntimeException("Flat fixture doesn't have a table structure: has more than one entry with the same name");
-            }
+            HashSet<String> expectedElements = buildExpectedElements(firstChild);
             HashSet<String> expectedAttributes = buildAttributeKeys(firstChild);
 
             writeFixtureIndex(fixtureId, root.getName(), firstChild.getName());
 
-            for (TreeElement child : root.getChildrenWithName(firstChild.getName())) {
-                processChild(child, expectedElements, expectedAttributes);
+            for (TreeElement entry : root.getChildrenWithName(firstChild.getName())) {
+                processEntry(entry, expectedElements, expectedAttributes);
             }
         }
     }
@@ -92,31 +90,63 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
         return attributeSet;
     }
 
-    private static HashSet<String> buildChildKeys(TreeElement root) {
+    private static HashSet<String> buildExpectedElements(TreeElement root) {
         HashSet<String> elementSet = new HashSet<>();
         for (int i = 0; i < root.getNumChildren(); i++) {
-            elementSet.add(root.getChildAt(i).getName());
+            TreeElement entry = root.getChildAt(i);
+
+            if (elementSet.contains(entry.getName())) {
+                throw new RuntimeException("Flat fixture doesn't have a table structure: has more than one entry with the same name");
+            }
+
+            elementSet.add(entry.getName());
+            buildNestedExpectedElements(elementSet, entry);
         }
 
         return elementSet;
     }
 
-    private void processChild(TreeElement child,
+    private static void buildNestedExpectedElements(Set<String> elementSet, TreeElement entry) {
+        for (int i = 0; i < entry.getNumChildren(); i++) {
+            TreeElement nestedElement = entry.getChildAt(i);
+
+            if (nestedElement.getNumChildren() != 0 || nestedElement.getAttributeCount() != 0) {
+                throw new RuntimeException("Nested elements in flat fixture cannot have children or attributes");
+            }
+
+            String nestedName = getNestedName(entry, nestedElement);
+
+            if (elementSet.contains(nestedName)) {
+                throw new RuntimeException("Flat fixture doesn't have a table structure: has more than one entry with the same name");
+            }
+
+            elementSet.add(nestedName);
+        }
+    }
+
+    private static String getNestedName(TreeElement parent, TreeElement child) {
+        return parent.getName() + "/" + child.getName();
+    }
+
+    private void processEntry(TreeElement child,
                               HashSet<String> expectedElements,
                               HashSet<String> expectedAttributes) throws IOException {
         HashSet<String> expectedElementsCopy = new HashSet<>(expectedElements);
-        Hashtable<String, String> elements = loadElements(child, expectedElementsCopy);
+        Hashtable<String, String> elements = new Hashtable<>();
+        Hashtable<String, String> nestedElements = new Hashtable<>();
+        loadElements(child, elements, nestedElements, expectedElementsCopy);
 
         HashSet<String> expectedAttributesCopy = new HashSet<>(expectedAttributes);
         Hashtable<String, String> attributes = loadAttributes(child, expectedAttributesCopy);
 
-        StorageBackedModel model = new StorageBackedModel(attributes, elements);
+        StorageBackedModel model = new StorageBackedModel(attributes, elements, nestedElements);
         commit(model);
     }
 
-    private static Hashtable<String, String> loadElements(TreeElement child,
-                                                          HashSet<String> expectedElements) {
-        Hashtable<String, String> elements = new Hashtable<>();
+    private static void loadElements(TreeElement child,
+                                     Hashtable<String, String> elements,
+                                     Hashtable<String, String> nestedElements,
+                                     HashSet<String> expectedElements) {
         for (int i = 0; i < child.getNumChildren(); i++) {
             TreeElement entry = child.getChildAt(i);
             if (!expectedElements.remove(entry.getName())) {
@@ -124,8 +154,23 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
             }
             IAnswerData value = entry.getValue();
             elements.put(entry.getName(), value == null ? "" : value.uncast().getString());
+            loadNestedElements(entry, nestedElements, expectedElements);
         }
-        return elements;
+    }
+
+    private static void loadNestedElements(TreeElement entry,
+                                           Hashtable<String, String> nestedElements,
+                                           HashSet<String> expectedElements) {
+        for (int i = 0; i < entry.getNumChildren(); i++) {
+            TreeElement child = entry.getChildAt(i);
+            String nestedName = getNestedName(entry, child);
+
+            if (!expectedElements.remove(nestedName)) {
+                throw new RuntimeException("Flat fixture isn't homogeneous");
+            }
+            IAnswerData value = child.getValue();
+            nestedElements.put(nestedName, value == null ? "" : value.uncast().getString());
+        }
     }
 
     private static Hashtable<String, String> loadAttributes(TreeElement child,

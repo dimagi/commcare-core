@@ -115,14 +115,14 @@ public class DatabaseHelper {
     }
 
     public static String getTableCreateString(String storageKey, Persistable p){
-        TableBuilder mTableBuilder = new TableBuilder(storageKey);
-        mTableBuilder.addData(p);
-        return mTableBuilder.getTableCreateString();
+        TableBuilder tableBuilder = new TableBuilder(storageKey);
+        tableBuilder.addData(p);
+        return tableBuilder.getTableCreateString();
     }
 
     public static Pair<String, List<Object>> getTableInsertData(String storageKey, Persistable p){
-        TableBuilder mTableBuilder = new TableBuilder(storageKey);
-        mTableBuilder.addData(p);
-        return mTableBuilder.getTableInsertData(p);
+        TableBuilder tableBuilder = new TableBuilder(storageKey);
+        tableBuilder.addData(p);
+        return tableBuilder.getTableInsertData(p);
     }
 }
