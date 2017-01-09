@@ -224,5 +224,4 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     public String getSyncToken() {
         return sandbox.getSyncToken();
     }
-
 }
