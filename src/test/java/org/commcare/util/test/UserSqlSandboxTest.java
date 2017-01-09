@@ -10,9 +10,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.Vector;
 
 /**
  * Tests for the SqlSandsbox API. Just initializes and makes sure we can access at the moment.
@@ -22,8 +22,7 @@ import java.util.Vector;
 public class UserSqlSandboxTest {
 
     private UserSqlSandbox sandbox;
-    private Vector<String> owners;
-    final String username = "sandbox-test-user";
+    private final String username = "sandbox-test-user";
 
     @Before
     public void setUp() throws Exception {
@@ -52,11 +51,10 @@ public class UserSqlSandboxTest {
         assertEquals(sandbox.getLedgerStorage().getNumRecords(), 3);
         assertEquals(sandbox.getUserFixtureStorage().getNumRecords(), 4);
         File dbFolder = new File("alternative-dbs");
-        assert(dbFolder.exists() && dbFolder.isDirectory());
+        assertTrue(dbFolder.exists() && dbFolder.isDirectory());
         SqlSandboxUtils.deleteDatabaseFolder("alternative-dbs");
-        assert(!dbFolder.exists() && !dbFolder.isDirectory());
+        assertTrue(!dbFolder.exists() && !dbFolder.isDirectory());
     }
-
 
     @After
     public void tearDown(){
