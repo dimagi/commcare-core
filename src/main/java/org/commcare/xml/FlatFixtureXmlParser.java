@@ -99,8 +99,11 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
                 throw new RuntimeException("Flat fixture doesn't have a table structure: has more than one entry with the same name");
             }
 
-            elementSet.add(entry.getName());
-            buildNestedExpectedElements(elementSet, entry);
+            if (entry.hasChildren()) {
+                buildNestedExpectedElements(elementSet, entry);
+            } else {
+                elementSet.add(entry.getName());
+            }
         }
 
         return elementSet;
@@ -146,21 +149,38 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageBack
     private static void loadElements(TreeElement child,
                                      Hashtable<String, String> elements,
                                      Hashtable<String, String> nestedElements,
-                                     HashSet<String> expectedElements) {
+                                     Set<String> expectedElements) {
         for (int i = 0; i < child.getNumChildren(); i++) {
             TreeElement entry = child.getChildAt(i);
-            if (!expectedElements.remove(entry.getName())) {
-                throw new RuntimeException("Flat fixture isn't homogeneous");
+            if (entry.hasChildren()) {
+                loadNestedElements(entry, nestedElements, expectedElements);
+            } else {
+                if (assertInExpectedOrEmptyNested(expectedElements, entry.getName())) {
+                    IAnswerData value = entry.getValue();
+                    elements.put(entry.getName(), value == null ? "" : value.uncast().getString());
+                }
             }
-            IAnswerData value = entry.getValue();
-            elements.put(entry.getName(), value == null ? "" : value.uncast().getString());
-            loadNestedElements(entry, nestedElements, expectedElements);
         }
+    }
+
+    private static boolean assertInExpectedOrEmptyNested(Set<String> expectedElements,
+                                                         String name) {
+        if (!expectedElements.remove(name)) {
+            // we allow elements with children to be empty, so check if it is
+            // expected that this element has children
+            for (String expectedElem : expectedElements) {
+                if (expectedElem.startsWith(name + "/")) {
+                    return false;
+                }
+            }
+            throw new RuntimeException("Flat fixture isn't homogeneous");
+        }
+        return true;
     }
 
     private static void loadNestedElements(TreeElement entry,
                                            Hashtable<String, String> nestedElements,
-                                           HashSet<String> expectedElements) {
+                                           Set<String> expectedElements) {
         for (int i = 0; i < entry.getNumChildren(); i++) {
             TreeElement child = entry.getChildAt(i);
             String nestedName = getNestedName(entry, child);

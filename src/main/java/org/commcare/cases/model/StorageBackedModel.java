@@ -51,7 +51,8 @@ public class StorageBackedModel implements Persistable, IMetaData {
 
     /**
      * Input contract: attribute and element hashtable keys must be distinct
-     * from each other
+     * from each other and the base of nested elements must not be in the
+     * elements set
      */
     public StorageBackedModel(Hashtable<String, String> attributes,
                               Hashtable<String, String> elements,

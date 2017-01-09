@@ -39,6 +39,7 @@ public class FlatFixtureChildElement extends StorageBackedChildElement<StorageBa
 
         addBlankAttributes(empty, modelTemplate.getAttributes().keySet());
         addBlankElements(empty, modelTemplate.getElements().keySet());
+        addBlankNestedElements(empty, modelTemplate.getNestedElements().keySet());
     }
 
     private static void addBlankAttributes(TreeElement template,
@@ -54,6 +55,21 @@ public class FlatFixtureChildElement extends StorageBackedChildElement<StorageBa
             TreeElement scratch = new TreeElement(key);
             scratch.setAnswer(null);
             template.addChild(scratch);
+        }
+    }
+
+    private static void addBlankNestedElements(TreeElement treeElement,
+                                               Set<String> nestedElementsKeys) {
+        for (String key : nestedElementsKeys) {
+            String[] segments = key.split("/");
+            TreeElement child = treeElement.getChild(segments[0], 0);
+            if (child == null) {
+                child = new TreeElement(segments[0]);
+                treeElement.addChild(child);
+            }
+            TreeElement scratch = new TreeElement(segments[1]);
+            scratch.setAnswer(null);
+            child.addChild(scratch);
         }
     }
 
@@ -97,6 +113,7 @@ public class FlatFixtureChildElement extends StorageBackedChildElement<StorageBa
             treeElement.setAttribute(null, key, attributes.get(key));
         }
     }
+
     private static void addElements(TreeElement treeElement,
                                     Hashtable<String, String> elements) {
         for (String key : elements.keySet()) {
@@ -113,6 +130,10 @@ public class FlatFixtureChildElement extends StorageBackedChildElement<StorageBa
         for (String key : nestedElements.keySet()) {
             String[] segments = key.split("/");
             TreeElement child = treeElement.getChild(segments[0], 0);
+            if (child == null) {
+                child = new TreeElement(segments[0]);
+                treeElement.addChild(child);
+            }
             TreeElement scratch = new TreeElement(segments[1]);
             String data = nestedElements.get(key);
             // TODO PLM: do we want smarter type dispatch?
