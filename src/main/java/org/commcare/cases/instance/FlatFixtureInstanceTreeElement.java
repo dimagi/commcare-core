@@ -57,7 +57,7 @@ public class FlatFixtureInstanceTreeElement
 
             StorageBackedModel template = getModelTemplate();
             for (String attrName : template.getAttributes().keySet()) {
-                storageIndexMap.put(XPathReference.getPathExpr(attrName),
+                storageIndexMap.put(XPathReference.getPathExpr("@" + attrName),
                         StorageBackedModel.getColumnName(attrName));
             }
             for (String elementName : template.getElements().keySet()) {
