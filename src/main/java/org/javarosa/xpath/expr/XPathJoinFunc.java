@@ -53,13 +53,4 @@ public class XPathJoinFunc extends XPathFuncExpr {
     }
 
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior: Joins the values of all nodes in a given nodeset with a given string. This can be used to get all the values of a node in a repeat group.\n"
-                + "Return: Joined string\n"
-                + "Arguments: A string to join the values of the nodeset with, and a nodeset.\n"
-                + "Syntax: join(text, my_nodeset)\n"
-                + "Example: join(\", \", /data/my_repeat/child_name)";
-    }
 }
