@@ -22,13 +22,4 @@ public class XPathStartsWithFunc extends XPathFuncExpr {
         return FunctionUtils.toString(evaluatedArgs[0]).startsWith(FunctionUtils.toString(evaluatedArgs[1]));
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior:  Tests if one string begins with another string.\n"
-                + "Return: True or false.\n"
-                + "Arguments:  The string to search in, followed by the string to search for.\n"
-                + "Syntax: contains(text, prefix)\n"
-                + "Example:  Ex. starts-with(/data/last_name, \"Mc\")";
-    }
 }
