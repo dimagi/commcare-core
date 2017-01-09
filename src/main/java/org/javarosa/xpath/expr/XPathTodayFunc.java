@@ -25,12 +25,4 @@ public class XPathTodayFunc extends XPathFuncExpr {
         return DateUtils.roundDate(new Date());
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Return:  Returns the current date.\n"
-                + "Arguments: None\n"
-                + "Usage: today()\n"
-                + "Example Usage: You may want to use this when comparing against a user entered date.  For example, you may want to check that entered EDD is in the future (/data/edd > today()).";
-    }
 }

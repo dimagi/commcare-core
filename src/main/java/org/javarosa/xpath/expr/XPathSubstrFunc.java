@@ -62,17 +62,4 @@ public class XPathSubstrFunc extends XPathFuncExpr {
         return ((start <= end && end <= len) ? s.substring(start, end) : "");
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior:  A substring function.  Finds a specific part of the string (based on a start position and end position).\n"
-                + "Return: The substring identified.\n"
-                + "Arguments:  Three arguments\n"
-                + "\tThe text value in which to find the sub string\n"
-                + "\tThe start position in the string.  This is inclusive (so will include that character). The characters are numbered starting at 0.\n"
-                + "\tThe end position in the string.  This is exclusive (so will not include that character). The characters are numbered starting at 0.\n"
-                + "Syntax: substr(text_value, start_position, end_position)\n"
-                + "Example:  For example, you would like to grab just the year from the string \"2012-09-21\". You can use substr(/data/string_date, 0, 4)";
-
-    }
 }

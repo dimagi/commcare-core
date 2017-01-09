@@ -22,13 +22,4 @@ public class XPathContainsFunc extends XPathFuncExpr {
         return FunctionUtils.toString(evaluatedArgs[0]).contains(FunctionUtils.toString(evaluatedArgs[1]));
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior:  Tests if one string is contained within another string.\n"
-                + "Return: True or false.\n"
-                + "Arguments:  The string to search in, followed by the string to search for.\n"
-                + "Syntax: contains(haystack, needle)\n"
-                + "Example:  Ex. contains(/data/start_date, \"2014\")";
-    }
 }
