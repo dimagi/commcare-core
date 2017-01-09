@@ -30,7 +30,7 @@ public class StorageBackedFixtureTest {
         ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/fixture_create.xml"), sandbox);
 
         EvaluationContext ec =
-                MockDataUtils.buildContextWithInstance(sandbox, "flat:products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);
-        CaseTestUtils.xpathEvalAndAssert(ec, "instance('flat:products')/products/product[@id = 'a6d16035b98f6f962a6538bd927cefb3']/name", "CU");
+                MockDataUtils.buildContextWithInstance(sandbox, "products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);
+        CaseTestUtils.xpathEvalAndAssert(ec, "instance('products')/products/product[@id = 'a6d16035b98f6f962a6538bd927cefb3']/name", "CU");
     }
 }
