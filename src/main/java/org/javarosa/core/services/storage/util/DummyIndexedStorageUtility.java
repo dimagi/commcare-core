@@ -31,7 +31,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     private int curCount;
     private final Class<T> prototype;
     private final PrototypeFactory mFactory;
-    private final Vector<String> dynamicIndices = new Vector<>();
 
     public DummyIndexedStorageUtility(Class<T> prototype, PrototypeFactory factory) {
         meta = new Hashtable<>();
