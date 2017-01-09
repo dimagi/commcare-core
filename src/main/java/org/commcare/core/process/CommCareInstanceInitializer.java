@@ -8,7 +8,6 @@ import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.xml.FlatFixtureXmlParser;
 import org.javarosa.core.model.User;
 import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.instance.AbstractTreeElement;

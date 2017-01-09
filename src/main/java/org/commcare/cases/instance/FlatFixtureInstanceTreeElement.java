@@ -12,6 +12,9 @@ import org.javarosa.xpath.expr.XPathPathExpr;
 import java.util.Hashtable;
 
 /**
+ * The root element for the a flat fixture data instance: instance('some-flat-fixture').
+ * All children are nodes in a database table associated with the fixture.
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class FlatFixtureInstanceTreeElement
