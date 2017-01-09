@@ -27,7 +27,7 @@ public class StorageBackedFixtureTest {
 
     @Test
     public void queryFlatLookup() throws XPathSyntaxException, UnfullfilledRequirementsException, XmlPullParserException, IOException, InvalidStructureException {
-        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/fixture_create.xml"), sandbox);
+        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/flat-fixture.xml"), sandbox);
 
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(sandbox, "products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);

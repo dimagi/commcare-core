@@ -1,22 +1,6 @@
 <OpenRosaResponse>
     <message nature="ota_restore_success">Successfully restored account test!</message>
-    <schema id="commtrack:products">
-        <indices/>
-        <structure>
-            <products>
-                <product id="">
-                    <name/>
-                    <unit/>
-                    <code/>
-                    <description/>
-                    <category/>
-                    <program_id/>
-                    <cost/>
-                </product>
-            </products>
-        </structure>
-    </schema>
-    <fixture flat="true" id="commtrack:products">
+    <fixture id="commtrack:products">
         <products>
             <product heterogenous_attribute="present" id="f895be4959f9a8a66f57c340aac461b4">
                 <name>Collier</name>
