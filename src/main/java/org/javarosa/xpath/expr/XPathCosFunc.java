@@ -22,12 +22,4 @@ public class XPathCosFunc extends XPathFuncExpr {
         return Math.cos(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior: Finds the cos of a number.\n"
-                + "Return: The cos of the argument passed to the function\n"
-                + "Arguments: One number\n"
-                + "Syntax: cos(number)";
-    }
 }
