@@ -156,14 +156,8 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                     //Get all of the cases that meet this criteria
                     cases = this.getNextIndexMatch(keysToFetch, valuesToFetch, storage);
                 } catch (IllegalArgumentException IAE) {
-                    //We can only get this if we have a new index type
-                    storage.registerIndex(key);
-                    try {
-                        cases = this.getNextIndexMatch(keysToFetch, valuesToFetch, storage);
-                    } catch (IllegalArgumentException iaeagain) {
-                        //Still didn't work, platform can't expand indices
-                        break;
-                    }
+                    // Encountered a new index type
+                    break;
                 }
 
                 // merge with any other sets of cases

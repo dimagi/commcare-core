@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import org.commcare.cases.ledger.Ledger;
@@ -26,13 +23,9 @@ import java.util.Vector;
  */
 public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
     private static final String TAG_QUANTITY = "quantity";
-
     private static final String TAG_VALUE = "value";
-
     private static final String ENTRY_ID = "id";
-
     private static final String TRANSFER = "transfer";
-
     private static final String TAG_BALANCE = "balance";
 
     public static final String STOCK_XML_NAMESPACE = "http://commcarehq.org/ledger/v1";
@@ -40,7 +33,6 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
     private static final String MODEL_ID = "entity-id";
     private static final String SUBMODEL_ID = "section-id";
     private static final String FINAL_NAME = "entry";
-
 
     final IStorageUtilityIndexed<Ledger> storage;
 
