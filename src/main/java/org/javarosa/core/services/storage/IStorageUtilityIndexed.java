@@ -35,10 +35,4 @@ public interface IStorageUtilityIndexed<E extends Externalizable> extends IStora
      *                                contains the value of the index requested.
      */
     E getRecordForValue(String fieldName, Object value) throws NoSuchElementException, InvalidIndexException;
-
-    /**
-     * Optional. Register a new index for this storage which may optionally be able for indexed operations
-     * going forward. This will likely take a substantial amount of time for larger storage utilities.
-     */
-    void registerIndex(String filterIndex);
 }

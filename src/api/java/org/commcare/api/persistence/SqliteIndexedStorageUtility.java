@@ -416,11 +416,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
     }
 
     @Override
-    public void registerIndex(String filterIndex) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
     public Iterator<T> iterator() {
         return iterate();
     }
