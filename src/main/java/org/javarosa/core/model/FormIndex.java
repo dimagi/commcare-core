@@ -174,7 +174,10 @@ public class FormIndex {
      * @return An index into the deepest level of specificity referenced by this index that has
      * an instance index
      */
-    private FormIndex getDeepestLevelWithInstanceIndex() { return getDeepestLevelWithInstanceIndex(null); }
+    private FormIndex getDeepestLevelWithInstanceIndex() {
+        return getDeepestLevelWithInstanceIndex(null);
+    }
+
     private FormIndex getDeepestLevelWithInstanceIndex(FormIndex deepestSoFar) {
         if (this.getInstanceIndex() != -1) {
             deepestSoFar = this;
