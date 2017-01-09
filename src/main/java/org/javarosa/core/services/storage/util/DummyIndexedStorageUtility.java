@@ -31,7 +31,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     private int curCount;
     private final Class<T> prototype;
     private final PrototypeFactory mFactory;
-    private final Vector<String> dynamicIndices = new Vector<>();
 
     public DummyIndexedStorageUtility(Class<T> prototype, PrototypeFactory factory) {
         meta = new Hashtable<>();
@@ -57,11 +56,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         }
         IMetaData m = (IMetaData)p;
         for (String key : m.getMetaDataFields()) {
-            if (!meta.containsKey(key)) {
-                meta.put(key, new Hashtable<Object, Vector<Integer>>());
-            }
-        }
-        for (String key : dynamicIndices) {
             if (!meta.containsKey(key)) {
                 meta.put(key, new Hashtable<Object, Vector<Integer>>());
             }
@@ -253,11 +247,5 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
                 }
             }
         }
-    }
-
-    @Override
-    public void registerIndex(String filterIndex) {
-        dynamicIndices.addElement(filterIndex);
-        syncMeta();
     }
 }

@@ -11,7 +11,10 @@ import java.io.IOException;
 import java.util.Vector;
 
 /**
- * @author Phillip Mates (pmates@dimagi.com).
+ * Describes one form entry action used to replay form entry. 
+ * Actions include value setting, repeat creation, and skipping over questions
+ *
+ * @author Phillip Mates (pmates@dimagi.com)
  */
 public class FormEntryAction implements Externalizable {
     private String questionRefString;
