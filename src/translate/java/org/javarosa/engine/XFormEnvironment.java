@@ -106,6 +106,7 @@ public class XFormEnvironment {
         ec.addFunctionHandler(new FunctionExtensions.TodayFunc("now", hardCodedDate));
         ec.addFunctionHandler(new FunctionExtensions.PrintFunc(createIIF()));
         ec.addFunctionHandler(new FunctionExtensions.DocFunc());
+        ec.addFunctionHandler(new FunctionExtensions.ListXPathFunc());
 
         return ec;
     }

@@ -20,7 +20,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -166,4 +168,34 @@ public class FunctionExtensions {
         }
     }
 
+    static class ListXPathFunc implements IFunctionHandler {
+
+        @Override
+        public String getName() {
+            return "funcs";
+        }
+
+        @Override
+        public Vector getPrototypes() {
+            Vector<Class[]> p = new Vector<>();
+            p.addElement(new Class[0]);
+            return p;
+        }
+
+        @Override
+        public boolean rawArgs() {
+            return true;
+        }
+
+        @Override
+        public Object eval(Object[] args, EvaluationContext ec) {
+            StringBuilder builder = new StringBuilder();
+            List<String> sortedFunctionNames = FunctionUtils.xPathFuncList();
+            Collections.sort(sortedFunctionNames);
+            for (String funcName : sortedFunctionNames) {
+                builder.append(funcName).append("\n");
+            }
+            return builder.toString();
+        }
+    }
 }
