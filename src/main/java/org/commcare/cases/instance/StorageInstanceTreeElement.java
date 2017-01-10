@@ -31,6 +31,7 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
     protected final IStorageUtilityIndexed<Model> storage;
     protected Vector<T> elements;
     protected final Interner<TreeElement> treeCache = new Interner<>();
+    private Interner<String> stringCache = new Interner<>();
 
     private int numRecords = -1;
     private TreeReference cachedRef = null;
@@ -250,6 +251,18 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
     @Override
     protected void initStorageCache() {
         loadElements();
+    }
+
+    public void attachStringCache(Interner<String> stringCache) {
+        this.stringCache = stringCache;
+    }
+
+    public String intern(String s) {
+        if (stringCache == null) {
+            return s;
+        } else {
+            return stringCache.intern(s);
+        }
     }
 
     protected abstract T buildElement(StorageInstanceTreeElement<Model, T> storageInstance,

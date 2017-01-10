@@ -69,4 +69,5 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<Case, Ca
 
         return indices;
     }
+
 }
