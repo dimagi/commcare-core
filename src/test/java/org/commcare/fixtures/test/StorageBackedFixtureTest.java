@@ -35,7 +35,16 @@ public class StorageBackedFixtureTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void loadBadFlatFixture() throws XPathSyntaxException, UnfullfilledRequirementsException, XmlPullParserException, IOException, InvalidStructureException {
+    public void loadFixtureWithMissingSchema() throws XPathSyntaxException, UnfullfilledRequirementsException, XmlPullParserException, IOException, InvalidStructureException {
         ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/flat-fixture-bad.xml"), sandbox);
+    }
+
+    @Test
+    public void loadBadFlatFixture() throws XPathSyntaxException, UnfullfilledRequirementsException, XmlPullParserException, IOException, InvalidStructureException {
+        try {
+        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/flat-fixture-bad-schema.xml"), sandbox);
+        } catch (Exception e ) {
+            e.printStackTrace();
+        }
     }
 }

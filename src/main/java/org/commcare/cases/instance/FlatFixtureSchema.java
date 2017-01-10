@@ -60,7 +60,7 @@ public class FlatFixtureSchema {
             TreeElement entry = root.getChildAt(i);
 
             if (entry.getMult() != 0) {
-                throw new RuntimeException("Flat fixture doesn't have a table structure: has more than one entry with the same name");
+                throw new RuntimeException("'" + entry.getName() + "' appears more than once in the flat fixture schema");
             }
 
             if (entry.hasChildren()) {
