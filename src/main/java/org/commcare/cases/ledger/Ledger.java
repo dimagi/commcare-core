@@ -29,9 +29,9 @@ public class Ledger implements Persistable, IMetaData {
     public static final String STORAGE_KEY = "ledger";
     public static final String INDEX_ENTITY_ID = "entity-id";
 
-    String entityId;
-    int recordId = -1;
-    Hashtable<String, Hashtable<String, Integer>> sections;
+    private String entityId;
+    private int recordId = -1;
+    private Hashtable<String, Hashtable<String, Integer>> sections;
 
     public Ledger() {
 
@@ -128,7 +128,7 @@ public class Ledger implements Persistable, IMetaData {
         if (!sections.containsKey(sectionId)) {
             sections.put(sectionId, new Hashtable<String, Integer>());
         }
-        sections.get(sectionId).put(entryId, new Integer(quantity));
+        sections.get(sectionId).put(entryId, quantity);
     }
 
     @Override
