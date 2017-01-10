@@ -210,8 +210,8 @@ public class CaseChildElement extends StorageBackedChildElement<Case> {
         Vector<CaseIndex> indices = c.getIndices();
         for (CaseIndex i : indices) {
             TreeElement scratch = new TreeElement(i.getName());
-            scratch.setAttribute(null, "case_type", CaseChildElement.this.parent.intern(i.getTargetType()));
-            scratch.setAttribute(null, "relationship", CaseChildElement.this.parent.intern(i.getRelationship()));
+            scratch.setAttribute(null, "case_type", parent.intern(i.getTargetType()));
+            scratch.setAttribute(null, "relationship", parent.intern(i.getRelationship()));
             scratch.setValue(new UncastData(i.getTarget()));
             index.addChild(scratch);
         }
