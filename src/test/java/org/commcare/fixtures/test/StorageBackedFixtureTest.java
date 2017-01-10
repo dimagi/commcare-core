@@ -33,4 +33,9 @@ public class StorageBackedFixtureTest {
                 MockDataUtils.buildContextWithInstance(sandbox, "products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);
         CaseTestUtils.xpathEvalAndAssert(ec, "instance('products')/products/product[@id = 'a6d16035b98f6f962a6538bd927cefb3']/name", "CU");
     }
+
+    @Test(expected = RuntimeException.class)
+    public void loadBadFlatFixture() throws XPathSyntaxException, UnfullfilledRequirementsException, XmlPullParserException, IOException, InvalidStructureException {
+        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/flat-fixture-bad.xml"), sandbox);
+    }
 }

@@ -94,7 +94,11 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             boolean isFlat = "true".equals(isFlatAttr);
             req();
             if (isFlat || FlatFixtureXmlParser.isFlatDebug(id)) {
-                return buildFlatFixtureParser(parser.getAttributeValue(null, "id")).getParser(parser);
+                FlatFixtureSchema schema = fixtureSchemas.get(id);
+                if (schema == null) {
+                    throw new RuntimeException("Trying to process flat fixture without a schema");
+                }
+                return buildFlatFixtureParser(id, schema).getParser(parser);
             } else {
                 return fixtureParser.getParser(parser);
             }
@@ -174,8 +178,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         };
     }
 
-    public TransactionParserFactory buildFlatFixtureParser(final String fixtureName) {
-        final FlatFixtureSchema schema = fixtureSchemas.get(fixtureName);
+    public TransactionParserFactory buildFlatFixtureParser(final String fixtureName, final FlatFixtureSchema schema) {
         return new TransactionParserFactory() {
             FlatFixtureXmlParser created = null;
 
