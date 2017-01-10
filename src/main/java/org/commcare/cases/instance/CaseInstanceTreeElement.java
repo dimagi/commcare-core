@@ -3,6 +3,7 @@ package org.commcare.cases.instance;
 import org.commcare.cases.model.Case;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.util.Interner;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.expr.XPathPathExpr;
 
@@ -25,6 +26,8 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<Case, Ca
     private final static XPathPathExpr CASE_TYPE_EXPR = XPathReference.getPathExpr("@case_type");
     private final static XPathPathExpr CASE_STATUS_EXPR = XPathReference.getPathExpr("@status");
     private final static XPathPathExpr CASE_INDEX_EXPR = XPathReference.getPathExpr("index/*");
+
+    private Interner<String> stringCache;
 
     public CaseInstanceTreeElement(AbstractTreeElement instanceRoot,
                                    IStorageUtilityIndexed<Case> storage) {
@@ -69,4 +72,5 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<Case, Ca
 
         return indices;
     }
+
 }
