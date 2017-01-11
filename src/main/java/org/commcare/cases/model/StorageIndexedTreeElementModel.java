@@ -47,11 +47,7 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
         String[] escapedIndexList = new String[indices.size()];
         int i = 0;
         for (String index : indices) {
-            if (index.startsWith("@")) {
-                escapedIndexList[i++] = ATTR_PREFIX + index.substring(1);
-            } else {
-                escapedIndexList[i++] = ELEM_PREFIX + index;
-            }
+            escapedIndexList[i++] = getColFromEntry(index);
         }
         return escapedIndexList;
     }
@@ -117,20 +113,22 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
         ExtUtil.write(out, new ExtWrapList(indices));
     }
 
-    public static boolean isAttrCol(String col) {
-        return col.startsWith(ATTR_PREFIX);
+    public static String getEntryFromCol(String col) {
+        if (col.startsWith(ATTR_PREFIX)) {
+            return "@" + col.substring(ATTR_PREFIX.length());
+        } else if (col.startsWith(ELEM_PREFIX)) {
+            return col.substring(ELEM_PREFIX.length());
+        } else {
+            throw new RuntimeException("Unable to process index of '" + col +"' metadata entry");
+        }
     }
 
-    public static boolean isElemCol(String col) {
-        return col.startsWith(ELEM_PREFIX);
-    }
-
-    public static String getAttrFromCol(String col) {
-        return "@" + col.substring(ATTR_PREFIX.length());
-    }
-
-    public static String getElemFromCol(String col) {
-        return col.substring(ELEM_PREFIX.length());
+    public static String getColFromEntry(String entry) {
+        if (entry.startsWith("@")) {
+            return ATTR_PREFIX + entry.substring(1);
+        } else {
+            return ELEM_PREFIX + entry;
+        }
     }
 
     public boolean areIndicesValid() {

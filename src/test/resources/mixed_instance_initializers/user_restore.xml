@@ -17,21 +17,10 @@
             <item id="4">four</item>
         </list>
     </fixture>
-    <schema id="bike-list">
-        <indices>
-            <entry>@id</entry>
-            <entry>id</entry>
-        </indices>
-        <structure>
-            <bikes>
-                <bike id="">
-                    <name/>
-                    <year/>
-                    <id/>
-                </bike>
-            </bikes>
-        </structure>
-    </schema>
+    <table-indices id="bike-list">
+        <index>@id</index>
+        <index>id</index>
+    </table-indices>
     <fixture flat="true" id="bike-list" user_id="test_uuid">
         <bikes>
             <bike id="1">

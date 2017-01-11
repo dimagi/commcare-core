@@ -31,6 +31,7 @@ import java.util.Set;
 public abstract class FlatFixtureXmlParser extends TransactionParser<StorageIndexedTreeElementModel> {
 
     private final Set<String> indices;
+    protected final Set<String> columnIndices;
     private static final HashSet<String> flatSet = new HashSet<>();
 
     static {
@@ -42,8 +43,10 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageInde
 
         if (schema == null) {
             this.indices = new HashSet<>();
+            this.columnIndices = new HashSet<>();
         } else {
             this.indices = schema.getSingleIndices();
+            this.columnIndices = schema.getColumnIndices();
         }
     }
 

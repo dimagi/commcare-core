@@ -1,6 +1,5 @@
 <OpenRosaResponse>
     <message nature="ota_restore_success">Successfully restored account test!</message>
-    <table-indices id="commtrack:products"/>
     <fixture id="commtrack:products" flat="true">
         <products>
             <product id="f895be4959f9a8a66f57c340aac461b4">

@@ -28,9 +28,7 @@ public class CaseTemplateTest {
 
     @Test
     public void testRefToData() throws Exception {
-        //Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(evalCtx, "instance('casedb')/casedb/case[@case_id = 'child_node']/index/parent", "parent_node"));
-
-        CaseTestUtils.xpathEvalAndCompare(evalCtx, "count(instance('casedb')/casedb/case)", "1");
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(evalCtx, "instance('casedb')/casedb/case[@case_id = 'child_node']/index/parent", "parent_node"));
     }
 
     /**

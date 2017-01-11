@@ -32,6 +32,7 @@ public class TableBuilder {
 
     private final Vector<String> cols;
     private final Vector<String> rawCols;
+    final HashSet<String> unique = new HashSet<>();
 
     public TableBuilder(Class c, String name) {
         this.name = name;
@@ -127,13 +128,11 @@ public class TableBuilder {
         rawCols.add(DatabaseHelper.FILE_COL);
     }
 
-    final HashSet<String> unique = new HashSet<>();
     public void setUnique(String columnName) {
         unique.add(scrubName(columnName));
     }
 
     public String getTableCreateString() {
-
         String built = "CREATE TABLE IF NOT EXISTS " + scrubName(name) + " (";
         for(int i = 0 ; i < cols.size() ; ++i) {
             built += cols.elementAt(i);
@@ -146,7 +145,6 @@ public class TableBuilder {
     }
 
     public Pair<String, List<Object>> getTableInsertData(Persistable p){
-
         StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append("INSERT INTO ").append(scrubName(name)).append(" (");

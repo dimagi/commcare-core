@@ -36,7 +36,7 @@ public class FlatFixtureInstanceTreeElement
             return null;
         } else {
             IStorageUtilityIndexed<StorageIndexedTreeElementModel> storage =
-                    sandbox.getFlatFixtureStorage(instanceName, null);
+                    sandbox.getFlatFixtureStorage(instanceName);
             return new FlatFixtureInstanceTreeElement(instanceBase, storage,
                     modelAndChild.first, modelAndChild.second);
         }
@@ -60,14 +60,7 @@ public class FlatFixtureInstanceTreeElement
 
             StorageIndexedTreeElementModel template = getModelTemplate();
             for (String fieldName : template.getMetaDataFields()) {
-                String entry;
-                if (StorageIndexedTreeElementModel.isAttrCol(fieldName)) {
-                    entry = StorageIndexedTreeElementModel.getAttrFromCol(fieldName);
-                } else if (StorageIndexedTreeElementModel.isElemCol(fieldName)) {
-                    entry = StorageIndexedTreeElementModel.getElemFromCol(fieldName);
-                } else {
-                    throw new RuntimeException("Unable to process index of '" + fieldName +"' metadat entry");
-                }
+                String entry = StorageIndexedTreeElementModel.getEntryFromCol(fieldName);
                 storageIndexMap.put(XPathReference.getPathExpr(entry), fieldName);
             }
         }

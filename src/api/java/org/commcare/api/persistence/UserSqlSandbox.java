@@ -9,6 +9,8 @@ import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
+import java.util.Set;
+
 /**
  * A sandbox for user data using SqliteIndexedStorageUtility. Sandbox is per-User
  *
@@ -60,15 +62,19 @@ public class UserSqlSandbox extends UserSandbox {
     }
 
     @Override
-    public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(String fixtureName,
-                                                                                        StorageIndexedTreeElementModel exampleEntry) {
+    public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(String fixtureName) {
         String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
-        if (exampleEntry != null) {
-            // TODO PLM: implement indice expr
-            return new SqliteIndexedStorageUtility<>(exampleEntry, username, tableName, path);
-        } else {
-            return new SqliteIndexedStorageUtility<>(StorageIndexedTreeElementModel.class, username, tableName, path);
-        }
+        return new SqliteIndexedStorageUtility<>(StorageIndexedTreeElementModel.class, username, tableName, path);
+    }
+
+    @Override
+    public void setupFlatFixtureStorage(String fixtureName,
+                                        StorageIndexedTreeElementModel exampleEntry,
+                                        Set<String> indices) {
+        // TODO PLM: delete table if it already exists
+        // TODO PLM: create indexes over table
+        String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
+        new SqliteIndexedStorageUtility<>(exampleEntry, username, tableName, path);
     }
 
     @Override

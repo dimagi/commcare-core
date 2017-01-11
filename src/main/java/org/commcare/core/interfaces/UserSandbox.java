@@ -8,6 +8,8 @@ import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
+import java.util.Set;
+
 /**
  *  Interface to be implemented by sandboxes for a user's CommCare instance data
  *
@@ -23,7 +25,11 @@ public abstract class UserSandbox {
 
     public abstract IStorageUtilityIndexed<User> getUserStorage();
 
-    public abstract IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(String fixtureName, StorageIndexedTreeElementModel exampleEntry);
+    public abstract IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(String fixtureName);
+
+    public abstract void setupFlatFixtureStorage(String fixtureName,
+                                                 StorageIndexedTreeElementModel exampleEntry,
+                                                 Set<String> indices);
 
     public abstract Pair<String, String> getFlatFixturePathBases(String fixtureName);
     

@@ -12,6 +12,7 @@ import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.util.HashMap;
+import java.util.Set;
 
 /**
  * A placeholder for the in-memory storage elements needed for an individual
@@ -71,11 +72,15 @@ public class MockUserDataSandbox extends UserSandbox {
     }
 
     @Override
-    public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(String fixtureName, StorageIndexedTreeElementModel exampleEntry) {
-        if (!flatFixtureStorages.containsKey(fixtureName)) {
-            flatFixtureStorages.put(fixtureName, new DummyIndexedStorageUtility<>(exampleEntry, factory));
-        }
+    public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(String fixtureName) {
         return flatFixtureStorages.get(fixtureName);
+    }
+
+    @Override
+    public void setupFlatFixtureStorage(String fixtureName,
+                                        StorageIndexedTreeElementModel exampleEntry,
+                                        Set<String> indices) {
+        flatFixtureStorages.put(fixtureName, new DummyIndexedStorageUtility<>(exampleEntry, factory));
     }
 
     @Override
