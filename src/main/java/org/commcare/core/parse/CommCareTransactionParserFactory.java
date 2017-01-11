@@ -86,7 +86,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             }
             req();
             return userParser.getParser(parser);
-        } else if ("schema".equalsIgnoreCase(name)) {
+        } else if (FixtureSchemaParser.INDICE_SCHEMA.equalsIgnoreCase(name)) {
             return new FixtureSchemaParser(parser, fixtureSchemas);
         } else if ("fixture".equalsIgnoreCase(name)) {
             String id = parser.getAttributeValue(null, "id");
@@ -95,9 +95,6 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             req();
             if (isFlat || FlatFixtureXmlParser.isFlatDebug(id)) {
                 FlatFixtureSchema schema = fixtureSchemas.get(id);
-                if (schema == null) {
-                    throw new RuntimeException("Trying to process flat fixture without a schema");
-                }
                 return buildFlatFixtureParser(id, schema).getParser(parser);
             } else {
                 return fixtureParser.getParser(parser);
@@ -178,7 +175,8 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         };
     }
 
-    public TransactionParserFactory buildFlatFixtureParser(final String fixtureName, final FlatFixtureSchema schema) {
+    public TransactionParserFactory buildFlatFixtureParser(final String fixtureName,
+                                                           final FlatFixtureSchema schema) {
         return new TransactionParserFactory() {
             FlatFixtureXmlParser created = null;
 

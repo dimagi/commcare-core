@@ -132,4 +132,8 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
     public static String getElemFromCol(String col) {
         return col.substring(ELEM_PREFIX.length());
     }
+
+    public boolean areIndicesValid() {
+        throw new RuntimeException("Implement me");
+    }
 }

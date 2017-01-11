@@ -30,7 +30,7 @@ import java.util.Set;
  */
 public abstract class FlatFixtureXmlParser extends TransactionParser<StorageIndexedTreeElementModel> {
 
-    private final FlatFixtureSchema schema;
+    private final Set<String> indices;
     private static final HashSet<String> flatSet = new HashSet<>();
 
     static {
@@ -40,7 +40,11 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageInde
     public FlatFixtureXmlParser(KXmlParser parser, FlatFixtureSchema schema) {
         super(parser);
 
-        this.schema = schema;
+        if (schema == null) {
+            this.indices = new HashSet<>();
+        } else {
+            this.indices = schema.getSingleIndices();
+        }
     }
 
     public static boolean isFlatDebug(String id) {
@@ -70,18 +74,23 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageInde
     }
 
     private void processRoot(TreeElement root, String fixtureId) throws IOException {
-        Set<String> singleIndices = schema.getSingleIndices();
         if (root.hasChildren()) {
-            writeFixtureIndex(fixtureId, schema.baseName, schema.childName);
+            String entryName = root.getChildAt(0).getName();
+            writeFixtureIndex(fixtureId, root.getName(), entryName);
 
-            for (TreeElement entry : root.getChildrenWithName(schema.childName)) {
-                processEntry(entry, singleIndices);
+            for (TreeElement entry : root.getChildrenWithName(entryName)) {
+                processEntry(entry, indices);
             }
         }
     }
 
     private void processEntry(TreeElement child, Set<String> indices) throws IOException {
         StorageIndexedTreeElementModel model = new StorageIndexedTreeElementModel(indices, child);
+
+        if (!model.areIndicesValid()) {
+            throw new RuntimeException("Flat fixture entry can't be indexed by indices: '" + indices.toString() +"'.");
+        }
+
         commit(model);
     }
 

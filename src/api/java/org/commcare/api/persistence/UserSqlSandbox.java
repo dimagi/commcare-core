@@ -64,6 +64,7 @@ public class UserSqlSandbox extends UserSandbox {
                                                                                         StorageIndexedTreeElementModel exampleEntry) {
         String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
         if (exampleEntry != null) {
+            // TODO PLM: implement indice expr
             return new SqliteIndexedStorageUtility<>(exampleEntry, username, tableName, path);
         } else {
             return new SqliteIndexedStorageUtility<>(StorageIndexedTreeElementModel.class, username, tableName, path);

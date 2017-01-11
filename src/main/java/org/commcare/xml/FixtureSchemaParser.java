@@ -16,6 +16,7 @@ import java.util.Map;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class FixtureSchemaParser extends TransactionParser<FlatFixtureSchema> {
+    public final static String INDICE_SCHEMA = "table-indices";
 
     private final Map<String, FlatFixtureSchema> fixtureSchemas;
 
@@ -31,7 +32,7 @@ public class FixtureSchemaParser extends TransactionParser<FlatFixtureSchema> {
 
     @Override
     public FlatFixtureSchema parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
-        checkNode("schema");
+        checkNode(INDICE_SCHEMA);
 
         String fixtureId = parser.getAttributeValue(null, "id");
         if (fixtureId == null) {
