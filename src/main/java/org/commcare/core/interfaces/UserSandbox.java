@@ -2,7 +2,7 @@ package org.commcare.core.interfaces;
 
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
-import org.commcare.cases.model.StorageBackedModel;
+import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
@@ -23,7 +23,7 @@ public abstract class UserSandbox {
 
     public abstract IStorageUtilityIndexed<User> getUserStorage();
 
-    public abstract IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName, StorageBackedModel exampleEntry);
+    public abstract IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(String fixtureName, StorageIndexedTreeElementModel exampleEntry);
 
     public abstract Pair<String, String> getFlatFixturePathBases(String fixtureName);
     

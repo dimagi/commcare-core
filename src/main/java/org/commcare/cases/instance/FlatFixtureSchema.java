@@ -126,5 +126,15 @@ public class FlatFixtureSchema {
         return indices;
     }
 
+    public Set<String> getSingleIndices() {
+        Set<String> singleIndices = new HashSet<>();
+        for (String index : indices) {
+            if (!index.contains(",")) {
+                singleIndices.add(index);
+            }
+        }
+        return singleIndices;
+    }
+
 
 }

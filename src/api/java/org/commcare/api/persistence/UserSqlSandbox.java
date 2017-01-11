@@ -2,14 +2,12 @@ package org.commcare.api.persistence;
 
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
-import org.commcare.cases.model.StorageBackedModel;
+import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.core.interfaces.UserSandbox;
-import org.commcare.modern.database.TableBuilder;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.Persistable;
 
 /**
  * A sandbox for user data using SqliteIndexedStorageUtility. Sandbox is per-User
@@ -62,13 +60,13 @@ public class UserSqlSandbox extends UserSandbox {
     }
 
     @Override
-    public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName,
-                                                                            StorageBackedModel exampleEntry) {
-        String tableName = StorageBackedModel.getTableName(fixtureName);
+    public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(String fixtureName,
+                                                                                        StorageIndexedTreeElementModel exampleEntry) {
+        String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
         if (exampleEntry != null) {
             return new SqliteIndexedStorageUtility<>(exampleEntry, username, tableName, path);
         } else {
-            return new SqliteIndexedStorageUtility<>(StorageBackedModel.class, username, tableName, path);
+            return new SqliteIndexedStorageUtility<>(StorageIndexedTreeElementModel.class, username, tableName, path);
         }
     }
 

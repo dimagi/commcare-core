@@ -2,13 +2,12 @@ package org.commcare.util.mocks;
 
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
-import org.commcare.cases.model.StorageBackedModel;
+import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -29,7 +28,7 @@ public class MockUserDataSandbox extends UserSandbox {
     private final IStorageUtilityIndexed<Case> caseStorage;
     private final IStorageUtilityIndexed<Ledger> ledgerStorage;
     private final IStorageUtilityIndexed<User> userStorage;
-    private final HashMap<String, IStorageUtilityIndexed<StorageBackedModel>> flatFixtureStorages;
+    private final HashMap<String, IStorageUtilityIndexed<StorageIndexedTreeElementModel>> flatFixtureStorages;
     private final HashMap<String, Pair<String, String>> flatFixtureBaseMap;
     private final IStorageUtilityIndexed<FormInstance> userFixtureStorage;
     private IStorageUtilityIndexed<FormInstance> appFixtureStorage;
@@ -72,7 +71,7 @@ public class MockUserDataSandbox extends UserSandbox {
     }
 
     @Override
-    public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName, StorageBackedModel exampleEntry) {
+    public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(String fixtureName, StorageIndexedTreeElementModel exampleEntry) {
         if (!flatFixtureStorages.containsKey(fixtureName)) {
             flatFixtureStorages.put(fixtureName, new DummyIndexedStorageUtility<>(exampleEntry, factory));
         }

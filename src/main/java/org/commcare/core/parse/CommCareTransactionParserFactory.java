@@ -1,7 +1,7 @@
 package org.commcare.core.parse;
 
 import org.commcare.cases.instance.FlatFixtureSchema;
-import org.commcare.cases.model.StorageBackedModel;
+import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
@@ -186,10 +186,10 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             public TransactionParser getParser(KXmlParser parser) {
                 if (created == null) {
                     created = new FlatFixtureXmlParser(parser, schema) {
-                        private IStorageUtilityIndexed<StorageBackedModel> flatFixtureStorage;
+                        private IStorageUtilityIndexed<StorageIndexedTreeElementModel> flatFixtureStorage;
 
                         @Override
-                        public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(StorageBackedModel exampleEntry) {
+                        public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(StorageIndexedTreeElementModel exampleEntry) {
                             if (flatFixtureStorage == null) {
                                 flatFixtureStorage = sandbox.getFlatFixtureStorage(fixtureName, exampleEntry);
                             }

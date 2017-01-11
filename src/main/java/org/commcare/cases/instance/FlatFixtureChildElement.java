@@ -1,12 +1,8 @@
 package org.commcare.cases.instance;
 
-import org.commcare.cases.model.StorageBackedModel;
-import org.javarosa.core.model.data.StringData;
+import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
-
-import java.util.Hashtable;
-import java.util.Set;
 
 /**
  * Child TreeElement of a flat fixture whose data is loaded from a DB.
@@ -15,10 +11,10 @@ import java.util.Set;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class FlatFixtureChildElement extends StorageBackedChildElement<StorageBackedModel> {
+public class FlatFixtureChildElement extends StorageBackedChildElement<StorageIndexedTreeElementModel> {
     private TreeElement empty;
 
-    protected FlatFixtureChildElement(StorageInstanceTreeElement<StorageBackedModel, ?> parent,
+    protected FlatFixtureChildElement(StorageInstanceTreeElement<StorageIndexedTreeElementModel, ?> parent,
                                       int mult, int recordId) {
         super(parent, mult, recordId, parent.getName(), parent.getChildHintName());
     }
@@ -26,51 +22,15 @@ public class FlatFixtureChildElement extends StorageBackedChildElement<StorageBa
     /**
      * Template constructor (For elements that need to create reference nodesets but never look up values)
      */
-    private FlatFixtureChildElement(StorageInstanceTreeElement<StorageBackedModel, ?> parent) {
+    private FlatFixtureChildElement(StorageInstanceTreeElement<StorageIndexedTreeElementModel, ?> parent) {
         super(parent, TreeReference.INDEX_TEMPLATE,
                 TreeReference.INDEX_TEMPLATE, parent.getName(),
                 parent.getChildHintName());
 
-        empty = new TreeElement(nameId);
-        empty.setMult(this.mult);
-        empty.setAttribute(null, nameId, "");
-
-        StorageBackedModel modelTemplate = parent.getModelTemplate();
-
-        addBlankAttributes(empty, modelTemplate.getAttributes().keySet());
-        addBlankElements(empty, modelTemplate.getElements().keySet());
-        addBlankNestedElements(empty, modelTemplate.getNestedElements().keySet());
-    }
-
-    private static void addBlankAttributes(TreeElement template,
-                                           Set<String> attributeKeys) {
-        for (String key : attributeKeys) {
-            template.setAttribute(null, key, "");
-        }
-    }
-
-    private static void addBlankElements(TreeElement template,
-                                         Set<String> elementKeys) {
-        for (String key : elementKeys) {
-            TreeElement scratch = new TreeElement(key);
-            scratch.setAnswer(null);
-            template.addChild(scratch);
-        }
-    }
-
-    private static void addBlankNestedElements(TreeElement treeElement,
-                                               Set<String> nestedElementsKeys) {
-        for (String key : nestedElementsKeys) {
-            String[] segments = key.split("/");
-            TreeElement child = treeElement.getChild(segments[0], 0);
-            if (child == null) {
-                child = new TreeElement(segments[0]);
-                treeElement.addChild(child);
-            }
-            TreeElement scratch = new TreeElement(segments[1]);
-            scratch.setAnswer(null);
-            child.addChild(scratch);
-        }
+        StorageIndexedTreeElementModel modelTemplate = parent.getModelTemplate();
+        empty = modelTemplate.getRoot();
+        empty.setMult(TreeReference.INDEX_TEMPLATE);
+        // TODO PLM: do we need to do more to convert a regular TreeElement into a template?
     }
 
     @Override
@@ -85,7 +45,7 @@ public class FlatFixtureChildElement extends StorageBackedChildElement<StorageBa
                 return element;
             }
 
-            StorageBackedModel model = parent.getElement(recordId);
+            StorageIndexedTreeElementModel model = parent.getElement(recordId);
             TreeElement cacheBuilder = buildElementFromModel(model);
 
             parent.treeCache.register(recordId, cacheBuilder);
@@ -94,52 +54,13 @@ public class FlatFixtureChildElement extends StorageBackedChildElement<StorageBa
         }
     }
 
-    private TreeElement buildElementFromModel(StorageBackedModel model) {
-        TreeElement cacheBuilder = new TreeElement(nameId);
+    private TreeElement buildElementFromModel(StorageIndexedTreeElementModel model) {
+        TreeElement cacheBuilder = model.getRoot();
         entityId = model.getEntityId();
         cacheBuilder.setMult(mult);
-
-        addAttributes(cacheBuilder, model.getAttributes());
-        addElements(cacheBuilder, model.getElements());
-        addNestedElements(cacheBuilder, model.getNestedElements());
         cacheBuilder.setParent(this.parent);
 
         return cacheBuilder;
-    }
-
-    private static void addAttributes(TreeElement treeElement,
-                                      Hashtable<String, String> attributes) {
-        for (String key : attributes.keySet()) {
-            treeElement.setAttribute(null, key, attributes.get(key));
-        }
-    }
-
-    private static void addElements(TreeElement treeElement,
-                                    Hashtable<String, String> elements) {
-        for (String key : elements.keySet()) {
-            TreeElement scratch = new TreeElement(key);
-            String data = elements.get(key);
-            // TODO PLM: do we want smarter type dispatch?
-            scratch.setAnswer(new StringData(data == null ? "" : data));
-            treeElement.addChild(scratch);
-        }
-    }
-
-    private static void addNestedElements(TreeElement treeElement,
-                                          Hashtable<String, String> nestedElements) {
-        for (String key : nestedElements.keySet()) {
-            String[] segments = key.split("/");
-            TreeElement child = treeElement.getChild(segments[0], 0);
-            if (child == null) {
-                child = new TreeElement(segments[0]);
-                treeElement.addChild(child);
-            }
-            TreeElement scratch = new TreeElement(segments[1]);
-            String data = nestedElements.get(key);
-            // TODO PLM: do we want smarter type dispatch?
-            scratch.setAnswer(new StringData(data == null ? "" : data));
-            child.addChild(scratch);
-        }
     }
 
     @Override

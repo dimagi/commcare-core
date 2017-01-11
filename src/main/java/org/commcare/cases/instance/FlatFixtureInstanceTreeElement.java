@@ -1,6 +1,6 @@
 package org.commcare.cases.instance;
 
-import org.commcare.cases.model.StorageBackedModel;
+import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -18,11 +18,11 @@ import java.util.Hashtable;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class FlatFixtureInstanceTreeElement
-        extends StorageInstanceTreeElement<StorageBackedModel, FlatFixtureChildElement> {
+        extends StorageInstanceTreeElement<StorageIndexedTreeElementModel, FlatFixtureChildElement> {
     private Hashtable<XPathPathExpr, String> storageIndexMap = null;
 
     private FlatFixtureInstanceTreeElement(AbstractTreeElement instanceRoot,
-                                           IStorageUtilityIndexed<StorageBackedModel> storage,
+                                           IStorageUtilityIndexed<StorageIndexedTreeElementModel> storage,
                                            String modelName, String childName) {
         super(instanceRoot, storage, modelName, childName);
     }
@@ -35,7 +35,7 @@ public class FlatFixtureInstanceTreeElement
         if (modelAndChild == null) {
             return null;
         } else {
-            IStorageUtilityIndexed<StorageBackedModel> storage =
+            IStorageUtilityIndexed<StorageIndexedTreeElementModel> storage =
                     sandbox.getFlatFixtureStorage(instanceName, null);
             return new FlatFixtureInstanceTreeElement(instanceBase, storage,
                     modelAndChild.first, modelAndChild.second);
@@ -43,7 +43,7 @@ public class FlatFixtureInstanceTreeElement
     }
 
     @Override
-    protected FlatFixtureChildElement buildElement(StorageInstanceTreeElement<StorageBackedModel, FlatFixtureChildElement> storageInstance,
+    protected FlatFixtureChildElement buildElement(StorageInstanceTreeElement<StorageIndexedTreeElementModel, FlatFixtureChildElement> storageInstance,
                                                    int recordId, String id, int mult) {
         return new FlatFixtureChildElement(storageInstance, mult, recordId);
     }
@@ -58,15 +58,17 @@ public class FlatFixtureInstanceTreeElement
         if (storageIndexMap == null) {
             storageIndexMap = new Hashtable<>();
 
-            StorageBackedModel template = getModelTemplate();
-            for (String attrName : template.getAttributes().keySet()) {
-                storageIndexMap.put(XPathReference.getPathExpr("@" + attrName),
-                        StorageBackedModel.getColumnName(attrName));
-            }
-            for (String elementName : template.getElements().keySet()) {
-                String escapedElem =
-                        StorageBackedModel.getUniqueColumnName(elementName, template.getEscapedAttributeKeys());
-                storageIndexMap.put(XPathReference.getPathExpr(elementName), escapedElem);
+            StorageIndexedTreeElementModel template = getModelTemplate();
+            for (String fieldName : template.getMetaDataFields()) {
+                String entry;
+                if (StorageIndexedTreeElementModel.isAttrCol(fieldName)) {
+                    entry = StorageIndexedTreeElementModel.getAttrFromCol(fieldName);
+                } else if (StorageIndexedTreeElementModel.isElemCol(fieldName)) {
+                    entry = StorageIndexedTreeElementModel.getElemFromCol(fieldName);
+                } else {
+                    throw new RuntimeException("Unable to process index of '" + fieldName +"' metadat entry");
+                }
+                storageIndexMap.put(XPathReference.getPathExpr(entry), fieldName);
             }
         }
 
