@@ -22,6 +22,7 @@ import java.util.Vector;
 public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
 
     private static final String STORAGE_KEY_PREFIX = "FLATFIX_";
+    public static final String DASH_ESCAPE = "\\$\\$";
     public static final String ATTR_PREFIX = "_$";
     public static final String ELEM_PREFIX = "_0";
 
@@ -65,9 +66,11 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
     @Override
     public Object getMetaData(String fieldName) {
         if (fieldName.startsWith(ATTR_PREFIX)) {
-            return root.getAttributeValue(null, fieldName.substring(2));
+            return root.getAttributeValue(null, getEntryFromCol(fieldName).substring(1));
         } else if (fieldName.startsWith(ELEM_PREFIX)) {
-            TreeElement child = root.getChild(fieldName.substring(2), 0);
+            // NOTE PLM: The usage of getChild of '0' below assumes indexes
+            // are only made over entries with multiplicity 0
+            TreeElement child = root.getChild(getEntryFromCol(fieldName), 0);
             IAnswerData value = child.getValue();
             if (value == null) {
                 return "";
@@ -114,6 +117,7 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
     }
 
     public static String getEntryFromCol(String col) {
+        col = col.replaceAll(DASH_ESCAPE, "-");
         if (col.startsWith(ATTR_PREFIX)) {
             return "@" + col.substring(ATTR_PREFIX.length());
         } else if (col.startsWith(ELEM_PREFIX)) {
@@ -124,6 +128,7 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
     }
 
     public static String getColFromEntry(String entry) {
+        entry = entry.replaceAll("-", DASH_ESCAPE);
         if (entry.startsWith("@")) {
             return ATTR_PREFIX + entry.substring(1);
         } else {
