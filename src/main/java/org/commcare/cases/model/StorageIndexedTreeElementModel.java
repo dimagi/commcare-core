@@ -69,7 +69,7 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
     @Override
     public Object getMetaData(String fieldName) {
         if (fieldName.startsWith(ATTR_PREFIX)) {
-            root.getAttributeValue(null, fieldName.substring(2));
+            return root.getAttributeValue(null, fieldName.substring(2));
         } else if (fieldName.startsWith(ELEM_PREFIX)) {
             TreeElement child = root.getChild(fieldName.substring(2), 0);
             IAnswerData value = child.getValue();
@@ -134,6 +134,8 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
     }
 
     public boolean areIndicesValid() {
-        throw new RuntimeException("Implement me");
+        // NOTE PLM: don't see any reason to fail if elems/attrs linked to
+        // indices don't exist because it shouldn't (I think) change SQL behavior
+        return true;
     }
 }

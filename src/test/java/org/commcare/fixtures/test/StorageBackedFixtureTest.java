@@ -33,19 +33,4 @@ public class StorageBackedFixtureTest {
                 MockDataUtils.buildContextWithInstance(sandbox, "products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);
         CaseTestUtils.xpathEvalAndAssert(ec, "instance('products')/products/product[@id = 'a6d16035b98f6f962a6538bd927cefb3']/name", "CU");
     }
-
-    @Test(expected = RuntimeException.class)
-    public void loadFixtureWithMissingSchema() throws XPathSyntaxException, UnfullfilledRequirementsException, XmlPullParserException, IOException, InvalidStructureException {
-        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/flat-fixture-bad.xml"), sandbox);
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void loadFlatFixtureWithBadSchemaStructure() throws XPathSyntaxException, UnfullfilledRequirementsException, XmlPullParserException, IOException, InvalidStructureException {
-        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/flat-fixture-bad-schema.xml"), sandbox, true);
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void loadFlatFixtureWithBadSchemaIndices() throws XPathSyntaxException, UnfullfilledRequirementsException, XmlPullParserException, IOException, InvalidStructureException {
-        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/flat-fixture-bad-schema.xml"), sandbox, true);
-    }
 }
