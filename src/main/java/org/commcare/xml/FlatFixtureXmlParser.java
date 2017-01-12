@@ -1,7 +1,8 @@
 package org.commcare.xml;
 
-import org.commcare.cases.instance.FlatFixtureSchema;
+import org.commcare.cases.instance.FixtureIndexSchema;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.data.xml.TransactionParser;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -28,20 +29,27 @@ import java.util.Set;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public abstract class FlatFixtureXmlParser extends TransactionParser<StorageIndexedTreeElementModel> {
+public class FlatFixtureXmlParser extends TransactionParser<StorageIndexedTreeElementModel> {
 
     private final Set<String> indices;
     protected final Set<String> columnIndices;
     private static final HashSet<String> flatSet = new HashSet<>();
+    private final UserSandbox sandbox;
+    private final String fixtureName;
+    private IStorageUtilityIndexed<StorageIndexedTreeElementModel> flatFixtureStorage;
 
     static {
         FlatFixtureXmlParser.flatSet.add("locations");
     }
 
-    public FlatFixtureXmlParser(KXmlParser parser, FlatFixtureSchema schema) {
+    public FlatFixtureXmlParser(KXmlParser parser, String fixtureName,
+                                FixtureIndexSchema schema, UserSandbox sandbox) {
         super(parser);
+        this.sandbox = sandbox;
+        this.fixtureName = fixtureName;
 
         if (schema == null) {
+            // don't create any table indices if there was no fixture index schema
             this.indices = new HashSet<>();
             this.columnIndices = new HashSet<>();
         } else {
@@ -90,10 +98,6 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageInde
     private void processEntry(TreeElement child, Set<String> indices) throws IOException {
         StorageIndexedTreeElementModel model = new StorageIndexedTreeElementModel(indices, child);
 
-        if (!model.areIndicesValid()) {
-            throw new RuntimeException("Flat fixture entry can't be indexed by indices: '" + indices.toString() +"'.");
-        }
-
         commit(model);
     }
 
@@ -110,11 +114,19 @@ public abstract class FlatFixtureXmlParser extends TransactionParser<StorageInde
     /**
      * Get storage that stores fixture element entries as table rows
      */
-    public abstract IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(StorageIndexedTreeElementModel exampleEntry);
+    private IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(StorageIndexedTreeElementModel exampleEntry) {
+        if (flatFixtureStorage == null) {
+            sandbox.setupFlatFixtureStorage(fixtureName, exampleEntry, columnIndices);
+            flatFixtureStorage = sandbox.getFlatFixtureStorage(fixtureName);
+        }
+        return flatFixtureStorage;
+    }
 
     /**
      * Store base and child node names associated with a fixture.
      * Used for reconstructiong fixture instance
      */
-    public abstract void writeFixtureIndex(String fixtureName, String baseName, String childName);
+    private void writeFixtureIndex(String fixtureName, String baseName, String childName) {
+        sandbox.setFlatFixturePathBases(fixtureName, baseName, childName);
+    }
 }

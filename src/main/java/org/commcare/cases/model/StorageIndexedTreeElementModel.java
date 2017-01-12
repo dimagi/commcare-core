@@ -17,14 +17,20 @@ import java.util.Set;
 import java.util.Vector;
 
 /**
+ * A DB model for storing TreeElements such that particular attributes and
+ * elements are indexed and queryable using the DB.
+ *
+ * Indexed attributes/elements get their own table columns, and the rest of
+ * the TreeElement is stored as a serialized blob.
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
 
     private static final String STORAGE_KEY_PREFIX = "FLATFIX_";
-    public static final String DASH_ESCAPE = "\\$\\$";
-    public static final String ATTR_PREFIX = "_$";
-    public static final String ELEM_PREFIX = "_0";
+    private static final String DASH_ESCAPE = "\\$\\$";
+    private static final String ATTR_PREFIX = "_$";
+    private static final String ELEM_PREFIX = "_0";
 
     private String[] metaDataFields = null;
     private Vector<String> indices;
@@ -116,6 +122,9 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
         ExtUtil.write(out, new ExtWrapList(indices));
     }
 
+    /**
+     * Turns a column name into the corresponding attribute or element for the TreeElement
+     */
     public static String getEntryFromCol(String col) {
         col = col.replaceAll(DASH_ESCAPE, "-");
         if (col.startsWith(ATTR_PREFIX)) {
@@ -123,10 +132,13 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
         } else if (col.startsWith(ELEM_PREFIX)) {
             return col.substring(ELEM_PREFIX.length());
         } else {
-            throw new RuntimeException("Unable to process index of '" + col +"' metadata entry");
+            throw new RuntimeException("Unable to process index of '" + col + "' metadata entry");
         }
     }
 
+    /**
+     * Turns an attribute or element from the TreeElement into a valid SQL column name
+     */
     public static String getColFromEntry(String entry) {
         entry = entry.replaceAll("-", DASH_ESCAPE);
         if (entry.startsWith("@")) {
@@ -134,11 +146,5 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
         } else {
             return ELEM_PREFIX + entry;
         }
-    }
-
-    public boolean areIndicesValid() {
-        // NOTE PLM: don't see any reason to fail if elems/attrs linked to
-        // indices don't exist because it shouldn't (I think) change SQL behavior
-        return true;
     }
 }

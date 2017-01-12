@@ -4,18 +4,22 @@ import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeElement;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
 /**
+ * Tracks what attributes and elements are stored in indexed columns of a flat
+ * fixture db table.
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class FlatFixtureSchema {
+public class FixtureIndexSchema {
     private final Set<String> indices;
     public final String fixtureName;
 
-    public FlatFixtureSchema(TreeElement schemaTree) {
+    public FixtureIndexSchema(TreeElement schemaTree) {
         this.fixtureName = schemaTree.getAttributeValue(null, "id");
 
         indices = buildIndices(schemaTree.getChildrenWithName("index"));
@@ -32,6 +36,10 @@ public class FlatFixtureSchema {
         return indices;
     }
 
+    /**
+     * Break-up composite indices into individual ones and escape index names
+     * to be SQL compatible
+     */
     public Set<String> getColumnIndices() {
         Set<String> columnIndices = new HashSet<>();
         for (String index : indices) {
@@ -55,13 +63,15 @@ public class FlatFixtureSchema {
         }
     }
 
+    /**
+     * Set of indices, breaking apart composite indices
+     * i.e. ("id", "name,dob") -> ("id", "name", "dob")
+     */
     public Set<String> getSingleIndices() {
         Set<String> singleIndices = new HashSet<>();
         for (String index : indices) {
             if (index.contains(",")) {
-                for (String innerIndex : index.split(",")) {
-                    singleIndices.add(innerIndex);
-                }
+                Collections.addAll(singleIndices, index.split(","));
             } else {
                 singleIndices.add(index);
             }

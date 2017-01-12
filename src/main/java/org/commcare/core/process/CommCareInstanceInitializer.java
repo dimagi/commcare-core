@@ -119,7 +119,6 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         AbstractTreeElement flatFixture =
                 FlatFixtureInstanceTreeElement.get(mSandbox, getRefId(ref), instance.getBase());
         if (flatFixture != null) {
-            // TODO PLM: cache this
             return flatFixture;
         } else {
             return loadFixtureRoot(instance, ref, userId);

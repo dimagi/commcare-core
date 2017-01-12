@@ -1,6 +1,6 @@
 package org.commcare.core.parse;
 
-import org.commcare.cases.instance.FlatFixtureSchema;
+import org.commcare.cases.instance.FixtureIndexSchema;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.cases.ledger.Ledger;
@@ -8,7 +8,7 @@ import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
-import org.commcare.xml.FixtureSchemaParser;
+import org.commcare.xml.FixtureIndexSchemaParser;
 import org.commcare.xml.FixtureXmlParser;
 import org.commcare.xml.FlatFixtureXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
@@ -50,7 +50,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     protected TransactionParserFactory caseParser;
     protected TransactionParserFactory stockParser;
     protected TransactionParserFactory fixtureParser;
-    private final Map<String, FlatFixtureSchema> fixtureSchemas = new HashMap<>();
+    private final Map<String, FixtureIndexSchema> fixtureSchemas = new HashMap<>();
 
     protected final UserSandbox sandbox;
 
@@ -86,15 +86,15 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             }
             req();
             return userParser.getParser(parser);
-        } else if (FixtureSchemaParser.INDICE_SCHEMA.equalsIgnoreCase(name)) {
-            return new FixtureSchemaParser(parser, fixtureSchemas);
+        } else if (FixtureIndexSchemaParser.INDICE_SCHEMA.equalsIgnoreCase(name)) {
+            return new FixtureIndexSchemaParser(parser, fixtureSchemas);
         } else if ("fixture".equalsIgnoreCase(name)) {
             String id = parser.getAttributeValue(null, "id");
             String isFlatAttr = parser.getAttributeValue(null, "flat");
             boolean isFlat = "true".equals(isFlatAttr);
             req();
             if (isFlat || FlatFixtureXmlParser.isFlatDebug(id)) {
-                FlatFixtureSchema schema = fixtureSchemas.get(id);
+                FixtureIndexSchema schema = fixtureSchemas.get(id);
                 return buildFlatFixtureParser(id, schema).getParser(parser);
             } else {
                 return fixtureParser.getParser(parser);
@@ -132,7 +132,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     }
 
     public void reportProgress(int total) {
-        //overwritten in ODK
+        // Overridden at the android level
     }
 
     void initUserParser() {
@@ -176,33 +176,11 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     }
 
     public TransactionParserFactory buildFlatFixtureParser(final String fixtureName,
-                                                           final FlatFixtureSchema schema) {
+                                                           final FixtureIndexSchema schema) {
         return new TransactionParserFactory() {
-            FlatFixtureXmlParser created = null;
-
             @Override
             public TransactionParser getParser(KXmlParser parser) {
-                if (created == null) {
-                    created = new FlatFixtureXmlParser(parser, schema) {
-                        private IStorageUtilityIndexed<StorageIndexedTreeElementModel> flatFixtureStorage;
-
-                        @Override
-                        public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(StorageIndexedTreeElementModel exampleEntry) {
-                            if (flatFixtureStorage == null) {
-                                sandbox.setupFlatFixtureStorage(fixtureName, exampleEntry, columnIndices);
-                                flatFixtureStorage = sandbox.getFlatFixtureStorage(fixtureName);
-                            }
-                            return flatFixtureStorage;
-                        }
-
-                        @Override
-                        public void writeFixtureIndex(String fixtureName, String baseName, String childName) {
-                            sandbox.setFlatFixturePathBases(fixtureName, baseName, childName);
-                        }
-                    };
-                }
-
-                return created;
+                return new FlatFixtureXmlParser(parser, fixtureName, schema, sandbox);
             }
         };
     }

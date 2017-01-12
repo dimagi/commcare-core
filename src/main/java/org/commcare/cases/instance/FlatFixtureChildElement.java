@@ -30,7 +30,7 @@ public class FlatFixtureChildElement extends StorageBackedChildElement<StorageIn
         StorageIndexedTreeElementModel modelTemplate = parent.getModelTemplate();
         empty = modelTemplate.getRoot();
         empty.setMult(TreeReference.INDEX_TEMPLATE);
-        // TODO PLM: do we need to do more to convert a regular TreeElement into a template?
+        // NOTE PLM: do we need to do more to convert a regular TreeElement into a template?
     }
 
     @Override

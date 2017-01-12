@@ -25,14 +25,33 @@ public abstract class UserSandbox {
 
     public abstract IStorageUtilityIndexed<User> getUserStorage();
 
+    /**
+     * Get user-level (encrypted) storage for a flat fixture
+     */
     public abstract IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(String fixtureName);
 
+    /**
+     * Setup flat fixture storage table and indexes over that table.
+     * Must clear existing data associated with the given fixture.
+     */
     public abstract void setupFlatFixtureStorage(String fixtureName,
                                                  StorageIndexedTreeElementModel exampleEntry,
                                                  Set<String> indices);
 
+    /**
+     * Gets the base and child name associated with a fixture id.
+     *
+     * For example, gets 'products' and 'products' for the data instance
+     * "instance('commtrack:products')/products/product/..."
+     */
     public abstract Pair<String, String> getFlatFixturePathBases(String fixtureName);
-    
+
+    /**
+     * Associates a fixture with a base name and child name.
+     *
+     * For example, to instantiate a data instance like "instance('commtrack:products')/products/product/..."
+     * we must associate 'commtrack:products' with the 'products' base name and the 'product' child name.
+     */
     public abstract void setFlatFixturePathBases(String fixtureName, String baseName, String childName);
 
     public abstract IStorageUtilityIndexed<FormInstance> getUserFixtureStorage();

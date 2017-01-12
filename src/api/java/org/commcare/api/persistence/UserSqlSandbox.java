@@ -79,13 +79,12 @@ public class UserSqlSandbox extends UserSandbox {
 
     @Override
     public Pair<String, String> getFlatFixturePathBases(String fixtureName) {
-        // TODO PLM
-        return null;
+        throw new RuntimeException("implement in similar fashion as AndroidSandbox implementation");
     }
 
     @Override
     public void setFlatFixturePathBases(String fixtureName, String baseName, String childName) {
-        // TODO PLM
+        throw new RuntimeException("implement in similar fashion as AndroidSandbox implementation");
     }
 
     @Override
