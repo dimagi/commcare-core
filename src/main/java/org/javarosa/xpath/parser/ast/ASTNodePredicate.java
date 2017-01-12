@@ -1,5 +1,6 @@
 package org.javarosa.xpath.parser.ast;
 
+import org.javarosa.core.model.condition.HashRefResolver;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
@@ -17,7 +18,7 @@ public class ASTNodePredicate extends ASTNode {
     }
 
     @Override
-    public XPathExpression build() throws XPathSyntaxException {
-        return expr.build();
+    public XPathExpression build(HashRefResolver hashRefResolver) throws XPathSyntaxException {
+        return expr.build(hashRefResolver);
     }
 }

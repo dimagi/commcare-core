@@ -1,5 +1,6 @@
 package org.javarosa.xpath.parser.ast;
 
+import org.javarosa.core.model.condition.HashRefResolver;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFilterExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -28,11 +29,11 @@ public class ASTNodeFilterExpr extends ASTNode {
     }
 
     @Override
-    public XPathExpression build() throws XPathSyntaxException {
+    public XPathExpression build(HashRefResolver hashRefResolver) throws XPathSyntaxException {
         XPathExpression[] preds = new XPathExpression[predicates.size()];
         for (int i = 0; i < preds.length; i++)
-            preds[i] = predicates.elementAt(i).build();
+            preds[i] = predicates.elementAt(i).build(hashRefResolver);
 
-        return new XPathFilterExpr(expr.build(), preds);
+        return new XPathFilterExpr(expr.build(hashRefResolver), preds);
     }
 }

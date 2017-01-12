@@ -34,6 +34,7 @@ public class Token {
     public static final int UNION = 30;
     public static final int VAR = 31;
     public static final int WILDCARD = 32;
+    public static final int HASH_REF = 33;
 
     public final int type;
     public final Object val;
@@ -131,6 +132,9 @@ public class Token {
                 break;
             case SLASH:
                 s = "SLASH";
+                break;
+            case HASH_REF:
+                s = "HASH_REF(" + val + ")";
                 break;
             case STR:
                 s = "STR(" + val + ")";

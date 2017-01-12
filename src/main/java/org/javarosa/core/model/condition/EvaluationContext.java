@@ -12,9 +12,12 @@ import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathPathExpr;
+import org.javarosa.xpath.expr.XPathStep;
 
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -22,7 +25,7 @@ import java.util.Vector;
  * A collection of objects that affect the evaluation of an expression, like
  * function handlers and (not supported) variable bindings.
  */
-public class EvaluationContext {
+public class EvaluationContext implements HashRefResolver {
     /**
      * Whether XPath expressions being evaluated should be traced during
      * execution for debugging.
@@ -55,6 +58,7 @@ public class EvaluationContext {
 
     private final Hashtable<String, IFunctionHandler> functionHandlers;
     private final Hashtable<String, Object> variables;
+    private final HashMap<TreeReference, TreeReference> hashReferences;
 
     // Do we want to evaluate constraints?
     public boolean isConstraint;
@@ -83,19 +87,20 @@ public class EvaluationContext {
     }
 
     public EvaluationContext(EvaluationContext base, TreeReference context) {
-        this(base, base.instance, context, base.formInstances);
+        this(base, base.instance, context, base.formInstances, base.hashReferences);
     }
 
     public EvaluationContext(EvaluationContext base,
                              Hashtable<String, DataInstance> formInstances,
                              TreeReference context) {
-        this(base, base.instance, context, formInstances);
+        this(base, base.instance, context, formInstances, base.hashReferences);
     }
 
     public EvaluationContext(FormInstance instance,
                              Hashtable<String, DataInstance> formInstances,
+                             HashMap<TreeReference, TreeReference> hashReferences,
                              EvaluationContext base) {
-        this(base, instance, base.contextNode, formInstances);
+        this(base, instance, base.contextNode, formInstances, hashReferences);
     }
 
     public EvaluationContext(DataInstance instance,
@@ -105,6 +110,7 @@ public class EvaluationContext {
         this.contextNode = TreeReference.rootRef();
         functionHandlers = new Hashtable<>();
         variables = new Hashtable<>();
+        hashReferences = new HashMap<>();
     }
 
     /**
@@ -112,11 +118,13 @@ public class EvaluationContext {
      */
     private EvaluationContext(EvaluationContext base, DataInstance instance,
                               TreeReference contextNode,
-                              Hashtable<String, DataInstance> formInstances) {
+                              Hashtable<String, DataInstance> formInstances,
+                              HashMap<TreeReference, TreeReference> hashReferences) {
         //TODO: These should be deep, not shallow
         this.functionHandlers = base.functionHandlers;
         this.formInstances = formInstances;
         this.variables = new Hashtable<>();
+        this.hashReferences = (HashMap<TreeReference, TreeReference>)hashReferences.clone();
 
         //TODO: this is actually potentially much slower than
         //our old strategy (but is needed for this object to
@@ -252,10 +260,53 @@ public class EvaluationContext {
             return null;
         }
 
+        if (ref.isHashRef()) {
+            ref = resolveLetRef(ref);
+        }
+
         DataInstance baseInstance = retrieveInstance(ref);
         Vector<TreeReference> v = new Vector<>();
         expandReferenceAccumulator(ref, baseInstance, baseInstance.getRoot().getRef(), v, includeTemplates);
         return v;
+    }
+
+    /**
+     * Turns reference that begins with a hash reference, bound via a let-ref,
+     * into a fully expanded reference.
+     *
+     * For example, #form/some_data resolves to /data/some_data
+     */
+    @Override
+    public TreeReference resolveLetRef(TreeReference reference) {
+        TreeReference varReferenceWithPreds = reference.getSubReference(0);
+        Vector<XPathExpression> varPreds = varReferenceWithPreds.getPredicate(0);
+        TreeReference base = hashReferences.get(varReferenceWithPreds.removePredicates());
+        if (base == null) {
+            return null;
+        } else {
+            TreeReference resolvedRef = reference.replaceBase(base);
+            resolvedRef.addPredicate(resolvedRef.size() - 1, varPreds);
+            return resolvedRef;
+        }
+    }
+
+    /**
+     */
+    @Override
+    public XPathStep[] resolveLetRefPathSteps(XPathStep varStep) {
+        TreeReference varRef = XPathPathExpr.buildHashRefPath(new XPathStep[] {varStep}).getReference();
+        TreeReference base = hashReferences.get(varRef.removePredicates());
+        if (base == null) {
+            return null;
+        } else {
+            XPathStep[] resolvedSteps = XPathPathExpr.fromRef(base).steps;
+            resolvedSteps[resolvedSteps.length - 1].predicates = varStep.predicates;
+            return resolvedSteps;
+        }
+    }
+
+    public void addLetRef(TreeReference var, TreeReference ref) {
+        hashReferences.put(var, ref);
     }
 
     /**

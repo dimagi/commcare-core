@@ -1,5 +1,7 @@
 package org.javarosa.xpath.parser.ast;
 
+import org.javarosa.core.model.condition.HashRefResolver;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFilterExpr;
 import org.javarosa.xpath.expr.XPathPathExpr;
@@ -8,59 +10,84 @@ import org.javarosa.xpath.parser.Token;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 
 public class ASTNodeLocPath extends ASTNode {
-    public final Vector<ASTNode> clauses;
+    public final List<ASTNode> clauses;
     public List<Integer> separators;
 
     public ASTNodeLocPath() {
-        clauses = new Vector<>();
+        clauses = new ArrayList<>();
         separators = new ArrayList<>();
     }
 
     @Override
-    public Vector getChildren() {
+    public List<? extends ASTNode> getChildren() {
         return clauses;
     }
 
     public boolean isAbsolute() {
-        return (clauses.size() == separators.size()) || (clauses.size() == 0 && separators.size() == 1);
+        return clauses.size() == separators.size()
+                || (clauses.size() == 0 && separators.size() == 1)
+                || isHashRef();
+    }
+
+    private boolean isHashRef() {
+        return !clauses.isEmpty()
+                && clauses.get(0) instanceof ASTNodePathStep
+                && ((ASTNodePathStep)clauses.get(0)).nodeTestType == ASTNodePathStep.NODE_TEST_TYPE_HASH_REF;
     }
 
     @Override
-    public XPathExpression build() throws XPathSyntaxException {
-        Vector<XPathStep> steps = new Vector<>();
+    public XPathExpression build(HashRefResolver hashRefResolver) throws XPathSyntaxException {
+        ArrayList<XPathStep> steps = new ArrayList<>();
         XPathExpression filtExpr = null;
         int offset = isAbsolute() ? 1 : 0;
         for (int i = 0; i < clauses.size() + offset; i++) {
             if (offset == 0 || i > 0) {
-                if (clauses.elementAt(i - offset) instanceof ASTNodePathStep) {
-                    steps.addElement(((ASTNodePathStep)clauses.elementAt(i - offset)).getStep());
+                ASTNode currentClause = clauses.get(i - offset);
+                if (currentClause instanceof ASTNodePathStep) {
+                    steps.add(((ASTNodePathStep)currentClause).getStep(hashRefResolver));
                 } else {
-                    filtExpr = clauses.elementAt(i - offset).build();
+                    filtExpr = currentClause.build(hashRefResolver);
                 }
             }
 
             if (i < separators.size()) {
                 if (separators.get(i) == Token.DBL_SLASH) {
-                    steps.addElement(XPathStep.ABBR_DESCENDANTS());
+                    steps.add(XPathStep.ABBR_DESCENDANTS());
                 }
             }
         }
 
-        XPathStep[] stepArr = new XPathStep[steps.size()];
-        for (int i = 0; i < stepArr.length; i++)
-            stepArr[i] = steps.elementAt(i);
-
+        XPathStep[] stepArr = steps.toArray(new XPathStep[]{});
         if (filtExpr == null) {
-            return new XPathPathExpr(isAbsolute() ? XPathPathExpr.INIT_CONTEXT_ROOT : XPathPathExpr.INIT_CONTEXT_RELATIVE, stepArr);
+            if (isAbsolute()) {
+                if (isHashRef()) {
+                    if (hashRefResolver == null) {
+                        return XPathPathExpr.buildHashRefPath(stepArr);
+                    } else {
+                        XPathStep[] resolvedHashSteps =  hashRefResolver.resolveLetRefPathSteps(stepArr[0]);
+                        if (resolvedHashSteps == null) {
+                            return XPathPathExpr.buildHashRefPath(stepArr);
+                        } else {
+                            XPathStep[] result = Arrays.copyOf(resolvedHashSteps, resolvedHashSteps.length + stepArr.length - 1);
+                            System.arraycopy(stepArr, 1, result, resolvedHashSteps.length, stepArr.length - 1);
+                            return XPathPathExpr.buildAbsolutePath(result);
+                        }
+                    }
+                } else {
+                    return XPathPathExpr.buildAbsolutePath(stepArr);
+                }
+            } else {
+                return XPathPathExpr.buildRelativePath(stepArr);
+            }
         } else {
             if (filtExpr instanceof XPathFilterExpr) {
-                return new XPathPathExpr((XPathFilterExpr)filtExpr, stepArr);
+                return XPathPathExpr.buildFilterPath((XPathFilterExpr)filtExpr, stepArr);
             } else {
-                return new XPathPathExpr(new XPathFilterExpr(filtExpr, new XPathExpression[0]), stepArr);
+                return XPathPathExpr.buildFilterPath(new XPathFilterExpr(filtExpr, new XPathExpression[0]), stepArr);
             }
         }
     }

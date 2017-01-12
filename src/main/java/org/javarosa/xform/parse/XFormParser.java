@@ -1,5 +1,6 @@
 package org.javarosa.xform.parse;
 
+import org.javarosa.core.model.LetRefBinding;
 import org.javarosa.core.model.actions.Action;
 import org.javarosa.core.model.actions.ActionController;
 import org.javarosa.core.model.Constants;
@@ -17,6 +18,7 @@ import org.javarosa.core.model.actions.SetValueAction;
 import org.javarosa.core.model.condition.Condition;
 import org.javarosa.core.model.condition.Constraint;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.HashRefResolver;
 import org.javarosa.core.model.condition.Recalculate;
 import org.javarosa.core.model.condition.Triggerable;
 import org.javarosa.core.model.data.AnswerDataFactory;
@@ -84,6 +86,7 @@ public class XFormParser {
     private static final String ITEXT_OPEN = "jr:itext('";
     private static final String BIND_ATTR = "bind";
     private static final String REF_ATTR = "ref";
+    private static final String LET_REF_ATTR = "letref";
     private static final String EVENT_ATTR = "event";
     private static final String SELECTONE = "select1";
     private static final String SELECT = "select";
@@ -618,7 +621,6 @@ public class XFormParser {
             //set the main instance
             _f.setInstance(fi);
         }
-
     }
 
     /**
@@ -726,8 +728,11 @@ public class XFormParser {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
         }
 
-        for (int i = 0; i < e.getChildCount(); i++) {
+        // 'letref' entries must appear before bindings because letref
+        // expansion occurs at parse time
+        boolean hasFinishedParsingLetRefs = false;
 
+        for (int i = 0; i < e.getChildCount(); i++) {
             int type = e.getType(i);
             Element child = (type == Node.ELEMENT ? e.getElement(i) : null);
             String childName = (child != null ? child.getName() : null);
@@ -739,7 +744,15 @@ public class XFormParser {
                 //binds and data types and such
                 saveInstanceNode(child);
             } else if (BIND_ATTR.equals(childName)) { //<instance> must come before <bind>s
+                hasFinishedParsingLetRefs = true;
                 parseBind(child);
+            } else if (LET_REF_ATTR.equals(childName)) {
+                if (hasFinishedParsingLetRefs) {
+                    throw new XFormParseException("letref elements must come before binds");
+                } else {
+                    LetRefBinding letRefBinding = parseLetRef(child);
+                    _f.addHashRefrence(letRefBinding.var, letRefBinding.ref);
+                }
             } else if ("submission".equals(childName)) {
                 delayedParseElements.addElement(child);
             } else if (childName != null && actionHandlers.containsKey(childName)) {
@@ -1234,7 +1247,7 @@ public class XFormParser {
 
         XPathConditional expr = null;
         try {
-            expr = new XPathConditional(xpath);
+            expr = new XPathConditional(xpath, _f.getEvaluationContext());
         } catch (XPathSyntaxException xse) {
             throw new XFormParseException("Output tag has malformed " + attr + " attribute: " + xpath, e);
 
@@ -1378,7 +1391,8 @@ public class XFormParser {
             throw new RuntimeException("No nodeset attribute in element: [" + e.getName() + "]. This is required. (Element Printout:" + XFormSerializer.elementToString(e) + ")");
         }
 
-        XPathPathExpr path = XPathReference.getPathExpr(nodesetStr);
+        XPathPathExpr path = XPathReference.getPathExpr(nodesetStr, _f.getEvaluationContext());
+
         itemset.nodesetExpr = new XPathConditional(path);
         itemset.contextRef = getFormElementRef(q);
         itemset.nodesetRef = FormInstance.unpackReference(getAbsRef(new XPathReference(path.getReference()), itemset.contextRef));
@@ -1408,7 +1422,7 @@ public class XFormParser {
                     throw new XFormParseException("<label> in <itemset> requires 'ref'");
                 }
 
-                XPathPathExpr labelPath = XPathReference.getPathExpr(labelXpath);
+                XPathPathExpr labelPath = XPathReference.getPathExpr(labelXpath, _f.getEvaluationContext());
                 itemset.labelRef = FormInstance.unpackReference(getAbsRef(new XPathReference(labelPath), itemset.nodesetRef));
                 itemset.labelExpr = new XPathConditional(labelPath);
                 itemset.labelIsItext = labelItext;
@@ -1441,7 +1455,7 @@ public class XFormParser {
                     throw new XFormParseException("<value> in <itemset> requires 'ref'");
                 }
 
-                XPathPathExpr valuePath = XPathReference.getPathExpr(valueXpath);
+                XPathPathExpr valuePath = XPathReference.getPathExpr(valueXpath, _f.getEvaluationContext());
                 itemset.valueRef = FormInstance.unpackReference(getAbsRef(new XPathReference(valuePath), itemset.nodesetRef));
                 itemset.valueExpr = new XPathConditional(valuePath);
                 itemset.copyMode = false;
@@ -1591,7 +1605,11 @@ public class XFormParser {
     }
 
     private XPathReference getAbsRef(XPathReference ref, IFormElement parent) {
-        return getAbsRef(ref, getFormElementRef(parent));
+        return getAbsRef(ref, getFormElementRef(parent), _f.getEvaluationContext());
+    }
+
+    public XPathReference getAbsRef(XPathReference ref, TreeReference parentRef) {
+        return getAbsRef(ref, parentRef, _f.getEvaluationContext());
     }
 
     /**
@@ -1601,7 +1619,9 @@ public class XFormParser {
      * @param ref       potentially null reference
      * @param parentRef must be an absolute path
      */
-    public static XPathReference getAbsRef(XPathReference ref, TreeReference parentRef) {
+    private static XPathReference getAbsRef(XPathReference ref,
+                                            TreeReference parentRef,
+                                            HashRefResolver hashRefResolver) {
         TreeReference tref;
 
         if (!parentRef.isAbsolute()) {
@@ -1614,9 +1634,13 @@ public class XFormParser {
             tref = TreeReference.selfRef(); //only happens for <group>s with no binding
         }
 
+        if (tref.isHashRef()) {
+            tref = hashRefResolver.resolveLetRef(tref);
+        }
+
         tref = tref.parent(parentRef);
         if (tref == null) {
-            throw new XFormParseException("Binding path [" + tref + "] not allowed with parent binding of [" + parentRef + "]");
+            throw new XFormParseException("Binding path [" + ref + "] not allowed with parent binding of [" + parentRef + "]");
         }
 
         return new XPathReference(tref);
@@ -1635,7 +1659,7 @@ public class XFormParser {
 
             if (group != null) {
                 if (!group.getRepeat() && group.getChildren().size() == 1) {
-                    IFormElement grandchild = (IFormElement)group.getChildren().elementAt(0);
+                    IFormElement grandchild = group.getChildren().elementAt(0);
                     GroupDef repeat = null;
                     if (grandchild instanceof GroupDef)
                         repeat = (GroupDef)grandchild;
@@ -1861,7 +1885,6 @@ public class XFormParser {
 
         DataBinding binding = new DataBinding();
 
-
         binding.setId(e.getAttributeValue("", ID_ATTR));
 
         String nodeset = e.getAttributeValue(null, NODESET_ATTR);
@@ -1933,7 +1956,7 @@ public class XFormParser {
         String xpathConstr = e.getAttributeValue(null, "constraint");
         if (xpathConstr != null) {
             try {
-                binding.constraint = new XPathConditional(xpathConstr);
+                binding.constraint = new XPathConditional(xpathConstr, _f.getEvaluationContext());
             } catch (XPathSyntaxException xse) {
                 throw buildParseException(nodeset, xse.getMessage(), xpathConstr, "validation");
             }
@@ -1944,7 +1967,7 @@ public class XFormParser {
         if (xpathCalc != null) {
             Recalculate r;
             try {
-                r = buildCalculate(xpathCalc, ref);
+                r = buildCalculate(xpathCalc, ref, _f.getEvaluationContext());
             } catch (XPathSyntaxException xpse) {
                 throw buildParseException(nodeset, xpse.getMessage(), xpathCalc, "calculate");
             }
@@ -1979,6 +2002,38 @@ public class XFormParser {
         addBinding(binding);
     }
 
+    private LetRefBinding parseLetRef(Element e) {
+        Vector<String> usedAtts = new Vector<>();
+
+        LetRefBinding letRefBinding = processLetRefAttributes(usedAtts, e);
+
+        //print unused attribute warning message for parent element
+        if (XFormUtils.showUnusedAttributeWarning(e, usedAtts)) {
+            reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
+        }
+
+        return letRefBinding;
+    }
+
+    private LetRefBinding processLetRefAttributes(Vector<String> usedAtts, Element e) {
+        usedAtts.addElement("ref");
+        usedAtts.addElement("var");
+
+        String refString = e.getAttributeValue("", "ref");
+        String varString = e.getAttributeValue("", "var");
+
+        if (refString == null) {
+            throw new XFormParseException("XForm Parse: <letref> with missing 'ref' attribute'");
+        }
+        if (varString == null) {
+            throw new XFormParseException("XForm Parse: <letref> with missing 'var' attribute'");
+        }
+
+        XPathPathExpr ref = XPathReference.getPathExpr(refString);
+        XPathPathExpr var = XPathReference.getPathExpr("#" + varString);
+        return new LetRefBinding(ref.getReference(), var.getReference());
+    }
+
     private Condition buildCondition(String xpath, String type, XPathReference contextRef) {
         XPathConditional cond;
         int trueAction = -1, falseAction = -1;
@@ -2002,7 +2057,7 @@ public class XFormParser {
         }
 
         try {
-            cond = new XPathConditional(xpath);
+            cond = new XPathConditional(xpath, _f.getEvaluationContext());
         } catch (XPathSyntaxException xse) {
             String errorMessage = "Encountered a problem with " + prettyType + " for node [" + contextRef.getReference().toString() + "] at line: " + xpath + ", " + xse.getMessage();
             reporter.error(errorMessage);
@@ -2012,8 +2067,8 @@ public class XFormParser {
         return new Condition(cond, trueAction, falseAction, FormInstance.unpackReference(contextRef));
     }
 
-    private static Recalculate buildCalculate(String xpath, XPathReference contextRef) throws XPathSyntaxException {
-        XPathConditional calc = new XPathConditional(xpath);
+    private static Recalculate buildCalculate(String xpath, XPathReference contextRef, HashRefResolver hashRefResolver) throws XPathSyntaxException {
+        XPathConditional calc = new XPathConditional(xpath, hashRefResolver);
 
         return new Recalculate(calc, FormInstance.unpackReference(contextRef));
     }
@@ -2076,6 +2131,7 @@ public class XFormParser {
         if (isMainInstance) {
             processRepeats(instanceModel);
             verifyBindings(instanceModel);
+            verifyLetRefBindings(instanceModel);
             verifyActions(instanceModel);
         }
         applyInstanceProperties(instanceModel);
@@ -2436,6 +2492,10 @@ public class XFormParser {
         }
     }
 
+    private void verifyLetRefBindings(FormInstance instance) {
+        // PLM TODO:
+    }
+
     private void verifyBindings(FormInstance instance) {
         //check <bind>s (can't bind to '/', bound nodes actually exist)
         EvaluationContext instanceContext = new EvaluationContext(instance);
@@ -2727,9 +2787,12 @@ public class XFormParser {
         node.setPreloadParams(bind.getPreloadParams());
     }
 
-    //apply properties to instance nodes that are determined by controls bound to those nodes
-    //this should make you feel slightly dirty, but it allows us to be somewhat forgiving with the form
-    //(e.g., a select question bound to a 'text' type node) 
+    /**
+     * Apply properties to instance nodes that are determined by controls bound to those nodes.
+     *
+     * This should make you feel slightly dirty, but it allows us to be somewhat forgiving with the form
+     * (e.g., a select question bound to a 'text' type node)
+     */
     private void applyControlProperties(FormInstance instance) {
         for (int h = 0; h < 2; h++) {
             Vector<TreeReference> selectRefs = (h == 0 ? selectOnes : selectMultis);

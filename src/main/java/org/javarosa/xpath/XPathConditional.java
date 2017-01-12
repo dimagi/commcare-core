@@ -2,6 +2,7 @@ package org.javarosa.xpath;
 
 import org.javarosa.core.log.FatalException;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.HashRefResolver;
 import org.javarosa.core.model.condition.IConditionExpr;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.instance.DataInstance;
@@ -28,9 +29,9 @@ public class XPathConditional implements IConditionExpr {
     public String xpath; //not serialized!
     private boolean hasNow; //indicates whether this XpathConditional contains the now() function (used for timestamping)
 
-    public XPathConditional(String xpath) throws XPathSyntaxException {
+    public XPathConditional(String xpath, HashRefResolver hashRefResolver) throws XPathSyntaxException {
         hasNow = xpath.contains("now()");
-        this.expr = XPathParseTool.parseXPath(xpath);
+        this.expr = XPathParseTool.parseXPath(xpath, hashRefResolver);
         this.xpath = xpath;
     }
 
@@ -53,8 +54,6 @@ public class XPathConditional implements IConditionExpr {
             } else {
                 throw e;
             }
-
-
         }
     }
 
@@ -90,6 +89,9 @@ public class XPathConditional implements IConditionExpr {
     @Override
     public Vector<TreeReference> getExprsTriggers(TreeReference originalContextRef) {
         Vector<TreeReference> triggers = new Vector<>();
+        if (originalContextRef.isHashRef()) {
+            throw new RuntimeException("You must fully expand the # reference: " + originalContextRef);
+        }
         getExprsTriggersAccumulator(expr, triggers, null, originalContextRef);
         return triggers;
     }
@@ -123,24 +125,12 @@ public class XPathConditional implements IConditionExpr {
             }
 
             // find the references this reference depends on inside of predicates
-            for (int i = 0; i < ref.size(); i++) {
-                Vector<XPathExpression> predicates = ref.getPredicate(i);
-                if (predicates == null) {
-                    continue;
-                }
+            findPredicateDependencies(ref, contextualized, originalContextRef, triggers);
 
-                // contextualizing with ../'s present means we need to
-                // calculate an offset to grab the appropriate predicates
-                int basePredIndex = contextualized.size() - ref.size();
-
-                TreeReference predicateContext = contextualized.getSubReference(basePredIndex + i);
-
-                for (XPathExpression predicate : predicates) {
-                    getExprsTriggersAccumulator(predicate, triggers,
-                            predicateContext, originalContextRef);
-                }
-            }
             if (!triggers.contains(contextualized)) {
+                if (contextualized.isHashRef()) {
+                    throw new RuntimeException("You must fully expand the # reference: " + contextualized);
+                }
                 triggers.addElement(contextualized);
             }
         } else if (expr instanceof XPathBinaryOpExpr) {
@@ -156,6 +146,29 @@ public class XPathConditional implements IConditionExpr {
             for (int i = 0; i < fx.args.length; i++)
                 getExprsTriggersAccumulator(fx.args[i], triggers,
                         contextRef, originalContextRef);
+        }
+    }
+
+    private static void findPredicateDependencies(TreeReference ref,
+                                                  TreeReference contextualized,
+                                                  TreeReference originalContextRef,
+                                                  Vector<TreeReference> triggers) {
+        for (int i = 0; i < ref.size(); i++) {
+            Vector<XPathExpression> predicates = ref.getPredicate(i);
+            if (predicates == null) {
+                continue;
+            }
+
+            // contextualizing with ../'s present means we need to
+            // calculate an offset to grab the appropriate predicates
+            int basePredIndex = contextualized.size() - ref.size();
+
+            TreeReference predicateContext = contextualized.getSubReference(basePredIndex + i);
+
+            for (XPathExpression predicate : predicates) {
+                getExprsTriggersAccumulator(predicate, triggers,
+                        predicateContext, originalContextRef);
+            }
         }
     }
 

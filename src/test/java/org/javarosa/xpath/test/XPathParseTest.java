@@ -243,6 +243,13 @@ public class XPathParseTest {
                 {"//all", "{path-expr:abs,{{step:descendant-or-self,node()},{step:child,all}}}"},
                 {"a/.//../z", "{path-expr:rel,{{step:child,a},{step:self,node()},{step:descendant-or-self,node()},{step:parent,node()},{step:child,z}}}"},
                 {"6andpath", "{binop-expr:and,{num:6.0},{path-expr:rel,{{step:child,path}}}}"},
+                {"#form", "{path-expr:hash,{{step:child,form}}}"},
+
+                {"/data/#form/places/country/name", null},
+                {"../#form/places/country/name", null},
+
+                {"/data/places/country[#form/places = 'hello']/name", "{path-expr:abs,{{step:child,data},{step:child,places},{step:child,country,{{binop-expr:==,{path-expr:hash,{{step:child,form},{step:child,places}}},{str:'hello'}}}},{step:child,name}}}"},
+                {"#form/places/country/name", "{path-expr:hash,{{step:child,form},{step:child,places},{step:child,country},{step:child,name}}}"},
                 // real-world examples
                 {"/patient/sex = 'male' and /patient/age > 15",
                         "{binop-expr:and,{binop-expr:==,{path-expr:abs,{{step:child,patient},{step:child,sex}}},{str:'male'}},{binop-expr:>,{path-expr:abs,{{step:child,patient},{step:child,age}}},{num:15.0}}}"},

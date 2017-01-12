@@ -17,7 +17,7 @@ import java.util.Vector;
 // optimizations.
 public class TreeReference implements Externalizable {
 
-    int hashCode = -1;
+    private int hashCode = -1;
 
     // Multiplicity demarcates the position of a given element with respect to
     // other elements of the same name.
@@ -60,6 +60,7 @@ public class TreeReference implements Externalizable {
     // -1 = absolute, 0 = context node, 1 = parent, 2 = grandparent ...
     private int refLevel;
     private int contextType;
+    private boolean hasHashRefAbbreviation;
 
     /**
      * Name of the reference's root, if it is a non-main instance, otherwise
@@ -71,7 +72,7 @@ public class TreeReference implements Externalizable {
 
     // This value will be computed lazily during calls to size(); every time
     // 'data' changes size, set it to -1 and compute it on demand.
-    int size = -1;
+    private int size = -1;
 
     public TreeReference() {
         instanceName = null;
@@ -79,14 +80,16 @@ public class TreeReference implements Externalizable {
     }
 
     public TreeReference(String instanceName, int refLevel) {
-        this(instanceName, refLevel, -1);
+        this(instanceName, refLevel, -1, false);
     }
 
-    private TreeReference(String instanceName, int refLevel, int contextType) {
+    private TreeReference(String instanceName, int refLevel,
+                          int contextType, boolean hasHashRefAbbreviation) {
         this.instanceName = instanceName;
         this.refLevel = refLevel;
         this.contextType = contextType;
         this.data = new Vector<>();
+        this.hasHashRefAbbreviation = hasHashRefAbbreviation;
         setupContextTypeFromInstanceName();
     }
 
@@ -108,7 +111,7 @@ public class TreeReference implements Externalizable {
      * @return a reference that represents a root/'/' path
      */
     public static TreeReference rootRef() {
-        return new TreeReference(null, REF_ABSOLUTE, CONTEXT_ABSOLUTE);
+        return new TreeReference(null, REF_ABSOLUTE, CONTEXT_ABSOLUTE, false);
     }
 
     /**
@@ -117,7 +120,7 @@ public class TreeReference implements Externalizable {
      * @return a reference that represents a self/'.' path
      */
     public static TreeReference selfRef() {
-        return new TreeReference(null, 0, CONTEXT_INHERITED);
+        return new TreeReference(null, 0, CONTEXT_INHERITED, false);
     }
 
     /**
@@ -126,7 +129,7 @@ public class TreeReference implements Externalizable {
      * @return a reference that represents a base 'current()' path
      */
     public static TreeReference baseCurrentRef() {
-        TreeReference currentRef = new TreeReference(null, 0, CONTEXT_ORIGINAL);
+        TreeReference currentRef = new TreeReference(null, 0, CONTEXT_ORIGINAL, false);
         currentRef.contextType = CONTEXT_ORIGINAL;
         return currentRef;
     }
@@ -138,11 +141,11 @@ public class TreeReference implements Externalizable {
             TreeReference step;
 
             if (elem.getName() != null) {
-                step = new TreeReference(elem.getInstanceName(), 0, CONTEXT_INHERITED);
+                step = new TreeReference(elem.getInstanceName(), 0, CONTEXT_INHERITED, false);
                 step.add(elem.getName(), elem.getMult());
             } else {
                 //All TreeElements are part of a consistent tree, so the root should be in the same instance
-                step = new TreeReference(elem.getInstanceName(), REF_ABSOLUTE, CONTEXT_ABSOLUTE);
+                step = new TreeReference(elem.getInstanceName(), REF_ABSOLUTE, CONTEXT_ABSOLUTE, false);
             }
 
             ref = ref.parent(step);
@@ -259,6 +262,15 @@ public class TreeReference implements Externalizable {
         this.refLevel = refLevel;
     }
 
+    public void setHasHashRef() {
+        setRefLevel(TreeReference.REF_ABSOLUTE);
+        hasHashRefAbbreviation = true;
+    }
+
+    public boolean isHashRef() {
+        return hasHashRefAbbreviation;
+    }
+
     public void incrementRefLevel() {
         hashCode = -1;
         if (!isAbsolute()) {
@@ -293,7 +305,7 @@ public class TreeReference implements Externalizable {
      * data.
      */
     private TreeReference cloneWithEmptyData() {
-        return new TreeReference(instanceName, refLevel, contextType);
+        return new TreeReference(instanceName, refLevel, contextType, hasHashRefAbbreviation);
     }
 
     /*
@@ -316,6 +328,15 @@ public class TreeReference implements Externalizable {
             data.removeElementAt(oldSize - 1);
             return true;
         }
+    }
+
+    public TreeReference replaceBase(TreeReference base) {
+        TreeReference resultRef = clone();
+        resultRef.contextType = CONTEXT_INHERITED;
+        resultRef.data.remove(0);
+        resultRef.setRefLevel(0);
+
+        return resultRef.anchor(base);
     }
 
     public TreeReference getParentRef() {
@@ -411,9 +432,6 @@ public class TreeReference implements Externalizable {
      * if it is absolute and doesn't match the context reference argument.
      */
     public TreeReference contextualize(TreeReference contextRef) {
-        //TODO: Technically we should possibly be modifying context stuff here
-        //instead of in the xpath stuff;
-
         if (!contextRef.isAbsolute()) {
             return null;
         }
@@ -570,7 +588,7 @@ public class TreeReference implements Externalizable {
         } else if (o instanceof TreeReference) {
             TreeReference ref = (TreeReference)o;
 
-            if (this.refLevel == ref.refLevel && this.size() == ref.size()) {
+            if (this.refLevel == ref.refLevel && this.size() == ref.size() && this.hasHashRefAbbreviation == ref.hasHashRefAbbreviation) {
                 // loop through reference segments, comparing their equality
                 for (int i = 0; i < this.size(); i++) {
                     TreeReferenceLevel thisLevel = data.elementAt(i);
@@ -592,7 +610,11 @@ public class TreeReference implements Externalizable {
         if (hashCode != -1) {
             return hashCode;
         }
-        int hash = refLevel;
+        int hash = 71;
+        hash = 31 * hash + (hasHashRefAbbreviation ? 0 : 1);
+        hash = 31 * hash + refLevel;
+        hash = 31 * hash + contextType;
+        hash = 31 * hash + (instanceName == null ? 0 : instanceName.hashCode());
         for (int i = 0; i < size(); i++) {
             int mult = getMultiplicity(i);
             if (i == 0 && mult == INDEX_UNBOUND) {
@@ -628,7 +650,10 @@ public class TreeReference implements Externalizable {
         } else if (contextType == CONTEXT_ORIGINAL) {
             sb.append("current()/");
         }
-        if (isAbsolute()) {
+
+        if (hasHashRefAbbreviation) {
+            sb.append("#");
+        } else if (isAbsolute()) {
             sb.append("/");
         } else {
             for (int i = 0; i < refLevel; i++)
@@ -683,6 +708,7 @@ public class TreeReference implements Externalizable {
         refLevel = ExtUtil.readInt(in);
         instanceName = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         contextType = ExtUtil.readInt(in);
+        hasHashRefAbbreviation = ExtUtil.readBool(in);
         int size = ExtUtil.readInt(in);
         for (int i = 0; i < size; ++i) {
             TreeReferenceLevel level = (TreeReferenceLevel)ExtUtil.read(in, TreeReferenceLevel.class, pf);
@@ -695,6 +721,7 @@ public class TreeReference implements Externalizable {
         ExtUtil.writeNumeric(out, refLevel);
         ExtUtil.write(out, new ExtWrapNullable(instanceName));
         ExtUtil.writeNumeric(out, contextType);
+        ExtUtil.writeBool(out, hasHashRefAbbreviation);
         ExtUtil.writeNumeric(out, size());
         for (TreeReferenceLevel l : data) {
             ExtUtil.write(out, l);

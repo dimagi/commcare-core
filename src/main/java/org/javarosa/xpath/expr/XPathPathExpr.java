@@ -41,6 +41,7 @@ public class XPathPathExpr extends XPathExpression {
     public static final int INIT_CONTEXT_ROOT = 0;
     public static final int INIT_CONTEXT_RELATIVE = 1;
     public static final int INIT_CONTEXT_EXPR = 2;
+    public static final int INIT_CONTEXT_HASH_REF = 3;
 
     public int initContext;
     public XPathStep[] steps;
@@ -52,15 +53,27 @@ public class XPathPathExpr extends XPathExpression {
     public XPathPathExpr() {
     } //for deserialization
 
-    public XPathPathExpr(int initContext, XPathStep[] steps) {
+    private XPathPathExpr(int initContext, XPathStep[] steps, XPathFilterExpr filterExpr) {
         this.initContext = initContext;
         this.steps = steps;
+        this.filtExpr = filterExpr;
     }
 
-     public XPathPathExpr(XPathFilterExpr filtExpr, XPathStep[] steps) {
-         this(INIT_CONTEXT_EXPR, steps);
-         this.filtExpr = filtExpr;
-     }
+    public static XPathPathExpr buildRelativePath(XPathStep[] steps) {
+        return new XPathPathExpr(INIT_CONTEXT_RELATIVE, steps, null);
+    }
+
+    public static XPathPathExpr buildAbsolutePath(XPathStep[] steps) {
+        return new XPathPathExpr(INIT_CONTEXT_ROOT, steps, null);
+    }
+
+    public static XPathPathExpr buildHashRefPath(XPathStep[] steps) {
+        return new XPathPathExpr(INIT_CONTEXT_HASH_REF, steps, null);
+    }
+
+    public static XPathPathExpr buildFilterPath(XPathFilterExpr filterExpr, XPathStep[] steps) {
+        return new XPathPathExpr(INIT_CONTEXT_EXPR, steps, filterExpr);
+    }
 
     /**
      * Translate an xpath path reference into a TreeReference
@@ -115,6 +128,10 @@ public class XPathPathExpr extends XPathExpression {
                     // refs, everything else is an illegal filter
                     throw new XPathUnsupportedException("filter expression");
                 }
+                break;
+            case XPathPathExpr.INIT_CONTEXT_HASH_REF:
+                ref.setHasHashRef();
+                parentsAllowed = false;
                 break;
             default:
                 throw new XPathUnsupportedException("filter expression");
@@ -172,6 +189,10 @@ public class XPathPathExpr extends XPathExpression {
     public XPathNodeset evalRaw(DataInstance m, EvaluationContext ec) {
         TreeReference genericRef = getReference();
         TreeReference ref;
+
+        if (genericRef.isHashRef()) {
+            genericRef = ec.resolveLetRef(genericRef);
+        }
 
         if (genericRef.getContext() == TreeReference.CONTEXT_ORIGINAL) {
             // reference begins with "current()" so contexutalize in the original context
@@ -280,6 +301,9 @@ public class XPathPathExpr extends XPathExpression {
                 break;
             case INIT_CONTEXT_RELATIVE:
                 sb.append("rel");
+                break;
+            case INIT_CONTEXT_HASH_REF:
+                sb.append("hash");
                 break;
             case INIT_CONTEXT_EXPR:
                 sb.append(filtExpr.toString());
@@ -396,7 +420,15 @@ public class XPathPathExpr extends XPathExpression {
 
     public static XPathPathExpr fromRef(TreeReference ref) {
         XPathPathExpr path = new XPathPathExpr();
-        path.initContext = (ref.isAbsolute() ? INIT_CONTEXT_ROOT : INIT_CONTEXT_RELATIVE);
+        if (ref.isAbsolute()) {
+            if (ref.isHashRef()) {
+                path.initContext = INIT_CONTEXT_HASH_REF;
+            } else {
+                path.initContext = INIT_CONTEXT_ROOT;
+            }
+        } else {
+            path.initContext = INIT_CONTEXT_RELATIVE;
+        }
         path.steps = new XPathStep[ref.size()];
         for (int i = 0; i < path.steps.length; i++) {
             if (ref.getName(i).equals(TreeReference.NAME_WILDCARD)) {

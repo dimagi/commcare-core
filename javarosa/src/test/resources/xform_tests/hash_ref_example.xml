@@ -1,0 +1,40 @@
+<h:html xmlns="http://www.w3.org/2002/xforms"
+        xmlns:h="http://www.w3.org/1999/xhtml">
+    <h:head>
+        <h:title>Constraints for simple and select answers</h:title>
+        <model>
+            <letref ref="/data" var="form"/>
+            <letref ref="/data/entry" var="entry"/>
+            <letref ref="/data/day" var="day"/>
+            <letref ref="/data/number" var="num"/>
+
+            <instance>
+                <data>
+                    <entry>a</entry>
+                    <first_num/>
+                    <number id="a">1</number>
+                    <number id="b">2</number>
+                    <day>saturday</day>
+                    <day_and_number/>
+                    <places>
+                        <country id='one'>
+                            <name>Singapore</name>
+                        </country>
+                        <country id='two'>
+                            <name>United States</name>
+                            <state id='beehive_state'>Utah</state>
+                            <state id='treasure_state'>Montana</state>
+                        </country>
+                    </places>
+                </data>
+            </instance>
+
+            <bind nodeset="#entry" calculate="'b'"/>
+            <bind nodeset="/data/first_num" calculate="#num[1]"/>
+            <bind nodeset="/data/day_and_number" calculate="concat(#num[1], #day)"/>
+        </model>
+    </h:head>
+
+    <h:body>
+    </h:body>
+</h:html>

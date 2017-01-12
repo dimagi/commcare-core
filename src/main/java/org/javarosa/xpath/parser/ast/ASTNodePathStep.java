@@ -1,5 +1,6 @@
 package org.javarosa.xpath.parser.ast;
 
+import org.javarosa.core.model.condition.HashRefResolver;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathQName;
 import org.javarosa.xpath.expr.XPathStep;
@@ -19,6 +20,7 @@ public class ASTNodePathStep extends ASTNode {
     public static final int NODE_TEST_TYPE_ABBR_DOT = 4;
     public static final int NODE_TEST_TYPE_ABBR_DBL_DOT = 5;
     public static final int NODE_TEST_TYPE_FUNC = 6;
+    public static final int NODE_TEST_TYPE_HASH_REF = 7;
 
     public int axisType;
     public int axisVal;
@@ -38,11 +40,11 @@ public class ASTNodePathStep extends ASTNode {
     }
 
     @Override
-    public XPathExpression build() {
+    public XPathExpression build(HashRefResolver hashRefResolver) {
         return null;
     }
 
-    public XPathStep getStep() throws XPathSyntaxException {
+    public XPathStep getStep(HashRefResolver hashRefResolver) throws XPathSyntaxException {
         if (nodeTestType == NODE_TEST_TYPE_ABBR_DOT) {
             return XPathStep.ABBR_SELF();
         } else if (nodeTestType == NODE_TEST_TYPE_ABBR_DBL_DOT) {
@@ -56,7 +58,7 @@ public class ASTNodePathStep extends ASTNode {
                 axisVal = XPathStep.AXIS_ATTRIBUTE;
             }
 
-            if (nodeTestType == NODE_TEST_TYPE_QNAME) {
+            if (nodeTestType == NODE_TEST_TYPE_QNAME || nodeTestType == NODE_TEST_TYPE_HASH_REF) {
                 step = new XPathStep(axisVal, nodeTestQName);
             } else if (nodeTestType == NODE_TEST_TYPE_WILDCARD) {
                 step = new XPathStep(axisVal, XPathStep.TEST_NAME_WILDCARD);
@@ -85,7 +87,7 @@ public class ASTNodePathStep extends ASTNode {
 
             XPathExpression[] preds = new XPathExpression[predicates.size()];
             for (int i = 0; i < preds.length; i++) {
-                preds[i] = predicates.elementAt(i).build();
+                preds[i] = predicates.elementAt(i).build(hashRefResolver);
             }
             step.predicates = preds;
 
