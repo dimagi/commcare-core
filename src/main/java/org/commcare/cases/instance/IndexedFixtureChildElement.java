@@ -19,20 +19,6 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
         super(parent, mult, recordId, parent.getName(), parent.getChildHintName());
     }
 
-    /**
-     * Template constructor (For elements that need to create reference nodesets but never look up values)
-     */
-    private IndexedFixtureChildElement(StorageInstanceTreeElement<StorageIndexedTreeElementModel, ?> parent) {
-        super(parent, TreeReference.INDEX_TEMPLATE,
-                TreeReference.INDEX_TEMPLATE, parent.getName(),
-                parent.getChildHintName());
-
-        StorageIndexedTreeElementModel modelTemplate = parent.getModelTemplate();
-        empty = modelTemplate.getRoot();
-        empty.setMult(TreeReference.INDEX_TEMPLATE);
-        // NOTE PLM: do we need to do more to convert a regular TreeElement into a template?
-    }
-
     @Override
     protected TreeElement cache() {
         if (recordId == TreeReference.INDEX_TEMPLATE) {
@@ -69,6 +55,13 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
     }
 
     public static IndexedFixtureChildElement buildFixtureChildTemplate(IndexedFixtureInstanceTreeElement parent) {
-        return new IndexedFixtureChildElement(parent);
+        IndexedFixtureChildElement template =
+                new IndexedFixtureChildElement(parent, TreeReference.INDEX_TEMPLATE, TreeReference.INDEX_TEMPLATE);
+
+        StorageIndexedTreeElementModel modelTemplate = parent.getModelTemplate();
+        // NOTE PLM: do we need to do more to convert a regular TreeElement into a template?
+        template.empty = modelTemplate.getRoot();
+        template.empty.setMult(TreeReference.INDEX_TEMPLATE);
+        return template;
     }
 }
