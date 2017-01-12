@@ -29,8 +29,8 @@ public class MockUserDataSandbox extends UserSandbox {
     private final IStorageUtilityIndexed<Case> caseStorage;
     private final IStorageUtilityIndexed<Ledger> ledgerStorage;
     private final IStorageUtilityIndexed<User> userStorage;
-    private final HashMap<String, IStorageUtilityIndexed<StorageIndexedTreeElementModel>> flatFixtureStorages;
-    private final HashMap<String, Pair<String, String>> flatFixtureBaseMap;
+    private final HashMap<String, IStorageUtilityIndexed<StorageIndexedTreeElementModel>> indexedFixtureStorages;
+    private final HashMap<String, Pair<String, String>> indexedFixtureBaseMap;
     private final IStorageUtilityIndexed<FormInstance> userFixtureStorage;
     private IStorageUtilityIndexed<FormInstance> appFixtureStorage;
     
@@ -48,8 +48,8 @@ public class MockUserDataSandbox extends UserSandbox {
         caseStorage = new DummyIndexedStorageUtility<>(Case.class, factory);
         ledgerStorage = new DummyIndexedStorageUtility<>(Ledger.class, factory);
         userStorage = new DummyIndexedStorageUtility<>(User.class, factory);
-        flatFixtureStorages = new HashMap<>();
-        flatFixtureBaseMap = new HashMap<>();
+        indexedFixtureStorages = new HashMap<>();
+        indexedFixtureBaseMap = new HashMap<>();
         userFixtureStorage = new DummyIndexedStorageUtility<>(FormInstance.class, factory);
         appFixtureStorage = new DummyIndexedStorageUtility<>(FormInstance.class, factory);
 
@@ -72,25 +72,25 @@ public class MockUserDataSandbox extends UserSandbox {
     }
 
     @Override
-    public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(String fixtureName) {
-        return flatFixtureStorages.get(fixtureName);
+    public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getIndexedFixtureStorage(String fixtureName) {
+        return indexedFixtureStorages.get(fixtureName);
     }
 
     @Override
-    public void setupFlatFixtureStorage(String fixtureName,
-                                        StorageIndexedTreeElementModel exampleEntry,
-                                        Set<String> indices) {
-        flatFixtureStorages.put(fixtureName, new DummyIndexedStorageUtility<>(exampleEntry, factory));
+    public void setupIndexedFixtureStorage(String fixtureName,
+                                           StorageIndexedTreeElementModel exampleEntry,
+                                           Set<String> indices) {
+        indexedFixtureStorages.put(fixtureName, new DummyIndexedStorageUtility<>(exampleEntry, factory));
     }
 
     @Override
-    public Pair<String, String> getFlatFixturePathBases(String fixtureName) {
-        return flatFixtureBaseMap.get(fixtureName);
+    public Pair<String, String> getIndexedFixturePathBases(String fixtureName) {
+        return indexedFixtureBaseMap.get(fixtureName);
     }
 
     @Override
-    public void setFlatFixturePathBases(String fixtureName, String baseName, String childName) {
-        flatFixtureBaseMap.put(fixtureName, Pair.create(baseName, childName));
+    public void setIndexedFixturePathBases(String fixtureName, String baseName, String childName) {
+        indexedFixtureBaseMap.put(fixtureName, Pair.create(baseName, childName));
     }
 
     @Override

@@ -51,7 +51,7 @@ public class InstanceEvaluationTests {
     }
 
     @Test
-    public void loadFlatInstanceInForm() throws Exception {
+    public void loadIndexedInstanceInForm() throws Exception {
         FormEntryController fec = mApp.loadAndInitForm("form_placeholder.xml");
 
         assertEquals(FormEntryController.EVENT_BEGINNING_OF_FORM, fec.getModel().getEvent());

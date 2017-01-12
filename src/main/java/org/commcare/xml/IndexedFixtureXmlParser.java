@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Creates a table for the flat fixture and parses each element into a
+ * Creates a table for the indexed fixture and parses each element into a
  * StorageIndexedTreeElementModel and stores that as a table row.
  *
  * Also stores base and child names associated with fixture in another database.
@@ -29,21 +29,21 @@ import java.util.Set;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class FlatFixtureXmlParser extends TransactionParser<StorageIndexedTreeElementModel> {
+public class IndexedFixtureXmlParser extends TransactionParser<StorageIndexedTreeElementModel> {
 
     private final Set<String> indices;
     private final Set<String> columnIndices;
     private static final HashSet<String> flatSet = new HashSet<>();
     private final UserSandbox sandbox;
     private final String fixtureName;
-    private IStorageUtilityIndexed<StorageIndexedTreeElementModel> flatFixtureStorage;
+    private IStorageUtilityIndexed<StorageIndexedTreeElementModel> indexedFixtureStorage;
 
     static {
-        FlatFixtureXmlParser.flatSet.add("locations");
+        IndexedFixtureXmlParser.flatSet.add("locations");
     }
 
-    public FlatFixtureXmlParser(KXmlParser parser, String fixtureName,
-                                FixtureIndexSchema schema, UserSandbox sandbox) {
+    public IndexedFixtureXmlParser(KXmlParser parser, String fixtureName,
+                                   FixtureIndexSchema schema, UserSandbox sandbox) {
         super(parser);
         this.sandbox = sandbox;
         this.fixtureName = fixtureName;
@@ -58,7 +58,7 @@ public class FlatFixtureXmlParser extends TransactionParser<StorageIndexedTreeEl
         }
     }
 
-    public static boolean isFlatDebug(String id) {
+    public static boolean isIndexedDebug(String id) {
         if (id.startsWith("jr://fixture/")) {
             id = id.substring(13);
         }
@@ -104,7 +104,7 @@ public class FlatFixtureXmlParser extends TransactionParser<StorageIndexedTreeEl
     @Override
     protected void commit(StorageIndexedTreeElementModel parsed) throws IOException {
         try {
-            getFlatFixtureStorage(parsed).write(parsed);
+            getIndexedFixtureStorage(parsed).write(parsed);
         } catch (StorageFullException e) {
             e.printStackTrace();
             throw new IOException("Storage full while writing case!");
@@ -114,12 +114,12 @@ public class FlatFixtureXmlParser extends TransactionParser<StorageIndexedTreeEl
     /**
      * Get storage that stores fixture element entries as table rows
      */
-    private IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(StorageIndexedTreeElementModel exampleEntry) {
-        if (flatFixtureStorage == null) {
-            sandbox.setupFlatFixtureStorage(fixtureName, exampleEntry, columnIndices);
-            flatFixtureStorage = sandbox.getFlatFixtureStorage(fixtureName);
+    private IStorageUtilityIndexed<StorageIndexedTreeElementModel> getIndexedFixtureStorage(StorageIndexedTreeElementModel exampleEntry) {
+        if (indexedFixtureStorage == null) {
+            sandbox.setupIndexedFixtureStorage(fixtureName, exampleEntry, columnIndices);
+            indexedFixtureStorage = sandbox.getIndexedFixtureStorage(fixtureName);
         }
-        return flatFixtureStorage;
+        return indexedFixtureStorage;
     }
 
     /**
@@ -127,6 +127,6 @@ public class FlatFixtureXmlParser extends TransactionParser<StorageIndexedTreeEl
      * Used for reconstructiong fixture instance
      */
     private void writeFixtureIndex(String fixtureName, String baseName, String childName) {
-        sandbox.setFlatFixturePathBases(fixtureName, baseName, childName);
+        sandbox.setIndexedFixturePathBases(fixtureName, baseName, childName);
     }
 }

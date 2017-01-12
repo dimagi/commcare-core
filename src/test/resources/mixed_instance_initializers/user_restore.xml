@@ -21,7 +21,7 @@
         <index>@id</index>
         <index>id</index>
     </table-indices>
-    <fixture flat="true" id="bike-list" user_id="test_uuid">
+    <fixture indexed="true" id="bike-list" user_id="test_uuid">
         <bikes>
             <bike id="1">
                 <name>Huffy</name>

@@ -62,15 +62,15 @@ public class UserSqlSandbox extends UserSandbox {
     }
 
     @Override
-    public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(String fixtureName) {
+    public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getIndexedFixtureStorage(String fixtureName) {
         String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
         return new SqliteIndexedStorageUtility<>(StorageIndexedTreeElementModel.class, username, tableName, path);
     }
 
     @Override
-    public void setupFlatFixtureStorage(String fixtureName,
-                                        StorageIndexedTreeElementModel exampleEntry,
-                                        Set<String> indices) {
+    public void setupIndexedFixtureStorage(String fixtureName,
+                                           StorageIndexedTreeElementModel exampleEntry,
+                                           Set<String> indices) {
         // TODO PLM: delete table if it already exists
         // TODO PLM: create indexes over table
         String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
@@ -78,12 +78,12 @@ public class UserSqlSandbox extends UserSandbox {
     }
 
     @Override
-    public Pair<String, String> getFlatFixturePathBases(String fixtureName) {
+    public Pair<String, String> getIndexedFixturePathBases(String fixtureName) {
         throw new RuntimeException("implement in similar fashion as AndroidSandbox implementation");
     }
 
     @Override
-    public void setFlatFixturePathBases(String fixtureName, String baseName, String childName) {
+    public void setIndexedFixturePathBases(String fixtureName, String baseName, String childName) {
         throw new RuntimeException("implement in similar fashion as AndroidSandbox implementation");
     }
 

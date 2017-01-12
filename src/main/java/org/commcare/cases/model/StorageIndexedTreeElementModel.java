@@ -27,7 +27,7 @@ import java.util.Vector;
  */
 public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
 
-    private static final String STORAGE_KEY_PREFIX = "FLATFIX_";
+    private static final String STORAGE_KEY_PREFIX = "IND_FIX_";
     private static final String DASH_ESCAPE = "\\$\\$";
     private static final String ATTR_PREFIX = "_$";
     private static final String ELEM_PREFIX = "_0";

@@ -12,45 +12,45 @@ import org.javarosa.xpath.expr.XPathPathExpr;
 import java.util.Hashtable;
 
 /**
- * The root element for the a flat fixture data instance: instance('some-flat-fixture').
+ * The root element for the a indexed fixture data instance: instance('some-indexed-fixture').
  * All children are nodes in a database table associated with the fixture.
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class FlatFixtureInstanceTreeElement
-        extends StorageInstanceTreeElement<StorageIndexedTreeElementModel, FlatFixtureChildElement> {
+public class IndexedFixtureInstanceTreeElement
+        extends StorageInstanceTreeElement<StorageIndexedTreeElementModel, IndexedFixtureChildElement> {
     private Hashtable<XPathPathExpr, String> storageIndexMap = null;
 
-    private FlatFixtureInstanceTreeElement(AbstractTreeElement instanceRoot,
-                                           IStorageUtilityIndexed<StorageIndexedTreeElementModel> storage,
-                                           String modelName, String childName) {
+    private IndexedFixtureInstanceTreeElement(AbstractTreeElement instanceRoot,
+                                              IStorageUtilityIndexed<StorageIndexedTreeElementModel> storage,
+                                              String modelName, String childName) {
         super(instanceRoot, storage, modelName, childName);
     }
 
-    public static FlatFixtureInstanceTreeElement get(UserSandbox sandbox,
-                                                     String instanceName,
-                                                     InstanceBase instanceBase) {
+    public static IndexedFixtureInstanceTreeElement get(UserSandbox sandbox,
+                                                        String instanceName,
+                                                        InstanceBase instanceBase) {
         Pair<String, String> modelAndChild =
-                sandbox.getFlatFixturePathBases(instanceName);
+                sandbox.getIndexedFixturePathBases(instanceName);
         if (modelAndChild == null) {
             return null;
         } else {
             IStorageUtilityIndexed<StorageIndexedTreeElementModel> storage =
-                    sandbox.getFlatFixtureStorage(instanceName);
-            return new FlatFixtureInstanceTreeElement(instanceBase, storage,
+                    sandbox.getIndexedFixtureStorage(instanceName);
+            return new IndexedFixtureInstanceTreeElement(instanceBase, storage,
                     modelAndChild.first, modelAndChild.second);
         }
     }
 
     @Override
-    protected FlatFixtureChildElement buildElement(StorageInstanceTreeElement<StorageIndexedTreeElementModel, FlatFixtureChildElement> storageInstance,
-                                                   int recordId, String id, int mult) {
-        return new FlatFixtureChildElement(storageInstance, mult, recordId);
+    protected IndexedFixtureChildElement buildElement(StorageInstanceTreeElement<StorageIndexedTreeElementModel, IndexedFixtureChildElement> storageInstance,
+                                                      int recordId, String id, int mult) {
+        return new IndexedFixtureChildElement(storageInstance, mult, recordId);
     }
 
     @Override
-    protected FlatFixtureChildElement getChildTemplate() {
-        return FlatFixtureChildElement.buildFixtureChildTemplate(this);
+    protected IndexedFixtureChildElement getChildTemplate() {
+        return IndexedFixtureChildElement.buildFixtureChildTemplate(this);
     }
 
     @Override

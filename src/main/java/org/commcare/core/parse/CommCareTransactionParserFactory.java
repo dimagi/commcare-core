@@ -1,7 +1,6 @@
 package org.commcare.core.parse;
 
 import org.commcare.cases.instance.FixtureIndexSchema;
-import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
@@ -10,7 +9,7 @@ import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.FixtureIndexSchemaParser;
 import org.commcare.xml.FixtureXmlParser;
-import org.commcare.xml.FlatFixtureXmlParser;
+import org.commcare.xml.IndexedFixtureXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -90,12 +89,12 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             return new FixtureIndexSchemaParser(parser, fixtureSchemas);
         } else if ("fixture".equalsIgnoreCase(name)) {
             String id = parser.getAttributeValue(null, "id");
-            String isFlatAttr = parser.getAttributeValue(null, "flat");
-            boolean isFlat = "true".equals(isFlatAttr);
+            String isIndexedAttr = parser.getAttributeValue(null, "indexed");
+            boolean isIndexed = "true".equals(isIndexedAttr);
             req();
-            if (isFlat || FlatFixtureXmlParser.isFlatDebug(id)) {
+            if (isIndexed || IndexedFixtureXmlParser.isIndexedDebug(id)) {
                 FixtureIndexSchema schema = fixtureSchemas.get(id);
-                return buildFlatFixtureParser(parser, id, schema);
+                return buildIndexedFixtureParser(parser, id, schema);
             } else {
                 return fixtureParser.getParser(parser);
             }
@@ -175,10 +174,10 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         };
     }
 
-    public FlatFixtureXmlParser buildFlatFixtureParser(KXmlParser parser,
-                                                       String fixtureName,
-                                                       FixtureIndexSchema schema) {
-        return new FlatFixtureXmlParser(parser, fixtureName, schema, sandbox);
+    public IndexedFixtureXmlParser buildIndexedFixtureParser(KXmlParser parser,
+                                                             String fixtureName,
+                                                             FixtureIndexSchema schema) {
+        return new IndexedFixtureXmlParser(parser, fixtureName, schema, sandbox);
     }
 
     public void initCaseParser() {

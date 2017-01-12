@@ -2,7 +2,7 @@ package org.commcare.core.process;
 
 import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
-import org.commcare.cases.instance.FlatFixtureInstanceTreeElement;
+import org.commcare.cases.instance.IndexedFixtureInstanceTreeElement;
 import org.commcare.cases.instance.LedgerInstanceTreeElement;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.sandbox.SandboxUtils;
@@ -116,10 +116,10 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             userId = u.getUniqueId();
         }
 
-        AbstractTreeElement flatFixture =
-                FlatFixtureInstanceTreeElement.get(mSandbox, getRefId(ref), instance.getBase());
-        if (flatFixture != null) {
-            return flatFixture;
+        AbstractTreeElement indexedFixture =
+                IndexedFixtureInstanceTreeElement.get(mSandbox, getRefId(ref), instance.getBase());
+        if (indexedFixture != null) {
+            return indexedFixture;
         } else {
             return loadFixtureRoot(instance, ref, userId);
         }

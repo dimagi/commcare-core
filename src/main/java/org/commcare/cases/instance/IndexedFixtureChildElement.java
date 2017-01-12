@@ -5,24 +5,24 @@ import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 
 /**
- * Child TreeElement of a flat fixture whose data is loaded from a DB.
+ * Child TreeElement of an indexed fixture whose data is loaded from a DB.
  *
  * i.e. 'product' of "instance('product-list')/products/product"
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class FlatFixtureChildElement extends StorageBackedChildElement<StorageIndexedTreeElementModel> {
+public class IndexedFixtureChildElement extends StorageBackedChildElement<StorageIndexedTreeElementModel> {
     private TreeElement empty;
 
-    protected FlatFixtureChildElement(StorageInstanceTreeElement<StorageIndexedTreeElementModel, ?> parent,
-                                      int mult, int recordId) {
+    protected IndexedFixtureChildElement(StorageInstanceTreeElement<StorageIndexedTreeElementModel, ?> parent,
+                                         int mult, int recordId) {
         super(parent, mult, recordId, parent.getName(), parent.getChildHintName());
     }
 
     /**
      * Template constructor (For elements that need to create reference nodesets but never look up values)
      */
-    private FlatFixtureChildElement(StorageInstanceTreeElement<StorageIndexedTreeElementModel, ?> parent) {
+    private IndexedFixtureChildElement(StorageInstanceTreeElement<StorageIndexedTreeElementModel, ?> parent) {
         super(parent, TreeReference.INDEX_TEMPLATE,
                 TreeReference.INDEX_TEMPLATE, parent.getName(),
                 parent.getChildHintName());
@@ -68,7 +68,7 @@ public class FlatFixtureChildElement extends StorageBackedChildElement<StorageIn
         return nameId;
     }
 
-    public static FlatFixtureChildElement buildFixtureChildTemplate(FlatFixtureInstanceTreeElement parent) {
-        return new FlatFixtureChildElement(parent);
+    public static IndexedFixtureChildElement buildFixtureChildTemplate(IndexedFixtureInstanceTreeElement parent) {
+        return new IndexedFixtureChildElement(parent);
     }
 }

@@ -10,8 +10,8 @@ import java.util.Set;
 import java.util.Vector;
 
 /**
- * Tracks what attributes and elements are stored in indexed columns of a flat
- * fixture db table.
+ * Tracks what attributes and elements are stored in indexed columns of an
+ * indexed fixture db table.
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
