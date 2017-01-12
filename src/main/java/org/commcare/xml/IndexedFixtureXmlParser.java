@@ -33,14 +33,9 @@ public class IndexedFixtureXmlParser extends TransactionParser<StorageIndexedTre
 
     private final Set<String> indices;
     private final Set<String> columnIndices;
-    private static final HashSet<String> flatSet = new HashSet<>();
     private final UserSandbox sandbox;
     private final String fixtureName;
     private IStorageUtilityIndexed<StorageIndexedTreeElementModel> indexedFixtureStorage;
-
-    static {
-        IndexedFixtureXmlParser.flatSet.add("locations");
-    }
 
     public IndexedFixtureXmlParser(KXmlParser parser, String fixtureName,
                                    FixtureIndexSchema schema, UserSandbox sandbox) {
@@ -56,13 +51,6 @@ public class IndexedFixtureXmlParser extends TransactionParser<StorageIndexedTre
             this.indices = schema.getSingleIndices();
             this.columnIndices = schema.getColumnIndices();
         }
-    }
-
-    public static boolean isIndexedDebug(String id) {
-        if (id.startsWith("jr://fixture/")) {
-            id = id.substring(13);
-        }
-        return flatSet.contains(id);
     }
 
     @Override

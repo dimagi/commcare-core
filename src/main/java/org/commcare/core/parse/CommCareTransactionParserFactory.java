@@ -92,7 +92,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             String isIndexedAttr = parser.getAttributeValue(null, "indexed");
             boolean isIndexed = "true".equals(isIndexedAttr);
             req();
-            if (isIndexed || IndexedFixtureXmlParser.isIndexedDebug(id)) {
+            if (isIndexed) {
                 FixtureIndexSchema schema = fixtureSchemas.get(id);
                 return buildIndexedFixtureParser(parser, id, schema);
             } else {

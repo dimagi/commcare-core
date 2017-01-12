@@ -106,7 +106,8 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
     }
 
     @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
         recordId = ExtUtil.readInt(in);
         entityId = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         root = (TreeElement)ExtUtil.read(in, TreeElement.class, pf);
