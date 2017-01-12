@@ -16,24 +16,22 @@ import java.util.Vector;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class FixtureIndexSchema {
-    private final Set<String> indices;
+    private final Set<String> indices = new HashSet<>();
     public final String fixtureName;
 
     public FixtureIndexSchema(TreeElement schemaTree) {
         this.fixtureName = schemaTree.getAttributeValue(null, "id");
 
-        indices = buildIndices(schemaTree.getChildrenWithName("index"));
+        setupIndices(schemaTree.getChildrenWithName("index"));
     }
 
-    private static Set<String> buildIndices(Vector<TreeElement> indexElements) {
-        HashSet<String> indices = new HashSet<>();
+    private void setupIndices(Vector<TreeElement> indexElements) {
         for (TreeElement index : indexElements) {
             IAnswerData value = index.getValue();
             if (value != null) {
                 indices.add(value.uncast().getString());
             }
         }
-        return indices;
     }
 
     /**
