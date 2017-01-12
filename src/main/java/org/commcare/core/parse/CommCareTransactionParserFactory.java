@@ -95,7 +95,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             req();
             if (isFlat || FlatFixtureXmlParser.isFlatDebug(id)) {
                 FixtureIndexSchema schema = fixtureSchemas.get(id);
-                return buildFlatFixtureParser(id, schema).getParser(parser);
+                return buildFlatFixtureParser(parser, id, schema);
             } else {
                 return fixtureParser.getParser(parser);
             }
@@ -175,14 +175,10 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         };
     }
 
-    public TransactionParserFactory buildFlatFixtureParser(final String fixtureName,
-                                                           final FixtureIndexSchema schema) {
-        return new TransactionParserFactory() {
-            @Override
-            public TransactionParser getParser(KXmlParser parser) {
-                return new FlatFixtureXmlParser(parser, fixtureName, schema, sandbox);
-            }
-        };
+    public FlatFixtureXmlParser buildFlatFixtureParser(KXmlParser parser,
+                                                       String fixtureName,
+                                                       FixtureIndexSchema schema) {
+        return new FlatFixtureXmlParser(parser, fixtureName, schema, sandbox);
     }
 
     public void initCaseParser() {

@@ -89,8 +89,26 @@ public class FlatFixtureXmlParser extends TransactionParser<StorageIndexedTreeEl
             String entryName = root.getChildAt(0).getName();
             writeFixtureIndex(fixtureId, root.getName(), entryName);
 
-            for (TreeElement entry : root.getChildrenWithName(entryName)) {
-                processEntry(entry, indices);
+            boolean commitsSucceeded = true;
+            RuntimeException runtimeProcessError = null;
+            IOException ioProcessError = null;
+            try {
+                for (TreeElement entry : root.getChildrenWithName(entryName)) {
+                    processEntry(entry, indices);
+                }
+            } catch (RuntimeException e) {
+                runtimeProcessError = e;
+                commitsSucceeded = false;
+            } catch (IOException e) {
+                ioProcessError = e;
+                commitsSucceeded = false;
+            } finally {
+                finishProcessing(commitsSucceeded);
+            }
+            if (ioProcessError != null) {
+                throw ioProcessError;
+            } else if (runtimeProcessError != null) {
+                throw runtimeProcessError;
             }
         }
     }
@@ -109,6 +127,9 @@ public class FlatFixtureXmlParser extends TransactionParser<StorageIndexedTreeEl
             e.printStackTrace();
             throw new IOException("Storage full while writing case!");
         }
+    }
+
+    public void finishProcessing(boolean wasSuccessful) {
     }
 
     /**
