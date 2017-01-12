@@ -84,7 +84,7 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
                 return value.uncast().getString();
             }
         }
-        return null;
+        throw new IllegalArgumentException("No metadata field " + fieldName + " in the indexed fixture storage table.");
     }
 
     @Override
