@@ -95,8 +95,9 @@ dependencies {
       translateCompile 'joda-time:joda-time:2.9.3'
       translateCompile 'org.json:json:20140107'
 
-    // 'compile' dep also needed to run 'gradle jmh' for some reason,
-    // but conflicts with apk builds, so only uncomment when jmh needed
+    // 'compile' dependency is also needed to run 'gradle jmh' for some reason,
+    // but leaving it in conflicts with apk builds, so only uncomment the
+    // following lines when jmh needed:
     /*
     compile 'org.openjdk.jmh:jmh-core:1.17.3'
     compile 'org.openjdk.jmh:jmh-generator-annprocess:1.17.3'

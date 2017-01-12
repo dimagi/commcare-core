@@ -42,6 +42,8 @@ public class LoadAndInitLargeForm {
 
     // Execute using:
     //  java -jar build\libs\commcare-core-jmh.jar -wi 5 -i 5 form_init
+    // -wi sets the warmup iteration count
+    // -i sets the iteration count
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(LoadAndInitLargeForm.class.getSimpleName())
