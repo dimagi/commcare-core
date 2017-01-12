@@ -32,7 +32,7 @@ import java.util.Set;
 public class FlatFixtureXmlParser extends TransactionParser<StorageIndexedTreeElementModel> {
 
     private final Set<String> indices;
-    protected final Set<String> columnIndices;
+    private final Set<String> columnIndices;
     private static final HashSet<String> flatSet = new HashSet<>();
     private final UserSandbox sandbox;
     private final String fixtureName;
@@ -89,26 +89,8 @@ public class FlatFixtureXmlParser extends TransactionParser<StorageIndexedTreeEl
             String entryName = root.getChildAt(0).getName();
             writeFixtureIndex(fixtureId, root.getName(), entryName);
 
-            boolean commitsSucceeded = true;
-            RuntimeException runtimeProcessError = null;
-            IOException ioProcessError = null;
-            try {
-                for (TreeElement entry : root.getChildrenWithName(entryName)) {
-                    processEntry(entry, indices);
-                }
-            } catch (RuntimeException e) {
-                runtimeProcessError = e;
-                commitsSucceeded = false;
-            } catch (IOException e) {
-                ioProcessError = e;
-                commitsSucceeded = false;
-            } finally {
-                finishProcessing(commitsSucceeded);
-            }
-            if (ioProcessError != null) {
-                throw ioProcessError;
-            } else if (runtimeProcessError != null) {
-                throw runtimeProcessError;
+            for (TreeElement entry : root.getChildrenWithName(entryName)) {
+                processEntry(entry, indices);
             }
         }
     }
@@ -127,9 +109,6 @@ public class FlatFixtureXmlParser extends TransactionParser<StorageIndexedTreeEl
             e.printStackTrace();
             throw new IOException("Storage full while writing case!");
         }
-    }
-
-    public void finishProcessing(boolean wasSuccessful) {
     }
 
     /**
