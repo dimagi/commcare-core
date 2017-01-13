@@ -97,9 +97,9 @@ public class UserSqlSandbox extends UserSandbox {
                 createFixturePathsTable(tableName);
 
         Map<String, String> contentVals = new HashMap<>();
-        contentVals.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_COL_BASE, baseName);
-        contentVals.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_COL_CHILD, childName);
-        contentVals.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_COL_NAME, fixtureName);
+        contentVals.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_BASE, baseName);
+        contentVals.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_CHILD, childName);
+        contentVals.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_NAME, fixtureName);
 
         sqlUtil.basicInsert(contentVals);
     }
@@ -113,13 +113,15 @@ public class UserSqlSandbox extends UserSandbox {
         SqliteIndexedStorageUtility<StorageIndexedTreeElementModel> sqlUtil =
                 new SqliteIndexedStorageUtility<>(username, tableName, path);
         String[] indexTableStatements = new String[]{
-                IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_TABLE_STMT
+                IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE_STMT
                 // NOTE PLM: commenting out index creation below because
                 // it will crash if run multiple times. We should find a way to
                 // establish the index.
                 // , IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEXING_STMT
         };
         sqlUtil.executeStatements(indexTableStatements);
+
+        return sqlUtil;
     }
 
     @Override
