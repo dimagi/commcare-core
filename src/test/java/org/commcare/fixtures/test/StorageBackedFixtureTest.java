@@ -14,6 +14,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
@@ -33,6 +35,14 @@ public class StorageBackedFixtureTest {
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(sandbox, "products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);
         CaseTestUtils.xpathEvalAndAssert(ec, "instance('products')/products/product[@id = 'a6d16035b98f6f962a6538bd927cefb3']/name", "CU");
+
+        // ensure that the entire fixture is stored in the normal storage.
+        // This is to ensure if we ever change the indexed data model, we can
+        // perform offline data migrations
+        assertEquals(1, sandbox.getUserFixtureStorage().getNumRecords());
+
+        // make sure the fixture is stored in the indexed fixture storage
+        assertEquals(4, sandbox.getIndexedFixtureStorage("commtrack:products").getNumRecords());
     }
 
     @Test(expected = InvalidStructureException.class)
