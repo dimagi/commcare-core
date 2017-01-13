@@ -21,27 +21,30 @@ public class DatabaseHelper {
     public static final String FILE_COL = "commcare_sql_file";
     public static final String AES_COL = "commcare_sql_aes";
 
-    public static Pair<String, String[]> createWhere(String[] fieldNames, Object[] values,  Persistable p)  throws IllegalArgumentException {
+    public static Pair<String, String[]> createWhere(String[] fieldNames, Object[] values,
+                                                     Persistable p)
+            throws IllegalArgumentException {
         return createWhere(fieldNames, values, null, p);
     }
 
-    public static Pair<String, String[]> createWhere(String[] fieldNames, Object[] values,  EncryptedModel em, Persistable p)  throws IllegalArgumentException {
+    public static Pair<String, String[]> createWhere(String[] fieldNames, Object[] values,
+                                                     EncryptedModel em, Persistable p)
+            throws IllegalArgumentException {
         Set<String> fields = null;
-        if(p instanceof IMetaData) {
+        if (p instanceof IMetaData) {
             IMetaData m = (IMetaData)p;
             String[] thefields = m.getMetaDataFields();
             fields = new HashSet<>();
-            for(String s : thefields) {
+            for (String s : thefields) {
                 fields.add(TableBuilder.scrubName(s));
             }
         }
 
-
-        if(em instanceof IMetaData) {
+        if (em instanceof IMetaData) {
             IMetaData m = (IMetaData)em;
             String[] thefields = m.getMetaDataFields();
             fields = new HashSet<>();
-            for(String s : thefields) {
+            for (String s : thefields) {
                 fields.add(TableBuilder.scrubName(s));
             }
         }
@@ -50,15 +53,15 @@ public class DatabaseHelper {
         StringBuilder stringBuilder = new StringBuilder();
         ArrayList<String> arguments = new ArrayList<>();
         boolean set = false;
-        for(int i = 0 ; i < fieldNames.length; ++i) {
+        for (int i = 0; i < fieldNames.length; ++i) {
             String columnName = TableBuilder.scrubName(fieldNames[i]);
-            if(fields != null) {
-                if(!fields.contains(columnName)) {
+            if (fields != null) {
+                if (!fields.contains(columnName)) {
                     continue;
                 }
             }
 
-            if(set){
+            if (set) {
                 stringBuilder.append(" AND ");
             }
 
@@ -70,7 +73,7 @@ public class DatabaseHelper {
             set = true;
         }
         // we couldn't match any of the fields to our columns
-        if(!set){
+        if (!set) {
             throw new IllegalArgumentException("Unable to match provided fields with columns.");
         }
 
@@ -114,13 +117,14 @@ public class DatabaseHelper {
         return values;
     }
 
-    public static String getTableCreateString(String storageKey, Persistable p){
+    public static String getTableCreateString(String storageKey, Persistable p) {
         TableBuilder tableBuilder = new TableBuilder(storageKey);
         tableBuilder.addData(p);
         return tableBuilder.getTableCreateString();
     }
 
-    public static Pair<String, List<Object>> getTableInsertData(String storageKey, Persistable p){
+    public static Pair<String, List<Object>> getTableInsertData(String storageKey,
+                                                                Persistable p) {
         TableBuilder tableBuilder = new TableBuilder(storageKey);
         tableBuilder.addData(p);
         return tableBuilder.getTableInsertData(p);

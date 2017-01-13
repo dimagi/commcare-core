@@ -83,18 +83,16 @@ public class SqlHelper {
                                                                 String[] fields,
                                                                 String[] values,
                                                                 Persistable p) {
-        org.commcare.modern.database.TableBuilder mTableBuilder =
-                new org.commcare.modern.database.TableBuilder(storageKey);
-        mTableBuilder.addData(p);
-        Pair<String, String[]> mPair = DatabaseHelper.createWhere(fields, values, p);
+        TableBuilder tableBuilder = new TableBuilder(storageKey);
+        tableBuilder.addData(p);
+        Pair<String, String[]> pair = DatabaseHelper.createWhere(fields, values, p);
 
         try {
-
             String queryString =
-                    "SELECT * FROM " + storageKey + " WHERE " + mPair.first + ";";
+                    "SELECT * FROM " + storageKey + " WHERE " + pair.first + ";";
             PreparedStatement preparedStatement = c.prepareStatement(queryString);
-            for (int i = 0; i < mPair.second.length; i++) {
-                preparedStatement.setString(i + 1, mPair.second[i]);
+            for (int i = 0; i < pair.second.length; i++) {
+                preparedStatement.setString(i + 1, pair.second[i]);
             }
             return preparedStatement;
         } catch (SQLException e) {
@@ -103,7 +101,6 @@ public class SqlHelper {
     }
 
     public static int insertToTable(Connection c, String storageKey, Persistable p) {
-
         Pair<String, List<Object>> mPair = DatabaseHelper.getTableInsertData(storageKey, p);
         PreparedStatement preparedStatement = null;
 
@@ -139,7 +136,6 @@ public class SqlHelper {
                     throw new SQLException("Creating user failed, no ID obtained.");
                 }
             }
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
@@ -317,6 +313,4 @@ public class SqlHelper {
             }
         }
     }
-
-
 }
