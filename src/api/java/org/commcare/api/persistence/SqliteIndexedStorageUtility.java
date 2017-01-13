@@ -18,6 +18,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -74,6 +75,24 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
             }
             c.close();
         } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (c != null) {
+                    c.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void basicInsert(Map<String, String> contentVals) {
+        Connection c = null;
+        try {
+            c = getConnection();
+            SqlHelper.basicInsert(c, tableName, contentVals);
+        } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
         } finally {
             try {

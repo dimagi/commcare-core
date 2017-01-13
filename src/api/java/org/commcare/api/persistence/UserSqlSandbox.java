@@ -11,6 +11,8 @@ import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -91,24 +93,31 @@ public class UserSqlSandbox extends UserSandbox {
     public void setIndexedFixturePathBases(String fixtureName, String baseName,
                                            String childName) {
         String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
-        createFixturePathsTable(tableName);
+        SqliteIndexedStorageUtility<StorageIndexedTreeElementModel> sqlUtil =
+                createFixturePathsTable(tableName);
 
+        Map<String, String> contentVals = new HashMap<>();
+        contentVals.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_COL_BASE, baseName);
+        contentVals.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_COL_CHILD, childName);
+        contentVals.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_COL_NAME, fixtureName);
+
+        sqlUtil.basicInsert(contentVals);
     }
 
     /**
      * create 'fixture paths' table and an index over that table
      */
-    private void createFixturePathsTable(String tableName) {
+    private SqliteIndexedStorageUtility<StorageIndexedTreeElementModel> createFixturePathsTable(String tableName) {
         // NOTE PLM: this should maybe be done on server startup instead on
         // ever invocation
         SqliteIndexedStorageUtility<StorageIndexedTreeElementModel> sqlUtil =
                 new SqliteIndexedStorageUtility<>(username, tableName, path);
         String[] indexTableStatements = new String[]{
-                IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_TABLE_STMT,
+                IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_TABLE_STMT
                 // NOTE PLM: commenting out index creation below because
                 // it will crash if run multiple times. We should find a way to
                 // establish the index.
-                // IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEXING_STMT
+                // , IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEXING_STMT
         };
         sqlUtil.executeStatements(indexTableStatements);
     }
