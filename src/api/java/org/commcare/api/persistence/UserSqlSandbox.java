@@ -4,6 +4,7 @@ import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
@@ -71,10 +72,13 @@ public class UserSqlSandbox extends UserSandbox {
     public void setupIndexedFixtureStorage(String fixtureName,
                                            StorageIndexedTreeElementModel exampleEntry,
                                            Set<String> indices) {
-        // TODO PLM: delete table if it already exists
-        // TODO PLM: create indexes over table
         String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
-        new SqliteIndexedStorageUtility<>(exampleEntry, username, tableName, path);
+        SqliteIndexedStorageUtility<StorageIndexedTreeElementModel> sqlUtil =
+                new SqliteIndexedStorageUtility<>(username, tableName, path);
+
+        sqlUtil.rebuildTable(exampleEntry);
+
+        sqlUtil.executeStatements(DatabaseIndexingUtils.getIndexStatements(tableName, indices));
     }
 
     @Override

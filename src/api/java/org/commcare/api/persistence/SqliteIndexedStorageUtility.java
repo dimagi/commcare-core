@@ -34,7 +34,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
     private final String sandboxId;
     private final File databaseFolder;
 
-    private SqliteIndexedStorageUtility(String sandboxId, String tableName, String databasePath) {
+    public SqliteIndexedStorageUtility(String sandboxId, String tableName, String databasePath) {
         this.tableName = tableName;
         this.sandboxId = sandboxId;
         databaseFolder = new File(databasePath);
@@ -52,16 +52,37 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
         }
     }
 
-    public SqliteIndexedStorageUtility(T prototypeInstance, String sandboxId,
-                                       String tableName, String databasePath) {
-        this(sandboxId, tableName, databasePath);
+    public void rebuildTable(T prototypeInstance) {
         this.prototype = (Class<T>)prototypeInstance.getClass();
 
         try {
+            SqlHelper.dropTable(getConnection(), tableName);
             buildTableFromInstance(prototypeInstance);
-        } catch (ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void executeStatements(String[] statements) {
+        Connection c = null;
+        try {
+            c = getConnection();
+            for (String statement : statements) {
+                c.prepareStatement(statement).execute();
+            }
+            c.close();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (c != null) {
+                    c.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     private void buildTableFromInstance(T instance) throws ClassNotFoundException {
