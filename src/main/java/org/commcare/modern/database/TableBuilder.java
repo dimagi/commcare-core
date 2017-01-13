@@ -51,15 +51,15 @@ public class TableBuilder {
         cols.add(DatabaseHelper.ID_COL + " INTEGER PRIMARY KEY");
         rawCols.add(DatabaseHelper.ID_COL);
 
-        for(Field f : c.getDeclaredFields()) {
-            if(f.isAnnotationPresent(MetaField.class)) {
+        for (Field f : c.getDeclaredFields()) {
+            if (f.isAnnotationPresent(MetaField.class)) {
                 MetaField mf = f.getAnnotation(MetaField.class);
                 addMetaField(mf);
             }
         }
 
-        for(Method m : c.getDeclaredMethods()) {
-            if(m.isAnnotationPresent(MetaField.class)) {
+        for (Method m : c.getDeclaredMethods()) {
+            if (m.isAnnotationPresent(MetaField.class)) {
                 MetaField mf = m.getAnnotation(MetaField.class);
                 addMetaField(mf);
             }
@@ -69,7 +69,6 @@ public class TableBuilder {
         rawCols.add(DatabaseHelper.DATA_COL);
     }
 
-
     protected void addMetaField(MetaField mf) {
         String key = mf.value();
         String columnName = scrubName(key);
@@ -78,7 +77,7 @@ public class TableBuilder {
         columnDef = columnName;
 
         //Modifiers
-        if(unique.contains(columnName) || mf.unique()) {
+        if (unique.contains(columnName) || mf.unique()) {
             columnDef += " UNIQUE";
         }
         cols.add(columnDef);
@@ -95,11 +94,11 @@ public class TableBuilder {
         cols.add(DatabaseHelper.ID_COL + " INTEGER PRIMARY KEY");
         rawCols.add(DatabaseHelper.ID_COL);
 
-        if(p instanceof IMetaData) {
+        if (p instanceof IMetaData) {
             String[] keys = ((IMetaData)p).getMetaDataFields();
-            for(String key : keys) {
+            for (String key : keys) {
                 String columnName = scrubName(key);
-                if(!rawCols.contains(columnName)) {
+                if (!rawCols.contains(columnName)) {
                     rawCols.add(columnName);
                     String columnDef = columnName;
 
@@ -134,9 +133,9 @@ public class TableBuilder {
 
     public String getTableCreateString() {
         String built = "CREATE TABLE IF NOT EXISTS " + scrubName(name) + " (";
-        for(int i = 0 ; i < cols.size() ; ++i) {
+        for (int i = 0; i < cols.size(); ++i) {
             built += cols.elementAt(i);
-            if(i < cols.size() - 1) {
+            if (i < cols.size() - 1) {
                 built += ", ";
             }
         }
@@ -144,7 +143,7 @@ public class TableBuilder {
         return built;
     }
 
-    public Pair<String, List<Object>> getTableInsertData(Persistable p){
+    public Pair<String, List<Object>> getTableInsertData(Persistable p) {
         StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append("INSERT INTO ").append(scrubName(name)).append(" (");
@@ -152,21 +151,20 @@ public class TableBuilder {
 
         ArrayList<Object> params = new ArrayList<>();
 
-
-        for(int i = 0 ; i < rawCols.size() ; ++i) {
+        for (int i = 0; i < rawCols.size(); ++i) {
             stringBuilder.append(rawCols.elementAt(i));
-            if(i < rawCols.size() - 1) {
+            if (i < rawCols.size() - 1) {
                 stringBuilder.append(", ");
             }
         }
 
         stringBuilder.append(") VALUES (");
 
-        for(int i = 0 ; i < rawCols.size() ; ++i) {
+        for (int i = 0; i < rawCols.size(); ++i) {
             Object currentValue = contentValues.get(rawCols.elementAt(i));
             stringBuilder.append("?");
             params.add(currentValue);
-            if(i < rawCols.size() - 1) {
+            if (i < rawCols.size() - 1) {
                 stringBuilder.append(", ");
             }
         }
@@ -181,13 +179,13 @@ public class TableBuilder {
         return input.replace("-", "_");
     }
 
-    public static byte[] toBlob(Externalizable externalizable){
+    public static byte[] toBlob(Externalizable externalizable) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
             externalizable.writeExternal(new DataOutputStream(bos));
         } catch (IOException e) {
             throw new RuntimeException("Failed to serialize externalizable " + externalizable +
-                " for content values wth exception " + e);
+                    " for content values wth exception " + e);
         }
         return bos.toByteArray();
     }
