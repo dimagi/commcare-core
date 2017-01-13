@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class StorageBackedFixtureTest {
+public class IndexedFixtureTests {
     private MockUserDataSandbox sandbox;
 
     @Before
@@ -49,5 +49,11 @@ public class StorageBackedFixtureTest {
     public void errorOnSchemaAfterFixtureTest() throws XPathSyntaxException, UnfullfilledRequirementsException,
             XmlPullParserException, IOException, InvalidStructureException {
         ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/schema-after-indexed-fixture.xml"), sandbox, true);
+    }
+
+    @Test(expected = InvalidStructureException.class)
+    public void errorOnMaliciousSchemaTest() throws XPathSyntaxException, UnfullfilledRequirementsException,
+            XmlPullParserException, IOException, InvalidStructureException {
+        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/malicious-indexed-fixture.xml"), sandbox, true);
     }
 }

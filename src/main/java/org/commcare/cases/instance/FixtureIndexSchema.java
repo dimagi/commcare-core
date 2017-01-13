@@ -3,11 +3,13 @@ package org.commcare.cases.instance;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.xml.util.InvalidStructureException;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
+import java.util.regex.Pattern;
 
 /**
  * Tracks what attributes and elements are stored in indexed columns of an
@@ -19,18 +21,27 @@ public class FixtureIndexSchema {
     private final Set<String> indices = new HashSet<>();
     public final String fixtureName;
 
-    public FixtureIndexSchema(TreeElement schemaTree, String fixtureName) {
+    public FixtureIndexSchema(TreeElement schemaTree, String fixtureName)
+            throws InvalidStructureException {
         this.fixtureName = fixtureName;
 
         setupIndices(schemaTree.getChildrenWithName("index"));
     }
 
-    private void setupIndices(Vector<TreeElement> indexElements) {
+    private void setupIndices(Vector<TreeElement> indexElements) throws InvalidStructureException {
         for (TreeElement index : indexElements) {
             IAnswerData value = index.getValue();
             if (value != null) {
-                indices.add(value.uncast().getString());
+                String indexString = value.uncast().getString();
+                validateIndexValue(indexString);
+                indices.add(indexString);
             }
+        }
+    }
+
+    private static void validateIndexValue(String index) throws InvalidStructureException {
+        if (!Pattern.matches("^[a-zA-Z0-9,@_\\.-]+$", index)) {
+            throw new InvalidStructureException("Fixture schema contains an invalid index: '" + index + "'");
         }
     }
 
