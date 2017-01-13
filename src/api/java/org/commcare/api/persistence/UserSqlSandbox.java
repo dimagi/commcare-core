@@ -5,6 +5,7 @@ import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.commcare.modern.database.IndexedFixturePathsConstants;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
@@ -87,8 +88,29 @@ public class UserSqlSandbox extends UserSandbox {
     }
 
     @Override
-    public void setIndexedFixturePathBases(String fixtureName, String baseName, String childName) {
-        throw new RuntimeException("implement in similar fashion as AndroidSandbox implementation");
+    public void setIndexedFixturePathBases(String fixtureName, String baseName,
+                                           String childName) {
+        String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
+        createFixturePathsTable(tableName);
+
+    }
+
+    /**
+     * create 'fixture paths' table and an index over that table
+     */
+    private void createFixturePathsTable(String tableName) {
+        // NOTE PLM: this should maybe be done on server startup instead on
+        // ever invocation
+        SqliteIndexedStorageUtility<StorageIndexedTreeElementModel> sqlUtil =
+                new SqliteIndexedStorageUtility<>(username, tableName, path);
+        String[] indexTableStatements = new String[]{
+                IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_TABLE_STMT,
+                // NOTE PLM: commenting out index creation below because
+                // it will crash if run multiple times. We should find a way to
+                // establish the index.
+                // IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEXING_STMT
+        };
+        sqlUtil.executeStatements(indexTableStatements);
     }
 
     @Override

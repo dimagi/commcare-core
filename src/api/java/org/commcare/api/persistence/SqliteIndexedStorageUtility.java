@@ -27,14 +27,16 @@ import java.util.Vector;
  *
  * @author wspride
  */
-public class SqliteIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T>, Iterable<T> {
+public class SqliteIndexedStorageUtility<T extends Persistable>
+        implements IStorageUtilityIndexed<T>, Iterable<T> {
 
     private Class<T> prototype;
     private final String tableName;
     private final String sandboxId;
     private final File databaseFolder;
 
-    public SqliteIndexedStorageUtility(String sandboxId, String tableName, String databasePath) {
+    public SqliteIndexedStorageUtility(String sandboxId, String tableName,
+                                       String databasePath) {
         this.tableName = tableName;
         this.sandboxId = sandboxId;
         databaseFolder = new File(databasePath);
@@ -82,7 +84,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
                 e.printStackTrace();
             }
         }
-
     }
 
     private void buildTableFromInstance(T instance) throws ClassNotFoundException {
