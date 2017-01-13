@@ -69,9 +69,9 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
         return instanceAndCommitStatus.first;
     }
 
-    private static Pair<FormInstance, Boolean> setupInstance(IStorageUtilityIndexed<FormInstance> storage,
-                                                             TreeElement root, String fixtureId,
-                                                             String userId, boolean overwrite) {
+    protected static Pair<FormInstance, Boolean> setupInstance(IStorageUtilityIndexed<FormInstance> storage,
+                                                               TreeElement root, String fixtureId,
+                                                               String userId, boolean overwrite) {
         FormInstance instance = new FormInstance(root, fixtureId);
 
         //This is a terrible hack and clayton should feeel terrible about it

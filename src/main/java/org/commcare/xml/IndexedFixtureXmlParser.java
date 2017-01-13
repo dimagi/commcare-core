@@ -4,6 +4,8 @@ import org.commcare.cases.instance.FixtureIndexSchema;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.data.xml.TransactionParser;
+import org.commcare.modern.util.Pair;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -36,6 +38,7 @@ public class IndexedFixtureXmlParser extends TransactionParser<StorageIndexedTre
     private final UserSandbox sandbox;
     private final String fixtureName;
     private IStorageUtilityIndexed<StorageIndexedTreeElementModel> indexedFixtureStorage;
+    private IStorageUtilityIndexed<FormInstance> normalFixtureStorage;
 
     public IndexedFixtureXmlParser(KXmlParser parser, String fixtureName,
                                    FixtureIndexSchema schema, UserSandbox sandbox) {
@@ -67,6 +70,14 @@ public class IndexedFixtureXmlParser extends TransactionParser<StorageIndexedTre
             // only commit fixtures with bodies to storage
             TreeElement root = new TreeElementParser(parser, 0, fixtureId).parse();
             processRoot(root, fixtureId);
+
+            // commit whole instance to normal fixture storage to allow for
+            // migrations going forward, if ever needed
+            String userId = parser.getAttributeValue(null, "user_id");
+            Pair<FormInstance, Boolean> instanceAndCommitStatus =
+                    FixtureXmlParser.setupInstance(getNormalFixtureStorage(),
+                            root, fixtureId, userId, true);
+            commitToNormalStorage(instanceAndCommitStatus.first);
         }
 
         return null;
@@ -99,6 +110,15 @@ public class IndexedFixtureXmlParser extends TransactionParser<StorageIndexedTre
         }
     }
 
+    private void commitToNormalStorage(FormInstance instance) throws IOException {
+        try {
+            getNormalFixtureStorage().write(instance);
+        } catch (StorageFullException e) {
+            e.printStackTrace();
+            throw new IOException("Storage full while writing case!");
+        }
+    }
+
     /**
      * Get storage that stores fixture element entries as table rows
      */
@@ -108,6 +128,13 @@ public class IndexedFixtureXmlParser extends TransactionParser<StorageIndexedTre
             indexedFixtureStorage = sandbox.getIndexedFixtureStorage(fixtureName);
         }
         return indexedFixtureStorage;
+    }
+
+    private IStorageUtilityIndexed<FormInstance> getNormalFixtureStorage() {
+        if (normalFixtureStorage == null) {
+            normalFixtureStorage = sandbox.getUserFixtureStorage();
+        }
+        return normalFixtureStorage;
     }
 
     /**
