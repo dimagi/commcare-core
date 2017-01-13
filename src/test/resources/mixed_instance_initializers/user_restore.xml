@@ -17,11 +17,13 @@
             <item id="4">four</item>
         </list>
     </fixture>
-    <table-indices id="bike-list">
-        <index>@id</index>
-        <index>id</index>
-        <index>name,year</index>
-    </table-indices>
+    <schema id="bike-list">
+        <indices>
+            <index>@id</index>
+            <index>id</index>
+            <index>name,year</index>
+        </indices>
+    </schema>
     <fixture indexed="true" id="bike-list" user_id="test_uuid">
         <bikes>
             <bike id="1">

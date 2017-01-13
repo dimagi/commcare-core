@@ -16,15 +16,17 @@ import java.util.Set;
 /**
  * Parses fixture index schemas into an object representation:
  *
- * <table-indices id="some-fixture-name">
+ * <schema id="some-fixture-name">
+ *   <indices>
  *     <index>some-index</index>
  *     <index>name,some-index</index>
- * </table-indices>
+ *   </indices>
+ * </schema>
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class FixtureIndexSchemaParser extends TransactionParser<FixtureIndexSchema> {
-    public final static String INDICE_SCHEMA = "table-indices";
+    public final static String INDICE_SCHEMA = "schema";
 
     private final Map<String, FixtureIndexSchema> fixtureSchemas;
     private final Set<String> processedFixtures;
@@ -57,7 +59,7 @@ public class FixtureIndexSchemaParser extends TransactionParser<FixtureIndexSche
         }
 
         TreeElement root = new TreeElementParser(parser, 0, fixtureId).parse();
-        FixtureIndexSchema schema = new FixtureIndexSchema(root);
+        FixtureIndexSchema schema = new FixtureIndexSchema(root.getChild("indices", 0), fixtureId);
         commit(schema);
         return schema;
     }

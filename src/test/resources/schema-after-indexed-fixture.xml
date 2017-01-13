@@ -32,7 +32,9 @@
             </product>
         </products>
     </fixture>
-    <table-indices id="commtrack:products">
-        <index>@id</index>
-    </table-indices>
+    <schema id="commtrack:products">
+        <indices>
+            <index>@id</index>
+        </indices>
+    </schema>
 </OpenRosaResponse>

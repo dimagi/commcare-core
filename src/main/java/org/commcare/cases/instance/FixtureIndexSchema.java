@@ -19,8 +19,8 @@ public class FixtureIndexSchema {
     private final Set<String> indices = new HashSet<>();
     public final String fixtureName;
 
-    public FixtureIndexSchema(TreeElement schemaTree) {
-        this.fixtureName = schemaTree.getAttributeValue(null, "id");
+    public FixtureIndexSchema(TreeElement schemaTree, String fixtureName) {
+        this.fixtureName = fixtureName;
 
         setupIndices(schemaTree.getChildrenWithName("index"));
     }
