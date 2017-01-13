@@ -238,6 +238,9 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
                     String key = (String)keys.nextElement();
 
                     Object value = m.getMetaData(key);
+                    if (value == null) {
+                        continue;
+                    }
 
                     Hashtable<Object, Vector<Integer>> records = meta.get(key);
 

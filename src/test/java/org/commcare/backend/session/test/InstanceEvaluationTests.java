@@ -59,5 +59,7 @@ public class InstanceEvaluationTests {
         fec.stepToNextEvent();
         fec.stepToNextEvent();
         assertEquals("Huffy", fec.getQuestionPrompts()[0].getQuestionText());
+        fec.stepToNextEvent();
+        assertEquals("three", fec.getQuestionPrompts()[0].getQuestionText());
     }
 }

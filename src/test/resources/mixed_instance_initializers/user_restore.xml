@@ -20,6 +20,7 @@
     <table-indices id="bike-list">
         <index>@id</index>
         <index>id</index>
+        <index>name,year</index>
     </table-indices>
     <fixture indexed="true" id="bike-list" user_id="test_uuid">
         <bikes>
@@ -37,6 +38,10 @@
                 <name>Schwin</name>
                 <year>2007</year>
                 <id>three</id>
+            </bike>
+            <bike id="nameless">
+                <year>2017</year>
+                <id>nameless</id>
             </bike>
         </bikes>
     </fixture>

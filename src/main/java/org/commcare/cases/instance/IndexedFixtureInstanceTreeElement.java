@@ -12,7 +12,8 @@ import org.javarosa.xpath.expr.XPathPathExpr;
 import java.util.Hashtable;
 
 /**
- * The root element for the a indexed fixture data instance: instance('some-indexed-fixture').
+ * The root element for the an indexed fixture data instance:
+ * instance('some-indexed-fixture')/fixture-root
  * All children are nodes in a database table associated with the fixture.
  *
  * @author Phillip Mates (pmates@dimagi.com)
@@ -60,7 +61,7 @@ public class IndexedFixtureInstanceTreeElement
 
             StorageIndexedTreeElementModel template = getModelTemplate();
             for (String fieldName : template.getMetaDataFields()) {
-                String entry = StorageIndexedTreeElementModel.getEntryFromCol(fieldName);
+                String entry = StorageIndexedTreeElementModel.getElementOrAttributeFromSqlColumnName(fieldName);
                 storageIndexMap.put(XPathReference.getPathExpr(entry), fieldName);
             }
         }

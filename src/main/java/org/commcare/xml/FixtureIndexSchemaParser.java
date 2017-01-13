@@ -11,6 +11,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Parses fixture index schemas into an object representation:
@@ -26,10 +27,14 @@ public class FixtureIndexSchemaParser extends TransactionParser<FixtureIndexSche
     public final static String INDICE_SCHEMA = "table-indices";
 
     private final Map<String, FixtureIndexSchema> fixtureSchemas;
+    private final Set<String> processedFixtures;
 
-    public FixtureIndexSchemaParser(KXmlParser parser, Map<String, FixtureIndexSchema> fixtureSchemas) {
+    public FixtureIndexSchemaParser(KXmlParser parser,
+                                    Map<String, FixtureIndexSchema> fixtureSchemas,
+                                    Set<String> processedFixtures) {
         super(parser);
         this.fixtureSchemas = fixtureSchemas;
+        this.processedFixtures = processedFixtures;
     }
 
     @Override
@@ -44,6 +49,11 @@ public class FixtureIndexSchemaParser extends TransactionParser<FixtureIndexSche
         String fixtureId = parser.getAttributeValue(null, "id");
         if (fixtureId == null) {
             throw new InvalidStructureException(INDICE_SCHEMA + " is lacking an 'id' attribute", parser);
+        }
+
+        if (processedFixtures.contains(fixtureId)) {
+            throw new InvalidStructureException(INDICE_SCHEMA + " for '" + fixtureId
+                    + "' appeared after fixture in the user restore", parser);
         }
 
         TreeElement root = new TreeElementParser(parser, 0, fixtureId).parse();

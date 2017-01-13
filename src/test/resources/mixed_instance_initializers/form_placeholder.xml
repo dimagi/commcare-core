@@ -13,6 +13,9 @@
 
                     <something/>
                     <bike-name/>
+
+                    <another-thing/>
+                    <bike-id/>
                 </data>
             </instance>
             <instance id="data-list-key-two" src="jr://fixture/data-list"/>
@@ -22,6 +25,8 @@
                       value="instance('data-list-key-two')/list/item[@id ='1' and true()]"/>
             <setvalue event="xforms-ready" ref="/data/bike-name"
                       value="instance('bikey-bikes')/bikes/bike[@id ='1']/name"/>
+            <setvalue event="xforms-ready" ref="/data/bike-id"
+                      value="instance('bikey-bikes')/bikes/bike[name ='Schwin']/id"/>
         </model>
     </h:head>
     <h:body>
@@ -33,6 +38,11 @@
         <input ref="/data/something">
             <label>
                 <output ref="/data/bike-name"/>
+            </label>
+        </input>
+        <input ref="/data/another-thing">
+            <label>
+                <output ref="/data/bike-id"/>
             </label>
         </input>
     </h:body>

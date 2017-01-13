@@ -20,7 +20,9 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The CommCare Transaction Parser Factory (whew!) wraps all of the current
@@ -50,6 +52,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     protected TransactionParserFactory stockParser;
     protected TransactionParserFactory fixtureParser;
     private final Map<String, FixtureIndexSchema> fixtureSchemas = new HashMap<>();
+    private final Set<String> processedFixtures = new HashSet<>();
 
     protected final UserSandbox sandbox;
 
@@ -86,15 +89,16 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             req();
             return userParser.getParser(parser);
         } else if (FixtureIndexSchemaParser.INDICE_SCHEMA.equalsIgnoreCase(name)) {
-            return new FixtureIndexSchemaParser(parser, fixtureSchemas);
+            return new FixtureIndexSchemaParser(parser, fixtureSchemas, processedFixtures);
         } else if ("fixture".equalsIgnoreCase(name)) {
             String id = parser.getAttributeValue(null, "id");
             String isIndexedAttr = parser.getAttributeValue(null, "indexed");
             boolean isIndexed = "true".equals(isIndexedAttr);
             req();
+            processedFixtures.add(id);
             if (isIndexed) {
                 FixtureIndexSchema schema = fixtureSchemas.get(id);
-                return buildIndexedFixtureParser(parser, id, schema);
+                return new IndexedFixtureXmlParser(parser, id, schema, sandbox);
             } else {
                 return fixtureParser.getParser(parser);
             }
@@ -172,12 +176,6 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                 return created;
             }
         };
-    }
-
-    public IndexedFixtureXmlParser buildIndexedFixtureParser(KXmlParser parser,
-                                                             String fixtureName,
-                                                             FixtureIndexSchema schema) {
-        return new IndexedFixtureXmlParser(parser, fixtureName, schema, sandbox);
     }
 
     public void initCaseParser() {

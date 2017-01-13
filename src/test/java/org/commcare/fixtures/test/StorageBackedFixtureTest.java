@@ -28,10 +28,16 @@ public class StorageBackedFixtureTest {
     @Test
     public void queryIndexedLookup() throws XPathSyntaxException, UnfullfilledRequirementsException,
             XmlPullParserException, IOException, InvalidStructureException {
-        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/indexed-fixture.xml"), sandbox);
+        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/indexed-fixture.xml"), sandbox);
 
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(sandbox, "products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);
         CaseTestUtils.xpathEvalAndAssert(ec, "instance('products')/products/product[@id = 'a6d16035b98f6f962a6538bd927cefb3']/name", "CU");
+    }
+
+    @Test(expected = InvalidStructureException.class)
+    public void errorOnSchemaAfterFixtureTest() throws XPathSyntaxException, UnfullfilledRequirementsException,
+            XmlPullParserException, IOException, InvalidStructureException {
+        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/schema-after-indexed-fixture.xml"), sandbox, true);
     }
 }

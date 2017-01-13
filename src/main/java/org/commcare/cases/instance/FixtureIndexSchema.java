@@ -53,11 +53,11 @@ public class FixtureIndexSchema {
             for (String entry : index.split(",")) {
                 compoundIndex.append(prefix);
                 prefix = ",";
-                compoundIndex.append(StorageIndexedTreeElementModel.getColFromEntry(entry));
+                compoundIndex.append(StorageIndexedTreeElementModel.getSqlColumnNameFromElementOrAttribute(entry));
             }
             return compoundIndex.toString();
         } else {
-            return StorageIndexedTreeElementModel.getColFromEntry(index);
+            return StorageIndexedTreeElementModel.getSqlColumnNameFromElementOrAttribute(index);
         }
     }
 
