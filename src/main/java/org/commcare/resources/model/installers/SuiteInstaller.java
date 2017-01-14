@@ -8,7 +8,7 @@ import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
-import org.commcare.util.CommCareInstance;
+import org.commcare.util.CommCarePlatform;
 import org.commcare.xml.SuiteParser;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localization;
@@ -28,7 +28,7 @@ import java.util.Vector;
 public class SuiteInstaller extends CacheInstaller<Suite> {
 
     @Override
-    public boolean initialize(CommCareInstance instance, boolean isUpgrade) {
+    public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
         instance.registerSuite(storage().read(cacheLocation));
         return true;
     }
@@ -45,7 +45,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
 
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
-                           ResourceTable table, CommCareInstance instance,
+                           ResourceTable table, CommCarePlatform instance,
                            boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_CACHE) {
             //If it's in the cache, we should just get it from there
