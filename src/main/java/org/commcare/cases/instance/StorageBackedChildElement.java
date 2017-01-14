@@ -13,6 +13,12 @@ import org.javarosa.xpath.expr.XPathExpression;
 import java.util.Vector;
 
 /**
+ * Semi-structured TreeElement for direct child of an external data instance
+ * that loads its data from a database.
+ *
+ * For example represents 'case' in the path "instance('casedb')/casedb/case"
+ *
+ * @author ctsims
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public abstract class StorageBackedChildElement<Model extends Externalizable>
@@ -47,7 +53,6 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
 
     @Override
     public boolean isChildable() {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -135,7 +140,9 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
     }
 
     @Override
-    public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
+    public Vector<TreeReference> tryBatchChildFetch(String name, int mult,
+                                                    Vector<XPathExpression> predicates,
+                                                    EvaluationContext evalContext) {
         //TODO: We should be able to catch the index case here?
         return null;
     }
@@ -152,7 +159,6 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
 
     @Override
     public int getMult() {
-        // TODO Auto-generated method stub
         return mult;
     }
 
@@ -163,13 +169,11 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
 
     @Override
     public IAnswerData getValue() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public int getDataType() {
-        // TODO Auto-generated method stub
         return 0;
     }
 

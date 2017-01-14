@@ -11,8 +11,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Set of Sql utility methods for clients running modern, non-Android Java (where prepared
@@ -83,18 +85,16 @@ public class SqlHelper {
                                                                 String[] fields,
                                                                 String[] values,
                                                                 Persistable p) {
-        org.commcare.modern.database.TableBuilder mTableBuilder =
-                new org.commcare.modern.database.TableBuilder(storageKey);
-        mTableBuilder.addData(p);
-        Pair<String, String[]> mPair = DatabaseHelper.createWhere(fields, values, p);
+        TableBuilder tableBuilder = new TableBuilder(storageKey);
+        tableBuilder.addData(p);
+        Pair<String, String[]> pair = DatabaseHelper.createWhere(fields, values, p);
 
         try {
-
             String queryString =
-                    "SELECT * FROM " + storageKey + " WHERE " + mPair.first + ";";
+                    "SELECT * FROM " + storageKey + " WHERE " + pair.first + ";";
             PreparedStatement preparedStatement = c.prepareStatement(queryString);
-            for (int i = 0; i < mPair.second.length; i++) {
-                preparedStatement.setString(i + 1, mPair.second[i]);
+            for (int i = 0; i < pair.second.length; i++) {
+                preparedStatement.setString(i + 1, pair.second[i]);
             }
             return preparedStatement;
         } catch (SQLException e) {
@@ -102,8 +102,55 @@ public class SqlHelper {
         }
     }
 
-    public static int insertToTable(Connection c, String storageKey, Persistable p) {
+    public static void basicInsert(Connection c, String storageKey,
+                                   Map<String, String> contentVals) {
+        PreparedStatement preparedStatement = null;
+        Pair<List<String>, String> valsAndInsertStatement =
+                buildInsertStatement(storageKey, contentVals);
+        try {
+            preparedStatement = c.prepareStatement(valsAndInsertStatement.second);
+            int i = 1;
+            for (String val : valsAndInsertStatement.first) {
+                preparedStatement.setString(i++, val);
+            }
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
+    private static Pair<List<String>, String> buildInsertStatement(String storageKey,
+                                                                   Map<String, String> contentVals) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("INSERT INTO ").append(storageKey).append(" (");
+        List<String> values = new ArrayList<>();
+        String prefix = "";
+        for (String key : contentVals.keySet()) {
+            stringBuilder.append(prefix);
+            prefix = ",";
+            stringBuilder.append(key);
+            values.add(contentVals.get(key));
+        }
+        stringBuilder.append(") VALUES (");
+        prefix = "";
+        for (int i = 0; i <= values.size(); i++) {
+            stringBuilder.append(prefix);
+            prefix = ",";
+            stringBuilder.append("?");
+        }
+        stringBuilder.append(");");
+        return Pair.create(values, stringBuilder.toString());
+    }
+
+    public static int insertToTable(Connection c, String storageKey, Persistable p) {
         Pair<String, List<Object>> mPair = DatabaseHelper.getTableInsertData(storageKey, p);
         PreparedStatement preparedStatement = null;
 
@@ -113,15 +160,15 @@ public class SqlHelper {
                 Object obj = mPair.second.get(i);
 
                 if (obj instanceof String) {
-                    preparedStatement.setString(i + 1, (String) obj);
+                    preparedStatement.setString(i + 1, (String)obj);
                 } else if (obj instanceof Blob) {
-                    preparedStatement.setBlob(i + 1, (Blob) obj);
+                    preparedStatement.setBlob(i + 1, (Blob)obj);
                 } else if (obj instanceof Integer) {
-                    preparedStatement.setInt(i + 1, (Integer) obj);
+                    preparedStatement.setInt(i + 1, (Integer)obj);
                 } else if (obj instanceof Long) {
-                    preparedStatement.setLong(i + 1, (Long) obj);
+                    preparedStatement.setLong(i + 1, (Long)obj);
                 } else if (obj instanceof byte[]) {
-                    preparedStatement.setBinaryStream(i + 1, new ByteArrayInputStream((byte[]) obj), ((byte[]) obj).length);
+                    preparedStatement.setBinaryStream(i + 1, new ByteArrayInputStream((byte[])obj), ((byte[])obj).length);
                 }
             }
             int affectedRows = preparedStatement.executeUpdate();
@@ -139,7 +186,6 @@ public class SqlHelper {
                     throw new SQLException("Creating user failed, no ID obtained.");
                 }
             }
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
@@ -247,15 +293,15 @@ public class SqlHelper {
         int i = 2;
         for (Object obj : values) {
             if (obj instanceof String) {
-                preparedStatement.setString(i, (String) obj);
+                preparedStatement.setString(i, (String)obj);
             } else if (obj instanceof Blob) {
-                preparedStatement.setBlob(i, (Blob) obj);
+                preparedStatement.setBlob(i, (Blob)obj);
             } else if (obj instanceof Integer) {
-                preparedStatement.setInt(i, (Integer) obj);
+                preparedStatement.setInt(i, (Integer)obj);
             } else if (obj instanceof Long) {
-                preparedStatement.setLong(i, (Long) obj);
+                preparedStatement.setLong(i, (Long)obj);
             } else if (obj instanceof byte[]) {
-                preparedStatement.setBinaryStream(i, new ByteArrayInputStream((byte[]) obj), ((byte[]) obj).length);
+                preparedStatement.setBinaryStream(i, new ByteArrayInputStream((byte[])obj), ((byte[])obj).length);
             } else if (obj == null) {
                 preparedStatement.setNull(i, 0);
             }
@@ -317,6 +363,4 @@ public class SqlHelper {
             }
         }
     }
-
-
 }

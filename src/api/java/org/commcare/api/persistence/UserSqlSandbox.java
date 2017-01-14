@@ -2,9 +2,18 @@ package org.commcare.api.persistence;
 
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
+import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.commcare.modern.database.IndexedFixturePathsConstants;
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A sandbox for user data using SqliteIndexedStorageUtility. Sandbox is per-User
@@ -17,6 +26,7 @@ public class UserSqlSandbox extends UserSandbox {
     private final SqliteIndexedStorageUtility<User> userStorage;
     private final SqliteIndexedStorageUtility<FormInstance> userFixtureStorage;
     private final SqliteIndexedStorageUtility<FormInstance> appFixtureStorage;
+    private final String username, path;
     private User user = null;
     public static final String DEFAULT_DATBASE_PATH = "dbs";
 
@@ -25,6 +35,9 @@ public class UserSqlSandbox extends UserSandbox {
      * factory.
      */
     public UserSqlSandbox(String username, String path) {
+        this.username = username;
+        this.path = path;
+
         //we can't name this table "Case" becase that's reserved by sqlite
         caseStorage = new SqliteIndexedStorageUtility<>(Case.class, username, "CCCase", path);
         ledgerStorage = new SqliteIndexedStorageUtility<>(Ledger.class, username, Ledger.STORAGE_KEY, path);
@@ -50,6 +63,65 @@ public class UserSqlSandbox extends UserSandbox {
     @Override
     public SqliteIndexedStorageUtility<User> getUserStorage() {
         return userStorage;
+    }
+
+    @Override
+    public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getIndexedFixtureStorage(String fixtureName) {
+        String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
+        return new SqliteIndexedStorageUtility<>(StorageIndexedTreeElementModel.class, username, tableName, path);
+    }
+
+    @Override
+    public void setupIndexedFixtureStorage(String fixtureName,
+                                           StorageIndexedTreeElementModel exampleEntry,
+                                           Set<String> indices) {
+        String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
+        SqliteIndexedStorageUtility<StorageIndexedTreeElementModel> sqlUtil =
+                new SqliteIndexedStorageUtility<>(username, tableName, path);
+
+        sqlUtil.rebuildTable(exampleEntry);
+
+        sqlUtil.executeStatements(DatabaseIndexingUtils.getIndexStatements(tableName, indices));
+    }
+
+    @Override
+    public Pair<String, String> getIndexedFixturePathBases(String fixtureName) {
+        throw new RuntimeException("implement in similar fashion as AndroidSandbox implementation");
+    }
+
+    @Override
+    public void setIndexedFixturePathBases(String fixtureName, String baseName,
+                                           String childName) {
+        String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
+        SqliteIndexedStorageUtility<StorageIndexedTreeElementModel> sqlUtil =
+                createFixturePathsTable(tableName);
+
+        Map<String, String> contentVals = new HashMap<>();
+        contentVals.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_BASE, baseName);
+        contentVals.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_CHILD, childName);
+        contentVals.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_NAME, fixtureName);
+
+        sqlUtil.basicInsert(contentVals);
+    }
+
+    /**
+     * create 'fixture paths' table and an index over that table
+     */
+    private SqliteIndexedStorageUtility<StorageIndexedTreeElementModel> createFixturePathsTable(String tableName) {
+        // NOTE PLM: this should maybe be done on server startup instead on
+        // ever invocation
+        SqliteIndexedStorageUtility<StorageIndexedTreeElementModel> sqlUtil =
+                new SqliteIndexedStorageUtility<>(username, tableName, path);
+        String[] indexTableStatements = new String[]{
+                IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE_STMT
+                // NOTE PLM: commenting out index creation below because
+                // it will crash if run multiple times. We should find a way to
+                // establish the index.
+                // , IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEXING_STMT
+        };
+        sqlUtil.executeStatements(indexTableStatements);
+
+        return sqlUtil;
     }
 
     @Override

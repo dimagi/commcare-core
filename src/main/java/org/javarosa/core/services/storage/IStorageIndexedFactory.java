@@ -1,5 +1,5 @@
 package org.javarosa.core.services.storage;
 
-public interface IStorageIndexedFactory extends IStorageFactory {
+public interface IStorageIndexedFactory {
     IStorageUtilityIndexed newStorage(String name, Class type);
 }

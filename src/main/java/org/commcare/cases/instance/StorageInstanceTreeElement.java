@@ -76,7 +76,7 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
     public T getChild(String name, int multiplicity) {
         if ((multiplicity == TreeReference.INDEX_TEMPLATE) &&
                 childName.equals(name)) {
-            return getChildTemplate(this);
+            return getChildTemplate();
         }
 
         //name is always "case", so multiplicities are the only relevant component here
@@ -85,7 +85,7 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
             if (elements.isEmpty()) {
                 //If we have no cases, we still need to be able to return a template element so as to not
                 //break xpath evaluation
-                return getChildTemplate(this);
+                return getChildTemplate();
             }
             return elements.elementAt(multiplicity);
         }
@@ -272,5 +272,9 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
         return storage.read(recordId);
     }
 
-    protected abstract T getChildTemplate(StorageInstanceTreeElement parent);
+    protected Model getModelTemplate() {
+        return storage.read(1);
+    }
+
+    protected abstract T getChildTemplate();
 }

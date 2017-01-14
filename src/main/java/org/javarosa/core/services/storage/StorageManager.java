@@ -16,7 +16,7 @@ import java.util.Hashtable;
 public class StorageManager {
 
     private static final Hashtable<String, IStorageUtility> storageRegistry = new Hashtable<>();
-    private static IStorageFactory storageFactory;
+    private static IStorageIndexedFactory storageFactory;
 
     /**
      * Attempts to set the storage factory for the current environment. Will fail silently
@@ -24,7 +24,7 @@ public class StorageManager {
      *
      * @param fact An available storage factory.
      */
-    public static void setStorageFactory(IStorageFactory fact) {
+    public static void setStorageFactory(IStorageIndexedFactory fact) {
         StorageManager.setStorageFactory(fact, false);
     }
 
@@ -36,7 +36,7 @@ public class StorageManager {
      * @param fact     An available storage factory.
      * @param mustWork true if it is intolerable for another storage factory to have been set. False otherwise
      */
-    public static void setStorageFactory(IStorageFactory fact, boolean mustWork) {
+    public static void setStorageFactory(IStorageIndexedFactory fact, boolean mustWork) {
         if (storageFactory == null) {
             storageFactory = fact;
         } else {

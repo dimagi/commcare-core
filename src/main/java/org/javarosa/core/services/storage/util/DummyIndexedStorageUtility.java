@@ -26,22 +26,25 @@ import java.util.Vector;
  */
 public class DummyIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T> {
 
-    private final Hashtable<String, Hashtable<Object, Vector<Integer>>> meta;
-    private final Hashtable<Integer, T> data;
-    private int curCount;
+    private final Hashtable<String, Hashtable<Object, Vector<Integer>>> meta = new Hashtable<>();
+    private final Hashtable<Integer, T> data = new Hashtable<>();
+    private int curCount = 0;
     private final Class<T> prototype;
     private final PrototypeFactory mFactory;
 
     public DummyIndexedStorageUtility(Class<T> prototype, PrototypeFactory factory) {
-        meta = new Hashtable<>();
-        data = new Hashtable<>();
-        curCount = 0;
         this.prototype = prototype;
         this.mFactory = factory;
-        initMeta();
+        initMetaFromClass();
     }
 
-    private void initMeta() {
+    public DummyIndexedStorageUtility(T instance, PrototypeFactory factory) {
+        this.prototype = (Class<T>)instance.getClass();
+        this.mFactory = factory;
+        initMetaFromInstance(instance);
+    }
+
+    private void initMetaFromClass() {
         Persistable p;
         try {
             p = prototype.newInstance();
@@ -51,6 +54,10 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
             throw new RuntimeException("Couldn't create a serializable class for storage!" + prototype.getName());
         }
 
+        initMetaFromInstance(p);
+    }
+
+    private void initMetaFromInstance(Persistable p) {
         if(!(p instanceof IMetaData)) {
             return;
         }
@@ -96,7 +103,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     public int add(T e) {
         data.put(DataUtil.integer(curCount), e);
 
-        //This is not a legit pair of operations;
+        // This is not a legit pair of operations;
         curCount++;
 
         syncMeta();
@@ -104,8 +111,8 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         return curCount - 1;
     }
 
+    @Override
     public void close() {
-        // TODO Auto-generated method stub
     }
 
     @Override
@@ -115,7 +122,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 
     @Override
     public Object getAccessLock() {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -173,9 +179,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     @Override
     public void removeAll() {
         data.clear();
-
-        meta.clear();
-        initMeta();
     }
 
     @Override
@@ -221,19 +224,23 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     private void syncMeta() {
-        meta.clear();
-        this.initMeta();
+        for (Hashtable<Object, Vector<Integer>> metaEntry : meta.values()) {
+            metaEntry.clear();
+        }
+
         for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
             Integer i = (Integer)en.nextElement();
             Externalizable e = data.get(i);
 
             if (e instanceof IMetaData) {
-
                 IMetaData m = (IMetaData)e;
                 for (Enumeration keys = meta.keys(); keys.hasMoreElements(); ) {
                     String key = (String)keys.nextElement();
 
                     Object value = m.getMetaData(key);
+                    if (value == null) {
+                        continue;
+                    }
 
                     Hashtable<Object, Vector<Integer>> records = meta.get(key);
 
@@ -242,7 +249,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
                     }
                     Vector<Integer> indices = records.get(value);
                     if (!indices.contains(i)) {
-                        records.get(value).addElement(i);
+                        indices.add(i);
                     }
                 }
             }

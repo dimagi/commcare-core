@@ -1,21 +1,49 @@
-<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
-	<h:head>
-		<h:title>Placeholder Form</h:title>
-		<model>
-			<instance>
-				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://commcarehq.org/test/placeholder" uiVersion="1" version="1" name="Placeholder">
-					<item/>
-					<value/>
-				</data>
-			</instance>
-			<instance id="data-list-key-two" src="jr://fixture/data-list"/>
+<h:html xmlns="http://www.w3.org/2002/xforms" xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:jr="http://openrosa.org/javarosa" xmlns:orx="http://openrosa.org/jr/xforms"
+        xmlns:vellum="http://commcarehq.org/xforms/vellum" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <h:head>
+        <h:title>Placeholder Form</h:title>
+        <model>
+            <instance>
+                <data name="Placeholder"
+                      uiVersion="1" version="1" xmlns="http://commcarehq.org/test/placeholder"
+                      xmlns:jrm="http://dev.commcarehq.org/jr/xforms">
+                    <item/>
+                    <value/>
 
-			<setvalue event="xforms-ready" ref="/data/value" value="instance('data-list-key-two')/list/item[@id ='1' and true()]"/>
-		</model>
-	</h:head>
-	<h:body>
-		<input ref="/data/item">
-			<label><output ref="/data/value"/></label>
-		</input>
-	</h:body>
+                    <something/>
+                    <bike-name/>
+
+                    <another-thing/>
+                    <bike-id/>
+                </data>
+            </instance>
+            <instance id="data-list-key-two" src="jr://fixture/data-list"/>
+            <instance id="bikey-bikes" src="jr://fixture/bike-list"/>
+
+            <setvalue event="xforms-ready" ref="/data/value"
+                      value="instance('data-list-key-two')/list/item[@id ='1' and true()]"/>
+            <setvalue event="xforms-ready" ref="/data/bike-name"
+                      value="instance('bikey-bikes')/bikes/bike[@id ='1']/name"/>
+            <setvalue event="xforms-ready" ref="/data/bike-id"
+                      value="instance('bikey-bikes')/bikes/bike[name ='Schwin']/id"/>
+        </model>
+    </h:head>
+    <h:body>
+        <input ref="/data/item">
+            <label>
+                <output ref="/data/value"/>
+            </label>
+        </input>
+        <input ref="/data/something">
+            <label>
+                <output ref="/data/bike-name"/>
+            </label>
+        </input>
+        <input ref="/data/another-thing">
+            <label>
+                <output ref="/data/bike-id"/>
+            </label>
+        </input>
+    </h:body>
 </h:html>

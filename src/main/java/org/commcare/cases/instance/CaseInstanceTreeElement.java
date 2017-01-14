@@ -38,7 +38,7 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<Case, Ca
     }
 
     @Override
-    protected CaseChildElement getChildTemplate(StorageInstanceTreeElement parent) {
+    protected CaseChildElement getChildTemplate() {
         return CaseChildElement.buildCaseChildTemplate(this);
     }
 
