@@ -228,4 +228,8 @@ public class EntityScreen extends CompoundScreenHost {
     public TreeReference resolveTreeReference(String reference) {
         return referenceMap.get(reference);
     }
+
+    public EvaluationContext getEvalContext() {
+        return evalContext;
+    }
 }
