@@ -1,12 +1,15 @@
 package org.commcare.core.parse;
 
+import org.commcare.cases.instance.FixtureIndexSchema;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
+import org.commcare.xml.FixtureIndexSchemaParser;
 import org.commcare.xml.FixtureXmlParser;
+import org.commcare.xml.IndexedFixtureXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -16,6 +19,10 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The CommCare Transaction Parser Factory (whew!) wraps all of the current
@@ -37,7 +44,6 @@ import java.io.IOException;
  *
  * @author ctsims
  * @author wspride
- *
  */
 public class CommCareTransactionParserFactory implements TransactionParserFactory {
 
@@ -45,10 +51,12 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     protected TransactionParserFactory caseParser;
     protected TransactionParserFactory stockParser;
     protected TransactionParserFactory fixtureParser;
+    private final Map<String, FixtureIndexSchema> fixtureSchemas = new HashMap<>();
+    private final Set<String> processedFixtures = new HashSet<>();
 
     protected final UserSandbox sandbox;
 
-    int requests = 0;
+    private int requests = 0;
 
     public CommCareTransactionParserFactory(UserSandbox sandbox) {
         this.sandbox = sandbox;
@@ -80,20 +88,32 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             }
             req();
             return userParser.getParser(parser);
+        } else if (FixtureIndexSchemaParser.INDICE_SCHEMA.equalsIgnoreCase(name)) {
+            return new FixtureIndexSchemaParser(parser, fixtureSchemas, processedFixtures);
         } else if ("fixture".equalsIgnoreCase(name)) {
+            String id = parser.getAttributeValue(null, "id");
+            String isIndexedAttr = parser.getAttributeValue(null, "indexed");
+            boolean isIndexed = "true".equals(isIndexedAttr);
             req();
-            return fixtureParser.getParser(parser);
+            processedFixtures.add(id);
+            if (isIndexed) {
+                FixtureIndexSchema schema = fixtureSchemas.get(id);
+                return new IndexedFixtureXmlParser(parser, id, schema, sandbox);
+            } else {
+                return fixtureParser.getParser(parser);
+            }
         } else if ("sync".equalsIgnoreCase(name) &&
                 "http://commcarehq.org/sync".equals(namespace)) {
             return new TransactionParser<String>(parser) {
 
                 @Override
-                public void commit(String parsed) throws IOException {}
+                public void commit(String parsed) throws IOException {
+                }
 
                 @Override
                 public String parse() throws InvalidStructureException,
-                       IOException, XmlPullParserException,
-                       UnfullfilledRequirementsException {
+                        IOException, XmlPullParserException,
+                        UnfullfilledRequirementsException {
                     this.checkNode("sync");
                     this.nextTag("restore_id");
                     String syncToken = parser.nextText();
@@ -115,7 +135,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     }
 
     public void reportProgress(int total) {
-        //overwritten in ODK
+        // Overridden at the android level
     }
 
     void initUserParser() {
@@ -132,7 +152,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             }
         };
     }
-    
+
     public void initFixtureParser() {
         fixtureParser = new TransactionParserFactory() {
             FixtureXmlParser created = null;
@@ -141,7 +161,6 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             public TransactionParser getParser(KXmlParser parser) {
                 if (created == null) {
                     created = new FixtureXmlParser(parser) {
-                        //TODO: store these on the file system instead of in DB?
                         private IStorageUtilityIndexed<FormInstance> fixtureStorage;
 
                         @Override

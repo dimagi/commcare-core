@@ -86,8 +86,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                                               Vector<String> keysToFetch,
                                               Vector<Object> valuesToFetch) {
         predicate:
-        for (int i = 0; i < predicates.size(); ++i) {
-            XPathExpression xpe = predicates.elementAt(i);
+        for (XPathExpression xpe : predicates) {
             //what we want here is a static evaluation of the expression to see if it consists of evaluating
             //something we index with something static.
             if (xpe instanceof XPathEqExpr && ((XPathEqExpr)xpe).op == XPathEqExpr.EQ) {
@@ -156,14 +155,8 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                     //Get all of the cases that meet this criteria
                     cases = this.getNextIndexMatch(keysToFetch, valuesToFetch, storage);
                 } catch (IllegalArgumentException IAE) {
-                    //We can only get this if we have a new index type
-                    storage.registerIndex(key);
-                    try {
-                        cases = this.getNextIndexMatch(keysToFetch, valuesToFetch, storage);
-                    } catch (IllegalArgumentException iaeagain) {
-                        //Still didn't work, platform can't expand indices
-                        break;
-                    }
+                    // Encountered a new index type
+                    break;
                 }
 
                 // merge with any other sets of cases

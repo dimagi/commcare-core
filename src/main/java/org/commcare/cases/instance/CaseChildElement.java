@@ -2,17 +2,12 @@ package org.commcare.cases.instance;
 
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.DateData;
-import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.data.UncastData;
-import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.core.model.utils.PreloadUtils;
-import org.javarosa.xpath.expr.XPathExpression;
 
 import java.util.Enumeration;
 import java.util.Vector;
@@ -20,44 +15,30 @@ import java.util.Vector;
 /**
  * @author ctsims
  */
-public class CaseChildElement implements AbstractTreeElement<TreeElement> {
+public class CaseChildElement extends StorageBackedChildElement<Case> {
 
-    private CaseInstanceTreeElement parent;
-    private int recordId;
-    private String caseId;
-    private int mult;
+    private static final String NAME_ID = "case_id";
 
     private TreeElement empty;
-    private TreeReference ref;
-
-    private int numChildren = -1;
 
     private static final String LAST_MODIFIED_KEY = "last_modified";
 
-    public CaseChildElement(CaseInstanceTreeElement parent, int recordId, String caseId, int mult) {
-        if (recordId == -1 && caseId == null) {
-            throw new RuntimeException("Cannot create a lazy case element with no lookup identifiers!");
-        }
-        this.parent = parent;
-        this.recordId = recordId;
-        this.caseId = caseId;
-        this.mult = mult;
+    public CaseChildElement(StorageInstanceTreeElement<Case, ?> parent,
+                            int recordId, String caseId, int mult) {
+        super(parent, mult, recordId, caseId, NAME_ID);
     }
 
     /**
-     * Template constructor (For elements that need to create reference nodesets but never look up values)
+     * Template constructor (For elements that need to create reference nodesets
+     * but never look up values)
      */
     private CaseChildElement(CaseInstanceTreeElement parent) {
-        //Template
-        this.parent = parent;
-        this.recordId = TreeReference.INDEX_TEMPLATE;
-        this.mult = TreeReference.INDEX_TEMPLATE;
-        this.caseId = null;
+        super(parent, TreeReference.INDEX_TEMPLATE, TreeReference.INDEX_TEMPLATE, null, NAME_ID);
 
         empty = new TreeElement("case");
         empty.setMult(this.mult);
 
-        empty.setAttribute(null, "case_id", "");
+        empty.setAttribute(null, nameId, "");
         empty.setAttribute(null, "case_type", "");
         empty.setAttribute(null, "status", "");
 
@@ -75,32 +56,8 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
     }
 
     @Override
-    public boolean isLeaf() {
-        return false;
-    }
-
-    @Override
-    public boolean isChildable() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public String getInstanceName() {
-        return parent.getInstanceName();
-    }
-
-    @Override
-    public TreeElement getChild(String name, int multiplicity) {
-        TreeElement cached = cache();
-        TreeElement child = cached.getChild(name, multiplicity);
-        if (multiplicity >= 0 && child == null) {
-            TreeElement emptyNode = new TreeElement(name);
-            cached.addChild(emptyNode);
-            emptyNode.setParent(cached);
-            return emptyNode;
-        }
-        return child;
+    public String getName() {
+        return "case";
     }
 
     @Override
@@ -108,6 +65,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         //In order
         TreeElement cached = cache();
         Vector<TreeElement> children = cached.getChildrenWithName(name);
+
         if (children.size() == 0) {
             TreeElement emptyNode = new TreeElement(name);
             cached.addChild(emptyNode);
@@ -117,139 +75,9 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         return children;
     }
 
-    @Override
-    public boolean hasChildren() {
-        return true;
-    }
-
-    @Override
-    public int getNumChildren() {
-        if (numChildren == -1) {
-            numChildren = cache().getNumChildren();
-        }
-        return numChildren;
-    }
-
-    @Override
-    public TreeElement getChildAt(int i) {
-        return cache().getChildAt(i);
-    }
-
-    @Override
-    public boolean isRepeatable() {
-        return false;
-    }
-
-    @Override
-    public boolean isAttribute() {
-        return false;
-    }
-
-    @Override
-    public int getChildMultiplicity(String name) {
-        return cache().getChildMultiplicity(name);
-    }
-
-    @Override
-    public void accept(ITreeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public int getAttributeCount() {
-        //TODO: Attributes should be fixed and possibly only include meta-details
-        return cache().getAttributeCount();
-    }
-
-    @Override
-    public String getAttributeNamespace(int index) {
-        return cache().getAttributeNamespace(index);
-    }
-
-    @Override
-    public String getAttributeName(int index) {
-        return cache().getAttributeName(index);
-
-    }
-
-    @Override
-    public String getAttributeValue(int index) {
-        return cache().getAttributeValue(index);
-    }
-
-    @Override
-    public TreeElement getAttribute(String namespace, String name) {
-        if (name.equals("case_id")) {
-            if (recordId != TreeReference.INDEX_TEMPLATE) {
-                //if we're already cached, don't bother with this nonsense
-                synchronized (parent.treeCache) {
-                    TreeElement element = parent.treeCache.retrieve(recordId);
-                    if (element != null) {
-                        return cache().getAttribute(namespace, name);
-                    }
-                }
-            }
-
-            //TODO: CACHE GET ID THING
-            if (caseId == null) {
-                return cache().getAttribute(namespace, name);
-            }
-
-            //otherwise, don't cache this just yet if we have the ID handy
-            TreeElement caseid = TreeElement.constructAttributeElement(null, name);
-            caseid.setValue(new StringData(caseId));
-            caseid.setParent(this);
-            return caseid;
-        }
-        return cache().getAttribute(namespace, name);
-    }
-
-    @Override
-    public String getAttributeValue(String namespace, String name) {
-        if (name.equals("case_id")) {
-            return caseId;
-        }
-        return cache().getAttributeValue(namespace, name);
-    }
-
-    @Override
-    public TreeReference getRef() {
-        if (ref == null) {
-            ref = TreeReference.buildRefFromTreeElement(this);
-        }
-        return ref;
-    }
-
-    @Override
-    public String getName() {
-        return "case";
-    }
-
-    @Override
-    public int getMult() {
-        // TODO Auto-generated method stub
-        return mult;
-    }
-
-    @Override
-    public AbstractTreeElement getParent() {
-        return parent;
-    }
-
-    @Override
-    public IAnswerData getValue() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public int getDataType() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
     //TODO: THIS IS NOT THREAD SAFE
-    private TreeElement cache() {
+    @Override
+    protected TreeElement cache() {
         if (recordId == TreeReference.INDEX_TEMPLATE) {
             return empty;
         }
@@ -260,16 +88,16 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
             }
             //For now this seems impossible
             if (recordId == -1) {
-                Vector<Integer> ids = (Vector<Integer>)parent.storage.getIDsForValue("case_id", caseId);
+                Vector<Integer> ids = parent.storage.getIDsForValue(nameId, entityId);
                 recordId = ids.elementAt(0);
             }
 
-            Case c = parent.getCase(recordId);
-            caseId = c.getCaseId();
+            Case c = parent.getElement(recordId);
+            entityId = c.getCaseId();
             TreeElement cacheBuilder = new TreeElement("case");
             cacheBuilder.setMult(this.mult);
 
-            cacheBuilder.setAttribute(null, "case_id", c.getCaseId());
+            cacheBuilder.setAttribute(null, nameId, c.getCaseId());
             cacheBuilder.setAttribute(null, "case_type", c.getTypeId());
             cacheBuilder.setAttribute(null, "status", c.isClosed() ? "closed" : "open");
 
@@ -278,30 +106,27 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
             final boolean[] done = new boolean[]{false};
 
-            //If we're not in report node, fill in all of this data
-            if (!parent.reportMode) {
-                TreeElement scratch = new TreeElement("case_name");
-                String name = c.getName();
-                //This shouldn't be possible
-                scratch.setAnswer(new StringData(name == null ? "" : name));
-                cacheBuilder.addChild(scratch);
+            TreeElement scratch = new TreeElement("case_name");
+            String name = c.getName();
+            //This shouldn't be possible
+            scratch.setAnswer(new StringData(name == null ? "" : name));
+            cacheBuilder.addChild(scratch);
 
-                scratch = new TreeElement("date_opened");
-                scratch.setAnswer(new DateData(c.getDateOpened()));
-                cacheBuilder.addChild(scratch);
+            scratch = new TreeElement("date_opened");
+            scratch.setAnswer(new DateData(c.getDateOpened()));
+            cacheBuilder.addChild(scratch);
 
-                scratch = new TreeElement(LAST_MODIFIED_KEY);
-                scratch.setAnswer(new DateData(c.getLastModified()));
-                cacheBuilder.addChild(scratch);
+            scratch = new TreeElement(LAST_MODIFIED_KEY);
+            scratch.setAnswer(new DateData(c.getLastModified()));
+            cacheBuilder.addChild(scratch);
 
-                setCaseProperties(c, cacheBuilder);
+            setCaseProperties(c, cacheBuilder);
 
-                TreeElement index = buildIndexTreeElement(c, done);
-                cacheBuilder.addChild(index);
+            TreeElement index = buildIndexTreeElement(c, done);
+            cacheBuilder.addChild(index);
 
-                TreeElement attachments = buildAttachmentTreeElement(c, done);
-                cacheBuilder.addChild(attachments);
-            }
+            TreeElement attachments = buildAttachmentTreeElement(c, done);
+            cacheBuilder.addChild(attachments);
 
             cacheBuilder.setParent(this.parent);
             done[0] = true;
@@ -385,8 +210,8 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         Vector<CaseIndex> indices = c.getIndices();
         for (CaseIndex i : indices) {
             TreeElement scratch = new TreeElement(i.getName());
-            scratch.setAttribute(null, "case_type", this.parent.intern(i.getTargetType()));
-            scratch.setAttribute(null, "relationship", this.parent.intern(i.getRelationship()));
+            scratch.setAttribute(null, "case_type", parent.intern(i.getTargetType()));
+            scratch.setAttribute(null, "relationship", parent.intern(i.getRelationship()));
             scratch.setValue(new UncastData(i.getTarget()));
             index.addChild(scratch);
         }
@@ -425,23 +250,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         return attachments;
     }
 
-    @Override
-    public boolean isRelevant() {
-        return true;
-    }
-
     public static CaseChildElement buildCaseChildTemplate(CaseInstanceTreeElement parent) {
         return new CaseChildElement(parent);
-    }
-
-    @Override
-    public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
-        //TODO: We should be able to catch the index case here?
-        return null;
-    }
-
-    @Override
-    public String getNamespace() {
-        return null;
     }
 }

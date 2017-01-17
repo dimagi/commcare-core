@@ -33,7 +33,7 @@ public class TestInstanceInitializer extends InstanceInitializationFactory {
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
         if (ref.contains(CaseInstanceTreeElement.MODEL_NAME)) {
-            return new CaseInstanceTreeElement(instance.getBase(), sandbox.getCaseStorage(), false);
+            return new CaseInstanceTreeElement(instance.getBase(), sandbox.getCaseStorage());
         }
         return null;
     }

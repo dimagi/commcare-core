@@ -51,13 +51,4 @@ public class XPathSelectedFunc extends XPathFuncExpr {
     }
 
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior:  Checks to see if a value was selected from a multiselect question. You cannot just do /data/my_question = \"my_value_1\" - this will fail if both \"my_value_1\" and \"my_value_2\" were selected.\n"
-                + "Return: True if that particular value was selected.  Otherwise false.\n"
-                + "Arguments:  Two arguments, the multi-select question and the value to check.\n"
-                + "Syntax: selected(my_question, value_to_check)\n"
-                + "Example:  selected(/data/my_multi_select_question, \"my_value_4\").";
-    }
 }

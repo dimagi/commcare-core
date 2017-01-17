@@ -1,6 +1,5 @@
-package org.commcare.cases.ledger.instance;
+package org.commcare.cases.instance;
 
-import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.util.StorageBackedTreeRoot;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -11,38 +10,39 @@ import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.Interner;
-import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.expr.XPathPathExpr;
+import org.javarosa.core.util.externalizable.Externalizable;
 
 import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * @author ctsims
+ * Instance root for storage-backed instances such as the case and ledger DBs
+ *
+ * @author Phillip Mates (pmates@dimagi.com)
  */
-public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChildElement> {
+public abstract class StorageInstanceTreeElement<Model extends Externalizable, T extends AbstractTreeElement>
+        extends StorageBackedTreeRoot<T> {
 
-    public static final String MODEL_NAME = "ledgerdb";
-
-    private final static XPathPathExpr ENTITY_ID_EXPR = XPathReference.getPathExpr("@entity-id");
-    private final static XPathPathExpr ENTITY_ID_EXPR_TWO = XPathReference.getPathExpr("./@entity-id");
+    private String modelName;
+    private String childName;
 
     private AbstractTreeElement instanceRoot;
 
-    final IStorageUtilityIndexed<Ledger> storage;
-
-    //TODO: much of this is still shared w/the casedb and should be centralized there
-    protected Vector<LedgerChildElement> ledgers;
-
+    protected final IStorageUtilityIndexed<Model> storage;
+    protected Vector<T> elements;
     protected final Interner<TreeElement> treeCache = new Interner<>();
+    private Interner<String> stringCache = new Interner<>();
 
-    protected Interner<String> stringCache;
+    private int numRecords = -1;
+    private TreeReference cachedRef = null;
 
-    int numRecords = -1;
-
-    public LedgerInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage) {
+    public StorageInstanceTreeElement(AbstractTreeElement instanceRoot,
+                                      IStorageUtilityIndexed<Model> storage,
+                                      String modelName, String childName) {
         this.instanceRoot = instanceRoot;
         this.storage = storage;
+        this.modelName = modelName;
+        this.childName = childName;
     }
 
     /**
@@ -72,45 +72,54 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         return instanceRoot.getInstanceName();
     }
 
-    @SuppressWarnings("unused")
-    public void attachStringCache(Interner<String> stringCache) {
-        this.stringCache = stringCache;
-    }
-
     @Override
-    public LedgerChildElement getChild(String name, int multiplicity) {
+    public T getChild(String name, int multiplicity) {
         if ((multiplicity == TreeReference.INDEX_TEMPLATE) &&
-                "ledger".equals(name)) {
-            return LedgerChildElement.TemplateElement(this);
+                childName.equals(name)) {
+            return getChildTemplate();
         }
 
-        //name is always the same, so multiplicities are the only relevant component here
-        if (name.equals(LedgerChildElement.NAME)) {
-            getLedgers();
-            if (ledgers.size() == 0) {
-                //If we have no ledgers, we still need to be able to return a template element so as to not
+        //name is always "case", so multiplicities are the only relevant component here
+        if (childName.equals(name)) {
+            loadElements();
+            if (elements.isEmpty()) {
+                //If we have no cases, we still need to be able to return a template element so as to not
                 //break xpath evaluation
-                return LedgerChildElement.TemplateElement(this);
+                return getChildTemplate();
             }
-            return ledgers.elementAt(multiplicity);
+            return elements.elementAt(multiplicity);
         }
         return null;
     }
 
+    protected synchronized void loadElements() {
+        if (elements != null) {
+            return;
+        }
+        objectIdMapping = new Hashtable<>();
+        elements = new Vector<>();
+        int mult = 0;
+        for (IStorageIterator i = storage.iterate(); i.hasMore(); ) {
+            int id = i.nextID();
+            elements.add(buildElement(this, id, null, mult));
+            objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
+            mult++;
+        }
+    }
+
     @Override
-    public Vector<LedgerChildElement> getChildrenWithName(String name) {
-        if (name.equals(LedgerChildElement.NAME)) {
-            getLedgers();
-            return ledgers;
+    public Vector<T> getChildrenWithName(String name) {
+        if (name.equals(childName)) {
+            loadElements();
+            return elements;
         } else {
             return new Vector<>();
         }
-
     }
 
     @Override
     public boolean hasChildren() {
-        return (getNumChildren() > 0);
+        return getNumChildren() > 0;
     }
 
     @Override
@@ -122,24 +131,9 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     }
 
     @Override
-    public LedgerChildElement getChildAt(int i) {
-        getLedgers();
-        return ledgers.elementAt(i);
-    }
-
-    protected synchronized void getLedgers() {
-        if (ledgers != null) {
-            return;
-        }
-        objectIdMapping = new Hashtable<>();
-        ledgers = new Vector<>();
-        int mult = 0;
-        for (IStorageIterator i = storage.iterate(); i.hasMore(); ) {
-            int id = i.nextID();
-            ledgers.addElement(new LedgerChildElement(this, id, null, mult));
-            objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
-            mult++;
-        }
+    public T getChildAt(int i) {
+        loadElements();
+        return elements.elementAt(i);
     }
 
     @Override
@@ -155,7 +149,7 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     @Override
     public int getChildMultiplicity(String name) {
         //All children have the same name;
-        if (name.equals(LedgerChildElement.NAME)) {
+        if (name.equals(childName)) {
             return this.getNumChildren();
         } else {
             return 0;
@@ -170,7 +164,6 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     @Override
     public void accept(ITreeVisitor visitor) {
         visitor.visit(this);
-
     }
 
     @Override
@@ -194,8 +187,7 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     }
 
     @Override
-    public LedgerChildElement getAttribute(String namespace, String name) {
-        //Oooooof, this is super janky;
+    public T getAttribute(String namespace, String name) {
         return null;
     }
 
@@ -203,8 +195,6 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     public String getAttributeValue(String namespace, String name) {
         return null;
     }
-
-    TreeReference cachedRef = null;
 
     @Override
     public TreeReference getRef() {
@@ -220,7 +210,7 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
 
     @Override
     public String getName() {
-        return MODEL_NAME;
+        return modelName;
     }
 
     @Override
@@ -248,28 +238,9 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         return null;
     }
 
-    public String intern(String s) {
-        if (stringCache == null) {
-            return s;
-        } else {
-            return stringCache.intern(s);
-        }
-    }
-
     @Override
     protected String getChildHintName() {
-        return "ledger";
-    }
-
-    @Override
-    protected Hashtable<XPathPathExpr, String> getStorageIndexMap() {
-        Hashtable<XPathPathExpr, String> indices = new Hashtable<>();
-
-        //TODO: Much better matching
-        indices.put(ENTITY_ID_EXPR, Ledger.INDEX_ENTITY_ID);
-        indices.put(ENTITY_ID_EXPR_TWO, Ledger.INDEX_ENTITY_ID);
-
-        return indices;
+        return childName;
     }
 
     @Override
@@ -279,6 +250,31 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
 
     @Override
     protected void initStorageCache() {
-        getLedgers();
+        loadElements();
     }
+
+    public void attachStringCache(Interner<String> stringCache) {
+        this.stringCache = stringCache;
+    }
+
+    public String intern(String s) {
+        if (stringCache == null) {
+            return s;
+        } else {
+            return stringCache.intern(s);
+        }
+    }
+
+    protected abstract T buildElement(StorageInstanceTreeElement<Model, T> storageInstance,
+                                      int recordId, String id, int mult);
+
+    protected Model getElement(int recordId) {
+        return storage.read(recordId);
+    }
+
+    protected Model getModelTemplate() {
+        return storage.read(1);
+    }
+
+    protected abstract T getChildTemplate();
 }

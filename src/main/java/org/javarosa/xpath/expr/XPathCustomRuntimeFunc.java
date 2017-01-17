@@ -140,8 +140,4 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
         ExtUtil.writeString(out, name);
     }
 
-    @Override
-    public String getDocumentation() {
-        return "No documentation for custom override function";
-    }
 }

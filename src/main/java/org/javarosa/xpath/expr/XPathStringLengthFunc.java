@@ -26,13 +26,4 @@ public class XPathStringLengthFunc extends XPathFuncExpr {
         return new Double(s.length());
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior:  The number of characters in a string.\n"
-                + "Return: A number (characters)\n"
-                + "Arguments:  The string for which you need the length.\n"
-                + "Syntax: string-length(text_value)\n"
-                + "Example:  You may have users entering some identifier (numbers and letters) and you'd like to validate that is of a specific length.  Ex. string-length(/data/my_id_question)";
-    }
 }

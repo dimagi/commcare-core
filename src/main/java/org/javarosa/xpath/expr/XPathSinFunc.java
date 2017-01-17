@@ -22,12 +22,4 @@ public class XPathSinFunc extends XPathFuncExpr {
         return Math.sin(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior: Finds the sin of a number.\n"
-                + "Return: The sin of the argument passed to the function\n"
-                + "Arguments: One number\n"
-                + "Syntax: sin(number)";
-    }
 }
