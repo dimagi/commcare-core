@@ -220,9 +220,4 @@ public abstract class XPathFuncExpr extends XPathExpression {
     public String getName() {
         return name;
     }
-    public abstract String getDocumentation();
-
-    protected String getDocHeader() {
-        return DOC_HEADER + name + "\n" + DOC_HEADER;
-    }
 }
