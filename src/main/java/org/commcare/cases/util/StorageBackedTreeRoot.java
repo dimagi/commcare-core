@@ -9,6 +9,7 @@ import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathPathExpr;
+import org.javarosa.xpath.expr.XPathSelectedFunc;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -56,16 +57,15 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
         Hashtable<XPathPathExpr, String> indices = getStorageIndexMap();
 
-        Vector<String> keysToFetch = new Vector<>();
-        Vector<Object> valuesToFetch = new Vector<>();
+        Vector<PredicateEvaluationOptimization> optimizations = new Vector<>();
 
         //First, go get a list of predicates that we _might_be able to evaluate
-        collectProcessablePredicates(predicates, indices, evalContext, keysToFetch, valuesToFetch);
+        collectProcessablePredicates(predicates, indices, evalContext, optimizations);
 
         //Now go through each of the key/value pairs and try to evaluate them, we'll
         //break if we can't process one
         Vector<Integer> toRemove = new Vector<>();
-        Vector<Integer> selectedElements = processPredicates(toRemove, keysToFetch, valuesToFetch);
+        Vector<Integer> selectedElements = processPredicates(toRemove, optimizations);
 
         //if we weren't able to evaluate any predicates, signal that.
         if (selectedElements == null) {
@@ -83,8 +83,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
     private void collectProcessablePredicates(Vector<XPathExpression> predicates,
                                               Hashtable<XPathPathExpr, String> indices,
                                               EvaluationContext evalContext,
-                                              Vector<String> keysToFetch,
-                                              Vector<Object> valuesToFetch) {
+                                              Vector<PredicateEvaluationOptimization> optimizations) {
         predicate:
         for (XPathExpression xpe : predicates) {
             //what we want here is a static evaluation of the expression to see if it consists of evaluating
@@ -101,15 +100,34 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                             //sure the best way to do that....? Maybe tell the evaluation context to skip out here if it detects a request
                             //to resolve in a certain area?
                             Object o = FunctionUtils.unpack(((XPathEqExpr)xpe).b.eval(evalContext));
+                            optimizations.addElement(new IndexedValueLookupOptimization(filterIndex, o));
 
-                            keysToFetch.addElement(filterIndex);
-                            valuesToFetch.addElement(o);
+                            continue predicate;
+                        }
+                    }
+                }
+            } else if (xpe instanceof XPathSelectedFunc) {
+                XPathExpression lookupArg = ((XPathSelectedFunc)xpe).args[1];
+                if (lookupArg instanceof XPathPathExpr) {
+                    for (Enumeration en = indices.keys(); en.hasMoreElements(); ) {
+                        XPathPathExpr expr = (XPathPathExpr)en.nextElement();
+                        if (expr.matches(lookupArg)) {
+                            String filterIndex = translateFilterExpr(expr, (XPathPathExpr)lookupArg, indices);
+
+                            //TODO: We need a way to determine that this value does not also depend on anything in the current context, not
+                            //sure the best way to do that....? Maybe tell the evaluation context to skip out here if it detects a request
+                            //to resolve in a certain area?
+                            Object o = FunctionUtils.unpack(((XPathSelectedFunc)xpe).args[0].eval(evalContext));
+
+                            optimizations.addElement(new IndexedSetLookupOptimization(filterIndex, o));
 
                             continue predicate;
                         }
                     }
                 }
             }
+
+
             //There's only one case where we want to keep moving along, and we would have triggered it if it were going to happen,
             //so otherwise, just get outta here.
             break;
@@ -117,24 +135,32 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
     }
 
     private Vector<Integer> processPredicates(Vector<Integer> toRemove,
-                                              Vector<String> keysToFetch,
-                                              Vector<Object> valuesToFetch) {
+                                              Vector<PredicateEvaluationOptimization> optimizations) {
         Vector<Integer> selectedElements = null;
         IStorageUtilityIndexed<?> storage = getStorage();
         int predicatesProcessed = 0;
-        while (keysToFetch.size() > 0) {
-            //Get the first set of values.
-            String key = keysToFetch.elementAt(0);
-            Object o = valuesToFetch.elementAt(0);
-            int startCount = keysToFetch.size();
+        while (optimizations.size() > 0) {
 
-            //Some storage roots will collect common iterative mappings ahead of time,
-            //go check whether this key is loaded into cached memory.
-            Hashtable<String, Integer> keyMapping = getKeyMapping(key);
+            int startCount = optimizations.size();
+
+            Hashtable<String, Integer> keyMapping = null;
+
+            if(optimizations.elementAt(0) instanceof IndexedValueLookupOptimization) {
+
+                IndexedValueLookupOptimization valueLookup =
+                        (IndexedValueLookupOptimization)optimizations.elementAt(0);
+                //Get the first set of values.
+                String key = valueLookup.key;
+
+                //Some storage roots will collect common iterative mappings ahead of time,
+                //go check whether this key is loaded into cached memory.
+                keyMapping = getKeyMapping(key);
+            }
+
             if (keyMapping != null) {
                 //If so, go fetch that element's record id and skip the storage
                 //lookup
-                Integer uniqueValue = keyMapping.get(FunctionUtils.toString(o));
+                Integer uniqueValue = keyMapping.get(FunctionUtils.toString(((IndexedValueLookupOptimization)optimizations.elementAt(0)).value));
 
                 //Merge into the selected elements
                 if (uniqueValue != null) {
@@ -147,13 +173,12 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                 }
 
                 //Ok, so we've successfully processed this predicate.
-                keysToFetch.removeElementAt(0);
-                valuesToFetch.removeElementAt(0);
+                optimizations.remove(0);
             } else {
                 Vector<Integer> cases = null;
                 try {
                     //Get all of the cases that meet this criteria
-                    cases = this.getNextIndexMatch(keysToFetch, valuesToFetch, storage);
+                    cases = this.getNextIndexMatch(optimizations, storage);
                 } catch (IllegalArgumentException IAE) {
                     // Encountered a new index type
                     break;
@@ -167,7 +192,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                 }
             }
 
-            int numPredicatesRemoved = startCount - keysToFetch.size();
+            int numPredicatesRemoved = startCount - optimizations.size();
             for (int i = 0; i < numPredicatesRemoved; ++i) {
                 //Note that this predicate is evaluated and doesn't need to be evaluated in the future.
                 toRemove.addElement(DataUtil.integer(predicatesProcessed));
@@ -202,24 +227,25 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
      * key can't be processed in the current context. The method can optionally remove/process more than one
      * key at a time, but is expected to process at least the first.
      *
-     * @param keys    A vector of pending index keys to be evaluated. The keys should be processed left->right
-     * @param values  A vector of the values associated with the indexed keys to be evaluated
+     * @param optimizations    A vector of pending optimizations to be attempted. The keys should be processed left->right
      * @param storage The storage to be processed
      * @return A Vector of integer ID's for records in the provided storage which match one or more of the keys provided.
      * @throws IllegalArgumentException If there was no index matching possible on the provided key and the key/value vectors
      *                                  won't be shortened.
      */
-    protected Vector<Integer> getNextIndexMatch(Vector<String> keys, Vector<Object> values,
+    protected Vector<Integer> getNextIndexMatch(Vector<PredicateEvaluationOptimization> optimizations,
                                                 IStorageUtilityIndexed<?> storage) throws IllegalArgumentException {
-        String key = keys.elementAt(0);
-        Object o = values.elementAt(0);
+        if(!(optimizations.elementAt(0) instanceof IndexedValueLookupOptimization)) {
+            throw new IllegalArgumentException("No optimization path found for optimization type");
+        }
+
+        IndexedValueLookupOptimization op = (IndexedValueLookupOptimization)optimizations.elementAt(0);
 
         //Get matches if it works
-        Vector<Integer> returnValue = storage.getIDsForValue(key, o);
+        Vector<Integer> returnValue = storage.getIDsForValue(op.key, op.value);
 
         //If we processed this, pop it off the queue
-        keys.removeElementAt(0);
-        values.removeElementAt(0);
+        optimizations.removeElementAt(0);
 
         return returnValue;
     }
