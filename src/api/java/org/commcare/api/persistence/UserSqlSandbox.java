@@ -5,6 +5,7 @@ import org.commcare.cases.model.Case;
 import org.commcare.core.interfaces.UserSandbox;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.StorageManager;
 
 /**
  * A sandbox for user data using SqliteIndexedStorageUtility. Sandbox is per-User
@@ -31,6 +32,7 @@ public class UserSqlSandbox extends UserSandbox {
         userStorage = new SqliteIndexedStorageUtility<>(User.class, username, User.STORAGE_KEY, path);
         userFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, "UserFixture", path);
         appFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, "AppFixture", path);
+        StorageManager.registerStorage("AppFixture", FormInstance.class);
     }
 
     public UserSqlSandbox(String username) {

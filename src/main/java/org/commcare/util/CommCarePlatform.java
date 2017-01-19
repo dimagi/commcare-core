@@ -175,7 +175,7 @@ public class CommCarePlatform {
     }
 
     public IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
-        return storage("fixture", FormInstance.class);
+        return storage("AppFixture", FormInstance.class);
     }
 
     public IStorageUtilityIndexed storage(String name, Class type) {
