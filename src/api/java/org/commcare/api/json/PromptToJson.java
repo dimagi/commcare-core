@@ -144,10 +144,8 @@ public class PromptToJson {
                 obj.put("answer", answerValue.getDisplayText());
                 return;
             case Constants.DATATYPE_DATE_TIME:
-                Date answer = (Date) answerValue.getValue();
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(answer);
-                obj.put("answer", new DateTime(calendar.getTime(), DateTimeZone.forTimeZone(calendar.getTimeZone())).toString("yyyy-MM-dd'T'HH:mm:ssZZ"));
+                DateTime answer = new DateTime(answerValue.getValue());
+                obj.put("answer", answer.toString("yyyy-MM-dd'T'HH:mm:ssZZ"));
                 return;
             case Constants.DATATYPE_CHOICE:
                 Selection singleSelection = ((Selection) answerValue.getValue());
