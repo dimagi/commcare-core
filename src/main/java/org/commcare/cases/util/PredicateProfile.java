@@ -23,5 +23,5 @@ public interface PredicateProfile {
      * @return The index the predicate is operating over. This will be moved soon and isn't
      * a fundamental part of the structure.
      */
-    public String getKey();
+    String getKey();
 }
