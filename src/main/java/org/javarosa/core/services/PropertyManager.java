@@ -62,7 +62,7 @@ public class PropertyManager implements IPropertyManager {
      * Constructor for this PropertyManager
      */
     public PropertyManager() {
-        this.properties = (IStorageUtilityIndexed)StorageManager.getStorage(STORAGE_KEY);
+        this.properties = (IStorageUtilityIndexed)StorageManager.instance().getStorage(STORAGE_KEY);
         rulesList = new Vector<>();
     }
 
