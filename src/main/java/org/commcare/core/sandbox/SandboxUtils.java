@@ -1,5 +1,6 @@
 package org.commcare.core.sandbox;
 
+import org.commcare.api.persistence.UserSqlSandbox;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.javarosa.core.model.User;
@@ -86,7 +87,8 @@ public class SandboxUtils {
                                             String refId, String userId) {
         IStorageUtilityIndexed<FormInstance> userFixtureStorage =
                 sandbox.getUserFixtureStorage();
-        IStorageUtilityIndexed<FormInstance> appFixtureStorage = (IStorageUtilityIndexed<FormInstance>) StorageManager.getStorage("AppFixture");
+        IStorageUtilityIndexed<FormInstance> appFixtureStorage =
+                sandbox.getAppFixtureStorage();
 
         Vector<Integer> userFixtures =
                 userFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);

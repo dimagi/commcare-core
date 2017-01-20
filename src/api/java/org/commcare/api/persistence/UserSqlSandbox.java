@@ -20,6 +20,8 @@ public class UserSqlSandbox extends UserSandbox {
     private final SqliteIndexedStorageUtility<FormInstance> appFixtureStorage;
     private User user = null;
     public static final String DEFAULT_DATBASE_PATH = "dbs";
+    public static final String APP_FIXTURE_STORAGE_KEY = "AppFixture";
+    public static final String USER_FIXTURE_STORAGE_KEY = "UserFixture";
 
     /**
      * Create a sandbox of the necessary storage objects with the shared
@@ -30,9 +32,9 @@ public class UserSqlSandbox extends UserSandbox {
         caseStorage = new SqliteIndexedStorageUtility<>(Case.class, username, "CCCase", path);
         ledgerStorage = new SqliteIndexedStorageUtility<>(Ledger.class, username, Ledger.STORAGE_KEY, path);
         userStorage = new SqliteIndexedStorageUtility<>(User.class, username, User.STORAGE_KEY, path);
-        userFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, "UserFixture", path);
-        StorageManager.registerStorage("AppFixture", FormInstance.class);
-        appFixtureStorage = (SqliteIndexedStorageUtility<FormInstance>) StorageManager.getStorage("AppFixture");
+        userFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, USER_FIXTURE_STORAGE_KEY, path);
+        StorageManager.registerStorage(APP_FIXTURE_STORAGE_KEY, FormInstance.class);
+        appFixtureStorage = (SqliteIndexedStorageUtility<FormInstance>) StorageManager.getStorage(APP_FIXTURE_STORAGE_KEY);
     }
 
     public UserSqlSandbox(String username) {
