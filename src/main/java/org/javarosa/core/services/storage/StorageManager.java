@@ -57,7 +57,7 @@ public class StorageManager {
 
     public static IStorageUtility getStorage(String key) {
         if (storageRegistry.containsKey(key)) {
-            return storageRegistry.get(key);
+                return storageRegistry.get(key);
         } else {
             throw new RuntimeException("No storage utility has been registered to handle \"" + key + "\"; you must register one first with StorageManager.registerStorage()");
         }
