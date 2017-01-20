@@ -20,8 +20,6 @@ public class UserSqlSandbox extends UserSandbox {
     private final SqliteIndexedStorageUtility<FormInstance> appFixtureStorage;
     private User user = null;
     public static final String DEFAULT_DATBASE_PATH = "dbs";
-    public static final String APP_FIXTURE_STORAGE_KEY = "AppFixture";
-    public static final String USER_FIXTURE_STORAGE_KEY = "UserFixture";
 
     /**
      * Create a sandbox of the necessary storage objects with the shared

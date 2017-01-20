@@ -13,6 +13,8 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
 public abstract class UserSandbox {
 
+    public static final String APP_FIXTURE_STORAGE_KEY = "AppFixture";
+    public static final String USER_FIXTURE_STORAGE_KEY = "UserFixture";
     String syncToken;
 
     public abstract IStorageUtilityIndexed<Case> getCaseStorage();

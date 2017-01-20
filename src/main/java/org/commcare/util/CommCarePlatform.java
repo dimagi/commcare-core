@@ -1,6 +1,6 @@
 package org.commcare.util;
 
-import org.commcare.api.persistence.UserSqlSandbox;
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.FormEntry;
@@ -176,7 +176,7 @@ public class CommCarePlatform {
     }
 
     public IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
-        return storage(UserSqlSandbox.APP_FIXTURE_STORAGE_KEY, FormInstance.class);
+        return storage(UserSandbox.APP_FIXTURE_STORAGE_KEY, FormInstance.class);
     }
 
     public IStorageUtilityIndexed storage(String name, Class type) {
