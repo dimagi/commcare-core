@@ -31,8 +31,8 @@ public class UserSqlSandbox extends UserSandbox {
         ledgerStorage = new SqliteIndexedStorageUtility<>(Ledger.class, username, Ledger.STORAGE_KEY, path);
         userStorage = new SqliteIndexedStorageUtility<>(User.class, username, User.STORAGE_KEY, path);
         userFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, USER_FIXTURE_STORAGE_KEY, path);
-        StorageManager.registerStorage(APP_FIXTURE_STORAGE_KEY, FormInstance.class);
-        appFixtureStorage = (SqliteIndexedStorageUtility<FormInstance>) StorageManager.getStorage(APP_FIXTURE_STORAGE_KEY);
+        StorageManager.instance().registerStorage(APP_FIXTURE_STORAGE_KEY, FormInstance.class);
+        appFixtureStorage = (SqliteIndexedStorageUtility<FormInstance>) StorageManager.instance().getStorage(APP_FIXTURE_STORAGE_KEY);
     }
 
     public UserSqlSandbox(String username) {
