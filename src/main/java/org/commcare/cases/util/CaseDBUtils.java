@@ -2,7 +2,7 @@ package org.commcare.cases.util;
 
 import org.commcare.cases.model.Case;
 import org.javarosa.core.services.storage.IStorageIterator;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.util.MD5;
 
 /**
@@ -10,7 +10,7 @@ import org.javarosa.core.util.MD5;
  */
 public class CaseDBUtils {
 
-    public static String computeCaseDbHash(IStorageUtilityIndexed<Case> storage) {
+    public static String computeCaseDbHash(IStorageUtility<Case> storage) {
         byte[] data = new byte[MD5.length];
         for (int i = 0; i < data.length; ++i) {
             data[i] = 0;
