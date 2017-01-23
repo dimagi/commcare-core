@@ -5,6 +5,7 @@ import org.commcare.cases.model.Case;
 import org.commcare.core.interfaces.UserSandbox;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
 
 /**
@@ -17,7 +18,7 @@ public class UserSqlSandbox extends UserSandbox {
     private final SqliteIndexedStorageUtility<Ledger> ledgerStorage;
     private final SqliteIndexedStorageUtility<User> userStorage;
     private final SqliteIndexedStorageUtility<FormInstance> userFixtureStorage;
-    private final SqliteIndexedStorageUtility<FormInstance> appFixtureStorage;
+    private final IStorageUtilityIndexed<FormInstance> appFixtureStorage;
     private User user = null;
     public static final String DEFAULT_DATBASE_PATH = "dbs";
 
@@ -32,7 +33,7 @@ public class UserSqlSandbox extends UserSandbox {
         userStorage = new SqliteIndexedStorageUtility<>(User.class, username, User.STORAGE_KEY, path);
         userFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, USER_FIXTURE_STORAGE_KEY, path);
         StorageManager.instance().registerStorage(APP_FIXTURE_STORAGE_KEY, FormInstance.class);
-        appFixtureStorage = (SqliteIndexedStorageUtility<FormInstance>) StorageManager.instance().getStorage(APP_FIXTURE_STORAGE_KEY);
+        appFixtureStorage = (IStorageUtilityIndexed<FormInstance>) StorageManager.instance().getStorage(APP_FIXTURE_STORAGE_KEY);
     }
 
     public UserSqlSandbox(String username) {
@@ -60,7 +61,7 @@ public class UserSqlSandbox extends UserSandbox {
     }
 
     @Override
-    public SqliteIndexedStorageUtility<FormInstance> getAppFixtureStorage() {
+    public IStorageUtilityIndexed<FormInstance> getAppFixtureStorage() {
         return appFixtureStorage;
     }
 
