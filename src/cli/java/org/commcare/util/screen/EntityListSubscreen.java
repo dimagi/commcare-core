@@ -7,6 +7,8 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.AccumulatingReporter;
 import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.core.model.trace.EvaluationTraceReporter;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
 import org.javarosa.xpath.XPathException;
 
@@ -31,6 +33,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     private final Detail shortDetail;
     private final EvaluationContext rootContext;
+    ReducingTraceReporter reducingTraceReporter;
 
     public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context) throws CommCareSessionException {
         mHeader = createHeader(shortDetail, context);
@@ -39,11 +42,13 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
         rows = new String[references.size()];
 
+        reducingTraceReporter = new ReducingTraceReporter();
         int i = 0;
         for (TreeReference entity : references) {
             rows[i] = createRow(entity);
             ++i;
         }
+        ScreenUtils.printAndClearTraces(reducingTraceReporter, "Case Screen");
 
         this.mChoices = new TreeReference[references.size()];
         references.copyInto(mChoices);
@@ -57,7 +62,8 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     private String createRow(TreeReference entity, boolean collectDebug) {
         EvaluationContext context = new EvaluationContext(rootContext, entity);
-        AccumulatingReporter reporter = new AccumulatingReporter();
+        EvaluationTraceReporter reporter = new AccumulatingReporter();
+        context.setDebugModeOn(reducingTraceReporter);
 
         if (collectDebug) {
             context.setDebugModeOn(reporter);

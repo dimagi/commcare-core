@@ -13,7 +13,7 @@ import java.util.Vector;
  */
 public class EvaluationTrace {
 
-    private final EvaluationTrace parent;
+    private EvaluationTrace parent;
     private Object value;
     private final String expression;
 
@@ -24,13 +24,18 @@ public class EvaluationTrace {
      *
      * @param expression The string representation of the expression
      *                   being evaluated
-     * @param parent     The parent of this step of execution. Null if
-     *                   this is the root.
      */
-    public EvaluationTrace(String expression, EvaluationTrace parent) {
+    public EvaluationTrace(String expression) {
         this.expression = expression;
+    }
+
+    public void setParent(EvaluationTrace parent) {
+        if(this.parent != null) {
+            throw new RuntimeException("A trace's parent can only be set once");
+        }
         this.parent = parent;
     }
+
 
     /**
      * @return The parent step of this trace. Null if
@@ -71,5 +76,9 @@ public class EvaluationTrace {
             return FunctionUtils.getSerializedNodeset((XPathNodeset)value);
         }
         return FunctionUtils.toString(value);
+    }
+
+    public String getProfileReport() {
+        return null;
     }
 }

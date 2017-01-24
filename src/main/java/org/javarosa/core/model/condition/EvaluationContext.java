@@ -5,6 +5,7 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.BulkEvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.CacheHost;
@@ -285,6 +286,7 @@ public class EvaluationContext {
         String name = sourceRef.getName(depth);
         int mult = sourceRef.getMultiplicity(depth);
         Vector<XPathExpression> predicates = sourceRef.getPredicate(depth);
+        Vector<XPathExpression> originalPredicates = predicates;
 
         // Batch fetch is going to mutate the predicates vector, create a copy
         if (predicates != null) {
@@ -297,6 +299,8 @@ public class EvaluationContext {
 
         AbstractTreeElement node = sourceInstance.resolveReference(workingRef);
 
+        this.openBulkTrace();
+
         // Use the reference's simple predicates to filter the potential
         // nodeset.  Predicates used in filtering are removed from the
         // predicate input argument.
@@ -305,6 +309,9 @@ public class EvaluationContext {
         if (childSet == null) {
             childSet = loadReferencesChildren(node, name, mult, includeTemplates);
         }
+
+        this.reportBulkTraceResults(originalPredicates, predicates, childSet);
+        this.closeTrace();
 
         // Create a place to store the current position markers
         int[] positionContext = new int[predicates == null ? 0 : predicates.size()];
@@ -498,6 +505,7 @@ public class EvaluationContext {
                 ", no appropriate instance in evaluation context");
     }
 
+
     /**
      * Creates a record that an expression is about to be evaluated.
      *
@@ -506,8 +514,20 @@ public class EvaluationContext {
     public void openTrace(XPathExpression xPathExpression) {
         if (mAccumulateExprs) {
             String expressionString = xPathExpression.toPrettyString();
-            EvaluationTrace newLevel = new EvaluationTrace(expressionString,
-                    mDebugCore.mCurrentTraceLevel);
+            EvaluationTrace newLevel = new EvaluationTrace(expressionString);
+            openTrace(newLevel);
+        }
+    }
+
+
+    /**
+     * Creates a record that an expression is about to be evaluated.
+     *
+     * @param newLevel The new trace to be added to the current evaluation
+     */
+    public void openTrace(EvaluationTrace newLevel) {
+        if (mAccumulateExprs) {
+            newLevel.setParent(mDebugCore.mCurrentTraceLevel);
             if (mDebugCore.mCurrentTraceLevel != null) {
                 mDebugCore.mCurrentTraceLevel.addSubTrace(newLevel);
             }
@@ -517,12 +537,41 @@ public class EvaluationContext {
     }
 
     /**
-     * Closes the current evaluation trace and records the
-     * relevant outcomes and context
-     *
-     * @param value The result of the current trace expression
+     * Creates a record that we are going to attempt to expanding a set of bulk lookup
+     * predicates
      */
-    public void closeTrace(Object value) {
+    private void openBulkTrace() {
+        if (mAccumulateExprs) {
+            BulkEvaluationTrace newLevel = new BulkEvaluationTrace();
+            openTrace(newLevel);
+        }
+    }
+
+    /**
+     * Creates a record that we are going to attempt to expanding a set of bulk lookup
+     * predicates
+     */
+    private void reportBulkTraceResults(Vector<XPathExpression> startingSet,
+                                        Vector<XPathExpression> finalSet,
+                                        Vector<TreeReference> childSet) {
+        if (mAccumulateExprs) {
+            if(!(mDebugCore.mCurrentTraceLevel instanceof BulkEvaluationTrace)) {
+                throw new RuntimeException("Predicate tree mismatch");
+            }
+            BulkEvaluationTrace trace = (BulkEvaluationTrace)mDebugCore.mCurrentTraceLevel;
+            trace.setEvaluatedPredicates(startingSet, finalSet, childSet);
+            if (!(trace.isBulkEvaluationSucceeded())) {
+                trace.getParent().getSubTraces().remove(trace);
+            }
+        }
+    }
+
+
+    /**
+     * Records the outcome of the current trace by value.
+     * @param value The result of the currently open Trace Expression
+     */
+    public void reportTraceValue(Object value) {
         if (mAccumulateExprs) {
             // Lazy nodeset evaluation makes it impossible for the trace to
             // record predicate subexpressions properly, so trigger that
@@ -530,9 +579,18 @@ public class EvaluationContext {
             if (value instanceof XPathLazyNodeset) {
                 ((XPathLazyNodeset)value).size();
             }
-
             mDebugCore.mCurrentTraceLevel.setOutcome(value);
+        }
+    }
 
+
+    /**
+     * Closes the current evaluation trace and records the
+     * relevant outcomes and context
+     *
+     */
+    public void closeTrace() {
+        if (mAccumulateExprs) {
             if (mDebugCore.mCurrentTraceLevel.getParent() == null) {
                 mDebugCore.mTraceRoot = mDebugCore.mCurrentTraceLevel;
                 if(mDebugCore.mTraceReporter != null) {

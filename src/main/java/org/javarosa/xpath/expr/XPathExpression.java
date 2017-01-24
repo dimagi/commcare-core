@@ -3,6 +3,7 @@ package org.javarosa.xpath.expr;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.Externalizable;
 
@@ -23,7 +24,8 @@ public abstract class XPathExpression implements Externalizable {
     public Object eval(DataInstance model, EvaluationContext evalContext) {
         evalContext.openTrace(this);
         Object value = evalRaw(model, evalContext);
-        evalContext.closeTrace(value);
+        evalContext.reportTraceValue(value);
+        evalContext.closeTrace();
         return value;
     }
 
