@@ -1,7 +1,9 @@
 package org.commcare.cases.instance;
 
 import org.commcare.cases.model.Case;
+import org.commcare.cases.util.CaseModelFetchCue;
 import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.expr.XPathPathExpr;
@@ -69,5 +71,4 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<Case, Ca
 
         return indices;
     }
-
 }

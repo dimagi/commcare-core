@@ -1,6 +1,7 @@
 package org.commcare.cases.util;
 
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.pivot.IntegerRangeHint;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -20,6 +21,9 @@ import java.util.Vector;
  */
 public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> implements AbstractTreeElement<T> {
 
+    protected QueryPlanner queryPlanner;
+    protected BasicStorageBackedCachingQueryHandler defaultCacher;
+
     protected Hashtable<Integer, Integer> objectIdMapping;
 
     protected abstract String getChildHintName();
@@ -33,19 +37,6 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
     protected String translateFilterExpr(XPathPathExpr expressionTemplate, XPathPathExpr matchingExpr,
                                          Hashtable<XPathPathExpr, String> indices) {
         return indices.get(expressionTemplate);
-    }
-
-    /**
-     * Gets a potential cached mapping from a storage key that could be queried
-     * on this tree to the storage ID of that element, rather than querying for
-     * that through I/O.
-     *
-     * @param keyId The ID of a storage metadata key.
-     * @return A table mapping the metadata key (must be unique) to the id of a
-     * record in the storage backing this tree root.
-     */
-    protected Hashtable<String, Integer> getKeyMapping(String keyId) {
-        return null;
     }
 
     @Override
@@ -134,6 +125,23 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         }
     }
 
+    public QueryPlanner getQueryPlanner() {
+        if(queryPlanner == null) {
+            queryPlanner = new QueryPlanner();
+            initBasicQueryHandlers(queryPlanner);
+        }
+        return queryPlanner;
+    }
+
+    private void initBasicQueryHandlers(QueryPlanner queryPlanner) {
+        defaultCacher = new BasicStorageBackedCachingQueryHandler();
+
+        //TODO: Move the actual indexed query optimization used in this
+        //method into its own (or a matching) cache method
+        queryPlanner.addQueryHandler(defaultCacher);
+    }
+
+
     private Vector<Integer> processPredicates(Vector<Integer> toRemove,
                                               Vector<PredicateProfile> profiles) {
         Vector<Integer> selectedElements = null;
@@ -143,38 +151,16 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
             int startCount = profiles.size();
 
-            Hashtable<String, Integer> keyMapping = null;
+            Vector<Integer> plannedQueryResults =
+                    this.getQueryPlanner().attemptProfiledQuery(profiles);
 
-            if(profiles.elementAt(0) instanceof IndexedValueLookup) {
-
-                IndexedValueLookup valueLookup =
-                        (IndexedValueLookup)profiles.elementAt(0);
-                //Get the first set of values.
-                String key = valueLookup.key;
-
-                //Some storage roots will collect common iterative mappings ahead of time,
-                //go check whether this key is loaded into cached memory.
-                keyMapping = getKeyMapping(key);
-            }
-
-            //TODO: Move key mapping and "Index Match" to be their own optimization implementations
-            if (keyMapping != null) {
-                //If so, go fetch that element's record id and skip the storage
-                //lookup
-                Integer uniqueValue = keyMapping.get(FunctionUtils.toString(((IndexedValueLookup)profiles.elementAt(0)).value));
-
-                //Merge into the selected elements
-                if (uniqueValue != null) {
-                    if (selectedElements == null) {
-                        selectedElements = new Vector<>();
-                        selectedElements.addElement(uniqueValue);
-                    } else if (!selectedElements.contains(uniqueValue)) {
-                        selectedElements.addElement(uniqueValue);
-                    }
+            if (plannedQueryResults != null) {
+                // merge with any other sets of cases
+                if (selectedElements == null) {
+                    selectedElements = plannedQueryResults;
+                } else {
+                    selectedElements = DataUtil.intersection(selectedElements, plannedQueryResults);
                 }
-
-                //Ok, so we've successfully processed this predicate.
-                profiles.remove(0);
             } else {
                 Vector<Integer> cases = null;
                 try {
@@ -244,6 +230,10 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
         //Get matches if it works
         Vector<Integer> returnValue = storage.getIDsForValue(op.key, op.value);
+
+        if(defaultCacher != null) {
+            defaultCacher.cacheResult(op.key, op.value, returnValue);
+        }
 
         //If we processed this, pop it off the queue
         profiles.removeElementAt(0);

@@ -37,6 +37,8 @@ public class BulkEvaluationTrace extends EvaluationTrace {
     public void setEvaluatedPredicates(Vector<XPathExpression> startingSet,
                                        Vector<XPathExpression> finalSet,
                                        Vector<TreeReference> childSet) {
+        this.triggerExprComplete();
+
         if(startingSet == null) {
             bulkEvaluationSucceeded = false;
             return;

@@ -1,5 +1,6 @@
 package org.javarosa.core.model.condition;
 
+import org.commcare.cases.util.StorageBackedTreeRoot;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -299,19 +300,27 @@ public class EvaluationContext {
 
         AbstractTreeElement node = sourceInstance.resolveReference(workingRef);
 
-        this.openBulkTrace();
-
-        // Use the reference's simple predicates to filter the potential
-        // nodeset.  Predicates used in filtering are removed from the
-        // predicate input argument.
-        Vector<TreeReference> childSet = node.tryBatchChildFetch(name, mult, predicates, this);
-
-        if (childSet == null) {
-            childSet = loadReferencesChildren(node, name, mult, includeTemplates);
+        boolean ownsEvalScope = false;
+        //This is terrible, but we need it for short term profiling
+        if(node instanceof StorageBackedTreeRoot) {
+            ownsEvalScope = ((StorageBackedTreeRoot)node).getQueryPlanner().
+                                setCurrentEvaluationScopeHint(this);
         }
+        try {
+            this.openBulkTrace();
 
-        this.reportBulkTraceResults(originalPredicates, predicates, childSet);
-        this.closeTrace();
+            // Use the reference's simple predicates to filter the potential
+            // nodeset.  Predicates used in filtering are removed from the
+            // predicate input argument.
+            Vector<TreeReference> childSet = node.tryBatchChildFetch(name, mult, predicates, this);
+
+            this.reportBulkTraceResults(originalPredicates, predicates, childSet);
+            this.closeTrace();
+
+            if (childSet == null) {
+                childSet = loadReferencesChildren(node, name, mult, includeTemplates);
+            }
+
 
         // Create a place to store the current position markers
         int[] positionContext = new int[predicates == null ? 0 : predicates.size()];
@@ -354,6 +363,12 @@ public class EvaluationContext {
             }
             if (passedAll) {
                 expandReferenceAccumulator(sourceRef, sourceInstance, refToExpand, refs, includeTemplates);
+            }
+        }
+        } finally {
+            if(ownsEvalScope) {
+                ((StorageBackedTreeRoot)node).getQueryPlanner().unLinkCurrentEvaluationScope();
+                ((StorageBackedTreeRoot)node).getQueryPlanner().setQueryMode(false);
             }
         }
     }
@@ -563,6 +578,12 @@ public class EvaluationContext {
             if (!(trace.isBulkEvaluationSucceeded())) {
                 trace.getParent().getSubTraces().remove(trace);
             }
+        }
+    }
+
+    public void reportSubtrace(EvaluationTrace trace) {
+        if (mAccumulateExprs && mDebugCore.mCurrentTraceLevel != null) {
+            mDebugCore.mCurrentTraceLevel.addSubTrace(trace);
         }
     }
 

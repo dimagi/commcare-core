@@ -21,6 +21,8 @@ public class EvaluationTraceReduction extends EvaluationTrace {
     String expression;
 
     int countExecuted = 0;
+    long nanoTime = 0;
+
     HashMap<String, Integer> valueMap = new HashMap<>();
 
     OrderedHashtable<String, EvaluationTraceReduction> subTraces = new OrderedHashtable<>();
@@ -35,6 +37,7 @@ public class EvaluationTraceReduction extends EvaluationTrace {
 
     public void foldIn(EvaluationTrace trace) {
         countExecuted ++;
+        nanoTime += trace.getRuntimeInNanoseconds();
         int valueCount = 1;
         if(valueMap.containsKey(trace.getValue())) {
             valueCount = (valueMap.get(trace.getValue()) + 1);
@@ -68,16 +71,36 @@ public class EvaluationTraceReduction extends EvaluationTrace {
         return String.valueOf(countExecuted);
     }
 
-    public String getProfileReport() {
-        String response = "{\n";
-        for(String key : valueMap.keySet()) {
-            response += "    " + key + ": " + valueMap.get(key) + "\n";
-        }
-        response += "}";
-        return response;
-
+    protected long getRuntimeInNanoseconds() {
+        return nanoTime;
     }
 
 
+    public String getProfileReport() {
+        String response = "{\n";
+        response +=  "    time: " + getRuntimeCount(getRuntimeInNanoseconds()) + "\n";
+        response +=  "    time/call: " + getRuntimeCount(getRuntimeInNanoseconds() / countExecuted) + "\n";
+        int valueResponseCount = 0;
+        int totalRecords = valueMap.size();
+        for(String key : valueMap.keySet()) {
+            response += "    " + key + ": " + valueMap.get(key) + "\n";
+            valueResponseCount++;
+            if(valueResponseCount >= 10) {
+                response += String.format("    ... %s more ...", totalRecords - valueResponseCount);
+                break;
+            }
+        }
+        response += "}";
+        return response;
+    }
 
+    private String getRuntimeCount(long l) {
+        if(l / 1000 / 1000 > 0) {
+            return l /1000 / 1000 + "ms";
+        } else if(l / 1000 > 0) {
+            return l / 1000 + "us";
+        }else {
+            return l + "ns";
+        }
+    }
 }

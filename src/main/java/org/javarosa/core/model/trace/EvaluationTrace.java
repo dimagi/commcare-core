@@ -1,8 +1,10 @@
 package org.javarosa.core.model.trace;
 
+import org.commcare.cases.util.PredicateProfile;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.expr.FunctionUtils;
 
+import java.util.HashMap;
 import java.util.Vector;
 
 /**
@@ -12,6 +14,9 @@ import java.util.Vector;
  * @author ctsims
  */
 public class EvaluationTrace {
+
+    private final long exprStartNano;
+    private long runtimeNano;
 
     private EvaluationTrace parent;
     private Object value;
@@ -27,6 +32,7 @@ public class EvaluationTrace {
      */
     public EvaluationTrace(String expression) {
         this.expression = expression;
+        exprStartNano = System.nanoTime();
     }
 
     public void setParent(EvaluationTrace parent) {
@@ -52,6 +58,15 @@ public class EvaluationTrace {
      */
     public void setOutcome(Object value) {
         this.value = value;
+        triggerExprComplete();
+    }
+
+    protected void triggerExprComplete() {
+        runtimeNano = System.nanoTime() - exprStartNano;
+    }
+
+    protected long getRuntimeInNanoseconds() {
+        return runtimeNano;
     }
 
     public void addSubTrace(EvaluationTrace child) {

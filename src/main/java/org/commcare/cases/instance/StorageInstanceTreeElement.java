@@ -6,6 +6,7 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
+import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
@@ -269,7 +270,11 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
                                       int recordId, String id, int mult);
 
     protected Model getElement(int recordId) {
-        return storage.read(recordId);
+        EvaluationTrace trace = new EvaluationTrace("Model Load[" + childName+"]");
+        Model m = storage.read(recordId);
+        trace.setOutcome(String.valueOf(recordId));
+        this.getQueryPlanner().reportTrace(trace);
+        return m;
     }
 
     protected Model getModelTemplate() {
