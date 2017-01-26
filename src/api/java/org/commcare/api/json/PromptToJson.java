@@ -38,6 +38,7 @@ public class PromptToJson {
         questionJson.put("datatype", jsonNullIfNull(parseDataType(prompt)));
         questionJson.put("control", jsonNullIfNull(prompt.getControlType()));
         questionJson.put("required", prompt.isRequired() ? 1 : 0);
+        questionJson.put("hint", jsonNullIfNull(prompt.getHintText()));
         parseQuestionAnswer(questionJson, prompt);
         questionJson.put("ix", jsonNullIfNull(prompt.getIndex()));
 
