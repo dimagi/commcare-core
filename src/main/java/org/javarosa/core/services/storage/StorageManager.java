@@ -1,5 +1,6 @@
 package org.javarosa.core.services.storage;
 
+import org.javarosa.core.services.IPropertyManager;
 import org.javarosa.core.services.Logger;
 
 import java.util.Enumeration;
@@ -14,6 +15,18 @@ import java.util.Hashtable;
  * @author Clayton Sims
  */
 public class StorageManager {
+
+    private static ThreadLocal<StorageManager> instance = new ThreadLocal<StorageManager>() {
+        @Override
+        protected StorageManager initialValue()
+        {
+            return new StorageManager();
+        }
+    };
+
+    public static StorageManager instance() {
+        return instance.get();
+    }
 
     private static final Hashtable<String, IStorageUtility> storageRegistry = new Hashtable<>();
     private static IStorageIndexedFactory storageFactory;
@@ -47,7 +60,7 @@ public class StorageManager {
         }
     }
 
-    public static void registerStorage(String key, Class type) {
+    public void registerStorage(String key, Class type) {
         if (storageFactory == null) {
             throw new RuntimeException("No storage factory has been set; I don't know what kind of storage utility to create. Either set a storage factory, or register your StorageUtilitys directly.");
         }
@@ -55,7 +68,7 @@ public class StorageManager {
         storageRegistry.put(key, storageFactory.newStorage(key, type));
     }
 
-    public static IStorageUtility getStorage(String key) {
+    public IStorageUtility getStorage(String key) {
         if (storageRegistry.containsKey(key)) {
             return storageRegistry.get(key);
         } else {
@@ -63,7 +76,7 @@ public class StorageManager {
         }
     }
 
-    public static void halt() {
+    public void halt() {
         for (Enumeration e = storageRegistry.elements(); e.hasMoreElements(); ) {
             ((IStorageUtility)e.nextElement()).close();
         }
@@ -72,7 +85,7 @@ public class StorageManager {
     /**
      * Clear all registered elements of storage, including the factory.
      */
-    public static void forceClear() {
+    public void forceClear() {
         halt();
         storageRegistry.clear();
         storageFactory = null;

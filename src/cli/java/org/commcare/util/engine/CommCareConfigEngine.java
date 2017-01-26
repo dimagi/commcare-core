@@ -81,6 +81,7 @@ public class CommCareConfigEngine {
         this.platform = new CommCarePlatform(2, 32, storageFactory);
         this.storageFactory = storageFactory;
 
+
         setRoots();
         table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class),
                 installerFactory);
@@ -93,15 +94,15 @@ public class CommCareConfigEngine {
         //All of the below is on account of the fact that the installers
         //aren't going through a factory method to handle them differently
         //per device.
-        StorageManager.forceClear();
-        StorageManager.setStorageFactory(storageFactory);
-        StorageManager.registerStorage(PropertyManager.STORAGE_KEY, Property.class);
+        StorageManager.instance().forceClear();
+        StorageManager.instance().setStorageFactory(storageFactory);
+        StorageManager.instance().registerStorage(PropertyManager.STORAGE_KEY, Property.class);
         PropertyManager.setPropertyManager(storageFactory.newStorage(PropertyManager.STORAGE_KEY, Property.class));
-        StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
-        StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
-        StorageManager.registerStorage(FormDef.STORAGE_KEY, FormDef.class);
-        StorageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
-        StorageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
+        StorageManager.instance().registerStorage(Profile.STORAGE_KEY, Profile.class);
+        StorageManager.instance().registerStorage(Suite.STORAGE_KEY, Suite.class);
+        StorageManager.instance().registerStorage(FormDef.STORAGE_KEY, FormDef.class);
+        StorageManager.instance().registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
+        StorageManager.instance().registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
     }
 
     protected void setRoots() {

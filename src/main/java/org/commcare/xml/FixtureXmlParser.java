@@ -116,7 +116,7 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
 
     public IStorageUtilityIndexed<FormInstance> storage() {
         if (storage == null) {
-            storage = (IStorageUtilityIndexed)StorageManager.getStorage(FormInstance.STORAGE_KEY);
+            storage = (IStorageUtilityIndexed)StorageManager.instance().getStorage(FormInstance.STORAGE_KEY);
         }
         return storage;
     }

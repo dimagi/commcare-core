@@ -38,7 +38,7 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
 
     protected IStorageUtility<T> storage() {
         if (cacheStorage == null) {
-            cacheStorage = StorageManager.getStorage(getCacheKey());
+            cacheStorage = StorageManager.instance().getStorage(getCacheKey());
         }
         return cacheStorage;
     }
