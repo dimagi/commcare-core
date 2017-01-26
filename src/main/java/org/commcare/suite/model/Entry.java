@@ -173,4 +173,9 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
         ExtUtil.write(out, new ExtWrapList(stackOperations));
         ExtUtil.write(out, new ExtWrapNullable(assertions));
     }
+
+    @Override
+    public String toString() {
+        return "Entry with id " + this.getCommandId() + " display text " + this.getDisplayText();
+    }
 }
