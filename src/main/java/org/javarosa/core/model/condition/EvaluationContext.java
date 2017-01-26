@@ -1,5 +1,6 @@
 package org.javarosa.core.model.condition;
 
+import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.util.StorageBackedTreeRoot;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -72,6 +73,9 @@ public class EvaluationContext {
     // original context reference used for evaluating current()
     private TreeReference original;
 
+    // Keeps track of the overall context for the executing query stack
+    private QueryContext queryContext;
+
     /**
      * What element in a nodeset is the context currently pointing to?
      * Used for calculating the position() xpath function.
@@ -107,6 +111,7 @@ public class EvaluationContext {
         this.contextNode = TreeReference.rootRef();
         functionHandlers = new Hashtable<>();
         variables = new Hashtable<>();
+        this.setQueryContext(new QueryContext());
     }
 
     /**
@@ -143,6 +148,9 @@ public class EvaluationContext {
             this.mAccumulateExprs = true;
             this.mDebugCore = base.mDebugCore;
         }
+
+        this.queryContext = base.queryContext;
+        queryContext.setTraceRoot(this);
     }
 
     public DataInstance getInstance(String id) {
@@ -229,6 +237,15 @@ public class EvaluationContext {
 
     public Object getVariable(String name) {
         return variables.get(name);
+    }
+
+    public QueryContext getCurrentQueryContext() {
+        return queryContext;
+    }
+
+    public void setQueryContext(QueryContext queryContext) {
+        this.queryContext = queryContext;
+        queryContext.setTraceRoot(this);
     }
 
     public Vector<TreeReference> expandReference(TreeReference ref) {
@@ -321,6 +338,8 @@ public class EvaluationContext {
                 childSet = loadReferencesChildren(node, name, mult, includeTemplates);
             }
 
+            QueryContext subContext = queryContext.
+                    checkForDerivativeContextAndReturn(childSet == null ? 0 : childSet.size());
 
         // Create a place to store the current position markers
         int[] positionContext = new int[predicates == null ? 0 : predicates.size()];
@@ -338,7 +357,8 @@ public class EvaluationContext {
                     // push up the next one
                     positionContext[predIndex]++;
 
-                    EvaluationContext evalContext = rescope(refToExpand, positionContext[predIndex]);
+                    EvaluationContext evalContext = rescope(refToExpand, positionContext[predIndex],
+                            subContext);
                     Object o = predExpr.eval(sourceInstance, evalContext);
                     o = FunctionUtils.unpack(o);
 
@@ -440,11 +460,15 @@ public class EvaluationContext {
      * @param newContextRef      the new context anchor reference
      * @param newContextPosition the new position of the context (in a repeat
      *                           group)
+     * @param subContext         the new query context for optimization, may differ from this
+     *                           context if there has been a drastic change in query scope
      * @return a copy of this evaluation context, with a new context reference
      * set and the original context reference correspondingly updated.
      */
-    private EvaluationContext rescope(TreeReference newContextRef, int newContextPosition) {
+    private EvaluationContext rescope(TreeReference newContextRef, int newContextPosition,
+                                      QueryContext subContext) {
         EvaluationContext ec = new EvaluationContext(this, newContextRef);
+        ec.setQueryContext(queryContext);
         ec.currentContextPosition = newContextPosition;
 
         // If we have an original context reference, use it
@@ -576,7 +600,10 @@ public class EvaluationContext {
             BulkEvaluationTrace trace = (BulkEvaluationTrace)mDebugCore.mCurrentTraceLevel;
             trace.setEvaluatedPredicates(startingSet, finalSet, childSet);
             if (!(trace.isBulkEvaluationSucceeded())) {
-                trace.getParent().getSubTraces().remove(trace);
+                Vector<EvaluationTrace> traces = trace.getParent().getSubTraces();
+                synchronized (traces){
+                    traces.remove(trace);
+                }
             }
         }
     }

@@ -1,10 +1,8 @@
 package org.javarosa.core.model.trace;
 
-import org.commcare.cases.util.PredicateProfile;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.expr.FunctionUtils;
 
-import java.util.HashMap;
 import java.util.Vector;
 
 /**
@@ -70,7 +68,9 @@ public class EvaluationTrace {
     }
 
     public void addSubTrace(EvaluationTrace child) {
-        this.children.addElement(child);
+        synchronized (children) {
+            this.children.addElement(child);
+        }
     }
 
     public Vector<EvaluationTrace> getSubTraces() {

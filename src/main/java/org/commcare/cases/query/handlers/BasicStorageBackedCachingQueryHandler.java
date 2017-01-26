@@ -1,16 +1,19 @@
-package org.commcare.cases.util;
+package org.commcare.cases.query.handlers;
 
-import org.javarosa.xpath.expr.FunctionUtils;
+import org.commcare.cases.query.*;
+import org.commcare.cases.query.IndexedValueLookup;
+import org.commcare.cases.query.PredicateProfile;
+import org.commcare.cases.util.LruCache;
+import org.commcare.cases.util.QueryUtils;
 
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Vector;
 
 /**
  * Created by ctsims on 1/25/2017.
  */
 
-public class BasicStorageBackedCachingQueryHandler implements QueryHandler<IndexedValueLookup> {
+public class BasicStorageBackedCachingQueryHandler implements org.commcare.cases.query.QueryHandler<org.commcare.cases.query.IndexedValueLookup> {
     HashMap<String, LruCache<Object, Vector<Integer>>> caches = new HashMap<>();
 
     @Override
@@ -19,8 +22,8 @@ public class BasicStorageBackedCachingQueryHandler implements QueryHandler<Index
     }
 
     @Override
-    public IndexedValueLookup profileHandledQuerySet(Vector<PredicateProfile> profiles) {
-        IndexedValueLookup ret = QueryUtils.getFirstKeyIndexedValue(profiles);
+    public org.commcare.cases.query.IndexedValueLookup profileHandledQuerySet(Vector<org.commcare.cases.query.PredicateProfile> profiles) {
+        org.commcare.cases.query.IndexedValueLookup ret = QueryUtils.getFirstKeyIndexedValue(profiles);
         if(ret != null){
             if(caches.containsKey(ret.getKey())) {
                 return ret;
@@ -30,7 +33,7 @@ public class BasicStorageBackedCachingQueryHandler implements QueryHandler<Index
     }
 
     @Override
-    public Vector<Integer> loadProfileMatches(IndexedValueLookup querySet) {
+    public Vector<Integer> loadProfileMatches(org.commcare.cases.query.IndexedValueLookup querySet, QueryContext queryContext) {
         LruCache<Object, Vector<Integer>> cache = caches.get(querySet.getKey());
         if(cache == null) {
             return null;

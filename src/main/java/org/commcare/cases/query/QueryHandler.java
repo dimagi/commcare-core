@@ -1,4 +1,4 @@
-package org.commcare.cases.util;
+package org.commcare.cases.query;
 
 import java.util.Vector;
 
@@ -16,7 +16,7 @@ public interface QueryHandler<T> {
 
     T profileHandledQuerySet(Vector<PredicateProfile> profiles);
 
-    Vector<Integer> loadProfileMatches(T querySet);
+    Vector<Integer> loadProfileMatches(T querySet, QueryContext queryContext);
 
     void updateProfiles(T querySet, Vector<PredicateProfile> profiles);
 }

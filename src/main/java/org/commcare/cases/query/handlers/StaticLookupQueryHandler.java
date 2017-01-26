@@ -1,5 +1,10 @@
-package org.commcare.cases.util;
+package org.commcare.cases.query.handlers;
 
+import org.commcare.cases.query.IndexedValueLookup;
+import org.commcare.cases.query.PredicateProfile;
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.QueryPlanner;
+import org.commcare.cases.util.QueryUtils;
 import org.javarosa.xpath.expr.FunctionUtils;
 
 import java.util.Vector;
@@ -11,7 +16,7 @@ import java.util.Vector;
  * Created by ctsims on 1/25/2017.
  */
 
-public abstract class StaticLookupQueryHandler implements QueryHandler<IndexedValueLookup> {
+public abstract class StaticLookupQueryHandler implements org.commcare.cases.query.QueryHandler<org.commcare.cases.query.IndexedValueLookup> {
 
     protected abstract boolean canHandle(String key);
     protected abstract Vector<Integer> getMatches(String key, String valueToMatch);
@@ -22,8 +27,8 @@ public abstract class StaticLookupQueryHandler implements QueryHandler<IndexedVa
     }
 
     @Override
-    public IndexedValueLookup profileHandledQuerySet(Vector<PredicateProfile> profiles) {
-        IndexedValueLookup ret = QueryUtils.getFirstKeyIndexedValue(profiles);
+    public org.commcare.cases.query.IndexedValueLookup profileHandledQuerySet(Vector<org.commcare.cases.query.PredicateProfile> profiles) {
+        org.commcare.cases.query.IndexedValueLookup ret = QueryUtils.getFirstKeyIndexedValue(profiles);
         if(ret != null){
             if(canHandle(ret.getKey())) {
                 return ret;
@@ -33,7 +38,8 @@ public abstract class StaticLookupQueryHandler implements QueryHandler<IndexedVa
     }
 
     @Override
-    public Vector<Integer> loadProfileMatches(IndexedValueLookup querySet) {
+    public Vector<Integer> loadProfileMatches(org.commcare.cases.query.IndexedValueLookup querySet,
+                                              QueryContext queryContext) {
         return getMatches(querySet.getKey(), FunctionUtils.toString((querySet).value));
     }
 

@@ -5,6 +5,7 @@ import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.expr.FunctionUtils;
 
+import java.util.ConcurrentModificationException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,14 +44,22 @@ public class EvaluationTraceReduction extends EvaluationTrace {
             valueCount = (valueMap.get(trace.getValue()) + 1);
         }
         valueMap.put(trace.getValue(), valueCount);
-        for(EvaluationTrace subTrace : trace.getSubTraces()) {
-            String subKey = subTrace.getExpression();
-            if(subTraces.containsKey(subKey)) {
-                EvaluationTraceReduction reducedSubExpr = subTraces.get(subTrace.getExpression());
-                reducedSubExpr.foldIn(subTrace);
-            } else {
-                EvaluationTraceReduction reducedSubExpr = new EvaluationTraceReduction(subTrace);
-                subTraces.put(subKey, reducedSubExpr);
+        Vector<EvaluationTrace> subTraceVector = trace.getSubTraces();
+        Vector<EvaluationTrace> copy = (Vector)subTraceVector.clone();
+        synchronized (subTraceVector) {
+            try {
+                for (EvaluationTrace subTrace : copy) {
+                    String subKey = subTrace.getExpression();
+                    if (subTraces.containsKey(subKey)) {
+                        EvaluationTraceReduction reducedSubExpr = subTraces.get(subTrace.getExpression());
+                        reducedSubExpr.foldIn(subTrace);
+                    } else {
+                        EvaluationTraceReduction reducedSubExpr = new EvaluationTraceReduction(subTrace);
+                        subTraces.put(subKey, reducedSubExpr);
+                    }
+                }
+            }catch (ConcurrentModificationException cme) {
+                throw new RuntimeException(cme);
             }
         }
     }

@@ -6,6 +6,7 @@ import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
 import org.javarosa.xpath.XPathException;
@@ -109,6 +110,9 @@ public class NodeEntityFactory {
         }
         List<TreeReference> result = tracableContext.expandReference(treeReference);
         printAndClearTraces("expand");
+
+        ec.setQueryContext(ec.getCurrentQueryContext()
+                .checkForDerivativeContextAndReturn(result.size()));
         return result;
     }
 

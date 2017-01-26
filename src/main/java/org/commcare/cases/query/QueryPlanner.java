@@ -1,6 +1,5 @@
-package org.commcare.cases.util;
+package org.commcare.cases.query;
 
-import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.trace.EvaluationTrace;
 
@@ -20,19 +19,21 @@ public class QueryPlanner {
 
     private boolean queryModeAggressive = false;
 
-    public List<QueryCue> aggressiveCues = new Vector<>();
+    public List<org.commcare.cases.query.QueryCue> aggressiveCues = new Vector<>();
 
     /**
      * @param profiles note: Should remove profiles which have been handled
      *
+     * @param currentQueryContext
      * @return null if the query could not be handled by this planner
      */
-    public Vector<Integer> attemptProfiledQuery(Vector<PredicateProfile> profiles){
+    public Vector<Integer> attemptProfiledQuery(Vector<PredicateProfile> profiles,
+                                                QueryContext currentQueryContext){
         for(int i = 0 ; i < handlers.size() ; ++i) {
             QueryHandler handler = handlers.get(i);
             Object queryPlan = handler.profileHandledQuerySet(profiles);
             if(queryPlan != null) {
-                Vector<Integer> retVal = handler.loadProfileMatches(queryPlan);
+                Vector<Integer> retVal = handler.loadProfileMatches(queryPlan, currentQueryContext);
                 if(retVal != null) {
                     handler.updateProfiles(queryPlan, profiles);
                     return retVal;
@@ -83,20 +84,20 @@ public class QueryPlanner {
 
         //Clear out state from aggressive queries.
         if(!queryModeAggressive) {
-            for(QueryCue cue : aggressiveCues) {
+            for(org.commcare.cases.query.QueryCue cue : aggressiveCues) {
                 cue.cleanupCue();
             }
             this.aggressiveCues.clear();
         } else {
             if(queryModeAggressive) {
-                for (QueryCue cue : aggressiveCues) {
+                for (org.commcare.cases.query.QueryCue cue : aggressiveCues) {
                     cue.activate();
                 }
             }
         }
     }
 
-    public void addQueryCue(QueryCue caseModelFetchCue) {
+    public void addQueryCue(org.commcare.cases.query.QueryCue caseModelFetchCue) {
         this.aggressiveCues.add(caseModelFetchCue);
         if(queryModeAggressive) {
             caseModelFetchCue.activate();
@@ -104,7 +105,7 @@ public class QueryPlanner {
     }
 
     public <T> T getQueryCue(Class<T> c) {
-        for(QueryCue cue : aggressiveCues) {
+        for(org.commcare.cases.query.QueryCue cue : aggressiveCues) {
             if(cue.getClass().equals(c)) {
                 return (T)cue;
             }

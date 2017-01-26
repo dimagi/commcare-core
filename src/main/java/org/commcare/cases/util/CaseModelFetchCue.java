@@ -10,7 +10,7 @@ import java.util.Vector;
  * Created by ctsims on 1/25/2017.
  */
 
-public class CaseModelFetchCue implements QueryCue {
+public class CaseModelFetchCue implements org.commcare.cases.query.QueryCue {
     boolean active = false;
     boolean isPrimed = false;
 

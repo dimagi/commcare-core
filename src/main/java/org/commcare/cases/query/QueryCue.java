@@ -1,4 +1,4 @@
-package org.commcare.cases.util;
+package org.commcare.cases.query;
 
 /**
  * A Query Cue carries forward information from a previous query handling which provides context
