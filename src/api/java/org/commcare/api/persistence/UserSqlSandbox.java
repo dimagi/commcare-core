@@ -68,7 +68,7 @@ public class UserSqlSandbox extends UserSandbox {
     @Override
     public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getIndexedFixtureStorage(String fixtureName) {
         String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
-        return new SqliteIndexedStorageUtility<>(StorageIndexedTreeElementModel.class, username, tableName, path);
+        return new SqliteIndexedStorageUtility<>(username, tableName, path);
     }
 
     @Override
@@ -76,8 +76,8 @@ public class UserSqlSandbox extends UserSandbox {
                                            StorageIndexedTreeElementModel exampleEntry,
                                            Set<String> indices) {
         String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
-        SqliteIndexedStorageUtility<StorageIndexedTreeElementModel> sqlUtil =
-                new SqliteIndexedStorageUtility<>(username, tableName, path);
+        SqliteIndexedStorageUtility<StorageIndexedTreeElementModel> sqlUtil
+                = new SqliteIndexedStorageUtility<>(exampleEntry, username, tableName, path);
 
         sqlUtil.rebuildTable(exampleEntry);
 
@@ -86,15 +86,14 @@ public class UserSqlSandbox extends UserSandbox {
 
     @Override
     public Pair<String, String> getIndexedFixturePathBases(String fixtureName) {
-        throw new RuntimeException("implement in similar fashion as AndroidSandbox implementation");
+        return null;
     }
 
     @Override
     public void setIndexedFixturePathBases(String fixtureName, String baseName,
                                            String childName) {
-        String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
         SqliteIndexedStorageUtility<StorageIndexedTreeElementModel> sqlUtil =
-                createFixturePathsTable(tableName);
+                createFixturePathsTable(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE);
 
         Map<String, String> contentVals = new HashMap<>();
         contentVals.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_BASE, baseName);

@@ -141,7 +141,7 @@ public class SqlHelper {
         }
         stringBuilder.append(") VALUES (");
         prefix = "";
-        for (int i = 0; i <= values.size(); i++) {
+        for (int i = 0; i < values.size(); i++) {
             stringBuilder.append(prefix);
             prefix = ",";
             stringBuilder.append("?");

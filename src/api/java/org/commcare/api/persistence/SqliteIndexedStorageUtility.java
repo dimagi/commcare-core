@@ -43,6 +43,18 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
         databaseFolder = new File(databasePath);
     }
 
+    public SqliteIndexedStorageUtility(T prototype, String sandboxId,
+                                       String tableName, String databasePath) {
+        this(sandboxId, tableName, databasePath);
+        this.prototype = (Class<T>)prototype.getClass();
+
+        try {
+            buildTableFromInstance(prototype);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public SqliteIndexedStorageUtility(Class<T> prototype, String sandboxId,
                                        String tableName, String databasePath) {
         this(sandboxId, tableName, databasePath);
