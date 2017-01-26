@@ -85,10 +85,7 @@ public class SqlHelper {
                                                                 String[] fields,
                                                                 String[] values,
                                                                 Persistable p) {
-        TableBuilder tableBuilder = new TableBuilder(storageKey);
-        tableBuilder.addData(p);
-        Pair<String, String[]> pair = DatabaseHelper.createWhere(fields, values, p);
-
+        Pair<String, String[]> pair = DatabaseHelper.createWhere(fields, values, null);
         try {
             String queryString =
                     "SELECT * FROM " + storageKey + " WHERE " + pair.first + ";";
