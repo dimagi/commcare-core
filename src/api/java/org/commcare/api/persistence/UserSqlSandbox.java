@@ -11,6 +11,10 @@ import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +30,7 @@ public class UserSqlSandbox extends UserSandbox {
     private final SqliteIndexedStorageUtility<User> userStorage;
     private final SqliteIndexedStorageUtility<FormInstance> userFixtureStorage;
     private final SqliteIndexedStorageUtility<FormInstance> appFixtureStorage;
+    private final SqliteIndexedStorageUtility<StorageIndexedTreeElementModel> sqlUtil;
     private final String username, path;
     private User user = null;
     public static final String DEFAULT_DATBASE_PATH = "dbs";
@@ -44,6 +49,7 @@ public class UserSqlSandbox extends UserSandbox {
         userStorage = new SqliteIndexedStorageUtility<>(User.class, username, User.STORAGE_KEY, path);
         userFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, "UserFixture", path);
         appFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, "AppFixture", path);
+        sqlUtil = createFixturePathsTable(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE);
     }
 
     public UserSqlSandbox(String username) {
@@ -86,7 +92,39 @@ public class UserSqlSandbox extends UserSandbox {
 
     @Override
     public Pair<String, String> getIndexedFixturePathBases(String fixtureName) {
-        throw new RuntimeException("implement in similar fashion as AndroidSandbox implementation");
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            connection = sqlUtil.getConnection();
+            preparedStatement =
+                    connection.prepareStatement(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE_SELECT_STMT);
+            preparedStatement.setString(1, fixtureName);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                String base = resultSet.getString(1);
+                String child = resultSet.getString(2);
+                return new Pair<>(base, child);
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -95,12 +133,10 @@ public class UserSqlSandbox extends UserSandbox {
         String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
         SqliteIndexedStorageUtility<StorageIndexedTreeElementModel> sqlUtil =
                 createFixturePathsTable(tableName);
-
         Map<String, String> contentVals = new HashMap<>();
         contentVals.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_BASE, baseName);
         contentVals.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_CHILD, childName);
         contentVals.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_NAME, fixtureName);
-
         sqlUtil.basicInsert(contentVals);
     }
 

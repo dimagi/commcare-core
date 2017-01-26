@@ -125,7 +125,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
         }
     }
 
-    Connection getConnection() throws SQLException, ClassNotFoundException {
+    public Connection getConnection() throws SQLException, ClassNotFoundException {
         if (!databaseFolder.exists()) {
             databaseFolder.mkdir();
         }
