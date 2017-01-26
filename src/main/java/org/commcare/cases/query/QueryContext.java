@@ -80,6 +80,10 @@ public class QueryContext {
         }
     }
 
+    public int getScope() {
+        return this.contextScope;
+    }
+
     private boolean dominates(int newScope, int existingScope) {
         return newScope > existingScope &&
                 newScope > BULK_QUERY_THRESHOLD &&

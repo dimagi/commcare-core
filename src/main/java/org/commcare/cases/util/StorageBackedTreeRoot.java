@@ -7,6 +7,7 @@ import org.commcare.cases.query.PredicateProfile;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.xpath.expr.FunctionUtils;
@@ -155,9 +156,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         IStorageUtilityIndexed<?> storage = getStorage();
         int predicatesProcessed = 0;
         while (profiles.size() > 0) {
-
             int startCount = profiles.size();
-
             Vector<Integer> plannedQueryResults =
                     this.getQueryPlanner().attemptProfiledQuery(profiles, currentQueryContext);
 
@@ -184,6 +183,11 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                 } else {
                     selectedElements = DataUtil.intersection(selectedElements, cases);
                 }
+            }
+
+            if(selectedElements != null && selectedElements.size() == 0) {
+                //There's nothing left! We can completely wipe the remaining profiles
+                profiles.clear();
             }
 
             int numPredicatesRemoved = startCount - profiles.size();
@@ -236,8 +240,15 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
         org.commcare.cases.query.IndexedValueLookup op = (IndexedValueLookup)profiles.elementAt(0);
 
+
+        EvaluationTrace trace = new EvaluationTrace("Model Index[" + op.key + "] Lookup");
+
         //Get matches if it works
         Vector<Integer> returnValue = storage.getIDsForValue(op.key, op.value);
+
+        trace.setOutcome("results: " + returnValue.size());
+        queryPlanner.reportTrace(trace);
+
 
         if(defaultCacher != null) {
             defaultCacher.cacheResult(op.key, op.value, returnValue);
