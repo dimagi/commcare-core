@@ -2,6 +2,8 @@ package org.commcare.cases.instance;
 
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.QuerySensitive;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.data.UncastData;
@@ -12,10 +14,12 @@ import org.javarosa.core.model.utils.PreloadUtils;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import javax.management.Query;
+
 /**
  * @author ctsims
  */
-public class CaseChildElement extends StorageBackedChildElement<Case> {
+public class CaseChildElement extends StorageBackedChildElement<Case> implements QuerySensitive {
 
     private static final String NAME_ID = "case_id";
 
@@ -77,7 +81,7 @@ public class CaseChildElement extends StorageBackedChildElement<Case> {
 
     //TODO: THIS IS NOT THREAD SAFE
     @Override
-    protected TreeElement cache() {
+    protected TreeElement cache(QueryContext context) {
         if (recordId == TreeReference.INDEX_TEMPLATE) {
             return empty;
         }
@@ -92,7 +96,7 @@ public class CaseChildElement extends StorageBackedChildElement<Case> {
                 recordId = ids.elementAt(0);
             }
 
-            Case c = parent.getElement(recordId);
+            Case c = parent.getElement(recordId, context);
             entityId = c.getCaseId();
             TreeElement cacheBuilder = new TreeElement("case");
             cacheBuilder.setMult(this.mult);
@@ -252,5 +256,10 @@ public class CaseChildElement extends StorageBackedChildElement<Case> {
 
     public static CaseChildElement buildCaseChildTemplate(CaseInstanceTreeElement parent) {
         return new CaseChildElement(parent);
+    }
+
+    @Override
+    public void notifyOfCurrentQueryContext(QueryContext queryContext) {
+        cache(queryContext);
     }
 }

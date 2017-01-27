@@ -1,5 +1,6 @@
 package org.commcare.cases.instance;
 
+import org.commcare.cases.query.QueryContext;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
@@ -220,5 +221,9 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
         return cache().getAttributeValue(namespace, name);
     }
 
-    protected abstract TreeElement cache();
+    protected TreeElement cache() {
+        return cache(null);
+    }
+
+    protected abstract TreeElement cache(QueryContext context);
 }

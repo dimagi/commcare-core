@@ -1,6 +1,7 @@
 package org.commcare.cases.instance;
 
 import org.commcare.cases.ledger.Ledger;
+import org.commcare.cases.query.QueryContext;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.instance.TreeElement;
@@ -62,7 +63,7 @@ public class LedgerChildElement extends StorageBackedChildElement<Ledger> {
 
     //TODO: THIS IS NOT THREAD SAFE
     @Override
-    protected TreeElement cache() {
+    protected TreeElement cache(QueryContext context) {
         if (recordId == TreeReference.INDEX_TEMPLATE) {
             return empty;
         }
@@ -73,7 +74,7 @@ public class LedgerChildElement extends StorageBackedChildElement<Ledger> {
             }
 
             TreeElement cacheBuilder = new TreeElement(NAME);
-            Ledger ledger = parent.getElement(recordId);
+            Ledger ledger = parent.getElement(recordId, context);
             entityId = ledger.getEntiyId();
             cacheBuilder.setMult(this.mult);
 
