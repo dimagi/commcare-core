@@ -15,8 +15,6 @@ import java.util.Vector;
 public class QueryPlanner {
     private List<QueryHandler> handlers = new Vector<>();
 
-    private EvaluationContext currentScope;
-
     /**
      * @param profiles note: Should remove profiles which have been handled
      *
@@ -47,28 +45,5 @@ public class QueryPlanner {
                 return first.getExpectedRuntime() - second.getExpectedRuntime();
             }
         });
-    }
-
-    public EvaluationContext getEvalutionScope() {
-        return currentScope;
-    }
-
-    public boolean setCurrentEvaluationScopeHint(EvaluationContext context) {
-        if(this.currentScope == null ) {
-            this.currentScope = context;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public void unLinkCurrentEvaluationScope() {
-        this.currentScope = null;
-    }
-
-    public void reportTrace(EvaluationTrace trace) {
-        if(currentScope != null) {
-            currentScope.reportSubtrace(trace);
-        }
     }
 }

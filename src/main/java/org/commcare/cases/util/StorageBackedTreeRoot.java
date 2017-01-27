@@ -249,8 +249,9 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         Vector<Integer> returnValue = storage.getIDsForValue(op.key, op.value);
 
         trace.setOutcome("results: " + returnValue.size());
-        queryPlanner.reportTrace(trace);
-
+        if (currentQueryContext != null) {
+            currentQueryContext.reportTrace(trace);
+        }
 
         if(defaultCacher != null) {
             defaultCacher.cacheResult(op.key, op.value, returnValue);

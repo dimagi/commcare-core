@@ -318,29 +318,22 @@ public class EvaluationContext {
 
         AbstractTreeElement node = sourceInstance.resolveReference(workingRef);
 
-        boolean ownsEvalScope = false;
-        //This is terrible, but we need it for short term profiling
-        if(node instanceof StorageBackedTreeRoot) {
-            ownsEvalScope = ((StorageBackedTreeRoot)node).getQueryPlanner().
-                                setCurrentEvaluationScopeHint(this);
+        this.openBulkTrace();
+
+        // Use the reference's simple predicates to filter the potential
+        // nodeset.  Predicates used in filtering are removed from the
+        // predicate input argument.
+        Vector<TreeReference> childSet = node.tryBatchChildFetch(name, mult, predicates, this);
+
+        this.reportBulkTraceResults(originalPredicates, predicates, childSet);
+        this.closeTrace();
+
+        if (childSet == null) {
+            childSet = loadReferencesChildren(node, name, mult, includeTemplates);
         }
-        try {
-            this.openBulkTrace();
 
-            // Use the reference's simple predicates to filter the potential
-            // nodeset.  Predicates used in filtering are removed from the
-            // predicate input argument.
-            Vector<TreeReference> childSet = node.tryBatchChildFetch(name, mult, predicates, this);
-
-            this.reportBulkTraceResults(originalPredicates, predicates, childSet);
-            this.closeTrace();
-
-            if (childSet == null) {
-                childSet = loadReferencesChildren(node, name, mult, includeTemplates);
-            }
-
-            QueryContext subContext = queryContext.
-                    checkForDerivativeContextAndReturn(childSet == null ? 0 : childSet.size());
+        QueryContext subContext = queryContext.
+                checkForDerivativeContextAndReturn(childSet == null ? 0 : childSet.size());
 
         // Create a place to store the current position markers
         int[] positionContext = new int[predicates == null ? 0 : predicates.size()];
@@ -384,11 +377,6 @@ public class EvaluationContext {
             }
             if (passedAll) {
                 expandReferenceAccumulator(sourceRef, sourceInstance, refToExpand, refs, includeTemplates);
-            }
-        }
-        } finally {
-            if(ownsEvalScope) {
-                ((StorageBackedTreeRoot)node).getQueryPlanner().unLinkCurrentEvaluationScope();
             }
         }
     }
