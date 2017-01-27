@@ -20,7 +20,7 @@ public class XPathRandomFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         //calculated expressions may be recomputed w/o warning! use with caution!!
         return new Double(MathUtils.getRand().nextDouble());
     }
