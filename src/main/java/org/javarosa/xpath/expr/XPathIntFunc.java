@@ -19,7 +19,7 @@ public class XPathIntFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return FunctionUtils.toInt(evaluatedArgs[0]);
     }
 

@@ -20,7 +20,7 @@ public class XPathSumFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         if (evaluatedArgs[0] instanceof XPathNodeset) {
             return sum(((XPathNodeset)evaluatedArgs[0]).toArgList());
         } else {
