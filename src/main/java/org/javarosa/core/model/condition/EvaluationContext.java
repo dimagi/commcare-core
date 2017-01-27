@@ -1,6 +1,7 @@
 package org.javarosa.core.model.condition;
 
 import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.util.QueryUtils;
 import org.commcare.cases.util.StorageBackedTreeRoot;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -408,6 +409,7 @@ public class EvaluationContext {
                                                          int childMult,
                                                          boolean includeTemplates) {
         Vector<TreeReference> childSet = new Vector<>();
+        QueryUtils.poke(node, getCurrentQueryContext());
         if (node.hasChildren()) {
             if (childMult == TreeReference.INDEX_UNBOUND) {
                 int count = node.getChildMultiplicity(childName);

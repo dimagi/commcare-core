@@ -1,6 +1,8 @@
 package org.commcare.cases.util;
 
 import org.commcare.cases.query.IndexedValueLookup;
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.QuerySensitive;
 
 import java.util.Vector;
 
@@ -20,5 +22,15 @@ public class QueryUtils {
         Vector<Integer> results = new Vector<>();
         results.add(result);
         return results;
+    }
+
+    public static void poke(Object o, QueryContext context) {
+        if(o instanceof QuerySensitive) {
+            notifySensitive((QuerySensitive)o, context);
+        }
+    }
+
+    private static void notifySensitive(QuerySensitive o, QueryContext context) {
+        o.notifyOfCurrentQueryContext(context);
     }
 }

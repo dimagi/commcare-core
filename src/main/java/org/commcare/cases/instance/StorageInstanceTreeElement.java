@@ -1,5 +1,6 @@
 package org.commcare.cases.instance;
 
+import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.util.StorageBackedTreeRoot;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -269,11 +270,15 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
     protected abstract T buildElement(StorageInstanceTreeElement<Model, T> storageInstance,
                                       int recordId, String id, int mult);
 
-    protected Model getElement(int recordId) {
+    protected Model getElement(int recordId, QueryContext context) {
         EvaluationTrace trace = new EvaluationTrace("Model Load[" + childName+"]");
+
         Model m = storage.read(recordId);
+
         trace.setOutcome(String.valueOf(recordId));
-        this.getQueryPlanner().reportTrace(trace);
+        if(context!= null) {
+            context.reportTrace(trace);
+        }
         return m;
     }
 
