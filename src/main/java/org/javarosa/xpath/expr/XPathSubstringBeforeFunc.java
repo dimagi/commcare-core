@@ -18,7 +18,7 @@ public class XPathSubstringBeforeFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return substringBefore(evaluatedArgs[0], evaluatedArgs[1]);
     }
 

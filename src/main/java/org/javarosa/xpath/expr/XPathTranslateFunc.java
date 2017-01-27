@@ -20,7 +20,7 @@ public class XPathTranslateFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return translate(evaluatedArgs[0], evaluatedArgs[1], evaluatedArgs[2]);
     }
 

@@ -22,7 +22,7 @@ public class XPathRegexFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return regex(evaluatedArgs[0], evaluatedArgs[1]);
     }
 
