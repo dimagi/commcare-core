@@ -103,4 +103,7 @@ public class QueryContext {
     public <T extends QueryCacheEntry> T getQueryCache(Class<T> cacheType) {
         return cache.getQueryCache(cacheType);
     }
+    public <T extends QueryCacheEntry> T getQueryCacheOrNull(Class<T> cacheType) {
+        return cache.getQueryCacheOrNull(cacheType);
+    }
 }
