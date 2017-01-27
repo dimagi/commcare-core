@@ -26,7 +26,7 @@ public class XPathCountSelectedFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         Object evalResult = FunctionUtils.unpack(evaluatedArgs[0]);
         if (!(evalResult instanceof String)) {
             throw new XPathTypeMismatchException("count-selected argument was not a select list");

@@ -25,7 +25,7 @@ public class XPathSelectedFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return multiSelected(evaluatedArgs[0], evaluatedArgs[1]);
     }
 

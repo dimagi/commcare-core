@@ -18,7 +18,7 @@ public class XPathStringLengthFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         String s = FunctionUtils.toString(evaluatedArgs[0]);
         if (s == null) {
             return new Double(0.0);

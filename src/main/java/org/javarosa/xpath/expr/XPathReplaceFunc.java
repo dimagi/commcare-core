@@ -22,7 +22,7 @@ public class XPathReplaceFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return replace(evaluatedArgs[0], evaluatedArgs[1], evaluatedArgs[2]);
     }
 
