@@ -388,7 +388,6 @@ public class EvaluationContext {
         } finally {
             if(ownsEvalScope) {
                 ((StorageBackedTreeRoot)node).getQueryPlanner().unLinkCurrentEvaluationScope();
-                ((StorageBackedTreeRoot)node).getQueryPlanner().setQueryMode(false);
             }
         }
     }

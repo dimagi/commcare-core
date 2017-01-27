@@ -17,10 +17,6 @@ public class QueryPlanner {
 
     private EvaluationContext currentScope;
 
-    private boolean queryModeAggressive = false;
-
-    public List<org.commcare.cases.query.QueryCue> aggressiveCues = new Vector<>();
-
     /**
      * @param profiles note: Should remove profiles which have been handled
      *
@@ -74,42 +70,5 @@ public class QueryPlanner {
         if(currentScope != null) {
             currentScope.reportSubtrace(trace);
         }
-    }
-
-    public void setQueryMode(boolean queryModeAggressive) {
-        if(this.queryModeAggressive == queryModeAggressive) {
-            return;
-        }
-        this.queryModeAggressive = queryModeAggressive;
-
-        //Clear out state from aggressive queries.
-        if(!queryModeAggressive) {
-            for(org.commcare.cases.query.QueryCue cue : aggressiveCues) {
-                cue.cleanupCue();
-            }
-            this.aggressiveCues.clear();
-        } else {
-            if(queryModeAggressive) {
-                for (org.commcare.cases.query.QueryCue cue : aggressiveCues) {
-                    cue.activate();
-                }
-            }
-        }
-    }
-
-    public void addQueryCue(org.commcare.cases.query.QueryCue caseModelFetchCue) {
-        this.aggressiveCues.add(caseModelFetchCue);
-        if(queryModeAggressive) {
-            caseModelFetchCue.activate();
-        }
-    }
-
-    public <T> T getQueryCue(Class<T> c) {
-        for(org.commcare.cases.query.QueryCue cue : aggressiveCues) {
-            if(cue.getClass().equals(c)) {
-                return (T)cue;
-            }
-        }
-        return null;
     }
 }

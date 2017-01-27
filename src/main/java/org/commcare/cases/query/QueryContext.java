@@ -1,12 +1,7 @@
 package org.commcare.cases.query;
 
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
-
-import java.util.Vector;
-
-import javax.management.Query;
 
 /**
  * A Query Context object is responsible for keeping track of relevant metadata about where a

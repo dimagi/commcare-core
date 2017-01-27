@@ -171,7 +171,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                 Vector<Integer> cases = null;
                 try {
                     //Get all of the cases that meet this criteria
-                    cases = this.getNextIndexMatch(profiles, storage);
+                    cases = this.getNextIndexMatch(profiles, storage, currentQueryContext);
                 } catch (IllegalArgumentException IAE) {
                     // Encountered a new index type
                     break;
@@ -228,12 +228,14 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
      *
      * @param profiles    A vector of pending optimizations to be attempted. The keys should be processed left->right
      * @param storage The storage to be processed
+     * @param currentQueryContext
      * @return A Vector of integer ID's for records in the provided storage which match one or more of the keys provided.
      * @throws IllegalArgumentException If there was no index matching possible on the provided key and the key/value vectors
      *                                  won't be shortened.
      */
     protected Vector<Integer> getNextIndexMatch(Vector<PredicateProfile> profiles,
-                                                IStorageUtilityIndexed<?> storage) throws IllegalArgumentException {
+                                                IStorageUtilityIndexed<?> storage,
+                                                QueryContext currentQueryContext) throws IllegalArgumentException {
         if(!(profiles.elementAt(0) instanceof org.commcare.cases.query.IndexedValueLookup)) {
             throw new IllegalArgumentException("No optimization path found for optimization type");
         }
