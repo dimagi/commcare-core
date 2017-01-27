@@ -212,18 +212,6 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
      */
     protected Vector<Integer> getNextIndexMatch(Vector<String> keys, Vector<Object> values,
                                                 IStorageUtilityIndexed<?> storage) throws IllegalArgumentException {
-
-        if (keys.isEmpty()) {
-            throw new IllegalArgumentException();
-        }
-
-        String firstKey = keys.elementAt(0);
-        if (firstKey.startsWith(Case.INDEX_CASE_INDEX_PRE)) {
-            keys.remove(0);
-            values.remove(0);
-            return getNextIndexMatch(keys, values, storage);
-        }
-
         String key = keys.elementAt(0);
         Object o = values.elementAt(0);
 
