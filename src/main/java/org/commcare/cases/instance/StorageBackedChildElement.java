@@ -11,6 +11,7 @@ import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.xpath.expr.XPathExpression;
 
+import java.util.Collection;
 import java.util.Vector;
 
 /**
@@ -141,9 +142,9 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
     }
 
     @Override
-    public Vector<TreeReference> tryBatchChildFetch(String name, int mult,
-                                                    Vector<XPathExpression> predicates,
-                                                    EvaluationContext evalContext) {
+    public Collection<TreeReference> tryBatchChildFetch(String name, int mult,
+                                                        Vector<XPathExpression> predicates,
+                                                        EvaluationContext evalContext) {
         //TODO: We should be able to catch the index case here?
         return null;
     }

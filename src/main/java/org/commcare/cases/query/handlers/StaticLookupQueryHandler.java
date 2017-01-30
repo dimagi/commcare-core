@@ -3,10 +3,10 @@ package org.commcare.cases.query.handlers;
 import org.commcare.cases.query.IndexedValueLookup;
 import org.commcare.cases.query.PredicateProfile;
 import org.commcare.cases.query.QueryContext;
-import org.commcare.cases.query.QueryPlanner;
 import org.commcare.cases.util.QueryUtils;
 import org.javarosa.xpath.expr.FunctionUtils;
 
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -38,8 +38,8 @@ public abstract class StaticLookupQueryHandler implements org.commcare.cases.que
     }
 
     @Override
-    public Vector<Integer> loadProfileMatches(org.commcare.cases.query.IndexedValueLookup querySet,
-                                              QueryContext queryContext) {
+    public List<Integer> loadProfileMatches(IndexedValueLookup querySet,
+                                            QueryContext queryContext) {
         return getMatches(querySet.getKey(), FunctionUtils.toString((querySet).value));
     }
 

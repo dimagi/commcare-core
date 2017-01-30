@@ -5,6 +5,7 @@ import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 
+import java.util.Collection;
 import java.util.Vector;
 
 /**
@@ -36,7 +37,7 @@ public class BulkEvaluationTrace extends EvaluationTrace {
 
     public void setEvaluatedPredicates(Vector<XPathExpression> startingSet,
                                        Vector<XPathExpression> finalSet,
-                                       Vector<TreeReference> childSet) {
+                                       Collection<TreeReference> childSet) {
         this.triggerExprComplete();
 
         if(startingSet == null) {

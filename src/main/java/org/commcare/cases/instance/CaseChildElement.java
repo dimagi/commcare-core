@@ -98,47 +98,52 @@ public class CaseChildElement extends StorageBackedChildElement<Case> implements
 
             Case c = parent.getElement(recordId, context);
             entityId = c.getCaseId();
-            TreeElement cacheBuilder = new TreeElement("case");
-            cacheBuilder.setMult(this.mult);
 
-            cacheBuilder.setAttribute(null, nameId, c.getCaseId());
-            cacheBuilder.setAttribute(null, "case_type", c.getTypeId());
-            cacheBuilder.setAttribute(null, "status", c.isClosed() ? "closed" : "open");
 
-            //Don't set anything to null
-            cacheBuilder.setAttribute(null, "owner_id", c.getUserId() == null ? "" : c.getUserId());
-
-            final boolean[] done = new boolean[]{false};
-
-            TreeElement scratch = new TreeElement("case_name");
-            String name = c.getName();
-            //This shouldn't be possible
-            scratch.setAnswer(new StringData(name == null ? "" : name));
-            cacheBuilder.addChild(scratch);
-
-            scratch = new TreeElement("date_opened");
-            scratch.setAnswer(new DateData(c.getDateOpened()));
-            cacheBuilder.addChild(scratch);
-
-            scratch = new TreeElement(LAST_MODIFIED_KEY);
-            scratch.setAnswer(new DateData(c.getLastModified()));
-            cacheBuilder.addChild(scratch);
-
-            setCaseProperties(c, cacheBuilder);
-
-            TreeElement index = buildIndexTreeElement(c, done);
-            cacheBuilder.addChild(index);
-
-            TreeElement attachments = buildAttachmentTreeElement(c, done);
-            cacheBuilder.addChild(attachments);
-
-            cacheBuilder.setParent(this.parent);
-            done[0] = true;
-
-            parent.treeCache.register(recordId, cacheBuilder);
-
-            return cacheBuilder;
+            return buildAndCacheInternalTree(c);
         }
+    }
+
+    private TreeElement buildAndCacheInternalTree(Case c) {
+        TreeElement cacheBuilder = new TreeElement("case");
+        cacheBuilder.setMult(this.mult);
+
+        cacheBuilder.setAttribute(null, nameId, c.getCaseId());
+        cacheBuilder.setAttribute(null, "case_type", c.getTypeId());
+        cacheBuilder.setAttribute(null, "status", c.isClosed() ? "closed" : "open");
+
+        //Don't set anything to null
+        cacheBuilder.setAttribute(null, "owner_id", c.getUserId() == null ? "" : c.getUserId());
+
+        final boolean[] done = new boolean[]{false};
+
+        TreeElement scratch = new TreeElement("case_name");
+        String name = c.getName();
+        //This shouldn't be possible
+        scratch.setAnswer(new StringData(name == null ? "" : name));
+        cacheBuilder.addChild(scratch);
+
+        scratch = new TreeElement("date_opened");
+        scratch.setAnswer(new DateData(c.getDateOpened()));
+        cacheBuilder.addChild(scratch);
+
+        scratch = new TreeElement(LAST_MODIFIED_KEY);
+        scratch.setAnswer(new DateData(c.getLastModified()));
+        cacheBuilder.addChild(scratch);
+
+        setCaseProperties(c, cacheBuilder);
+
+        TreeElement index = buildIndexTreeElement(c, done);
+        cacheBuilder.addChild(index);
+
+        TreeElement attachments = buildAttachmentTreeElement(c, done);
+        cacheBuilder.addChild(attachments);
+
+        cacheBuilder.setParent(this.parent);
+        done[0] = true;
+
+        parent.treeCache.register(recordId, cacheBuilder);
+        return cacheBuilder;
     }
 
     private void setCaseProperties(Case c, TreeElement cacheBuilder) {

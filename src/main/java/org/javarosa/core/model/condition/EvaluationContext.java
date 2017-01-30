@@ -12,11 +12,13 @@ import org.javarosa.core.model.trace.BulkEvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.CacheHost;
+import org.javarosa.core.util.Iterator;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -323,7 +325,7 @@ public class EvaluationContext {
         // Use the reference's simple predicates to filter the potential
         // nodeset.  Predicates used in filtering are removed from the
         // predicate input argument.
-        Vector<TreeReference> childSet = node.tryBatchChildFetch(name, mult, predicates, this);
+        Collection<TreeReference> childSet = node.tryBatchChildFetch(name, mult, predicates, this);
 
         this.reportBulkTraceResults(originalPredicates, predicates, childSet);
         this.closeTrace();
@@ -581,7 +583,7 @@ public class EvaluationContext {
      */
     private void reportBulkTraceResults(Vector<XPathExpression> startingSet,
                                         Vector<XPathExpression> finalSet,
-                                        Vector<TreeReference> childSet) {
+                                        Collection<TreeReference> childSet) {
         if (mAccumulateExprs) {
             if(!(mDebugCore.mCurrentTraceLevel instanceof BulkEvaluationTrace)) {
                 throw new RuntimeException("Predicate tree mismatch");

@@ -1,6 +1,8 @@
 package org.javarosa.core.util;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -34,9 +36,9 @@ public class DataUtil {
         }
     }
 
-    public static <T> Vector<T> intersection(Vector<T> a, Vector<T> b) {
-        HashSet<T> setA = new HashSet<>(a);
-        HashSet<T> setB = new HashSet<>(b);
+    public static <T> List<T> intersection(Collection<T> a, Collection<T> b) {
+        HashSet<T> setA = a instanceof HashSet ? (HashSet<T>)((HashSet<T>)a).clone() : new HashSet<>(a);
+        HashSet<T> setB = b instanceof HashSet ? (HashSet<T>)b : new HashSet<>(b);
         setA.retainAll(setB);
         return new Vector<>(setA);
     }

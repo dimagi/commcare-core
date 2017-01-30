@@ -21,13 +21,13 @@ public class QueryPlanner {
      * @param currentQueryContext
      * @return null if the query could not be handled by this planner
      */
-    public Vector<Integer> attemptProfiledQuery(Vector<PredicateProfile> profiles,
+    public List<Integer> attemptProfiledQuery(Vector<PredicateProfile> profiles,
                                                 QueryContext currentQueryContext){
         for(int i = 0 ; i < handlers.size() ; ++i) {
             QueryHandler handler = handlers.get(i);
             Object queryPlan = handler.profileHandledQuerySet(profiles);
             if(queryPlan != null) {
-                Vector<Integer> retVal = handler.loadProfileMatches(queryPlan, currentQueryContext);
+                List<Integer> retVal = handler.loadProfileMatches(queryPlan, currentQueryContext);
                 if(retVal != null) {
                     handler.updateProfiles(queryPlan, profiles);
                     return retVal;

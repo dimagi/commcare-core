@@ -6,6 +6,8 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.xpath.expr.XPathExpression;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Vector;
 
 public interface AbstractTreeElement<T extends AbstractTreeElement> {
@@ -102,11 +104,11 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
 
     /**
      * TODO: Worst method name ever. Don't use this unless you know what's up.
-     *  @param predicates  possibly list of predicates to be evaluated. predicates will be removed from list if they are
+     * @param predicates  possibly list of predicates to be evaluated. predicates will be removed from list if they are
      *                    able to be evaluated
      *
      */
-    Vector<TreeReference> tryBatchChildFetch(String name, int mult,
-                                             Vector<XPathExpression> predicates,
-                                             EvaluationContext evalContext);
+    Collection<TreeReference> tryBatchChildFetch(String name, int mult,
+                                                 Vector<XPathExpression> predicates,
+                                                 EvaluationContext evalContext);
 }

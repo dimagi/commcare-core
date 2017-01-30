@@ -10,6 +10,7 @@ import org.javarosa.core.model.instance.utils.TreeUtilities;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathPathExpr;
 
+import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -124,7 +125,7 @@ public class LedgerChildElement extends StorageBackedChildElement<Ledger> {
     }
 
     @Override
-    public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
+    public Collection<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
         return TreeUtilities.tryBatchChildFetch(this, childAttributeHintMap, name, mult, predicates, evalContext);
     }
 }

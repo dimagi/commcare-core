@@ -16,8 +16,10 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.expr.XPathSelectedFunc;
 
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -44,9 +46,9 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
     }
 
     @Override
-    public Vector<TreeReference> tryBatchChildFetch(String name, int mult,
-                                                    Vector<XPathExpression> predicates,
-                                                    EvaluationContext evalContext) {
+    public Collection<TreeReference> tryBatchChildFetch(String name, int mult,
+                                                        Vector<XPathExpression> predicates,
+                                                        EvaluationContext evalContext) {
         //Restrict what we'll handle for now. All we want to deal with is predicate expressions on case blocks
         if (!name.equals(getChildHintName()) || mult != TreeReference.INDEX_UNBOUND || predicates == null) {
             return null;
@@ -62,7 +64,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         //Now go through each profile and see if we can match / process any of them. If not, we
         // will return null and move on
         Vector<Integer> toRemove = new Vector<>();
-        Vector<Integer> selectedElements = processPredicates(toRemove, profiles,
+        Collection<Integer> selectedElements = processPredicates(toRemove, profiles,
                 evalContext.getCurrentQueryContext());
 
         //if we weren't able to evaluate any predicates, signal that.
@@ -149,15 +151,15 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
     }
 
 
-    private Vector<Integer> processPredicates(Vector<Integer> toRemove,
+    private Collection<Integer> processPredicates(Vector<Integer> toRemove,
                                               Vector<org.commcare.cases.query.PredicateProfile> profiles,
                                               QueryContext currentQueryContext) {
-        Vector<Integer> selectedElements = null;
+        Collection<Integer> selectedElements = null;
         IStorageUtilityIndexed<?> storage = getStorage();
         int predicatesProcessed = 0;
         while (profiles.size() > 0) {
             int startCount = profiles.size();
-            Vector<Integer> plannedQueryResults =
+            List<Integer> plannedQueryResults =
                     this.getQueryPlanner().attemptProfiledQuery(profiles, currentQueryContext);
 
             if (plannedQueryResults != null) {
@@ -168,7 +170,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                     selectedElements = DataUtil.intersection(selectedElements, plannedQueryResults);
                 }
             } else {
-                Vector<Integer> cases = null;
+                Collection<Integer> cases = null;
                 try {
                     //Get all of the cases that meet this criteria
                     cases = this.getNextIndexMatch(profiles, storage, currentQueryContext);
@@ -201,7 +203,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         return selectedElements;
     }
 
-    private Vector<TreeReference> buildReferencesFromFetchResults(Vector<Integer> selectedElements) {
+    private Collection<TreeReference> buildReferencesFromFetchResults(Collection<Integer> selectedElements) {
         TreeReference base = this.getRef();
 
         initStorageCache();
@@ -233,9 +235,9 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
      * @throws IllegalArgumentException If there was no index matching possible on the provided key and the key/value vectors
      *                                  won't be shortened.
      */
-    protected Vector<Integer> getNextIndexMatch(Vector<PredicateProfile> profiles,
-                                                IStorageUtilityIndexed<?> storage,
-                                                QueryContext currentQueryContext) throws IllegalArgumentException {
+    protected Collection<Integer> getNextIndexMatch(Vector<PredicateProfile> profiles,
+                                                    IStorageUtilityIndexed<?> storage,
+                                                    QueryContext currentQueryContext) throws IllegalArgumentException {
         if(!(profiles.elementAt(0) instanceof org.commcare.cases.query.IndexedValueLookup)) {
             throw new IllegalArgumentException("No optimization path found for optimization type");
         }
@@ -246,7 +248,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         EvaluationTrace trace = new EvaluationTrace("Model Index[" + op.key + "] Lookup");
 
         //Get matches if it works
-        Vector<Integer> returnValue = storage.getIDsForValue(op.key, op.value);
+        List<Integer> returnValue = storage.getIDsForValue(op.key, op.value);
 
         trace.setOutcome("results: " + returnValue.size());
         if (currentQueryContext != null) {

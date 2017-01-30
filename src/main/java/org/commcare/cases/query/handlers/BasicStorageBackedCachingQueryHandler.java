@@ -7,6 +7,7 @@ import org.commcare.cases.util.LruCache;
 import org.commcare.cases.util.QueryUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -14,7 +15,7 @@ import java.util.Vector;
  */
 
 public class BasicStorageBackedCachingQueryHandler implements org.commcare.cases.query.QueryHandler<org.commcare.cases.query.IndexedValueLookup> {
-    HashMap<String, LruCache<Object, Vector<Integer>>> caches = new HashMap<>();
+    HashMap<String, LruCache<Object, List<Integer>>> caches = new HashMap<>();
 
     @Override
     public int getExpectedRuntime() {
@@ -33,13 +34,13 @@ public class BasicStorageBackedCachingQueryHandler implements org.commcare.cases
     }
 
     @Override
-    public Vector<Integer> loadProfileMatches(org.commcare.cases.query.IndexedValueLookup querySet, QueryContext queryContext) {
-        LruCache<Object, Vector<Integer>> cache = caches.get(querySet.getKey());
+    public List<Integer> loadProfileMatches(IndexedValueLookup querySet, QueryContext queryContext) {
+        LruCache<Object, List<Integer>> cache = caches.get(querySet.getKey());
         if(cache == null) {
             return null;
         }
 
-        Vector<Integer> potentialResult = cache.get(querySet.value);
+        List<Integer> potentialResult = cache.get(querySet.value);
         return potentialResult;
     }
 
@@ -48,8 +49,8 @@ public class BasicStorageBackedCachingQueryHandler implements org.commcare.cases
         profiles.remove(querySet);
     }
 
-    public void cacheResult(String key, Object value, Vector<Integer> results) {
-        LruCache<Object, Vector<Integer>> cache;
+    public void cacheResult(String key, Object value, List<Integer> results) {
+        LruCache<Object, List<Integer>> cache;
         if(!caches.containsKey(key)) {
             cache = new LruCache<>(10);
             caches.put(key, cache);
