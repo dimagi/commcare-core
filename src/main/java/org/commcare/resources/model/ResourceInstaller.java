@@ -1,6 +1,6 @@
 package org.commcare.resources.model;
 
-import org.commcare.util.CommCareInstance;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -23,7 +23,7 @@ import java.util.Vector;
  *
  * @author ctsims
  */
-public interface ResourceInstaller<T extends CommCareInstance> extends Externalizable {
+public interface ResourceInstaller<T extends CommCarePlatform> extends Externalizable {
 
     /**
      * @return true if a resource requires an initialization at

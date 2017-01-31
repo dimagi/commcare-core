@@ -6,7 +6,7 @@ package org.commcare.xml;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;
-import org.commcare.util.CommCareInstance;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
@@ -27,11 +27,11 @@ public class ProfileParser extends ElementParser<Profile> {
     ResourceTable table;
     String resourceId;
     int initialResourceStatus;
-    CommCareInstance instance;
+    CommCarePlatform instance;
     boolean forceVersion = false;
     int maximumResourceAuthority = -1;
 
-    public ProfileParser(InputStream suiteStream, CommCareInstance instance, ResourceTable table,
+    public ProfileParser(InputStream suiteStream, CommCarePlatform instance, ResourceTable table,
                          String resourceId, int initialResourceStatus, boolean forceVersion)
             throws IOException {
 
