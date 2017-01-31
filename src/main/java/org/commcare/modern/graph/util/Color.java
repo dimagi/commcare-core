@@ -4,7 +4,10 @@ import java.util.HashMap;
 import java.util.Locale;
 
 /**
- * Created by willpride on 1/31/17.
+ * These functions are copied directly from android.graphics.Color for use in the core
+ * classes.
+ *
+ * TODO: Unify with non-Android Java methods (though the name -> color mappings are tricky)
  */
 
 public class Color {
