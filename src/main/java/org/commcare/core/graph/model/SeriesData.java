@@ -1,4 +1,4 @@
-package org.commcare.modern.graph.model;
+package org.commcare.core.graph.model;
 
 import java.util.Hashtable;
 import java.util.Vector;
@@ -9,7 +9,7 @@ import java.util.Vector;
  * @author jschweers
  */
 public class SeriesData implements ConfigurableData {
-    private final Vector<XYPointData> mPoints;
+    private final Vector<org.commcare.core.graph.model.XYPointData> mPoints;
     private final Hashtable<String, String> mConfiguration;
 
     public SeriesData() {
@@ -17,11 +17,11 @@ public class SeriesData implements ConfigurableData {
         mConfiguration = new Hashtable<>();
     }
 
-    public void addPoint(XYPointData p) {
+    public void addPoint(org.commcare.core.graph.model.XYPointData p) {
         mPoints.addElement(p);
     }
 
-    public Vector<XYPointData> getPoints() {
+    public Vector<org.commcare.core.graph.model.XYPointData> getPoints() {
         return mPoints;
     }
 

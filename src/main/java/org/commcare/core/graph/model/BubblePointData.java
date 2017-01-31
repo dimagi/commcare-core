@@ -1,4 +1,4 @@
-package org.commcare.modern.graph.model;
+package org.commcare.core.graph.model;
 
 /**
  * Representation of a point on a bubble chart, which has an x, y position and an additional value for the bubble's radius.

@@ -1,10 +1,8 @@
-package org.commcare.modern.graph.util;
+package org.commcare.core.graph.util;
 
-import org.commcare.modern.graph.c3.AxisConfiguration;
-import org.commcare.modern.graph.c3.DataConfiguration;
-import org.commcare.modern.graph.c3.GridConfiguration;
-import org.commcare.modern.graph.c3.LegendConfiguration;
-import org.commcare.modern.graph.model.GraphData;
+import org.commcare.core.graph.c3.AxisConfiguration;
+import org.commcare.core.graph.c3.GridConfiguration;
+import org.commcare.core.graph.c3.LegendConfiguration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -28,13 +26,13 @@ public class GraphUtil {
      * @param graphData The data to render.
      * @return Full HTML page, including head, body, and all script and style tags
      */
-    public static String getHTML(GraphData graphData, String title) throws GraphException {
+    public static String getHTML(org.commcare.core.graph.model.GraphData graphData, String title) throws GraphException {
         SortedMap<String, String> variables = new TreeMap<>();
         JSONObject config = new JSONObject();
         StringBuilder html = new StringBuilder();
         try {
             // Configure data first, as it may affect the other configurations
-            DataConfiguration data = new DataConfiguration(graphData);
+            org.commcare.core.graph.c3.DataConfiguration data = new org.commcare.core.graph.c3.DataConfiguration(graphData);
             config.put("data", data.getConfiguration());
 
             AxisConfiguration axis = new AxisConfiguration(graphData);

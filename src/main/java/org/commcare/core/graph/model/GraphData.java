@@ -1,4 +1,4 @@
-package org.commcare.modern.graph.model;
+package org.commcare.core.graph.model;
 
 import java.util.Hashtable;
 import java.util.Vector;
@@ -12,7 +12,7 @@ public class GraphData implements ConfigurableData {
     private String mType;
     private final Vector<SeriesData> mSeries;
     private final Hashtable<String, String> mConfiguration;
-    private final Vector<AnnotationData> mAnnotations;
+    private final Vector<org.commcare.core.graph.model.AnnotationData> mAnnotations;
 
     public GraphData() {
         mSeries = new Vector<>();
@@ -36,11 +36,11 @@ public class GraphData implements ConfigurableData {
         mSeries.addElement(s);
     }
 
-    public void addAnnotation(AnnotationData a) {
+    public void addAnnotation(org.commcare.core.graph.model.AnnotationData a) {
         mAnnotations.addElement(a);
     }
 
-    public Vector<AnnotationData> getAnnotations() {
+    public Vector<org.commcare.core.graph.model.AnnotationData> getAnnotations() {
         return mAnnotations;
     }
 
