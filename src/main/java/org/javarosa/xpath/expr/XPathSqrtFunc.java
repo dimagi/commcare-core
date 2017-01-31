@@ -18,7 +18,7 @@ public class XPathSqrtFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return Math.sqrt(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
 

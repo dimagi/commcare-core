@@ -27,7 +27,7 @@ public class XpathCoalesceFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         // Not sure if unpacking here is quiiite right, but it seems right
         for (int i = 0; i < args.length - 1; i++) {
             Object evaluatedArg = FunctionUtils.unpack(args[i].eval(model, evalContext));
