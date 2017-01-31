@@ -1,4 +1,4 @@
-package org.commcare.modern.graph.model;
+package org.commcare.core.graph.model;
 
 /**
  * Representation of a point on an x, y plane.

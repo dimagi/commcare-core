@@ -1,4 +1,4 @@
-package org.commcare.modern.graph.util;
+package org.commcare.core.graph.util;
 
 /**
  * @author jschweers

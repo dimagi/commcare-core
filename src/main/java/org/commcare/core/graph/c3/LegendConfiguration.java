@@ -1,6 +1,5 @@
-package org.commcare.modern.graph.c3;
+package org.commcare.core.graph.c3;
 
-import org.commcare.modern.graph.model.GraphData;
 import org.json.JSONException;
 
 /**
@@ -9,7 +8,7 @@ import org.json.JSONException;
  * Created by jschweers on 11/16/2015.
  */
 public class LegendConfiguration extends Configuration {
-    public LegendConfiguration(GraphData data) throws JSONException {
+    public LegendConfiguration(org.commcare.core.graph.model.GraphData data) throws JSONException {
         super(data);
 
         // Respect user's preference for showing legend

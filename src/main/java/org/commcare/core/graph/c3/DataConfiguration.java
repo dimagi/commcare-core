@@ -1,9 +1,8 @@
-package org.commcare.modern.graph.c3;
+package org.commcare.core.graph.c3;
 ;
-import org.commcare.modern.graph.model.*;
-import org.commcare.modern.graph.util.Color;
-import org.commcare.modern.graph.util.GraphException;
-import org.commcare.modern.graph.util.GraphUtil;
+import org.commcare.core.graph.util.Color;
+import org.commcare.core.graph.util.GraphException;
+import org.commcare.core.graph.util.GraphUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -67,12 +66,12 @@ public class DataConfiguration extends Configuration {
     private final JSONObject mRadii = new JSONObject();
     private final JSONObject mMaxRadii = new JSONObject();
 
-    public DataConfiguration(GraphData data) throws GraphException, JSONException {
+    public DataConfiguration(org.commcare.core.graph.model.GraphData data) throws GraphException, JSONException {
         super(data);
 
         // Process data for each series
         int seriesIndex = 0;
-        for (SeriesData s : mData.getSeries()) {
+        for (org.commcare.core.graph.model.SeriesData s : mData.getSeries()) {
             String xID = "x" + seriesIndex;
             String yID = "y" + seriesIndex;
             mXs.put(yID, xID);
@@ -127,7 +126,7 @@ public class DataConfiguration extends Configuration {
         JSONObject text = new JSONObject();
 
         int index = 0;
-        for (AnnotationData a : mData.getAnnotations()) {
+        for (org.commcare.core.graph.model.AnnotationData a : mData.getAnnotations()) {
             String xID = "annotationsX" + index;
             String yID = "annotationsY" + index;
             String description = "annotation '" + a.getAnnotation() + "' at (" + a.getX() + ", " + a.getY() + ")";
@@ -276,7 +275,7 @@ public class DataConfiguration extends Configuration {
      * @param yID ID of y-values array to set color
      * @param s   SeriesData from which to pull color
      */
-    private void setColor(String yID, SeriesData s) throws JSONException {
+    private void setColor(String yID, org.commcare.core.graph.model.SeriesData s) throws JSONException {
         String barColorJSON = s.getConfiguration("bar-color");
         if (barColorJSON != null) {
             JSONArray requestedColors = new JSONArray(barColorJSON);
@@ -339,7 +338,7 @@ public class DataConfiguration extends Configuration {
      * @param yID ID of the y-values array
      * @param s   The SeriesData providing the data
      */
-    private void setColumns(String xID, String yID, SeriesData s) throws GraphException, JSONException {
+    private void setColumns(String xID, String yID, org.commcare.core.graph.model.SeriesData s) throws GraphException, JSONException {
         JSONArray xValues = new JSONArray();
         JSONArray yValues = new JSONArray();
         xValues.put(xID);
@@ -349,7 +348,7 @@ public class DataConfiguration extends Configuration {
         boolean addBarLabels = mData.getType().equals(GraphUtil.TYPE_BAR) && mBarLabels.length() == 1;
         JSONArray rValues = new JSONArray();
         double maxRadius = parseDouble(s.getConfiguration("max-radius", "0"), "max-radius");
-        for (XYPointData p : s.getPoints()) {
+        for (org.commcare.core.graph.model.XYPointData p : s.getPoints()) {
             String description = "data (" + p.getX() + ", " + p.getY() + ")";
             if (mData.getType().equals(GraphUtil.TYPE_BAR)) {
                 // In CommCare, bar graphs are specified with x as a set of text labels
@@ -373,7 +372,7 @@ public class DataConfiguration extends Configuration {
 
             // Bubble charts also get a radius
             if (mData.getType().equals(GraphUtil.TYPE_BUBBLE)) {
-                BubblePointData b = (BubblePointData)p;
+                org.commcare.core.graph.model.BubblePointData b = (org.commcare.core.graph.model.BubblePointData)p;
                 double r = parseDouble(b.getRadius(), description + " with radius " + b.getRadius());
                 rValues.put(r);
                 maxRadius = Math.max(maxRadius, r);
@@ -395,7 +394,7 @@ public class DataConfiguration extends Configuration {
      * @param yID ID of y-values array that is or isn't data
      * @param s   SeriesData from which to pull flag
      */
-    private void setIsData(String yID, SeriesData s) throws JSONException {
+    private void setIsData(String yID, org.commcare.core.graph.model.SeriesData s) throws JSONException {
         boolean isData = Boolean.valueOf(s.getConfiguration("is-data", "true"));
         if (isData) {
             mIsData.put(yID, 1);
@@ -408,7 +407,7 @@ public class DataConfiguration extends Configuration {
      * @param yID ID of y-values array that name applies to
      * @param s   SeriesData from which to pull name
      */
-    private void setName(String yID, SeriesData s) throws JSONException {
+    private void setName(String yID, org.commcare.core.graph.model.SeriesData s) throws JSONException {
         String name = s.getConfiguration("name", "");
         if (name != null) {
             mNames.put(yID, name);
@@ -422,7 +421,7 @@ public class DataConfiguration extends Configuration {
      * @param yID ID of y-values that style applies to
      * @param s   SeriesData from which to pull style
      */
-    private void setPointStyle(String yID, SeriesData s) throws JSONException {
+    private void setPointStyle(String yID, org.commcare.core.graph.model.SeriesData s) throws JSONException {
         String symbol;
         if (mData.getType().equals(GraphUtil.TYPE_BAR)) {
             // point-style doesn't apply to bar charts
@@ -446,7 +445,7 @@ public class DataConfiguration extends Configuration {
      * @param yID ID of y-values array corresponding with series
      * @param s   SeriesData determining what the type will be
      */
-    private void setType(String yID, SeriesData s) throws JSONException {
+    private void setType(String yID, org.commcare.core.graph.model.SeriesData s) throws JSONException {
         String type = "line";
         if (mData.getType().equals(GraphUtil.TYPE_BUBBLE)) {
             type = "scatter";
@@ -465,7 +464,7 @@ public class DataConfiguration extends Configuration {
      * @param s   SeriesData to pull y axis from
      * @throws JSONException
      */
-    private void setYAxis(String yID, SeriesData s) throws JSONException {
+    private void setYAxis(String yID, org.commcare.core.graph.model.SeriesData s) throws JSONException {
         boolean isSecondaryY = Boolean.valueOf(s.getConfiguration("secondary-y", "false"));
         mAxes.put(yID, isSecondaryY ? "y2" : "y");
     }
