@@ -4,6 +4,7 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.interfaces.ResponseStreamAccessor;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.User;
 
@@ -47,6 +48,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     protected final HashMap<String, String> params;
     private HttpURLConnection httpConnection;
 
+    // for an already-logged-in user
     public ModernHttpRequester(BitCacheFactory.CacheDirSetup cacheDirSetup,
                                URL url, HashMap<String, String> params,
                                User user, String domain, boolean isAuthenticatedRequest,
@@ -59,8 +61,16 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         setupAuthentication(isAuthenticatedRequest, user, domain);
     }
 
-    public void setResponseProcessor(HttpResponseProcessor responseProcessor) {
-        this.responseProcessor = responseProcessor;
+    // for a not-yet-logged-in user
+    public ModernHttpRequester(BitCacheFactory.CacheDirSetup cacheDirSetup,
+                               URL url, HashMap<String, String> params,
+                               Pair<String, String> usernameAndPasswordToAuthWith, boolean isPostRequest) {
+        this.isPostRequest = isPostRequest;
+        this.cacheDirSetup = cacheDirSetup;
+        this.params = params;
+        this.url = url;
+
+        setupAuthentication(usernameAndPasswordToAuthWith.first, usernameAndPasswordToAuthWith.second, null);
     }
 
     private void setupAuthentication(boolean isAuth, User user, String domain) {
@@ -72,24 +82,33 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
                 username = user.getUsername();
             }
             final String password = user.getCachedPwd();
-            if (username == null || password == null || User.TYPE_DEMO.equals(user.getUserType())) {
-                String message =
-                        "Trying to make authenticated http request without proper credentials";
-                throw new RuntimeException(message);
-            } else if (!"https".equals(url.getProtocol())) {
-                throw new PlainTextPasswordException();
-            } else {
-                Authenticator.setDefault(new Authenticator() {
-                    @Override
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(username, password.toCharArray());
-                    }
-                });
-            }
+            setupAuthentication(username, password, user);
         } else {
             // clear any prior set authenticator to make unauthed requests
             Authenticator.setDefault(null);
         }
+    }
+
+    private void setupAuthentication(final String username, final String password, User user) {
+        if (username == null || password == null ||
+                (user != null && User.TYPE_DEMO.equals(user.getUserType()))) {
+            String message =
+                    "Trying to make authenticated http request without proper credentials";
+            throw new RuntimeException(message);
+        } else if (!"https".equals(url.getProtocol())) {
+            throw new PlainTextPasswordException();
+        } else {
+            Authenticator.setDefault(new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(username, password.toCharArray());
+                }
+            });
+        }
+    }
+
+    public void setResponseProcessor(HttpResponseProcessor responseProcessor) {
+        this.responseProcessor = responseProcessor;
     }
 
     public static class PlainTextPasswordException extends RuntimeException {
