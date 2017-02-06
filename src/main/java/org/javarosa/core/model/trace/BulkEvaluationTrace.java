@@ -75,4 +75,8 @@ public class BulkEvaluationTrace extends EvaluationTrace {
         return bulkEvaluationSucceeded;
     }
 
+    public void markClosed() {
+        predicatesCovered="";
+        outputValue = "";
+    }
 }

@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.concurrent.SynchronousQueue;
 
 /**
  * A collection of objects that affect the evaluation of an expression, like
@@ -595,6 +596,7 @@ public class EvaluationContext {
     private void openBulkTrace() {
         if (mAccumulateExprs) {
             BulkEvaluationTrace newLevel = new BulkEvaluationTrace();
+            //We can't really track bulk traces from root contexts
             openTrace(newLevel);
         }
     }
@@ -613,6 +615,12 @@ public class EvaluationContext {
             BulkEvaluationTrace trace = (BulkEvaluationTrace)mDebugCore.mCurrentTraceLevel;
             trace.setEvaluatedPredicates(startingSet, finalSet, childSet);
             if (!(trace.isBulkEvaluationSucceeded())) {
+                EvaluationTrace parentTrace = trace.getParent();
+                if(parentTrace == null){
+                    trace.markClosed();
+                    //no need to remove from the parent context if it doens't exist
+                    return;
+                }
                 Vector<EvaluationTrace> traces = trace.getParent().getSubTraces();
                 synchronized (traces){
                     traces.remove(trace);
