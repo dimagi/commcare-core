@@ -4,6 +4,7 @@ import org.commcare.cases.query.QueryContext;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
@@ -38,10 +39,17 @@ public abstract class DerivedCaseQueryLookup implements QuerySetLookup {
     public List<Integer> performSetLookup(TreeReference lookupIdKey, QueryContext queryContext) {
         List<Integer> rootLookup = root.performSetLookup(lookupIdKey, queryContext);
         ModelQuerySet set = getOrLoadCachedQuerySet(queryContext);
+        if(set == null) {
+            return null;
+        }
 
         List<Integer> returnSet = new Vector<>();
         for(Integer i : rootLookup) {
-            returnSet.addAll(set.getMatchingValues(i));
+            Collection<Integer> matching = set.getMatchingValues(i);
+            if(matching == null) {
+                return null;
+            }
+            returnSet.addAll(matching);
         }
         return returnSet;
     }
