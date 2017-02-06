@@ -1,5 +1,8 @@
 package org.commcare.cases.entity;
 
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.queryset.CurrentModelQuerySet;
+import org.commcare.cases.query.queryset.QuerySetCache;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
@@ -111,8 +114,11 @@ public class NodeEntityFactory {
         List<TreeReference> result = tracableContext.expandReference(treeReference);
         printAndClearTraces("expand");
 
-        ec.setQueryContext(ec.getCurrentQueryContext()
-                .checkForDerivativeContextAndReturn(result.size()));
+        QueryContext newContext = ec.getCurrentQueryContext()
+                .checkForDerivativeContextAndReturn(result.size());
+        newContext.setHackyOriginalContextBody(new CurrentModelQuerySet(result));
+
+        ec.setQueryContext(newContext);
         return result;
     }
 

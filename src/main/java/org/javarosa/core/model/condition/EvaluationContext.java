@@ -1,6 +1,7 @@
 package org.javarosa.core.model.condition;
 
 import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.cases.util.QueryUtils;
 import org.commcare.cases.util.StorageBackedTreeRoot;
 import org.javarosa.core.model.data.IAnswerData;
@@ -337,6 +338,14 @@ public class EvaluationContext {
         QueryContext subContext = queryContext.
                 checkForDerivativeContextAndReturn(childSet == null ? 0 : childSet.size());
 
+        //If we forked a new query body from above (IE: a new large query) and there wasn't an
+        //original context before, we can anticipate that the subcontext below will refernce
+        //into the returned body as the original context, which is ugly, but opens up
+        //intense optimizations
+        if(this.getOriginalContextForPropogation() == null && subContext != queryContext) {
+            subContext.setHackyOriginalContextBody(new CurrentModelQuerySet(childSet));
+        }
+
         // Create a place to store the current position markers
         int[] positionContext = new int[predicates == null ? 0 : predicates.size()];
 
@@ -459,24 +468,37 @@ public class EvaluationContext {
     private EvaluationContext rescope(TreeReference newContextRef, int newContextPosition,
                                       QueryContext subContext) {
         EvaluationContext ec = new EvaluationContext(this, newContextRef);
-        ec.setQueryContext(queryContext);
+        ec.setQueryContext(subContext);
         ec.currentContextPosition = newContextPosition;
 
+        TreeReference originalContextRef = this.getOriginalContextForPropogation();
+        if(originalContextRef == null) {
+            originalContextRef = newContextRef;
+        }
+        ec.setOriginalContext(originalContextRef);
+
+        return ec;
+    }
+
+    /**
+     * @return An evaluation context that should be used by a derived context as the original
+     * context, if one exists. If one does not exist, returns null;
+     */
+    private TreeReference getOriginalContextForPropogation() {
         // If we have an original context reference, use it
         if (this.original != null) {
-            ec.setOriginalContext(this.getOriginalContext());
+            return this.getOriginalContext();
         } else {
             // Otherwise, if the old context reference isn't '/', use that.If
             // the context ref is '/', use the new context ref as the original
             if (!TreeReference.rootRef().equals(this.getContextRef())) {
-                ec.setOriginalContext(this.getContextRef());
+                return this.getContextRef();
             } else {
                 // Otherwise propagate the original context reference field
                 // with the new context reference argument
-                ec.setOriginalContext(newContextRef);
+                return null;
             }
         }
-        return ec;
     }
 
     public DataInstance getMainInstance() {

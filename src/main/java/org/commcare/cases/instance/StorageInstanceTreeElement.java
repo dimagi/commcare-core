@@ -98,7 +98,6 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
         if (elements != null) {
             return;
         }
-        objectIdMapping = new Hashtable<>();
         elements = new Vector<>();
         int mult = 0;
         for (IStorageIterator i = storage.iterate(); i.hasMore(); ) {

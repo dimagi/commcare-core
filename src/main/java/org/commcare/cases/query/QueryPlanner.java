@@ -2,7 +2,9 @@ package org.commcare.cases.query;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.xpath.expr.XPathExpression;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -46,4 +48,23 @@ public class QueryPlanner {
             }
         });
     }
+
+
+    public Collection<PredicateProfile> collectPredicateProfiles(
+            Vector<XPathExpression> predicates, QueryContext context, EvaluationContext evalContext) {
+        if(predicates == null) {
+            return null;
+        }
+        Vector<PredicateProfile> returnProfile = new Vector<>();
+        for (int i = 0; i < handlers.size(); ++i) {
+            Collection<PredicateProfile> profile =
+                    handlers.get(i).collectPredicateProfiles(predicates, context, evalContext);
+            if(profile != null) {
+                returnProfile.addAll(profile);
+            }
+        }
+        return returnProfile;
+    }
+
+
 }

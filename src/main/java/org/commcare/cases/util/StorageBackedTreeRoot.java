@@ -30,7 +30,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
     protected org.commcare.cases.query.QueryPlanner queryPlanner;
     protected org.commcare.cases.query.handlers.BasicStorageBackedCachingQueryHandler defaultCacher;
 
-    protected Hashtable<Integer, Integer> objectIdMapping;
+    protected final Hashtable<Integer, Integer> objectIdMapping = new Hashtable<>();
 
     protected abstract String getChildHintName();
 
@@ -58,14 +58,16 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
         Vector<org.commcare.cases.query.PredicateProfile> profiles = new Vector<>();
 
+        QueryContext queryContext = evalContext.getCurrentQueryContext();
+
         //First, go get a list of predicates that we _might_ be able to evaluate more efficiently
-        collectPredicateProfiles(predicates, indices, evalContext, profiles);
+        collectPredicateProfiles(predicates, indices, evalContext, profiles,queryContext);
 
         //Now go through each profile and see if we can match / process any of them. If not, we
         // will return null and move on
         Vector<Integer> toRemove = new Vector<>();
         Collection<Integer> selectedElements = processPredicates(toRemove, profiles,
-                evalContext.getCurrentQueryContext());
+                queryContext);
 
         //if we weren't able to evaluate any predicates, signal that.
         if (selectedElements == null) {
@@ -83,7 +85,18 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
     private void collectPredicateProfiles(Vector<XPathExpression> predicates,
                                           Hashtable<XPathPathExpr, String> indices,
                                           EvaluationContext evalContext,
-                                          Vector<org.commcare.cases.query.PredicateProfile> optimizations) {
+                                          Vector<org.commcare.cases.query.PredicateProfile> optimizations,
+                                          QueryContext queryContext) {
+
+        optimizations.addAll(getQueryPlanner().collectPredicateProfiles(predicates, queryContext, evalContext));
+
+        //For now we are going to skip looking deeper if we trigger
+        //any of the planned optimizations
+        if(optimizations.size() > 0) {
+            return;
+        }
+
+
         predicate:
         for (XPathExpression xpe : predicates) {
             //what we want here is a static evaluation of the expression to see if it consists of evaluating

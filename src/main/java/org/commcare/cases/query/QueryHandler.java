@@ -1,5 +1,9 @@
 package org.commcare.cases.query;
 
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.xpath.expr.XPathExpression;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
@@ -20,4 +24,8 @@ public interface QueryHandler<T> {
     List<Integer> loadProfileMatches(T querySet, QueryContext queryContext);
 
     void updateProfiles(T querySet, Vector<PredicateProfile> profiles);
+
+    Collection<PredicateProfile> collectPredicateProfiles(
+            Vector<XPathExpression> predicates, QueryContext context,
+            EvaluationContext evaluationContext);
 }

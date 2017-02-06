@@ -1,5 +1,7 @@
 package org.commcare.cases.query;
 
+import org.commcare.cases.query.queryset.CurrentModelQuerySet;
+import org.commcare.cases.query.queryset.QuerySetCache;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.trace.EvaluationTrace;
 
@@ -105,5 +107,10 @@ public class QueryContext {
     }
     public <T extends QueryCacheEntry> T getQueryCacheOrNull(Class<T> cacheType) {
         return cache.getQueryCacheOrNull(cacheType);
+    }
+
+    public void setHackyOriginalContextBody(CurrentModelQuerySet hackyOriginalContextBody) {
+        getQueryCache(QuerySetCache.class).
+                addModelQuerySet(CurrentModelQuerySet.CURRENT_QUERY_SET_ID, hackyOriginalContextBody);
     }
 }
