@@ -37,6 +37,10 @@ public class DataUtil {
     }
 
     public static <T> List<T> intersection(Collection<T> a, Collection<T> b) {
+        if(b.size() < a.size()) {
+            return intersection(b, a);
+        }
+
         HashSet<T> setA = a instanceof HashSet ? (HashSet<T>)((HashSet<T>)a).clone() : new HashSet<>(a);
         HashSet<T> setB = b instanceof HashSet ? (HashSet<T>)b : new HashSet<>(b);
         setA.retainAll(setB);
