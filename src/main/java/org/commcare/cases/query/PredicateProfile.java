@@ -1,4 +1,4 @@
-package org.commcare.cases.util;
+package org.commcare.cases.query;
 
 /**
  * A hint that a predicate has a structure that can potentially be optimized  without

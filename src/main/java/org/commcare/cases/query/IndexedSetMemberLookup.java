@@ -1,4 +1,4 @@
-package org.commcare.cases.util;
+package org.commcare.cases.query;
 
 /**
  * An indexed set member lookup is a check for whether a value which is indexed on the current

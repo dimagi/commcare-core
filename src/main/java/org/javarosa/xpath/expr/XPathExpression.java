@@ -23,7 +23,8 @@ public abstract class XPathExpression implements Externalizable {
     public Object eval(DataInstance model, EvaluationContext evalContext) {
         evalContext.openTrace(this);
         Object value = evalRaw(model, evalContext);
-        evalContext.closeTrace(value);
+        evalContext.reportTraceValue(value);
+        evalContext.closeTrace();
         return value;
     }
 
