@@ -15,7 +15,9 @@ import org.javarosa.xpath.expr.XPathStep;
 import org.javarosa.xpath.expr.XPathStringLiteral;
 import org.javarosa.xpath.expr.FunctionUtils;
 
+import java.util.Collection;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.Vector;
 
 /**
@@ -43,7 +45,7 @@ public class TreeUtilities {
      * Expressions which result in returned matches will be removed from the predicate collection which
      * is provided
      */
-    public static Vector<TreeReference> tryBatchChildFetch(AbstractTreeElement parent,
+    public static Collection<TreeReference> tryBatchChildFetch(AbstractTreeElement parent,
                                                            Hashtable<XPathPathExpr,
                                                                    Hashtable<String, TreeElement[]>> childAttributeHintMap,
                                                            String name,
@@ -67,7 +69,7 @@ public class TreeUtilities {
         }
 
         Vector<Integer> toRemove = new Vector<>();
-        Vector<TreeReference> allSelectedChildren = null;
+        Collection<TreeReference> allSelectedChildren = null;
 
         //Lazy init these until we've determined that our predicate is hintable
 
@@ -79,7 +81,7 @@ public class TreeUtilities {
 
         predicate:
         for (int i = 0; i < predicates.size(); ++i) {
-            Vector<TreeReference> predicateMatches = new Vector<>();
+            LinkedHashSet<TreeReference> predicateMatches = new LinkedHashSet<>();
             XPathExpression xpe = predicates.elementAt(i);
             //what we want here is a static evaluation of the expression to see if it consists of evaluating
             //something we index with something static.
@@ -127,7 +129,7 @@ public class TreeUtilities {
                             TreeElement[] children = childAttributeHintMap.get(left).get(literalMatch);
                             if (children != null) {
                                 for (TreeElement element : children) {
-                                    predicateMatches.addElement(element.getRef());
+                                    predicateMatches.add(element.getRef());
                                 }
                             }
                             //Merge and note that this predicate is evaluated and doesn't need to be evaluated in the future.
@@ -182,7 +184,7 @@ public class TreeUtilities {
                                 Object value = FunctionUtils.InferType(attrValue);
 
                                 if (isEqOp == XPathEqExpr.testEquality(value, literalMatch)) {
-                                    predicateMatches.addElement(kids.elementAt(kidI).getRef());
+                                    predicateMatches.add(kids.elementAt(kidI).getRef());
                                 }
                             }
 
@@ -214,8 +216,8 @@ public class TreeUtilities {
     }
 
 
-    private static Vector<TreeReference> merge(Vector<TreeReference> allSelectedChildren,
-                                               Vector<TreeReference> predicateMatches,
+    private static Collection<TreeReference> merge(Collection<TreeReference> allSelectedChildren,
+                                               Collection<TreeReference> predicateMatches,
                                                int i, Vector<Integer> toRemove) {
         toRemove.addElement(DataUtil.integer(i));
         if (allSelectedChildren == null) {

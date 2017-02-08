@@ -4,7 +4,9 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,6 +35,7 @@ public class TreeReferenceTest {
 
     private TreeReference floatc;
     private TreeReference floatc2;
+    private TreeReference floatbc;
     private TreeReference backc;
     private TreeReference back2c;
 
@@ -43,10 +46,14 @@ public class TreeReferenceTest {
     private TreeReference abRef;
 
     private TreeReference acPredRef;
+    private TreeReference dfPredRef;
+    private TreeReference fPredRef;
+    private TreeReference fNoPredRef;
     private TreeReference acPredMatchRef;
     private TreeReference acPredNotRef;
     private Vector<XPathExpression> apreds;
 
+    private TreeReference currentC;
 
     @Before
     public void initStuff() {
@@ -74,6 +81,8 @@ public class TreeReferenceTest {
         // some relative references
         floatc = XPathReference.getPathExpr("c").getReference();
         floatc2 = XPathReference.getPathExpr("./c").getReference();
+
+        floatbc = XPathReference.getPathExpr("b/c").getReference();
         backc = XPathReference.getPathExpr("../c").getReference();
         back2c = XPathReference.getPathExpr("../../c").getReference();
 
@@ -125,6 +134,12 @@ public class TreeReferenceTest {
 
         //Reset the predicates in our new object
         acPredRefClone.addPredicate(0, acPredRefClonePredicates);
+
+        dfPredRef = XPathReference.getPathExpr("/d/f[2 = (3 + /data/two)]").getReference();
+        fPredRef = XPathReference.getPathExpr("f[2 = (3 + /data/two)]").getReference();
+        fNoPredRef = XPathReference.getPathExpr("f").getReference();
+
+        currentC = XPathReference.getPathExpr("current()/c").getReference();
     }
 
     /**
@@ -423,4 +438,20 @@ public class TreeReferenceTest {
                     aRef.toString());
         }
     }
+
+    @Test
+    public void testRelativeGeneration() {
+        Assert.assertEquals("/a/b/c.relative(2)->./c", floatc2,abcRef.getRelativeReferenceAfter(abRef.size()));
+        Assert.assertEquals("/a/b/c.relative(1)->.b/c", floatbc,abcRef.getRelativeReferenceAfter(aRef.size()));
+        Assert.assertEquals("/a/b/c.relative(0)->/a/b/c", abcRef,abcRef.getRelativeReferenceAfter(TreeReference.selfRef().size()));
+
+        Assert.assertEquals("predicates not retained with relative generation", fPredRef,dfPredRef.getRelativeReferenceAfter(1));
+        Assert.assertNotEquals("f[preds] should not equal f after relative generaiton", fNoPredRef, dfPredRef.getRelativeReferenceAfter(1));
+
+        Assert.assertEquals("./b/c.relative(0)->./b/c",floatbc, floatbc.getRelativeReferenceAfter(0));
+        Assert.assertEquals("./b/c.relative(1)-> ./c", floatc, floatbc.getRelativeReferenceAfter(1));
+
+        Assert.assertEquals("current()/c.relative(0) -> ./c", floatc2, currentC.getRelativeReferenceAfter(0));
+    }
+
 }
