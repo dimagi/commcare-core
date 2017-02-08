@@ -26,4 +26,8 @@ public class AppAvailableForInstall {
     public String getAppName() {
         return appName;
     }
+
+    public String getMediaProfileRef() {
+        return mediaProfileRef;
+    }
 }
