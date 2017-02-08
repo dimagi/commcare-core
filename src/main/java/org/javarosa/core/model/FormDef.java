@@ -26,7 +26,6 @@ import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
-import org.javarosa.core.model.utils.QuestionPreloader;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.util.CacheTable;
@@ -113,8 +112,6 @@ public class FormDef implements IFormElement, IMetaData,
     private HashMap<TreeReference, Condition> conditionRepeatTargetIndex;
 
     public EvaluationContext exprEvalContext;
-
-    private QuestionPreloader preloader = new QuestionPreloader();
 
     // XML ID's cannot start with numbers, so this should never conflict
     private static final String DEFAULT_SUBMISSION_PROFILE = "1";
@@ -388,8 +385,6 @@ public class FormDef implements IFormElement, IMetaData,
         TreeElement template = mainInstance.getTemplate(repeatContextRef);
 
         mainInstance.copyNode(template, repeatContextRef);
-
-        preloadInstance(mainInstance.resolveReference(repeatContextRef));
 
         // Fire jr-insert events before "calculate"s
         triggeredDuringInsert.removeAllElements();
@@ -1362,50 +1357,14 @@ public class FormDef implements IFormElement, IMetaData,
         itemset.setChoices(choices, this.getLocalizer());
     }
 
-    public QuestionPreloader getPreloader() {
-        return preloader;
-    }
-
-    public void setPreloader(QuestionPreloader preloads) {
-        this.preloader = preloads;
-    }
-
     public String toString() {
         return getTitle();
     }
 
-    /**
-     * Preload the Data Model with the preload values that are enumerated in the
-     * data bindings.
-     */
-    public void preloadInstance(TreeElement node) {
-        // if (node.isLeaf()) {
-        IAnswerData preload = null;
-        if (node.getPreloadHandler() != null) {
-            preload = preloader.getQuestionPreload(node.getPreloadHandler(),
-                    node.getPreloadParams());
-        }
-        if (preload != null) { // what if we want to wipe out a value in the
-            // instance?
-            node.setAnswer(preload);
-        }
-        // } else {
-        if (!node.isLeaf()) {
-            for (int i = 0; i < node.getNumChildren(); i++) {
-                TreeElement child = node.getChildAt(i);
-                if (child.getMult() != TreeReference.INDEX_TEMPLATE)
-                    // don't preload templates; new repeats are preloaded as they're created
-                    preloadInstance(child);
-            }
-        }
-        // }
-    }
-
-    public boolean postProcessInstance() {
+    public void postProcessInstance() {
         if(!isCompletedInstance) {
             actionController.triggerActionsFromEvent(Action.EVENT_XFORMS_REVALIDATE, this);
         }
-        return postProcessInstance(mainInstance.getRoot());
     }
 
     /**
@@ -1427,11 +1386,7 @@ public class FormDef implements IFormElement, IMetaData,
         // dependent on data written during post-processing is a bad practice anyway, and maybe we shouldn't support it.
 
         if (node.isLeaf()) {
-            if (node.getPreloadHandler() != null) {
-                return preloader.questionPostProcess(node, node.getPreloadHandler(), node.getPreloadParams());
-            } else {
-                return false;
-            }
+            return false;
         } else {
             boolean instanceModified = false;
             for (int i = 0; i < node.getNumChildren(); i++) {
@@ -1516,10 +1471,6 @@ public class FormDef implements IFormElement, IMetaData,
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
             formInstances.put(instanceId, instance.initialize(factory, instanceId));
-        }
-        if (newInstance) {
-            // only preload new forms (we may have to revisit this)
-            preloadInstance(mainInstance.getRoot());
         }
 
         initLocale(locale);
