@@ -18,7 +18,7 @@ public class XPathAtanTwoFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         double value1 = FunctionUtils.toDouble(evaluatedArgs[0]);
         double value2 = FunctionUtils.toDouble(evaluatedArgs[1]);
         return Math.atan2(value1, value2);

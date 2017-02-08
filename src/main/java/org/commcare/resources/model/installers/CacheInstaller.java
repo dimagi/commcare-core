@@ -8,8 +8,7 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.reference.Reference;
-import org.javarosa.core.services.storage.IStorageIndexedFactory;
-import org.javarosa.core.services.storage.IStorageUtility;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -31,12 +30,12 @@ import java.util.Vector;
  */
 public abstract class CacheInstaller<T extends Persistable> implements ResourceInstaller<CommCarePlatform> {
 
-    protected IStorageUtility<T> cacheStorage;
+    private IStorageUtilityIndexed<T> cacheStorage;
     protected int cacheLocation;
 
     protected abstract String getCacheKey();
 
-    protected IStorageUtility<T> storage() {
+    protected IStorageUtilityIndexed<T> storage() {
         if (cacheStorage == null) {
             cacheStorage = StorageManager.instance().getStorage(getCacheKey());
         }

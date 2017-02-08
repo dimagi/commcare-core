@@ -21,7 +21,7 @@ public class XPathDistanceFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return distance(evaluatedArgs[0], evaluatedArgs[1]);
     }
 

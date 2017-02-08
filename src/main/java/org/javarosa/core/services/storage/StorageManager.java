@@ -28,7 +28,7 @@ public class StorageManager {
         return instance.get();
     }
 
-    private static final Hashtable<String, IStorageUtility> storageRegistry = new Hashtable<>();
+    private static final Hashtable<String, IStorageUtilityIndexed> storageRegistry = new Hashtable<>();
     private static IStorageIndexedFactory storageFactory;
 
     /**
@@ -68,7 +68,7 @@ public class StorageManager {
         storageRegistry.put(key, storageFactory.newStorage(key, type));
     }
 
-    public IStorageUtility getStorage(String key) {
+    public static IStorageUtilityIndexed getStorage(String key) {
         if (storageRegistry.containsKey(key)) {
             return storageRegistry.get(key);
         } else {
@@ -78,7 +78,7 @@ public class StorageManager {
 
     public void halt() {
         for (Enumeration e = storageRegistry.elements(); e.hasMoreElements(); ) {
-            ((IStorageUtility)e.nextElement()).close();
+            ((IStorageUtilityIndexed)e.nextElement()).close();
         }
     }
 

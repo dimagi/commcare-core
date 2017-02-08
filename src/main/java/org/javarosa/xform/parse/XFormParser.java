@@ -1050,9 +1050,9 @@ public class XFormParser {
 
         if (isSelect) {
             if (question.getNumChoices() > 0 && question.getDynamicChoices() != null) {
-                throw new XFormParseException("Multiple choice question contains both literal choices and <itemset>");
+                throw new XFormParseException("Multiple choice question at " + getFormElementRef(question) + " contains both literal choices and <itemset>");
             } else if (question.getNumChoices() == 0 && question.getDynamicChoices() == null) {
-                throw new XFormParseException("Multiple choice question has no choices");
+                throw new XFormParseException("Multiple choice question at " + getFormElementRef(question) + " has no choices");
             }
         }
 
