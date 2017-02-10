@@ -48,10 +48,6 @@ public class QueryContext {
         this.contextScope = parent.contextScope;
     }
 
-    public QueryContext openNewQueryContext() {
-        return new QueryContext(this);
-    }
-
     public QueryContext checkForDerivativeContextAndReturn(int newScope) {
         QueryContext newContext = potentialSpawnedContext;
         potentialSpawnedContext = null;
