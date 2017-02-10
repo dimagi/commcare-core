@@ -26,8 +26,10 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
     private final Object[] data ;
     private final String[] headers;
     private final int mCurrentIndex;
+    private Detail detail;
 
     public EntityDetailSubscreen(int currentIndex, Detail detail, EvaluationContext subContext, String[] detailListTitles) {
+        this.detail = detail;
         DetailField[] fields = detail.getFields();
         rows = new String[fields.length];
         headers = new String[fields.length];
@@ -146,4 +148,12 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
     }
 
     public String[] getTitles() { return mDetailListTitles;}
+
+    public Detail getDetail() {
+        return detail;
+    }
+
+    public void setDetail(Detail detail) {
+        this.detail = detail;
+    }
 }
