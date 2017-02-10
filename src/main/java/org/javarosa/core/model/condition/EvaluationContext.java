@@ -340,7 +340,7 @@ public class EvaluationContext {
                 checkForDerivativeContextAndReturn(childSet == null ? 0 : childSet.size());
 
         //If we forked a new query body from above (IE: a new large query) and there wasn't an
-        //original context before, we can anticipate that the subcontext below will refernce
+        //original context before, we can anticipate that the subcontext below will reference
         //into the returned body as the original context, which is ugly, but opens up
         //intense optimizations
         if(this.getOriginalContextForPropogation() == null && subContext != queryContext) {

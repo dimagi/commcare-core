@@ -1,6 +1,5 @@
 package org.commcare.cases.query.queryset;
 
-import org.commcare.cases.query.QueryContext;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.Collection;

@@ -1,16 +1,14 @@
 package org.commcare.cases.query.queryset;
 
-import org.commcare.cases.query.QueryContext;
-
 import java.util.Collection;
 import java.util.Set;
 
 /**
  *
- * A Model Query Set set is a set of identified models for which a member can be evaluated for
+ * A ModelQuerySet is a set of identified models for which a member can be evaluated for
  * inclusion.
  *
- * Model Query Sets can be evaluated for a member's presence and can also be transformed into a
+ * ModelQuerySets can be evaluated for a member's presence and can also be transformed into a
  * derivative query sets.
  *
  * As an example, the result of a predicate query over the Case database may result in hundreds of
