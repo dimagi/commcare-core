@@ -37,10 +37,10 @@ public class EvaluationTraceReduction extends EvaluationTrace {
     }
 
     public void foldIn(EvaluationTrace trace) {
-        countExecuted ++;
+        countExecuted++;
         nanoTime += trace.getRuntimeInNanoseconds();
         int valueCount = 1;
-        if(valueMap.containsKey(trace.getValue())) {
+        if (valueMap.containsKey(trace.getValue())) {
             valueCount = (valueMap.get(trace.getValue()) + 1);
         }
         valueMap.put(trace.getValue(), valueCount);
@@ -58,7 +58,7 @@ public class EvaluationTraceReduction extends EvaluationTrace {
                         subTraces.put(subKey, reducedSubExpr);
                     }
                 }
-            }catch (ConcurrentModificationException cme) {
+            } catch (ConcurrentModificationException cme) {
                 throw new RuntimeException(cme);
             }
         }
@@ -91,10 +91,10 @@ public class EvaluationTraceReduction extends EvaluationTrace {
         response +=  "    time/call: " + getRuntimeCount(getRuntimeInNanoseconds() / countExecuted) + "\n";
         int valueResponseCount = 0;
         int totalRecords = valueMap.size();
-        for(String key : valueMap.keySet()) {
+        for (String key : valueMap.keySet()) {
             response += "    " + key + ": " + valueMap.get(key) + "\n";
             valueResponseCount++;
-            if(valueResponseCount >= 10) {
+            if (valueResponseCount >= 10) {
                 response += String.format("    ... %s more ...", totalRecords - valueResponseCount);
                 break;
             }
@@ -104,9 +104,9 @@ public class EvaluationTraceReduction extends EvaluationTrace {
     }
 
     private String getRuntimeCount(long l) {
-        if(l / 1000 / 1000 > 0) {
+        if (l / 1000 / 1000 > 0) {
             return l /1000 / 1000 + "ms";
-        } else if(l / 1000 > 0) {
+        } else if (l / 1000 > 0) {
             return l / 1000 + "us";
         }else {
             return l + "ns";

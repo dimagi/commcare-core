@@ -29,12 +29,12 @@ public class QueryPlanner {
      */
     public List<Integer> attemptProfiledQuery(Vector<PredicateProfile> profiles,
                                                 QueryContext currentQueryContext){
-        for(int i = 0 ; i < handlers.size() ; ++i) {
+        for (int i = 0 ; i < handlers.size() ; ++i) {
             QueryHandler handler = handlers.get(i);
             Object queryPlan = handler.profileHandledQuerySet(profiles);
-            if(queryPlan != null) {
+            if (queryPlan != null) {
                 List<Integer> retVal = handler.loadProfileMatches(queryPlan, currentQueryContext);
-                if(retVal != null) {
+                if (retVal != null) {
                     handler.updateProfiles(queryPlan, profiles);
                     return retVal;
                 }
@@ -55,15 +55,16 @@ public class QueryPlanner {
 
 
     public Collection<PredicateProfile> collectPredicateProfiles(
-            Vector<XPathExpression> predicates, QueryContext context, EvaluationContext evalContext) {
-        if(predicates == null) {
+            Vector<XPathExpression> predicates, QueryContext queryContext,
+            EvaluationContext evalContext) {
+        if (predicates == null) {
             return null;
         }
         Vector<PredicateProfile> returnProfile = new Vector<>();
         for (int i = 0; i < handlers.size(); ++i) {
             Collection<PredicateProfile> profile =
-                    handlers.get(i).collectPredicateProfiles(predicates, context, evalContext);
-            if(profile != null) {
+                    handlers.get(i).collectPredicateProfiles(predicates, queryContext, evalContext);
+            if (profile != null) {
                 returnProfile.addAll(profile);
             }
         }

@@ -16,7 +16,7 @@ import org.javarosa.core.model.trace.EvaluationTrace;
  *
  * The QueryContext Object's lifecycle is also used to limit the scope of any of that bulk caching.
  * Since the object lifecycle is paired with the EC of the query, large chunks of memory can be
- * allocated into this object and it will be removed will the context is no longer relevant.
+ * allocated into this object and it will be removed when the context is no longer relevant.
  *
  * Created by ctsims on 1/26/2017.
  */
@@ -68,7 +68,7 @@ public class QueryContext {
     }
 
     public QueryContext testForInlineScopeEscalation(int newScope) {
-        if(dominates(newScope, contextScope)) {
+        if (dominates(newScope, contextScope)) {
             potentialSpawnedContext = new QueryContext(this);
             potentialSpawnedContext.contextScope = newScope;
             reportContextEscalation(potentialSpawnedContext, "Temporary");

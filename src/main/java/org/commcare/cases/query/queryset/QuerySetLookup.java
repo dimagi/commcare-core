@@ -14,7 +14,7 @@ import java.util.Set;
  */
 
 public interface QuerySetLookup {
-    boolean  isValid(TreeReference ref, QueryContext context);
+    boolean isValid(TreeReference ref, QueryContext context);
 
     String getQueryModelId();
 

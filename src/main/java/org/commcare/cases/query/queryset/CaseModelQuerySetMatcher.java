@@ -52,10 +52,10 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
 
     @Override
     public QuerySetLookup getQueryLookupFromPredicate(XPathExpression expr) {
-        if(expr instanceof XPathEqExpr && ((XPathEqExpr)expr).op == XPathEqExpr.EQ) {
+        if (expr instanceof XPathEqExpr && ((XPathEqExpr)expr).op == XPathEqExpr.EQ) {
             XPathEqExpr eq = ((XPathEqExpr)expr);
-            if(membershipIndexes.contains(eq.a)) {
-                if(eq.b instanceof XPathPathExpr) {
+            if (membershipIndexes.contains(eq.a)) {
+                if (eq.b instanceof XPathPathExpr) {
                     TreeReference ref = ((XPathPathExpr)eq.b).getReference();
                     return getQuerySetLookup(ref);
                 }
@@ -70,18 +70,18 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
         QuerySetLookup lookup;
         TreeReference remainder;
 
-        if(caseDbRoot.isParentOf(ref, false)) {
-            if(!ref.hasPredicates()) {
+        if (caseDbRoot.isParentOf(ref, false)) {
+            if (!ref.hasPredicates()) {
                 return null;
             }
 
             List<XPathExpression> predicates = ref.getPredicate(caseDbRoot.size() - 1);
-            if(predicates == null || predicates.size() > 1) {
+            if (predicates == null || predicates.size() > 1) {
                 return null;
             }
 
             lookup = getQueryLookupFromPredicate(predicates.get(0));
-            if(lookup == null) {
+            if (lookup == null) {
                 return null;
             }
             remainder = ref.getRelativeReferenceAfter(caseDbRoot.size());
@@ -98,9 +98,9 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
     private QuerySetLookup getTransformedQuerySetLookup(QuerySetLookup lookup,
                                                         TreeReference remainder) {
 
-        for(QuerySetTransform transform : querySetTransforms) {
+        for (QuerySetTransform transform : querySetTransforms) {
             QuerySetLookup retVal = transform.getTransformedLookup(lookup, remainder);
-            if(retVal != null) {
+            if (retVal != null) {
                 return retVal;
             }
         }
@@ -116,7 +116,7 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
         @Override
         public QuerySetLookup getTransformedLookup(QuerySetLookup incoming,
                                                    TreeReference relativeLookup) {
-            if(caseIdRef.equals(relativeLookup)) {
+            if (caseIdRef.equals(relativeLookup)) {
                 return incoming;
             } else {
                 return null;

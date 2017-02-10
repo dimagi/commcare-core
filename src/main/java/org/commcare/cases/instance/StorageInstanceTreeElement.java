@@ -14,7 +14,6 @@ import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.Interner;
 import org.javarosa.core.util.externalizable.Externalizable;
 
-import java.util.Hashtable;
 import java.util.Vector;
 
 /**

@@ -28,8 +28,8 @@ public class BasicStorageBackedCachingQueryHandler implements QueryHandler<Index
     @Override
     public IndexedValueLookup profileHandledQuerySet(Vector<PredicateProfile> profiles) {
         IndexedValueLookup ret = QueryUtils.getFirstKeyIndexedValue(profiles);
-        if(ret != null){
-            if(caches.containsKey(ret.getKey())) {
+        if (ret != null){
+            if (caches.containsKey(ret.getKey())) {
                 return ret;
             }
         }
@@ -60,7 +60,7 @@ public class BasicStorageBackedCachingQueryHandler implements QueryHandler<Index
 
     public void cacheResult(String key, Object value, List<Integer> results) {
         LruCache<Object, List<Integer>> cache;
-        if(!caches.containsKey(key)) {
+        if (!caches.containsKey(key)) {
             cache = new LruCache<>(10);
             caches.put(key, cache);
         } else {

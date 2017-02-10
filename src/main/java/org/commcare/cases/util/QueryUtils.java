@@ -13,7 +13,7 @@ import java.util.Vector;
 
 public class QueryUtils {
     public static IndexedValueLookup getFirstKeyIndexedValue(Vector<PredicateProfile> profiles) {
-        if(profiles.elementAt(0) instanceof IndexedValueLookup) {
+        if (profiles.elementAt(0) instanceof IndexedValueLookup) {
             return (IndexedValueLookup)profiles.elementAt(0);
         }
         return null;
@@ -26,7 +26,7 @@ public class QueryUtils {
     }
 
     public static void poke(Object o, QueryContext context) {
-        if(o instanceof QuerySensitive) {
+        if (o instanceof QuerySensitive) {
             notifySensitive((QuerySensitive)o, context);
         }
     }

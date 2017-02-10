@@ -100,7 +100,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         AbstractTreeElement<T> node = getBase();
         T result = null;
         for (int i = 0; i < ref.size(); i++) {
-            if(ec != null) {
+            if (ec != null) {
                 QueryUtils.poke(node, ec.getCurrentQueryContext());
             }
             String name = ref.getName(i);

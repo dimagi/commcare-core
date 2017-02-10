@@ -20,6 +20,5 @@ import java.util.Set;
  */
 public interface ModelQuerySet {
     Collection<Integer> getMatchingValues(Integer i);
-
     Set<Integer> getSetBody();
 }

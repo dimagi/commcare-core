@@ -35,7 +35,7 @@ public class ModelQueryLookupHandler implements QueryHandler<ModelQueryLookup> {
 
     @Override
     public ModelQueryLookup profileHandledQuerySet(Vector<PredicateProfile> profiles) {
-        if(profiles.get(0) instanceof ModelQueryLookup) {
+        if (profiles.get(0) instanceof ModelQueryLookup) {
             return (ModelQueryLookup)profiles.get(0);
         }
         return null;
@@ -50,7 +50,7 @@ public class ModelQueryLookupHandler implements QueryHandler<ModelQueryLookup> {
         List<Integer> lookupData = lookup.
                 performSetLookup(getLookupKey.getRootLookupRef(), queryContext);
 
-        if(lookupData != null) {
+        if (lookupData != null) {
             trace.setOutcome("Results: " +lookupData.size());
             queryContext.reportTrace(trace);
         }
@@ -69,13 +69,13 @@ public class ModelQueryLookupHandler implements QueryHandler<ModelQueryLookup> {
                                                                  EvaluationContext evalContext) {
 
         QuerySetLookup lookup = matcher.getQueryLookupFromPredicate(predicates.elementAt(0));
-        if(lookup == null) {
+        if (lookup == null) {
             return null;
         }
 
         TreeReference ref = lookup.getLookupIdKey(evalContext);
 
-        if(!lookup.isValid(ref, context)) {
+        if (!lookup.isValid(ref, context)) {
             return null;
         }
 

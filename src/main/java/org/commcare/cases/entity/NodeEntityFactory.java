@@ -108,7 +108,7 @@ public class NodeEntityFactory {
 
     public List<TreeReference> expandReferenceList(TreeReference treeReference) {
         EvaluationContext tracableContext = new EvaluationContext(ec, ec.getOriginalContext());
-        if(inDebugMode) {
+        if (inDebugMode) {
             tracableContext.setDebugModeOn(reporter);
         }
         List<TreeReference> result = tracableContext.expandReference(treeReference);
@@ -123,7 +123,7 @@ public class NodeEntityFactory {
     }
 
     public void printAndClearTraces(String description) {
-        if(!inDebugMode) {
+        if (!inDebugMode) {
             return;
         }
         if (reporter.wereTracesReported()) {

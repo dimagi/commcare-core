@@ -40,12 +40,12 @@ public class BulkEvaluationTrace extends EvaluationTrace {
                                        Collection<TreeReference> childSet) {
         this.triggerExprComplete();
 
-        if(startingSet == null) {
+        if (startingSet == null) {
             bulkEvaluationSucceeded = false;
             return;
         }
         int predicatesCounted = startingSet.size() - finalSet.size();
-        if(predicatesCounted == 0) {
+        if (predicatesCounted == 0) {
             bulkEvaluationSucceeded = false;
             return;
         }
@@ -54,7 +54,7 @@ public class BulkEvaluationTrace extends EvaluationTrace {
 
         String predicatesCovered = "";
 
-        for(int i = 0 ; i < predicatesCounted ; ++i) {
+        for (int i = 0 ; i < predicatesCounted ; ++i) {
             predicatesCovered += "[" + startingSet.get(i).toPrettyString() + "]";
         }
 

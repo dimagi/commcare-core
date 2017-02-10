@@ -339,11 +339,11 @@ public class EvaluationContext {
         QueryContext subContext = queryContext.
                 checkForDerivativeContextAndReturn(childSet == null ? 0 : childSet.size());
 
-        //If we forked a new query body from above (IE: a new large query) and there wasn't an
-        //original context before, we can anticipate that the subcontext below will reference
-        //into the returned body as the original context, which is ugly, but opens up
-        //intense optimizations
-        if(this.getOriginalContextForPropogation() == null && subContext != queryContext) {
+        // If we forked a new query body from above (IE: a new large query) and there wasn't an
+        // original context before, we can anticipate that the subcontext below will reference
+        // into the returned body as the original context, which is ugly, but opens up
+        // intense optimizations
+        if (this.getOriginalContextForPropogation() == null && subContext != queryContext) {
             subContext.setHackyOriginalContextBody(new CurrentModelQuerySet(childSet));
         }
 
@@ -473,7 +473,7 @@ public class EvaluationContext {
         ec.currentContextPosition = newContextPosition;
 
         TreeReference originalContextRef = this.getOriginalContextForPropogation();
-        if(originalContextRef == null) {
+        if (originalContextRef == null) {
             originalContextRef = newContextRef;
         }
         ec.setOriginalContext(originalContextRef);
@@ -602,21 +602,20 @@ public class EvaluationContext {
     }
 
     /**
-     * Creates a record that we are going to attempt to expanding a set of bulk lookup
-     * predicates
+     * Creates a record that we are going to attempt to expand a set of bulk lookup predicates
      */
     private void reportBulkTraceResults(Vector<XPathExpression> startingSet,
                                         Vector<XPathExpression> finalSet,
                                         Collection<TreeReference> childSet) {
         if (mAccumulateExprs) {
-            if(!(mDebugCore.mCurrentTraceLevel instanceof BulkEvaluationTrace)) {
+            if (!(mDebugCore.mCurrentTraceLevel instanceof BulkEvaluationTrace)) {
                 throw new RuntimeException("Predicate tree mismatch");
             }
             BulkEvaluationTrace trace = (BulkEvaluationTrace)mDebugCore.mCurrentTraceLevel;
             trace.setEvaluatedPredicates(startingSet, finalSet, childSet);
             if (!(trace.isBulkEvaluationSucceeded())) {
                 EvaluationTrace parentTrace = trace.getParent();
-                if(parentTrace == null){
+                if (parentTrace == null){
                     trace.markClosed();
                     //no need to remove from the parent context if it doens't exist
                     return;
@@ -662,7 +661,7 @@ public class EvaluationContext {
         if (mAccumulateExprs) {
             if (mDebugCore.mCurrentTraceLevel.getParent() == null) {
                 mDebugCore.mTraceRoot = mDebugCore.mCurrentTraceLevel;
-                if(mDebugCore.mTraceReporter != null) {
+                if (mDebugCore.mTraceReporter != null) {
                     mDebugCore.mTraceReporter.reportTrace(mDebugCore.mTraceRoot);
                 }
             }
