@@ -85,7 +85,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
     private void collectPredicateProfiles(Vector<XPathExpression> predicates,
                                           Hashtable<XPathPathExpr, String> indices,
                                           EvaluationContext evalContext,
-                                          Vector<org.commcare.cases.query.PredicateProfile> optimizations,
+                                          Vector<PredicateProfile> optimizations,
                                           QueryContext queryContext) {
 
         optimizations.addAll(getQueryPlanner().collectPredicateProfiles(predicates, queryContext, evalContext));
@@ -147,9 +147,9 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         }
     }
 
-    public QueryPlanner getQueryPlanner() {
+    protected QueryPlanner getQueryPlanner() {
         if(queryPlanner == null) {
-            queryPlanner = new org.commcare.cases.query.QueryPlanner();
+            queryPlanner = new QueryPlanner();
             initBasicQueryHandlers(queryPlanner);
         }
         return queryPlanner;

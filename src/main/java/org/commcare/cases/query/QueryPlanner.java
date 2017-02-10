@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Vector;
 
 /**
+ * Class that loads, runs, and manages the QueryHandlers during storage lookups
+ *
  * Created by ctsims on 1/25/2017.
  */
 
@@ -18,10 +20,11 @@ public class QueryPlanner {
     private List<QueryHandler> handlers = new Vector<>();
 
     /**
-     * @param profiles note: Should remove profiles which have been handled
-     *
-     * @param currentQueryContext
+     * @param profiles the predicate profiles to be attempted to run
+     * @param currentQueryContext the QueryContext of the current lookup
      * @return null if the query could not be handled by this planner
+     *
+     * Note: Should profiles that have been run should be removed by the handler
      */
     public List<Integer> attemptProfiledQuery(Vector<PredicateProfile> profiles,
                                                 QueryContext currentQueryContext){

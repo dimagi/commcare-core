@@ -18,7 +18,6 @@ public interface QueryHandler<T> {
 
     int getExpectedRuntime();
 
-
     T profileHandledQuerySet(Vector<PredicateProfile> profiles);
 
     List<Integer> loadProfileMatches(T querySet, QueryContext queryContext);
