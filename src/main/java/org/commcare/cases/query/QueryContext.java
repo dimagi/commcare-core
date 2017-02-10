@@ -23,7 +23,7 @@ import org.javarosa.core.model.trace.EvaluationTrace;
 
 public class QueryContext {
 
-    public static final int BULK_QUERY_THRESHOLD = 50;
+    private static final int BULK_QUERY_THRESHOLD = 50;
 
     //TODO: This is a bad reason to keep the EC around here, and locks the lifecycle of this object
     //into the EC
@@ -42,19 +42,24 @@ public class QueryContext {
         cache = new QueryCache();
     }
 
-    public QueryContext(QueryContext parent) {
+    private QueryContext(QueryContext parent) {
         this.traceRoot = parent.traceRoot;
         this.cache = new QueryCache(parent.cache);
         this.contextScope = parent.contextScope;
     }
 
+    /**
+     * @param newScope the magnitude of the new query
+     * @return either the existing QueryContext or a new (child) QueryContext
+     * if the magnitude of the new query exceeds the parent sufficiently
+     */
     public QueryContext checkForDerivativeContextAndReturn(int newScope) {
         QueryContext newContext;
         potentialSpawnedContext = null;
         newContext = new QueryContext(this);
         newContext.contextScope = newScope;
 
-        if(dominates(newContext.contextScope, this.contextScope)) {
+        if (dominates(newContext.contextScope, this.contextScope)) {
             this.reportContextEscalation(newContext, "New");
             return newContext;
         } else {
@@ -77,6 +82,12 @@ public class QueryContext {
         return this.contextScope;
     }
 
+    /**
+     * @param newScope the scope of the new query
+     * @param existingScope the scope of the existing (parent) query
+     * @return Whether the new scope is larger than the current, exceeds the threshold for
+     * performing a bulk query, and e
+     */
     private boolean dominates(int newScope, int existingScope) {
         return newScope > existingScope &&
                 newScope > BULK_QUERY_THRESHOLD &&
