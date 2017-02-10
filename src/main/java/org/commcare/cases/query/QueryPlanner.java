@@ -17,6 +17,7 @@ import java.util.Vector;
  */
 
 public class QueryPlanner {
+
     private List<QueryHandler> handlers = new Vector<>();
 
     /**

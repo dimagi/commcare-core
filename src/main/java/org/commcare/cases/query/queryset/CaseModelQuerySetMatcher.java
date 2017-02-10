@@ -23,7 +23,7 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
     private final Collection<XPathExpression> membershipIndexes;
 
     private TreeReference caseDbRoot;
-    Map<Integer, Integer> multiplicityMap;
+    private Map<Integer, Integer> multiplicityMap;
 
     private Vector<QuerySetTransform> querySetTransforms = new Vector<>();
 
@@ -31,8 +31,8 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
         this("casedb", multiplicityMap);
     }
 
-    public CaseModelQuerySetMatcher(String modelId,
-                                    Map<Integer, Integer> multiplicityMap) {
+    private CaseModelQuerySetMatcher(String modelId,
+                                     Map<Integer, Integer> multiplicityMap) {
         caseDbRoot =
                 XPathReference.getPathExpr("instance('" + modelId + "')/casedb/case").getReference();
 
@@ -111,7 +111,7 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
         return ref.getContext() == TreeReference.CONTEXT_ORIGINAL;
     }
 
-    public static class CaseIdentityQuerySetTransform implements QuerySetTransform {
+    private static class CaseIdentityQuerySetTransform implements QuerySetTransform {
         static TreeReference caseIdRef = CaseInstanceTreeElement.CASE_ID_EXPR.getReference();
         @Override
         public QuerySetLookup getTransformedLookup(QuerySetLookup incoming,

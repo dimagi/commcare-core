@@ -4,6 +4,7 @@ import org.commcare.cases.query.*;
 import org.commcare.cases.query.IndexedSetMemberLookup;
 import org.commcare.cases.query.IndexedValueLookup;
 import org.commcare.cases.query.PredicateProfile;
+import org.commcare.cases.query.handlers.BasicStorageBackedCachingQueryHandler;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -156,7 +157,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
     }
 
     protected void initBasicQueryHandlers(QueryPlanner queryPlanner) {
-        defaultCacher = new org.commcare.cases.query.handlers.BasicStorageBackedCachingQueryHandler();
+        defaultCacher = new BasicStorageBackedCachingQueryHandler();
 
         //TODO: Move the actual indexed query optimization used in this
         //method into its own (or a matching) cache method
@@ -165,7 +166,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
 
     private Collection<Integer> processPredicates(Vector<Integer> toRemove,
-                                              Vector<org.commcare.cases.query.PredicateProfile> profiles,
+                                              Vector<PredicateProfile> profiles,
                                               QueryContext currentQueryContext) {
         Collection<Integer> selectedElements = null;
         IStorageUtilityIndexed<?> storage = getStorage();
