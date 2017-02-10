@@ -12,7 +12,7 @@ import java.util.Set;
 public class CurrentModelQuerySet implements ModelQuerySet {
     public static final String CURRENT_QUERY_SET_ID = "current";
 
-    Collection<TreeReference> currentQuerySet;
+    private Collection<TreeReference> currentQuerySet;
 
     public CurrentModelQuerySet(Collection<TreeReference> currentQuerySet) {
         this.currentQuerySet = currentQuerySet;

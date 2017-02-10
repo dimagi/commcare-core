@@ -1,21 +1,18 @@
 package org.commcare.cases.query.queryset;
 
-import org.commcare.cases.query.QueryContext;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by ctsims on 2/6/2017.
  */
 
 public class DualTableSingleMatchModelQuerySet implements ModelQuerySet {
-    Map<Integer, Integer> map = new HashMap<>();
-    LinkedHashSet<Integer> body = new LinkedHashSet<>();
+    private Map<Integer, Integer> map = new HashMap<>();
+    private LinkedHashSet<Integer> body = new LinkedHashSet<>();
 
     public void loadResult(Integer key, Integer value) {
         map.put(key, value);

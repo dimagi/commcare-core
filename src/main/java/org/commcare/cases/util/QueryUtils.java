@@ -11,8 +11,8 @@ import java.util.Vector;
  */
 
 public class QueryUtils {
-    public static org.commcare.cases.query.IndexedValueLookup getFirstKeyIndexedValue(Vector<org.commcare.cases.query.PredicateProfile> profiles) {
-        if(profiles.elementAt(0) instanceof org.commcare.cases.query.IndexedValueLookup) {
+    public static IndexedValueLookup getFirstKeyIndexedValue(Vector<PredicateProfile> profiles) {
+        if(profiles.elementAt(0) instanceof IndexedValueLookup) {
             return (IndexedValueLookup)profiles.elementAt(0);
         }
         return null;
