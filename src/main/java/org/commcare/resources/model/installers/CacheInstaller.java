@@ -30,7 +30,8 @@ import java.util.Vector;
  */
 public abstract class CacheInstaller<T extends Persistable> implements ResourceInstaller<CommCarePlatform> {
 
-    public IStorageUtilityIndexed<T> cacheStorage;
+    protected IStorageUtilityIndexed<T> cacheStorage;
+
     protected int cacheLocation;
 
     protected abstract String getCacheKey();
