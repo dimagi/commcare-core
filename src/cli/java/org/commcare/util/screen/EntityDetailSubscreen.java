@@ -1,5 +1,8 @@
 package org.commcare.util.screen;
 
+import org.commcare.core.graph.model.GraphData;
+import org.commcare.core.graph.util.GraphException;
+import org.commcare.core.graph.util.GraphUtil;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -45,7 +48,16 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
     private String createHeader(DetailField field, EvaluationContext ec){return field.getHeader().evaluate(ec);}
 
     private Object createData(DetailField field, EvaluationContext ec){
-        return field.getTemplate().evaluate(ec);
+        Object o;
+        o = field.getTemplate().evaluate(ec);
+        if(o instanceof GraphData) {
+            try {
+                o = GraphUtil.getHTML((GraphData) o, "");
+            } catch (GraphException e) {
+                o = "Error loading graph " + e;
+            }
+        }
+        return o;
     }
 
     private String createRow(DetailField field, EvaluationContext ec, Object o) {

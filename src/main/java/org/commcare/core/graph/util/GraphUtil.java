@@ -50,15 +50,15 @@ public class GraphUtil {
             // For debugging purposes, note that most minified files have un-minified equivalents in the same directory.
             // To use them, switch affix to "max" and get rid of the ignoreAssetsPattern in build.gradle that
             // filters them out of the APK.
-            String affix = "min";
+            String affix = "max";
             html.append(
                     "<html>" +
                             "<head>" +
-                            "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/c3.min.css'></link>" +
-                            "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph." + affix + ".css'></link>" +
-                            "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
-                            "<script type='text/javascript' src='file:///android_asset/graphing/c3." + affix + ".js' charset='utf-8'></script>" +
-                            "<script type='text/javascript'>try {\n");
+                            "<link rel='stylesheet' type='text/css' href='https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.css'></link>" +
+                            "<link rel='stylesheet' type='text/css' href='https://cdn.rawgit.com/dimagi/commcare-android/master/app/assets/graphing/graph.max.css'></link>" +
+                            "<script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js'></script>" +
+                            "<script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11   /c3.min.js'></script>" +
+                            "<script type='text/javascript'>");
 
             html.append(getVariablesHTML(variables, null));
             html.append(getVariablesHTML(data.getVariables(), "data"));
@@ -69,11 +69,10 @@ public class GraphUtil {
             String titleHTML = "<div id='chart-title'>" + title + "</div>";
             String errorHTML = "<div id='error'></div>";
             String chartHTML = "<div id='chart'></div>";
-            html.append(
-                    "\n} catch (e) { displayError(e); }</script>" +
-                            "<script type='text/javascript' src='file:///android_asset/graphing/graph." + affix + ".js'></script>" +
+            html.append("</script>" +
+                            "<script type='text/javascript' src='https://cdn.rawgit.com/dimagi/commcare-android/master/app/assets/graphing/graph.max.js'></script>" +
                             "</head>" +
-                            "<body>" + titleHTML + errorHTML + chartHTML + "</body>" +
+                            "<body style=\"min-height: 100px\">" + titleHTML + errorHTML + chartHTML + "</body>" +
                             "</html>");
         } catch (JSONException e) {
             e.printStackTrace();
