@@ -1,6 +1,7 @@
 package org.commcare.cases.util;
 
 import org.commcare.cases.query.IndexedValueLookup;
+import org.commcare.cases.query.PredicateProfile;
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.QuerySensitive;
 
