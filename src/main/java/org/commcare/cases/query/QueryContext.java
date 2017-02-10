@@ -36,7 +36,7 @@ public class QueryContext {
     //Until we can keep track more robustly of the individual spheres of 'bulk' models
     //we'll just keep track of the dominant factor in our queries to know what to expect
     //WRT whether optimizatons will help or hurt
-    int contextScope = 1;
+    private int contextScope = 1;
 
     public QueryContext() {
         cache = new QueryCache();
@@ -49,13 +49,13 @@ public class QueryContext {
     }
 
     public QueryContext checkForDerivativeContextAndReturn(int newScope) {
-        QueryContext newContext = potentialSpawnedContext;
+        QueryContext newContext;
         potentialSpawnedContext = null;
-        if(potentialSpawnedContext == null) { newContext = new QueryContext(this);}
+        newContext = new QueryContext(this);
         newContext.contextScope = newScope;
 
         if(dominates(newContext.contextScope, this.contextScope)) {
-            this.reportContextEscalation(this, newContext, "New");
+            this.reportContextEscalation(newContext, "New");
             return newContext;
         } else {
             return this;
@@ -66,7 +66,7 @@ public class QueryContext {
         if(dominates(newScope, contextScope)) {
             potentialSpawnedContext = new QueryContext(this);
             potentialSpawnedContext.contextScope = newScope;
-            reportContextEscalation(this, potentialSpawnedContext, "Temporary");
+            reportContextEscalation(potentialSpawnedContext, "Temporary");
             return potentialSpawnedContext;
         } else {
             return this;
@@ -83,7 +83,7 @@ public class QueryContext {
                 newScope / existingScope > 10;
     }
 
-    private void reportContextEscalation(QueryContext queryContext, QueryContext newContext, String label) {
+    private void reportContextEscalation(QueryContext newContext, String label) {
         EvaluationTrace trace = new EvaluationTrace(label + " Query Context [" + newContext.contextScope +"]");
         trace.setOutcome("");
         reportTrace(trace);
