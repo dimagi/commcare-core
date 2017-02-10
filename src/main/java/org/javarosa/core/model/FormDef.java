@@ -1368,37 +1368,6 @@ public class FormDef implements IFormElement, IMetaData,
     }
 
     /**
-     * Iterate over the form's data bindings, and evaluate all post procesing
-     * calls.
-     *
-     * @return true if the instance was modified in any way. false otherwise.
-     */
-    private boolean postProcessInstance(TreeElement node) {
-        // we might have issues with ordering, for example, a handler that writes a value to a node,
-        // and a handler that does something external with the node. if both handlers are bound to the
-        // same node, we need to make sure the one that alters the node executes first. deal with that later.
-        // can we even bind multiple handlers to the same node currently?
-
-        // also have issues with conditions. it is hard to detect what conditions are affected by the actions
-        // of the post-processor. normally, it wouldn't matter because we only post-process when we are exiting
-        // the form, so the result of any triggered conditions is irrelevant. however, if we save a form in the
-        // interim, post-processing occurs, and then we continue to edit the form. it seems like having conditions
-        // dependent on data written during post-processing is a bad practice anyway, and maybe we shouldn't support it.
-
-        if (node.isLeaf()) {
-            return false;
-        } else {
-            boolean instanceModified = false;
-            for (int i = 0; i < node.getNumChildren(); i++) {
-                TreeElement child = node.getChildAt(i);
-                if (child.getMult() != TreeReference.INDEX_TEMPLATE)
-                    instanceModified |= postProcessInstance(child);
-            }
-            return instanceModified;
-        }
-    }
-
-    /**
      * Reads the form definition object from the supplied stream.
      *
      * Requires that the instance has been set to a prototype of the instance that
