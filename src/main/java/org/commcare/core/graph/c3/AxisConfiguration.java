@@ -90,7 +90,7 @@ public class AxisConfiguration extends Configuration {
                 JSONArray labels = new JSONArray(labelString);
                 JSONArray values = new JSONArray();
                 for (int i = 0; i < labels.length(); i++) {
-                    String value = labels.getString(i);
+                    String value = String.valueOf(labels.get(i));
                     if (isX && mData.getType().equals(org.commcare.core.graph.util.GraphUtil.TYPE_TIME)) {
                         values.put(parseTime(value, key));
                     } else {

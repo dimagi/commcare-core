@@ -54,7 +54,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
         o = field.getTemplate().evaluate(ec);
         if(o instanceof GraphData) {
             try {
-                o = GraphUtil.getHTML((GraphData) o, "");
+                o = GraphUtil.getHTML((GraphData) o, "").replace("\"", "'");
             } catch (GraphException e) {
                 o = "Error loading graph " + e;
             }

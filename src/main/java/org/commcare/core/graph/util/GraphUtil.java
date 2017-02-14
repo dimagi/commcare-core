@@ -52,7 +52,8 @@ public class GraphUtil {
             // filters them out of the APK.
             String affix = "max";
             html.append(
-                    "<html>" +
+                    "<!DOCTYPE html>" +
+                    "<html style=\"height: 100%\">" +
                             "<head>" +
                             "<link rel='stylesheet' type='text/css' href='https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.css'></link>" +
                             "<link rel='stylesheet' type='text/css' href='https://cdn.rawgit.com/dimagi/commcare-android/master/app/assets/graphing/graph.max.css'></link>" +
@@ -72,7 +73,7 @@ public class GraphUtil {
             html.append("</script>" +
                             "<script type='text/javascript' src='https://cdn.rawgit.com/dimagi/commcare-android/master/app/assets/graphing/graph.max.js'></script>" +
                             "</head>" +
-                            "<body style=\"min-height: 100px\">" + titleHTML + errorHTML + chartHTML + "</body>" +
+                            "<body style=\"height: 90%; margin:0;\">" + titleHTML + errorHTML + chartHTML + "</body>" +
                             "</html>");
         } catch (JSONException e) {
             e.printStackTrace();
