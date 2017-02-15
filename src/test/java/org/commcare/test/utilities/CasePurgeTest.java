@@ -9,11 +9,16 @@ import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONString;
 import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -24,39 +29,42 @@ import java.util.Vector;
  *
  * Created by ctsims on 10/13/2015.
  */
+@RunWith(Parameterized.class)
 public class CasePurgeTest {
 
-    private final String name;
-
-    private final HashSet<String> cases = new HashSet<>();
-
-    private final HashSet<String> ownedCases = new HashSet<>();
-    private final HashSet<String> closedCases = new HashSet<>();
-    private final HashSet<String> outcome = new HashSet<>();
-
-    private final ArrayList<String[]> indices = new ArrayList<>();
-
-    public static ArrayList<CasePurgeTest> getTests(String resourceName) {
+    // TODO: START HERE
+    @Parameterized.Parameters
+    public static Iterable<JSONObject> testData() {
         try {
-            ArrayList<CasePurgeTest> runners = new ArrayList<>();
-            JSONArray tests = new JSONArray(TestHelpers.getResourceAsString(resourceName));
-            for (int i = 0; i < tests.length(); ++i) {
-                JSONObject root = tests.getJSONObject(i);
-                runners.add(new CasePurgeTest(root));
+            JSONArray fullTestResource = new JSONArray(TestHelpers.getResourceAsString("/case_relationship_tests.json"));
+            List<JSONObject> parameterSet = new ArrayList<>();
+            for (int i = 0; i < fullTestResource.length(); ++i) {
+                parameterSet.add(fullTestResource.getJSONObject(i));
             }
-            return runners;
+            return parameterSet;
         } catch (IOException | JSONException e) {
             RuntimeException failure =
-                    new RuntimeException("Failed to parse input for test: " + resourceName);
+                    new RuntimeException("Failed to parse input for CasePurgeTest");
             failure.initCause(e);
             throw failure;
         }
     }
 
-    private CasePurgeTest(JSONObject root) throws JSONException {
-        name = root.getString("name");
+    private final String name;
+    private final HashSet<String> allCases = new HashSet<>();
+    private final HashSet<String> ownedCases = new HashSet<>();
+    private final HashSet<String> closedCases = new HashSet<>();
+    private final HashSet<String> outcomeSet = new HashSet<>();
+    private final ArrayList<String[]> indices = new ArrayList<>();
+
+    public CasePurgeTest(JSONObject root) {
+        this.name = root.getString("name");
+        parseOutTestObjects(root);
+    }
+
+    private void parseOutTestObjects(JSONObject root) {
         if (root.has("cases")) {
-            getCases(root.getJSONArray("cases"), cases);
+            getCases(root.getJSONArray("cases"), allCases);
         }
         if (root.has("owned")) {
             getCases(root.getJSONArray("owned"), ownedCases);
@@ -71,30 +79,30 @@ public class CasePurgeTest {
         if (root.has("extensions")) {
             getIndices(root.getJSONArray("extensions"), indices, CaseIndex.RELATIONSHIP_EXTENSION);
         }
-        getCases(root.getJSONArray("outcome"), outcome);
-    }
-
-    private void getIndices(JSONArray indices,
-                            ArrayList<String[]> indexSet,
-                            String indexType) throws JSONException {
-        for (int i = 0; i < indices.length(); ++i) {
-            JSONArray index = indices.getJSONArray(i);
-            String c = index.getString(0);
-            String target = index.getString(1);
-            cases.add(c);
-            cases.add(target);
-            indexSet.add(new String[]{c, target, indexType});
-        }
+        getCases(root.getJSONArray("outcome"), outcomeSet);
     }
 
     private void getCases(JSONArray owned, HashSet<String> target) throws JSONException {
         for (int i = 0; i < owned.length(); ++i) {
             String c = owned.getString(i);
-            cases.add(c);
+            allCases.add(c);
             target.add(c);
         }
     }
 
+    private void getIndices(JSONArray indices, ArrayList<String[]> indexSet,
+                                   String indexType) throws JSONException {
+        for (int i = 0; i < indices.length(); ++i) {
+            JSONArray index = indices.getJSONArray(i);
+            String c = index.getString(0);
+            String target = index.getString(1);
+            allCases.add(c);
+            allCases.add(target);
+            indexSet.add(new String[]{c, target, indexType});
+        }
+    }
+
+    @Test
     public void executeTest() {
         DummyIndexedStorageUtility<Case> storage =
                 new DummyIndexedStorageUtility<>(Case.class, new LivePrototypeFactory());
@@ -114,13 +122,13 @@ public class CasePurgeTest {
             inStorage.add(c.getCaseId());
         }
 
-        Assert.assertEquals(name, outcome, inStorage);
+        Assert.assertEquals(name, outcomeSet, inStorage);
 
     }
 
     private void initCaseStorage(DummyIndexedStorageUtility<Case> storage,
                                  String userId) {
-        for (String c : cases) {
+        for (String c : allCases) {
             Case theCase = new Case(c, "purge_test_case");
             theCase.setCaseId(c);
             if (ownedCases.contains(c)) {
@@ -145,4 +153,5 @@ public class CasePurgeTest {
     public String getName() {
         return name;
     }
+    
 }
