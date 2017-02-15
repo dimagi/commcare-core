@@ -107,16 +107,8 @@ public class CasePurgeTest {
         getCases(outcomeJson, outcomeSet);
     }
 
-    private void getCases(JSONArray owned, HashSet<String> target) throws JSONException {
-        for (int i = 0; i < owned.length(); ++i) {
-            String c = owned.getString(i);
-            allCases.add(c);
-            target.add(c);
-        }
-    }
-
     private void getIndices(JSONArray indices, ArrayList<String[]> indexSet,
-                                   String indexType) throws JSONException {
+                            String indexType) throws JSONException {
         for (int i = 0; i < indices.length(); ++i) {
             JSONArray index = indices.getJSONArray(i);
             String c = index.getString(0);
@@ -124,6 +116,14 @@ public class CasePurgeTest {
             allCases.add(c);
             allCases.add(target);
             indexSet.add(new String[]{c, target, indexType});
+        }
+    }
+
+    private void getCases(JSONArray owned, HashSet<String> target) throws JSONException {
+        for (int i = 0; i < owned.length(); ++i) {
+            String c = owned.getString(i);
+            allCases.add(c);
+            target.add(c);
         }
     }
 
