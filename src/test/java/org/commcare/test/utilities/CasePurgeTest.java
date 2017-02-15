@@ -9,7 +9,6 @@ import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONString;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,21 +31,44 @@ import java.util.Vector;
 @RunWith(Parameterized.class)
 public class CasePurgeTest {
 
-    // TODO: START HERE
-    @Parameterized.Parameters
-    public static Iterable<JSONObject> testData() {
+    @Parameterized.Parameters(name = "{0}")
+    public static Iterable<Object[]> testData() {
         try {
-            JSONArray fullTestResource = new JSONArray(TestHelpers.getResourceAsString("/case_relationship_tests.json"));
-            List<JSONObject> parameterSet = new ArrayList<>();
+            JSONArray fullTestResource =
+                    new JSONArray(TestHelpers.getResourceAsString("/case_relationship_tests.json"));
+            List<Object[]> listOfParameterSets = new ArrayList<>();
             for (int i = 0; i < fullTestResource.length(); ++i) {
-                parameterSet.add(fullTestResource.getJSONObject(i));
+                JSONObject root = fullTestResource.getJSONObject(i);
+                listOfParameterSets.add(parseParametersFromJSONObject(root));
             }
-            return parameterSet;
+            return listOfParameterSets;
         } catch (IOException | JSONException e) {
             RuntimeException failure =
                     new RuntimeException("Failed to parse input for CasePurgeTest");
             failure.initCause(e);
             throw failure;
+        }
+    }
+
+    private static Object[] parseParametersFromJSONObject(JSONObject root) {
+        Object[] parameters = new Object[7];
+        parameters[0] = root.getString("name");
+
+        String[] jsonArrayKeys =
+                new String[]{"cases", "owned", "closed", "subcases", "extensions", "outcome"};
+        for (int i = 0; i < jsonArrayKeys.length; i++) {
+            addJSONArrayIfPresent(root, i+1, jsonArrayKeys[i], parameters);
+        }
+
+        return parameters;
+    }
+
+    private static void addJSONArrayIfPresent(JSONObject root, int index, String key,
+                                              Object[] parameterSet) {
+        if (root.has(key)) {
+            parameterSet[index] = root.getJSONArray(key);
+        } else {
+            parameterSet[index] = null;
         }
     }
 
@@ -57,29 +79,32 @@ public class CasePurgeTest {
     private final HashSet<String> outcomeSet = new HashSet<>();
     private final ArrayList<String[]> indices = new ArrayList<>();
 
-    public CasePurgeTest(JSONObject root) {
-        this.name = root.getString("name");
-        parseOutTestObjects(root);
+    public CasePurgeTest(String name, JSONArray cases, JSONArray owned, JSONArray closed,
+                         JSONArray subcases, JSONArray extensions, JSONArray outcome) {
+        this.name = name;
+        createTestObjectsFromParameters(cases, owned, closed, subcases, extensions, outcome);
     }
 
-    private void parseOutTestObjects(JSONObject root) {
-        if (root.has("cases")) {
-            getCases(root.getJSONArray("cases"), allCases);
+    private void createTestObjectsFromParameters(JSONArray casesJson, JSONArray ownedJson,
+                                                 JSONArray closedJson, JSONArray subcasesJson,
+                                                 JSONArray extensionsJson, JSONArray outcomeJson) {
+        if (casesJson != null) {
+            getCases(casesJson, allCases);
         }
-        if (root.has("owned")) {
-            getCases(root.getJSONArray("owned"), ownedCases);
+        if (ownedJson != null) {
+            getCases(ownedJson, ownedCases);
         }
-        if (root.has("closed")) {
-            getCases(root.getJSONArray("closed"), closedCases);
+        if (closedJson != null) {
+            getCases(closedJson, closedCases);
         }
 
-        if (root.has("subcases")) {
-            getIndices(root.getJSONArray("subcases"), indices, CaseIndex.RELATIONSHIP_CHILD);
+        if (subcasesJson != null) {
+            getIndices(subcasesJson, indices, CaseIndex.RELATIONSHIP_CHILD);
         }
-        if (root.has("extensions")) {
-            getIndices(root.getJSONArray("extensions"), indices, CaseIndex.RELATIONSHIP_EXTENSION);
+        if (extensionsJson != null) {
+            getIndices(extensionsJson, indices, CaseIndex.RELATIONSHIP_EXTENSION);
         }
-        getCases(root.getJSONArray("outcome"), outcomeSet);
+        getCases(outcomeJson, outcomeSet);
     }
 
     private void getCases(JSONArray owned, HashSet<String> target) throws JSONException {
