@@ -73,7 +73,7 @@ public class CasePurgeTest {
     }
 
     private final String name;
-    private final HashSet<String> allCases = new HashSet<>();
+    private final HashSet<String> cases = new HashSet<>();
     private final HashSet<String> ownedCases = new HashSet<>();
     private final HashSet<String> closedCases = new HashSet<>();
     private final HashSet<String> outcomeSet = new HashSet<>();
@@ -89,7 +89,7 @@ public class CasePurgeTest {
                                                  JSONArray closedJson, JSONArray subcasesJson,
                                                  JSONArray extensionsJson, JSONArray outcomeJson) {
         if (casesJson != null) {
-            getCases(casesJson, allCases);
+            getCases(casesJson, cases);
         }
         if (ownedJson != null) {
             getCases(ownedJson, ownedCases);
@@ -113,8 +113,8 @@ public class CasePurgeTest {
             JSONArray index = indices.getJSONArray(i);
             String c = index.getString(0);
             String target = index.getString(1);
-            allCases.add(c);
-            allCases.add(target);
+            cases.add(c);
+            cases.add(target);
             indexSet.add(new String[]{c, target, indexType});
         }
     }
@@ -122,7 +122,7 @@ public class CasePurgeTest {
     private void getCases(JSONArray owned, HashSet<String> target) throws JSONException {
         for (int i = 0; i < owned.length(); ++i) {
             String c = owned.getString(i);
-            allCases.add(c);
+            cases.add(c);
             target.add(c);
         }
     }
@@ -153,7 +153,7 @@ public class CasePurgeTest {
 
     private void initCaseStorage(DummyIndexedStorageUtility<Case> storage,
                                  String userId) {
-        for (String c : allCases) {
+        for (String c : cases) {
             Case theCase = new Case(c, "purge_test_case");
             theCase.setCaseId(c);
             if (ownedCases.contains(c)) {
