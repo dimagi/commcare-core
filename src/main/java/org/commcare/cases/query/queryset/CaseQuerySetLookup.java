@@ -1,6 +1,6 @@
 package org.commcare.cases.query.queryset;
 
-import org.commcare.cases.query.QueryCacheEntry;
+import org.commcare.cases.query.QueryCache;
 import org.commcare.cases.query.QueryContext;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
@@ -82,7 +82,7 @@ public class CaseQuerySetLookup implements QuerySetLookup {
                 getLookupSetBody(queryContext, multiplicityMap);
     }
 
-    public static class CaseQuerySetLookupCache implements QueryCacheEntry {
+    public static class CaseQuerySetLookupCache implements QueryCache {
         Map<TreeReference, Integer> caseQueryIndex;
         Set<Integer> lookupSetBody;
 

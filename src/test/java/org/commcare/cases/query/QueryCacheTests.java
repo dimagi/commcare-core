@@ -11,16 +11,16 @@ import java.util.HashMap;
  */
 
 public class QueryCacheTests {
-    QueryCache grandparent, parent, child;
+    QueryCacheHost grandparent, parent, child;
 
     String key = "key";
     String value = "value";
 
     @Before
     public void setup() {
-        grandparent = new QueryCache();
-        parent = new QueryCache(grandparent);
-        child = new QueryCache(parent);
+        grandparent = new QueryCacheHost();
+        parent = new QueryCacheHost(grandparent);
+        child = new QueryCacheHost(parent);
 
     }
 
@@ -77,11 +77,11 @@ public class QueryCacheTests {
         cache.hashmap.put(key, value);
     }
 
-    public static class TestCache implements QueryCacheEntry {
+    public static class TestCache implements QueryCache {
         HashMap<String, String> hashmap = new HashMap<>();
     }
 
-    public static class TestCacheTwo implements QueryCacheEntry {
+    public static class TestCacheTwo implements QueryCache {
         HashMap<String, String> hashmap = new HashMap<>();
     }
 

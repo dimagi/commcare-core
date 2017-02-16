@@ -124,7 +124,7 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
 
     /**
      * A transform for the situation where the /@case_id step is taken relative to an existing
-     * case model query set lookup. 
+     * case model query set lookup.
      */
     private static class CaseIdentityQuerySetTransform implements QuerySetTransform {
         static TreeReference caseIdRef = CaseInstanceTreeElement.CASE_ID_EXPR.getReference();

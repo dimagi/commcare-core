@@ -29,7 +29,7 @@ public class QueryContext {
     //into the EC
     private EvaluationContext traceRoot;
 
-    private QueryCache cache;
+    private QueryCacheHost cache;
 
     private QueryContext potentialSpawnedContext;
 
@@ -39,12 +39,12 @@ public class QueryContext {
     private int contextScope = 1;
 
     public QueryContext() {
-        cache = new QueryCache();
+        cache = new QueryCacheHost();
     }
 
     private QueryContext(QueryContext parent) {
         this.traceRoot = parent.traceRoot;
-        this.cache = new QueryCache(parent.cache);
+        this.cache = new QueryCacheHost(parent.cache);
         this.contextScope = parent.contextScope;
     }
 
@@ -109,10 +109,10 @@ public class QueryContext {
     }
 
 
-    public <T extends QueryCacheEntry> T getQueryCache(Class<T> cacheType) {
+    public <T extends QueryCache> T getQueryCache(Class<T> cacheType) {
         return cache.getQueryCache(cacheType);
     }
-    public <T extends QueryCacheEntry> T getQueryCacheOrNull(Class<T> cacheType) {
+    public <T extends QueryCache> T getQueryCacheOrNull(Class<T> cacheType) {
         return cache.getQueryCacheOrNull(cacheType);
     }
 
