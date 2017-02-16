@@ -33,7 +33,6 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     private final Detail shortDetail;
     private final EvaluationContext rootContext;
-    ReducingTraceReporter reducingTraceReporter;
 
     public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context) throws CommCareSessionException {
         mHeader = createHeader(shortDetail, context);
@@ -42,13 +41,11 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
         rows = new String[references.size()];
 
-        reducingTraceReporter = new ReducingTraceReporter();
         int i = 0;
         for (TreeReference entity : references) {
             rows[i] = createRow(entity);
             ++i;
         }
-        ScreenUtils.printAndClearTraces(reducingTraceReporter, "Case Screen");
 
         this.mChoices = new TreeReference[references.size()];
         references.copyInto(mChoices);
@@ -63,7 +60,6 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     private String createRow(TreeReference entity, boolean collectDebug) {
         EvaluationContext context = new EvaluationContext(rootContext, entity);
         EvaluationTraceReporter reporter = new AccumulatingReporter();
-        context.setDebugModeOn(reducingTraceReporter);
 
         if (collectDebug) {
             context.setDebugModeOn(reporter);
