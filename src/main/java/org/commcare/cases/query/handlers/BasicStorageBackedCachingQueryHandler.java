@@ -14,6 +14,13 @@ import java.util.List;
 import java.util.Vector;
 
 /**
+ * For generic StorageBacked tree root models, each time one is looked up, provide a small cache
+ * that can be used to keep the lookup result in memory.
+ *
+ * This object manages its own data lifecycle (by keeping track of very little data) and is only
+ * expected to provide results for rapidly-repeated queries for the same object, rather than long
+ * term query planning.
+ *
  * Created by ctsims on 1/25/2017.
  */
 

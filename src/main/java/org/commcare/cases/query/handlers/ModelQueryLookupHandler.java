@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Vector;
 
 /**
+ * Optimizes bulk queries which match model sets detected in the predicates.
  *
+ * Relies on a QuerySetMatcher to break down the predicate patterns which match the current model.
  *
  * Created by ctsims on 1/31/2017.
  */
@@ -60,7 +62,7 @@ public class ModelQueryLookupHandler implements QueryHandler<ModelQueryLookup> {
 
     @Override
     public void updateProfiles(ModelQueryLookup querySet, Vector<PredicateProfile> profiles) {
-        profiles.removeElementAt(0);
+        profiles.remove(querySet);
     }
 
     @Override
