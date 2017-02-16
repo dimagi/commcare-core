@@ -32,6 +32,6 @@ public class QueryUtils {
     }
 
     private static void notifySensitive(QuerySensitive o, QueryContext context) {
-        o.notifyOfCurrentQueryContext(context);
+        o.prepareForUseInCurrentContext(context);
     }
 }

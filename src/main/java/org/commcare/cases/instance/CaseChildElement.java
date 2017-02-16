@@ -264,7 +264,7 @@ public class CaseChildElement extends StorageBackedChildElement<Case> implements
     }
 
     @Override
-    public void notifyOfCurrentQueryContext(QueryContext queryContext) {
+    public void prepareForUseInCurrentContext(QueryContext queryContext) {
         cache(queryContext);
     }
 }
