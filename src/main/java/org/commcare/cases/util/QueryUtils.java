@@ -1,6 +1,7 @@
 package org.commcare.cases.util;
 
 import org.commcare.cases.query.IndexedValueLookup;
+import org.commcare.cases.query.PredicateProfile;
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.QuerySensitive;
 
@@ -11,8 +12,8 @@ import java.util.Vector;
  */
 
 public class QueryUtils {
-    public static org.commcare.cases.query.IndexedValueLookup getFirstKeyIndexedValue(Vector<org.commcare.cases.query.PredicateProfile> profiles) {
-        if(profiles.elementAt(0) instanceof org.commcare.cases.query.IndexedValueLookup) {
+    public static IndexedValueLookup getFirstKeyIndexedValue(Vector<PredicateProfile> profiles) {
+        if (profiles.elementAt(0) instanceof IndexedValueLookup) {
             return (IndexedValueLookup)profiles.elementAt(0);
         }
         return null;
@@ -25,7 +26,7 @@ public class QueryUtils {
     }
 
     public static void poke(Object o, QueryContext context) {
-        if(o instanceof QuerySensitive) {
+        if (o instanceof QuerySensitive) {
             notifySensitive((QuerySensitive)o, context);
         }
     }

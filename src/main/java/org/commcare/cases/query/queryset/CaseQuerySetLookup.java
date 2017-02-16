@@ -1,15 +1,11 @@
 package org.commcare.cases.query.queryset;
 
-import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.query.QueryCacheEntry;
 import org.commcare.cases.query.QueryContext;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.util.ArrayUtilities;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +19,8 @@ import java.util.Vector;
 public class CaseQuerySetLookup implements QuerySetLookup {
     public static final String CASE_MODEL_ID = "case";
 
-    TreeReference caseDbRoot;
-    Map<Integer, Integer> multiplicityMap;
+    private TreeReference caseDbRoot;
+    private Map<Integer, Integer> multiplicityMap;
 
     public CaseQuerySetLookup(TreeReference caseDbRoot, Map<Integer, Integer> multiplicityMap) {
         this.caseDbRoot = caseDbRoot;
@@ -38,12 +34,7 @@ public class CaseQuerySetLookup implements QuerySetLookup {
         } else {
             ModelQuerySet set =
                     context.getQueryCache(QuerySetCache.class).getModelQuerySet(CurrentModelQuerySet.CURRENT_QUERY_SET_ID);
-            if (set == null) {
-                //this optimization isn't useful because the current context doesn't contain
-                //a query set
-                return false;
-            }
-            return true;
+            return set != null;
         }
     }
 

@@ -10,6 +10,10 @@ import java.util.Set;
 import java.util.Vector;
 
 /**
+ * A DerivedCaseQueryLookup takes an absolute path and a
+ * relative path and attempts to resolve the relative path into a lookup
+ * that's more efficiently evaluated in the DB
+ *
  * Created by ctsims on 2/6/2017.
  */
 

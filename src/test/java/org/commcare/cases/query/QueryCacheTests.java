@@ -1,14 +1,10 @@
 package org.commcare.cases.query;
 
-import org.commcare.suite.model.Text;
-import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.xpath.XPathException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
-import java.util.Hashtable;
 
 /**
  * Created by ctsims on 12/14/2016.

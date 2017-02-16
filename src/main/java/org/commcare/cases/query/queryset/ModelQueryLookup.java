@@ -8,9 +8,9 @@ import org.javarosa.core.model.instance.TreeReference;
  */
 
 public class ModelQueryLookup implements PredicateProfile {
-    String key;
-    TreeReference rootLookupRef;
-    QuerySetLookup setLookup;
+    private String key;
+    private TreeReference rootLookupRef;
+    private QuerySetLookup setLookup;
 
     public ModelQueryLookup(String key, QuerySetLookup set, TreeReference rootLookupRef) {
         this.key = key;
@@ -22,7 +22,6 @@ public class ModelQueryLookup implements PredicateProfile {
     public String getKey() {
         return key;
     }
-
 
     public QuerySetLookup getSetLookup() {
         return setLookup;

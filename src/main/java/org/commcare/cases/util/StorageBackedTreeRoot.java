@@ -4,6 +4,7 @@ import org.commcare.cases.query.*;
 import org.commcare.cases.query.IndexedSetMemberLookup;
 import org.commcare.cases.query.IndexedValueLookup;
 import org.commcare.cases.query.PredicateProfile;
+import org.commcare.cases.query.handlers.BasicStorageBackedCachingQueryHandler;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -27,8 +28,8 @@ import java.util.Vector;
  */
 public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> implements AbstractTreeElement<T> {
 
-    protected org.commcare.cases.query.QueryPlanner queryPlanner;
-    protected org.commcare.cases.query.handlers.BasicStorageBackedCachingQueryHandler defaultCacher;
+    protected QueryPlanner queryPlanner;
+    protected BasicStorageBackedCachingQueryHandler defaultCacher;
 
     protected final Hashtable<Integer, Integer> objectIdMapping = new Hashtable<>();
 
@@ -56,7 +57,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
         Hashtable<XPathPathExpr, String> indices = getStorageIndexMap();
 
-        Vector<org.commcare.cases.query.PredicateProfile> profiles = new Vector<>();
+        Vector<PredicateProfile> profiles = new Vector<>();
 
         QueryContext queryContext = evalContext.getCurrentQueryContext();
 
@@ -85,7 +86,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
     private void collectPredicateProfiles(Vector<XPathExpression> predicates,
                                           Hashtable<XPathPathExpr, String> indices,
                                           EvaluationContext evalContext,
-                                          Vector<org.commcare.cases.query.PredicateProfile> optimizations,
+                                          Vector<PredicateProfile> optimizations,
                                           QueryContext queryContext) {
 
         optimizations.addAll(getQueryPlanner().collectPredicateProfiles(predicates, queryContext, evalContext));
@@ -113,7 +114,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                             //sure the best way to do that....? Maybe tell the evaluation context to skip out here if it detects a request
                             //to resolve in a certain area?
                             Object o = FunctionUtils.unpack(((XPathEqExpr)xpe).b.eval(evalContext));
-                            optimizations.addElement(new org.commcare.cases.query.IndexedValueLookup(filterIndex, o));
+                            optimizations.addElement(new IndexedValueLookup(filterIndex, o));
 
                             continue predicate;
                         }
@@ -147,16 +148,16 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         }
     }
 
-    public QueryPlanner getQueryPlanner() {
+    protected QueryPlanner getQueryPlanner() {
         if(queryPlanner == null) {
-            queryPlanner = new org.commcare.cases.query.QueryPlanner();
+            queryPlanner = new QueryPlanner();
             initBasicQueryHandlers(queryPlanner);
         }
         return queryPlanner;
     }
 
     protected void initBasicQueryHandlers(QueryPlanner queryPlanner) {
-        defaultCacher = new org.commcare.cases.query.handlers.BasicStorageBackedCachingQueryHandler();
+        defaultCacher = new BasicStorageBackedCachingQueryHandler();
 
         //TODO: Move the actual indexed query optimization used in this
         //method into its own (or a matching) cache method
@@ -165,7 +166,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
 
     private Collection<Integer> processPredicates(Vector<Integer> toRemove,
-                                              Vector<org.commcare.cases.query.PredicateProfile> profiles,
+                                              Vector<PredicateProfile> profiles,
                                               QueryContext currentQueryContext) {
         Collection<Integer> selectedElements = null;
         IStorageUtilityIndexed<?> storage = getStorage();
@@ -251,11 +252,11 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
     protected Collection<Integer> getNextIndexMatch(Vector<PredicateProfile> profiles,
                                                     IStorageUtilityIndexed<?> storage,
                                                     QueryContext currentQueryContext) throws IllegalArgumentException {
-        if(!(profiles.elementAt(0) instanceof org.commcare.cases.query.IndexedValueLookup)) {
+        if(!(profiles.elementAt(0) instanceof IndexedValueLookup)) {
             throw new IllegalArgumentException("No optimization path found for optimization type");
         }
 
-        org.commcare.cases.query.IndexedValueLookup op = (IndexedValueLookup)profiles.elementAt(0);
+        IndexedValueLookup op = (IndexedValueLookup)profiles.elementAt(0);
 
 
         EvaluationTrace trace = new EvaluationTrace("Model Index[" + op.key + "] Lookup");

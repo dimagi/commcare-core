@@ -15,7 +15,7 @@ public class IndexedSetMemberLookup implements PredicateProfile {
     public final String key;
     public final String[] valueSet;
 
-    public IndexedSetMemberLookup(String key, Object valueSet ) {
+    public IndexedSetMemberLookup(String key, Object valueSet) {
         this.key = key;
         this.valueSet = ((String)valueSet).split(" ");
     }

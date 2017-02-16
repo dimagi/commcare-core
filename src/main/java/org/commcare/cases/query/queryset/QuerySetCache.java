@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class QuerySetCache implements QueryCacheEntry {
 
-    Map<String, ModelQuerySet> querySetMap = new HashMap<>();
+    private Map<String, ModelQuerySet> querySetMap = new HashMap<>();
 
     public ModelQuerySet getModelQuerySet(String querySetId) {
         return querySetMap.get(querySetId);
