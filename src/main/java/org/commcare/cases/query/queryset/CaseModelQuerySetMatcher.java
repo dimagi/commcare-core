@@ -53,7 +53,7 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
         membershipIndexes = new Vector<>();
         membershipIndexes.add(CaseInstanceTreeElement.CASE_ID_EXPR);
         membershipIndexes.add(CaseInstanceTreeElement.CASE_ID_EXPR_TWO);
-        querySetTransforms.add(new CaseIdentityQuerySetTransform());
+        addQuerySetTransform(new CaseIdentityQuerySetTransform());
     }
 
     public void addQuerySetTransform(QuerySetTransform transform) {

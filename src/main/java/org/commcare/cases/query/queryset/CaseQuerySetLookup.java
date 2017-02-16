@@ -13,6 +13,9 @@ import java.util.Set;
 import java.util.Vector;
 
 /**
+ * The "Root" lookup into the case query set, matches a current index into a case model id, and
+ * provides a basis for transformed lookups.
+ *
  * Created by ctsims on 2/6/2017.
  */
 
