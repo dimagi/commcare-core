@@ -114,12 +114,26 @@ public class NodeEntityFactory {
         List<TreeReference> result = tracableContext.expandReference(treeReference);
         printAndClearTraces("expand");
 
+        setEvaluationContextDefaultQuerySet(ec, result);
+
+        return result;
+    }
+
+    /**
+     * Lets the evaluation context know what the 'overall' query set in play is. This allows the
+     * query planner to know that we aren't just looking to expand results for a specific element,
+     * we're currently iterating over a potentially large set of elements and should batch
+     * appropriately
+     */
+    private void setEvaluationContextDefaultQuerySet(EvaluationContext ec,
+                                                     List<TreeReference> result) {
+
         QueryContext newContext = ec.getCurrentQueryContext()
                 .checkForDerivativeContextAndReturn(result.size());
+
         newContext.setHackyOriginalContextBody(new CurrentModelQuerySet(result));
 
         ec.setQueryContext(newContext);
-        return result;
     }
 
     public void printAndClearTraces(String description) {
