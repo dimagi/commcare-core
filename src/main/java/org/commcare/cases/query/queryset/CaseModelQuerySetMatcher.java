@@ -16,6 +16,16 @@ import java.util.Vector;
 import sun.reflect.generics.tree.Tree;
 
 /**
+ * Generates potential model query set lookups for references into the case database model.
+ *
+ * Chains entity lookups where relevant using model set transforms, which can be added dynamically.
+ *
+ * example:
+ * [@case_id = current()/@case_id]
+ *
+ * can be directly returned and interpreted as an model query set lookup which gets the current
+ * case without needing to compare string Id's, match on looked up values, etc.
+ *
  * Created by ctsims on 2/6/2017.
  */
 
@@ -111,6 +121,11 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
         return ref.getContext() == TreeReference.CONTEXT_ORIGINAL;
     }
 
+
+    /**
+     * A transform for the situation where the /@case_id step is taken relative to an existing
+     * case model query set lookup. 
+     */
     private static class CaseIdentityQuerySetTransform implements QuerySetTransform {
         static TreeReference caseIdRef = CaseInstanceTreeElement.CASE_ID_EXPR.getReference();
         @Override

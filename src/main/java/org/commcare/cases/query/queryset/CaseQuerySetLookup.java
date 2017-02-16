@@ -51,6 +51,9 @@ public class CaseQuerySetLookup implements QuerySetLookup {
     @Override
     public TreeReference getLookupIdKey(EvaluationContext evaluationContext) {
         TreeReference current = evaluationContext.getOriginalContext();
+        if(current == null) {
+            return null;
+        }
         if(current.size() < 1) {
             return null;
         }

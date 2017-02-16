@@ -6,6 +6,9 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
+ * The "current" query set is a set of tree referencs which are in play that are the result of a
+ * query to the current() context within a predicate expression.
+ *
  * Created by ctsims on 2/6/2017.
  */
 
