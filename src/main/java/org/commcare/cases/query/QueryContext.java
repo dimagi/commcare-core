@@ -117,7 +117,9 @@ public class QueryContext {
     }
 
     public void reportTrace(EvaluationTrace trace) {
-        traceRoot.reportSubtrace(trace);
+        if (traceRoot != null) {
+            traceRoot.reportSubtrace(trace);
+        }
     }
 
     public void setTraceRoot(EvaluationContext traceRoot) {
