@@ -25,13 +25,14 @@ public class QueryUtils {
         return results;
     }
 
-    public static void poke(Object o, QueryContext context) {
+    /**
+     * If the provided object has the QuerySensitive instance tag, provide the object with the
+     * current query context so it can potentially prepare itself for use in a more efficient
+     * manner
+     */
+    public static void prepareSensitiveObjectForUseInCurrentContext(Object o, QueryContext context) {
         if (o instanceof QuerySensitive) {
-            notifySensitive((QuerySensitive)o, context);
+            ((QuerySensitive)o).prepareForUseInCurrentContext(context);
         }
-    }
-
-    private static void notifySensitive(QuerySensitive o, QueryContext context) {
-        o.prepareForUseInCurrentContext(context);
     }
 }

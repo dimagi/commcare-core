@@ -7,6 +7,11 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 /**
+ * A model query set implementation for queries which are one-to-one results.
+ *
+ * Maintains the original order of arguments received to ensure that lookups happen
+ * in a predictable manner (and short-term caches will maximize hits)
+ *
  * Created by ctsims on 2/6/2017.
  */
 

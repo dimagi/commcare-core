@@ -19,16 +19,15 @@ import java.util.Vector;
  */
 
 public class EvaluationTraceReduction extends EvaluationTrace {
-    String expression;
+    private String expression;
 
-    int countExecuted = 0;
-    long nanoTime = 0;
+    private int countExecuted = 0;
+    private long nanoTime = 0;
 
-    HashMap<String, Integer> valueMap = new HashMap<>();
+    private final HashMap<String, Integer> valueMap = new HashMap<>();
 
-    OrderedHashtable<String, EvaluationTraceReduction> subTraces = new OrderedHashtable<>();
-
-    Vector<EvaluationTraceReduction> children = new Vector<>();
+    private final OrderedHashtable<String, EvaluationTraceReduction> subTraces
+            = new OrderedHashtable<>();
 
     public EvaluationTraceReduction(EvaluationTrace trace) {
         super(trace.getExpression());
@@ -36,6 +35,11 @@ public class EvaluationTraceReduction extends EvaluationTrace {
         foldIn(trace);
     }
 
+    /**
+     * Add the stats about the provided trace to this reduced trace.
+     *
+     * Assumes that the provided trace represents the same evaluated expression as this trace.
+     */
     public void foldIn(EvaluationTrace trace) {
         countExecuted++;
         nanoTime += trace.getRuntimeInNanoseconds();
@@ -51,10 +55,12 @@ public class EvaluationTraceReduction extends EvaluationTrace {
                 for (EvaluationTrace subTrace : copy) {
                     String subKey = subTrace.getExpression();
                     if (subTraces.containsKey(subKey)) {
-                        EvaluationTraceReduction reducedSubExpr = subTraces.get(subTrace.getExpression());
+                        EvaluationTraceReduction reducedSubExpr =
+                                subTraces.get(subTrace.getExpression());
                         reducedSubExpr.foldIn(subTrace);
                     } else {
-                        EvaluationTraceReduction reducedSubExpr = new EvaluationTraceReduction(subTrace);
+                        EvaluationTraceReduction reducedSubExpr =
+                                new EvaluationTraceReduction(subTrace);
                         subTraces.put(subKey, reducedSubExpr);
                     }
                 }

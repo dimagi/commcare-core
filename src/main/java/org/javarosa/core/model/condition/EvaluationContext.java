@@ -3,7 +3,6 @@ package org.javarosa.core.model.condition;
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.cases.util.QueryUtils;
-import org.commcare.cases.util.StorageBackedTreeRoot;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -13,7 +12,6 @@ import org.javarosa.core.model.trace.BulkEvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.CacheHost;
-import org.javarosa.core.util.Iterator;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.expr.FunctionUtils;
@@ -24,7 +22,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-import java.util.concurrent.SynchronousQueue;
 
 /**
  * A collection of objects that affect the evaluation of an expression, like
@@ -154,8 +151,7 @@ public class EvaluationContext {
             this.mDebugCore = base.mDebugCore;
         }
 
-        this.queryContext = base.queryContext;
-        queryContext.setTraceRoot(this);
+        setQueryContext(base.queryContext);
     }
 
     public DataInstance getInstance(String id) {
@@ -409,7 +405,7 @@ public class EvaluationContext {
                                                          int childMult,
                                                          boolean includeTemplates) {
         Vector<TreeReference> childSet = new Vector<>();
-        QueryUtils.poke(node, getCurrentQueryContext());
+        QueryUtils.prepareSensitiveObjectForUseInCurrentContext(node, getCurrentQueryContext());
         if (node.hasChildren()) {
             if (childMult == TreeReference.INDEX_UNBOUND) {
                 int count = node.getChildMultiplicity(childName);

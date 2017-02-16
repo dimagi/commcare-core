@@ -101,7 +101,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         T result = null;
         for (int i = 0; i < ref.size(); i++) {
             if (ec != null) {
-                QueryUtils.poke(node, ec.getCurrentQueryContext());
+                QueryUtils.prepareSensitiveObjectForUseInCurrentContext(node, ec.getCurrentQueryContext());
             }
             String name = ref.getName(i);
             int mult = ref.getMultiplicity(i);

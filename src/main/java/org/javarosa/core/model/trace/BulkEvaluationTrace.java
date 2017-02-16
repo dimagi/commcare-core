@@ -9,15 +9,18 @@ import java.util.Collection;
 import java.util.Vector;
 
 /**
+ * A bulk evaluaton trace records that instead of actually running a set of predicate expressions,
+ * they were handled by an optimized lookup that short-circuited the iterative evaluation of each
+ * potential match.
+ *
  * Created by ctsims on 1/24/2017.
  */
 
 public class BulkEvaluationTrace extends EvaluationTrace {
 
-    boolean bulkEvaluationSucceeded = false;
-    long runtimeImpact = 0;
-    String predicatesCovered;
-    String outputValue;
+    private boolean bulkEvaluationSucceeded = false;
+    private String predicatesCovered;
+    private String outputValue;
 
     /**
      * Creates an initial record for a bulk trace
