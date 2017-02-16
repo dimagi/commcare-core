@@ -55,6 +55,9 @@ public class QueryContext {
      */
     public QueryContext checkForDerivativeContextAndReturn(int newScope) {
         QueryContext newContext;
+
+        //TODO: I think we may need to clear the spanwed context's spawned context (maybe?) if it
+        // was generated
         potentialSpawnedContext = null;
         newContext = new QueryContext(this);
         newContext.contextScope = newScope;
@@ -67,6 +70,19 @@ public class QueryContext {
         }
     }
 
+    /**
+     * While performing a query, the result of one part of some internal query may be of sufficient
+     * scope that even though the current context is small (O(10)), the scope of the internal query
+     * may be much, much larger.
+     *
+     * In those cases an "inline" or temporary context can be spawned for the remainder of the
+     * internal evaluation. This may either activate optimizations which would otherwise remain
+     * dormant, or provide a new context cache which can be cleared/reclaimed after the internal
+     * query finishes.
+     *
+     * @return either this context or a new query context to be used when evaluating subsequent
+     * aspects of a partially completed query.
+     */
     public QueryContext testForInlineScopeEscalation(int newScope) {
         if (dominates(newScope, contextScope)) {
             potentialSpawnedContext = new QueryContext(this);
