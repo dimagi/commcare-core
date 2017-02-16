@@ -181,11 +181,16 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                 createRow(this.mChoices[chosenDebugIndex], true);
             } catch (NumberFormatException e) {
                 if ("list".equals(debugArg)) {
-                    host.printNodesetExpansionTrace();
+                    host.printNodesetExpansionTrace(new AccumulatingReporter());
                 }
             }
             return false;
         }
+
+        if (input.startsWith("profile list")) {
+            host.printNodesetExpansionTrace(new ReducingTraceReporter());
+        }
+
 
         try {
             int i = Integer.parseInt(input);
