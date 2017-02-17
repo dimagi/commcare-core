@@ -5,6 +5,7 @@ import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.condition.EvaluationContext;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 
 /**
  * An entity detail subscreen displays one of the detail screens associated with an
@@ -26,19 +27,32 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
 
     public EntityDetailSubscreen(int currentIndex, Detail detail, EvaluationContext subContext, String[] detailListTitles) {
         DetailField[] fields = detail.getFields();
-        rows = new String[fields.length];
-        headers = new String[fields.length];
-        data = new Object[fields.length];
+
+        ArrayList<String> rowTemporary = new ArrayList<>();
+        ArrayList<String> headersTemporary = new ArrayList<>();
+        ArrayList<Object> dataTemporary = new ArrayList<>();
 
         detail.populateEvaluationContextVariables(subContext);
 
-        for (int i = 0; i < fields.length; ++i) {
-            data[i] = createData(fields[i], subContext);
-            headers[i] = createHeader(fields[i], subContext);
-            rows[i] = createRow(fields[i], subContext, data[i]);
+        for (DetailField field : fields) {
+            Object data = createData(field, subContext);
+            // don't add empty details
+            if (data != null && !data.toString().trim().equals("")) {
+                dataTemporary.add(data);
+                headersTemporary.add(createHeader(field, subContext));
+                rowTemporary.add(createRow(field, subContext, data));
+            }
         }
-        mDetailListTitles = detailListTitles;
 
+        rows = new String[rowTemporary.size()];
+        headers = new String[rowTemporary.size()];
+        data = new Object[rowTemporary.size()];
+
+        rowTemporary.toArray(rows);
+        headersTemporary.toArray(headers);
+        dataTemporary.toArray(data);
+
+        mDetailListTitles = detailListTitles;
         mCurrentIndex = currentIndex;
     }
 
