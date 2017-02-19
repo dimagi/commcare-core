@@ -8,7 +8,6 @@
                 <description>Collier du cycle mensuel</description>
                 <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
                 <cost>152</cost>
-                <non_unique>match</non_unique>
             </product>
             <product id="a6d16035b98f6f962a6538bd927cefb3">
                 <name>CU</name>
@@ -16,7 +15,6 @@
                 <description>La contraception d'urgence</description>
                 <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
                 <cost>57</cost>
-                <non_unique>fail</non_unique>
             </product>
             <product id="31ab899368d38c2d0207fe80c00fa96c">
                 <name>Depo-Provera</name>
@@ -24,7 +22,6 @@
                 <description>Injectable</description>
                 <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
                 <cost>152</cost>
-                <non_unique>match</non_unique>
             </product>
             <product id="31ab899368d38c2d0207fe80c00fb8c1">
                 <name>DIU</name>
@@ -32,7 +29,6 @@
                 <description>TCU 380A</description>
                 <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
                 <cost>380</cost>
-                <non_unique>match</non_unique>
             </product>
         </products>
     </fixture>
