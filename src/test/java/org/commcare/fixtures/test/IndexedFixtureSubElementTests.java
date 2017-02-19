@@ -30,7 +30,8 @@ public class IndexedFixtureSubElementTests {
     }
 
     @Test
-    public void queryIndexedLookup() throws XPathSyntaxException, UnfullfilledRequirementsException,
+    public void queryLookupsOfSubelementsInIndexedFixtures() throws XPathSyntaxException,
+            UnfullfilledRequirementsException,
             XmlPullParserException, IOException, InvalidStructureException {
 
         ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/fixture_index/indexed-fixture-sub-elements.xml"), sandbox);
