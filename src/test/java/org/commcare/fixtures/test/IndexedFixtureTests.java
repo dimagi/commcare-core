@@ -60,4 +60,25 @@ public class IndexedFixtureTests {
             XmlPullParserException, IOException, InvalidStructureException {
         ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/fixture_index/malicious-indexed-fixture.xml"), sandbox, true);
     }
+
+    @Test
+    public void queryNonSchemaFixture() throws XPathSyntaxException, UnfullfilledRequirementsException,
+            XmlPullParserException, IOException, InvalidStructureException {
+        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/fixture_index/indexed-fixture-no-schema.xml"), sandbox);
+
+        EvaluationContext ec =
+                MockDataUtils.buildContextWithInstance(sandbox, "products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);
+        CaseTestUtils.xpathEvalAndAssert(ec, "instance('products')/products/product[@id = 'a6d16035b98f6f962a6538bd927cefb3']/name", "CU");
+
+        CaseTestUtils.xpathEvalAndAssert(ec, "instance('products')/products/product[code = 'pd']/name", "CU");
+
+        // ensure that the entire fixture is stored in the normal storage.
+        // This is to ensure if we ever change the indexed data model, we can
+        // perform offline data migrations
+        assertEquals(1, sandbox.getUserFixtureStorage().getNumRecords());
+
+        // make sure the fixture is stored in the indexed fixture storage
+        assertEquals(4, sandbox.getIndexedFixtureStorage("commtrack:products").getNumRecords());
+    }
+
 }
