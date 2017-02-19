@@ -30,11 +30,15 @@ public class IndexedFixtureTests {
     @Test
     public void queryIndexedLookup() throws XPathSyntaxException, UnfullfilledRequirementsException,
             XmlPullParserException, IOException, InvalidStructureException {
-        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/indexed-fixture.xml"), sandbox);
+        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/fixture_index/indexed-fixture.xml"), sandbox);
 
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(sandbox, "products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);
         CaseTestUtils.xpathEvalAndAssert(ec, "instance('products')/products/product[@id = 'a6d16035b98f6f962a6538bd927cefb3']/name", "CU");
+
+        CaseTestUtils.xpathEvalAndAssert(ec, "instance('products')/products/product[code = 'pd']/name", "CU");
+
+        CaseTestUtils.xpathEvalAndAssert(ec, "count(instance('products')/products/product[non_unique = 'match'])", 3.0);
 
         // ensure that the entire fixture is stored in the normal storage.
         // This is to ensure if we ever change the indexed data model, we can
@@ -48,12 +52,12 @@ public class IndexedFixtureTests {
     @Test(expected = InvalidStructureException.class)
     public void errorOnSchemaAfterFixtureTest() throws XPathSyntaxException, UnfullfilledRequirementsException,
             XmlPullParserException, IOException, InvalidStructureException {
-        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/schema-after-indexed-fixture.xml"), sandbox, true);
+        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/fixture_index/schema-after-indexed-fixture.xml"), sandbox, true);
     }
 
     @Test(expected = InvalidStructureException.class)
     public void errorOnMaliciousSchemaTest() throws XPathSyntaxException, UnfullfilledRequirementsException,
             XmlPullParserException, IOException, InvalidStructureException {
-        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/malicious-indexed-fixture.xml"), sandbox, true);
+        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/fixture_index/malicious-indexed-fixture.xml"), sandbox, true);
     }
 }
