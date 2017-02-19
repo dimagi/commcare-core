@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Tests for indexed fixtures around non-indexed parts of their data
  *
- * @author Phillip Mates (pmates@dimagi.com)
+ * @author Clayton Sims (csims@dimagi.com)
  */
 public class IndexedFixtureSubElementTests {
     private MockUserDataSandbox sandbox;
