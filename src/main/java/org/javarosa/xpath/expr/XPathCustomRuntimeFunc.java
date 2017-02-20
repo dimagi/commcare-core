@@ -32,7 +32,7 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
     }
 
     @Override
-    protected void validateArgCount() throws XPathArityException {
+    protected void validateArgCount() throws XPathSyntaxException {
     }
 
     @Override
