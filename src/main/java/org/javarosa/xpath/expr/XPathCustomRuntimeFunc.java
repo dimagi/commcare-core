@@ -85,7 +85,7 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
         } catch(XPathArityException ex) {
             //With static expr's we streat the ArityException as a parse exception to catch it at
             //the appropriate time. Here we need to rethrow as a dynamic exception
-            XPathException wrapped = new XPathException(ex.getMessage());
+            XPathTypeMismatchException wrapped = new XPathTypeMismatchException(ex.getMessage());
             wrapped.initCause(ex);
             throw wrapped;
         }
