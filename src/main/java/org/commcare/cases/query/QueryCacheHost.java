@@ -14,7 +14,8 @@ import java.util.HashMap;
  *
  * This lets nested queries which execute over large datasets maintain their own query caches
  * around the large dataset without injecting that cache data into the original (small N) parent
- * context.
+ * context so that once the large dataset query is over, the small N dataset doesn't keep the
+ * memory reserved as it proceeds.
  *
  * Created by ctsims on 1/26/2017.
  */
@@ -32,6 +33,10 @@ public class QueryCacheHost {
         this.parent = parent;
     }
 
+    /**
+     * Gets a usable copy of the query cache type provided, and if one does not exist,
+     * create one at the current cache level.
+     */
     public <T extends QueryCache> T getQueryCache(Class<T> cacheType) {
         T t = getQueryCacheOrNull(cacheType);
         if(t != null) {
@@ -48,6 +53,10 @@ public class QueryCacheHost {
         }
     }
 
+    /**
+     * Get the query cache object provided if one has been created in the current context, or any
+     * parent contexts. If not, return null and do not instantiate a new query cache.
+     */
     public <T extends QueryCache> T getQueryCacheOrNull(Class<T> cacheType) {
         if (cacheEntries.containsKey(cacheType)) {
             return (T)cacheEntries.get(cacheType);
