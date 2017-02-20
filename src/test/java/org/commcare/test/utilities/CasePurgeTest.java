@@ -67,8 +67,6 @@ public class CasePurgeTest {
                                               Object[] parameterSet) {
         if (root.has(key)) {
             parameterSet[index] = root.getJSONArray(key);
-        } else {
-            parameterSet[index] = null;
         }
     }
 
