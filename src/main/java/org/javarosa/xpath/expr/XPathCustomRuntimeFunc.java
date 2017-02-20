@@ -7,6 +7,7 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathArityException;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnhandledException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -31,7 +32,7 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
     }
 
     @Override
-    protected void validateArgCount() throws XPathSyntaxException {
+    protected void validateArgCount() throws XPathArityException {
     }
 
     @Override
@@ -65,20 +66,28 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
                     (proto.length == args.length);
         }
 
-        if (typedArgs != null) {
-            return handler.eval(typedArgs, ec);
-        } else if (handler.rawArgs()) {
-            // should we have support for expanding nodesets here?
-            return handler.eval(args, ec);
-        } else if (!argPrototypeArityMatch) {
-            // When the argument count doesn't match any of the prototype
-            // sizes, we have an arity error.
-            throw new XPathArityException(handler.getName(),
-                    "a different number of arguments",
-                    args.length);
-        } else {
-            throw new XPathTypeMismatchException("for function \'" +
-                    handler.getName() + "\'");
+        try {
+            if (typedArgs != null) {
+                return handler.eval(typedArgs, ec);
+            } else if (handler.rawArgs()) {
+                // should we have support for expanding nodesets here?
+                return handler.eval(args, ec);
+            } else if (!argPrototypeArityMatch) {
+                // When the argument count doesn't match any of the prototype
+                // sizes, we have an arity error.
+                throw new XPathArityException(handler.getName(),
+                        "a different number of arguments",
+                        args.length);
+            } else {
+                throw new XPathTypeMismatchException("for function \'" +
+                        handler.getName() + "\'");
+            }
+        } catch(XPathArityException ex) {
+            //With static expr's we streat the ArityException as a parse exception to catch it at
+            //the appropriate time. Here we need to rethrow as a dynamic exception
+            XPathException wrapped = new XPathException(ex.getMessage());
+            wrapped.initCause(ex);
+            throw wrapped;
         }
     }
 

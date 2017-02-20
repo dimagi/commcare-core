@@ -1,12 +1,14 @@
 package org.javarosa.xpath;
 
+import org.javarosa.xpath.parser.XPathSyntaxException;
+
 /**
  * An exception detailing a function call that was provided the incorrect
  * number of arguments.
  *
  * Created by wpride1 on 3/28/15.
  */
-public class XPathArityException extends XPathException {
+public class XPathArityException extends XPathSyntaxException {
     private int expectedArity;
     private int providedArity;
     private String funcName;
