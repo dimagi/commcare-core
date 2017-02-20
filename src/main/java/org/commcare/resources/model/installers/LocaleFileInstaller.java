@@ -7,7 +7,7 @@ import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.util.CommCareInstance;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -32,7 +32,7 @@ import java.util.Vector;
 /**
  * @author ctsims
  */
-public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> {
+public class LocaleFileInstaller implements ResourceInstaller<CommCarePlatform> {
 
     private String locale;
     private String localReference;
@@ -55,7 +55,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
     }
 
     @Override
-    public boolean initialize(CommCareInstance instance, boolean isUpgrade) {
+    public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
         if (cache == null) {
             Localization.registerLanguageReference(locale, localReference);
         } else {
@@ -71,7 +71,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
     }
 
     @Override
-    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException {
+    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException {
         //If we have local resource authority, and the file exists, things are golden. We can just use that file.
         if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
             try {

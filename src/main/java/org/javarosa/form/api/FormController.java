@@ -116,8 +116,8 @@ public class FormController {
         return mFormEntryController.getModel().getCaptionPrompt();
     }
 
-    public boolean postProcessInstance() {
-        return mFormEntryController.getModel().getForm().postProcessInstance();
+    public void postProcessInstance() {
+        mFormEntryController.getModel().getForm().postProcessInstance();
     }
 
     public FormInstance getInstance() {

@@ -21,7 +21,7 @@ public class XPathTodayFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return DateUtils.roundDate(new Date());
     }
 

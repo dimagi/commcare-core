@@ -28,7 +28,7 @@ public class XPathWeightedChecklistFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         if (args.length == 4 && evaluatedArgs[2] instanceof XPathNodeset && evaluatedArgs[3] instanceof XPathNodeset) {
             Object[] factors = ((XPathNodeset)evaluatedArgs[2]).toArgList();
             Object[] weights = ((XPathNodeset)evaluatedArgs[3]).toArgList();

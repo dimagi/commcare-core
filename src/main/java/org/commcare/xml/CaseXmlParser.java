@@ -5,7 +5,6 @@ import org.commcare.cases.model.CaseIndex;
 import org.commcare.data.xml.TransactionParser;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.externalizable.SerializationLimitationException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.ActionableInvalidStructureException;
@@ -280,12 +279,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
     @Override
     protected void commit(Case parsed) throws IOException {
-        try {
-            storage().write(parsed);
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            throw new IOException("Storage full while writing case!");
-        }
+        storage().write(parsed);
     }
 
     protected Case retrieve(String entityId) {

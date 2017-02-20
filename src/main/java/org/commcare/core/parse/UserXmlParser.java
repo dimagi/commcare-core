@@ -4,7 +4,6 @@ import org.commcare.data.xml.TransactionParser;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
@@ -97,12 +96,7 @@ public class UserXmlParser extends TransactionParser<User> {
 
     @Override
     protected void commit(User parsed) throws IOException, InvalidStructureException {
-        try {
-            storage().write(parsed);
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            throw new IOException("Storage full while writing case!");
-        }
+        storage().write(parsed);
     }
 
     public User retrieve(String entityId) {

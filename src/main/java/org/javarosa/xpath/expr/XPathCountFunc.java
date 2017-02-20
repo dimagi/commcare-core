@@ -20,7 +20,7 @@ public class XPathCountFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         if (evaluatedArgs[0] instanceof XPathNodeset) {
             return new Double(((XPathNodeset)evaluatedArgs[0]).size());
         } else {

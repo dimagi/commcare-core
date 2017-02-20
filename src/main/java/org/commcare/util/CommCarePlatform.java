@@ -9,7 +9,7 @@ import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.services.storage.IStorageIterator;
-import org.javarosa.core.services.storage.IStorageUtility;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
 
 import java.util.Enumeration;
@@ -29,7 +29,7 @@ import java.util.Vector;
  *
  * @author ctsims
  */
-public class CommCarePlatform implements CommCareInstance {
+public class CommCarePlatform {
     // TODO: We should make this unique using the parser to invalidate this ID or something
     public static final String APP_PROFILE_RESOURCE_ID = "commcare-application-profile";
     private int profile;
@@ -44,12 +44,10 @@ public class CommCarePlatform implements CommCareInstance {
         this.minorVersion = minorVersion;
     }
 
-    @Override
     public int getMajorVersion() {
         return majorVersion;
     }
 
-    @Override
     public int getMinorVersion() {
         return minorVersion;
     }
@@ -60,7 +58,7 @@ public class CommCarePlatform implements CommCareInstance {
 
     public Vector<Suite> getInstalledSuites() {
         Vector<Suite> installedSuites = new Vector<>();
-        IStorageUtility utility = StorageManager.getStorage(Suite.STORAGE_KEY);
+        IStorageUtilityIndexed utility = StorageManager.getStorage(Suite.STORAGE_KEY);
 
         IStorageIterator iterator = utility.iterate();
 
@@ -90,12 +88,10 @@ public class CommCarePlatform implements CommCareInstance {
         return null;
     }
 
-    @Override
     public void setProfile(Profile p) {
         this.profile = p.getID();
     }
 
-    @Override
     public void registerSuite(Suite s) {
     }
 
@@ -172,7 +168,6 @@ public class CommCarePlatform implements CommCareInstance {
         return offlineUserRestore;
     }
 
-    @Override
     public void registerDemoUserRestore(OfflineUserRestore offlineUserRestore) {
         this.offlineUserRestore = offlineUserRestore;
     }

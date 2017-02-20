@@ -18,7 +18,7 @@ public class XPathContainsFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return FunctionUtils.toString(evaluatedArgs[0]).contains(FunctionUtils.toString(evaluatedArgs[1]));
     }
 

@@ -18,7 +18,7 @@ public class XPathSubstringAfterFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return substringAfter(evaluatedArgs[0], evaluatedArgs[1]);
     }
 

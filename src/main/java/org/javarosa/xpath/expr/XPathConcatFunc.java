@@ -24,7 +24,7 @@ public class XPathConcatFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         if (args.length == 1 && evaluatedArgs[0] instanceof XPathNodeset) {
             return XPathJoinFunc.join("", ((XPathNodeset)evaluatedArgs[0]).toArgList());
         } else {

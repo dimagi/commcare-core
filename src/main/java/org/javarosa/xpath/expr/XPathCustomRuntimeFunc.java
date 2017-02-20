@@ -36,7 +36,7 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         throw new XPathUnhandledException("function \'" + name + "\'");
     }
 
