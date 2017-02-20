@@ -20,7 +20,7 @@ public class XPathSubstrFunc extends XPathFuncExpr {
     }
 
     @Override
-    protected void validateArgCount() {
+    protected void validateArgCount() throws XPathSyntaxException {
         if (!(args.length == 2 || args.length == 3)) {
             throw new XPathArityException(name, "two or three arguments", args.length);
         }

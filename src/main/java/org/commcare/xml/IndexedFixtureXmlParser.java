@@ -8,7 +8,6 @@ import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.TreeElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -102,21 +101,11 @@ public class IndexedFixtureXmlParser extends TransactionParser<StorageIndexedTre
 
     @Override
     protected void commit(StorageIndexedTreeElementModel parsed) throws IOException {
-        try {
-            getIndexedFixtureStorage(parsed).write(parsed);
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            throw new IOException("Storage full while writing case!");
-        }
+        getIndexedFixtureStorage(parsed).write(parsed);
     }
 
     private void commitToNormalStorage(FormInstance instance) throws IOException {
-        try {
-            getNormalFixtureStorage().write(instance);
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            throw new IOException("Storage full while writing case!");
-        }
+        getNormalFixtureStorage().write(instance);
     }
 
     /**
