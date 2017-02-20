@@ -21,7 +21,7 @@ public class XPathDependFunc extends XPathFuncExpr {
     }
 
     @Override
-    protected void validateArgCount() throws XPathArityException {
+    protected void validateArgCount() throws XPathSyntaxException {
         if (args.length < 1) {
             throw new XPathArityException(name, "at least one argument", args.length);
         }
