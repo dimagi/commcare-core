@@ -457,7 +457,7 @@ public class XPathEvalTest {
         testEval("add('17', '-14')", null, ec, new Double(3.0));
         // proto not setup for 0 arguments. Note that Arity is a parse exception, so we expect this
         // to get wrapped
-        testEval("proto()", null, ec, new XPathException());
+        testEval("proto()", null, ec, new XPathTypeMismatchException());
         testEval("proto(5, 5)", null, ec, "[Double:5.0,Double:5.0]");
         testEval("proto(6)", null, ec, "[Double:6.0]");
         testEval("proto('asdf')", null, ec, "[Double:NaN]");
@@ -469,7 +469,7 @@ public class XPathEvalTest {
 
         // proto not setup for 4 arguments. Note that Arity is a parse exception, so we expect this
         // to get wrapped
-        testEval("proto(1.1, 'asdf', true(), 16)", null, ec, new XPathException());
+        testEval("proto(1.1, 'asdf', true(), 16)", null, ec, new XPathTypeMismatchException());
 
         testEval("position(1.1, 'asdf')", null, ec, new XPathArityException());
         testEval("sum(1)", null, ec, new XPathTypeMismatchException());
