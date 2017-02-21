@@ -101,6 +101,27 @@ public class SqlHelper {
         }
     }
 
+    /**
+     * @throws IllegalArgumentException when one or more of the fields we're selecting on
+     *                                  is not a valid key to select on for this object
+     */
+    public static PreparedStatement prepareTableSelectStatement(Connection c,
+                                                                String storageKey,
+                                                                String where,
+                                                                String values[]) {
+        try {
+            String queryString =
+                    "SELECT * FROM " + storageKey + " WHERE " + where + ";";
+            PreparedStatement preparedStatement = c.prepareStatement(queryString);
+            for (int i = 0; i < values.length; i++) {
+                preparedStatement.setString(i + 1, values[i]);
+            }
+            return preparedStatement;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void basicInsert(Connection c, String storageKey,
                                    Map<String, String> contentVals) {
         PreparedStatement preparedStatement = null;
