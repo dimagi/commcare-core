@@ -1,4 +1,4 @@
-package org.commcare.api.engine;
+package org.commcare.api.engine.cases;
 
 import org.commcare.cases.model.Case;
 import org.commcare.cases.query.QueryCache;
