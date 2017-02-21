@@ -23,10 +23,8 @@ import java.util.Vector;
 public abstract class XPathFuncExpr extends XPathExpression {
     protected String name;
     public XPathExpression[] args;
-    protected Object[] evaluatedArgs;
     protected int expectedArgCount;
     private boolean evaluateArgsFirst;
-    protected static final String DOC_HEADER = "--------------------\n";
 
     @SuppressWarnings("unused")
     public XPathFuncExpr() {
@@ -46,28 +44,27 @@ public abstract class XPathFuncExpr extends XPathExpression {
 
     @Override
     public final Object evalRaw(DataInstance model, EvaluationContext evalContext) {
-        evaluateArguments(model, evalContext);
+        Object[] evaluatedArgs = evaluateArguments(model, evalContext);
 
         IFunctionHandler handler = evalContext.getFunctionHandlers().get(name);
         if (handler != null) {
             return XPathCustomRuntimeFunc.evalCustomFunction(handler, evaluatedArgs, evalContext);
         } else {
-            return evalBody(model, evalContext);
+            return evalBody(model, evalContext, evaluatedArgs);
         }
     }
 
-    private void evaluateArguments(DataInstance model, EvaluationContext evalContext) {
-        if (evaluatedArgs == null) {
-            evaluatedArgs = new Object[args.length];
-        }
+    private Object[] evaluateArguments(DataInstance model, EvaluationContext evalContext) {
+        Object[] evaluatedArgs = new Object[args.length];
         if (evaluateArgsFirst) {
             for (int i = 0; i < args.length; i++) {
                 evaluatedArgs[i] = args[i].eval(model, evalContext);
             }
         }
+        return evaluatedArgs;
     }
 
-    protected abstract Object evalBody(DataInstance model, EvaluationContext evalContext);
+    protected abstract Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs);
 
     //protected abstract String docs();
 
@@ -211,11 +208,5 @@ public abstract class XPathFuncExpr extends XPathExpression {
         if (expectedArgCount != args.length) {
             throw new XPathArityException(name, expectedArgCount, args.length);
         }
-    }
-
-    public abstract String getDocumentation();
-
-    protected String getDocHeader() {
-        return DOC_HEADER + name + "\n" + DOC_HEADER;
     }
 }

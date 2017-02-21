@@ -18,16 +18,8 @@ public class XPathTanFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return Math.tan(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior: Finds the tan of a number.\n"
-                + "Return: The tan of the argument passed to the function\n"
-                + "Arguments: One number\n"
-                + "Syntax: tan(number)";
-    }
 }

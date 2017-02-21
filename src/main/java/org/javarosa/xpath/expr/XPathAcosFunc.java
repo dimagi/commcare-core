@@ -18,16 +18,8 @@ public class XPathAcosFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return Math.acos(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior: Finds the arccos of a number.\n"
-                + "Return: The arccos of the argument passed to the function\n"
-                + "Arguments: One number\n"
-                + "Syntax: acos(number)";
-    }
 }

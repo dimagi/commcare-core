@@ -2,7 +2,8 @@ package org.commcare.core.process;
 
 import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
-import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
+import org.commcare.cases.instance.IndexedFixtureInstanceTreeElement;
+import org.commcare.cases.instance.LedgerInstanceTreeElement;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.session.SessionInstanceBuilder;
@@ -29,7 +30,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     protected final CommCareSession session;
     protected CaseInstanceTreeElement casebase;
     protected LedgerInstanceTreeElement stockbase;
-    private final CacheTable<String, TreeElement> fixtureBases = new CacheTable();
+    private final CacheTable<String, TreeElement> fixtureBases = new CacheTable<>();
     protected final UserSandbox mSandbox;
     protected final CommCarePlatform mPlatform;
 
@@ -97,7 +98,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
     protected AbstractTreeElement setupCaseData(ExternalDataInstance instance) {
         if (casebase == null) {
-            casebase = new CaseInstanceTreeElement(instance.getBase(), mSandbox.getCaseStorage(), false);
+            casebase = new CaseInstanceTreeElement(instance.getBase(), mSandbox.getCaseStorage());
         } else {
             //re-use the existing model if it exists.
             casebase.rebase(instance.getBase());
@@ -115,17 +116,24 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             userId = u.getUniqueId();
         }
 
-        TreeElement fixtureRoot = loadFixtureRoot(instance, ref, userId);
-        fixtureRoot.setParent(instance.getBase());
-        return fixtureRoot;
+        AbstractTreeElement indexedFixture =
+                IndexedFixtureInstanceTreeElement.get(mSandbox, getRefId(ref), instance.getBase());
+        if (indexedFixture != null) {
+            return indexedFixture;
+        } else {
+            return loadFixtureRoot(instance, ref, userId);
+        }
     }
 
-    protected TreeElement loadFixtureRoot(ExternalDataInstance instance, String reference, String userId) {
-        String refId = reference.substring(reference.lastIndexOf('/') + 1, reference.length());
+    private static String getRefId(String reference) {
+        return reference.substring(reference.lastIndexOf('/') + 1, reference.length());
+    }
+    protected TreeElement loadFixtureRoot(ExternalDataInstance instance,
+                                          String reference, String userId) {
+        String refId = getRefId(reference);
         String instanceBase = instance.getBase().getInstanceName();
 
         try {
-
             String key = refId + userId + instanceBase;
 
             TreeElement root = fixtureBases.retrieve(key);
@@ -137,10 +145,10 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                 }
 
                 root = fixture.getRoot();
-
                 fixtureBases.register(key, root);
             }
 
+            root.setParent(instance.getBase());
             return root;
         } catch (IllegalStateException ise) {
             throw new FixtureInitializationException(reference);

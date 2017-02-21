@@ -28,7 +28,7 @@ public class XPathChecklistFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         if (args.length == 3 && evaluatedArgs[2] instanceof XPathNodeset) {
             return checklist(evaluatedArgs[0], evaluatedArgs[1], ((XPathNodeset)evaluatedArgs[2]).toArgList());
         } else {
@@ -63,16 +63,4 @@ public class XPathChecklistFunc extends XPathFuncExpr {
     }
 
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior:  Performs a checklist computation, calculating if at least some number or a maximum number of items are answered a particular way.\n"
-                + "Return: True or false depending on the checklist (if number of true items is between the minimum and maximum specified).\n"
-                + "Arguments:\n"
-                + "\tThe first argument is a numeric value expressing the minimum number of factors required.  If -1, no minimum is applicable\n"
-                + "\tThe second argument is a numeric value expressing the maximum number of allowed factors.  If -1, no maximum is applicable\n"
-                + "\targuments 3 through the end are the individual factors, each treated as a boolean.\n"
-                + "Syntax: checklist(min_num, max_num, checklist_item_1, checklist_item_2, ...)\n"
-                + "Example:  You may want to check that the mother has at least 2 out of 4 high risk symptoms.  Ex. checklist(-1, 2, /data/high_risk_condition_1 = \"yes\", /data/high_risk_condition_2 = \"yes\", /data/high_risk_condition_3 = \"yes\", /data/high_risk_condition_4 = \"yes\")";
-    }
 }

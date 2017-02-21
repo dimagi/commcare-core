@@ -1,10 +1,24 @@
 apply plugin: 'java'
 
+// Needed even though it looks unused
 sourceCompatibility = 1.7
 
 repositories {
     mavenCentral()
 }
+
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "me.champeau.gradle:jmh-gradle-plugin:0.3.1"
+    }
+}
+
+apply plugin: 'me.champeau.gradle.jmh'
 
 test {
   reports.junitXml.destination = file('build/reports/tests')
@@ -38,6 +52,7 @@ sourceSets {
             compileClasspath += translate.output
         }
     }
+
 
 }
 
@@ -79,6 +94,16 @@ dependencies {
       translateCompile files('lib/json-simple-1.1.1.jar')
       translateCompile 'joda-time:joda-time:2.9.3'
       translateCompile 'org.json:json:20140107'
+
+    // 'compile' dependency is also needed to run 'gradle jmh' for some reason,
+    // but leaving it in conflicts with apk builds, so only uncomment the
+    // following lines when jmh needed:
+    /*
+    compile 'org.openjdk.jmh:jmh-core:1.17.3'
+    compile 'org.openjdk.jmh:jmh-generator-annprocess:1.17.3'
+    jmhCompile 'org.openjdk.jmh:jmh-core:1.17.3'
+    jmhCompile 'org.openjdk.jmh:jmh-generator-annprocess:1.17.3'
+    */
 }
 
 jar {
@@ -210,3 +235,12 @@ task jenkinsTest {
 }
 
 check.dependsOn(jenkinsTest)
+
+jmh {
+    duplicateClassesStrategy = 'warn'
+    fork = 2
+    iterations = 10
+    warmupIterations = 20
+    includeTests = true
+    // default mode is 'throughput'; where a larger score is better
+}

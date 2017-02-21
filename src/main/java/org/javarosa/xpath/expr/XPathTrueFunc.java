@@ -18,16 +18,8 @@ public class XPathTrueFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return Boolean.TRUE;
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Return:  Returns the boolean value True\n"
-                + "Arguments: None\n"
-                + "Syntax: true()\n"
-                + "Example: You may want to use true() when you have some advanced logic for a display or validation condition.  You could also use them if you want to calculate true for a hidden value.  For example, if(/data/question1 = \"yes\" and /data/question2 > 30, true(), false())";
-    }
 }

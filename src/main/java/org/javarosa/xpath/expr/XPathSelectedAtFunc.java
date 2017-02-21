@@ -20,7 +20,7 @@ public class XPathSelectedAtFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return selectedAt(evaluatedArgs[0], evaluatedArgs[1]);
     }
 
@@ -44,13 +44,4 @@ public class XPathSelectedAtFunc extends XPathFuncExpr {
         }
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior:  Extracts the nth word from a space-separated string.\n"
-                + "Return: The nth word from the string\n"
-                + "Arguments:  The space-separated string and the position of the word that is to be returned. The count is zero-indexed so the first word is at position 0.\n"
-                + "Syntax: selected-at(text, string_position)\n"
-                + "Example: selected-at(\"I am a sentence to test\", 3) -> \"sentence\"";
-    }
 }
