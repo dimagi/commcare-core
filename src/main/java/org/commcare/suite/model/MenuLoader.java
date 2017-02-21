@@ -54,8 +54,6 @@ public class MenuLoader {
                                                         String menuID) {
 
         Vector<MenuDisplayable> items = new Vector<>();
-        String xPathErrorMessage = "";
-
         Hashtable<String, Entry> map = platform.getMenuMap();
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
@@ -69,13 +67,13 @@ public class MenuLoader {
                     }
                 } catch (CommCareInstanceInitializer.FixtureInitializationException
                         | XPathSyntaxException | XPathException xpe) {
-                    loadException = xpe;
-                    MenuDisplayable[] menus = new MenuDisplayable[0];
+                    setLoadException(xpe);
+                    menus = new MenuDisplayable[0];
+                    return;
                 }
             }
         }
-
-        MenuDisplayable[] menus = new MenuDisplayable[items.size()];
+        menus = new MenuDisplayable[items.size()];
         items.copyInto(menus);
     }
 
