@@ -7,6 +7,7 @@ import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.xpath.expr.XPathExpression;
 
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -402,8 +403,8 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
     }
 
     @Override
-    public Vector<TreeReference> tryBatchChildFetch(String name, int mult,
-                                                    Vector<XPathExpression> predicates, EvaluationContext evalContext) {
+    public Collection<TreeReference> tryBatchChildFetch(String name, int mult,
+                                                        Vector<XPathExpression> predicates, EvaluationContext evalContext) {
         return null;
     }
 

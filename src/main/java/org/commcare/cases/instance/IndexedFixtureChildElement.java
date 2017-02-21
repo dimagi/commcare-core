@@ -1,6 +1,7 @@
 package org.commcare.cases.instance;
 
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
+import org.commcare.cases.query.QueryContext;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 
@@ -20,7 +21,7 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
     }
 
     @Override
-    protected TreeElement cache() {
+    protected TreeElement cache(QueryContext context) {
         if (recordId == TreeReference.INDEX_TEMPLATE) {
             return empty;
         }
@@ -31,7 +32,7 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
                 return element;
             }
 
-            StorageIndexedTreeElementModel model = parent.getElement(recordId);
+            StorageIndexedTreeElementModel model = parent.getElement(recordId, context);
             TreeElement cacheBuilder = buildElementFromModel(model);
 
             parent.treeCache.register(recordId, cacheBuilder);

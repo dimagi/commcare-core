@@ -1,9 +1,14 @@
 package org.commcare.cases.util;
 
 import org.commcare.cases.model.Case;
+import org.commcare.cases.query.*;
+import org.commcare.cases.query.IndexedSetMemberLookup;
+import org.commcare.cases.query.IndexedValueLookup;
+import org.commcare.cases.query.PredicateProfile;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.xpath.expr.FunctionUtils;
@@ -12,8 +17,10 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.expr.XPathSelectedFunc;
 
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -21,7 +28,10 @@ import java.util.Vector;
  */
 public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> implements AbstractTreeElement<T> {
 
-    protected Hashtable<Integer, Integer> objectIdMapping;
+    protected org.commcare.cases.query.QueryPlanner queryPlanner;
+    protected org.commcare.cases.query.handlers.BasicStorageBackedCachingQueryHandler defaultCacher;
+
+    protected final Hashtable<Integer, Integer> objectIdMapping = new Hashtable<>();
 
     protected abstract String getChildHintName();
 
@@ -36,21 +46,10 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         return indices.get(expressionTemplate);
     }
 
-    /**
-     * Gets a potential cached mapping from a storage key that could be queried
-     * on this tree to the storage ID of that element, rather than querying for
-     * that through I/O.
-     *
-     * @param keyId The ID of a storage metadata key.
-     * @return A table mapping the metadata key (must be unique) to the id of a
-     * record in the storage backing this tree root.
-     */
-    protected Hashtable<String, Integer> getKeyMapping(String keyId) {
-        return null;
-    }
-
     @Override
-    public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
+    public Collection<TreeReference> tryBatchChildFetch(String name, int mult,
+                                                        Vector<XPathExpression> predicates,
+                                                        EvaluationContext evalContext) {
         //Restrict what we'll handle for now. All we want to deal with is predicate expressions on case blocks
         if (!name.equals(getChildHintName()) || mult != TreeReference.INDEX_UNBOUND || predicates == null) {
             return null;
@@ -58,15 +57,18 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
         Hashtable<XPathPathExpr, String> indices = getStorageIndexMap();
 
-        Vector<PredicateProfile> profiles = new Vector<>();
+        Vector<org.commcare.cases.query.PredicateProfile> profiles = new Vector<>();
+
+        QueryContext queryContext = evalContext.getCurrentQueryContext();
 
         //First, go get a list of predicates that we _might_ be able to evaluate more efficiently
-        collectPredicateProfiles(predicates, indices, evalContext, profiles);
+        collectPredicateProfiles(predicates, indices, evalContext, profiles,queryContext);
 
         //Now go through each profile and see if we can match / process any of them. If not, we
         // will return null and move on
         Vector<Integer> toRemove = new Vector<>();
-        Vector<Integer> selectedElements = processPredicates(toRemove, profiles);
+        Collection<Integer> selectedElements = processPredicates(toRemove, profiles,
+                queryContext);
 
         //if we weren't able to evaluate any predicates, signal that.
         if (selectedElements == null) {
@@ -84,7 +86,18 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
     private void collectPredicateProfiles(Vector<XPathExpression> predicates,
                                           Hashtable<XPathPathExpr, String> indices,
                                           EvaluationContext evalContext,
-                                          Vector<PredicateProfile> optimizations) {
+                                          Vector<org.commcare.cases.query.PredicateProfile> optimizations,
+                                          QueryContext queryContext) {
+
+        optimizations.addAll(getQueryPlanner().collectPredicateProfiles(predicates, queryContext, evalContext));
+
+        //For now we are going to skip looking deeper if we trigger
+        //any of the planned optimizations
+        if(optimizations.size() > 0) {
+            return;
+        }
+
+
         predicate:
         for (XPathExpression xpe : predicates) {
             //what we want here is a static evaluation of the expression to see if it consists of evaluating
@@ -101,7 +114,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                             //sure the best way to do that....? Maybe tell the evaluation context to skip out here if it detects a request
                             //to resolve in a certain area?
                             Object o = FunctionUtils.unpack(((XPathEqExpr)xpe).b.eval(evalContext));
-                            optimizations.addElement(new IndexedValueLookup(filterIndex, o));
+                            optimizations.addElement(new org.commcare.cases.query.IndexedValueLookup(filterIndex, o));
 
                             continue predicate;
                         }
@@ -135,52 +148,46 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         }
     }
 
-    private Vector<Integer> processPredicates(Vector<Integer> toRemove,
-                                              Vector<PredicateProfile> profiles) {
-        Vector<Integer> selectedElements = null;
+    public QueryPlanner getQueryPlanner() {
+        if(queryPlanner == null) {
+            queryPlanner = new org.commcare.cases.query.QueryPlanner();
+            initBasicQueryHandlers(queryPlanner);
+        }
+        return queryPlanner;
+    }
+
+    protected void initBasicQueryHandlers(QueryPlanner queryPlanner) {
+        defaultCacher = new org.commcare.cases.query.handlers.BasicStorageBackedCachingQueryHandler();
+
+        //TODO: Move the actual indexed query optimization used in this
+        //method into its own (or a matching) cache method
+        queryPlanner.addQueryHandler(defaultCacher);
+    }
+
+
+    private Collection<Integer> processPredicates(Vector<Integer> toRemove,
+                                              Vector<org.commcare.cases.query.PredicateProfile> profiles,
+                                              QueryContext currentQueryContext) {
+        Collection<Integer> selectedElements = null;
         IStorageUtilityIndexed<?> storage = getStorage();
         int predicatesProcessed = 0;
         while (profiles.size() > 0) {
-
             int startCount = profiles.size();
+            List<Integer> plannedQueryResults =
+                    this.getQueryPlanner().attemptProfiledQuery(profiles, currentQueryContext);
 
-            Hashtable<String, Integer> keyMapping = null;
-
-            if(profiles.elementAt(0) instanceof IndexedValueLookup) {
-
-                IndexedValueLookup valueLookup =
-                        (IndexedValueLookup)profiles.elementAt(0);
-                //Get the first set of values.
-                String key = valueLookup.key;
-
-                //Some storage roots will collect common iterative mappings ahead of time,
-                //go check whether this key is loaded into cached memory.
-                keyMapping = getKeyMapping(key);
-            }
-
-            //TODO: Move key mapping and "Index Match" to be their own optimization implementations
-            if (keyMapping != null) {
-                //If so, go fetch that element's record id and skip the storage
-                //lookup
-                Integer uniqueValue = keyMapping.get(FunctionUtils.toString(((IndexedValueLookup)profiles.elementAt(0)).value));
-
-                //Merge into the selected elements
-                if (uniqueValue != null) {
-                    if (selectedElements == null) {
-                        selectedElements = new Vector<>();
-                        selectedElements.addElement(uniqueValue);
-                    } else if (!selectedElements.contains(uniqueValue)) {
-                        selectedElements.addElement(uniqueValue);
-                    }
+            if (plannedQueryResults != null) {
+                // merge with any other sets of cases
+                if (selectedElements == null) {
+                    selectedElements = plannedQueryResults;
+                } else {
+                    selectedElements = DataUtil.intersection(selectedElements, plannedQueryResults);
                 }
-
-                //Ok, so we've successfully processed this predicate.
-                profiles.remove(0);
             } else {
-                Vector<Integer> cases = null;
+                Collection<Integer> cases = null;
                 try {
                     //Get all of the cases that meet this criteria
-                    cases = this.getNextIndexMatch(profiles, storage);
+                    cases = this.getNextIndexMatch(profiles, storage, currentQueryContext);
                 } catch (IllegalArgumentException IAE) {
                     // Encountered a new index type
                     break;
@@ -194,17 +201,23 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                 }
             }
 
+            if(selectedElements != null && selectedElements.size() == 0) {
+                //There's nothing left! We can completely wipe the remaining profiles
+                profiles.clear();
+            }
+
             int numPredicatesRemoved = startCount - profiles.size();
             for (int i = 0; i < numPredicatesRemoved; ++i) {
                 //Note that this predicate is evaluated and doesn't need to be evaluated in the future.
                 toRemove.addElement(DataUtil.integer(predicatesProcessed));
                 predicatesProcessed++;
             }
+            currentQueryContext = currentQueryContext.testForInlineScopeEscalation(selectedElements.size());
         }
         return selectedElements;
     }
 
-    private Vector<TreeReference> buildReferencesFromFetchResults(Vector<Integer> selectedElements) {
+    private Collection<TreeReference> buildReferencesFromFetchResults(Collection<Integer> selectedElements) {
         TreeReference base = this.getRef();
 
         initStorageCache();
@@ -231,20 +244,34 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
      *
      * @param profiles    A vector of pending optimizations to be attempted. The keys should be processed left->right
      * @param storage The storage to be processed
+     * @param currentQueryContext
      * @return A Vector of integer ID's for records in the provided storage which match one or more of the keys provided.
      * @throws IllegalArgumentException If there was no index matching possible on the provided key and the key/value vectors
      *                                  won't be shortened.
      */
-    protected Vector<Integer> getNextIndexMatch(Vector<PredicateProfile> profiles,
-                                                IStorageUtilityIndexed<?> storage) throws IllegalArgumentException {
-        if(!(profiles.elementAt(0) instanceof IndexedValueLookup)) {
+    protected Collection<Integer> getNextIndexMatch(Vector<PredicateProfile> profiles,
+                                                    IStorageUtilityIndexed<?> storage,
+                                                    QueryContext currentQueryContext) throws IllegalArgumentException {
+        if(!(profiles.elementAt(0) instanceof org.commcare.cases.query.IndexedValueLookup)) {
             throw new IllegalArgumentException("No optimization path found for optimization type");
         }
 
-        IndexedValueLookup op = (IndexedValueLookup)profiles.elementAt(0);
+        org.commcare.cases.query.IndexedValueLookup op = (IndexedValueLookup)profiles.elementAt(0);
+
+
+        EvaluationTrace trace = new EvaluationTrace("Model Index[" + op.key + "] Lookup");
 
         //Get matches if it works
-        Vector<Integer> returnValue = storage.getIDsForValue(op.key, op.value);
+        List<Integer> returnValue = storage.getIDsForValue(op.key, op.value);
+
+        trace.setOutcome("results: " + returnValue.size());
+        if (currentQueryContext != null) {
+            currentQueryContext.reportTrace(trace);
+        }
+
+        if(defaultCacher != null) {
+            defaultCacher.cacheResult(op.key, op.value, returnValue);
+        }
 
         //If we processed this, pop it off the queue
         profiles.removeElementAt(0);

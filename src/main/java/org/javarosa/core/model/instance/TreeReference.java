@@ -12,6 +12,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
+import sun.reflect.generics.tree.Tree;
+
 
 // TODO: This class needs to be immutable so that we can perform caching
 // optimizations.
@@ -786,4 +788,50 @@ public class TreeReference implements Externalizable {
         }
         return subRef;
     }
+
+    /**
+     * Returns a relative reference starting after the level provided.
+     *
+     * IE: for the reference
+     *
+     * (/data/one/two/three).getRelativeReferenceAfter(2) => ./two/three
+     *
+     * One indexed so you can easily run
+     *
+     * (/data/one/two/three).getRelativeReferenceAfter((/data/one/).size())
+     *
+     * Will properly index relative and absolute refs, ie:
+     *
+     * /a/b/c.gRRA(0) -> /a/b/c
+     * and
+     * ./a/b/c.gRRA(0) -> ./a/b/c
+     *
+     * Will strip current() references, though, ie:
+     *
+     * current()/b/c.getRelativeReferenceAfter(0) -> ./b/c
+     *
+     *
+     * @param level number of segments which should be excluded from the new relative reference
+     *
+     * @return A new reference object which contains a reference which is relative and contains
+     * only the steps after the provided reference level.
+     */
+    public TreeReference getRelativeReferenceAfter(int level) {
+        if(level > this.size()) {
+            throw new IllegalArgumentException("Attempt to retrieve a relative reference " +
+                    "larger(" + level+") than the size of the ref: " + this.toString() );
+        }
+
+        TreeReference relativeStart = this.isAbsolute() && level == 0 ?
+                                            TreeReference.rootRef() :
+                                            TreeReference.selfRef();
+
+
+        for(int i = level ; i < this.size() ; ++i) {
+            relativeStart.add(this.data.elementAt(i));
+        }
+        return relativeStart;
+    }
+
+
 }
