@@ -46,9 +46,5 @@ public class IndexedFixtureSubElementTests {
         CaseTestUtils.xpathEvalAndAssert(ec, "instance('products')/products/product[@id = '31ab899368d38c2d0207fe80c00fa96c']/product_data/unique_value", "three");
 
         CaseTestUtils.xpathEvalAndAssert(ec, "instance('products')/products/product[@id = '31ab899368d38c2d0207fe80c00fa96c']/product_data/multiple_data[@lang='hin']", "dp_hin");
-
-        CaseTestUtils.xpathEvalAndAssert(ec, "instance('products')/products/product[product_data/only_present_later='heterogeneous_element']/code", "pd");
-
-        CaseTestUtils.xpathEvalAndAssert(ec, "instance('products')/products/product[@id='a6d16035b98f6f962a6538bd927cefb3']/product_data/only_present_later", "heterogeneous_element");
     }
 }

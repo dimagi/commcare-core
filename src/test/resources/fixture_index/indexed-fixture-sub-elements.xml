@@ -20,6 +20,18 @@
                     <multiple_data lang="hin">col_hin</multiple_data>
                 </product_data>
             </product>
+            <product id="31ab899368d38c2d0207fe80c00fa96c">
+                <name>Depo-Provera</name>
+                <code>dp</code>
+                <description>Injectable</description>
+                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <cost>152</cost>
+                <product_data>
+                    <unique_value>three</unique_value>
+                    <multiple_data lang="en">dp_en</multiple_data>
+                    <multiple_data lang="hin">dp_hin</multiple_data>
+                </product_data>
+            </product>
             <product id="a6d16035b98f6f962a6538bd927cefb3">
                 <name>CU</name>
                 <code>pd</code>
@@ -31,18 +43,6 @@
                     <multiple_data lang="en">pd_en</multiple_data>
                     <multiple_data lang="hin">pd_hin</multiple_data>
                     <only_present_later>heterogeneous_element</only_present_later>
-                </product_data>
-            </product>
-            <product id="31ab899368d38c2d0207fe80c00fa96c">
-                <name>Depo-Provera</name>
-                <code>dp</code>
-                <description>Injectable</description>
-                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
-                <cost>152</cost>
-                <product_data>
-                    <unique_value>three</unique_value>
-                    <multiple_data lang="en">dp_en</multiple_data>
-                    <multiple_data lang="hin">dp_hin</multiple_data>
                 </product_data>
             </product>
             <product id="31ab899368d38c2d0207fe80c00fb8c1">
