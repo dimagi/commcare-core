@@ -1,5 +1,6 @@
 package org.commcare.api.persistence;
 
+import org.commcare.modern.database.DatabaseHelper;
 import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -17,11 +18,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * IStorageIndexedUtility implemented on SQLite using JDBC. Contains all the functionality
@@ -205,6 +202,15 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
         return readFromBytes(mBytes);
     }
 
+    public static Vector<Integer> fillIdWindow (ResultSet resultSet, String columnName, LinkedHashSet newReturn) throws SQLException {
+        Vector<Integer> ids = new Vector<>();
+        int columnIndex = resultSet.findColumn(columnName);
+        while (resultSet.next()) {
+            ids.add(resultSet.getInt(columnIndex));
+        }
+        return ids;
+    }
+
     @Override
     public Vector<Integer> getIDsForValue(String fieldName, Object value) {
         Connection c = null;
@@ -212,17 +218,13 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
         try {
             c = this.getConnection();
             preparedStatement = SqlHelper.prepareTableSelectStatement(c, this.tableName,
-                    new String[]{fieldName}, new String[]{(String) value}, prototype.newInstance());
+                    new String[]{fieldName}, new String[]{(String) value});
             if (preparedStatement == null) {
                 return null;
             }
             ResultSet rs = preparedStatement.executeQuery();
-            Vector<Integer> ids = new Vector<>();
-            while (rs.next()) {
-                ids.add(rs.getInt(org.commcare.modern.database.DatabaseHelper.ID_COL));
-            }
-            return ids;
-        } catch (InstantiationException | IllegalAccessException | SQLException | ClassNotFoundException e) {
+            return fillIdWindow(rs, DatabaseHelper.ID_COL, new LinkedHashSet<Integer>());
+        } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         } finally {
             try {
@@ -247,16 +249,14 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
             c = this.getConnection();
             preparedStatement =
                     SqlHelper.prepareTableSelectStatement(c, this.tableName,
-                            new String[]{fieldName}, new String[]{(String) value},
-                            prototype.newInstance());
+                            new String[]{fieldName}, new String[]{(String) value});
             ResultSet rs = preparedStatement.executeQuery();
             if (!rs.next()) {
                 throw new NoSuchElementException();
             }
             byte[] mBytes = rs.getBytes(org.commcare.modern.database.DatabaseHelper.DATA_COL);
             return readFromBytes(mBytes);
-        } catch (SQLException | InstantiationException |
-                IllegalAccessException | NullPointerException | ClassNotFoundException e) {
+        } catch (SQLException | NullPointerException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         } finally {
             try {

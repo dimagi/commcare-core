@@ -26,6 +26,9 @@ import java.util.Map;
  * Created by wpride1 on 8/11/15.
  */
 public class SqlHelper {
+
+    public static final boolean SQL_DEBUG = true;
+
     public static void dropTable(Connection c, String storageKey) {
         String sqlStatement = "DROP TABLE IF EXISTS " + storageKey;
         PreparedStatement preparedStatement = null;
@@ -83,8 +86,7 @@ public class SqlHelper {
     public static PreparedStatement prepareTableSelectStatement(Connection c,
                                                                 String storageKey,
                                                                 String[] fields,
-                                                                String[] values,
-                                                                Persistable p) {
+                                                                String[] values) {
         Pair<String, String[]> pair = DatabaseHelper.createWhere(fields, values, null);
         try {
             String queryString =
@@ -305,6 +307,27 @@ public class SqlHelper {
             i++;
         }
         return i;
+    }
+
+    public static void deleteFromTableWhere(Connection connection, String tableName, String whereClause, String arg) {
+        String query = "DELETE FROM " + tableName + " " + whereClause + ";";
+
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, arg);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
     }
 
     /**
