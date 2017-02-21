@@ -14,11 +14,18 @@ import java.util.List;
 import java.util.Vector;
 
 /**
+ * For generic StorageBacked tree root models, each time one is looked up, provide a small cache
+ * that can be used to keep the lookup result in memory.
+ *
+ * This object manages its own data lifecycle (by keeping track of very little data) and is only
+ * expected to provide results for rapidly-repeated queries for the same object, rather than long
+ * term query planning.
+ *
  * Created by ctsims on 1/25/2017.
  */
 
-public class BasicStorageBackedCachingQueryHandler implements QueryHandler<org.commcare.cases.query.IndexedValueLookup> {
-    HashMap<String, LruCache<Object, List<Integer>>> caches = new HashMap<>();
+public class BasicStorageBackedCachingQueryHandler implements QueryHandler<IndexedValueLookup> {
+    private HashMap<String, LruCache<Object, List<Integer>>> caches = new HashMap<>();
 
     @Override
     public int getExpectedRuntime() {
@@ -26,10 +33,10 @@ public class BasicStorageBackedCachingQueryHandler implements QueryHandler<org.c
     }
 
     @Override
-    public org.commcare.cases.query.IndexedValueLookup profileHandledQuerySet(Vector<org.commcare.cases.query.PredicateProfile> profiles) {
-        org.commcare.cases.query.IndexedValueLookup ret = QueryUtils.getFirstKeyIndexedValue(profiles);
-        if(ret != null){
-            if(caches.containsKey(ret.getKey())) {
+    public IndexedValueLookup profileHandledQuerySet(Vector<PredicateProfile> profiles) {
+        IndexedValueLookup ret = QueryUtils.getFirstKeyIndexedValue(profiles);
+        if (ret != null){
+            if (caches.containsKey(ret.getKey())) {
                 return ret;
             }
         }
@@ -39,12 +46,11 @@ public class BasicStorageBackedCachingQueryHandler implements QueryHandler<org.c
     @Override
     public List<Integer> loadProfileMatches(IndexedValueLookup querySet, QueryContext queryContext) {
         LruCache<Object, List<Integer>> cache = caches.get(querySet.getKey());
-        if(cache == null) {
+        if (cache == null) {
             return null;
         }
 
-        List<Integer> potentialResult = cache.get(querySet.value);
-        return potentialResult;
+        return cache.get(querySet.value);
     }
 
     @Override
@@ -61,7 +67,7 @@ public class BasicStorageBackedCachingQueryHandler implements QueryHandler<org.c
 
     public void cacheResult(String key, Object value, List<Integer> results) {
         LruCache<Object, List<Integer>> cache;
-        if(!caches.containsKey(key)) {
+        if (!caches.containsKey(key)) {
             cache = new LruCache<>(10);
             caches.put(key, cache);
         } else {

@@ -16,6 +16,16 @@ import java.util.Vector;
 import sun.reflect.generics.tree.Tree;
 
 /**
+ * Generates potential model query set lookups for references into the case database model.
+ *
+ * Chains entity lookups where relevant using model set transforms, which can be added dynamically.
+ *
+ * example:
+ * [@case_id = current()/@case_id]
+ *
+ * can be directly returned and interpreted as an model query set lookup which gets the current
+ * case without needing to compare string Id's, match on looked up values, etc.
+ *
  * Created by ctsims on 2/6/2017.
  */
 
@@ -23,7 +33,7 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
     private final Collection<XPathExpression> membershipIndexes;
 
     private TreeReference caseDbRoot;
-    Map<Integer, Integer> multiplicityMap;
+    private Map<Integer, Integer> multiplicityMap;
 
     private Vector<QuerySetTransform> querySetTransforms = new Vector<>();
 
@@ -31,8 +41,8 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
         this("casedb", multiplicityMap);
     }
 
-    public CaseModelQuerySetMatcher(String modelId,
-                                    Map<Integer, Integer> multiplicityMap) {
+    private CaseModelQuerySetMatcher(String modelId,
+                                     Map<Integer, Integer> multiplicityMap) {
         caseDbRoot =
                 XPathReference.getPathExpr("instance('" + modelId + "')/casedb/case").getReference();
 
@@ -43,7 +53,7 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
         membershipIndexes = new Vector<>();
         membershipIndexes.add(CaseInstanceTreeElement.CASE_ID_EXPR);
         membershipIndexes.add(CaseInstanceTreeElement.CASE_ID_EXPR_TWO);
-        querySetTransforms.add(new CaseIdentityQuerySetTransform());
+        addQuerySetTransform(new CaseIdentityQuerySetTransform());
     }
 
     public void addQuerySetTransform(QuerySetTransform transform) {
@@ -52,10 +62,10 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
 
     @Override
     public QuerySetLookup getQueryLookupFromPredicate(XPathExpression expr) {
-        if(expr instanceof XPathEqExpr && ((XPathEqExpr)expr).op == XPathEqExpr.EQ) {
+        if (expr instanceof XPathEqExpr && ((XPathEqExpr)expr).op == XPathEqExpr.EQ) {
             XPathEqExpr eq = ((XPathEqExpr)expr);
-            if(membershipIndexes.contains(eq.a)) {
-                if(eq.b instanceof XPathPathExpr) {
+            if (membershipIndexes.contains(eq.a)) {
+                if (eq.b instanceof XPathPathExpr) {
                     TreeReference ref = ((XPathPathExpr)eq.b).getReference();
                     return getQuerySetLookup(ref);
                 }
@@ -70,18 +80,18 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
         QuerySetLookup lookup;
         TreeReference remainder;
 
-        if(caseDbRoot.isParentOf(ref, false)) {
-            if(!ref.hasPredicates()) {
+        if (caseDbRoot.isParentOf(ref, false)) {
+            if (!ref.hasPredicates()) {
                 return null;
             }
 
             List<XPathExpression> predicates = ref.getPredicate(caseDbRoot.size() - 1);
-            if(predicates == null || predicates.size() > 1) {
+            if (predicates == null || predicates.size() > 1) {
                 return null;
             }
 
             lookup = getQueryLookupFromPredicate(predicates.get(0));
-            if(lookup == null) {
+            if (lookup == null) {
                 return null;
             }
             remainder = ref.getRelativeReferenceAfter(caseDbRoot.size());
@@ -98,9 +108,9 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
     private QuerySetLookup getTransformedQuerySetLookup(QuerySetLookup lookup,
                                                         TreeReference remainder) {
 
-        for(QuerySetTransform transform : querySetTransforms) {
+        for (QuerySetTransform transform : querySetTransforms) {
             QuerySetLookup retVal = transform.getTransformedLookup(lookup, remainder);
-            if(retVal != null) {
+            if (retVal != null) {
                 return retVal;
             }
         }
@@ -111,12 +121,17 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
         return ref.getContext() == TreeReference.CONTEXT_ORIGINAL;
     }
 
-    public static class CaseIdentityQuerySetTransform implements QuerySetTransform {
+
+    /**
+     * A transform for the situation where the /@case_id step is taken relative to an existing
+     * case model query set lookup.
+     */
+    private static class CaseIdentityQuerySetTransform implements QuerySetTransform {
         static TreeReference caseIdRef = CaseInstanceTreeElement.CASE_ID_EXPR.getReference();
         @Override
         public QuerySetLookup getTransformedLookup(QuerySetLookup incoming,
                                                    TreeReference relativeLookup) {
-            if(caseIdRef.equals(relativeLookup)) {
+            if (caseIdRef.equals(relativeLookup)) {
                 return incoming;
             } else {
                 return null;

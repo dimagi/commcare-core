@@ -31,7 +31,6 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     private final Detail shortDetail;
     private final EvaluationContext rootContext;
-    ReducingTraceReporter reducingTraceReporter;
 
     public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context) throws CommCareSessionException {
         mHeader = createHeader(shortDetail, context);
@@ -41,16 +40,13 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         references.copyInto(mChoices);
         actions = shortDetail.getCustomActions(context);
     }
-
     private String[] getRows(TreeReference[] references) {
         String[] rows = new String[references.length];
-        reducingTraceReporter = new ReducingTraceReporter();
         int i = 0;
         for (TreeReference entity : references) {
             rows[i] = createRow(entity);
             ++i;
         }
-        ScreenUtils.printAndClearTraces(reducingTraceReporter, "Case Screen");
         return rows;
     }
 
@@ -61,7 +57,6 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     private String createRow(TreeReference entity, boolean collectDebug) {
         EvaluationContext context = new EvaluationContext(rootContext, entity);
         EvaluationTraceReporter reporter = new AccumulatingReporter();
-        context.setDebugModeOn(reducingTraceReporter);
 
         if (collectDebug) {
             context.setDebugModeOn(reporter);
@@ -213,11 +208,16 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                 createRow(this.mChoices[chosenDebugIndex], true);
             } catch (NumberFormatException e) {
                 if ("list".equals(debugArg)) {
-                    host.printNodesetExpansionTrace();
+                    host.printNodesetExpansionTrace(new AccumulatingReporter());
                 }
             }
             return false;
         }
+
+        if (input.startsWith("profile list")) {
+            host.printNodesetExpansionTrace(new ReducingTraceReporter());
+        }
+
 
         try {
             host.setHighlightedEntity(input);

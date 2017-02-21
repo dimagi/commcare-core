@@ -1,6 +1,6 @@
 package org.commcare.cases.query.queryset;
 
-import org.commcare.cases.query.QueryCacheEntry;
+import org.commcare.cases.query.QueryCache;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,9 +9,9 @@ import java.util.Map;
  * Created by ctsims on 2/6/2017.
  */
 
-public class QuerySetCache implements QueryCacheEntry {
+public class QuerySetCache implements QueryCache {
 
-    Map<String, ModelQuerySet> querySetMap = new HashMap<>();
+    private Map<String, ModelQuerySet> querySetMap = new HashMap<>();
 
     public ModelQuerySet getModelQuerySet(String querySetId) {
         return querySetMap.get(querySetId);

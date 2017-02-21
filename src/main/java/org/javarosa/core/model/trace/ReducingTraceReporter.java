@@ -10,7 +10,7 @@ import java.util.Vector;
  * It is helpful for identifying how many times different expressions are evaluated, and aggregating
  * elements of each execution
  *
- * Created by ctsims on 10/19/2016.
+ * Created by ctsims on 1/27/2017.
  */
 public class ReducingTraceReporter implements EvaluationTraceReporter {
     OrderedHashtable<String, EvaluationTraceReduction> traceMap = new OrderedHashtable<>();

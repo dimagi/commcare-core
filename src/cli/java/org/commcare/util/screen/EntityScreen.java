@@ -217,9 +217,7 @@ public class EntityScreen extends CompoundScreenHost {
         return mSession;
     }
 
-    public void printNodesetExpansionTrace() {
-        EvaluationTraceReporter reporter = new AccumulatingReporter();
-
+    public void printNodesetExpansionTrace(EvaluationTraceReporter reporter) {
         evalContext.setDebugModeOn(reporter);
         this.expandEntityReferenceSet(evalContext);
 

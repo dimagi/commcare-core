@@ -1,19 +1,21 @@
 package org.commcare.cases.query.queryset;
 
-import org.commcare.cases.query.QueryContext;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.Collection;
 import java.util.Set;
 
 /**
+ * The "current" query set is a set of tree referencs which are in play that are the result of a
+ * query to the current() context within a predicate expression.
+ *
  * Created by ctsims on 2/6/2017.
  */
 
 public class CurrentModelQuerySet implements ModelQuerySet {
     public static final String CURRENT_QUERY_SET_ID = "current";
 
-    Collection<TreeReference> currentQuerySet;
+    private Collection<TreeReference> currentQuerySet;
 
     public CurrentModelQuerySet(Collection<TreeReference> currentQuerySet) {
         this.currentQuerySet = currentQuerySet;

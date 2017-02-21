@@ -19,16 +19,15 @@ import java.util.Vector;
  */
 
 public class EvaluationTraceReduction extends EvaluationTrace {
-    String expression;
+    private String expression;
 
-    int countExecuted = 0;
-    long nanoTime = 0;
+    private int countExecuted = 0;
+    private long nanoTime = 0;
 
-    HashMap<String, Integer> valueMap = new HashMap<>();
+    private final HashMap<String, Integer> valueMap = new HashMap<>();
 
-    OrderedHashtable<String, EvaluationTraceReduction> subTraces = new OrderedHashtable<>();
-
-    Vector<EvaluationTraceReduction> children = new Vector<>();
+    private final OrderedHashtable<String, EvaluationTraceReduction> subTraces
+            = new OrderedHashtable<>();
 
     public EvaluationTraceReduction(EvaluationTrace trace) {
         super(trace.getExpression());
@@ -36,11 +35,16 @@ public class EvaluationTraceReduction extends EvaluationTrace {
         foldIn(trace);
     }
 
+    /**
+     * Add the stats about the provided trace to this reduced trace.
+     *
+     * Assumes that the provided trace represents the same evaluated expression as this trace.
+     */
     public void foldIn(EvaluationTrace trace) {
-        countExecuted ++;
+        countExecuted++;
         nanoTime += trace.getRuntimeInNanoseconds();
         int valueCount = 1;
-        if(valueMap.containsKey(trace.getValue())) {
+        if (valueMap.containsKey(trace.getValue())) {
             valueCount = (valueMap.get(trace.getValue()) + 1);
         }
         valueMap.put(trace.getValue(), valueCount);
@@ -51,14 +55,16 @@ public class EvaluationTraceReduction extends EvaluationTrace {
                 for (EvaluationTrace subTrace : copy) {
                     String subKey = subTrace.getExpression();
                     if (subTraces.containsKey(subKey)) {
-                        EvaluationTraceReduction reducedSubExpr = subTraces.get(subTrace.getExpression());
+                        EvaluationTraceReduction reducedSubExpr =
+                                subTraces.get(subTrace.getExpression());
                         reducedSubExpr.foldIn(subTrace);
                     } else {
-                        EvaluationTraceReduction reducedSubExpr = new EvaluationTraceReduction(subTrace);
+                        EvaluationTraceReduction reducedSubExpr =
+                                new EvaluationTraceReduction(subTrace);
                         subTraces.put(subKey, reducedSubExpr);
                     }
                 }
-            }catch (ConcurrentModificationException cme) {
+            } catch (ConcurrentModificationException cme) {
                 throw new RuntimeException(cme);
             }
         }
@@ -91,10 +97,10 @@ public class EvaluationTraceReduction extends EvaluationTrace {
         response +=  "    time/call: " + getRuntimeCount(getRuntimeInNanoseconds() / countExecuted) + "\n";
         int valueResponseCount = 0;
         int totalRecords = valueMap.size();
-        for(String key : valueMap.keySet()) {
+        for (String key : valueMap.keySet()) {
             response += "    " + key + ": " + valueMap.get(key) + "\n";
             valueResponseCount++;
-            if(valueResponseCount >= 10) {
+            if (valueResponseCount >= 10) {
                 response += String.format("    ... %s more ...", totalRecords - valueResponseCount);
                 break;
             }
@@ -104,9 +110,9 @@ public class EvaluationTraceReduction extends EvaluationTrace {
     }
 
     private String getRuntimeCount(long l) {
-        if(l / 1000 / 1000 > 0) {
+        if (l / 1000 / 1000 > 0) {
             return l /1000 / 1000 + "ms";
-        } else if(l / 1000 > 0) {
+        } else if (l / 1000 > 0) {
             return l / 1000 + "us";
         }else {
             return l + "ns";

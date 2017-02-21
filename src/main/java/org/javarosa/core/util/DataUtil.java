@@ -37,7 +37,7 @@ public class DataUtil {
     }
 
     public static <T> List<T> intersection(Collection<T> a, Collection<T> b) {
-        if(b.size() < a.size()) {
+        if (b.size() < a.size()) {
             return intersection(b, a);
         }
 

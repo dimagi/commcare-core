@@ -1,30 +1,26 @@
 package org.commcare.cases.query;
 
-import org.commcare.suite.model.Text;
-import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.xpath.XPathException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
-import java.util.Hashtable;
 
 /**
  * Created by ctsims on 12/14/2016.
  */
 
 public class QueryCacheTests {
-    QueryCache grandparent, parent, child;
+    QueryCacheHost grandparent, parent, child;
 
     String key = "key";
     String value = "value";
 
     @Before
     public void setup() {
-        grandparent = new QueryCache();
-        parent = new QueryCache(grandparent);
-        child = new QueryCache(parent);
+        grandparent = new QueryCacheHost();
+        parent = new QueryCacheHost(grandparent);
+        child = new QueryCacheHost(parent);
 
     }
 
@@ -81,11 +77,11 @@ public class QueryCacheTests {
         cache.hashmap.put(key, value);
     }
 
-    public static class TestCache implements QueryCacheEntry {
+    public static class TestCache implements QueryCache {
         HashMap<String, String> hashmap = new HashMap<>();
     }
 
-    public static class TestCacheTwo implements QueryCacheEntry {
+    public static class TestCacheTwo implements QueryCache {
         HashMap<String, String> hashmap = new HashMap<>();
     }
 

@@ -10,6 +10,27 @@ import java.util.Set;
 import java.util.Vector;
 
 /**
+ * A derived query lookup is the result of an operation with translates one set of cases to another.
+ *
+ * As an example, when running the query in a vacuum
+ *
+ * instance('casedb')/casedb/case
+ *                  [@case_type='FOO'][@case_id = current()/index/parent][somevalue = 'blank']
+ *
+ * After the first predicate executes a model query set may be generated containing all matches,
+ * that would be the "current()" model query set
+ *
+ * A QuerySet Transform could then produce a DerivedCaseQueryLookup based on the original query
+ * set that instead of returning the current case's model id would instead produce the current
+ * case's parent ID.
+ *
+ * To do this the implementing class will need to provide an implementation of the
+ *
+ * loadModelQuerySet()
+ *
+ * method. This method should take the provided root model set and generate its own model set based
+ * on it. This class will handle the relevant caching and lookup of values into that model set
+ *
  * Created by ctsims on 2/6/2017.
  */
 

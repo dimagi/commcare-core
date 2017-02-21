@@ -34,7 +34,7 @@ public class EvaluationTrace {
     }
 
     public void setParent(EvaluationTrace parent) {
-        if(this.parent != null) {
+        if (this.parent != null) {
             throw new RuntimeException("A trace's parent can only be set once");
         }
         this.parent = parent;

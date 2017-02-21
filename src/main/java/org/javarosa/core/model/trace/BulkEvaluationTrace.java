@@ -9,15 +9,18 @@ import java.util.Collection;
 import java.util.Vector;
 
 /**
+ * A bulk evaluaton trace records that instead of actually running a set of predicate expressions,
+ * they were handled by an optimized lookup that short-circuited the iterative evaluation of each
+ * potential match.
+ *
  * Created by ctsims on 1/24/2017.
  */
 
 public class BulkEvaluationTrace extends EvaluationTrace {
 
-    boolean bulkEvaluationSucceeded = false;
-    long runtimeImpact = 0;
-    String predicatesCovered;
-    String outputValue;
+    private boolean bulkEvaluationSucceeded = false;
+    private String predicatesCovered;
+    private String outputValue;
 
     /**
      * Creates an initial record for a bulk trace
@@ -40,12 +43,12 @@ public class BulkEvaluationTrace extends EvaluationTrace {
                                        Collection<TreeReference> childSet) {
         this.triggerExprComplete();
 
-        if(startingSet == null) {
+        if (startingSet == null) {
             bulkEvaluationSucceeded = false;
             return;
         }
         int predicatesCounted = startingSet.size() - finalSet.size();
-        if(predicatesCounted == 0) {
+        if (predicatesCounted == 0) {
             bulkEvaluationSucceeded = false;
             return;
         }
@@ -54,7 +57,7 @@ public class BulkEvaluationTrace extends EvaluationTrace {
 
         String predicatesCovered = "";
 
-        for(int i = 0 ; i < predicatesCounted ; ++i) {
+        for (int i = 0 ; i < predicatesCounted ; ++i) {
             predicatesCovered += "[" + startingSet.get(i).toPrettyString() + "]";
         }
 
