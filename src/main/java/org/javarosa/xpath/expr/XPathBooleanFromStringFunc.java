@@ -18,7 +18,7 @@ public class XPathBooleanFromStringFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         String s = FunctionUtils.toString(evaluatedArgs[0]);
         if (s.equalsIgnoreCase("true") || s.equals("1")) {
             return Boolean.TRUE;
@@ -27,13 +27,4 @@ public class XPathBooleanFromStringFunc extends XPathFuncExpr {
         }
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior: Will convert a string value of \"1\" or \"true\" to true.  Otherwise will return false.\n"
-                + "Return: Returns true or false based on the argument.\n"
-                + "Arguments:  The value to be converted\n"
-                + "Syntax: boolean-from-string(value_to_convert)\n"
-                + "Example:  boolean(/data/my_question) or boolean(\"1\")";
-    }
 }

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.api.persistence;
 
 import org.javarosa.core.services.PrototypeManager;
@@ -21,6 +18,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -30,29 +28,65 @@ import java.util.Vector;
  *
  * @author wspride
  */
-public class SqliteIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T>, Iterable<T> {
+public class SqliteIndexedStorageUtility<T extends Persistable>
+        implements IStorageUtilityIndexed<T>, Iterable<T> {
 
-    private final Class<T> prototype;
+    private Class<T> prototype;
     private final String tableName;
     private final String sandboxId;
     private final File databaseFolder;
 
-    public SqliteIndexedStorageUtility(Class<T> prototype, String sandboxId, String tableName, String databasePath) {
+    public SqliteIndexedStorageUtility(String sandboxId, String tableName,
+                                       String databasePath) {
         this.tableName = tableName;
         this.sandboxId = sandboxId;
-        this.prototype = prototype;
         databaseFolder = new File(databasePath);
+    }
 
+    public SqliteIndexedStorageUtility(T prototype, String sandboxId,
+                                       String tableName, String databasePath) {
+        this(sandboxId, tableName, databasePath);
+        this.prototype = (Class<T>)prototype.getClass();
+
+        try {
+            buildTableFromInstance(prototype);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public SqliteIndexedStorageUtility(Class<T> prototype, String sandboxId,
+                                       String tableName, String databasePath) {
+        this(sandboxId, tableName, databasePath);
+        this.prototype = prototype;
+
+        try {
+            buildTableFromInstance(prototype.newInstance());
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void rebuildTable(T prototypeInstance) {
+        this.prototype = (Class<T>)prototypeInstance.getClass();
+
+        try {
+            SqlHelper.dropTable(getConnection(), tableName);
+            buildTableFromInstance(prototypeInstance);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void executeStatements(String[] statements) {
         Connection c = null;
         try {
             c = getConnection();
-            SqlHelper.createTable(c, tableName, prototype.newInstance());
-            // This enables concurrent reads and writes, needed for updates
-            // c.prepareStatement("PRAGMA journal_mode=WAL;").execute();
+            for (String statement : statements) {
+                c.prepareStatement(statement).execute();
+            }
             c.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         } finally {
             try {
@@ -65,8 +99,44 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
         }
     }
 
-    Connection getConnection() throws SQLException, ClassNotFoundException {
+    public void basicInsert(Map<String, String> contentVals) {
+        Connection c = null;
+        try {
+            c = getConnection();
+            SqlHelper.basicInsert(c, tableName, contentVals);
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (c != null) {
+                    c.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
+    private void buildTableFromInstance(T instance) throws ClassNotFoundException {
+        Connection c = null;
+        try {
+            c = getConnection();
+            SqlHelper.createTable(c, tableName, instance);
+            c.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (c != null) {
+                    c.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public Connection getConnection() throws SQLException, ClassNotFoundException {
         if (!databaseFolder.exists()) {
             databaseFolder.mkdir();
         }
@@ -108,7 +178,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
     }
 
     public T readFromBytes(byte[] mBytes) {
-
         T returnPrototype;
         ByteArrayInputStream mByteStream = null;
         try {
@@ -133,7 +202,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
     public T read(int id) {
         byte[] mBytes = readBytes(id);
         return readFromBytes(mBytes);
-
     }
 
     @Override
@@ -413,11 +481,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
     @Override
     public Vector<Integer> removeAll(EntityFilter ef) {
         return null;
-    }
-
-    @Override
-    public void registerIndex(String filterIndex) {
-        // TODO Auto-generated method stub
     }
 
     @Override

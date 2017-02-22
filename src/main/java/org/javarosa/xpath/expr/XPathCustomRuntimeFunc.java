@@ -35,7 +35,7 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         throw new XPathUnhandledException("function \'" + name + "\'");
     }
 
@@ -140,8 +140,4 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
         ExtUtil.writeString(out, name);
     }
 
-    @Override
-    public String getDocumentation() {
-        return "No documentation for custom override function";
-    }
 }

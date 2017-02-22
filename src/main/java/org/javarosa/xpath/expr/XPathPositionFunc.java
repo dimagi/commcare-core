@@ -31,7 +31,7 @@ public class XPathPositionFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         if (args.length == 1) {
             XPathNodeset expr = (XPathNodeset)evaluatedArgs[0];
             try {
@@ -54,12 +54,4 @@ public class XPathPositionFunc extends XPathFuncExpr {
         return new Double(refAt.getMultLast());
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior: Returns the current index of the given reference. \n"
-                + "Return: the greatest extant multiplicity of the reference. \n"
-                + "Arguments: The reference to be checked, or none for current position "
-                + "Example: position(/data/repeat) returns '2' if two iterations have been created";
-    }
 }

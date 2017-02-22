@@ -20,18 +20,13 @@ import java.util.Vector;
  */
 public class DataModelPullParser extends ElementParser<Boolean> {
 
-    Vector<String> errors;
-
-    TransactionParserFactory factory;
-
-    boolean failfast;
-    boolean deep;
-
-    InputStream is;
-
-    final String requiredRootEnvelope = null;
-
-    CommCareOTARestoreListener rListener;
+    private final Vector<String> errors;
+    private final TransactionParserFactory factory;
+    private final boolean failfast;
+    private final boolean deep;
+    private final InputStream is;
+    private final String requiredRootEnvelope = null;
+    private final CommCareOTARestoreListener rListener;
 
     public DataModelPullParser(InputStream is, TransactionParserFactory factory) throws InvalidStructureException, IOException {
         this(is, factory, false);
@@ -62,7 +57,6 @@ public class DataModelPullParser extends ElementParser<Boolean> {
     @Override
     public Boolean parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         try {
-
             String rootName = parser.getName();
 
             if (requiredRootEnvelope != null && !requiredRootEnvelope.equals(rootName)) {
@@ -70,11 +64,9 @@ public class DataModelPullParser extends ElementParser<Boolean> {
             }
 
             String itemString = parser.getAttributeValue(null, "items");
-
             int itemNumber = -1;
 
             if (itemString != null) {
-
                 try {
                     itemNumber = Integer.parseInt(itemString);
                 } catch (NumberFormatException e) {
@@ -83,7 +75,6 @@ public class DataModelPullParser extends ElementParser<Boolean> {
                 if (rListener != null) {
                     rListener.setTotalForms(itemNumber);
                 }
-                //throw new InvalidStructureException("<item> block with no item_id attribute.", this.parser);
             }
             //Here we'll go through in search of CommCare data models and parse
             //them using the appropriate CommCare Model data parser.
@@ -110,7 +101,6 @@ public class DataModelPullParser extends ElementParser<Boolean> {
     private void parseBlock(String root) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         int parsedCounter = 0;
         while (this.nextTagInBlock(root)) {
-
             if (listenerSet()) {
                 rListener.onUpdate(parsedCounter);
                 parsedCounter++;

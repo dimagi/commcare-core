@@ -18,17 +18,8 @@ public class XPathEndsWithFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return FunctionUtils.toString(evaluatedArgs[0]).endsWith(FunctionUtils.toString(evaluatedArgs[1]));
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior:  Tests if one string ends with another string.\n"
-                + "Return: True or false.\n"
-                + "Arguments:  The string to search in, followed by the string to search for.\n"
-                + "Syntax: contains(text, suffix)\n"
-                + "Example:  Ex. ends-with(/data/word, \"ita\")";
-    }
 }

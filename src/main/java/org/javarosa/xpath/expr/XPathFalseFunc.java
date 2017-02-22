@@ -18,16 +18,8 @@ public class XPathFalseFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return Boolean.FALSE;
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Return:  Returns the boolean value False\n"
-                + "Arguments: None\n"
-                + "Usage: false()\n"
-                + "Example Usage: You may want to use false() when you have some advanced logic for a display or validation condition.  You could also use them if you want to calculate false for a hidden value.  For example, if(/data/question1 = \"yes\" and /data/question2 > 30, true(), false())";
-    }
 }

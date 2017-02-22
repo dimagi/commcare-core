@@ -198,7 +198,6 @@ public class FormEntryController {
         model.createModelIfNecessary(index);
     }
 
-
     /**
      * Navigates forward in the form.
      *

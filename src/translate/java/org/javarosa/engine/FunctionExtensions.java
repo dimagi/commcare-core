@@ -1,5 +1,6 @@
 package org.javarosa.engine;
 
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.data.GeoPointData;
@@ -9,12 +10,20 @@ import org.javarosa.engine.xml.XmlUtil;
 import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.expr.FunctionUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -109,6 +118,7 @@ public class FunctionExtensions {
     }
 
     static class DocFunc implements IFunctionHandler {
+        private static JSONObject funcSpec = null;
 
         @Override
         public String getName() {
@@ -135,23 +145,58 @@ public class FunctionExtensions {
             if (functionClass == null) {
                 return "Function '" + functionName + "' doesn't exist";
             }
-            try {
-                Method method = functionClass.getDeclaredMethod("getDocumentation");
-                return method.invoke(functionClass.newInstance());
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-                return null;
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-                return null;
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-                return null;
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-                return null;
+
+            loadFunctionSpec();
+
+            JSONObject spec = funcSpec.getJSONObject(functionName);
+            if (spec == null) {
+                return "Function '" + functionName + "' doesn't exist in spec";
+            } else {
+                return spec.getString("doc");
+            }
+        }
+
+        private static void loadFunctionSpec() {
+            if (funcSpec == null) {
+                try {
+                    InputStream is = FunctionExtensions.class.getResourceAsStream("/xpath_function_spec.json");
+                    byte[] manifest = StreamsUtil.inputStreamToByteArray(is);
+                    funcSpec = new JSONObject(new String(manifest));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
+    static class ListXPathFunc implements IFunctionHandler {
+
+        @Override
+        public String getName() {
+            return "funcs";
+        }
+
+        @Override
+        public Vector getPrototypes() {
+            Vector<Class[]> p = new Vector<>();
+            p.addElement(new Class[0]);
+            return p;
+        }
+
+        @Override
+        public boolean rawArgs() {
+            return true;
+        }
+
+        @Override
+        public Object eval(Object[] args, EvaluationContext ec) {
+            StringBuilder builder = new StringBuilder();
+            List<String> sortedFunctionNames = FunctionUtils.xPathFuncList();
+            Collections.sort(sortedFunctionNames);
+            for (String funcName : sortedFunctionNames) {
+                builder.append(funcName).append("\n");
+            }
+            return builder.toString();
+        }
+    }
 }

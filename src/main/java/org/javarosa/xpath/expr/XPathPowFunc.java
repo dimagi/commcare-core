@@ -18,7 +18,7 @@ public class XPathPowFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return power(evaluatedArgs[0], evaluatedArgs[1]);
     }
 
@@ -39,16 +39,4 @@ public class XPathPowFunc extends XPathFuncExpr {
         return Math.pow(a, b);
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior:  Raises a number to an exponent, b^n\n"
-                + "Return: The value of the the first argument, raised to the power of the second argument\n"
-                + "Arguments:\n"
-                + "\tThe first argument is a numeric value\n"
-                + "\tThe second argument is the numeric exponent to which the first argument should be raised. It can be a negative value.\n"
-                + "NOTE: Due to technical restrictions the Exponent can only be an integer (non-decimal) value on Java Phones (Nokia, etc.). Decimal values can be used elsewhere.\n"
-                + "Syntax: pow(value, exponent)\n"
-                + "Example:  pow(2.5, 2)";
-    }
 }
