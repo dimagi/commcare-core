@@ -8,11 +8,10 @@ import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
-import org.commcare.util.CommCareInstance;
+import org.commcare.util.CommCarePlatform;
 import org.commcare.xml.SuiteParser;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -28,7 +27,7 @@ import java.util.Vector;
 public class SuiteInstaller extends CacheInstaller<Suite> {
 
     @Override
-    public boolean initialize(CommCareInstance instance, boolean isUpgrade) {
+    public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
         instance.registerSuite(storage().read(cacheLocation));
         return true;
     }
@@ -45,7 +44,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
 
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
-                           ResourceTable table, CommCareInstance instance,
+                           ResourceTable table, CommCarePlatform instance,
                            boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_CACHE) {
             //If it's in the cache, we should just get it from there
@@ -69,9 +68,6 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
                 return true;
             } catch (InvalidStructureException e) {
                 throw new UnresolvedResourceException(r, e.getMessage(), true);
-            } catch (StorageFullException e) {
-                e.printStackTrace();
-                return false;
             } catch (IOException e) {
                 throw new UnreliableSourceException(r, e.getMessage());
             } catch (XmlPullParserException e) {

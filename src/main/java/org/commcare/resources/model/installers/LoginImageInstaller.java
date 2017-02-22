@@ -1,6 +1,6 @@
 package org.commcare.resources.model.installers;
 
-import org.commcare.util.CommCareInstance;
+import org.commcare.util.CommCarePlatform;
 
 /**
  * TODO: This should possibly just be replaced by a basic file installer along
@@ -11,7 +11,7 @@ import org.commcare.util.CommCareInstance;
 public class LoginImageInstaller extends BasicInstaller {
 
     @Override
-    public boolean initialize(CommCareInstance instance, boolean isUpgrade) {
+    public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
         //Tell the login screen where to get this?
         return true;
     }
