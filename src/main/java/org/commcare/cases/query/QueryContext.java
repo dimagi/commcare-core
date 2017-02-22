@@ -23,7 +23,13 @@ import org.javarosa.core.model.trace.EvaluationTrace;
 
 public class QueryContext {
 
-    private static final int BULK_QUERY_THRESHOLD = 50;
+    /**
+     * Tuning parameter to not trigger optimizations for low volume queries.
+     *
+     * Currently not easy to evaluate this programatically, but should be set at a point which
+     * prevents super basic queries from setting up too much overhead.
+     */
+    public static final int BULK_QUERY_THRESHOLD = 50;
 
     //TODO: This is a bad reason to keep the EC around here, and locks the lifecycle of this object
     //into the EC
