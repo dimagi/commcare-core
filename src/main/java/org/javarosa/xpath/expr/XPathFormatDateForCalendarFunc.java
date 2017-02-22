@@ -22,7 +22,7 @@ public class XPathFormatDateForCalendarFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return formatDateForCalendar(evaluatedArgs[0], evaluatedArgs[1]);
     }
 
@@ -48,13 +48,4 @@ public class XPathFormatDateForCalendarFunc extends XPathFuncExpr {
         }
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior: Converts a Gregorian formatted date to a different calendar format. \n"
-                + "Return: a String of the input date formatted for the specified calendar. \n"
-                + "Arguments: The date to be converted and the format to convert to "
-                    + "(currently 'ethiopian' or 'nepali'). \n"
-                + "Example: format-date-for-calendar('19070-01-1', 'nepali')";
-    }
 }

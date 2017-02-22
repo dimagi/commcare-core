@@ -18,16 +18,8 @@ public class XPathAtanFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return Math.atan(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior: Finds the arctan of a number.\n"
-                + "Return: The arctan of the argument passed to the function\n"
-                + "Arguments: One number\n"
-                + "Syntax: atan(number)";
-    }
 }

@@ -1,6 +1,7 @@
 package org.commcare.xml;
 
 import org.commcare.data.xml.TransactionParser;
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -58,6 +59,19 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
         //TODO: We need to overwrite any matching records here.
         root = new TreeElementParser(parser, 0, fixtureId).parse();
 
+        Pair<FormInstance, Boolean> instanceAndCommitStatus =
+                setupInstance(storage(), root, fixtureId, userId, overwrite);
+
+        if (instanceAndCommitStatus.second) {
+            commit(instanceAndCommitStatus.first);
+        }
+
+        return instanceAndCommitStatus.first;
+    }
+
+    protected static Pair<FormInstance, Boolean> setupInstance(IStorageUtilityIndexed<FormInstance> storage,
+                                                               TreeElement root, String fixtureId,
+                                                               String userId, boolean overwrite) {
         FormInstance instance = new FormInstance(root, fixtureId);
 
         //This is a terrible hack and clayton should feeel terrible about it
@@ -66,12 +80,12 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
         }
 
         //If we're using storage, deal properly
-        if (storage() != null) {
+        if (storage != null) {
             int recordId = -1;
-            Vector<Integer> matchingFixtures = storage().getIDsForValue(FormInstance.META_ID, fixtureId);
+            Vector<Integer> matchingFixtures = storage.getIDsForValue(FormInstance.META_ID, fixtureId);
             if (matchingFixtures.size() > 0) {
                 //find all fixtures with the same user
-                Vector<Integer> matchingUsers = storage().getIDsForValue(FormInstance.META_XMLNS, ExtUtil.emptyIfNull(userId));
+                Vector<Integer> matchingUsers = storage.getIDsForValue(FormInstance.META_XMLNS, ExtUtil.emptyIfNull(userId));
                 for (Integer i : matchingFixtures) {
                     if (matchingUsers.indexOf(i) != -1) {
                         recordId = i;
@@ -82,15 +96,12 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
             if (recordId != -1) {
                 if (!overwrite) {
                     //parse it out, but don't write anything to memory if one already exists
-                    return instance;
+                    return Pair.create(instance, false);
                 }
                 instance.setID(recordId);
             }
         }
-
-        commit(instance);
-
-        return instance;
+        return Pair.create(instance, true);
     }
 
     @Override

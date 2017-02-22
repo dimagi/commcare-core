@@ -1,17 +1,10 @@
 package org.commcare.resources.model.installers;
 
-import org.commcare.resources.model.MissingMediaException;
-import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceLocation;
-import org.commcare.resources.model.ResourceTable;
-import org.commcare.resources.model.UnreliableSourceException;
-import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.suite.model.Profile;
+import org.commcare.resources.model.*;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localizer;
-import org.javarosa.core.services.storage.IStorageIndexedFactory;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.form.api.FormEntryCaption;

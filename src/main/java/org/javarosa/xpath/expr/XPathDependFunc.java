@@ -28,17 +28,8 @@ public class XPathDependFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return evaluatedArgs[0];
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior: Used to force the engine to re-calculate the first argument when any of the other arguments change\n"
-                + "Return: The first argument passed in\n"
-                + "Arguments: 1 or more arguments\n"
-                + "Syntax: depend(expression, ..., expression)\n"
-                + "Example: depend(/data/some_variable, /data/count, /data/dob)";
-    }
 }

@@ -26,7 +26,7 @@ public class XPathCountSelectedFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         Object evalResult = FunctionUtils.unpack(evaluatedArgs[0]);
         if (!(evalResult instanceof String)) {
             throw new XPathTypeMismatchException("count-selected argument was not a select list");
@@ -36,13 +36,4 @@ public class XPathCountSelectedFunc extends XPathFuncExpr {
         return new Double(DataUtil.splitOnSpaces(s).length);
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior:  Counts the number of items selected in a multi-selected.\n"
-                + "Return: Returns the number of items selected.\n"
-                + "Arguments:  The multi-select question  (or a space-separated list of items).\n"
-                + "Syntax: count-selected(my_question)\n"
-                + "Example:  You may want to check that at least three items were chosen in a multi-select question.  Ex. count-selected(/data/my_question) >= 3";
-    }
 }

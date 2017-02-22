@@ -28,7 +28,7 @@ public class XPathUuidFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         //calculated expressions may be recomputed w/o warning! use with caution!!
         if (args.length == 0) {
             return PropertyUtils.genUUID();
@@ -38,13 +38,4 @@ public class XPathUuidFunc extends XPathFuncExpr {
         return PropertyUtils.genGUID(len);
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior:  Calculates a unique identifier of a particular length.\n"
-                + "Return: The unique id.\n"
-                + "Arguments:  The length of the unique id\n"
-                + "Syntax: uuid(length)\n"
-                + "Example:  uuid(10).";
-    }
 }

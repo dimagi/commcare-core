@@ -18,17 +18,8 @@ public class XPathSqrtFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return Math.sqrt(FunctionUtils.toDouble(evaluatedArgs[0]));
     }
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior: Calculates the square root of a number\n"
-                + "Return: A double value that represents the square root of the provided argument.\n"
-                + "Arguments: An expression that evaluates to a number\n"
-                + "Syntax: sqrt(expression)\n"
-                + "Example: sqrt(4) -> 2.0";
-    }
 }

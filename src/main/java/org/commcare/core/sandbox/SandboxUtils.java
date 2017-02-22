@@ -22,10 +22,91 @@ import java.util.Vector;
  * Created by wpride1 on 8/11/15.
  */
 public class SandboxUtils {
+
+    /**
+     * A quick way to request an evaluation context with an abstract instance available.
+     *
+     * Used in Touchforms
+     */
+    @SuppressWarnings("unused")
+    public static EvaluationContext getInstanceContexts(UserSandbox sandbox, String instanceId, String instanceRef){
+        InstanceInitializationFactory iif = new CommCareInstanceInitializer(sandbox);
+
+        Hashtable<String, DataInstance> instances = new Hashtable<>();
+        ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
+        edi.initialize(iif, instanceId);
+        instances.put(instanceId, edi);
+
+        return new EvaluationContext(null, instances);
+    }
+
+    /**
+     * Load the referenced fixture out of storage for the provided user
+     *
+     * @param sandbox The current user's sandbox
+     * @param refId The jr:// reference
+     * @param userId The user's ID
+     * @return The form instance matching the refId in the sandbox
+     */
+    public static FormInstance loadFixture(UserSandbox sandbox,
+                                           String refId, String userId) {
+        IStorageUtilityIndexed<FormInstance> userFixtureStorage =
+                sandbox.getUserFixtureStorage();
+
+        Vector<Integer> userFixtures =
+                userFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);
+        if (userFixtures.size() == 1) {
+            return userFixtureStorage.read(userFixtures.elementAt(0));
+            // TODO: Userid check anyway?
+        } else if (userFixtures.size() > 1) {
+            FormInstance result = intersectFixtureSets(userFixtureStorage, userId, userFixtures);
+            if (result != null) {
+                return result;
+            }
+        }
+
+        return loadAppFixture(sandbox, refId, userId);
+    }
+
+    private static FormInstance intersectFixtureSets(IStorageUtilityIndexed<FormInstance> userFixtureStorage,
+                                                     String userId,
+                                                     Vector<Integer> userFixtures) {
+        Vector<Integer> relevantUserFixtures =
+                userFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, userId);
+
+        if (!relevantUserFixtures.isEmpty()) {
+            Integer userFixture =
+                    ArrayUtilities.intersectSingle(userFixtures, relevantUserFixtures);
+            if (userFixture != null) {
+                return userFixtureStorage.read(userFixture);
+            }
+        }
+        return null;
+    }
+
+    private static FormInstance loadAppFixture(UserSandbox sandbox, String refId, String userId) {
+        IStorageUtilityIndexed<FormInstance> appFixtureStorage =
+                sandbox.getAppFixtureStorage();
+        Vector<Integer> appFixtures = appFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);
+        Integer globalFixture =
+                ArrayUtilities.intersectSingle(appFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, ""), appFixtures);
+        if (globalFixture != null) {
+            return appFixtureStorage.read(globalFixture);
+        } else {
+            // See if we have one manually placed in the suite
+            Integer userFixture =
+                    ArrayUtilities.intersectSingle(appFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, userId), appFixtures);
+            if (userFixture != null) {
+                return appFixtureStorage.read(userFixture);
+            }
+            // Otherwise, nothing
+            return null;
+        }
+    }
+
     /**
      * For the users and groups in the provided sandbox, extracts out the list
      * of valid "owners" for entities (cases, ledgers, etc) in the universe.
-     *
      */
     public static Vector<String> extractEntityOwners(UserSandbox sandbox) {
         Vector<String> owners = new Vector<>();
@@ -54,79 +135,5 @@ public class SandboxUtils {
         }
 
         return owners;
-    }
-
-    /**
-     * A quick way to request an evaluation context with an abstract instance available.
-     *
-     * Used in Touchforms
-     */
-    @SuppressWarnings("unused")
-    public static EvaluationContext getInstanceContexts(UserSandbox sandbox, String instanceId, String instanceRef){
-        InstanceInitializationFactory iif = new CommCareInstanceInitializer(sandbox);
-
-        Hashtable<String, DataInstance> instances = new Hashtable<>();
-        ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
-        edi.initialize(iif, instanceId);
-        instances.put(instanceId, edi);
-
-        return new EvaluationContext(null, instances);
-    }
-
-    /**
-     * Load the referenced fixture out of storage for the provided user
-     *
-     * @param sandbox The current user's sandbox
-     * @param refId The jr:// reference
-     * @param userId The user's ID
-     * @return The form instance matching the refId in the sandbox
-     */
-    public static FormInstance loadFixture(UserSandbox sandbox,
-                                            String refId, String userId) {
-        IStorageUtilityIndexed<FormInstance> userFixtureStorage =
-                sandbox.getUserFixtureStorage();
-        IStorageUtilityIndexed<FormInstance> appFixtureStorage =
-                sandbox.getAppFixtureStorage();
-
-        Vector<Integer> userFixtures =
-                userFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);
-        // ... Nooooot so clean.
-        if (userFixtures.size() == 1) {
-            // easy case, one fixture, use it
-            return userFixtureStorage.read(userFixtures.elementAt(0));
-            // TODO: Userid check anyway?
-        } else if (userFixtures.size() > 1) {
-            // intersect userid and fixtureid set.
-            // TODO: Replace context call here with something from the session,
-            // need to stop relying on that coupling
-            Vector<Integer> relevantUserFixtures =
-                    userFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, userId);
-
-            if (relevantUserFixtures.size() != 0) {
-                Integer userFixture =
-                        ArrayUtilities.intersectSingle(userFixtures, relevantUserFixtures);
-                if (userFixture != null) {
-                    return userFixtureStorage.read(userFixture);
-                }
-            }
-        }
-
-        // ok, so if we've gotten here there were no fixtures for the user,
-        // let's try the app fixtures.
-        Vector<Integer> appFixtures = appFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);
-        Integer globalFixture =
-                ArrayUtilities.intersectSingle(appFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, ""), appFixtures);
-        if (globalFixture != null) {
-            return appFixtureStorage.read(globalFixture);
-        } else {
-            // See if we have one manually placed in the suite
-            Integer userFixture =
-                    ArrayUtilities.intersectSingle(appFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, userId), appFixtures);
-            if (userFixture != null) {
-                return appFixtureStorage.read(userFixture);
-            }
-            // Otherwise, nothing
-            return null;
-        }
     }
 }

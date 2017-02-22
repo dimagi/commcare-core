@@ -23,7 +23,6 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     private static final int SCREEN_WIDTH = 100;
 
     private final TreeReference[] mChoices;
-    private final String[] rows;
     private final String mHeader;
 
     private final Vector<Action> actions;
@@ -35,19 +34,19 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         mHeader = createHeader(shortDetail, context);
         this.shortDetail = shortDetail;
         this.rootContext = context;
+        this.mChoices = new TreeReference[references.size()];
+        references.copyInto(mChoices);
+        actions = shortDetail.getCustomActions(context);
+    }
 
-        rows = new String[references.size()];
-
+    private String[] getRows(TreeReference[] references) {
+        String[] rows = new String[references.length];
         int i = 0;
         for (TreeReference entity : references) {
             rows[i] = createRow(entity);
             ++i;
         }
-
-        this.mChoices = new TreeReference[references.size()];
-        references.copyInto(mChoices);
-
-        actions = shortDetail.getCustomActions(context);
+        return rows;
     }
 
     private String createRow(TreeReference entity) {
@@ -164,6 +163,8 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         out.println(ScreenUtils.pad("", maxLength + 1) + mHeader);
         out.println("==============================================================================================");
 
+        String[] rows = getRows(mChoices);
+
         for (int i = 0; i < mChoices.length; ++i) {
             String d = rows[i];
             out.println(ScreenUtils.pad(String.valueOf(i), maxLength) + ")" + d);
@@ -181,7 +182,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     @Override
     public String[] getOptions() {
-        return rows;
+        return getRows(mChoices);
     }
 
     @Override

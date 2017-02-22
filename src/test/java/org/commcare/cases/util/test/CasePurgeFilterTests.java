@@ -9,7 +9,7 @@ import org.commcare.test.utilities.ComposedRunner;
 import org.commcare.test.utilities.RunWithResource;
 import org.commcare.test.utilities.RunnerCoupler;
 import org.javarosa.core.services.storage.IStorageIterator;
-import org.javarosa.core.services.storage.IStorageUtility;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
@@ -132,7 +132,7 @@ public class CasePurgeFilterTests {
         }
     }
 
-    public void testOutcome(IStorageUtility<Case> storage, int[] p, int[] g) {
+    public void testOutcome(IStorageUtilityIndexed<Case> storage, int[] p, int[] g) {
         Vector<Integer> present = atv(p);
         Vector<Integer> gone = atv(g);
 

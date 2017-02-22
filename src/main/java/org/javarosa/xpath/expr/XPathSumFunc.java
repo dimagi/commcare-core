@@ -20,7 +20,7 @@ public class XPathSumFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         if (evaluatedArgs[0] instanceof XPathNodeset) {
             return sum(((XPathNodeset)evaluatedArgs[0]).toArgList());
         } else {
@@ -40,13 +40,4 @@ public class XPathSumFunc extends XPathFuncExpr {
     }
 
 
-    @Override
-    public String getDocumentation() {
-        return getDocHeader()
-                + "Behavior:  Sum the items in a group (ex. a question in a repeat group)\n"
-                + "Return: Will return the sum of all items.\n"
-                + "Arguments:  The group of questions to be summed.\n"
-                + "Syntax: sum(question_group_to_be_summed)\n"
-                + "Example:  This is useful if you have a repeat and need to add up the values entered for one of the questions. Ex.  sum(/data/my_repeat_group/some_number_question).";
-    }
 }

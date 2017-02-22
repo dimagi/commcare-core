@@ -28,8 +28,8 @@ public class StorageManager {
         return instance.get();
     }
 
-    private static final Hashtable<String, IStorageUtility> storageRegistry = new Hashtable<>();
-    private static IStorageFactory storageFactory;
+    private static final Hashtable<String, IStorageUtilityIndexed> storageRegistry = new Hashtable<>();
+    private static IStorageIndexedFactory storageFactory;
 
     /**
      * Attempts to set the storage factory for the current environment. Will fail silently
@@ -37,8 +37,8 @@ public class StorageManager {
      *
      * @param fact An available storage factory.
      */
-    public void setStorageFactory(IStorageFactory fact) {
-        instance().setStorageFactory(fact, false);
+    public static void setStorageFactory(IStorageIndexedFactory fact) {
+        StorageManager.setStorageFactory(fact, false);
     }
 
     /**
@@ -49,7 +49,7 @@ public class StorageManager {
      * @param fact     An available storage factory.
      * @param mustWork true if it is intolerable for another storage factory to have been set. False otherwise
      */
-    public void setStorageFactory(IStorageFactory fact, boolean mustWork) {
+    public static void setStorageFactory(IStorageIndexedFactory fact, boolean mustWork) {
         if (storageFactory == null) {
             storageFactory = fact;
         } else {
@@ -68,7 +68,7 @@ public class StorageManager {
         storageRegistry.put(key, storageFactory.newStorage(key, type));
     }
 
-    public IStorageUtility getStorage(String key) {
+    public static IStorageUtilityIndexed getStorage(String key) {
         if (storageRegistry.containsKey(key)) {
             return storageRegistry.get(key);
         } else {
@@ -78,7 +78,7 @@ public class StorageManager {
 
     public void halt() {
         for (Enumeration e = storageRegistry.elements(); e.hasMoreElements(); ) {
-            ((IStorageUtility)e.nextElement()).close();
+            ((IStorageUtilityIndexed)e.nextElement()).close();
         }
     }
 
