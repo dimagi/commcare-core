@@ -10,10 +10,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -24,58 +28,84 @@ import java.util.Vector;
  *
  * Created by ctsims on 10/13/2015.
  */
+@RunWith(Parameterized.class)
 public class CasePurgeTest {
 
-    private final String name;
-
-    private final HashSet<String> cases = new HashSet<>();
-
-    private final HashSet<String> ownedCases = new HashSet<>();
-    private final HashSet<String> closedCases = new HashSet<>();
-    private final HashSet<String> outcome = new HashSet<>();
-
-    private final ArrayList<String[]> indices = new ArrayList<>();
-
-    public static ArrayList<CasePurgeTest> getTests(String resourceName) {
+    @Parameterized.Parameters(name = "{0}")
+    public static Iterable<Object[]> testData() {
         try {
-            ArrayList<CasePurgeTest> runners = new ArrayList<>();
-            JSONArray tests = new JSONArray(TestHelpers.getResourceAsString(resourceName));
-            for (int i = 0; i < tests.length(); ++i) {
-                JSONObject root = tests.getJSONObject(i);
-                runners.add(new CasePurgeTest(root));
+            JSONArray fullTestResource =
+                    new JSONArray(TestHelpers.getResourceAsString("/case_relationship_tests.json"));
+            List<Object[]> listOfParameterSets = new ArrayList<>();
+            for (int i = 0; i < fullTestResource.length(); ++i) {
+                JSONObject root = fullTestResource.getJSONObject(i);
+                listOfParameterSets.add(parseParametersFromJSONObject(root));
             }
-            return runners;
+            return listOfParameterSets;
         } catch (IOException | JSONException e) {
             RuntimeException failure =
-                    new RuntimeException("Failed to parse input for test: " + resourceName);
+                    new RuntimeException("Failed to parse input for CasePurgeTest");
             failure.initCause(e);
             throw failure;
         }
     }
 
-    private CasePurgeTest(JSONObject root) throws JSONException {
-        name = root.getString("name");
-        if (root.has("cases")) {
-            getCases(root.getJSONArray("cases"), cases);
-        }
-        if (root.has("owned")) {
-            getCases(root.getJSONArray("owned"), ownedCases);
-        }
-        if (root.has("closed")) {
-            getCases(root.getJSONArray("closed"), closedCases);
+    private static Object[] parseParametersFromJSONObject(JSONObject root) {
+        Object[] parameters = new Object[7];
+        parameters[0] = root.getString("name");
+
+        String[] jsonArrayKeys =
+                new String[]{"cases", "owned", "closed", "subcases", "extensions", "outcome"};
+        for (int i = 0; i < jsonArrayKeys.length; i++) {
+            addJSONArrayIfPresent(root, i+1, jsonArrayKeys[i], parameters);
         }
 
-        if (root.has("subcases")) {
-            getIndices(root.getJSONArray("subcases"), indices, CaseIndex.RELATIONSHIP_CHILD);
-        }
-        if (root.has("extensions")) {
-            getIndices(root.getJSONArray("extensions"), indices, CaseIndex.RELATIONSHIP_EXTENSION);
-        }
-        getCases(root.getJSONArray("outcome"), outcome);
+        return parameters;
     }
 
-    private void getIndices(JSONArray indices,
-                            ArrayList<String[]> indexSet,
+    private static void addJSONArrayIfPresent(JSONObject root, int index, String key,
+                                              Object[] parameterSet) {
+        if (root.has(key)) {
+            parameterSet[index] = root.getJSONArray(key);
+        }
+    }
+
+    private final String name;
+    private final HashSet<String> cases = new HashSet<>();
+    private final HashSet<String> ownedCases = new HashSet<>();
+    private final HashSet<String> closedCases = new HashSet<>();
+    private final HashSet<String> outcomeSet = new HashSet<>();
+    private final ArrayList<String[]> indices = new ArrayList<>();
+
+    public CasePurgeTest(String name, JSONArray cases, JSONArray owned, JSONArray closed,
+                         JSONArray subcases, JSONArray extensions, JSONArray outcome) {
+        this.name = name;
+        createTestObjectsFromParameters(cases, owned, closed, subcases, extensions, outcome);
+    }
+
+    private void createTestObjectsFromParameters(JSONArray casesJson, JSONArray ownedJson,
+                                                 JSONArray closedJson, JSONArray subcasesJson,
+                                                 JSONArray extensionsJson, JSONArray outcomeJson) {
+        if (casesJson != null) {
+            getCases(casesJson, cases);
+        }
+        if (ownedJson != null) {
+            getCases(ownedJson, ownedCases);
+        }
+        if (closedJson != null) {
+            getCases(closedJson, closedCases);
+        }
+
+        if (subcasesJson != null) {
+            getIndices(subcasesJson, indices, CaseIndex.RELATIONSHIP_CHILD);
+        }
+        if (extensionsJson != null) {
+            getIndices(extensionsJson, indices, CaseIndex.RELATIONSHIP_EXTENSION);
+        }
+        getCases(outcomeJson, outcomeSet);
+    }
+
+    private void getIndices(JSONArray indices, ArrayList<String[]> indexSet,
                             String indexType) throws JSONException {
         for (int i = 0; i < indices.length(); ++i) {
             JSONArray index = indices.getJSONArray(i);
@@ -95,6 +125,7 @@ public class CasePurgeTest {
         }
     }
 
+    @Test
     public void executeTest() {
         DummyIndexedStorageUtility<Case> storage =
                 new DummyIndexedStorageUtility<>(Case.class, new LivePrototypeFactory());
@@ -114,7 +145,7 @@ public class CasePurgeTest {
             inStorage.add(c.getCaseId());
         }
 
-        Assert.assertEquals(name, outcome, inStorage);
+        Assert.assertEquals(name, outcomeSet, inStorage);
 
     }
 
@@ -145,4 +176,5 @@ public class CasePurgeTest {
     public String getName() {
         return name;
     }
+    
 }
