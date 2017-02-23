@@ -45,25 +45,24 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
 
     public SqliteIndexedStorageUtility(T prototype, String sandboxId,
                                        String tableName, String databasePath) {
-        this(sandboxId, tableName, databasePath);
-        this.prototype = (Class<T>)prototype.getClass();
-
-        try {
-            buildTableFromInstance(prototype);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        this((Class<T>)prototype.getClass(), sandboxId, tableName, databasePath);
     }
 
     public SqliteIndexedStorageUtility(Class<T> prototype, String sandboxId,
                                        String tableName, String databasePath) {
+        this(prototype, sandboxId, tableName, databasePath, true);
+    }
+
+    public SqliteIndexedStorageUtility(Class<T> prototype, String sandboxId,
+                                       String tableName, String databasePath, boolean initialize) {
         this(sandboxId, tableName, databasePath);
         this.prototype = prototype;
-
-        try {
-            buildTableFromInstance(prototype.newInstance());
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+        if(initialize) {
+            try {
+                buildTableFromInstance(prototype.newInstance());
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
