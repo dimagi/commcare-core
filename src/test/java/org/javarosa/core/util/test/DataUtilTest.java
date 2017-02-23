@@ -3,6 +3,7 @@ package org.javarosa.core.util.test;
 import org.javarosa.core.util.DataUtil;
 import org.junit.Test;
 
+import java.util.Collection;
 import java.util.Vector;
 
 import static org.junit.Assert.assertFalse;
@@ -21,7 +22,7 @@ public class DataUtilTest {
         Vector<String> setTwo = new Vector<>();
         setTwo.add("one");
         setTwo.add("three");
-        Vector<String> intersectSet = DataUtil.intersection(setOne, setTwo);
+        Collection<String> intersectSet = DataUtil.intersection(setOne, setTwo);
 
         // for safety, we want to return a whole new vector
         assertFalse(intersectSet == setOne);

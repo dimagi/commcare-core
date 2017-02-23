@@ -2,6 +2,8 @@ package org.commcare.cases.instance;
 
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.QuerySensitive;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.data.UncastData;
@@ -12,10 +14,12 @@ import org.javarosa.core.model.utils.PreloadUtils;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import javax.management.Query;
+
 /**
  * @author ctsims
  */
-public class CaseChildElement extends StorageBackedChildElement<Case> {
+public class CaseChildElement extends StorageBackedChildElement<Case> implements QuerySensitive {
 
     private static final String NAME_ID = "case_id";
 
@@ -77,7 +81,7 @@ public class CaseChildElement extends StorageBackedChildElement<Case> {
 
     //TODO: THIS IS NOT THREAD SAFE
     @Override
-    protected TreeElement cache() {
+    protected TreeElement cache(QueryContext context) {
         if (recordId == TreeReference.INDEX_TEMPLATE) {
             return empty;
         }
@@ -92,49 +96,54 @@ public class CaseChildElement extends StorageBackedChildElement<Case> {
                 recordId = ids.elementAt(0);
             }
 
-            Case c = parent.getElement(recordId);
+            Case c = parent.getElement(recordId, context);
             entityId = c.getCaseId();
-            TreeElement cacheBuilder = new TreeElement("case");
-            cacheBuilder.setMult(this.mult);
 
-            cacheBuilder.setAttribute(null, nameId, c.getCaseId());
-            cacheBuilder.setAttribute(null, "case_type", c.getTypeId());
-            cacheBuilder.setAttribute(null, "status", c.isClosed() ? "closed" : "open");
 
-            //Don't set anything to null
-            cacheBuilder.setAttribute(null, "owner_id", c.getUserId() == null ? "" : c.getUserId());
-
-            final boolean[] done = new boolean[]{false};
-
-            TreeElement scratch = new TreeElement("case_name");
-            String name = c.getName();
-            //This shouldn't be possible
-            scratch.setAnswer(new StringData(name == null ? "" : name));
-            cacheBuilder.addChild(scratch);
-
-            scratch = new TreeElement("date_opened");
-            scratch.setAnswer(new DateData(c.getDateOpened()));
-            cacheBuilder.addChild(scratch);
-
-            scratch = new TreeElement(LAST_MODIFIED_KEY);
-            scratch.setAnswer(new DateData(c.getLastModified()));
-            cacheBuilder.addChild(scratch);
-
-            setCaseProperties(c, cacheBuilder);
-
-            TreeElement index = buildIndexTreeElement(c, done);
-            cacheBuilder.addChild(index);
-
-            TreeElement attachments = buildAttachmentTreeElement(c, done);
-            cacheBuilder.addChild(attachments);
-
-            cacheBuilder.setParent(this.parent);
-            done[0] = true;
-
-            parent.treeCache.register(recordId, cacheBuilder);
-
-            return cacheBuilder;
+            return buildAndCacheInternalTree(c);
         }
+    }
+
+    private TreeElement buildAndCacheInternalTree(Case c) {
+        TreeElement cacheBuilder = new TreeElement("case");
+        cacheBuilder.setMult(this.mult);
+
+        cacheBuilder.setAttribute(null, nameId, c.getCaseId());
+        cacheBuilder.setAttribute(null, "case_type", c.getTypeId());
+        cacheBuilder.setAttribute(null, "status", c.isClosed() ? "closed" : "open");
+
+        //Don't set anything to null
+        cacheBuilder.setAttribute(null, "owner_id", c.getUserId() == null ? "" : c.getUserId());
+
+        final boolean[] done = new boolean[]{false};
+
+        TreeElement scratch = new TreeElement("case_name");
+        String name = c.getName();
+        //This shouldn't be possible
+        scratch.setAnswer(new StringData(name == null ? "" : name));
+        cacheBuilder.addChild(scratch);
+
+        scratch = new TreeElement("date_opened");
+        scratch.setAnswer(new DateData(c.getDateOpened()));
+        cacheBuilder.addChild(scratch);
+
+        scratch = new TreeElement(LAST_MODIFIED_KEY);
+        scratch.setAnswer(new DateData(c.getLastModified()));
+        cacheBuilder.addChild(scratch);
+
+        setCaseProperties(c, cacheBuilder);
+
+        TreeElement index = buildIndexTreeElement(c, done);
+        cacheBuilder.addChild(index);
+
+        TreeElement attachments = buildAttachmentTreeElement(c, done);
+        cacheBuilder.addChild(attachments);
+
+        cacheBuilder.setParent(this.parent);
+        done[0] = true;
+
+        parent.treeCache.register(recordId, cacheBuilder);
+        return cacheBuilder;
     }
 
     private void setCaseProperties(Case c, TreeElement cacheBuilder) {
@@ -252,5 +261,10 @@ public class CaseChildElement extends StorageBackedChildElement<Case> {
 
     public static CaseChildElement buildCaseChildTemplate(CaseInstanceTreeElement parent) {
         return new CaseChildElement(parent);
+    }
+
+    @Override
+    public void prepareForUseInCurrentContext(QueryContext queryContext) {
+        cache(queryContext);
     }
 }

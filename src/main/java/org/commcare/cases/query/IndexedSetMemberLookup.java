@@ -1,4 +1,4 @@
-package org.commcare.cases.util;
+package org.commcare.cases.query;
 
 /**
  * An indexed set member lookup is a check for whether a value which is indexed on the current
@@ -15,7 +15,7 @@ public class IndexedSetMemberLookup implements PredicateProfile {
     public final String key;
     public final String[] valueSet;
 
-    public IndexedSetMemberLookup(String key, Object valueSet ) {
+    public IndexedSetMemberLookup(String key, Object valueSet) {
         this.key = key;
         this.valueSet = ((String)valueSet).split(" ");
     }
