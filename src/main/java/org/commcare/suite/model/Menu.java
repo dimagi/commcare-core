@@ -208,4 +208,9 @@ public class Menu implements Externalizable, MenuDisplayable {
         return commandIds.indexOf(cmd);
     }
 
+    @Override
+    public String toString() {
+        return "Menu with id " + this.getId() + " display text " + this.getDisplayText();
+    }
+
 }

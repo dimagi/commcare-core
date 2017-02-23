@@ -10,9 +10,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.Vector;
 
 /**
  * Tests for the SqlSandsbox API. Just initializes and makes sure we can access at the moment.
@@ -22,12 +22,11 @@ import java.util.Vector;
 public class UserSqlSandboxTest {
 
     private UserSqlSandbox sandbox;
-    private Vector<String> owners;
-    final String username = "sandbox-test-user";
+    private final String username = "sandbox-test-user";
 
     @Before
     public void setUp() throws Exception {
-        sandbox = SqlSandboxUtils.getStaticStorage(username);
+        sandbox = new UserSqlSandbox(username, UserSqlSandbox.DEFAULT_DATBASE_PATH);
         PrototypeFactory.setStaticHasher(new ClassNameHasher());
         ParseUtils.parseIntoSandbox(this.getClass().getClassLoader().getResourceAsStream("ipm_restore.xml"), sandbox);
         sandbox = null;
@@ -35,7 +34,7 @@ public class UserSqlSandboxTest {
 
     @Test
     public void test() {
-        sandbox = SqlSandboxUtils.getStaticStorage(username);
+        sandbox = new UserSqlSandbox(username, UserSqlSandbox.DEFAULT_DATBASE_PATH);
         assertEquals(sandbox.getCaseStorage().getNumRecords(), 6);
         assertEquals(sandbox.getLedgerStorage().getNumRecords(), 3);
         assertEquals(sandbox.getUserFixtureStorage().getNumRecords(), 4);
@@ -45,18 +44,17 @@ public class UserSqlSandboxTest {
 
     @Test
     public void testAlternativePath() throws Exception{
-        sandbox = SqlSandboxUtils.getStaticStorage(username, "alternative-dbs");
+        sandbox = new UserSqlSandbox(username, "alternative-dbs");
         PrototypeFactory.setStaticHasher(new ClassNameHasher());
         ParseUtils.parseIntoSandbox(this.getClass().getClassLoader().getResourceAsStream("ipm_restore.xml"), sandbox);
         assertEquals(sandbox.getCaseStorage().getNumRecords(), 6);
         assertEquals(sandbox.getLedgerStorage().getNumRecords(), 3);
         assertEquals(sandbox.getUserFixtureStorage().getNumRecords(), 4);
         File dbFolder = new File("alternative-dbs");
-        assert(dbFolder.exists() && dbFolder.isDirectory());
+        assertTrue(dbFolder.exists() && dbFolder.isDirectory());
         SqlSandboxUtils.deleteDatabaseFolder("alternative-dbs");
-        assert(!dbFolder.exists() && !dbFolder.isDirectory());
+        assertTrue(!dbFolder.exists() && !dbFolder.isDirectory());
     }
-
 
     @After
     public void tearDown(){

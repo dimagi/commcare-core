@@ -9,7 +9,10 @@ import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.services.storage.*;
+import org.javarosa.core.services.storage.IStorageIndexedFactory;
+import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageManager;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -65,6 +68,14 @@ public class CommCarePlatform {
     }
 
     public Vector<Suite> getInstalledSuites() {
+        Vector<Suite> installedSuites = new Vector<>();
+        IStorageUtilityIndexed utility = StorageManager.getStorage(Suite.STORAGE_KEY);
+
+        IStorageIterator iterator = utility.iterate();
+
+        while(iterator.hasMore()){
+            installedSuites.addElement((Suite)utility.read(iterator.nextID()));
+        }
         return installedSuites;
     }
     
