@@ -31,7 +31,6 @@ public class UserSqlSandbox extends UserSandbox {
     private final SqliteIndexedStorageUtility<FormInstance> userFixtureStorage;
     private final SqliteIndexedStorageUtility<FormInstance> appFixtureStorage;
     private final SqliteIndexedStorageUtility<StorageIndexedTreeElementModel> sqlUtil;
-    private final HashMap<String ,SqliteIndexedStorageUtility<StorageIndexedTreeElementModel>> indexTables;
     private final String username, path;
     private User user = null;
     public static final String DEFAULT_DATBASE_PATH = "dbs";
@@ -43,7 +42,6 @@ public class UserSqlSandbox extends UserSandbox {
     public UserSqlSandbox(String username, String path) {
         this.username = username;
         this.path = path;
-
         //we can't name this table "Case" becase that's reserved by sqlite
         caseStorage = new SqliteIndexedStorageUtility<>(Case.class, username, "CCCase", path);
         ledgerStorage = new SqliteIndexedStorageUtility<>(Ledger.class, username, Ledger.STORAGE_KEY, path);
@@ -51,11 +49,6 @@ public class UserSqlSandbox extends UserSandbox {
         userFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, "UserFixture", path);
         appFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, "AppFixture", path);
         sqlUtil = createFixturePathsTable(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE);
-        indexTables = new HashMap<>();
-    }
-
-    public UserSqlSandbox(String username) {
-        this(username, DEFAULT_DATBASE_PATH);
     }
 
     @Override
@@ -76,7 +69,7 @@ public class UserSqlSandbox extends UserSandbox {
     @Override
     public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getIndexedFixtureStorage(String fixtureName) {
         String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
-        return indexTables.get(tableName);
+        return new SqliteIndexedStorageUtility<>(StorageIndexedTreeElementModel.class, username, tableName, path, false);
     }
 
     @Override
@@ -88,7 +81,6 @@ public class UserSqlSandbox extends UserSandbox {
                 = new SqliteIndexedStorageUtility<>(exampleEntry, username, tableName, path);
         sqlUtil.rebuildTable(exampleEntry);
         sqlUtil.executeStatements(DatabaseIndexingUtils.getIndexStatements(tableName, indices));
-        indexTables.put(tableName, sqlUtil);
     }
 
     @Override
@@ -147,11 +139,11 @@ public class UserSqlSandbox extends UserSandbox {
         SqliteIndexedStorageUtility<StorageIndexedTreeElementModel> sqlUtil =
                 new SqliteIndexedStorageUtility<>(username, tableName, path);
         String[] indexTableStatements = new String[]{
-                IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE_STMT
+                IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE_STMT,
                 // NOTE PLM: commenting out index creation below because
                 // it will crash if run multiple times. We should find a way to
                 // establish the index.
-                // , IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEXING_STMT
+                IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEXING_STMT
         };
         sqlUtil.executeStatements(indexTableStatements);
 

@@ -96,17 +96,19 @@ public class TableBuilder {
 
         if (p instanceof IMetaData) {
             String[] keys = ((IMetaData)p).getMetaDataFields();
-            for (String key : keys) {
-                String columnName = scrubName(key);
-                if (!rawCols.contains(columnName)) {
-                    rawCols.add(columnName);
-                    String columnDef = columnName;
+            if (keys != null) {
+                for (String key : keys) {
+                    String columnName = scrubName(key);
+                    if (!rawCols.contains(columnName)) {
+                        rawCols.add(columnName);
+                        String columnDef = columnName;
 
-                    //Modifiers
-                    if (unique.contains(columnName)) {
-                        columnDef += " UNIQUE";
+                        //Modifiers
+                        if (unique.contains(columnName)) {
+                            columnDef += " UNIQUE";
+                        }
+                        cols.add(columnDef);
                     }
-                    cols.add(columnDef);
                 }
             }
         }
