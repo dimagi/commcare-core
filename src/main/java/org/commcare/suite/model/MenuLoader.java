@@ -37,13 +37,7 @@ public class MenuLoader {
     public String getErrorMessage() {
         if (loadException != null) {
             String errorMessage = loadException.getMessage();
-            if (loadException instanceof XPathSyntaxException) {
-                errorMessage = Localization.get("app.menu.display.cond.bad.xpath", new String[]{xPathErrorMessage, loadException.getMessage()});
-                loggerInterface.logError(errorMessage);
-            } else if (loadException instanceof XPathException) {
-                errorMessage = Localization.get("app.menu.display.cond.xpath.err", new String[]{xPathErrorMessage, loadException.getMessage()});
-                loggerInterface.logError(errorMessage, (XPathException)loadException);
-            }
+            loggerInterface.logError(errorMessage, loadException);
             return errorMessage;
         }
         return null;

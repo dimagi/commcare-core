@@ -5,6 +5,6 @@ package org.commcare.util;
  */
 
 public interface LoggerInterface  {
-    <T extends Exception & XPathLoggableException> void logError(String message, T cause);
+    void logError(String message, Exception cause);
     void logError(String message);
 }

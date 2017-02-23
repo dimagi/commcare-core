@@ -16,9 +16,7 @@
 
 package org.javarosa.xpath.parser;
 
-import org.commcare.util.XPathLoggableException;
-
-public class XPathSyntaxException extends Exception implements XPathLoggableException {
+public class XPathSyntaxException extends Exception {
 
     public XPathSyntaxException() {
         super();

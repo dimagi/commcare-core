@@ -7,9 +7,7 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.MenuLoader;
 import org.commcare.util.LoggerInterface;
-import org.commcare.util.XPathLoggableException;
 import org.javarosa.core.services.Logger;
-import org.javarosa.xpath.XPathException;
 
 import java.io.PrintStream;
 
@@ -27,7 +25,7 @@ public class MenuScreen extends Screen {
     class ScreenLogger implements LoggerInterface {
 
         @Override
-        public <T extends Exception & XPathLoggableException> void logError(String message, T cause) {
+        public void logError(String message, Exception cause) {
             Logger.exception(message, cause);
         }
 
