@@ -1,8 +1,10 @@
 package org.javarosa.xpath;
 
+import org.commcare.util.XPathLoggableException;
+
 import java.text.MessageFormat;
 
-public class XPathException extends RuntimeException {
+public class XPathException extends RuntimeException implements XPathLoggableException {
 
     // A reference to the "Source" of this message helpful
     // for tracking down where the invalid xpath was declared
