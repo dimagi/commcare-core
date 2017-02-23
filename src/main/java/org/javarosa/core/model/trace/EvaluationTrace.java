@@ -13,7 +13,10 @@ import java.util.Vector;
  */
 public class EvaluationTrace {
 
-    private final EvaluationTrace parent;
+    private final long exprStartNano;
+    private long runtimeNano;
+
+    private EvaluationTrace parent;
     private Object value;
     private final String expression;
 
@@ -24,13 +27,19 @@ public class EvaluationTrace {
      *
      * @param expression The string representation of the expression
      *                   being evaluated
-     * @param parent     The parent of this step of execution. Null if
-     *                   this is the root.
      */
-    public EvaluationTrace(String expression, EvaluationTrace parent) {
+    public EvaluationTrace(String expression) {
         this.expression = expression;
+        exprStartNano = System.nanoTime();
+    }
+
+    public void setParent(EvaluationTrace parent) {
+        if (this.parent != null) {
+            throw new RuntimeException("A trace's parent can only be set once");
+        }
         this.parent = parent;
     }
+
 
     /**
      * @return The parent step of this trace. Null if
@@ -47,10 +56,21 @@ public class EvaluationTrace {
      */
     public void setOutcome(Object value) {
         this.value = value;
+        triggerExprComplete();
+    }
+
+    protected void triggerExprComplete() {
+        runtimeNano = System.nanoTime() - exprStartNano;
+    }
+
+    protected long getRuntimeInNanoseconds() {
+        return runtimeNano;
     }
 
     public void addSubTrace(EvaluationTrace child) {
-        this.children.addElement(child);
+        synchronized (children) {
+            this.children.addElement(child);
+        }
     }
 
     public Vector<EvaluationTrace> getSubTraces() {
@@ -71,5 +91,9 @@ public class EvaluationTrace {
             return FunctionUtils.getSerializedNodeset((XPathNodeset)value);
         }
         return FunctionUtils.toString(value);
+    }
+
+    public String getProfileReport() {
+        return null;
     }
 }

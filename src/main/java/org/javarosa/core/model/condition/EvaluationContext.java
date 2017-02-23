@@ -1,10 +1,14 @@
 package org.javarosa.core.model.condition;
 
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.queryset.CurrentModelQuerySet;
+import org.commcare.cases.util.QueryUtils;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.BulkEvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.CacheHost;
@@ -13,6 +17,7 @@ import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -70,6 +75,9 @@ public class EvaluationContext {
     // original context reference used for evaluating current()
     private TreeReference original;
 
+    // Keeps track of the overall context for the executing query stack
+    private QueryContext queryContext;
+
     /**
      * What element in a nodeset is the context currently pointing to?
      * Used for calculating the position() xpath function.
@@ -105,6 +113,7 @@ public class EvaluationContext {
         this.contextNode = TreeReference.rootRef();
         functionHandlers = new Hashtable<>();
         variables = new Hashtable<>();
+        this.setQueryContext(new QueryContext());
     }
 
     /**
@@ -141,6 +150,8 @@ public class EvaluationContext {
             this.mAccumulateExprs = true;
             this.mDebugCore = base.mDebugCore;
         }
+
+        setQueryContext(base.queryContext);
     }
 
     public DataInstance getInstance(String id) {
@@ -229,6 +240,15 @@ public class EvaluationContext {
         return variables.get(name);
     }
 
+    public QueryContext getCurrentQueryContext() {
+        return queryContext;
+    }
+
+    public void setQueryContext(QueryContext queryContext) {
+        this.queryContext = queryContext;
+        queryContext.setTraceRoot(this);
+    }
+
     public Vector<TreeReference> expandReference(TreeReference ref) {
         return expandReference(ref, false);
     }
@@ -285,6 +305,7 @@ public class EvaluationContext {
         String name = sourceRef.getName(depth);
         int mult = sourceRef.getMultiplicity(depth);
         Vector<XPathExpression> predicates = sourceRef.getPredicate(depth);
+        Vector<XPathExpression> originalPredicates = predicates;
 
         // Batch fetch is going to mutate the predicates vector, create a copy
         if (predicates != null) {
@@ -297,13 +318,29 @@ public class EvaluationContext {
 
         AbstractTreeElement node = sourceInstance.resolveReference(workingRef);
 
+        this.openBulkTrace();
+
         // Use the reference's simple predicates to filter the potential
         // nodeset.  Predicates used in filtering are removed from the
         // predicate input argument.
-        Vector<TreeReference> childSet = node.tryBatchChildFetch(name, mult, predicates, this);
+        Collection<TreeReference> childSet = node.tryBatchChildFetch(name, mult, predicates, this);
+
+        this.reportBulkTraceResults(originalPredicates, predicates, childSet);
+        this.closeTrace();
 
         if (childSet == null) {
             childSet = loadReferencesChildren(node, name, mult, includeTemplates);
+        }
+
+        QueryContext subContext = queryContext.
+                checkForDerivativeContextAndReturn(childSet == null ? 0 : childSet.size());
+
+        // If we forked a new query body from above (IE: a new large query) and there wasn't an
+        // original context before, we can anticipate that the subcontext below will reference
+        // into the returned body as the original context, which is ugly, but opens up
+        // intense optimizations
+        if (this.getOriginalContextForPropogation() == null && subContext != queryContext) {
+            subContext.setHackyOriginalContextBody(new CurrentModelQuerySet(childSet));
         }
 
         // Create a place to store the current position markers
@@ -322,7 +359,8 @@ public class EvaluationContext {
                     // push up the next one
                     positionContext[predIndex]++;
 
-                    EvaluationContext evalContext = rescope(refToExpand, positionContext[predIndex]);
+                    EvaluationContext evalContext = rescope(refToExpand, positionContext[predIndex],
+                            subContext);
                     Object o = predExpr.eval(sourceInstance, evalContext);
                     o = FunctionUtils.unpack(o);
 
@@ -367,6 +405,7 @@ public class EvaluationContext {
                                                          int childMult,
                                                          boolean includeTemplates) {
         Vector<TreeReference> childSet = new Vector<>();
+        QueryUtils.prepareSensitiveObjectForUseInCurrentContext(node, getCurrentQueryContext());
         if (node.hasChildren()) {
             if (childMult == TreeReference.INDEX_UNBOUND) {
                 int count = node.getChildMultiplicity(childName);
@@ -418,28 +457,45 @@ public class EvaluationContext {
      * @param newContextRef      the new context anchor reference
      * @param newContextPosition the new position of the context (in a repeat
      *                           group)
+     * @param subContext         the new query context for optimization, may differ from this
+     *                           context if there has been a drastic change in query scope
      * @return a copy of this evaluation context, with a new context reference
      * set and the original context reference correspondingly updated.
      */
-    private EvaluationContext rescope(TreeReference newContextRef, int newContextPosition) {
+    private EvaluationContext rescope(TreeReference newContextRef, int newContextPosition,
+                                      QueryContext subContext) {
         EvaluationContext ec = new EvaluationContext(this, newContextRef);
+        ec.setQueryContext(subContext);
         ec.currentContextPosition = newContextPosition;
 
+        TreeReference originalContextRef = this.getOriginalContextForPropogation();
+        if (originalContextRef == null) {
+            originalContextRef = newContextRef;
+        }
+        ec.setOriginalContext(originalContextRef);
+
+        return ec;
+    }
+
+    /**
+     * @return An evaluation context that should be used by a derived context as the original
+     * context, if one exists. If one does not exist, returns null;
+     */
+    private TreeReference getOriginalContextForPropogation() {
         // If we have an original context reference, use it
         if (this.original != null) {
-            ec.setOriginalContext(this.getOriginalContext());
+            return this.getOriginalContext();
         } else {
             // Otherwise, if the old context reference isn't '/', use that.If
             // the context ref is '/', use the new context ref as the original
             if (!TreeReference.rootRef().equals(this.getContextRef())) {
-                ec.setOriginalContext(this.getContextRef());
+                return this.getContextRef();
             } else {
                 // Otherwise propagate the original context reference field
                 // with the new context reference argument
-                ec.setOriginalContext(newContextRef);
+                return null;
             }
         }
-        return ec;
     }
 
     public DataInstance getMainInstance() {
@@ -498,6 +554,7 @@ public class EvaluationContext {
                 ", no appropriate instance in evaluation context");
     }
 
+
     /**
      * Creates a record that an expression is about to be evaluated.
      *
@@ -506,8 +563,20 @@ public class EvaluationContext {
     public void openTrace(XPathExpression xPathExpression) {
         if (mAccumulateExprs) {
             String expressionString = xPathExpression.toPrettyString();
-            EvaluationTrace newLevel = new EvaluationTrace(expressionString,
-                    mDebugCore.mCurrentTraceLevel);
+            EvaluationTrace newLevel = new EvaluationTrace(expressionString);
+            openTrace(newLevel);
+        }
+    }
+
+
+    /**
+     * Creates a record that an expression is about to be evaluated.
+     *
+     * @param newLevel The new trace to be added to the current evaluation
+     */
+    public void openTrace(EvaluationTrace newLevel) {
+        if (mAccumulateExprs) {
+            newLevel.setParent(mDebugCore.mCurrentTraceLevel);
             if (mDebugCore.mCurrentTraceLevel != null) {
                 mDebugCore.mCurrentTraceLevel.addSubTrace(newLevel);
             }
@@ -517,12 +586,56 @@ public class EvaluationContext {
     }
 
     /**
-     * Closes the current evaluation trace and records the
-     * relevant outcomes and context
-     *
-     * @param value The result of the current trace expression
+     * Creates a record that we are going to attempt to expanding a set of bulk lookup
+     * predicates
      */
-    public void closeTrace(Object value) {
+    private void openBulkTrace() {
+        if (mAccumulateExprs) {
+            BulkEvaluationTrace newLevel = new BulkEvaluationTrace();
+            //We can't really track bulk traces from root contexts
+            openTrace(newLevel);
+        }
+    }
+
+    /**
+     * Creates a record that we are going to attempt to expand a set of bulk lookup predicates
+     */
+    private void reportBulkTraceResults(Vector<XPathExpression> startingSet,
+                                        Vector<XPathExpression> finalSet,
+                                        Collection<TreeReference> childSet) {
+        if (mAccumulateExprs) {
+            if (!(mDebugCore.mCurrentTraceLevel instanceof BulkEvaluationTrace)) {
+                throw new RuntimeException("Predicate tree mismatch");
+            }
+            BulkEvaluationTrace trace = (BulkEvaluationTrace)mDebugCore.mCurrentTraceLevel;
+            trace.setEvaluatedPredicates(startingSet, finalSet, childSet);
+            if (!(trace.isBulkEvaluationSucceeded())) {
+                EvaluationTrace parentTrace = trace.getParent();
+                if (parentTrace == null){
+                    trace.markClosed();
+                    //no need to remove from the parent context if it doens't exist
+                    return;
+                }
+                Vector<EvaluationTrace> traces = trace.getParent().getSubTraces();
+                synchronized (traces){
+                    traces.remove(trace);
+                }
+            }
+        }
+    }
+
+    public void reportSubtrace(EvaluationTrace trace) {
+        if (mAccumulateExprs && mDebugCore.mCurrentTraceLevel != null) {
+            mDebugCore.mCurrentTraceLevel.addSubTrace(trace);
+        }
+    }
+
+
+    /**
+     * Records the outcome of the current trace by value.
+     * @param value The result of the currently open Trace Expression
+     */
+    public void reportTraceValue(Object value) {
         if (mAccumulateExprs) {
             // Lazy nodeset evaluation makes it impossible for the trace to
             // record predicate subexpressions properly, so trigger that
@@ -530,12 +643,21 @@ public class EvaluationContext {
             if (value instanceof XPathLazyNodeset) {
                 ((XPathLazyNodeset)value).size();
             }
-
             mDebugCore.mCurrentTraceLevel.setOutcome(value);
+        }
+    }
 
+
+    /**
+     * Closes the current evaluation trace and records the
+     * relevant outcomes and context
+     *
+     */
+    public void closeTrace() {
+        if (mAccumulateExprs) {
             if (mDebugCore.mCurrentTraceLevel.getParent() == null) {
                 mDebugCore.mTraceRoot = mDebugCore.mCurrentTraceLevel;
-                if(mDebugCore.mTraceReporter != null) {
+                if (mDebugCore.mTraceReporter != null) {
                     mDebugCore.mTraceReporter.reportTrace(mDebugCore.mTraceRoot);
                 }
             }

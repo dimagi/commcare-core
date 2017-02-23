@@ -12,6 +12,7 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.AccumulatingReporter;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
 
@@ -191,9 +192,7 @@ public class EntityScreen extends CompoundScreenHost {
         this.mPendingAction = pendingAction;
     }
 
-    public void printNodesetExpansionTrace() {
-        AccumulatingReporter reporter = new AccumulatingReporter();
-
+    public void printNodesetExpansionTrace(EvaluationTraceReporter reporter) {
         evalContext.setDebugModeOn(reporter);
         this.expandEntityReferenceSet(evalContext);
 

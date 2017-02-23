@@ -1,5 +1,7 @@
 package org.javarosa.core.model.instance;
 
+import org.commcare.cases.util.QueryUtils;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.CacheTable;
@@ -81,6 +83,10 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
     }
 
     public T resolveReference(TreeReference ref) {
+        return resolveReference(ref, null);
+    }
+
+    public T resolveReference(TreeReference ref, EvaluationContext ec) {
         if (!ref.isAbsolute()) {
             return null;
         }
@@ -94,6 +100,9 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         AbstractTreeElement<T> node = getBase();
         T result = null;
         for (int i = 0; i < ref.size(); i++) {
+            if (ec != null) {
+                QueryUtils.prepareSensitiveObjectForUseInCurrentContext(node, ec.getCurrentQueryContext());
+            }
             String name = ref.getName(i);
             int mult = ref.getMultiplicity(i);
 

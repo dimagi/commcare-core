@@ -3,11 +3,6 @@ package org.commcare.cases.util.test;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.cases.util.CasePurgeFilter;
-import org.commcare.test.utilities.CasePurgeTest;
-import org.commcare.test.utilities.CasePurgeTestRunner;
-import org.commcare.test.utilities.ComposedRunner;
-import org.commcare.test.utilities.RunWithResource;
-import org.commcare.test.utilities.RunnerCoupler;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
@@ -15,19 +10,11 @@ import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.BlockJUnit4ClassRunner;
-import org.junit.runners.model.FrameworkMethod;
 
 import java.util.Vector;
 
 import static org.junit.Assert.fail;
 
-
-@RunWith(RunnerCoupler.class)
-@ComposedRunner(
-        runners = {CasePurgeTestRunner.class, BlockJUnit4ClassRunner.class},
-        runnables = {CasePurgeTest.class, FrameworkMethod.class})
 public class CasePurgeFilterTests {
 
     private Case a;
@@ -38,10 +25,8 @@ public class CasePurgeFilterTests {
     private DummyIndexedStorageUtility<Case> storage;
     private String owner;
     private String groupOwner;
-    private String otherOwner;
     private Vector<String> groupOwned;
     private Vector<String> userOwned;
-
 
     @Before
     public void setUp() throws Exception {
@@ -49,7 +34,6 @@ public class CasePurgeFilterTests {
         storage = new DummyIndexedStorageUtility<>(Case.class, new LivePrototypeFactory());
 
         owner ="owner";
-        otherOwner = "otherowner";
         groupOwner = "groupowned";
 
         userOwned = new Vector<>();
@@ -74,11 +58,6 @@ public class CasePurgeFilterTests {
         e = new Case("e","e");
         e.setCaseId("e");
         e.setUserId(groupOwner);
-    }
-
-    @RunWithResource("/case_relationship_tests.json")
-    public void runExternalCasePurgeTests() {
-
     }
 
     @Test

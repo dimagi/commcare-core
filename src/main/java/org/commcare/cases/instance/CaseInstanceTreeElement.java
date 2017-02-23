@@ -20,8 +20,8 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<Case, Ca
     public static final String MODEL_NAME = "casedb";
 
     //Xpath parsing is sllllllloooooooowwwwwww
-    private final static XPathPathExpr CASE_ID_EXPR = XPathReference.getPathExpr("@case_id");
-    private final static XPathPathExpr CASE_ID_EXPR_TWO = XPathReference.getPathExpr("./@case_id");
+    public final static XPathPathExpr CASE_ID_EXPR = XPathReference.getPathExpr("@case_id");
+    public final static XPathPathExpr CASE_ID_EXPR_TWO = XPathReference.getPathExpr("./@case_id");
     private final static XPathPathExpr CASE_TYPE_EXPR = XPathReference.getPathExpr("@case_type");
     private final static XPathPathExpr CASE_STATUS_EXPR = XPathReference.getPathExpr("@status");
     private final static XPathPathExpr CASE_INDEX_EXPR = XPathReference.getPathExpr("index/*");
@@ -69,5 +69,4 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<Case, Ca
 
         return indices;
     }
-
 }

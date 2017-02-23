@@ -12,15 +12,22 @@ public class AccumulatingReporter implements EvaluationTraceReporter {
     private final Vector<EvaluationTrace> traces = new Vector<>();
 
     @Override
+    public boolean wereTracesReported() {
+        return traces.size() > 0;
+    }
+
+    @Override
     public void reportTrace(EvaluationTrace trace) {
         this.traces.add(trace);
     }
 
+    @Override
     public Vector<EvaluationTrace> getCollectedTraces() {
         return traces;
     }
 
-    public void clearTraces() {
+    @Override
+    public void reset() {
         this.traces.clear();
     }
 }

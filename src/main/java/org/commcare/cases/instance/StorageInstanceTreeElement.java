@@ -1,18 +1,19 @@
 package org.commcare.cases.instance;
 
+import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.util.StorageBackedTreeRoot;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
+import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.Interner;
 import org.javarosa.core.util.externalizable.Externalizable;
 
-import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -96,7 +97,6 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
         if (elements != null) {
             return;
         }
-        objectIdMapping = new Hashtable<>();
         elements = new Vector<>();
         int mult = 0;
         for (IStorageIterator i = storage.iterate(); i.hasMore(); ) {
@@ -268,8 +268,16 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
     protected abstract T buildElement(StorageInstanceTreeElement<Model, T> storageInstance,
                                       int recordId, String id, int mult);
 
-    protected Model getElement(int recordId) {
-        return storage.read(recordId);
+    protected Model getElement(int recordId, QueryContext context) {
+        EvaluationTrace trace = new EvaluationTrace("Model Load[" + childName+"]");
+
+        Model m = storage.read(recordId);
+
+        trace.setOutcome(String.valueOf(recordId));
+        if(context!= null) {
+            context.reportTrace(trace);
+        }
+        return m;
     }
 
     protected Model getModelTemplate() {
