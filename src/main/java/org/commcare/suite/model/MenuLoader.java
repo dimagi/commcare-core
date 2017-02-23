@@ -31,7 +31,7 @@ public class MenuLoader {
                       LoggerInterface loggerInterface) {
         this.loggerInterface = loggerInterface;
         this.getMenuDisplayables(platform, sessionWrapper, menuId);
-    }s
+    }
 
     public String getErrorMessage() {
         if (loadException != null) {
