@@ -5,7 +5,6 @@ import org.commcare.modern.session.SessionWrapperInterface;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LoggerInterface;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.FunctionUtils;
@@ -32,7 +31,7 @@ public class MenuLoader {
                       LoggerInterface loggerInterface) {
         this.loggerInterface = loggerInterface;
         this.getMenuDisplayables(platform, sessionWrapper, menuId);
-    }
+    }s
 
     public String getErrorMessage() {
         if (loadException != null) {
