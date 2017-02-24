@@ -32,7 +32,10 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
 
         DetailField.Builder builder = new DetailField.Builder();
 
-        //Get the fields
+        String id = parser.getAttributeValue(null, "id");
+        if (id != null) {
+            builder.setId(id);
+        }
         String sortDefault = parser.getAttributeValue(null, "sort");
         if (sortDefault != null && sortDefault.equals("default")) {
             builder.setSortOrder(1);

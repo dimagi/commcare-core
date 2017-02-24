@@ -35,6 +35,7 @@ public class DetailField implements Externalizable {
      */
     public static final int SORT_ORDER_CACHABLE = -2;
 
+    private String id;
     private Text header;
     private DetailTemplate template; // Text or Graph
     private Text sort;
@@ -67,6 +68,10 @@ public class DetailField implements Externalizable {
     private String cssID;
 
     public DetailField() {
+    }
+
+    public String getId() {
+        return id;
     }
 
     /**
@@ -249,6 +254,10 @@ public class DetailField implements Externalizable {
 
         public DetailField build() {
             return field;
+        }
+
+        public void setId(String id) {
+            field.id = id;
         }
 
         /**

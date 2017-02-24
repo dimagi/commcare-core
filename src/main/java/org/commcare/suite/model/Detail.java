@@ -1,9 +1,13 @@
 package org.commcare.suite.model;
 
+import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.util.GridCoordinate;
 import org.commcare.util.GridStyle;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -24,6 +28,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -77,6 +82,11 @@ public class Detail implements Externalizable {
     // equal to its width, rather than being computed independently
     private boolean useUniformUnitsInCaseTile;
 
+    // A button to print this detail should be provided
+    private boolean printEnabled;
+
+    private String derivedPrintTemplatePath;
+
     // endregion
 
     /**
@@ -91,7 +101,8 @@ public class Detail implements Externalizable {
                   Vector<DetailField> fieldsVector,
                   OrderedHashtable<String, String> variables,
                   Vector<Action> actions, Callout callout, String fitAcross,
-                  String uniformUnitsString, String forceLandscape, String focusFunction) {
+                  String uniformUnitsString, String forceLandscape, String focusFunction,
+                  String printPathProvided) {
 
         if (detailsVector.size() > 0 && fieldsVector.size() > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
@@ -109,6 +120,7 @@ public class Detail implements Externalizable {
         this.callout = callout;
         this.useUniformUnitsInCaseTile = "true".equals(uniformUnitsString);
         this.forceLandscapeView = "true".equals(forceLandscape);
+        this.printEnabled = templatePathValid(printPathProvided) && allFieldIdsAvailable();
 
         if (focusFunction != null) {
             try {
@@ -442,5 +454,50 @@ public class Detail implements Externalizable {
 
     public XPathExpression getFocusFunction() {
         return focusFunction;
+    }
+
+    private boolean templatePathValid(String templatePathProvided) {
+        if (templatePathProvided != null) {
+            try {
+                this.derivedPrintTemplatePath =
+                        ReferenceManager.instance().DeriveReference(templatePathProvided).getLocalURI();
+                return true;
+            } catch (InvalidReferenceException e) {
+                System.out.println("Invalid print template path provided for detail with id " + this.id);
+            }
+        }
+        return false;
+    }
+
+    private boolean allFieldIdsAvailable() {
+        // TODO: implement
+        return true;
+    }
+
+    public boolean isPrintEnabled() {
+        return this.printEnabled;
+    }
+
+    public HashMap<String, String> getKeyValueMapForPrint(EvaluationContext ec) {
+        HashMap<String, String> mapping = new HashMap<>();
+        mapping.put("cc:print_template_reference", derivedPrintTemplatePath);
+
+        populateMappingWithDetailFields(mapping, ec);
+        return mapping;
+    }
+
+    private void populateMappingWithDetailFields(HashMap<String, String> mapping,
+                                                 EvaluationContext ec) {
+        if (isCompound()) {
+            for (Detail childDetail : details) {
+                childDetail.populateMappingWithDetailFields(mapping, ec);
+            }
+        } else {
+            // this is a normal detail with fields
+            Entity entityForDetail = (new NodeEntityFactory(this, ec)).getEntity(this.nodeset);
+            for (int i = 0; i < fields.length; i++) {
+                mapping.put(fields[i].getId(), entityForDetail.getFieldString(i));
+            }
+        }
     }
 }
