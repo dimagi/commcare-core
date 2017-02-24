@@ -14,9 +14,9 @@ public class CaseGroupResultCache implements QueryCache {
 
     public static final int MAX_PREFETCH_CASE_BLOCK = 7500;
 
-    HashMap<String,LinkedHashSet<Integer>> bulkFetchBodies = new HashMap<>();
+    private HashMap<String,LinkedHashSet<Integer>> bulkFetchBodies = new HashMap<>();
 
-    HashMap<Integer, Case> cachedCases = new HashMap<>();
+    private HashMap<Integer, Case> cachedCases = new HashMap<>();
 
 
     public void reportBulkCaseBody(String key, LinkedHashSet<Integer> ids) {
@@ -27,13 +27,7 @@ public class CaseGroupResultCache implements QueryCache {
     }
 
     public boolean hasMatchingCaseSet(int recordId) {
-        if(isLoaded(recordId)) {
-            return true;
-        }
-        if(getTranche(recordId) != null) {
-            return true;
-        }
-        return false;
+        return isLoaded(recordId) || getTranche(recordId) != null;
     }
 
     public LinkedHashSet<Integer> getTranche(int recordId) {

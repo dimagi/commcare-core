@@ -8,7 +8,6 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -172,11 +171,6 @@ public class SuiteParser extends ElementParser<Suite> {
         } catch (XmlPullParserException e) {
             e.printStackTrace();
             throw new InvalidStructureException("Pull Parse Exception, malformed XML.", parser);
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            //BUT not really! This should maybe be added to the high level declaration
-            //instead? Or maybe there should be a more general Resource Management Exception?
-            throw new InvalidStructureException("Problem storing parser suite XML", parser);
         }
     }
 

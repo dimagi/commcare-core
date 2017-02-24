@@ -1,13 +1,9 @@
 package org.commcare.modern.engine.cases.query;
 
-import org.commcare.modern.engine.cases.IndexTable;
 import org.commcare.cases.model.Case;
-import org.commcare.cases.query.IndexedValueLookup;
-import org.commcare.cases.query.PredicateProfile;
-import org.commcare.cases.query.QueryCache;
-import org.commcare.cases.query.QueryContext;
-import org.commcare.cases.query.QueryHandler;
+import org.commcare.cases.query.*;
 import org.commcare.cases.util.QueryUtils;
+import org.commcare.modern.engine.cases.IndexTable;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -27,7 +23,12 @@ import java.util.Vector;
 public class CaseIndexPrefetchHandler implements QueryHandler<IndexedValueLookup> {
 
     /**
+<<<<<<< HEAD
      * This is roughly the inflection point between expecting
+=======
+     * This should be roughly the point at which 1 query of N items in the db will be faster
+     * than N queries of 1 item, even if only one item ends up being used.
+>>>>>>> origin/query-planner-refactor
      */
     private static final int BULK_LOAD_THRESHOLD = 500;
 

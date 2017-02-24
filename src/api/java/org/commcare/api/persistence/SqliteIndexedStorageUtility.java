@@ -5,7 +5,6 @@ import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.sqlite.javax.SQLiteConnectionPoolDataSource;
@@ -146,7 +145,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
     }
 
     @Override
-    public void write(Persistable p) throws StorageFullException {
+    public void write(Persistable p) {
         if (p.getID() != -1) {
             update(p.getID(), p);
             return;
@@ -273,7 +272,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
     }
 
     @Override
-    public int add(T e) throws StorageFullException {
+    public int add(T e) {
         Connection c = null;
         try {
             c = getConnection();
@@ -415,7 +414,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
     }
 
     @Override
-    public void update(int id, Persistable p) throws StorageFullException {
+    public void update(int id, Persistable p) {
         Connection c = null;
         try {
             c = getConnection();

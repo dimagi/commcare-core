@@ -5,7 +5,6 @@ import org.commcare.modern.session.SessionWrapperInterface;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LoggerInterface;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.FunctionUtils;
@@ -37,13 +36,7 @@ public class MenuLoader {
     public String getErrorMessage() {
         if (loadException != null) {
             String errorMessage = loadException.getMessage();
-            if (loadException instanceof XPathSyntaxException) {
-                errorMessage = Localization.get("app.menu.display.cond.bad.xpath", new String[]{xPathErrorMessage, loadException.getMessage()});
-                loggerInterface.logError(errorMessage);
-            } else if (loadException instanceof XPathException) {
-                errorMessage = Localization.get("app.menu.display.cond.xpath.err", new String[]{xPathErrorMessage, loadException.getMessage()});
-                loggerInterface.logError(errorMessage, (XPathException)loadException);
-            }
+            loggerInterface.logError(errorMessage, loadException);
             return errorMessage;
         }
         return null;
@@ -54,8 +47,6 @@ public class MenuLoader {
                                                         String menuID) {
 
         Vector<MenuDisplayable> items = new Vector<>();
-        String xPathErrorMessage = "";
-
         Hashtable<String, Entry> map = platform.getMenuMap();
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
@@ -69,12 +60,12 @@ public class MenuLoader {
                     }
                 } catch (CommCareInstanceInitializer.FixtureInitializationException
                         | XPathSyntaxException | XPathException xpe) {
-                    loadException = xpe;
-                    MenuDisplayable[] menus = new MenuDisplayable[0];
+                    setLoadException(xpe);
+                    menus = new MenuDisplayable[0];
+                    return;
                 }
             }
         }
-
         menus = new MenuDisplayable[items.size()];
         items.copyInto(menus);
     }

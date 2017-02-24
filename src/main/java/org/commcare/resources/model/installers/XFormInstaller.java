@@ -5,7 +5,6 @@ import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localizer;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.xform.parse.XFormParseException;
@@ -67,10 +66,6 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
                 }
                 return true;
             }
-        } catch (StorageFullException e) {
-            //Couldn't install, no room left in storage.
-            e.printStackTrace();
-            return false;
         } catch (IOException e) {
             throw new UnreliableSourceException(r, e.getMessage());
         } catch (XFormParseException xpe) {

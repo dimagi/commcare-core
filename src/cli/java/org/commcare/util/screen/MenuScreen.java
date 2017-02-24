@@ -11,7 +11,6 @@ import org.commcare.util.LoggerInterface;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
-import org.javarosa.xpath.XPathException;
 
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -31,7 +30,7 @@ public class MenuScreen extends Screen {
     class ScreenLogger implements LoggerInterface {
 
         @Override
-        public void logError(String message, XPathException cause) {
+        public void logError(String message, Exception cause) {
             Logger.exception(message, cause);
         }
 

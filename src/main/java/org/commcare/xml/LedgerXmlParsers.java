@@ -4,7 +4,6 @@ import org.commcare.cases.ledger.Ledger;
 import org.commcare.data.xml.TransactionParser;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
@@ -211,13 +210,8 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
 
     @Override
     protected void commit(Ledger[] parsed) throws IOException {
-        try {
-            for (Ledger s : parsed) {
-                storage().write(s);
-            }
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            throw new IOException("Storage full while writing case!");
+        for (Ledger s : parsed) {
+            storage().write(s);
         }
     }
 
