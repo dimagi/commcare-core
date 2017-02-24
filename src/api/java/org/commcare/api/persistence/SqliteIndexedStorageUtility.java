@@ -1,5 +1,6 @@
 package org.commcare.api.persistence;
 
+import org.commcare.cases.model.Case;
 import org.commcare.modern.database.DatabaseHelper;
 import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.services.storage.EntityFilter;
@@ -137,7 +138,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
         if (!databaseFolder.exists()) {
             databaseFolder.mkdir();
         }
-
         Class.forName("org.sqlite.JDBC");
         SQLiteConnectionPoolDataSource dataSource = new SQLiteConnectionPoolDataSource();
         dataSource.setUrl("jdbc:sqlite:" + databaseFolder + "/" + this.sandboxId + ".db");
@@ -488,4 +488,10 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
         return iterate();
     }
 
+    public void getIDsForValues(String[] namesToMatch, String[] valuesToMatch, LinkedHashSet<Integer> ids) {
+    }
+
+    public void bulkRead(LinkedHashSet<Integer> body, HashMap<Integer, T> loadedCaseMap) {
+
+    }
 }

@@ -31,7 +31,7 @@ public class UserSqlSandbox extends UserSandbox {
     private final SqliteIndexedStorageUtility<FormInstance> userFixtureStorage;
     private final SqliteIndexedStorageUtility<FormInstance> appFixtureStorage;
     private final SqliteIndexedStorageUtility<StorageIndexedTreeElementModel> sqlUtil;
-    private final HashMap<String ,SqliteIndexedStorageUtility<StorageIndexedTreeElementModel>> indexTables;
+    private final HashMap<String, SqliteIndexedStorageUtility<StorageIndexedTreeElementModel>> indexTables;
     private final String username, path;
     private User user = null;
     public static final String DEFAULT_DATBASE_PATH = "dbs";
@@ -43,7 +43,6 @@ public class UserSqlSandbox extends UserSandbox {
     public UserSqlSandbox(String username, String path) {
         this.username = username;
         this.path = path;
-
         //we can't name this table "Case" becase that's reserved by sqlite
         caseStorage = new SqliteIndexedStorageUtility<>(Case.class, username, "CCCase", path);
         ledgerStorage = new SqliteIndexedStorageUtility<>(Ledger.class, username, Ledger.STORAGE_KEY, path);
