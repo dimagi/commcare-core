@@ -1,6 +1,6 @@
-package org.commcare.api.engine.cases.query;
+package org.commcare.modern.engine.cases.query;
 
-import org.commcare.api.engine.cases.IndexTable;
+import org.commcare.modern.engine.cases.IndexTable;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.query.IndexedValueLookup;
 import org.commcare.cases.query.PredicateProfile;
