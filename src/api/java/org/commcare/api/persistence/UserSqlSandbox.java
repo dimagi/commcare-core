@@ -10,7 +10,9 @@ import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.sqlite.javax.SQLiteConnectionPoolDataSource;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -49,6 +51,17 @@ public class UserSqlSandbox extends UserSandbox {
         userFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, "UserFixture", path);
         appFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, "AppFixture", path);
         sqlUtil = createFixturePathsTable(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE);
+    }
+
+    public SQLiteConnectionPoolDataSource getCaseIndexTableDataSource(String databaseName) {
+        try {
+            Class.forName("org.sqlite.JDBC");
+            SQLiteConnectionPoolDataSource dataSource = new SQLiteConnectionPoolDataSource();
+            dataSource.setUrl("jdbc:sqlite:" + path + "/" + databaseName + ".db");
+            return dataSource;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
