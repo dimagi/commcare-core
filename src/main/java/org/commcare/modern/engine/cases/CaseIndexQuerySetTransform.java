@@ -18,9 +18,9 @@ import java.util.Set;
 
 public class CaseIndexQuerySetTransform implements QuerySetTransform {
 
-    private final IndexTable table;
+    private final CaseIndexTable table;
 
-    public CaseIndexQuerySetTransform(IndexTable table) {
+    public CaseIndexQuerySetTransform(CaseIndexTable table) {
         this.table = table;
     }
 
@@ -39,9 +39,9 @@ public class CaseIndexQuerySetTransform implements QuerySetTransform {
 
     public static class CaseIndexQuerySetLookup extends DerivedCaseQueryLookup {
         String indexName;
-        IndexTable table;
+        CaseIndexTable table;
 
-        public CaseIndexQuerySetLookup(String indexName, QuerySetLookup incoming, IndexTable table) {
+        public CaseIndexQuerySetLookup(String indexName, QuerySetLookup incoming, CaseIndexTable table) {
             super(incoming);
             this.indexName = indexName;
             this.table = table;
