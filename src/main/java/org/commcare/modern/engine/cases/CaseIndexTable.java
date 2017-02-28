@@ -7,7 +7,7 @@ import java.util.*;
 /**
  * Created by willpride on 2/21/17.
  */
-public interface IndexTable {
+public interface CaseIndexTable {
     int loadIntoIndexTable(HashMap<String, Vector<Integer>> indexCache, String indexName);
 
     DualTableSingleMatchModelQuerySet bulkReadIndexToCaseIdMatch(String indexName, Collection<Integer> cuedCases);

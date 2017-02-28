@@ -3,7 +3,7 @@ package org.commcare.modern.engine.cases.query;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.query.*;
 import org.commcare.cases.util.QueryUtils;
-import org.commcare.modern.engine.cases.IndexTable;
+import org.commcare.modern.engine.cases.CaseIndexTable;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -32,14 +32,14 @@ public class CaseIndexPrefetchHandler implements QueryHandler<IndexedValueLookup
      */
     private static final int BULK_LOAD_THRESHOLD = 500;
 
-    private final IndexTable mCaseIndexTable;
+    private final CaseIndexTable mCaseIndexTable;
 
     public static final class Cache implements QueryCache {
         Vector<String> currentlyFetchedIndexKeys = new Vector<>();
         private HashMap<String, Vector<Integer>> indexCache = new HashMap<>();
     }
 
-    public CaseIndexPrefetchHandler(IndexTable caseIndexTable) {
+    public CaseIndexPrefetchHandler(CaseIndexTable caseIndexTable) {
         this.mCaseIndexTable = caseIndexTable;
         //TODO: Profile table by each type of index for size to identify threshold changes.
     }
