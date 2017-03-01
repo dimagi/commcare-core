@@ -311,4 +311,8 @@ public class Text implements Externalizable, DetailTemplate {
         ExtUtil.writeString(out, argument);
         ExtUtil.write(out, new ExtWrapMap(arguments));
     }
+
+    public String getArgument() {
+        return argument;
+    }
 }

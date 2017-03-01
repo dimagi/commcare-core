@@ -70,8 +70,13 @@ public class DetailField implements Externalizable {
     public DetailField() {
     }
 
-    public String getId() {
-        return id;
+    public String getFieldIdentifierRobust() {
+        if (id != null) {
+            return id;
+        } else if (template instanceof Text) {
+            return ((Text)template).getArgument();
+        }
+        return null;
     }
 
     /**

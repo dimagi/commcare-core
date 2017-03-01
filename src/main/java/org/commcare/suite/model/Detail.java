@@ -47,6 +47,8 @@ import java.util.Vector;
  */
 public class Detail implements Externalizable {
 
+    public static final String PRINT_TEMPLATE_PROVIDED_VIA_GLOBAL_SETTING = "provided-globally";
+
     private String id;
     private TreeReference nodeset;
 
@@ -457,7 +459,9 @@ public class Detail implements Externalizable {
     }
 
     private boolean templatePathValid(String templatePathProvided) {
-        if (templatePathProvided != null) {
+        if (PRINT_TEMPLATE_PROVIDED_VIA_GLOBAL_SETTING.equals(templatePathProvided)) {
+            return true;
+        } else if (templatePathProvided != null) {
             try {
                 this.derivedPrintTemplatePath =
                         ReferenceManager.instance().DeriveReference(templatePathProvided).getLocalURI();
@@ -496,8 +500,9 @@ public class Detail implements Externalizable {
             // this is a normal detail with fields
             Entity entityForDetail = (new NodeEntityFactory(this, ec)).getEntity(this.nodeset);
             for (int i = 0; i < fields.length; i++) {
-                mapping.put(fields[i].getId(), entityForDetail.getFieldString(i));
+                mapping.put(fields[i].getFieldIdentifierRobust(), entityForDetail.getFieldString(i));
             }
         }
     }
+
 }
