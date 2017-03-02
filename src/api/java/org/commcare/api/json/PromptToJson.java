@@ -152,15 +152,20 @@ public class PromptToJson {
             case Constants.DATATYPE_CHOICE:
                 Selection singleSelection = ((Selection) answerValue.getValue());
                 singleSelection.attachChoice(prompt.getQuestion());
-                obj.put("answer", ((Selection) answerValue.getValue()).getTouchformsIndex());
+                int singleOrdinal = singleSelection.getTouchformsIndex();
+                if (singleOrdinal > 0) {
+                    obj.put("answer", singleOrdinal);
+                }
                 return;
             case Constants.DATATYPE_CHOICE_LIST:
                 Vector<Selection> selections = ((SelectMultiData) answerValue).getValue();
                 JSONArray acc = new JSONArray();
                 for (Selection selection : selections) {
                     selection.attachChoice(prompt.getQuestion());
-                    int ordinal = selection.getTouchformsIndex();
-                    acc.put(ordinal);
+                    int multiOrdinal = selection.getTouchformsIndex();
+                    if (multiOrdinal > 0){
+                        acc.put(multiOrdinal);
+                    }
                 }
                 obj.put("answer", acc);
                 return;
