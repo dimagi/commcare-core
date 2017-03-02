@@ -2,6 +2,7 @@ package org.commcare.suite.model;
 
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
+import org.commcare.util.DetailUtil;
 import org.commcare.util.GridCoordinate;
 import org.commcare.util.GridStyle;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -482,27 +483,42 @@ public class Detail implements Externalizable {
         return this.printEnabled;
     }
 
-    public HashMap<String, String> getKeyValueMapForPrint(EvaluationContext ec) {
+    public HashMap<String, String> getKeyValueMapForPrint(TreeReference selectedEntityRef,
+                                                          EvaluationContext baseContext) {
         HashMap<String, String> mapping = new HashMap<>();
         mapping.put("cc:print_template_reference", derivedPrintTemplatePath);
 
-        populateMappingWithDetailFields(mapping, ec);
+        populateMappingWithDetailFields(mapping, selectedEntityRef, baseContext, null);
         return mapping;
     }
 
     private void populateMappingWithDetailFields(HashMap<String, String> mapping,
-                                                 EvaluationContext ec) {
+                                                 TreeReference selectedEntityRef,
+                                                 EvaluationContext baseContext,
+                                                 Detail parentDetail) {
         if (isCompound()) {
             for (Detail childDetail : details) {
-                childDetail.populateMappingWithDetailFields(mapping, ec);
+                childDetail.populateMappingWithDetailFields(mapping, selectedEntityRef, baseContext, this);
             }
         } else {
             // this is a normal detail with fields
-            Entity entityForDetail = (new NodeEntityFactory(this, ec)).getEntity(this.nodeset);
+            Entity entityForDetail =
+                    getCorrespondingEntity(selectedEntityRef, parentDetail, baseContext);
             for (int i = 0; i < fields.length; i++) {
                 mapping.put(fields[i].getFieldIdentifierRobust(), entityForDetail.getFieldString(i));
             }
         }
     }
+
+    private Entity getCorrespondingEntity(TreeReference selectedEntityRef, Detail parentDetail,
+                                          EvaluationContext baseContext) {
+        EvaluationContext entityFactoryContext =
+                DetailUtil.getEntityFactoryContext(selectedEntityRef, parentDetail != null,
+                        parentDetail, baseContext);
+        NodeEntityFactory factory = new NodeEntityFactory(this, entityFactoryContext);
+        return factory.getEntity(selectedEntityRef);
+    }
+
+
 
 }
