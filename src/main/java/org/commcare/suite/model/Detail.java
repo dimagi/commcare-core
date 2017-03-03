@@ -2,6 +2,7 @@ package org.commcare.suite.model;
 
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
+import org.commcare.util.DetailFieldPrintInfo;
 import org.commcare.util.DetailUtil;
 import org.commcare.util.GridCoordinate;
 import org.commcare.util.GridStyle;
@@ -483,16 +484,16 @@ public class Detail implements Externalizable {
         return this.printEnabled;
     }
 
-    public HashMap<String, String> getKeyValueMapForPrint(TreeReference selectedEntityRef,
+    public HashMap<String, Object> getKeyValueMapForPrint(TreeReference selectedEntityRef,
                                                           EvaluationContext baseContext) {
-        HashMap<String, String> mapping = new HashMap<>();
+        HashMap<String, Object> mapping = new HashMap<>();
         mapping.put("cc:print_template_reference", derivedPrintTemplatePath);
 
         populateMappingWithDetailFields(mapping, selectedEntityRef, baseContext, null);
         return mapping;
     }
 
-    private void populateMappingWithDetailFields(HashMap<String, String> mapping,
+    private void populateMappingWithDetailFields(HashMap<String, Object> mapping,
                                                  TreeReference selectedEntityRef,
                                                  EvaluationContext baseContext,
                                                  Detail parentDetail) {
@@ -505,7 +506,11 @@ public class Detail implements Externalizable {
             Entity entityForDetail =
                     getCorrespondingEntity(selectedEntityRef, parentDetail, baseContext);
             for (int i = 0; i < fields.length; i++) {
-                mapping.put(fields[i].getFieldIdentifierRobust(), entityForDetail.getFieldString(i));
+                if (entityForDetail.isValidField(i)) {
+                    mapping.put(
+                            fields[i].getFieldIdentifierRobust(),
+                            new DetailFieldPrintInfo(fields[i], entityForDetail, i));
+                }
             }
         }
     }
