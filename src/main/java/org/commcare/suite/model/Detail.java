@@ -484,16 +484,14 @@ public class Detail implements Externalizable {
         return this.printEnabled;
     }
 
-    public HashMap<String, Object> getKeyValueMapForPrint(TreeReference selectedEntityRef,
+    public HashMap<String, DetailFieldPrintInfo> getKeyValueMapForPrint(TreeReference selectedEntityRef,
                                                           EvaluationContext baseContext) {
-        HashMap<String, Object> mapping = new HashMap<>();
-        mapping.put("cc:print_template_reference", derivedPrintTemplatePath);
-
+        HashMap<String, DetailFieldPrintInfo> mapping = new HashMap<>();
         populateMappingWithDetailFields(mapping, selectedEntityRef, baseContext, null);
         return mapping;
     }
 
-    private void populateMappingWithDetailFields(HashMap<String, Object> mapping,
+    private void populateMappingWithDetailFields(HashMap<String, DetailFieldPrintInfo> mapping,
                                                  TreeReference selectedEntityRef,
                                                  EvaluationContext baseContext,
                                                  Detail parentDetail) {
@@ -524,6 +522,8 @@ public class Detail implements Externalizable {
         return factory.getEntity(selectedEntityRef);
     }
 
-
+    public String getDerivedPrintTemplatePath() {
+        return this.derivedPrintTemplatePath;
+    }
 
 }
