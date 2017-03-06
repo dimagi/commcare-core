@@ -86,7 +86,7 @@ public class CaseAPITests {
             SqlHelper.insertToTable(connection, "TFLedger", l);
 
             preparedStatement = SqlHelper.prepareTableSelectStatement(connection, "TFLedger", new String[]{"entity-id"},
-                    new String[]{"ledger_entity_id"}, new Ledger());
+                    new String[]{"ledger_entity_id"});
             if (preparedStatement == null) {
                 fail("failed to prepare table select query");
             }

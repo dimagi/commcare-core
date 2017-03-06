@@ -44,6 +44,7 @@ public class UserSqlSandbox extends UserSandbox {
     public UserSqlSandbox(String username, String path) {
         this.username = username;
         this.path = path;
+        System.out.println("UsersqlSandbox " + path + " / " + username);
         //we can't name this table "Case" becase that's reserved by sqlite
         caseStorage = new SqliteIndexedStorageUtility<>(Case.class, username, "CCCase", path);
         ledgerStorage = new SqliteIndexedStorageUtility<>(Ledger.class, username, Ledger.STORAGE_KEY, path);
