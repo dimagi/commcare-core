@@ -351,6 +351,29 @@ public class SqlHelper {
         }
     }
 
+    public static void deleteFromTableWhere(Connection connection, String tableName, String whereClause, String[] args) {
+        String query = "DELETE FROM " + tableName + " " + whereClause + ";";
+
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = connection.prepareStatement(query);
+            for(int i = 1; i <= args.length; i++) {
+                preparedStatement.setString(i, args[i - 1]);
+            }
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
     /**
      * Update entry under id with persistable p
      *

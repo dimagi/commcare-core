@@ -21,6 +21,10 @@ public class DatabaseHelper {
     public static final String FILE_COL = "commcare_sql_file";
     public static final String AES_COL = "commcare_sql_aes";
 
+    public static Pair<String, String[]> createWhere(String[] fieldNames, Object[] values) {
+        return createWhere(fieldNames, values, null);
+    }
+
     public static Pair<String, String[]> createWhere(String[] fieldNames, Object[] values,
                                                      Persistable p)
             throws IllegalArgumentException {
