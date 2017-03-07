@@ -44,7 +44,7 @@ public class EmptyAppElementsTests {
 
         MenuLoader menuLoader = new MenuLoader(session.getPlatform(), session, "root", new TestLogger());
         this.mChoices = menuLoader.getMenus();
-        Assert.assertEquals("Number of Menu roots in empty example", this.mChoices, 1);
+        Assert.assertEquals("Number of Menu roots in empty example", this.mChoices.length, 1);
     }
 
     public static class TestLogger implements LoggerInterface {
