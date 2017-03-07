@@ -331,7 +331,7 @@ public class SqlHelper {
     }
 
     public static void deleteFromTableWhere(Connection connection, String tableName, String whereClause, String arg) {
-        String query = "DELETE FROM " + tableName + " " + whereClause + ";";
+        String query = "DELETE FROM " + tableName + " WHERE " + whereClause + ";";
 
         PreparedStatement preparedStatement = null;
         try {
@@ -352,7 +352,7 @@ public class SqlHelper {
     }
 
     public static void deleteFromTableWhere(Connection connection, String tableName, String whereClause, String[] args) {
-        String query = "DELETE FROM " + tableName + " " + whereClause + ";";
+        String query = "DELETE FROM " + tableName + " WHERE " + whereClause + ";";
 
         PreparedStatement preparedStatement = null;
         try {

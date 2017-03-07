@@ -54,7 +54,11 @@ public class UserSqlSandbox extends UserSandbox {
         sqlUtil = createFixturePathsTable(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE);
     }
 
-    public SQLiteConnectionPoolDataSource getCaseIndexTableDataSource(String databaseName) {
+    public SQLiteConnectionPoolDataSource getDataSource() {
+        return getDataSource(username);
+    }
+
+    public SQLiteConnectionPoolDataSource getDataSource(String databaseName) {
         try {
             Class.forName("org.sqlite.JDBC");
             SQLiteConnectionPoolDataSource dataSource = new SQLiteConnectionPoolDataSource();
