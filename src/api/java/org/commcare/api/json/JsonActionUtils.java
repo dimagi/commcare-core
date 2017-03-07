@@ -92,7 +92,7 @@ public class JsonActionUtils {
                                                   FormEntryModel model, String answer,
                                                   FormEntryPrompt prompt,
                                                   boolean oneQuestionPerScreen,
-                                                  FormIndex formIndex) {
+                                                  FormIndex navIndex) {
         JSONObject ret = new JSONObject();
         IAnswerData answerData;
 
@@ -119,7 +119,7 @@ public class JsonActionUtils {
         } else if (result == FormEntryController.ANSWER_OK) {
             if (oneQuestionPerScreen) {
                 ret.put(ApiConstants.QUESTION_TREE_KEY, getOneQuestionPerScreenJSON(
-                    model, controller, formIndex));
+                    model, controller, navIndex));
             } else {
                 ret.put(ApiConstants.QUESTION_TREE_KEY, getFullFormJSON(model, controller));
             }
@@ -141,9 +141,10 @@ public class JsonActionUtils {
     public static JSONObject questionAnswerToJson(FormEntryController controller,
                                                   FormEntryModel model, String answer,
                                                   String index, boolean oneQuestionPerScreen) {
-        FormIndex formIndex = indexFromString(index, model.getForm());
-        FormEntryPrompt prompt = model.getQuestionPrompt(formIndex);
-        return questionAnswerToJson(controller, model, answer, prompt, oneQuestionPerScreen, formIndex);
+        FormIndex answerIndex = indexFromString(index, model.getForm());
+        FormEntryPrompt prompt = model.getQuestionPrompt(answerIndex);
+        FormIndex navIndex = indexFromString(index.split(",")[0], model.getForm());
+        return questionAnswerToJson(controller, model, answer, prompt, oneQuestionPerScreen, navIndex);
     }
 
     /**
