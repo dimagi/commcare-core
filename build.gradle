@@ -88,6 +88,7 @@ dependencies {
       apiCompile 'kxml2:kxml2:2.3.0'
       apiCompile files('lib/regexp-me.jar')
       apiCompile 'joda-time:joda-time:2.9.3'
+      apiCompile 'com.carrotsearch:hppc:0.7.2'
 
       translateCompile 'kxml2:kxml2:2.3.0'
       translateCompile 'xpp3:xpp3:1.1.4c'
