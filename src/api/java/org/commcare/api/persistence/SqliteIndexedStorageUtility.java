@@ -205,6 +205,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
         int columnIndex = resultSet.findColumn(columnName);
         while (resultSet.next()) {
             ids.add(resultSet.getInt(columnIndex));
+            newReturn.add(resultSet.getInt(columnIndex));
         }
         return ids;
     }
