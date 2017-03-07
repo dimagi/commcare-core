@@ -488,6 +488,33 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
     }
 
     public void getIDsForValues(String[] namesToMatch, String[] valuesToMatch, LinkedHashSet<Integer> ids) {
+        Connection c = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            c = this.getConnection();
+            preparedStatement = SqlHelper.prepareTableSelectStatement(c, this.tableName,
+                    namesToMatch, valuesToMatch);
+            if (preparedStatement == null) {
+                return;
+            }
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                ids.add(resultSet.getInt(DatabaseHelper.ID_COL));
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (c != null) {
+                    c.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void bulkRead(LinkedHashSet<Integer> body, HashMap<Integer, T> loadedCaseMap) {
