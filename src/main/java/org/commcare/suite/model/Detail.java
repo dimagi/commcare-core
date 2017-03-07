@@ -124,7 +124,7 @@ public class Detail implements Externalizable {
         this.callout = callout;
         this.useUniformUnitsInCaseTile = "true".equals(uniformUnitsString);
         this.forceLandscapeView = "true".equals(forceLandscape);
-        this.printEnabled = templatePathValid(printPathProvided) && allFieldIdsAvailable();
+        this.printEnabled = templatePathValid(printPathProvided) && detailFieldsHaveIds();
 
         if (focusFunction != null) {
             try {
@@ -475,8 +475,12 @@ public class Detail implements Externalizable {
         return false;
     }
 
-    private boolean allFieldIdsAvailable() {
-        // TODO: implement
+    private boolean detailFieldsHaveIds() {
+        for (DetailField field : this.fields) {
+            if (field.getFieldIdentifierRobust() == null) {
+                return false;
+            }
+        }
         return true;
     }
 
