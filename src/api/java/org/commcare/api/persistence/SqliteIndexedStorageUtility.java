@@ -202,9 +202,9 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
 
     public static Vector<Integer> fillIdWindow(ResultSet resultSet, String columnName, LinkedHashSet newReturn) throws SQLException {
         Vector<Integer> ids = new Vector<>();
-        int columnIndex = resultSet.findColumn(columnName);
         while (resultSet.next()) {
-            ids.add(resultSet.getInt(columnIndex));
+            ids.add(resultSet.getInt(columnName));
+            newReturn.add(resultSet.getInt(columnName));
         }
         return ids;
     }
