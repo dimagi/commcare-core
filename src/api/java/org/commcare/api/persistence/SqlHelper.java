@@ -109,16 +109,25 @@ public class SqlHelper {
                                                                 String storageKey,
                                                                 String where,
                                                                 String values[]) {
+        PreparedStatement preparedStatement = null;
         try {
             String queryString =
                     "SELECT * FROM " + storageKey + " WHERE " + where + ";";
-            PreparedStatement preparedStatement = c.prepareStatement(queryString);
+            preparedStatement = c.prepareStatement(queryString);
             for (int i = 0; i < values.length; i++) {
                 preparedStatement.setString(i + 1, values[i]);
             }
             return preparedStatement;
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
