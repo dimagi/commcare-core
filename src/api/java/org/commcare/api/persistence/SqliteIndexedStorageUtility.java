@@ -1,6 +1,5 @@
 package org.commcare.api.persistence;
 
-import org.commcare.cases.model.Case;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.modern.util.Pair;
@@ -272,22 +271,22 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
 
     @Override
     public int add(T e) {
-        Connection c = null;
+        Connection connection = null;
         try {
-            c = getConnection();
-            int id = SqlHelper.insertToTable(c, tableName, e);
-            c.close();
-            c = getConnection();
+            connection = getConnection();
+            int id = SqlHelper.insertToTable(connection, tableName, e);
+            connection.close();
+            connection = getConnection();
             e.setID(id);
-            SqlHelper.updateId(c, tableName, e);
-            c.close();
+            SqlHelper.updateId(connection, tableName, e);
+            connection.close();
             return id;
         } catch (SQLException | ClassNotFoundException ex) {
             throw new RuntimeException(ex);
         } finally {
             try {
-                if (c != null) {
-                    c.close();
+                if (connection != null) {
+                    connection.close();
                 }
             } catch (SQLException ex) {
                 ex.printStackTrace();
@@ -303,10 +302,10 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
     @Override
     public boolean exists(int id) {
         PreparedStatement preparedStatement = null;
-        Connection c = null;
+        Connection connection = null;
         try {
-            c = getConnection();
-            preparedStatement = SqlHelper.prepareIdSelectStatement(c, this.tableName, id);
+            connection = getConnection();
+            preparedStatement = SqlHelper.prepareIdSelectStatement(connection, this.tableName, id);
             ResultSet rs = preparedStatement.executeQuery();
             if (rs.next()) {
                 return true;
@@ -318,8 +317,8 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
                 if (preparedStatement != null) {
                     preparedStatement.close();
                 }
-                if (c != null) {
-                    c.close();
+                if (connection != null) {
+                    connection.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -337,11 +336,11 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
     @Override
     public int getNumRecords() {
         PreparedStatement preparedStatement = null;
-        Connection c = null;
+        Connection connection = null;
         try {
-            c = getConnection();
+            connection = getConnection();
             String sqlQuery = "SELECT COUNT (*) FROM " + this.tableName + ";";
-            preparedStatement = c.prepareStatement(sqlQuery);
+            preparedStatement = connection.prepareStatement(sqlQuery);
             ResultSet rs = preparedStatement.executeQuery();
             return rs.getInt(1);
         } catch (Exception e) {
@@ -351,8 +350,8 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
                 if (preparedStatement != null) {
                     preparedStatement.close();
                 }
-                if (c != null) {
-                    c.close();
+                if (connection != null) {
+                    connection.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -386,10 +385,10 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
     @Override
     public byte[] readBytes(int id) {
         PreparedStatement preparedStatement = null;
-        Connection c = null;
+        Connection connection = null;
         try {
-            c = getConnection();
-            preparedStatement = SqlHelper.prepareIdSelectStatement(c, this.tableName, id);
+            connection = getConnection();
+            preparedStatement = SqlHelper.prepareIdSelectStatement(connection, this.tableName, id);
             if (preparedStatement == null) {
                 return null;
             }
@@ -402,8 +401,8 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
                 if (preparedStatement != null) {
                     preparedStatement.close();
                 }
-                if (c != null) {
-                    c.close();
+                if (connection != null) {
+                    connection.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -414,16 +413,16 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
 
     @Override
     public void update(int id, Persistable p) {
-        Connection c = null;
+        Connection connection = null;
         try {
-            c = getConnection();
-            SqlHelper.updateToTable(c, tableName, p, id);
+            connection = getConnection();
+            SqlHelper.updateToTable(connection, tableName, p, id);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         } finally {
             try {
-                if (c != null) {
-                    c.close();
+                if (connection != null) {
+                    connection.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -433,17 +432,16 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
 
     @Override
     public void remove(int id) {
-        Connection c = null;
+        Connection connection = null;
         try {
-            c = getConnection();
-            SqlHelper.deleteIdFromTable(c, tableName, id);
-            c.close();
+            connection = getConnection();
+            SqlHelper.deleteIdFromTable(connection, tableName, id);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         } finally {
             try {
-                if (c != null) {
-                    c.close();
+                if (connection != null) {
+                    connection.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -458,17 +456,17 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
 
     @Override
     public void removeAll() {
-        Connection c = null;
+        Connection connection = null;
         try {
-            c = getConnection();
-            SqlHelper.deleteAllFromTable(c, tableName);
-            c.close();
+            connection = getConnection();
+            SqlHelper.deleteAllFromTable(connection, tableName);
+            connection.close();
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         } finally {
             try {
-                if (c != null) {
-                    c.close();
+                if (connection != null) {
+                    connection.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -488,11 +486,11 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
     }
 
     public void getIDsForValues(String[] namesToMatch, String[] valuesToMatch, LinkedHashSet<Integer> ids) {
-        Connection c = null;
+        Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
-            c = this.getConnection();
-            preparedStatement = SqlHelper.prepareTableSelectStatement(c, this.tableName,
+            connection = this.getConnection();
+            preparedStatement = SqlHelper.prepareTableSelectStatement(connection, this.tableName,
                     namesToMatch, valuesToMatch);
             if (preparedStatement == null) {
                 return;
@@ -508,8 +506,8 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
                 if (preparedStatement != null) {
                     preparedStatement.close();
                 }
-                if (c != null) {
-                    c.close();
+                if (connection != null) {
+                    connection.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
