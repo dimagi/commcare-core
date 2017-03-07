@@ -2,6 +2,9 @@ package org.commcare.api.persistence;
 
 import org.commcare.cases.model.Case;
 import org.commcare.modern.database.DatabaseHelper;
+import org.commcare.modern.database.TableBuilder;
+import org.commcare.modern.util.Pair;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -10,10 +13,7 @@ import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.sqlite.javax.SQLiteConnectionPoolDataSource;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -43,7 +43,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
 
     public SqliteIndexedStorageUtility(T prototype, String sandboxId,
                                        String tableName, String databasePath) {
-        this((Class<T>)prototype.getClass(), sandboxId, tableName, databasePath);
+        this((Class<T>) prototype.getClass(), sandboxId, tableName, databasePath);
     }
 
     public SqliteIndexedStorageUtility(Class<T> prototype, String sandboxId,
@@ -55,7 +55,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
                                        String tableName, String databasePath, boolean initialize) {
         this(sandboxId, tableName, databasePath);
         this.prototype = prototype;
-        if(initialize) {
+        if (initialize) {
             try {
                 buildTableFromInstance(prototype.newInstance());
             } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
@@ -65,7 +65,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
     }
 
     public void rebuildTable(T prototypeInstance) {
-        this.prototype = (Class<T>)prototypeInstance.getClass();
+        this.prototype = (Class<T>) prototypeInstance.getClass();
 
         try {
             SqlHelper.dropTable(getConnection(), tableName);
@@ -200,7 +200,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
         return readFromBytes(mBytes);
     }
 
-    public static Vector<Integer> fillIdWindow (ResultSet resultSet, String columnName, LinkedHashSet newReturn) throws SQLException {
+    public static Vector<Integer> fillIdWindow(ResultSet resultSet, String columnName, LinkedHashSet newReturn) throws SQLException {
         Vector<Integer> ids = new Vector<>();
         int columnIndex = resultSet.findColumn(columnName);
         while (resultSet.next()) {
@@ -517,7 +517,76 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
         }
     }
 
-    public void bulkRead(LinkedHashSet<Integer> body, HashMap<Integer, T> loadedCaseMap) {
+    private RuntimeException logAndWrap(Exception e, String message) {
+        RuntimeException re = new RuntimeException(message + " while inflating type " + prototype.getName());
+        re.initCause(e);
+        Logger.log("Error:", e.getMessage());
+        return re;
+    }
 
+    /**
+     * @param dbEntryId Set the deserialized persistable's id to the database entry id.
+     *                  Doing so now is more effecient then during writes
+     */
+    public T newObject(InputStream serializedObjectInputStream, int dbEntryId) {
+        try {
+            T e = prototype.newInstance();
+            e.readExternal(new DataInputStream(serializedObjectInputStream),
+                    PrototypeManager.getDefault());
+            e.setID(dbEntryId);
+
+            return e;
+        } catch (IllegalAccessException e) {
+            throw logAndWrap(e, "Illegal Access Exception");
+        } catch (InstantiationException e) {
+            throw logAndWrap(e, "Instantiation Exception");
+        } catch (IOException e) {
+            throw logAndWrap(e, "Totally non-sensical IO Exception");
+        } catch (DeserializationException e) {
+            throw logAndWrap(e, "CommCare ran into an issue deserializing data");
+        }
+    }
+
+    /**
+     * @param dbEntryId Set the deserialized persistable's id to the database entry id.
+     *                  Doing so now is more effecient then during writes
+     */
+    public T newObject(byte[] serializedObjectAsBytes, int dbEntryId) {
+        return newObject(new ByteArrayInputStream(serializedObjectAsBytes), dbEntryId);
+    }
+
+    public void bulkRead(LinkedHashSet<Integer> body, HashMap<Integer, T> recordMap) {
+        List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(body);
+        PreparedStatement preparedStatement = null;
+        Connection connection = null;
+        try {
+            connection = getConnection();
+            for (Pair<String, String[]> querySet : whereParamList) {
+
+                preparedStatement =
+                        SqlHelper.prepareTableSelectStatement(connection, this.tableName, querySet.first, querySet.second);
+                ResultSet resultSet = preparedStatement.executeQuery();
+
+                while (resultSet.next()) {
+                    int index = resultSet.findColumn(DatabaseHelper.DATA_COL);
+                    byte[] data = resultSet.getBytes(index);
+                    recordMap.put(resultSet.getInt(DatabaseHelper.ID_COL),
+                            newObject(data, resultSet.getInt(DatabaseHelper.ID_COL)));
+                }
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
