@@ -135,16 +135,18 @@ public class JsonActionUtils {
      * @param controller the FormEntryController under consideration
      * @param model      the FormEntryModel under consideration
      * @param answer     the answer to enter
-     * @param index      the form index of the question to be answered
+     * @param ansIndex      the form index of the question to be answered
      * @return The JSON representation of the updated question tree
      */
     public static JSONObject questionAnswerToJson(FormEntryController controller,
                                                   FormEntryModel model, String answer,
-                                                  String index, boolean oneQuestionPerScreen) {
-        FormIndex answerIndex = indexFromString(index, model.getForm());
+                                                  String ansIndex,
+                                                  boolean oneQuestionPerScreen,
+                                                  String navIndex) {
+        FormIndex answerIndex = indexFromString(ansIndex, model.getForm());
         FormEntryPrompt prompt = model.getQuestionPrompt(answerIndex);
-        FormIndex navIndex = indexFromString(index.split(",")[0], model.getForm());
-        return questionAnswerToJson(controller, model, answer, prompt, oneQuestionPerScreen, navIndex);
+        FormIndex navigationIndex = indexFromString(navIndex, model.getForm());
+        return questionAnswerToJson(controller, model, answer, prompt, oneQuestionPerScreen, navigationIndex);
     }
 
     /**
