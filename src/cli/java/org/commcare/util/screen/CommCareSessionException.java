@@ -5,7 +5,7 @@ package org.commcare.util.screen;
  *
  * Created by ctsims on 8/5/2015.
  */
-public class CommCareSessionException extends Exception {
+public class CommCareSessionException extends RuntimeException {
     public CommCareSessionException(String message) {
         super(message);
     }
