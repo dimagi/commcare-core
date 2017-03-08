@@ -92,7 +92,7 @@ public class JsonActionUtils {
                                                   FormEntryModel model, String answer,
                                                   FormEntryPrompt prompt,
                                                   boolean oneQuestionPerScreen,
-                                                  FormIndex formIndex) {
+                                                  FormIndex navIndex) {
         JSONObject ret = new JSONObject();
         IAnswerData answerData;
 
@@ -119,7 +119,7 @@ public class JsonActionUtils {
         } else if (result == FormEntryController.ANSWER_OK) {
             if (oneQuestionPerScreen) {
                 ret.put(ApiConstants.QUESTION_TREE_KEY, getOneQuestionPerScreenJSON(
-                    model, controller, formIndex));
+                    model, controller, navIndex));
             } else {
                 ret.put(ApiConstants.QUESTION_TREE_KEY, getFullFormJSON(model, controller));
             }
@@ -135,15 +135,18 @@ public class JsonActionUtils {
      * @param controller the FormEntryController under consideration
      * @param model      the FormEntryModel under consideration
      * @param answer     the answer to enter
-     * @param index      the form index of the question to be answered
+     * @param ansIndex      the form index of the question to be answered
      * @return The JSON representation of the updated question tree
      */
     public static JSONObject questionAnswerToJson(FormEntryController controller,
                                                   FormEntryModel model, String answer,
-                                                  String index, boolean oneQuestionPerScreen) {
-        FormIndex formIndex = indexFromString(index, model.getForm());
-        FormEntryPrompt prompt = model.getQuestionPrompt(formIndex);
-        return questionAnswerToJson(controller, model, answer, prompt, oneQuestionPerScreen, formIndex);
+                                                  String ansIndex,
+                                                  boolean oneQuestionPerScreen,
+                                                  String navIndex) {
+        FormIndex answerIndex = indexFromString(ansIndex, model.getForm());
+        FormEntryPrompt prompt = model.getQuestionPrompt(answerIndex);
+        FormIndex navigationIndex = indexFromString(navIndex, model.getForm());
+        return questionAnswerToJson(controller, model, answer, prompt, oneQuestionPerScreen, navigationIndex);
     }
 
     /**
