@@ -126,11 +126,18 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
                 setMessage(Localization.get("update.header"));
 
                 TableStateListener upgradeListener = new TableStateListener() {
+                    private int score = 0;
+                    private int max = 0;
 
                     public final static int INSTALL_SCORE = 5;
-                    public void resourceStateUpdated(ResourceTable table) {
-                        int score = 0;
-                        int max = 0;
+
+                    public void simpleResourceAdded() {
+                        interaction.updateProgess(20 + (int)Math.ceil(65 * (++score * 1.0 / max)));
+                    }
+
+                    public void compoundResourceAdded(final ResourceTable table) {
+                        score = 0;
+                        max = 0;
                         Vector<Resource> resources = ResourceManager.getResourceListFromProfile(table);
                         max = resources.size() * INSTALL_SCORE;
 
