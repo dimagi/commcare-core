@@ -59,5 +59,6 @@ public class UserSqlSandboxTest {
     @After
     public void tearDown(){
         SqlSandboxUtils.deleteDatabaseFolder(UserSqlSandbox.DEFAULT_DATBASE_PATH);
+        sandbox.closeConnection();
     }
 }

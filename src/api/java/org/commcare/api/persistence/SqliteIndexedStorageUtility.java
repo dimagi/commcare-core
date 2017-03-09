@@ -10,9 +10,11 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
-import org.sqlite.javax.SQLiteConnectionPoolDataSource;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,30 +32,26 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
 
     private Class<T> prototype;
     private final String tableName;
-    private final String sandboxId;
-    private final File databaseFolder;
+    private Connection connection;
+    private final String path;
+    private final String username;
 
-    public SqliteIndexedStorageUtility(String sandboxId, String tableName,
-                                       String databasePath) {
+    public SqliteIndexedStorageUtility(Connection connection, T prototype, String path, String username, String tableName) {
+        this(connection, (Class<T>) prototype.getClass(), path, username, tableName);
+    }
+
+    public SqliteIndexedStorageUtility(Connection connection, Class<T> prototype, String path, String username, String tableName) {
+        this(connection, prototype, path, username, tableName, true);
+    }
+
+    public SqliteIndexedStorageUtility(Connection connection, Class<T> prototype,
+                                       String path, String username,
+                                       String tableName, boolean initialize) {
         this.tableName = tableName;
-        this.sandboxId = sandboxId;
-        databaseFolder = new File(databasePath);
-    }
-
-    public SqliteIndexedStorageUtility(T prototype, String sandboxId,
-                                       String tableName, String databasePath) {
-        this((Class<T>) prototype.getClass(), sandboxId, tableName, databasePath);
-    }
-
-    public SqliteIndexedStorageUtility(Class<T> prototype, String sandboxId,
-                                       String tableName, String databasePath) {
-        this(prototype, sandboxId, tableName, databasePath, true);
-    }
-
-    public SqliteIndexedStorageUtility(Class<T> prototype, String sandboxId,
-                                       String tableName, String databasePath, boolean initialize) {
-        this(sandboxId, tableName, databasePath);
+        this.path = path;
+        this.username = username;
         this.prototype = prototype;
+        this.connection = connection;
         if (initialize) {
             try {
                 buildTableFromInstance(prototype.newInstance());
@@ -81,17 +79,8 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
             for (String statement : statements) {
                 c.prepareStatement(statement).execute();
             }
-            c.close();
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
-        } finally {
-            try {
-                if (c != null) {
-                    c.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -102,14 +91,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
             SqlHelper.basicInsert(c, tableName, contentVals);
         } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
-        } finally {
-            try {
-                if (c != null) {
-                    c.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -118,28 +99,16 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
         try {
             c = getConnection();
             SqlHelper.createTable(c, tableName, instance);
-            c.close();
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (c != null) {
-                    c.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
     public Connection getConnection() throws SQLException, ClassNotFoundException {
-        if (!databaseFolder.exists()) {
-            databaseFolder.mkdir();
+        if(connection == null || connection.isClosed()) {
+            connection = UserSqlSandbox.getDataSource(username, path).getConnection();
         }
-        Class.forName("org.sqlite.JDBC");
-        SQLiteConnectionPoolDataSource dataSource = new SQLiteConnectionPoolDataSource();
-        dataSource.setUrl("jdbc:sqlite:" + databaseFolder + "/" + this.sandboxId + ".db");
-        return dataSource.getConnection();
+        return connection;
     }
 
     @Override
@@ -153,22 +122,13 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
         try {
             c = getConnection();
             int id = SqlHelper.insertToTable(c, tableName, p);
-            c.close();
 
             c = getConnection();
             p.setID(id);
             SqlHelper.updateId(c, tableName, p);
-            c.close();
+            //c.close();
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
-        } finally {
-            try {
-                if (c != null) {
-                    c.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -228,9 +188,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
                 if (preparedStatement != null) {
                     preparedStatement.close();
                 }
-                if (c != null) {
-                    c.close();
-                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -260,9 +217,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
                 if (preparedStatement != null) {
                     preparedStatement.close();
                 }
-                if (c != null) {
-                    c.close();
-                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -275,22 +229,12 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
         try {
             connection = getConnection();
             int id = SqlHelper.insertToTable(connection, tableName, e);
-            connection.close();
             connection = getConnection();
             e.setID(id);
             SqlHelper.updateId(connection, tableName, e);
-            connection.close();
             return id;
         } catch (SQLException | ClassNotFoundException ex) {
             throw new RuntimeException(ex);
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
         }
     }
 
@@ -316,9 +260,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
             try {
                 if (preparedStatement != null) {
                     preparedStatement.close();
-                }
-                if (connection != null) {
-                    connection.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -349,9 +290,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
             try {
                 if (preparedStatement != null) {
                     preparedStatement.close();
-                }
-                if (connection != null) {
-                    connection.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -401,9 +339,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
                 if (preparedStatement != null) {
                     preparedStatement.close();
                 }
-                if (connection != null) {
-                    connection.close();
-                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -419,14 +354,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
             SqlHelper.updateToTable(connection, tableName, p, id);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -438,14 +365,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
             SqlHelper.deleteIdFromTable(connection, tableName, id);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -460,17 +379,8 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
         try {
             connection = getConnection();
             SqlHelper.deleteAllFromTable(connection, tableName);
-            connection.close();
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -505,9 +415,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
             try {
                 if (preparedStatement != null) {
                     preparedStatement.close();
-                }
-                if (connection != null) {
-                    connection.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -578,9 +485,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable>
             try {
                 if (preparedStatement != null) {
                     preparedStatement.close();
-                }
-                if (connection != null) {
-                    connection.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
