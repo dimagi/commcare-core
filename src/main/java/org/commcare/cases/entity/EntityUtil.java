@@ -1,21 +1,22 @@
-package org.commcare.util;
+package org.commcare.cases.entity;
 
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 
 /**
+ *
+ *
  * Created by amstone326 on 3/2/17.
  */
-
-public class DetailUtil {
+public class EntityUtil {
 
     /**
-     * Note that if isChild is false, then parentDetail is just the detail for
-     * @param childReference
-     * @param isChild - the detail for which we are retrieving a context has a parent detail
-     * @param parentDetail - the parent detail, or null if isChild
-     * @return
+     * @param childReference - the reference for which we would like to create a NodeEntityFactory
+     * @param isChild - true if the detail for which we are retrieving a context has a parent detail
+     * @param parentDetail - the parent detail, or null if isChild is false
+     * @return the EvaluationContext needed to create a NodeEntityFactory for the given
+     * Detail and TreeReference
      */
     public static EvaluationContext getEntityFactoryContext(TreeReference childReference,
                                                             boolean isChild,

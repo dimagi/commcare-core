@@ -3,7 +3,7 @@ package org.commcare.suite.model;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.util.DetailFieldPrintInfo;
-import org.commcare.util.DetailUtil;
+import org.commcare.cases.entity.EntityUtil;
 import org.commcare.util.GridCoordinate;
 import org.commcare.util.GridStyle;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -77,7 +77,12 @@ public class Detail implements Externalizable {
 
     private XPathExpression focusFunction;
 
-    // region -- These fields are only used if this detail is a case tile
+    // A button to print this detail should be provided
+    private boolean printEnabled;
+
+    private String derivedPrintTemplatePath;
+
+    // REGION -- These fields are only used if this detail is a case tile
 
     // Allows for the possibility of case tiles being displayed in a grid
     private int numEntitiesToDisplayPerRow;
@@ -86,12 +91,7 @@ public class Detail implements Externalizable {
     // equal to its width, rather than being computed independently
     private boolean useUniformUnitsInCaseTile;
 
-    // A button to print this detail should be provided
-    private boolean printEnabled;
-
-    private String derivedPrintTemplatePath;
-
-    // endregion
+    // ENDREGION
 
     /**
      * Serialization Only
@@ -488,6 +488,10 @@ public class Detail implements Externalizable {
         return this.printEnabled;
     }
 
+    public String getDerivedPrintTemplatePath() {
+        return this.derivedPrintTemplatePath;
+    }
+
     public HashMap<String, DetailFieldPrintInfo> getKeyValueMapForPrint(TreeReference selectedEntityRef,
                                                           EvaluationContext baseContext) {
         HashMap<String, DetailFieldPrintInfo> mapping = new HashMap<>();
@@ -504,7 +508,6 @@ public class Detail implements Externalizable {
                 childDetail.populateMappingWithDetailFields(mapping, selectedEntityRef, baseContext, this);
             }
         } else {
-            // this is a normal detail with fields
             Entity entityForDetail =
                     getCorrespondingEntity(selectedEntityRef, parentDetail, baseContext);
             for (int i = 0; i < fields.length; i++) {
@@ -520,14 +523,10 @@ public class Detail implements Externalizable {
     private Entity getCorrespondingEntity(TreeReference selectedEntityRef, Detail parentDetail,
                                           EvaluationContext baseContext) {
         EvaluationContext entityFactoryContext =
-                DetailUtil.getEntityFactoryContext(selectedEntityRef, parentDetail != null,
+                EntityUtil.getEntityFactoryContext(selectedEntityRef, parentDetail != null,
                         parentDetail, baseContext);
         NodeEntityFactory factory = new NodeEntityFactory(this, entityFactoryContext);
         return factory.getEntity(selectedEntityRef);
-    }
-
-    public String getDerivedPrintTemplatePath() {
-        return this.derivedPrintTemplatePath;
     }
 
 }
