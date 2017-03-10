@@ -23,6 +23,11 @@ import java.nio.charset.StandardCharsets;
  */
 @SuppressWarnings("unused")
 public class ParseUtilsHelper  extends ParseUtils {
+    public static void parseXMLIntoSandbox(InputStream restoreStream, UserSandbox sandbox)
+            throws InvalidStructureException, UnfullfilledRequirementsException, XmlPullParserException, IOException {
+        parseIntoSandbox(restoreStream, sandbox);
+    }
+
     public static void parseXMLIntoSandbox(String restore, UserSandbox sandbox)
             throws InvalidStructureException, UnfullfilledRequirementsException, XmlPullParserException, IOException {
         InputStream stream = new ByteArrayInputStream(restore.getBytes(StandardCharsets.UTF_8));
