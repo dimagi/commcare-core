@@ -32,10 +32,6 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
 
         DetailField.Builder builder = new DetailField.Builder();
 
-        String id = parser.getAttributeValue(null, "id");
-        if (id != null) {
-            builder.setId(id);
-        }
         String sortDefault = parser.getAttributeValue(null, "sort");
         if (sortDefault != null && sortDefault.equals("default")) {
             builder.setSortOrder(1);
@@ -50,6 +46,11 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
                 throw new InvalidStructureException("Bad XPath Expression {" + relevancy + "}", parser);
             }
         }
+        String printId = parser.getAttributeValue(null, "print-id");
+        if (printId != null) {
+            builder.setPrintIdentifier(printId);
+        }
+
         if (nextTagInBlock("field")) {
             parseStyle(builder);
             checkNode("header");

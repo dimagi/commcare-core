@@ -477,7 +477,7 @@ public class Detail implements Externalizable {
 
     private boolean detailFieldsHaveIds() {
         for (DetailField field : this.fields) {
-            if (field.getFieldIdentifierRobust() == null) {
+            if (field.getPrintIdentifierRobust() == null) {
                 return false;
             }
         }
@@ -513,7 +513,7 @@ public class Detail implements Externalizable {
             for (int i = 0; i < fields.length; i++) {
                 if (entityForDetail.isValidField(i)) {
                     mapping.put(
-                            fields[i].getFieldIdentifierRobust(),
+                            fields[i].getPrintIdentifierRobust(),
                             new DetailFieldPrintInfo(fields[i], entityForDetail, i));
                 }
             }

@@ -35,7 +35,6 @@ public class DetailField implements Externalizable {
      */
     public static final int SORT_ORDER_CACHABLE = -2;
 
-    private String id;
     private Text header;
     private DetailTemplate template; // Text or Graph
     private Text sort;
@@ -43,6 +42,7 @@ public class DetailField implements Externalizable {
     private XPathExpression parsedRelevancy;
     private String headerWidthHint = null;  // Something like "500" or "10%"
     private String templateWidthHint = null;
+    private String printIdentifier;
 
     /**
      * Optional hint which provides a hint for whether rich media should be
@@ -70,9 +70,10 @@ public class DetailField implements Externalizable {
     public DetailField() {
     }
 
-    public String getFieldIdentifierRobust() {
-        if (id != null) {
-            return id;
+    public String getPrintIdentifierRobust() {
+        // TODO: change this implementation once HQ work is done
+        if (printIdentifier != null) {
+            return printIdentifier;
         } else if (template instanceof Text) {
             return ((Text)template).getArgument();
         }
@@ -261,8 +262,8 @@ public class DetailField implements Externalizable {
             return field;
         }
 
-        public void setId(String id) {
-            field.id = id;
+        public void setPrintIdentifier(String id) {
+            field.printIdentifier = id;
         }
 
         /**
