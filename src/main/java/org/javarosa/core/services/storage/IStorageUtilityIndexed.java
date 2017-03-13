@@ -3,6 +3,7 @@ package org.javarosa.core.services.storage;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 

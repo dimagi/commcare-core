@@ -5,11 +5,12 @@ import org.javarosa.core.services.storage.Persistable;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 /**
  * @author ctsims
  */
-public class DummyStorageIterator<T extends Persistable> implements IStorageIterator<T> {
+public class DummyStorageIterator<T extends Persistable> implements IStorageIterator<T>, Iterator<T> {
     private int count;
     private final Integer[] keys;
     private final DummyIndexedStorageUtility<T> dummyStorage;
@@ -50,5 +51,15 @@ public class DummyStorageIterator<T extends Persistable> implements IStorageIter
     @Override
     public int peekID() {
         return keys[count];
+    }
+
+    @Override
+    public boolean hasNext() {
+        return hasMore();
+    }
+
+    @Override
+    public T next() {
+        return nextRecord();
     }
 }
