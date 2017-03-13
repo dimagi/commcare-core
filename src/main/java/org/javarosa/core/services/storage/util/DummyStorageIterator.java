@@ -62,4 +62,9 @@ public class DummyStorageIterator<T extends Persistable> implements IStorageIter
     public T next() {
         return nextRecord();
     }
+
+    @Override
+    public void remove() {
+        // not implemented
+    }
 }
