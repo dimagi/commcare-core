@@ -166,6 +166,9 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
             //see above comment
         }
 
+        String blanksPreference = parser.getAttributeValue(null, "blanks");
+        builder.setShowBlanksLast(blanksPreference != null && "last".equals(blanksPreference));
+
         //See if this has a text value for the sort
         if (nextTagInBlock("sort")) {
             //Make sure the internal element _is_ a text

@@ -28,8 +28,8 @@ public class EntitySorter implements Comparator<Entity<TreeReference>> {
     @Override
     public int compare(Entity<TreeReference> object1, Entity<TreeReference> object2) {
         for (int aCurrentSort : currentSort) {
-            boolean reverseLocal = (detailFields[aCurrentSort].getSortDirection() == DetailField.DIRECTION_DESCENDING) ^ reverseSort;
-            int cmp = (reverseLocal ? -1 : 1) * getCmp(object1, object2, aCurrentSort);
+            boolean reverse = (detailFields[aCurrentSort].getSortDirection() == DetailField.DIRECTION_DESCENDING) ^ reverseSort;
+            int cmp = getCmp(object1, object2, aCurrentSort, reverse);
             if (cmp != 0) {
                 return cmp;
             }
@@ -37,9 +37,16 @@ public class EntitySorter implements Comparator<Entity<TreeReference>> {
         return 0;
     }
 
-    private int getCmp(Entity<TreeReference> object1, Entity<TreeReference> object2, int index) {
-        int sortType = detailFields[index].getSortType();
-
+    /**
+     * Implemented assuming that the sort direction is DIRECTION_ASCENDING, meaning that:
+     *
+     * -If object1 < object2, this method should return a negative number
+     * -If object1 > object2, this method should return a positive number
+     *
+     * @param reverse - If true, then the rules above are inverted
+     */
+    private int getCmp(Entity<TreeReference> object1, Entity<TreeReference> object2, int index,
+                       boolean reverse) {
         String a1 = object1.getSortField(index);
         String a2 = object2.getSortField(index);
 
@@ -51,27 +58,31 @@ public class EntitySorter implements Comparator<Entity<TreeReference>> {
             a2 = object2.getFieldString(index);
         }
 
-        //TODO: We might want to make this behavior configurable (Blanks go first, blanks go last, etc);
-        //For now, regardless of typing, blanks are always smaller than non-blanks
+        boolean showBlanksLast = detailFields[index].showBlanksLastInSort();
+        // The user's 'blanks' preference is independent of the specified sort order, so don't
+        // worry about the 'reverse' parameter here
         if (a1.equals("")) {
             if (a2.equals("")) {
                 return 0;
             } else {
-                return -1;
+                // a1 is blank and a2 is not
+                return showBlanksLast ? 1 : -1;
             }
         } else if (a2.equals("")) {
-            return 1;
+            // a2 is blank and a1 is not
+            return showBlanksLast? -1 : 1;
         }
 
+        int sortType = detailFields[index].getSortType();
         Comparable c1 = applyType(sortType, a1);
         Comparable c2 = applyType(sortType, a2);
 
         if (c1 == null || c2 == null) {
-            //Don't do something smart here, just bail.
+            // Don't do something smart here, just bail.
             return -1;
         }
 
-        return c1.compareTo(c2);
+        return (reverse ? -1 : 1) * c1.compareTo(c2);
     }
 
     private Comparable applyType(int sortType, String value) {
