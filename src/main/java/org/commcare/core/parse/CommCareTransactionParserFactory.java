@@ -1,9 +1,8 @@
 package org.commcare.core.parse;
 
 import org.commcare.cases.instance.FixtureIndexSchema;
-import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.cases.ledger.Ledger;
-import org.commcare.cases.model.Case;
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
@@ -183,7 +182,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             CaseXmlParser created = null;
 
             @Override
-            public TransactionParser<Case> getParser(KXmlParser parser) {
+            public TransactionParser getParser(KXmlParser parser) {
                 if (created == null) {
                     created = new CaseXmlParser(parser, sandbox.getCaseStorage());
                 }
