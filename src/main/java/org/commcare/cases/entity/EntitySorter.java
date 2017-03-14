@@ -60,7 +60,7 @@ public class EntitySorter implements Comparator<Entity<TreeReference>> {
 
         boolean showBlanksLast = detailFields[index].showBlanksLastInSort();
         // The user's 'blanks' preference is independent of the specified sort order, so don't
-        // worry about the 'reverse' parameter here
+        // factor in the 'reverse' parameter here
         if (a1.equals("")) {
             if (a2.equals("")) {
                 return 0;
