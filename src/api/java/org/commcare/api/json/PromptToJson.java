@@ -174,6 +174,8 @@ public class PromptToJson {
                 double[] coords = new double[]{geoPointData.getLatitude(), geoPointData.getLongitude()};
                 obj.put("answer", coords);
                 return;
+            case Constants.DATATYPE_BINARY:
+                obj.put("answer", answerValue.getDisplayText());
         }
     }
 
