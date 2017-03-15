@@ -233,6 +233,5 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             }
         };
 
-
     }
 }
