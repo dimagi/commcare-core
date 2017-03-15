@@ -34,25 +34,25 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
     }
 
     @Override
-    protected void expandBulkReadSetForElement(TreeElement element, Set<String> currentBulkReadSet) {
-        String caseId = element.getAttributeValue(null, "case_id");
+    protected void requestModelReadsForElement(TreeElement bufferedTreeElement, Set<String> currentBulkReadSet) {
+        String caseId = bufferedTreeElement.getAttributeValue(null, "case_id");
         currentBulkReadSet.add(caseId);
     }
 
     @Override
-    protected void validateElementEntry() throws InvalidStructureException {
+    protected void preParseValidate() throws InvalidStructureException {
         checkNode("case");
     }
 
 
     @Override
-    protected void processBufferedElement(TreeElement element, Map<String, Case> currentOperatingSet, SortedMap<String, Case> writeLog) throws InvalidStructureException {
-        String caseId = element.getAttributeValue(null, "case_id");
+    protected void processBufferedElement(TreeElement bufferedTreeElement, Map<String, Case> currentOperatingSet, SortedMap<String, Case> writeLog) throws InvalidStructureException {
+        String caseId = bufferedTreeElement.getAttributeValue(null, "case_id");
         if (caseId == null || caseId.equals("")) {
             throw new InvalidStructureException("The case_id attribute of a <case> wasn't set");
         }
 
-        String dateModified = element.getAttributeValue(null, "date_modified");
+        String dateModified = bufferedTreeElement.getAttributeValue(null, "date_modified");
         if (dateModified == null) {
             throw new InvalidStructureException("The date_modified attribute of a <case> wasn't set");
         }
@@ -61,8 +61,8 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
         Case caseForBlock = null;
         boolean isCreateOrUpdate = false;
 
-        for(int i = 0 ; i < element.getNumChildren(); i++) {
-            TreeElement subElement = element.getChildAt(i);
+        for(int i = 0; i < bufferedTreeElement.getNumChildren(); i++) {
+            TreeElement subElement = bufferedTreeElement.getChildAt(i);
             String action = subElement.getName().toLowerCase();
             switch (action) {
                 case "create":
