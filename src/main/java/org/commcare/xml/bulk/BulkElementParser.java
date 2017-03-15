@@ -22,6 +22,8 @@ import java.util.TreeMap;
  * A bulk element parser reads multiple types of the same transaction together into a buffer of
  * TreeElements before performing a bulk processing step.
  *
+ * NOTE: This parser will currently lose debugging information v. using a streamed processor,
+ * since the XML locations of potential errors are buffered.
  *
  * An implementing class should organize its implementation into the following steps:
  *
@@ -53,6 +55,10 @@ public abstract class BulkElementParser<T> extends TransactionParser<TreeElement
         super(parser);
     }
 
+    /**
+     * Sets the count at which the parser should trigger processing the current buffer
+     * @param newTriggerCount
+     */
     protected void setBulkProcessTrigger(int newTriggerCount) {
         this.bulkTrigger = newTriggerCount;
     }
@@ -83,7 +89,6 @@ public abstract class BulkElementParser<T> extends TransactionParser<TreeElement
         performBulkWrite(writeLog);
         clearState();
     }
-
 
     protected void clearState() {
         currentBulkElementBacklog.clear();
