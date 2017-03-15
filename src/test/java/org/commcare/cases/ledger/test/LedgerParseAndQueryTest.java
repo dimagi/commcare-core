@@ -1,7 +1,7 @@
 package org.commcare.cases.ledger.test;
 
-import org.commcare.core.parse.ParseUtils;
 import org.commcare.test.utilities.CaseTestUtils;
+import org.commcare.test.utilities.TestProfileConfiguration;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -10,6 +10,10 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import java.util.Collection;
 
 /**
  * Test ledger parsing, loading, and referencing ledgers. No case data is
@@ -17,14 +21,25 @@ import org.junit.Test;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
+@RunWith(value = Parameterized.class)
 public class LedgerParseAndQueryTest {
     private EvaluationContext evalContextWithLedger;
+
+    TestProfileConfiguration config;
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection data() {
+        return TestProfileConfiguration.BulkOffOn();
+    }
+
+    public LedgerParseAndQueryTest(TestProfileConfiguration config) {
+        this.config = config;
+    }
 
     @Before
     public void setUp() throws Exception {
         MockUserDataSandbox sandbox = MockDataUtils.getStaticStorage();
 
-        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/ledger_create_basic.xml"), sandbox, true);
+        config.parseIntoSandbox(this.getClass().getResourceAsStream("/ledger_create_basic.xml"), sandbox, true);
 
         evalContextWithLedger =
                 MockDataUtils.buildContextWithInstance(sandbox, "ledger", CaseTestUtils.LEDGER_INSTANCE);
