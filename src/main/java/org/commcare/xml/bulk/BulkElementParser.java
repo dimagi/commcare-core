@@ -67,7 +67,7 @@ public abstract class BulkElementParser<T> extends TransactionParser<TreeElement
         currentBulkElementBacklog.add(subElement);
         currentBulkReadCount++;
 
-        if(currentBulkReadCount > bulkTrigger) {
+        if (currentBulkReadCount > bulkTrigger) {
             processCurrentBuffer();
         }
         return subElement;
@@ -77,8 +77,8 @@ public abstract class BulkElementParser<T> extends TransactionParser<TreeElement
             InvalidStructureException {
         currentOperatingSet = new HashMap<>();
         performBulkRead(currentBulkReadSet, currentOperatingSet);
-        for(TreeElement t : currentBulkElementBacklog) {
-            processBufferedElement(t, currentOperatingSet,writeLog);
+        for (TreeElement t : currentBulkElementBacklog) {
+            processBufferedElement(t, currentOperatingSet, writeLog);
         }
         performBulkWrite(writeLog);
         clearState();
@@ -100,7 +100,6 @@ public abstract class BulkElementParser<T> extends TransactionParser<TreeElement
     }
 
 
-
     @Override
     protected void commit(TreeElement parsed) throws IOException, InvalidStructureException {
 
@@ -113,7 +112,7 @@ public abstract class BulkElementParser<T> extends TransactionParser<TreeElement
      * MUST NOT SEEK BEYOND THE CURRENT ELEMENT
      *
      * @throws InvalidStructureException If the parser was passed an element it cannot parse, or
-     * that element has a structure which is incorrect based on the root element or attributes
+     *                                   that element has a structure which is incorrect based on the root element or attributes
      */
     protected abstract void preParseValidate() throws InvalidStructureException;
 
@@ -132,9 +131,9 @@ public abstract class BulkElementParser<T> extends TransactionParser<TreeElement
      *
      * This step is fired when a bulk process is requested, and begins the bulk processing phase
      *
-     * @param currentBulkReadSet A list of ID's to be read in bulk
-     * @param currentOperatingSet  the destination mapping from each ID to a matching model
-     *                             (if one exists)
+     * @param currentBulkReadSet  A list of ID's to be read in bulk
+     * @param currentOperatingSet the destination mapping from each ID to a matching model
+     *                            (if one exists)
      */
     protected abstract void performBulkRead(Set<String> currentBulkReadSet, Map<String, T> currentOperatingSet) throws InvalidStructureException, IOException, XmlPullParserException;
 
@@ -151,8 +150,8 @@ public abstract class BulkElementParser<T> extends TransactionParser<TreeElement
      * @param bufferedTreeElement the element to be processed
      * @param currentOperatingSet The operating set of data from the bulk read and other
      *                            processed elements
-     * @param writeLog A list of models to be written during hte bulk write, this method should add
-     *                 the processed model to this list.
+     * @param writeLog            A list of models to be written during hte bulk write, this method should add
+     *                            the processed model to this list.
      */
     protected abstract void processBufferedElement(TreeElement bufferedTreeElement, Map<String, T> currentOperatingSet, SortedMap<String, T> writeLog) throws InvalidStructureException;
 

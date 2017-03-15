@@ -20,12 +20,12 @@ import java.util.Set;
 import java.util.SortedMap;
 
 /**
- * The CaseXML Parser is responsible for processing and performing
- * case transactions from an incoming XML stream. It will perform
- * all of the actions specified by the transaction (Create/modify/close)
- * against the application's current storage.
+ * A parser which is capable of processing CaseXML transactions in a bulk format.
  *
- * @author ctsims
+ * This parser needs an implementation which can perform the "bulk" steps efficiently on the current
+ * platform.
+ *
+ * Created by ctsims on 3/14/2017.
  */
 public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case> {
 
@@ -43,7 +43,6 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
     protected void preParseValidate() throws InvalidStructureException {
         checkNode("case");
     }
-
 
     @Override
     protected void processBufferedElement(TreeElement bufferedTreeElement, Map<String, Case> currentOperatingSet, SortedMap<String, Case> writeLog) throws InvalidStructureException {
