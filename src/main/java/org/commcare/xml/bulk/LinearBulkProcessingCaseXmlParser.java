@@ -12,9 +12,13 @@ import java.util.Set;
 import java.util.SortedMap;
 
 /**
- * Implementation of BulkProcessingCaseXML Parser which can be used without needing platform
+ * Reference implementation of BulkProcessingCaseXMLParser which can be used with no platform
  * specific indexing / db code, but which essentially has no performance gains over a linear
  * parser, and probably operates slower than one.
+ *
+ * This class can be used to test the implementation of the bulk processing parser independent
+ * of the platform specific steps, or where the semantics of the processor are relevant but the
+ * bulk aspect is not
  *
  * Created by ctsims on 3/14/2017.
  */
@@ -55,7 +59,4 @@ public class LinearBulkProcessingCaseXmlParser extends BulkProcessingCaseXmlPars
             return null;
         }
     }
-
-
-
 }

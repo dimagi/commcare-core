@@ -2,20 +2,15 @@ package org.commcare.xml.bulk;
 
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
-import org.commcare.data.xml.TransactionParser;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.externalizable.SerializationLimitationException;
 import org.javarosa.xml.util.ActionableInvalidStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedMap;
 
@@ -24,6 +19,8 @@ import java.util.SortedMap;
  *
  * This parser needs an implementation which can perform the "bulk" steps efficiently on the current
  * platform.
+ *
+ * It should be a drop-in replacemenet for the CaseXmlParser in the ways that it is used
  *
  * Created by ctsims on 3/14/2017.
  */
@@ -60,7 +57,7 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
         Case caseForBlock = null;
         boolean isCreateOrUpdate = false;
 
-        for(int i = 0; i < bufferedTreeElement.getNumChildren(); i++) {
+        for (int i = 0; i < bufferedTreeElement.getNumChildren(); i++) {
             TreeElement subElement = bufferedTreeElement.getChildAt(i);
             String action = subElement.getName().toLowerCase();
             switch (action) {
@@ -107,7 +104,7 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
     }
 
     private String getTrimmedElementTextOrBlank(TreeElement element) {
-        if(element.getValue() == null) {
+        if (element.getValue() == null) {
             return "";
         }
 
@@ -121,7 +118,7 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
         String[] data = new String[3];
         Case caseForBlock = null;
 
-        for (int i = 0 ; i < createElement.getNumChildren(); i++) {
+        for (int i = 0; i < createElement.getNumChildren(); i++) {
             TreeElement subElement = createElement.getChildAt(i);
             String tag = subElement.getName();
             switch (tag) {
@@ -181,7 +178,7 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
     private void updateCase(TreeElement updateElement,
                             Case caseForBlock, String caseId) {
 
-        for (int i = 0 ; i < updateElement.getNumChildren(); i++) {
+        for (int i = 0; i < updateElement.getNumChildren(); i++) {
             TreeElement subElement = updateElement.getChildAt(i);
 
             String key = subElement.getName();
@@ -220,8 +217,8 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
     }
 
     private void indexCase(TreeElement indexElement, Case caseForBlock, String caseId)
-            throws InvalidStructureException{
-        for (int i = 0 ; i < indexElement.getNumChildren(); i++) {
+            throws InvalidStructureException {
+        for (int i = 0; i < indexElement.getNumChildren(); i++) {
             TreeElement subElement = indexElement.getChildAt(i);
 
             String indexName = subElement.getName();
@@ -277,8 +274,8 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
 
     //These are unlikely to be used, and likely need to be refactored still a bit
 
-    private void processCaseAttachment(TreeElement attachmentElement, Case caseForBlock)  {
-        for (int i = 0 ; i < attachmentElement.getNumChildren(); i++) {
+    private void processCaseAttachment(TreeElement attachmentElement, Case caseForBlock) {
+        for (int i = 0; i < attachmentElement.getNumChildren(); i++) {
             TreeElement subElement = attachmentElement.getChildAt(i);
 
             String attachmentName = subElement.getName();
@@ -301,10 +298,10 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
     }
 
     protected void removeAttachment(Case caseForBlock, String attachmentName) {
-
+        throw new RuntimeException("Attachment processing not available for bulk reads");
     }
 
     protected String processAttachment(String src, String from, String name) {
-        return null;
+        throw new RuntimeException("Attachment processing not available for bulk reads");
     }
 }
