@@ -1,12 +1,20 @@
 package org.commcare.suite.model;
 
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 
 /**
  * Created by amstone326 on 2/3/17.
  */
 
-public class AppAvailableForInstall implements Serializable {
+public class AppAvailableForInstall implements Serializable, Externalizable {
 
     private String domain;
     private String appName;
@@ -14,6 +22,10 @@ public class AppAvailableForInstall implements Serializable {
     private boolean isOnProd;
     private String profileRef;
     private String mediaProfileRef;
+
+    public AppAvailableForInstall() {
+        // for deserialization
+    }
 
     public AppAvailableForInstall(String domain, String appName, String appVersion,
                                   boolean isOnProd, String profileRef, String mediaProfileRef) {
@@ -31,5 +43,25 @@ public class AppAvailableForInstall implements Serializable {
 
     public String getMediaProfileRef() {
         return mediaProfileRef;
+    }
+
+    @Override
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        domain = ExtUtil.readString(in);
+        appName = ExtUtil.readString(in);
+        appVersion = ExtUtil.readString(in);
+        isOnProd = ExtUtil.readBool(in);
+        profileRef = ExtUtil.readString(in);
+        mediaProfileRef = ExtUtil.readString(in);
+    }
+
+    @Override
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeString(out, domain);
+        ExtUtil.writeString(out, appName);
+        ExtUtil.writeString(out, appVersion);
+        ExtUtil.writeBool(out, isOnProd);
+        ExtUtil.writeString(out, profileRef);
+        ExtUtil.writeString(out, mediaProfileRef);
     }
 }

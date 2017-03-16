@@ -911,8 +911,8 @@ public class CommCareSession {
     }
 
     /**
-     * Builds a session from by restoring serialized SessionFrame and syncing
-     * from that. Doesn't support restoring the frame stack
+     * Builds a session by restoring a serialized SessionFrame and syncing from that.
+     * Doesn't support restoring the frame stack
      */
     public static CommCareSession restoreSessionFromStream(CommCarePlatform ccPlatform,
                                                            DataInputStream inputStream)
