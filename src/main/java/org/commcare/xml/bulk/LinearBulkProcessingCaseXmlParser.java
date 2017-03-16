@@ -6,6 +6,7 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.kxml2.io.KXmlParser;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -42,7 +43,7 @@ public class LinearBulkProcessingCaseXmlParser extends BulkProcessingCaseXmlPars
     }
 
     @Override
-    protected void performBulkWrite(SortedMap<String, Case> writeLog) throws IOException {
+    protected void performBulkWrite(LinkedHashMap<String, Case> writeLog) throws IOException {
         for(Case c : writeLog.values()) {
             commit(c);
         }
