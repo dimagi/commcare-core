@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
@@ -83,7 +84,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
             //Here we'll go through in search of CommCare data models and parse
             //them using the appropriate CommCare Model data parser.
 
-            Set<TransactionParser> parsersUsed = new HashSet<>();
+            LinkedHashSet<TransactionParser> parsersUsed = new LinkedHashSet<>();
             //Go through each child of the root element
             parseBlock(rootName, parsersUsed);
 
@@ -116,7 +117,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
         }
     }
 
-    private void parseBlock(String root, Set<TransactionParser> parsers) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+    private void parseBlock(String root, LinkedHashSet<TransactionParser> parsers) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         int parsedCounter = 0;
         while (this.nextTagInBlock(root)) {
             if (listenerSet()) {

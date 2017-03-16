@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,7 +48,7 @@ public abstract class BulkElementParser<T> extends TransactionParser<TreeElement
     private List<TreeElement> currentBulkElementBacklog = new ArrayList<>();
     private Set<String> currentBulkReadSet = new HashSet<>();
     private Map<String, T> currentOperatingSet = new HashMap<>();
-    private SortedMap<String, T> writeLog = new TreeMap<>();
+    private LinkedHashMap<String, T> writeLog = new LinkedHashMap<>();
 
     private int currentBulkReadCount = 0;
 
@@ -158,7 +159,7 @@ public abstract class BulkElementParser<T> extends TransactionParser<TreeElement
      * @param writeLog            A list of models to be written during hte bulk write, this method should add
      *                            the processed model to this list.
      */
-    protected abstract void processBufferedElement(TreeElement bufferedTreeElement, Map<String, T> currentOperatingSet, SortedMap<String, T> writeLog) throws InvalidStructureException;
+    protected abstract void processBufferedElement(TreeElement bufferedTreeElement, Map<String, T> currentOperatingSet, LinkedHashMap<String, T> writeLog) throws InvalidStructureException;
 
     /**
      * Writes the list of buffered models into storage as efficiently as possible.
@@ -167,6 +168,6 @@ public abstract class BulkElementParser<T> extends TransactionParser<TreeElement
      *
      * @param writeLog A list of models to be processed into storage, keyed by their unique ID
      */
-    protected abstract void performBulkWrite(SortedMap<String, T> writeLog) throws IOException;
+    protected abstract void performBulkWrite(LinkedHashMap<String, T> writeLog) throws IOException;
 
 }

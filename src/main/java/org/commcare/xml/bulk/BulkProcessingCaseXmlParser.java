@@ -10,6 +10,7 @@ import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -42,7 +43,7 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
     }
 
     @Override
-    protected void processBufferedElement(TreeElement bufferedTreeElement, Map<String, Case> currentOperatingSet, SortedMap<String, Case> writeLog) throws InvalidStructureException {
+    protected void processBufferedElement(TreeElement bufferedTreeElement, Map<String, Case> currentOperatingSet, LinkedHashMap<String, Case> writeLog) throws InvalidStructureException {
         String caseId = bufferedTreeElement.getAttributeValue(null, "case_id");
         if (caseId == null || caseId.equals("")) {
             throw new InvalidStructureException("The case_id attribute of a <case> wasn't set");
