@@ -16,6 +16,7 @@ import static org.junit.Assert.fail;
 
 @RunWith(Parameterized.class)
 public class XPathParseTest {
+
     @Parameterized.Parameters(name = "{index}: test({0}) expected={1}")
     public static Iterable<String[]> testData() {
         return Arrays.asList(new String[][]{

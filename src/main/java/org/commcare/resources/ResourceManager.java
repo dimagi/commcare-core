@@ -9,7 +9,6 @@ import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.util.Vector;
@@ -56,30 +55,26 @@ public class ResourceManager {
             UnresolvedResourceException,
             InstallCancelledException {
         synchronized (updateLock) {
-            try {
-                if (!global.isReady()) {
-                    global.prepareResources(null, platform);
-                }
+            if (!global.isReady()) {
+                global.prepareResources(null, platform);
+            }
 
-                // First, see if the appropriate profile exists
-                Resource profile =
-                        global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+            // First, see if the appropriate profile exists
+            Resource profile =
+                    global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
-                if (profile == null) {
-                    // grab the local profile and parse it
-                    Vector<ResourceLocation> locations = new Vector<>();
-                    locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, profileReference));
+            if (profile == null) {
+                // grab the local profile and parse it
+                Vector<ResourceLocation> locations = new Vector<>();
+                locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, profileReference));
 
-                    // We need a way to identify this version...
-                    Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
-                            CommCarePlatform.APP_PROFILE_RESOURCE_ID,
-                            locations, "Application Descriptor");
+                // We need a way to identify this version...
+                Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
+                        CommCarePlatform.APP_PROFILE_RESOURCE_ID,
+                        locations, "Application Descriptor");
 
-                    global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
-                    global.prepareResources(null, platform);
-                }
-            } catch (StorageFullException e) {
-                e.printStackTrace();
+                global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
+                global.prepareResources(null, platform);
             }
         }
     }
@@ -90,10 +85,8 @@ public class ResourceManager {
      * @param clearProgress Clear the 'incoming' table of any partial update
      *                      info.
      */
-    public void stageUpgradeTable(String profileRef, boolean clearProgress)
-            throws UnfullfilledRequirementsException,
-            StorageFullException,
-            UnresolvedResourceException, InstallCancelledException {
+    public void stageUpgradeTable(String profileRef, boolean clearProgress) throws
+            UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
         synchronized (updateLock) {
             ensureMasterTableValid();
 

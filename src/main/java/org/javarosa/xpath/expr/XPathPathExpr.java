@@ -226,7 +226,7 @@ public class XPathPathExpr extends XPathExpression {
             //ITEMSET TODO: need to update this; for itemset/copy constraints, need to simulate a whole xml sub-tree here
             return unpackValue(ec.candidateValue);
         } else {
-            AbstractTreeElement node = model.resolveReference(ref);
+            AbstractTreeElement node = model.resolveReference(ref, ec);
             if (node == null) {
                 //shouldn't happen -- only existent nodes should be in nodeset
                 throw new XPathTypeMismatchException("Node " + ref.toString() + " does not exist!");

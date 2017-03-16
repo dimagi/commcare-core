@@ -6,7 +6,6 @@ import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
@@ -26,7 +25,9 @@ import java.io.InputStream;
  */
 public class XmlFormRecordProcessor {
 
-    public static void process(final UserSandbox sandbox, InputStream stream) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
+    public static void process(final UserSandbox sandbox, InputStream stream)
+            throws InvalidStructureException, IOException, XmlPullParserException,
+            UnfullfilledRequirementsException {
         process(stream, new TransactionParserFactory() {
             @Override
             public TransactionParser getParser(KXmlParser parser) {
@@ -42,8 +43,9 @@ public class XmlFormRecordProcessor {
 
     }
 
-    public static void process(InputStream stream, TransactionParserFactory factory) throws InvalidStructureException,
-            IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
+    public static void process(InputStream stream, TransactionParserFactory factory)
+            throws InvalidStructureException, IOException, XmlPullParserException,
+            UnfullfilledRequirementsException {
         DataModelPullParser parser = new DataModelPullParser(stream, factory, true, true);
         parser.parse();
     }

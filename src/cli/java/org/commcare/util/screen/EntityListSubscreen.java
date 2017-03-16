@@ -7,6 +7,8 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.AccumulatingReporter;
 import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.core.model.trace.EvaluationTraceReporter;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
 import org.javarosa.xpath.XPathException;
 
@@ -57,7 +59,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     private String createRow(TreeReference entity, boolean collectDebug) {
         EvaluationContext context = new EvaluationContext(rootContext, entity);
-        AccumulatingReporter reporter = new AccumulatingReporter();
+        EvaluationTraceReporter reporter = new AccumulatingReporter();
 
         if (collectDebug) {
             context.setDebugModeOn(reporter);
@@ -179,11 +181,16 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                 createRow(this.mChoices[chosenDebugIndex], true);
             } catch (NumberFormatException e) {
                 if ("list".equals(debugArg)) {
-                    host.printNodesetExpansionTrace();
+                    host.printNodesetExpansionTrace(new AccumulatingReporter());
                 }
             }
             return false;
         }
+
+        if (input.startsWith("profile list")) {
+            host.printNodesetExpansionTrace(new ReducingTraceReporter());
+        }
+
 
         try {
             int i = Integer.parseInt(input);

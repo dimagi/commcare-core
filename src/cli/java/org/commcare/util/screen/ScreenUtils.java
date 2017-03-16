@@ -5,6 +5,7 @@ import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.trace.AccumulatingReporter;
 import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
 
 import java.util.Vector;
@@ -68,8 +69,8 @@ public class ScreenUtils {
         }
     }
 
-    public static void printAndClearTraces(AccumulatingReporter reporter, String description) {
-        if (reporter.getCollectedTraces().size() > 0) {
+    public static void printAndClearTraces(EvaluationTraceReporter reporter, String description) {
+        if (reporter.wereTracesReported()) {
             System.out.println(description);
         }
 
@@ -80,6 +81,6 @@ public class ScreenUtils {
             System.out.print(serializer.serializeEvaluationLevels(trace));
         }
 
-        reporter.clearTraces();
+        reporter.reset();
     }
 }

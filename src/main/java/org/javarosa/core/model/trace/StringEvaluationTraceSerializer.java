@@ -14,19 +14,35 @@ public class StringEvaluationTraceSerializer implements EvaluationTraceSerialize
     }
 
     private String dumpExprOutput(EvaluationTrace level, int refLevel) {
-        String output = indentExprAndValue(level.getExpression(), level.getValue(), refLevel);
+        String output = indentExprAndValue(level, refLevel);
         for (EvaluationTrace child : level.getSubTraces()) {
             output += dumpExprOutput(child, refLevel + 1) + "\n";
         }
         return output;
     }
 
-    private String indentExprAndValue(String expr, String value, int indentLevel) {
+    private String indentExprAndValue(EvaluationTrace level, int indentLevel) {
+        String expr = level.getExpression();
+        String value = level.getValue();
+        String profile = level.getProfileReport();
+
         String indent = "";
         for (int i = 0; i < indentLevel; ++i) {
             indent += "    ";
         }
 
-        return indent + expr + ": " + value + "\n";
+        return addProfileData(indent + expr + ": " + value + "\n", profile, indent);
+    }
+
+    private String addProfileData(String coreString, String profile, String indent) {
+        if(profile == null) {
+            return coreString;
+        } else {
+            String newResult = coreString;
+            for(String profileLine : profile.split("\\n")) {
+                newResult += indent + profileLine + "\n";
+            }
+            return newResult;
+        }
     }
 }

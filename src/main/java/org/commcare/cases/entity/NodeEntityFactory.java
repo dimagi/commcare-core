@@ -1,10 +1,17 @@
 package org.commcare.cases.entity;
 
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.queryset.CurrentModelQuerySet;
+import org.commcare.cases.query.queryset.QuerySetCache;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.core.model.trace.EvaluationTraceReporter;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
+import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
@@ -19,10 +26,17 @@ public class NodeEntityFactory {
 
     protected final EvaluationContext ec;
     protected final Detail detail;
+    private final ReducingTraceReporter reporter = new ReducingTraceReporter();
+
+    private boolean inDebugMode = false;
 
     public NodeEntityFactory(Detail d, EvaluationContext ec) {
         this.detail = d;
         this.ec = ec;
+    }
+
+    public void activateDebugTraceOutput() {
+        inDebugMode = true;
     }
 
     public Detail getDetail() {
@@ -31,6 +45,9 @@ public class NodeEntityFactory {
 
     public Entity<TreeReference> getEntity(TreeReference data) {
         EvaluationContext nodeContext = new EvaluationContext(ec, data);
+        if (inDebugMode) {
+            nodeContext.setDebugModeOn(reporter);
+        }
         detail.populateEvaluationContextVariables(nodeContext);
 
         int length = detail.getHeaderForms().length;
@@ -90,8 +107,53 @@ public class NodeEntityFactory {
     }
 
     public List<TreeReference> expandReferenceList(TreeReference treeReference) {
-        return ec.expandReference(treeReference);
+        EvaluationContext tracableContext = new EvaluationContext(ec, ec.getOriginalContext());
+        if (inDebugMode) {
+            tracableContext.setDebugModeOn(reporter);
+        }
+        List<TreeReference> result = tracableContext.expandReference(treeReference);
+        printAndClearTraces("expand");
+
+        setEvaluationContextDefaultQuerySet(ec, result);
+
+        return result;
     }
+
+    /**
+     * Lets the evaluation context know what the 'overall' query set in play is. This allows the
+     * query planner to know that we aren't just looking to expand results for a specific element,
+     * we're currently iterating over a potentially large set of elements and should batch
+     * appropriately
+     */
+    private void setEvaluationContextDefaultQuerySet(EvaluationContext ec,
+                                                     List<TreeReference> result) {
+
+        QueryContext newContext = ec.getCurrentQueryContext()
+                .checkForDerivativeContextAndReturn(result.size());
+
+        newContext.setHackyOriginalContextBody(new CurrentModelQuerySet(result));
+
+        ec.setQueryContext(newContext);
+    }
+
+    public void printAndClearTraces(String description) {
+        if (!inDebugMode) {
+            return;
+        }
+        if (reporter.wereTracesReported()) {
+            System.out.println(description);
+        }
+
+        StringEvaluationTraceSerializer serializer = new StringEvaluationTraceSerializer();
+
+        for (EvaluationTrace trace : reporter.getCollectedTraces()) {
+            System.out.println(trace.getExpression() + ": " + trace.getValue());
+            System.out.print(serializer.serializeEvaluationLevels(trace));
+        }
+
+        reporter.reset();
+    }
+
 
     /**
      * Performs the underlying work to prepare the entity set

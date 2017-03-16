@@ -1,7 +1,7 @@
-package org.commcare.cases.util;
+package org.commcare.cases.query;
 
 /**
- * A hint that a predicate has a structure that can potentially be optimized  without
+ * A hint that a predicate has a structure that can potentially be optimized without
  * performing the full XPath engine evaluation.
  *
  * Profiles are used by (potentially platform specific) optimizations, but don't implement the

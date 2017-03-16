@@ -43,7 +43,7 @@ public class XPathEvalTest {
 
         try {
             xpe = XPathParseTool.parseXPath(expr);
-        } catch (XPathArityException | XPathSyntaxException e) {
+        } catch (XPathSyntaxException e) {
             assertExceptionExpected(exceptionExpected, expected, e);
             return;
         }
@@ -77,10 +77,12 @@ public class XPathEvalTest {
 
     private void assertExceptionExpected(boolean exceptionExpected, Object expected, Exception xpex) {
         if (!exceptionExpected) {
+            xpex.printStackTrace();
             fail("Did not expect " + xpex.getClass() + " exception");
         } else if (xpex.getClass() != expected.getClass()) {
+            xpex.printStackTrace();
             fail("Expected " + expected.getClass() +
-                    "exception type but was provided" + xpex.getClass());
+                    " exception type but was provided " + xpex.getClass());
         }
     }
 
@@ -453,8 +455,9 @@ public class XPathEvalTest {
         testEval("testfunc()", null, ec, Boolean.TRUE);
         testEval("add(3, 5)", null, ec, new Double(8.0));
         testEval("add('17', '-14')", null, ec, new Double(3.0));
-        // proto not setup for 0 arguments
-        testEval("proto()", null, ec, new XPathArityException());
+        // proto not setup for 0 arguments. Note that Arity is a parse exception, so we expect this
+        // to get wrapped
+        testEval("proto()", null, ec, new XPathTypeMismatchException());
         testEval("proto(5, 5)", null, ec, "[Double:5.0,Double:5.0]");
         testEval("proto(6)", null, ec, "[Double:6.0]");
         testEval("proto('asdf')", null, ec, "[Double:NaN]");
@@ -464,8 +467,9 @@ public class XPathEvalTest {
         testEval("proto(false(), false(), false())", null, ec, "[Double:0.0,String:false,Boolean:false]");
         testEval("proto(1.1, 'asdf', inconvertible())", null, ec, new XPathTypeMismatchException());
 
-        // proto not setup for 4 arguments
-        testEval("proto(1.1, 'asdf', true(), 16)", null, ec, new XPathArityException());
+        // proto not setup for 4 arguments. Note that Arity is a parse exception, so we expect this
+        // to get wrapped
+        testEval("proto(1.1, 'asdf', true(), 16)", null, ec, new XPathTypeMismatchException());
 
         testEval("position(1.1, 'asdf')", null, ec, new XPathArityException());
         testEval("sum(1)", null, ec, new XPathTypeMismatchException());
