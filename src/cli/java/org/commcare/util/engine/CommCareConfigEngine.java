@@ -78,7 +78,7 @@ public class CommCareConfigEngine {
 
     public CommCareConfigEngine(IStorageIndexedFactory storageFactory, InstallerFactory installerFactory) {
         this.print = new PrintStream(System.out);
-        this.platform = new CommCarePlatform(2, 32, storageFactory);
+        this.platform = new CommCarePlatform(2, 34, storageFactory);
         this.storageFactory = storageFactory;
 
 
