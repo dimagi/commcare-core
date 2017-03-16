@@ -1,10 +1,12 @@
 package org.commcare.suite.model;
 
+import java.io.Serializable;
+
 /**
  * Created by amstone326 on 2/3/17.
  */
 
-public class AppAvailableForInstall {
+public class AppAvailableForInstall implements Serializable {
 
     private String domain;
     private String appName;
