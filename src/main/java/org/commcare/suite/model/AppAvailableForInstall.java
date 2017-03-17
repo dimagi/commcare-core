@@ -45,6 +45,10 @@ public class AppAvailableForInstall implements Serializable, Externalizable {
         return mediaProfileRef;
     }
 
+    public String getDomainName() {
+        return domain;
+    }
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         domain = ExtUtil.readString(in);
