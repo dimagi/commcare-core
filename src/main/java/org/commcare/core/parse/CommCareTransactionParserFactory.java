@@ -55,7 +55,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     private final Set<String> processedFixtures = new HashSet<>();
 
     protected final UserSandbox sandbox;
-    private boolean isBulkProcessingEnabled = false;
+    protected boolean isBulkProcessingEnabled = false;
 
     private int requests = 0;
 
