@@ -185,7 +185,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     }
 
     public void initCaseParser() {
-        if(isBulkProcessingEnabled) {
+        if (isBulkProcessingEnabled) {
             caseParser = getBulkCaseParser();
         } else {
             caseParser = getNormalCaseParser();

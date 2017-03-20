@@ -34,9 +34,9 @@ public class LinearBulkProcessingCaseXmlParser extends BulkProcessingCaseXmlPars
 
     @Override
     protected void performBulkRead(Set<String> currentBulkReadSet, Map<String, Case> currentOperatingSet) {
-        for(String index : currentBulkReadSet) {
+        for (String index : currentBulkReadSet) {
             Case c = retrieve(index);
-            if(c != null) {
+            if (c != null) {
                 currentOperatingSet.put(index, c);
             }
         }
@@ -44,7 +44,7 @@ public class LinearBulkProcessingCaseXmlParser extends BulkProcessingCaseXmlPars
 
     @Override
     protected void performBulkWrite(LinkedHashMap<String, Case> writeLog) throws IOException {
-        for(Case c : writeLog.values()) {
+        for (Case c : writeLog.values()) {
             commit(c);
         }
     }

@@ -21,7 +21,7 @@ import java.util.SortedMap;
  * This parser needs an implementation which can perform the "bulk" steps efficiently on the current
  * platform.
  *
- * It should be a drop-in replacemenet for the CaseXmlParser in the ways that it is used
+ * It should be a drop-in replacement for the CaseXmlParser in the ways that it is used
  *
  * Created by ctsims on 3/14/2017.
  */

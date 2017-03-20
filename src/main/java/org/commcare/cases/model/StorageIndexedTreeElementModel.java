@@ -136,7 +136,7 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
      */
     public static String getElementOrAttributeFromSqlColumnName(String col) {
 
-        if(sqlColumnToElementCache.containsKey(col)) {
+        if (sqlColumnToElementCache.containsKey(col)) {
             return sqlColumnToElementCache.get(col);
         }
         String input = col;
