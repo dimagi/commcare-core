@@ -13,9 +13,12 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
@@ -146,7 +149,7 @@ public class PromptToJson {
                 obj.put("answer", answerValue.getDisplayText());
                 return;
             case Constants.DATATYPE_DATE_TIME:
-                DateTime answer = new DateTime(answerValue.getValue());
+                DateTime answer = new DateTime(answerValue.getValue()).withZone(DateTimeZone.UTC);
                 obj.put("answer", answer.toString("yyyy-MM-dd'T'HH:mm:ssZZ"));
                 return;
             case Constants.DATATYPE_CHOICE:
