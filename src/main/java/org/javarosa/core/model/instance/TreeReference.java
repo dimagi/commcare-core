@@ -12,8 +12,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
-import sun.reflect.generics.tree.Tree;
-
 
 // TODO: This class needs to be immutable so that we can perform caching
 // optimizations.
