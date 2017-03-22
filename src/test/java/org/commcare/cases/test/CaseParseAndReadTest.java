@@ -1,9 +1,9 @@
 package org.commcare.cases.test;
 
 import org.commcare.cases.instance.CaseInstanceTreeElement;
-import org.commcare.core.parse.ParseUtils;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.TestInstanceInitializer;
+import org.commcare.test.utilities.TestProfileConfiguration;
 import org.commcare.test.utilities.XmlComparator;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
@@ -14,12 +14,15 @@ import org.javarosa.model.xform.DataModelSerializer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.kxml2.kdom.Document;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 
 /**
  * Test suite to verify end-to-end parsing of inbound case XML
@@ -27,9 +30,20 @@ import java.io.InputStream;
  *
  * @author ctsims
  */
+@RunWith(value = Parameterized.class)
 public class CaseParseAndReadTest {
 
     private MockUserDataSandbox sandbox;
+
+    TestProfileConfiguration config;
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection data() {
+        return TestProfileConfiguration.BulkOffOn();
+    }
+
+    public CaseParseAndReadTest(TestProfileConfiguration config) {
+        this.config = config;
+    }
 
     @Before
     public void setUp() {
@@ -57,7 +71,7 @@ public class CaseParseAndReadTest {
 
     private void compareCaseDbState(String inputTransactions,
                                     String caseDbState) throws Exception {
-            ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox);
+        config.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox, false);
 
         byte[] parsedDb = serializeCaseInstanceFromSandbox(sandbox);
         Document parsed = XmlComparator.getDocumentFromStream(new ByteArrayInputStream(parsedDb));

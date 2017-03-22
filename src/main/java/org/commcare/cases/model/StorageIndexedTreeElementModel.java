@@ -12,6 +12,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
@@ -127,29 +128,49 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
         ExtUtil.write(out, new ExtWrapList(indices));
     }
 
+    public static HashMap<String, String> sqlColumnToElementCache = new HashMap<>();
+    public static HashMap<String, String> elementToSqlColumn = new HashMap<>();
+
     /**
      * Turns a column name into the corresponding attribute or element for the TreeElement
      */
     public static String getElementOrAttributeFromSqlColumnName(String col) {
+
+        if (sqlColumnToElementCache.containsKey(col)) {
+            return sqlColumnToElementCache.get(col);
+        }
+        String input = col;
+
         col = col.replaceAll(DASH_ESCAPE, "-");
         if (col.startsWith(ATTR_COL_PREFIX)) {
-            return "@" + col.substring(ATTR_COL_PREFIX.length());
+            col = "@" + col.substring(ATTR_COL_PREFIX.length());
         } else if (col.startsWith(ELEM_COL_PREFIX)) {
-            return col.substring(ELEM_COL_PREFIX.length());
+            col = col.substring(ELEM_COL_PREFIX.length());
         } else {
             throw new RuntimeException("Unable to process index of '" + col + "' metadata entry");
         }
+
+        sqlColumnToElementCache.put(input, col);
+        return col;
     }
 
     /**
      * Turns an attribute or element from the TreeElement into a valid SQL column name
      */
     public static String getSqlColumnNameFromElementOrAttribute(String entry) {
+        if (elementToSqlColumn.containsKey(entry)) {
+            return elementToSqlColumn.get(entry);
+        }
+
+        String input = entry;
+
         entry = entry.replaceAll("-", DASH_ESCAPE);
         if (entry.startsWith("@")) {
-            return ATTR_COL_PREFIX + entry.substring(ATTR_PREFIX_LENGTH);
+            entry = ATTR_COL_PREFIX + entry.substring(ATTR_PREFIX_LENGTH);
         } else {
-            return ELEM_COL_PREFIX + entry;
+            entry = ELEM_COL_PREFIX + entry;
         }
+        elementToSqlColumn.put(input, entry);
+        return entry;
     }
 }

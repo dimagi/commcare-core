@@ -1,7 +1,7 @@
 package org.commcare.cases.ledger.test;
 
-import org.commcare.core.parse.ParseUtils;
 import org.commcare.test.utilities.CaseTestUtils;
+import org.commcare.test.utilities.TestProfileConfiguration;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -10,7 +10,10 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+import java.util.Collection;
 import java.util.Hashtable;
 
 /**
@@ -18,18 +21,29 @@ import java.util.Hashtable;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
+@RunWith(value = Parameterized.class)
 public class LedgerAndCaseQueryTest {
     private EvaluationContext evalContext;
+
+    TestProfileConfiguration config;
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection data() {
+        return TestProfileConfiguration.BulkOffOn();
+    }
+
+    public LedgerAndCaseQueryTest(TestProfileConfiguration config) {
+        this.config = config;
+    }
 
     @Before
     public void setUp() throws Exception {
         MockUserDataSandbox sandbox = MockDataUtils.getStaticStorage();
 
         // load cases that will be referenced by ledgers
-        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/create_case_for_ledger.xml"), sandbox, true);
+        config.parseIntoSandbox(this.getClass().getResourceAsStream("/create_case_for_ledger.xml"), sandbox, true);
 
         // load ledger data
-        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/ledger_create_basic.xml"), sandbox, true);
+        config.parseIntoSandbox(this.getClass().getResourceAsStream("/ledger_create_basic.xml"), sandbox, true);
 
         // create an evaluation context that has ledger and case instances setup
         Hashtable<String, String> instanceRefToId = new Hashtable<>();
@@ -103,7 +117,7 @@ public class LedgerAndCaseQueryTest {
         MockUserDataSandbox sandbox = MockDataUtils.getStaticStorage();
 
         // load cases that will be referenced by ledgers
-        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/create_case_for_ledger.xml"), sandbox, true);
+        config.parseIntoSandbox(this.getClass().getResourceAsStream("/create_case_for_ledger.xml"), sandbox, true);
 
         // create an evaluation context that has ledger and case instances setup
         Hashtable<String, String> instanceRefToId = new Hashtable<>();
