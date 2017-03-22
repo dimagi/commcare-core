@@ -170,6 +170,8 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
             //see above comment
         }
 
+        parseBlanksPreference(builder, direction);
+
         //See if this has a text value for the sort
         if (nextTagInBlock("sort")) {
             //Make sure the internal element _is_ a text
@@ -178,6 +180,19 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
             //Get it if so
             Text sort = new TextParser(parser).parse();
             builder.setSort(sort);
+        }
+    }
+
+    private void parseBlanksPreference(DetailField.Builder builder, String direction) {
+        String blanksPreference = parser.getAttributeValue(null, "blanks");
+        if ("last".equals(blanksPreference)) {
+            builder.setShowBlanksLast(true);
+        } else if ("first".equals(blanksPreference)) {
+            builder.setShowBlanksLast(false);
+        } else {
+            // If HQ hasn't specified "first" or "last", default to the behavior from before the
+            // "blanks" attribute existed
+            builder.setShowBlanksLast(!"ascending".equals(direction));
         }
     }
 }
