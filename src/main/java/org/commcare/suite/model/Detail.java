@@ -1,9 +1,15 @@
 package org.commcare.suite.model;
 
+import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.NodeEntityFactory;
+import org.commcare.util.DetailFieldPrintInfo;
+import org.commcare.cases.entity.EntityUtil;
 import org.commcare.util.GridCoordinate;
 import org.commcare.util.GridStyle;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -24,6 +30,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -41,6 +48,8 @@ import java.util.Vector;
  * @author ctsims
  */
 public class Detail implements Externalizable {
+
+    public static final String PRINT_TEMPLATE_PROVIDED_VIA_GLOBAL_SETTING = "provided-globally";
 
     private String id;
     private TreeReference nodeset;
@@ -68,7 +77,12 @@ public class Detail implements Externalizable {
 
     private XPathExpression focusFunction;
 
-    // region -- These fields are only used if this detail is a case tile
+    // A button to print this detail should be provided
+    private boolean printEnabled;
+
+    private String derivedPrintTemplatePath;
+
+    // REGION -- These fields are only used if this detail is a case tile
 
     // Allows for the possibility of case tiles being displayed in a grid
     private int numEntitiesToDisplayPerRow;
@@ -77,7 +91,7 @@ public class Detail implements Externalizable {
     // equal to its width, rather than being computed independently
     private boolean useUniformUnitsInCaseTile;
 
-    // endregion
+    // ENDREGION
 
     /**
      * Serialization Only
@@ -91,7 +105,8 @@ public class Detail implements Externalizable {
                   Vector<DetailField> fieldsVector,
                   OrderedHashtable<String, String> variables,
                   Vector<Action> actions, Callout callout, String fitAcross,
-                  String uniformUnitsString, String forceLandscape, String focusFunction) {
+                  String uniformUnitsString, String forceLandscape, String focusFunction,
+                  String printPathProvided) {
 
         if (detailsVector.size() > 0 && fieldsVector.size() > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
@@ -109,6 +124,7 @@ public class Detail implements Externalizable {
         this.callout = callout;
         this.useUniformUnitsInCaseTile = "true".equals(uniformUnitsString);
         this.forceLandscapeView = "true".equals(forceLandscape);
+        this.printEnabled = templatePathValid(printPathProvided);
 
         if (focusFunction != null) {
             try {
@@ -443,4 +459,65 @@ public class Detail implements Externalizable {
     public XPathExpression getFocusFunction() {
         return focusFunction;
     }
+
+    private boolean templatePathValid(String templatePathProvided) {
+        if (PRINT_TEMPLATE_PROVIDED_VIA_GLOBAL_SETTING.equals(templatePathProvided)) {
+            return true;
+        } else if (templatePathProvided != null) {
+            try {
+                this.derivedPrintTemplatePath =
+                        ReferenceManager.instance().DeriveReference(templatePathProvided).getLocalURI();
+                return true;
+            } catch (InvalidReferenceException e) {
+                System.out.println("Invalid print template path provided for detail with id " + this.id);
+            }
+        }
+        return false;
+    }
+
+    public boolean isPrintEnabled() {
+        return this.printEnabled;
+    }
+
+    public String getDerivedPrintTemplatePath() {
+        return this.derivedPrintTemplatePath;
+    }
+
+    public HashMap<String, DetailFieldPrintInfo> getKeyValueMapForPrint(TreeReference selectedEntityRef,
+                                                          EvaluationContext baseContext) {
+        HashMap<String, DetailFieldPrintInfo> mapping = new HashMap<>();
+        populateMappingWithDetailFields(mapping, selectedEntityRef, baseContext, null);
+        return mapping;
+    }
+
+    private void populateMappingWithDetailFields(HashMap<String, DetailFieldPrintInfo> mapping,
+                                                 TreeReference selectedEntityRef,
+                                                 EvaluationContext baseContext,
+                                                 Detail parentDetail) {
+        if (isCompound()) {
+            for (Detail childDetail : details) {
+                childDetail.populateMappingWithDetailFields(mapping, selectedEntityRef, baseContext, this);
+            }
+        } else {
+            Entity entityForDetail =
+                    getCorrespondingEntity(selectedEntityRef, parentDetail, baseContext);
+            for (int i = 0; i < fields.length; i++) {
+                if (entityForDetail.isValidField(i)) {
+                    mapping.put(
+                            fields[i].getPrintIdentifierRobust(),
+                            new DetailFieldPrintInfo(fields[i], entityForDetail, i));
+                }
+            }
+        }
+    }
+
+    private Entity getCorrespondingEntity(TreeReference selectedEntityRef, Detail parentDetail,
+                                          EvaluationContext baseContext) {
+        EvaluationContext entityFactoryContext =
+                EntityUtil.getEntityFactoryContext(selectedEntityRef, parentDetail != null,
+                        parentDetail, baseContext);
+        NodeEntityFactory factory = new NodeEntityFactory(this, entityFactoryContext);
+        return factory.getEntity(selectedEntityRef);
+    }
+
 }
