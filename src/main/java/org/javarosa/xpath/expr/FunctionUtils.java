@@ -78,6 +78,8 @@ public class FunctionUtils {
         funcList.put(XPathConcatFunc.NAME, XPathConcatFunc.class);
         funcList.put(XPathSqrtFunc.NAME, XPathSqrtFunc.class);
         funcList.put(XPathUuidFunc.NAME, XPathUuidFunc.class);
+        funcList.put(XPathIdCompressFunc.NAME, XPathIdCompressFunc.class);
+        funcList.put(XPathJoinChunkFunc.NAME, XPathJoinChunkFunc.class);
     }
 
     private static final CacheTable<String, Double> mDoubleParseCache = new CacheTable<>();
