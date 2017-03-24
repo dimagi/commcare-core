@@ -33,6 +33,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
         String fitAcross = parser.getAttributeValue(null, "fit-across");
         String useUniformUnits = parser.getAttributeValue(null, "uniform-units");
         String forceLandscapeView = parser.getAttributeValue(null, "force-landscape");
+        String printTemplatePath = parser.getAttributeValue(null, "print-template");
 
         // First fetch the title
         getNextTagInBlock("detail");
@@ -108,7 +109,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
         }
 
         return new Detail(id, title, nodeset, subdetails, fields, variables, actions, callout,
-                fitAcross, useUniformUnits, forceLandscapeView, focusFunction);
+                fitAcross, useUniformUnits, forceLandscapeView, focusFunction, printTemplatePath);
     }
 
     protected DetailParser getDetailParser() {

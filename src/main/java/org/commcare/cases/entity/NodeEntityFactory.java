@@ -53,30 +53,30 @@ public class NodeEntityFactory {
         int length = detail.getHeaderForms().length;
         String extraKey = loadCalloutDataMapKey(nodeContext);
 
-        Object[] details = new Object[length];
-        String[] sortDetails = new String[length];
-        boolean[] relevancyDetails = new boolean[length];
+        Object[] fieldData = new Object[length];
+        String[] sortData = new String[length];
+        boolean[] relevancyData = new boolean[length];
         int count = 0;
         for (DetailField f : detail.getFields()) {
             try {
-                details[count] = f.getTemplate().evaluate(nodeContext);
+                fieldData[count] = f.getTemplate().evaluate(nodeContext);
                 Text sortText = f.getSort();
                 if (sortText == null) {
-                    sortDetails[count] = null;
+                    sortData[count] = null;
                 } else {
-                    sortDetails[count] = sortText.evaluate(nodeContext);
+                    sortData[count] = sortText.evaluate(nodeContext);
                 }
-                relevancyDetails[count] = f.isRelevant(nodeContext);
+                relevancyData[count] = f.isRelevant(nodeContext);
             } catch (XPathSyntaxException e) {
-                storeErrorDetails(e, count, details, relevancyDetails);
+                storeErrorDetails(e, count, fieldData, relevancyData);
             } catch (XPathException xpe) {
                 //XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpe);
-                storeErrorDetails(xpe, count, details, relevancyDetails);
+                storeErrorDetails(xpe, count, fieldData, relevancyData);
             }
             count++;
         }
 
-        return new Entity<>(details, sortDetails, relevancyDetails, data, extraKey,
+        return new Entity<>(fieldData, sortData, relevancyData, data, extraKey,
                 detail.evaluateFocusFunction(nodeContext));
     }
 

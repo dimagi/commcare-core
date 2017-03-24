@@ -1,7 +1,7 @@
 package org.commcare.cases.test;
 
-import org.commcare.core.parse.ParseUtils;
 import org.commcare.test.utilities.CaseTestUtils;
+import org.commcare.test.utilities.TestProfileConfiguration;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -9,14 +9,31 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import java.util.Collection;
 
 /**
  * Test xpath expression evaluation that references the case instance
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
+
+@RunWith(value = Parameterized.class)
 public class CaseXPathQueryTest {
     private MockUserDataSandbox sandbox;
+
+    TestProfileConfiguration config;
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection data() {
+        return TestProfileConfiguration.BulkOffOn();
+    }
+
+    public CaseXPathQueryTest(TestProfileConfiguration config) {
+        this.config = config;
+    }
+
 
     @Before
     public void setUp() {
@@ -35,7 +52,7 @@ public class CaseXPathQueryTest {
 
     @Test
     public void elementQueryWithCaseInstance() throws Exception {
-        ParseUtils.parseIntoSandbox(
+        config.parseIntoSandbox(
                 this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
         EvaluationContext ec = MockDataUtils.buildContextWithInstance(sandbox, "casedb",
                 CaseTestUtils.CASE_INSTANCE);
@@ -46,7 +63,7 @@ public class CaseXPathQueryTest {
 
     @Test
     public void referenceNonExistentCaseId() throws Exception {
-        ParseUtils.parseIntoSandbox(
+        config.parseIntoSandbox(
                 this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
         EvaluationContext ec = MockDataUtils.buildContextWithInstance(sandbox, "casedb",
                 CaseTestUtils.CASE_INSTANCE);
@@ -57,7 +74,7 @@ public class CaseXPathQueryTest {
 
     @Test
     public void caseQueryWithBadPath() throws Exception {
-        ParseUtils.parseIntoSandbox(
+        config.parseIntoSandbox(
                 this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
         EvaluationContext ec = MockDataUtils.buildContextWithInstance(sandbox, "casedb",
                 CaseTestUtils.CASE_INSTANCE);
@@ -68,7 +85,7 @@ public class CaseXPathQueryTest {
 
     @Test
     public void caseQueryEqualsTest() throws Exception {
-        ParseUtils.parseIntoSandbox(
+        config.parseIntoSandbox(
                 this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(sandbox, "casedb",
@@ -80,7 +97,7 @@ public class CaseXPathQueryTest {
 
     @Test
     public void caseQueryNotEqualsTest() throws Exception {
-        ParseUtils.parseIntoSandbox(
+        config.parseIntoSandbox(
                 this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(sandbox, "casedb",

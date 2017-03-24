@@ -20,8 +20,14 @@ public class ParseUtils {
     }
 
     public static void parseIntoSandbox(InputStream stream, UserSandbox sandbox, boolean failfast)
+            throws InvalidStructureException, UnfullfilledRequirementsException, XmlPullParserException, IOException {
+        parseIntoSandbox(stream, sandbox, failfast, false);
+    }
+
+
+    public static void parseIntoSandbox(InputStream stream, UserSandbox sandbox, boolean failfast, boolean bulkProcessingEnabled)
             throws InvalidStructureException, IOException, UnfullfilledRequirementsException, XmlPullParserException {
-        CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(sandbox);
+        CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(sandbox, bulkProcessingEnabled);
         DataModelPullParser parser = new DataModelPullParser(stream, factory, failfast, true);
         parser.parse();
     }
