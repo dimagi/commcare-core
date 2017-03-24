@@ -14,7 +14,6 @@ import java.util.List;
 /**
  * Created by amstone326 on 2/3/17.
  */
-
 public class AvailableAppsParser extends ElementParser<List<AppAvailableForInstall>> {
 
     private static final String APPS_TAG = "apps";

@@ -11,9 +11,11 @@ import java.io.IOException;
 import java.io.Serializable;
 
 /**
+ * Represents an app that exists on CommCare HQ (either india or prod) and is accessible for
+ * the currently-authenticated user (either mobile or web) to install.
+ *
  * Created by amstone326 on 2/3/17.
  */
-
 public class AppAvailableForInstall implements Serializable, Externalizable {
 
     private String domain;
