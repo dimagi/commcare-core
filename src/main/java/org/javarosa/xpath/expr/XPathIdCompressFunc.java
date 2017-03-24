@@ -3,6 +3,7 @@ package org.javarosa.xpath.expr;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.util.CompressingIdGenreator;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathIdCompressFunc extends XPathFuncExpr {
@@ -26,7 +27,10 @@ public class XPathIdCompressFunc extends XPathFuncExpr {
         String bodyDigits = FunctionUtils.toString(evaluatedArgs[3]);
         int fixedBodyLength = FunctionUtils.toInt(evaluatedArgs[4]).intValue();
 
-        return CompressingIdGenreator.generateCompressedIdString(input, growthDigits, leadDigits, bodyDigits, fixedBodyLength);
+        try {
+            return CompressingIdGenreator.generateCompressedIdString(input, growthDigits, leadDigits, bodyDigits, fixedBodyLength);
+        } catch(IllegalArgumentException iae) {
+            throw new XPathException(iae.getMessage());
+        }
     }
-
 }

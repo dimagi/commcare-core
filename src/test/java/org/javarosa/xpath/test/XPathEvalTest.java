@@ -520,6 +520,9 @@ public class XPathEvalTest {
         testEval("id-compress(9, 'CD','AB','ABCDE',1)", null, null, "BE");
         testEval("id-compress(10, 'CD','AB','ABCDE',1)", null, null, "DAA");
 
+        testEval("id-compress(0, 'CD','','ABCDE',1)", null, ec, new XPathException());
+        testEval("id-compress(0, 'CD','CD','ABCDE',1)", null, ec, new XPathException());
+
         //Variables
         EvaluationContext varContext = getVariableContext();
         testEval("$var_float_five", null, varContext, new Double(5.0));
