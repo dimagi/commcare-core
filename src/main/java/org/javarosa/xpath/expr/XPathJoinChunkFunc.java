@@ -8,7 +8,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathJoinChunkFunc extends XPathFuncExpr {
     public static final String NAME = "join-chunked";
-    // one or more arguments
+    // one or more args. Function overrides validate arg count
     private static final int EXPECTED_ARG_COUNT = -1;
 
     public XPathJoinChunkFunc() {
