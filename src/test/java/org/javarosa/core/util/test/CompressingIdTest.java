@@ -1,6 +1,6 @@
 package org.javarosa.core.util.test;
 
-import org.javarosa.core.util.CompressingIdGenreator;
+import org.javarosa.core.util.CompressingIdGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,47 +26,47 @@ public class CompressingIdTest {
 
     @Test
     public void basicGrowthTests() {
-        Assert.assertEquals("AAA", CompressingIdGenreator.generateCompressedIdString(0,
+        Assert.assertEquals("AAA", CompressingIdGenerator.generateCompressedIdString(0,
                 GROWTH, LEAD, BODY, 2));
 
-        Assert.assertEquals("T99", CompressingIdGenreator.generateCompressedIdString(
+        Assert.assertEquals("T99", CompressingIdGenerator.generateCompressedIdString(
                 (LB * BB * BB) -1,
                 GROWTH, LEAD, BODY, 2));
 
-        Assert.assertEquals("LAAA", CompressingIdGenreator.generateCompressedIdString(
+        Assert.assertEquals("LAAA", CompressingIdGenerator.generateCompressedIdString(
                 (LB * BB * BB),
                 GROWTH, LEAD, BODY, 2));
 
-        Assert.assertEquals("VT99", CompressingIdGenreator.generateCompressedIdString(
+        Assert.assertEquals("VT99", CompressingIdGenerator.generateCompressedIdString(
                 (GB * LB * BB * BB) - 1,
                 GROWTH, LEAD, BODY, 2));
 
-        Assert.assertEquals("LHAAA", CompressingIdGenreator.generateCompressedIdString(
+        Assert.assertEquals("LHAAA", CompressingIdGenerator.generateCompressedIdString(
                 (GB * LB * BB * BB),
                 GROWTH, LEAD, BODY, 2));
 
-        Assert.assertEquals("VVT99", CompressingIdGenreator.generateCompressedIdString(
+        Assert.assertEquals("VVT99", CompressingIdGenerator.generateCompressedIdString(
                 (GB * GB * LB * BB * BB)-1,
                 GROWTH, LEAD, BODY, 2));
     }
 
     @Test
     public void noBodyTests() {
-        Assert.assertEquals("A", CompressingIdGenreator.generateCompressedIdString(0, GROWTH, LEAD, BODY, 0));
-        Assert.assertEquals("T", CompressingIdGenreator.generateCompressedIdString(11, GROWTH, LEAD, BODY, 0));
-        Assert.assertEquals("LA", CompressingIdGenreator.generateCompressedIdString(12, GROWTH, LEAD, BODY, 0));
-        Assert.assertEquals("VT", CompressingIdGenreator.generateCompressedIdString(119, GROWTH, LEAD, BODY, 0));
+        Assert.assertEquals("A", CompressingIdGenerator.generateCompressedIdString(0, GROWTH, LEAD, BODY, 0));
+        Assert.assertEquals("T", CompressingIdGenerator.generateCompressedIdString(11, GROWTH, LEAD, BODY, 0));
+        Assert.assertEquals("LA", CompressingIdGenerator.generateCompressedIdString(12, GROWTH, LEAD, BODY, 0));
+        Assert.assertEquals("VT", CompressingIdGenerator.generateCompressedIdString(119, GROWTH, LEAD, BODY, 0));
     }
 
     @Test
     public void overlapTests() {
         HashSet<String> generatedIds = new HashSet<>();
-        for(int i = 0 ; i < 100 ; ++i) {
-            for(int j = 0 ; j < 100 ; ++j) {
-                for(int k = 0 ; k < 100 ; ++k) {
-                    String iPart = CompressingIdGenreator.generateCompressedIdString(i, GROWTH_LIMITED, LEAD_LIMITED, BODY_LIMITED, 1);
-                    String jPart = CompressingIdGenreator.generateCompressedIdString(j, GROWTH_LIMITED, LEAD_LIMITED, BODY_LIMITED, 1);
-                    String kPart = CompressingIdGenreator.generateCompressedIdString(k, GROWTH_LIMITED, LEAD_LIMITED, BODY_LIMITED, 1);
+        for (int i = 0; i < 100; ++i) {
+            for (int j = 0; j < 100; ++j) {
+                for (int k = 0; k < 100; ++k) {
+                    String iPart = CompressingIdGenerator.generateCompressedIdString(i, GROWTH_LIMITED, LEAD_LIMITED, BODY_LIMITED, 1);
+                    String jPart = CompressingIdGenerator.generateCompressedIdString(j, GROWTH_LIMITED, LEAD_LIMITED, BODY_LIMITED, 1);
+                    String kPart = CompressingIdGenerator.generateCompressedIdString(k, GROWTH_LIMITED, LEAD_LIMITED, BODY_LIMITED, 1);
 
                     String joined = iPart + jPart + kPart;
                     if (generatedIds.contains(joined)) {
@@ -76,7 +76,5 @@ public class CompressingIdTest {
                 }
             }
         }
-
-        int g =2;
     }
 }

@@ -4,7 +4,7 @@ package org.javarosa.core.util;
  * Created by ctsims on 3/24/2017.
  */
 
-public class CompressingIdGenreator {
+public class CompressingIdGenerator {
 
 
     /**
@@ -38,15 +38,15 @@ public class CompressingIdGenreator {
                                                     String bodySymbols,
                                                     int bodyDigitCount) {
 
-        if(growthSymbols.length() == 0 || leadSymbols.length() == 0) {
+        if (growthSymbols.length() == 0 || leadSymbols.length() == 0) {
             throw new IllegalArgumentException(String.format(
                     "Invalid Symbol Space for ID Compression, growth and lead set must both" +
                             " contain at least one symbol" +
                             "\nG[%s] | L[%s] | B[%s]",growthSymbols, leadSymbols, bodySymbols));
         }
 
-        for(char c : growthSymbols.toCharArray()) {
-            if(leadSymbols.indexOf(c) != -1) {
+        for (char c : growthSymbols.toCharArray()) {
+            if (leadSymbols.indexOf(c) != -1) {
                 throw new IllegalArgumentException(String.format(
                         "Illegal growth/lead symbol space. The character %s was found in both" +
                                 " spaces.", c));
@@ -72,44 +72,44 @@ public class CompressingIdGenreator {
 
         int[] digitBases = new int[growthDigitCount + 1 + bodyDigitCount];
         int digit = 0;
-        for(int i = 0 ; i < growthDigitCount ; ++i) {
+        for (int i = 0; i < growthDigitCount; ++i) {
             digitBases[i] = growthDigitBase;
             digit++;
         }
 
         digitBases[digit] = leadDigitBase;
         digit++;
-        for(int i = 0 ; i < bodyDigitCount ; ++i) {
+        for (int i = 0; i < bodyDigitCount; ++i) {
             digitBases[digit + i] = bodyDigitBase;
         }
 
         long[] divisors = new long[digitBases.length];
         divisors[divisors.length -1] = 1;
-        for(int i = divisors.length -2; i >= 0; i--) {
+        for (int i = divisors.length -2; i >= 0; i--) {
             divisors[i] = divisors[i + 1] * digitBases[i + 1];
         }
 
         long remainder = input;
 
         int[] count = new int[digitBases.length];
-        for(int i = 0 ; i < digitBases.length; i++) {
+        for (int i = 0 ; i < digitBases.length; i++) {
             count[i] = (int)Math.floor(remainder / divisors[i]);
             remainder = remainder % divisors[i];
         }
-        if(remainder != 0) {
+        if (remainder != 0) {
             throw new RuntimeException("Invalid ID Generation! Number was not fully encoded");
         }
 
         char[] outputGenerator = new char[growthDigitCount + 1 + bodyDigitCount];
 
         digit = 0;
-        for(int i = 0 ; i < growthDigitCount ; ++i) {
+        for (int i = 0; i < growthDigitCount; ++i) {
             outputGenerator[i] = growthSymbols.charAt(count[i]);
             digit++;
         }
         outputGenerator[digit] = leadSymbols.charAt(count[digit]);
         digit++;
-        for(int i = 0 ; i < bodyDigitCount ; ++i) {
+        for (int i = 0; i < bodyDigitCount; ++i) {
             outputGenerator[digit + i] = bodySymbols.charAt(count[digit + i]);
         }
 

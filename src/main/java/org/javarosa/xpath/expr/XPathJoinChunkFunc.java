@@ -28,11 +28,14 @@ public class XPathJoinChunkFunc extends XPathFuncExpr {
     }
 
     @Override
-    public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
+    public Object evalBody(DataInstance model, EvaluationContext evalContext,
+                           Object[] evaluatedArgs) {
         if (args.length == 3 && evaluatedArgs[2] instanceof XPathNodeset) {
-            return join(evaluatedArgs[0], evaluatedArgs[1], ((XPathNodeset)evaluatedArgs[2]).toArgList());
+            return join(evaluatedArgs[0], evaluatedArgs[1],
+                    ((XPathNodeset)evaluatedArgs[2]).toArgList());
         } else {
-            return join(evaluatedArgs[0], evaluatedArgs[1], FunctionUtils.subsetArgList(evaluatedArgs, 2));
+            return join(evaluatedArgs[0], evaluatedArgs[1],
+                    FunctionUtils.subsetArgList(evaluatedArgs, 2));
         }
     }
 
@@ -49,8 +52,8 @@ public class XPathJoinChunkFunc extends XPathFuncExpr {
             intermediateBuffer.append(FunctionUtils.toString(argVals[i]));
         }
 
-        for(int i = 0 ; i < intermediateBuffer.length() ; ++i) {
-            if( i != 0 && (i % chunkSize ==0)) {
+        for (int i = 0; i < intermediateBuffer.length(); ++i) {
+            if (i != 0 && (i % chunkSize == 0)) {
                 outputBuffer.append(sep);
             }
             outputBuffer.append(intermediateBuffer.charAt(i));
