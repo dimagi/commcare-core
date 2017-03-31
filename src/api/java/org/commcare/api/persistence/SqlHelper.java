@@ -88,13 +88,21 @@ public class SqlHelper {
         TableBuilder tableBuilder = new TableBuilder(storageKey);
         tableBuilder.addData(p);
         Pair<String, String[]> pair = DatabaseHelper.createWhere(fields, values, p);
+        String queryString = "SELECT * FROM " + storageKey + " WHERE " + pair.first + ";";
+        return prepareStatement(c, queryString, pair.second);
+    }
 
+    /**
+     * @throws IllegalArgumentException when one or more of the fields we're selecting on
+     *                                  is not a valid key to select on for this object
+     */
+    public static PreparedStatement prepareStatement(Connection c,
+                                                     String queryString,
+                                                     String[] values) {
         try {
-            String queryString =
-                    "SELECT * FROM " + storageKey + " WHERE " + pair.first + ";";
             PreparedStatement preparedStatement = c.prepareStatement(queryString);
-            for (int i = 0; i < pair.second.length; i++) {
-                preparedStatement.setString(i + 1, pair.second[i]);
+            for (int i = 0; i < values.length; i++) {
+                preparedStatement.setString(i + 1, values[i]);
             }
             return preparedStatement;
         } catch (SQLException e) {
