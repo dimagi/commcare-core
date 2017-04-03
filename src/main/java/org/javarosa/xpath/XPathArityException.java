@@ -27,12 +27,12 @@ public class XPathArityException extends XPathSyntaxException {
      * @param providedArity number of arguments provided for this function call
      */
     public XPathArityException(String funcName, int expectedArity, int providedArity) {
-        super("The " + funcName +
-                " function was provided the incorrect number of arguments:" + providedArity +
+        super("The \"" + funcName +
+                "\" function was provided the incorrect number of arguments:" + providedArity +
                 ". It expected " + expectedArity + " arguments.");
 
-        this.errorMessage = "The " + funcName +
-                " function was provided the incorrect number of arguments:" + providedArity +
+        this.errorMessage = "The \"" + funcName +
+                "\" function was provided the incorrect number of arguments:" + providedArity +
                 ". It expected " + expectedArity + " arguments.";
         this.expectedArity = expectedArity;
         this.providedArity = providedArity;
@@ -50,12 +50,12 @@ public class XPathArityException extends XPathSyntaxException {
      * @param providedArity        number of arguments provided for this function call
      */
     public XPathArityException(String funcName, String expectedArityMessage, int providedArity) {
-        super("The " + funcName +
-                " function was provided the incorrect number of arguments:" + providedArity +
+        super("The \"" + funcName +
+                "\" function was provided the incorrect number of arguments:" + providedArity +
                 ". It expected " + expectedArityMessage + ".");
 
-        this.errorMessage = "The " + funcName +
-                " function was provided the incorrect number of arguments:" + providedArity +
+        this.errorMessage = "The \"" + funcName +
+                "\" function was provided the incorrect number of arguments:" + providedArity +
                 ". It expected " + expectedArityMessage + ".";
         this.expectedArity = -1;
         this.providedArity = providedArity;
