@@ -140,12 +140,27 @@ public class CommCareConfigEngine {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setInstanceFollowRedirects(true);  //you still need to handle redirect manully.
             HttpURLConnection.setFollowRedirects(true);
-
             File file = File.createTempFile("commcare_", ".ccz");
-
-            FileOutputStream fos = new FileOutputStream(file);
-            StreamsUtil.writeFromInputToOutput(new BufferedInputStream(conn.getInputStream()), fos);
-            return file.getAbsolutePath();
+            FileOutputStream fos = null;
+            BufferedInputStream bis = null;
+            try {
+                fos = new FileOutputStream(file);
+                bis = new BufferedInputStream(conn.getInputStream());
+                StreamsUtil.writeFromInputToOutput(bis, fos);
+                return file.getAbsolutePath();
+            } finally {
+                try {
+                    if (fos != null) {
+                        fos.close();
+                    }
+                    if (bis != null) {
+                        bis.close();
+                    }
+                    conn.disconnect();
+                } catch (IOException ex) {
+                    // Log error writing file and bail out.
+                }
+            }
         } catch (IOException e) {
             print.println("Issue downloading or create stream for " + resource);
             throw new RuntimeException(e);
