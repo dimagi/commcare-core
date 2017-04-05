@@ -1,6 +1,5 @@
 package org.javarosa.core.services.storage;
 
-import org.javarosa.core.services.IPropertyManager;
 import org.javarosa.core.services.Logger;
 
 import java.util.Enumeration;
