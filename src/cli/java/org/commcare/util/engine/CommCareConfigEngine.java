@@ -148,8 +148,7 @@ public class CommCareConfigEngine {
             return file.getAbsolutePath();
         } catch (IOException e) {
             print.println("Issue downloading or create stream for " + resource);
-            e.printStackTrace(print);
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
