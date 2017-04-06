@@ -27,8 +27,8 @@ public class StorageManager {
         return instance.get();
     }
 
-    private static final Hashtable<String, IStorageUtilityIndexed> storageRegistry = new Hashtable<>();
-    private static IStorageIndexedFactory storageFactory;
+    private final Hashtable<String, IStorageUtilityIndexed> storageRegistry = new Hashtable<>();
+    private IStorageIndexedFactory storageFactory;
 
     /**
      * Attempts to set the storage factory for the current environment. Will fail silently
@@ -36,8 +36,8 @@ public class StorageManager {
      *
      * @param fact An available storage factory.
      */
-    public static void setStorageFactory(IStorageIndexedFactory fact) {
-        StorageManager.setStorageFactory(fact, false);
+    public void setStorageFactory(IStorageIndexedFactory fact) {
+        setStorageFactory(fact, false);
     }
 
     /**
@@ -48,7 +48,7 @@ public class StorageManager {
      * @param fact     An available storage factory.
      * @param mustWork true if it is intolerable for another storage factory to have been set. False otherwise
      */
-    public static void setStorageFactory(IStorageIndexedFactory fact, boolean mustWork) {
+    public void setStorageFactory(IStorageIndexedFactory fact, boolean mustWork) {
         if (storageFactory == null) {
             storageFactory = fact;
         } else {
@@ -67,7 +67,7 @@ public class StorageManager {
         storageRegistry.put(key, storageFactory.newStorage(key, type));
     }
 
-    public static IStorageUtilityIndexed getStorage(String key) {
+    public IStorageUtilityIndexed getStorage(String key) {
         if (storageRegistry.containsKey(key)) {
             return storageRegistry.get(key);
         } else {
