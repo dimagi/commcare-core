@@ -37,13 +37,10 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
     protected abstract String getCacheKey();
 
     protected IStorageUtilityIndexed<T> storage() {
-        throw new RuntimeException("CACHE INSTALLER STORAGE CALLED");
-        /*
         if (cacheStorage == null) {
             cacheStorage = StorageManager.instance().getStorage(getCacheKey());
         }
         return cacheStorage;
-        */
     }
 
     @Override
