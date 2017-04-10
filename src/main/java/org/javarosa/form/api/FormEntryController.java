@@ -435,8 +435,9 @@ public class FormEntryController {
      * from the formhierarchy view to a selected index.
      */
     public boolean isFieldListHost(FormIndex index) {
-        // if this isn't a group, return right away
-        if (!(this.getModel().getForm().getChild(index) instanceof GroupDef)) {
+        // if this isn't a group or is a repeat, return right away
+        if (!(this.getModel().getForm().getChild(index) instanceof GroupDef) ||
+                ((GroupDef) this.getModel().getForm().getChild(index)).getRepeat()) {
             return false;
         }
 
