@@ -13,7 +13,7 @@ import java.io.PrintStream;
  */
 public class SyncScreen extends Screen {
 
-    SessionWrapper sessionWrapper;
+    protected SessionWrapper sessionWrapper;
 
     @Override
     public void init(SessionWrapper sessionWrapper) throws CommCareSessionException {
