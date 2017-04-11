@@ -273,7 +273,7 @@ public class FormDef implements IFormElement, IMetaData,
         // fill in multiplicities for repeats along the way
         for (int i = 0; i < elements.size(); i++) {
             IFormElement temp = elements.elementAt(i);
-            if (temp instanceof GroupDef && ((GroupDef)temp).getRepeat()) {
+            if (temp instanceof GroupDef && ((GroupDef)temp).isRepeat()) {
                 TreeReference repRef = FormInstance.unpackReference(temp.getBind());
                 if (repRef.isParentOf(ref, false)) {
                     int repMult = multiplicities.elementAt(i);
@@ -333,7 +333,7 @@ public class FormDef implements IFormElement, IMetaData,
         // TODO: should probably check to make sure size > 0
         for (int i = elements.size() - 1; i >= 0; i--) {
             IFormElement e = elements.elementAt(i);
-            if (e instanceof GroupDef && ((GroupDef)e).getRepeat()) {
+            if (e instanceof GroupDef && ((GroupDef)e).isRepeat()) {
                 break;
             } else {
                 indexes.removeElementAt(i);
@@ -1537,7 +1537,7 @@ public class FormDef implements IFormElement, IMetaData,
             int ix = indexes.elementAt(i);
             int mult = multiplicities.elementAt(i);
 
-            if (!(elements.elementAt(i) instanceof GroupDef && ((GroupDef)elements.elementAt(i)).getRepeat())) {
+            if (!(elements.elementAt(i) instanceof GroupDef && ((GroupDef)elements.elementAt(i)).isRepeat())) {
                 mult = -1;
             }
 
@@ -1559,7 +1559,7 @@ public class FormDef implements IFormElement, IMetaData,
 
         collapseIndex(index, indexes, multiplicities, elements);
 
-        if (!(elements.lastElement() instanceof GroupDef) || !((GroupDef)elements.lastElement()).getRepeat()) {
+        if (!(elements.lastElement() instanceof GroupDef) || !((GroupDef)elements.lastElement()).isRepeat()) {
             throw new RuntimeException("current element not a repeat");
         }
 
