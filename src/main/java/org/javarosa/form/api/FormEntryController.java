@@ -437,7 +437,7 @@ public class FormEntryController {
     public boolean isFieldListHost(FormIndex index) {
         // if this isn't a group or is a repeat, return right away
         if (!(this.getModel().getForm().getChild(index) instanceof GroupDef) ||
-                ((GroupDef) this.getModel().getForm().getChild(index)).getRepeat()) {
+                ((GroupDef)this.getModel().getForm().getChild(index)).isRepeat()) {
             return false;
         }
 

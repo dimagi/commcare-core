@@ -89,7 +89,7 @@ public class FormEntryModel {
 
         IFormElement element = form.getChild(index);
         if (element instanceof GroupDef) {
-            if (((GroupDef)element).getRepeat()) {
+            if (((GroupDef)element).isRepeat()) {
                 if (repeatStructure != REPEAT_STRUCTURE_NON_LINEAR && form.getMainInstance().resolveReference(form.getChildInstanceRef(index)) == null) {
                     return FormEntryController.EVENT_PROMPT_NEW_REPEAT;
                 } else if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR && index.getElementMultiplicity() == TreeReference.INDEX_REPEAT_JUNCTURE) {
@@ -332,7 +332,7 @@ public class FormEntryModel {
     }
 
     private static void createModelForGroup(GroupDef g, FormIndex index, FormDef form) {
-        if (g.getRepeat() && g.getCountReference() != null) {
+        if (g.isRepeat() && g.getCountReference() != null) {
             TreeReference countRef = g.getConextualizedCountReference(index.getReference());
             IAnswerData count = form.getMainInstance().resolveReference(countRef).getValue();
             if (count != null) {
@@ -405,7 +405,7 @@ public class FormEntryModel {
                 // find out whether we're on a repeat, and if so, whether the
                 // specified instance actually exists
                 GroupDef group = (GroupDef)elements.elementAt(i);
-                if (group.getRepeat()) {
+                if (group.isRepeat()) {
                     if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR) {
                         if ((multiplicities.lastElement()).intValue() == TreeReference.INDEX_REPEAT_JUNCTURE) {
                             descend = false;
@@ -426,7 +426,7 @@ public class FormEntryModel {
                 elements.addElement((i == -1 ? form : elements.elementAt(i)).getChild(0));
 
                 if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR) {
-                    if (elements.lastElement() instanceof GroupDef && ((GroupDef)elements.lastElement()).getRepeat()) {
+                    if (elements.lastElement() instanceof GroupDef && ((GroupDef)elements.lastElement()).isRepeat()) {
                         multiplicities.setElementAt(TreeReference.INDEX_REPEAT_JUNCTURE, multiplicities.size() - 1);
                     }
                 }
@@ -440,7 +440,7 @@ public class FormEntryModel {
             // repeat instance that does not exist and was not created
             // (repeat-not-existing can only happen at lowest level; exitRepeat
             // will be true)
-            if (!exitRepeat && elements.elementAt(i) instanceof GroupDef && ((GroupDef)elements.elementAt(i)).getRepeat()) {
+            if (!exitRepeat && elements.elementAt(i) instanceof GroupDef && ((GroupDef)elements.elementAt(i)).isRepeat()) {
                 if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR) {
                     multiplicities.setElementAt(TreeReference.INDEX_REPEAT_JUNCTURE, i);
                 } else {
@@ -467,7 +467,7 @@ public class FormEntryModel {
                 elements.setElementAt(parent.getChild(curIndex + 1), i);
 
                 if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR) {
-                    if (elements.lastElement() instanceof GroupDef && ((GroupDef)elements.lastElement()).getRepeat()) {
+                    if (elements.lastElement() instanceof GroupDef && ((GroupDef)elements.lastElement()).isRepeat()) {
                         multiplicities.setElementAt(TreeReference.INDEX_REPEAT_JUNCTURE, multiplicities.size() - 1);
                     }
                 }
@@ -509,7 +509,7 @@ public class FormEntryModel {
             int curMult = multiplicities.elementAt(i);
 
             if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR &&
-                    elements.lastElement() instanceof GroupDef && ((GroupDef)elements.lastElement()).getRepeat() &&
+                    elements.lastElement() instanceof GroupDef && ((GroupDef)elements.lastElement()).isRepeat() &&
                     multiplicities.lastElement().intValue() != TreeReference.INDEX_REPEAT_JUNCTURE) {
                 multiplicities.setElementAt(TreeReference.INDEX_REPEAT_JUNCTURE, i);
                 return;
@@ -583,7 +583,7 @@ public class FormEntryModel {
     private boolean containsRepeatGuesses(IFormElement parent) {
         if (parent instanceof GroupDef) {
             GroupDef g = (GroupDef)parent;
-            if (g.getRepeat() && g.getCountReference() != null) {
+            if (g.isRepeat() && g.getCountReference() != null) {
                 return true;
             }
         }
