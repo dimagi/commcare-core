@@ -35,13 +35,24 @@ public class ParseUtils {
                                         boolean failfast,
                                         CommCareTransactionParserFactory factory)
             throws InvalidStructureException, IOException, UnfullfilledRequirementsException, XmlPullParserException {
-        DataModelPullParser parser = new DataModelPullParser(stream, factory, failfast, true);
-        parser.parse();
+        parseIntoSandbox(stream, factory, failfast, false);
+    }
+    public static void parseIntoSandbox(InputStream stream, UserSandbox sandbox, boolean failfast)
+            throws InvalidStructureException, UnfullfilledRequirementsException, XmlPullParserException, IOException {
+        parseIntoSandbox(stream, sandbox, failfast, false);
     }
 
-    public static void parseIntoSandbox(InputStream stream, UserSandbox sandbox, boolean failfast)
+
+    public static void parseIntoSandbox(InputStream stream, UserSandbox sandbox, boolean failfast, boolean bulkProcessingEnabled)
             throws InvalidStructureException, IOException, UnfullfilledRequirementsException, XmlPullParserException {
-        CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(sandbox);
-        parseIntoSandbox(stream, failfast, factory);
+        CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(sandbox, bulkProcessingEnabled);
+        parseIntoSandbox(stream, factory, failfast, bulkProcessingEnabled);
+    }
+
+    public static void parseIntoSandbox(InputStream stream, CommCareTransactionParserFactory factory,
+                                        boolean failfast, boolean bulkProcessingEnabled) throws IOException, InvalidStructureException, UnfullfilledRequirementsException, XmlPullParserException {
+        DataModelPullParser parser = new DataModelPullParser(stream, factory, failfast, bulkProcessingEnabled);
+        parser.parse();
+
     }
 }

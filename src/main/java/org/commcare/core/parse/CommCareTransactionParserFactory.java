@@ -1,9 +1,8 @@
 package org.commcare.core.parse;
 
 import org.commcare.cases.instance.FixtureIndexSchema;
-import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.cases.ledger.Ledger;
-import org.commcare.cases.model.Case;
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
@@ -11,6 +10,7 @@ import org.commcare.xml.FixtureIndexSchemaParser;
 import org.commcare.xml.FixtureXmlParser;
 import org.commcare.xml.IndexedFixtureXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
+import org.commcare.xml.bulk.LinearBulkProcessingCaseXmlParser;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -55,10 +55,16 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     private final Set<String> processedFixtures = new HashSet<>();
 
     protected final UserSandbox sandbox;
+    protected boolean isBulkProcessingEnabled = false;
 
     private int requests = 0;
 
     public CommCareTransactionParserFactory(UserSandbox sandbox) {
+        this(sandbox, false);
+    }
+
+    public CommCareTransactionParserFactory(UserSandbox sandbox, boolean useBulkProcessing) {
+        isBulkProcessingEnabled = useBulkProcessing;
         this.sandbox = sandbox;
         this.initFixtureParser();
         this.initUserParser();
@@ -179,18 +185,11 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     }
 
     public void initCaseParser() {
-        caseParser = new TransactionParserFactory() {
-            CaseXmlParser created = null;
-
-            @Override
-            public TransactionParser<Case> getParser(KXmlParser parser) {
-                if (created == null) {
-                    created = new CaseXmlParser(parser, sandbox.getCaseStorage());
-                }
-
-                return created;
-            }
-        };
+        if(isBulkProcessingEnabled) {
+            caseParser = getBulkCaseParser();
+        } else {
+            caseParser = getNormalCaseParser();
+        }
     }
 
     public void initStockParser() {
@@ -204,5 +203,35 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 
     public String getSyncToken() {
         return sandbox.getSyncToken();
+    }
+
+    public TransactionParserFactory getNormalCaseParser() {
+        return new TransactionParserFactory() {
+            CaseXmlParser created = null;
+
+            @Override
+            public TransactionParser getParser(KXmlParser parser) {
+                if (created == null) {
+                    created = new CaseXmlParser(parser, sandbox.getCaseStorage());
+                }
+
+                return created;
+            }
+        };
+    }
+
+    public TransactionParserFactory getBulkCaseParser() {
+        return new TransactionParserFactory() {
+            LinearBulkProcessingCaseXmlParser created = null;
+
+            @Override
+            public TransactionParser getParser(KXmlParser parser) {
+                if (created == null) {
+                    created = new LinearBulkProcessingCaseXmlParser(parser, sandbox.getCaseStorage());
+                }
+                return created;
+            }
+        };
+
     }
 }

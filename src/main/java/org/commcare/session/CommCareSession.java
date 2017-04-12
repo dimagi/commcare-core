@@ -560,7 +560,13 @@ public class CommCareSession {
         if (command == null) {
             return new EvaluationContext(null);
         }
-        Entry entry = getEntriesForCommand(command).elementAt(0);
+        Vector<Entry> entries = getEntriesForCommand(command);
+
+        if(entries.size() == 0) {
+            return new EvaluationContext(null);
+        }
+
+        Entry entry = entries.elementAt(0);
 
         Hashtable<String, DataInstance> instancesInScope = entry.getInstances();
 

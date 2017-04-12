@@ -9,6 +9,11 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -79,8 +84,22 @@ public class DataModelPullParser extends ElementParser<Boolean> {
             //Here we'll go through in search of CommCare data models and parse
             //them using the appropriate CommCare Model data parser.
 
+            LinkedHashSet<TransactionParser> parsersUsed = new LinkedHashSet<>();
             //Go through each child of the root element
-            parseBlock(rootName);
+            parseBlock(rootName, parsersUsed);
+
+            for(TransactionParser parser : parsersUsed) {
+                if (failfast) {
+                    parser.flush();
+                } else {
+                    try {
+                        parser.flush();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        deal(e, "Bulk Flush");
+                    }
+                }
+            }
         } finally {
             //kxmlparser might close the stream, but we can't be sure, especially if
             //we bail early due to schema errors
@@ -98,7 +117,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
         }
     }
 
-    private void parseBlock(String root) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+    private void parseBlock(String root, LinkedHashSet<TransactionParser> parsers) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         int parsedCounter = 0;
         while (this.nextTagInBlock(root)) {
             if (listenerSet()) {
@@ -115,11 +134,12 @@ public class DataModelPullParser extends ElementParser<Boolean> {
             if (transaction == null) {
                 if (deep) {
                     // nothing to be done for this element, try recursing
-                    parseBlock(name);
+                    parseBlock(name, parsers);
                 } else {
                     this.skipBlock(name);
                 }
             } else {
+                parsers.add(transaction);
                 if (failfast) {
                     transaction.parse();
                 } else {

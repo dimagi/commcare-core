@@ -1,7 +1,7 @@
 package org.commcare.cases.test;
 
-import org.commcare.core.parse.ParseUtils;
 import org.commcare.test.utilities.CaseTestUtils;
+import org.commcare.test.utilities.TestProfileConfiguration;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -9,20 +9,36 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import java.util.Collection;
 
 /**
  * Test CaseDB template checking code.
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
+@RunWith(value = Parameterized.class)
 public class CaseTemplateTest {
     private EvaluationContext evalCtx;
+
+    TestProfileConfiguration config;
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection data() {
+        return TestProfileConfiguration.BulkOffOn();
+    }
+
+    public CaseTemplateTest(TestProfileConfiguration config) {
+        this.config = config;
+    }
+
 
     @Before
     public void setUp() throws Exception {
         MockUserDataSandbox sandbox = MockDataUtils.getStaticStorage();
         String inputTransactions = "/create_cases_with_parents.xml";
-        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox);
+        config.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox);
         evalCtx = MockDataUtils.buildContextWithInstance(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
     }
 

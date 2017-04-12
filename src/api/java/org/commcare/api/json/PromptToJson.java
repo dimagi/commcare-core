@@ -16,6 +16,7 @@ import org.joda.time.DateTimeZone;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
@@ -113,7 +114,7 @@ public class PromptToJson {
         FormEntryCaption.RepeatOptions repeatOptions = formEntryCaption.getRepeatOptions();
         parseCaption(formEntryCaption, obj);
         obj.put("header", repeatOptions.header);
-        obj.put("repetitions", formEntryCaption.getRepetitionsText());
+        obj.put("repetitions", new JSONArray(formEntryCaption.getRepetitionsText()));
         obj.put("add-choice", repeatOptions.add);
         obj.put("delete-choice", repeatOptions.delete);
         obj.put("del-header", repeatOptions.delete_header);
@@ -172,7 +173,7 @@ public class PromptToJson {
             case Constants.DATATYPE_GEOPOINT:
                 GeoPointData geoPointData = ((GeoPointData) prompt.getAnswerValue());
                 double[] coords = new double[]{geoPointData.getLatitude(), geoPointData.getLongitude()};
-                obj.put("answer", coords);
+                obj.put("answer", new JSONArray(Arrays.toString(coords)));
                 return;
             case Constants.DATATYPE_BINARY:
                 obj.put("answer", answerValue.getDisplayText());
