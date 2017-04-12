@@ -443,6 +443,10 @@ public class XPathEvalTest {
         testEval("substring-after()", null, null, new XPathArityException());
         testEval("string-length('123')", null, null, 3.0);
         testEval("join(',', '1', '2')", null, null, "1,2");
+        testEval("join-chunked('-', 3, 'AA', 'BBB', 'C')", null, null, "AAB-BBC");
+        testEval("join-chunked('-', 3, 'AA', 'BBB', 'CC')", null, null, "AAB-BBC-C");
+        testEval("join-chunked('-', 3, 'AA')", null, null, "AA");
+        testEval("join-chunked('-', 3, 'AAA')", null, null, "AAA");
         testEval("depend()", null, null, new XPathArityException());
         testEval("depend('1', '2')", null, null, "1");
         testEval("uuid('1', '2')", null, null, new XPathArityException());
@@ -512,6 +516,13 @@ public class XPathEvalTest {
         testEval("replace('12345','[', '')", null, ec, new XPathException());
         testEval("checklist('12345')", null, ec, new XPathArityException());
         testEval("weighted-checklist('12345')", null, ec, new XPathArityException());
+        testEval("id-compress(0, 'CD','AB','ABCDE',1)", null, null, "AA");
+        testEval("id-compress(9, 'CD','AB','ABCDE',1)", null, null, "BE");
+        testEval("id-compress(10, 'CD','AB','ABCDE',1)", null, null, "DAA");
+
+        testEval("id-compress(0, 'CD','','ABCDE',1)", null, ec, new XPathException());
+        testEval("id-compress(0, 'CD','CD','ABCDE',1)", null, ec, new XPathException());
+
         //Variables
         EvaluationContext varContext = getVariableContext();
         testEval("$var_float_five", null, varContext, new Double(5.0));
