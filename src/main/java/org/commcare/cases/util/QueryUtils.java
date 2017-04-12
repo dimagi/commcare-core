@@ -21,7 +21,7 @@ public class QueryUtils {
 
     public static Vector<Integer> wrapSingleResult(Integer result) {
         Vector<Integer> results = new Vector<>();
-        if(result != null) {
+        if (result != null) {
             results.add(result);
         }
         return results;

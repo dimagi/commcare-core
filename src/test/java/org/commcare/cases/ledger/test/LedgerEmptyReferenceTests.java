@@ -16,10 +16,9 @@ import org.junit.runners.Parameterized;
 import java.util.Collection;
 
 /**
- * Test ledger parsing, loading, and referencing ledgers. No case data is
- * present in these tests.
+ * Test handling of empty ledger queries
  *
- * @author Phillip Mates (pmates@dimagi.com)
+ * @author Clayton Sims
  */
 @RunWith(value = Parameterized.class)
 public class LedgerEmptyReferenceTests {
