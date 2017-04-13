@@ -20,11 +20,8 @@ public class AvailableAppsParser extends ElementParser<List<AppAvailableForInsta
     private static final String APP_TAG = "app";
     private static final String DOMAIN_TAG = "domain";
     private static final String APP_NAME_TAG = "name";
-    private static final String APP_VERSION_TAG = "version";
     private static final String PROFILE_REF_TAG = "profile";
     private static final String MEDIA_PROFILE_REF_TAG = "media-profile";
-    private static final String ENVIRONMENT_TAG = "environment";
-    private static final String PROD_VALUE = "Production";
 
     public AvailableAppsParser(KXmlParser parser) {
         super(parser);
@@ -44,11 +41,9 @@ public class AvailableAppsParser extends ElementParser<List<AppAvailableForInsta
                 if (APP_TAG.equals(tagName)) {
                     String domain = parser.getAttributeValue(null, DOMAIN_TAG);
                     String appName = parser.getAttributeValue(null, APP_NAME_TAG);
-                    String appVersion = parser.getAttributeValue(null, APP_VERSION_TAG);
-                    boolean isOnProd = PROD_VALUE.equals(parser.getAttributeValue(null, ENVIRONMENT_TAG));
                     String profileRef = parser.getAttributeValue(null, PROFILE_REF_TAG);
                     String mediaProfileRef = parser.getAttributeValue(null, MEDIA_PROFILE_REF_TAG);
-                    appsList.add(new AppAvailableForInstall(domain, appName, appVersion, isOnProd, profileRef, mediaProfileRef));
+                    appsList.add(new AppAvailableForInstall(domain, appName, profileRef, mediaProfileRef));
                 }
             }
             eventType = parser.next();
