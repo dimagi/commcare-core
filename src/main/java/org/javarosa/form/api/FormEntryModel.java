@@ -46,6 +46,11 @@ public class FormEntryModel {
      */
     public static final int REPEAT_STRUCTURE_NON_LINEAR = 2;
 
+    /**
+     * Form can have both types of repeat groups
+     */
+    public static final int REPEAT_STRUCTURE_MIXED = 4;
+
 
     public FormEntryModel(FormDef form) {
         this(form, REPEAT_STRUCTURE_LINEAR);
@@ -466,10 +471,8 @@ public class FormEntryModel {
                 multiplicities.setElementAt(0, i);
                 elements.setElementAt(parent.getChild(curIndex + 1), i);
 
-                if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR) {
-                    if (elements.lastElement() instanceof GroupDef && ((GroupDef)elements.lastElement()).getRepeat()) {
-                        multiplicities.setElementAt(TreeReference.INDEX_REPEAT_JUNCTURE, multiplicities.size() - 1);
-                    }
+                if (elements.lastElement() instanceof GroupDef && ((GroupDef)elements.lastElement()).getRepeat()) {
+                    multiplicities.setElementAt(TreeReference.INDEX_REPEAT_JUNCTURE, multiplicities.size() - 1);
                 }
 
                 return;
