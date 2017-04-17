@@ -21,6 +21,11 @@ import java.util.NoSuchElementException;
  * all of the actions specified by the transaction (Create/modify/close)
  * against the application's current storage.
  *
+ * NOTE: Future work on case XML Processing should shift to the BulkProcessingCaseXmlParser, since
+ * there's no good way for us to maintain multiple different sources for all of the complex logic
+ * inherent in this process. If anything would be added here, it should likely be replaced rather
+ * than implemented in both places.
+ *
  * @author ctsims
  */
 public class CaseXmlParser extends TransactionParser<Case> {
