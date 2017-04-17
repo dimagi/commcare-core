@@ -159,6 +159,10 @@ public class ASTNodeFunctionCall extends ASTNode {
                 return new XPathDistanceFunc(args);
             case "format-date-for-calendar":
                 return new XPathFormatDateForCalendarFunc(args);
+            case "join-chunked":
+                return new XPathJoinChunkFunc(args);
+            case "id-compress":
+                return new XPathIdCompressFunc(args);
             default:
                 return new XPathCustomRuntimeFunc(name, args);
         }
