@@ -27,56 +27,13 @@ public class FormEntryModel {
     private FormIndex currentFormIndex;
 
     /**
-     * One of "REPEAT_STRUCUTRE_" in this class's static types,
-     * represents what abstract structure repeat events should
-     * be broadacast as.
-     */
-    private int repeatStructure = -1;
-
-    /**
-     * Repeats should be a prompted linear set of questions, either
-     * with a fixed set of repetitions, or a prompt for creating a
-     * new one.
-     */
-    public static final int REPEAT_STRUCTURE_LINEAR = 1;
-
-    /**
-     * Repeats should be a custom juncture point with centralized
-     * "Create/Remove/Interact" hub.
-     */
-    public static final int REPEAT_STRUCTURE_NON_LINEAR = 2;
-
-    /**
-     * Form can have both types of repeat groups
-     */
-    public static final int REPEAT_STRUCTURE_MIXED = 4;
-
-
-    public FormEntryModel(FormDef form) {
-        this(form, REPEAT_STRUCTURE_LINEAR);
-    }
-
-    /**
      * Creates a new entry model for the form with the appropriate
      * repeat structure
      *
-     * @param repeatStructure The structure of repeats (the repeat signals which should
-     *                        be sent during form entry)
      * @throws IllegalArgumentException If repeatStructure is not valid
      */
-    public FormEntryModel(FormDef form, int repeatStructure) {
+    public FormEntryModel(FormDef form) {
         this.form = form;
-        if (repeatStructure != REPEAT_STRUCTURE_LINEAR && repeatStructure != REPEAT_STRUCTURE_NON_LINEAR) {
-            throw new IllegalArgumentException(repeatStructure + ": does not correspond to a valid repeat structure");
-        }
-        //We need to see if there are any guessed repeat counts in the form, which prevents
-        //us from being able to use the new repeat style
-        //Unfortunately this is probably (A) slow and (B) might overflow the stack. It's not the only
-        //recursive walk of the form, though, so (B) isn't really relevant
-        if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR && containsRepeatGuesses(form)) {
-            repeatStructure = REPEAT_STRUCTURE_LINEAR;
-        }
-        this.repeatStructure = repeatStructure;
         this.currentFormIndex = FormIndex.createBeginningOfFormIndex();
     }
 
@@ -95,10 +52,8 @@ public class FormEntryModel {
         IFormElement element = form.getChild(index);
         if (element instanceof GroupDef) {
             if (((GroupDef)element).getRepeat()) {
-                if (repeatStructure != REPEAT_STRUCTURE_NON_LINEAR && form.getMainInstance().resolveReference(form.getChildInstanceRef(index)) == null) {
+                if (form.getMainInstance().resolveReference(form.getChildInstanceRef(index)) == null) {
                     return FormEntryController.EVENT_PROMPT_NEW_REPEAT;
-                } else if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR && index.getElementMultiplicity() == TreeReference.INDEX_REPEAT_JUNCTURE) {
-                    return FormEntryController.EVENT_REPEAT_JUNCTURE;
                 } else {
                     return FormEntryController.EVENT_REPEAT;
                 }
@@ -411,16 +366,9 @@ public class FormEntryModel {
                 // specified instance actually exists
                 GroupDef group = (GroupDef)elements.elementAt(i);
                 if (group.getRepeat()) {
-                    if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR) {
-                        if ((multiplicities.lastElement()).intValue() == TreeReference.INDEX_REPEAT_JUNCTURE) {
-                            descend = false;
-                            exitRepeat = true;
-                        }
-                    } else {
-                        if (form.getMainInstance().resolveReference(form.getChildInstanceRef(elements, multiplicities)) == null) {
-                            descend = false; // repeat instance does not exist; do not descend into it
-                            exitRepeat = true;
-                        }
+                    if (form.getMainInstance().resolveReference(form.getChildInstanceRef(elements, multiplicities)) == null) {
+                        descend = false; // repeat instance does not exist; do not descend into it
+                        exitRepeat = true;
                     }
                 }
             }
@@ -429,13 +377,6 @@ public class FormEntryModel {
                 indexes.addElement(0);
                 multiplicities.addElement(0);
                 elements.addElement((i == -1 ? form : elements.elementAt(i)).getChild(0));
-
-                if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR) {
-                    if (elements.lastElement() instanceof GroupDef && ((GroupDef)elements.lastElement()).getRepeat()) {
-                        multiplicities.setElementAt(TreeReference.INDEX_REPEAT_JUNCTURE, multiplicities.size() - 1);
-                    }
-                }
-
                 return;
             }
         }
@@ -446,11 +387,7 @@ public class FormEntryModel {
             // (repeat-not-existing can only happen at lowest level; exitRepeat
             // will be true)
             if (!exitRepeat && elements.elementAt(i) instanceof GroupDef && ((GroupDef)elements.elementAt(i)).getRepeat()) {
-                if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR) {
-                    multiplicities.setElementAt(TreeReference.INDEX_REPEAT_JUNCTURE, i);
-                } else {
-                    multiplicities.setElementAt(multiplicities.elementAt(i) + 1, i);
-                }
+                multiplicities.setElementAt(multiplicities.elementAt(i) + 1, i);
                 return;
             }
 
@@ -511,12 +448,7 @@ public class FormEntryModel {
             int curIndex = indexes.elementAt(i);
             int curMult = multiplicities.elementAt(i);
 
-            if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR &&
-                    elements.lastElement() instanceof GroupDef && ((GroupDef)elements.lastElement()).getRepeat() &&
-                    multiplicities.lastElement().intValue() != TreeReference.INDEX_REPEAT_JUNCTURE) {
-                multiplicities.setElementAt(TreeReference.INDEX_REPEAT_JUNCTURE, i);
-                return;
-            } else if (repeatStructure != REPEAT_STRUCTURE_NON_LINEAR && curMult > 0) {
+            if (curMult > 0) {
                 multiplicities.setElementAt(curMult - 1, i);
             } else if (curIndex > 0) {
                 // set node to previous element
@@ -567,40 +499,11 @@ public class FormEntryModel {
                 TreeElement parentNode = form.getMainInstance().resolveReference(nodeRef.getParentRef());
                 mult = parentNode.getChildMultiplicity(name);
             }
-            multiplicities.setElementAt(new Integer(repeatStructure == REPEAT_STRUCTURE_NON_LINEAR ? TreeReference.INDEX_REPEAT_JUNCTURE : mult), multiplicities.size() - 1);
+            multiplicities.setElementAt(new Integer(mult), multiplicities.size() - 1);
             return true;
         } else {
             return false;
         }
-    }
-
-    /**
-     * This method does a recursive check of whether there are any repeat guesses
-     * in the element or its subtree. This is a necessary step when initializing
-     * the model to be able to identify whether new repeats can be used.
-     *
-     * @param parent The form element to begin checking
-     * @return true if the element or any of its descendants is a repeat
-     * which has a count guess, false otherwise.
-     */
-    private boolean containsRepeatGuesses(IFormElement parent) {
-        if (parent instanceof GroupDef) {
-            GroupDef g = (GroupDef)parent;
-            if (g.getRepeat() && g.getCountReference() != null) {
-                return true;
-            }
-        }
-
-        Vector<IFormElement> children = parent.getChildren();
-        if (children == null) {
-            return false;
-        }
-        for (Enumeration en = children.elements(); en.hasMoreElements(); ) {
-            if (containsRepeatGuesses((IFormElement)en.nextElement())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
