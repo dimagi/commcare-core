@@ -1,6 +1,7 @@
 package org.commcare.backend.session.test;
 
 import org.commcare.modern.session.SessionWrapper;
+import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigator;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
@@ -121,6 +122,57 @@ public class SessionNavigatorTests {
         // enabled, the sessionNavigationResponder should be prompted to launch the confirm detail
         // screen for the auto-selected case
         triggerSessionStepAndCheckResultCode(SessionNavigator.LAUNCH_CONFIRM_DETAIL);
+    }
+
+    @Test
+    public void testStepBackOverAutoselectWithoutCaseDetail() {
+        SessionWrapper session = mApp.getSession();
+
+        triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
+        session.setCommand("m1");
+
+        triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
+        session.setCommand("m1-f4");
+
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        EntityDatum nextNeededDatum = (EntityDatum)session.getNeededDatum();
+        Assert.assertTrue(nextNeededDatum.isAutoSelectEnabled());
+        Assert.assertNull(nextNeededDatum.getLongDetail());
+
+        triggerSessionStepAndCheckResultCode(SessionNavigator.START_FORM_ENTRY);
+
+        // Test that going back from here results in being back to BEFORE we selected the entry
+        // with the auto-selecting case
+        session.stepBack();
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+    }
+
+    @Test
+    public void testStepBackOverAutoselectWithCaseDetail() {
+        SessionWrapper session = mApp.getSession();
+
+        triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
+        session.setCommand("m1");
+
+        triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
+        session.setCommand("m1-f1");
+
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        EntityDatum nextNeededDatum = (EntityDatum)session.getNeededDatum();
+        Assert.assertTrue(nextNeededDatum.isAutoSelectEnabled());
+        Assert.assertNotNull(nextNeededDatum.getLongDetail());
+
+        triggerSessionStepAndCheckResultCode(SessionNavigator.LAUNCH_CONFIRM_DETAIL);
+
+        // Simulate pressing the "Continue" button on the case detail, by setting a value
+        // for the needed datum. We should now be ready for form entry
+        session.setDatum(nextNeededDatum.getDataId(), "case_one");
+        triggerSessionStepAndCheckResultCode(SessionNavigator.START_FORM_ENTRY);
+
+        // Test that going back from here results in being back at the case detail screen (and
+        // NOT back before we selected the entry with the auto-selecting case)
+        session.stepBack();
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
     }
 
     @Test

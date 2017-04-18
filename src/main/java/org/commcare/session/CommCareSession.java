@@ -375,6 +375,12 @@ public class CommCareSession {
         return SessionFrame.STATE_DATUM_COMPUTED;
     }
 
+    /**
+     *
+     * @param evalContext
+     * @return true if the current state of the session is such that we are NOT waiting for
+     * user-provided input, and false otherwise
+     */
     private boolean shouldPopNext(EvaluationContext evalContext) {
         String neededData = getNeededData(evalContext);
         String poppedType = popped == null ? "" : popped.getType();
@@ -386,9 +392,22 @@ public class CommCareSession {
             return true;
         }
 
+        if (SessionFrame.STATE_DATUM_VAL.equals(neededData)) {
+            SessionDatum neededDatum = getNeededDatum();
+            if (neededDatum instanceof EntityDatum) {
+                EntityDatum entityDatum = ((EntityDatum)neededDatum);
+                if (entityDatum.getCurrentAutoselectableCase(evalContext) != null
+                        && entityDatum.getLongDetail() == null) {
+                    // If the next needed datum is an entity for which there would be an
+                    // auto-selected case in the current eval context, AND there is no case detail,
+                    // then we want to step back over this
+                    return true;
+                }
+            }
+        }
+
         return SessionFrame.STATE_UNKNOWN.equals(poppedType)
                 && guessUnknownType(popped).equals(SessionFrame.STATE_DATUM_COMPUTED);
-
     }
 
     public void stepBack(EvaluationContext evalContext) {

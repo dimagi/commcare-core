@@ -82,6 +82,26 @@
     </session>
   </entry>
   <entry>
+  <form>http://commcarehq.org/test/placeholder</form>
+  <command id="m1-f3">
+    <text>Module 1 Form 1</text>
+  </command>
+  <instance id="casedb" src="jr://instance/casedb"/>
+  <session>
+    <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='child'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long"/>
+  </session>
+  </entry>
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="m1-f4">
+      <text>Module 1 Form 1</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='child'][@status='open']" value="./@case_id" detail-select="m1_case_short" autoselect="true"/>
+    </session>
+  </entry>
+  <entry>
     <form>http://commcarehq.org/test/placeholder</form>
     <command id="m2-f0">
       <text>Module 2 Form 0</text>
