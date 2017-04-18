@@ -76,6 +76,22 @@ public class EntityDatum extends SessionDatum {
         return autoSelectEnabled;
     }
 
+    /**
+     *
+     * @param ec
+     * @return The case that would be auto-selected for this EntityDatum in the given eval context
+     * if there is one, or null if there is not
+     */
+    public TreeReference getCurrentAutoselectableCase(EvaluationContext ec) {
+        if (isAutoSelectEnabled()) {
+            Vector<TreeReference> entityListElements = ec.expandReference(this.getNodeset());
+            if (entityListElements.size() == 1) {
+                return entityListElements.elementAt(0);
+            }
+        }
+        return null;
+    }
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         super.readExternal(in, pf);
