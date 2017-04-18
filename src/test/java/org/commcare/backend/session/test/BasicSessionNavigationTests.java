@@ -78,7 +78,7 @@ public class BasicSessionNavigationTests {
         Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
         session.setCommand("m1");
         Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
-        session.setCommand("m1-f1");
+        session.setCommand("m1-f3");
         Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
         session.setDatum("case_id", "case_one");
@@ -95,7 +95,7 @@ public class BasicSessionNavigationTests {
         Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
         session.setCommand("m1");
         Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
-        session.setCommand("m1-f1");
+        session.setCommand("m1-f3");
         Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
         session.setDatum("case_id", "case_one");
