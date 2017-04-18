@@ -88,7 +88,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
             //Go through each child of the root element
             parseBlock(rootName, parsersUsed);
 
-            for(TransactionParser parser : parsersUsed) {
+            for (TransactionParser parser : parsersUsed) {
                 if (failfast) {
                     parser.flush();
                 } else {

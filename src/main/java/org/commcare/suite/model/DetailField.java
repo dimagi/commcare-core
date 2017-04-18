@@ -42,6 +42,7 @@ public class DetailField implements Externalizable {
     private XPathExpression parsedRelevancy;
     private String headerWidthHint = null;  // Something like "500" or "10%"
     private String templateWidthHint = null;
+    private String printIdentifier;
 
     /**
      * Optional hint which provides a hint for whether rich media should be
@@ -57,6 +58,7 @@ public class DetailField implements Externalizable {
     private int sortOrder = -1;
     private int sortDirection = DIRECTION_ASCENDING;
     private int sortType = Constants.DATATYPE_TEXT;
+    private boolean showBlanksLastInSort = false;
     private int gridX = -1;
     private int gridY = -1;
     private int gridWidth = -1;
@@ -67,6 +69,16 @@ public class DetailField implements Externalizable {
     private String cssID;
 
     public DetailField() {
+    }
+
+    public String getPrintIdentifierRobust() {
+        // TODO: change this implementation once HQ work is done
+        if (printIdentifier != null) {
+            return printIdentifier;
+        } else if (template instanceof Text) {
+            return ((Text)template).getArgument();
+        }
+        return null;
     }
 
     /**
@@ -142,6 +154,10 @@ public class DetailField implements Externalizable {
      */
     public int getSortOrder() {
         return sortOrder;
+    }
+
+    public boolean showBlanksLastInSort() {
+        return this.showBlanksLastInSort;
     }
 
     /**
@@ -251,6 +267,10 @@ public class DetailField implements Externalizable {
             return field;
         }
 
+        public void setPrintIdentifier(String id) {
+            field.printIdentifier = id;
+        }
+
         /**
          * @param header the header to set
          */
@@ -313,6 +333,10 @@ public class DetailField implements Externalizable {
          */
         public void setSortDirection(int sortDirection) {
             field.sortDirection = sortDirection;
+        }
+
+        public void setShowBlanksLast(boolean blanksLast) {
+            field.showBlanksLastInSort = blanksLast;
         }
 
         public void setSortType(int sortType) {

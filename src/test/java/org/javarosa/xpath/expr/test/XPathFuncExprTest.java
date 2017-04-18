@@ -43,6 +43,14 @@ public class XPathFuncExprTest {
     }
 
     @Test
+    public void testNodesetJoins() {
+        FormInstance instance = ExprEvalUtils.loadInstance("/test_xpathpathexpr.xml");
+        ExprEvalUtils.testEval("join(' ', /data/places/country/state)", instance, null, "Utah Montana");
+        ExprEvalUtils.testEval("join-chunked('-', 5, /data/places/country/state)", instance, null, "UtahM-ontan-a");
+
+    }
+
+        @Test
     public void testSubstringVariants() {
         FormInstance instance = ExprEvalUtils.loadInstance("/test_xpathpathexpr.xml");
 
