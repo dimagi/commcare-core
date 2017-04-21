@@ -33,7 +33,7 @@ public class Case implements Persistable, IMetaData {
     public static final String INDEX_CASE_TYPE = "case-type";
     public static final String INDEX_CASE_STATUS = "case-status";
     public static final String INDEX_CASE_INDEX_PRE = "case-in-";
-    public static final String INDEX_OWNER_ID = "owner-id";
+    public static final String INDEX_OWNER_ID = "owner-ID";
 
     private static final String ATTACHMENT_PREFIX = "attachmentdata";
 
