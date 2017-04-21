@@ -205,7 +205,7 @@ public class Case implements Persistable, IMetaData {
 
     @Override
     public String[] getMetaDataFields() {
-        return new String[]{INDEX_CASE_ID, INDEX_CASE_TYPE, INDEX_CASE_STATUS};
+        return new String[]{INDEX_CASE_ID, INDEX_CASE_TYPE, INDEX_CASE_STATUS, INDEX_OWNER_ID};
     }
 
     /**
