@@ -17,9 +17,9 @@ import java.util.zip.ZipFile;
  */
 public class ArchiveFileRoot implements ReferenceFactory {
 
-    private static final HashMap<String, ZipFile> guidToFolderMap = new HashMap<>();
+    protected static final HashMap<String, ZipFile> guidToFolderMap = new HashMap<>();
 
-    private static final int GUID_LENGTH = 10;
+    protected static final int GUID_LENGTH = 10;
 
     public ArchiveFileRoot() {
     }
@@ -48,13 +48,13 @@ public class ArchiveFileRoot implements ReferenceFactory {
         return mGUID;
     }
 
-    private String getGUID(String jrpath) {
+    protected String getGUID(String jrpath) {
         String prependRemoved = jrpath.substring("jr://archive/".length());
         int slashindex = prependRemoved.indexOf("/");
         return prependRemoved.substring(0, slashindex);
     }
 
-    private String getPath(String jrpath) {
+    protected String getPath(String jrpath) {
         String mGUID = getGUID(jrpath);
         int mIndex = jrpath.indexOf(mGUID);
         return jrpath.substring(mIndex + mGUID.length() + 1);
