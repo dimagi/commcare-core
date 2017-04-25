@@ -42,7 +42,14 @@ public class ArchiveFileReference implements Reference {
 
     @Override
     public InputStream getStream() throws IOException {
-        return mZipFile.getInputStream(mZipFile.getEntry(archiveURI));
+        try {
+            return mZipFile.getInputStream(mZipFile.getEntry(archiveURI));
+        } catch (NullPointerException e) {
+            RuntimeException re = new RuntimeException(String.format("ZipFile %s threw NullPointerException with URI %s in archive with GUID %s.",
+                    mZipFile.getName(), archiveURI, GUID));
+            re.initCause(e);
+            throw re;
+        }
     }
 
     @Override
