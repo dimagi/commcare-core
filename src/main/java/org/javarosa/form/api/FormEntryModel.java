@@ -46,12 +46,6 @@ public class FormEntryModel {
      */
     public static final int REPEAT_STRUCTURE_NON_LINEAR = 2;
 
-    /**
-     * Form can have both types of repeat groups
-     */
-    public static final int REPEAT_STRUCTURE_MIXED = 4;
-
-
     public FormEntryModel(FormDef form) {
         this(form, REPEAT_STRUCTURE_LINEAR);
     }
