@@ -231,4 +231,8 @@ public class EntityScreen extends CompoundScreenHost {
     public EvaluationContext getEvalContext() {
         return evalContext;
     }
+
+    public TreeReference getCurrentSelection() {
+        return mCurrentSelection;
+    }
 }
