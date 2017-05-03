@@ -133,7 +133,7 @@ public class Callout implements Externalizable, DetailTemplate {
         return isAutoLaunching;
     }
 
-    public boolean isSimprintCallout() {
+    public boolean isSimprintsCallout() {
         return "com.simprints.id.IDENTIFY".equals(actionName);
     }
 }
