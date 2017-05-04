@@ -1,0 +1,62 @@
+<OpenRosaResponse>
+    <message nature="ota_restore_success">Successfully restored account test!</message>
+    <schema id="commtrack:products">
+        <indices>
+            <index>@id</index>
+            <index>code</index>
+        </indices>
+    </schema>
+    <fixture id="commtrack:products" indexed="true">
+        <products>
+            <product id="f895be4959f9a8a66f57c340aac461b4">
+                <name>Collier</name>
+                <code>col</code>
+                <description>Collier du cycle mensuel</description>
+                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <cost>152</cost>
+                <product_data>
+                    <unique_value>one</unique_value>
+                    <multiple_data lang="en">col_en</multiple_data>
+                    <multiple_data lang="hin">col_hin</multiple_data>
+                </product_data>
+            </product>
+            <product id="31ab899368d38c2d0207fe80c00fa96c">
+                <name>Depo-Provera</name>
+                <code>dp</code>
+                <description>Injectable</description>
+                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <cost>152</cost>
+                <product_data>
+                    <unique_value>three</unique_value>
+                    <multiple_data lang="en">dp_en</multiple_data>
+                    <multiple_data lang="hin">dp_hin</multiple_data>
+                </product_data>
+            </product>
+            <product id="a6d16035b98f6f962a6538bd927cefb3">
+                <name>CU</name>
+                <code>pd</code>
+                <description>La contraception d'urgence</description>
+                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <cost>57</cost>
+                <product_data>
+                    <unique_value>two</unique_value>
+                    <multiple_data lang="en">pd_en</multiple_data>
+                    <multiple_data lang="hin">pd_hin</multiple_data>
+                    <only_present_later>heterogeneous_element</only_present_later>
+                </product_data>
+            </product>
+            <product id="31ab899368d38c2d0207fe80c00fb8c1">
+                <name>DIU</name>
+                <code>diu</code>
+                <description>TCU 380A</description>
+                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <cost>380</cost>
+                <product_data>
+                    <unique_value>four</unique_value>
+                    <multiple_data lang="en">diu_en</multiple_data>
+                    <multiple_data lang="hin">diu_hin</multiple_data>
+                </product_data>
+            </product>
+        </products>
+    </fixture>
+</OpenRosaResponse>
