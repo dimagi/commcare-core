@@ -81,14 +81,6 @@ public class Callout implements Externalizable, DetailTemplate {
         return new CalloutData(actionName, image, displayName, evaluatedExtras, responses, type);
     }
 
-    /**
-     * @return CalloutData instance without evaluating the extras. Used for
-     * the case list button.
-     */
-    public CalloutData getRawCalloutData() {
-        return new CalloutData(actionName, image, displayName, extras, responses, type);
-    }
-
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         displayName = ExtUtil.readString(in);
@@ -139,5 +131,9 @@ public class Callout implements Externalizable, DetailTemplate {
 
     public boolean isAutoLaunching() {
         return isAutoLaunching;
+    }
+
+    public boolean isSimprintsCallout() {
+        return "com.simprints.id.IDENTIFY".equals(actionName);
     }
 }
