@@ -71,7 +71,7 @@ public class JSONReporter extends XFormParserReporter {
             problem.put(error);
         }
 
-        report.put("problems", problems);
+        report.put("problems", problem);
 
         return report.toString();
     }
