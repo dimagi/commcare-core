@@ -5,5 +5,5 @@ package org.commcare.cases.entity;
  */
 
 public interface EntitySortNotificationInterface {
-    void notifyBadfilter(String[] args);
+    void notifyBadFilter(String[] args);
 }
