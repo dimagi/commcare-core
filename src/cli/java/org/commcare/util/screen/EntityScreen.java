@@ -34,6 +34,7 @@ public class EntityScreen extends CompoundScreenHost {
     private CommCarePlatform mPlatform;
 
     private Detail mShortDetail;
+    private Detail mLongDetail;
     private Detail[] mLongDetailList;
 
     private EntityDatum mNeededDatum;
@@ -61,7 +62,12 @@ public class EntityScreen extends CompoundScreenHost {
             throw new CommCareSessionException("Can't handle entity selection with blank detail definition for datum " + mNeededDatum.getDataId());
         }
 
+
+
         mShortDetail = this.mPlatform.getDetail(detailId);
+        if (mNeededDatum.getLongDetail() != null) {
+            mLongDetail = this.mPlatform.getDetail(mNeededDatum.getLongDetail());
+        }
 
         if (mShortDetail == null) {
             throw new CommCareSessionException("Missing detail definition for: " + detailId);
@@ -234,5 +240,9 @@ public class EntityScreen extends CompoundScreenHost {
 
     public TreeReference getCurrentSelection() {
         return mCurrentSelection;
+    }
+
+    public Detail getLongDetail() {
+        return mLongDetail;
     }
 }
