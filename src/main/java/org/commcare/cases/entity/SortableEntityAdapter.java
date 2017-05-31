@@ -16,7 +16,7 @@ public abstract class SortableEntityAdapter implements EntitySortNotificationInt
     private boolean reverseSort = false;
     protected boolean asyncMode = false;
 
-    SortableEntityAdapter(List<Entity<TreeReference>> entityList, Detail detail,
+    public SortableEntityAdapter(List<Entity<TreeReference>> entityList, Detail detail,
                           boolean asyncMode) {
         this.entities = entityList;
         this.detail = detail;
