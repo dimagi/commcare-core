@@ -8,7 +8,6 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -34,6 +33,9 @@ public class Callout implements Externalizable, DetailTemplate {
     private Hashtable<String, String> extras;
     private Vector<String> responses;
     private boolean isAutoLaunching;
+    private boolean assumePlainTextValues;
+
+    private static final String OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX = "cc:xpath_key:";
 
     /**
      * Allows case list intent callouts to map result data to cases. 'header'
@@ -60,28 +62,29 @@ public class Callout implements Externalizable, DetailTemplate {
         this.responseDetail = responseDetail;
         this.type = type;
         this.isAutoLaunching = isAutoLaunching;
+        this.assumePlainTextValues = false;
     }
 
     @Override
     public CalloutData evaluate(EvaluationContext context) {
         Hashtable<String, String> evaluatedExtras = new Hashtable<>();
-
         Enumeration keys = extras.keys();
-
         while (keys.hasMoreElements()) {
             String key = (String)keys.nextElement();
+            boolean overridePlainTextAssumption = key.startsWith(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX);
+            key = key.replace(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX, "");
             String rawValue = extras.get(key);
-            try {
-                String evaluatedKey = FunctionUtils.toString(XPathParseTool.parseXPath(rawValue).eval(context));
-                evaluatedExtras.put(key, evaluatedKey);
-            } catch (XPathException e) {
-                // If we get an XPathException while trying to evaluate the value, then assume that
-                // the app was built in the pre-2.36 format (which expected ONLY raw/literal values,
-                // without any surrounding quotes
+
+            if (assumePlainTextValues && !overridePlainTextAssumption) {
                 evaluatedExtras.put(key, rawValue);
-            }
-            catch (XPathSyntaxException e) {
-                // do nothing
+            } else {
+                try {
+                    String evaluatedValue =
+                            FunctionUtils.toString(XPathParseTool.parseXPath(rawValue).eval(context));
+                    evaluatedExtras.put(key, evaluatedValue);
+                } catch (XPathSyntaxException e) {
+                    // do nothing
+                }
             }
         }
 
@@ -143,5 +146,9 @@ public class Callout implements Externalizable, DetailTemplate {
 
     public boolean isSimprintsCallout() {
         return "com.simprints.id.IDENTIFY".equals(actionName);
+    }
+
+    public void setAssumePlainTextValues() {
+        this.assumePlainTextValues = true;
     }
 }
