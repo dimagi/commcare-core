@@ -33,6 +33,7 @@ public class Case implements Persistable, IMetaData {
     public static final String INDEX_CASE_TYPE = "case-type";
     public static final String INDEX_CASE_STATUS = "case-status";
     public static final String INDEX_CASE_INDEX_PRE = "case-in-";
+    public static final String INDEX_OWNER_ID = "owner-id";
 
     private static final String ATTACHMENT_PREFIX = "attachmentdata";
 
@@ -194,6 +195,9 @@ public class Case implements Persistable, IMetaData {
                 }
             }
             return "";
+        } else if (fieldName.equals(INDEX_OWNER_ID)) {
+            String ownerId = getUserId();
+            return ownerId == null ? "" : ownerId;
         } else {
             throw new IllegalArgumentException("No metadata field " + fieldName + " in the case storage system");
         }
@@ -201,7 +205,7 @@ public class Case implements Persistable, IMetaData {
 
     @Override
     public String[] getMetaDataFields() {
-        return new String[]{INDEX_CASE_ID, INDEX_CASE_TYPE, INDEX_CASE_STATUS};
+        return new String[]{INDEX_CASE_ID, INDEX_CASE_TYPE, INDEX_CASE_STATUS, INDEX_OWNER_ID};
     }
 
     /**

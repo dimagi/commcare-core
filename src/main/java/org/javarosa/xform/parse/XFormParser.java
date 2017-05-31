@@ -1125,7 +1125,7 @@ public class XFormParser {
     }
 
     private void parseGroupLabel(GroupDef g, Element e) {
-        if (g.getRepeat())
+        if (g.isRepeat())
             return; //ignore child <label>s for <repeat>; the appropriate <label> must be in the wrapping <group>
 
         Vector<String> usedAtts = new Vector<>();
@@ -1487,7 +1487,7 @@ public class XFormParser {
         usedAtts.addElement("noAddRemove");
 
         if (groupType == CONTAINER_REPEAT) {
-            group.setRepeat(true);
+            group.setIsRepeat(true);
         }
 
         String ref = e.getAttributeValue(null, REF_ATTR);
@@ -1503,7 +1503,7 @@ public class XFormParser {
             dataRef = binding.getReference();
             refFromBind = true;
         } else {
-            if (group.getRepeat()) {
+            if (group.isRepeat()) {
                 if (nodeset != null) {
                     dataRef = new XPathReference(nodeset);
                 } else {
@@ -1521,7 +1521,7 @@ public class XFormParser {
         }
         group.setBind(dataRef);
 
-        if (group.getRepeat()) {
+        if (group.isRepeat()) {
             repeats.addElement(dataRef.getReference());
 
             String countRef = e.getAttributeValue(NAMESPACE_JAVAROSA, "count");
@@ -1541,7 +1541,7 @@ public class XFormParser {
             String childName = (child != null ? child.getName() : null);
             String childNamespace = (child != null ? child.getNamespace() : null);
 
-            if (group.getRepeat() && NAMESPACE_JAVAROSA.equals(childNamespace)) {
+            if (group.isRepeat() && NAMESPACE_JAVAROSA.equals(childNamespace)) {
                 if ("chooseCaption".equals(childName)) {
                     group.chooseCaption = getLabel(child);
                 } else if ("addCaption".equals(childName)) {
@@ -1634,13 +1634,13 @@ public class XFormParser {
                 group = (GroupDef)child;
 
             if (group != null) {
-                if (!group.getRepeat() && group.getChildren().size() == 1) {
+                if (!group.isRepeat() && group.getChildren().size() == 1) {
                     IFormElement grandchild = (IFormElement)group.getChildren().elementAt(0);
                     GroupDef repeat = null;
                     if (grandchild instanceof GroupDef)
                         repeat = (GroupDef)grandchild;
 
-                    if (repeat != null && repeat.getRepeat()) {
+                    if (repeat != null && repeat.isRepeat()) {
                         //collapse the wrapping group
 
                         //merge group into repeat
@@ -2519,7 +2519,7 @@ public class XFormParser {
 
             if (child instanceof GroupDef) {
                 ref = child.getBind();
-                type = (((GroupDef)child).getRepeat() ? "Repeat" : "Group");
+                type = (((GroupDef)child).isRepeat() ? "Repeat" : "Group");
             } else if (child instanceof QuestionDef) {
                 ref = child.getBind();
                 type = "Question";
@@ -2550,7 +2550,7 @@ public class XFormParser {
 
         for (int i = 0; i < fe.getChildren().size(); i++) {
             IFormElement child = fe.getChildren().elementAt(i);
-            boolean isRepeat = (child instanceof GroupDef && ((GroupDef)child).getRepeat());
+            boolean isRepeat = (child instanceof GroupDef && ((GroupDef)child).isRepeat());
 
             //get bindings of current node and nearest enclosing repeat
             TreeReference repeatBind = (parentRepeat == null ? TreeReference.rootRef() : FormInstance.unpackReference(parentRepeat.getBind()));

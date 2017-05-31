@@ -148,13 +148,7 @@ public class SessionNavigator {
     private TreeReference getAutoSelectedCase() {
         SessionDatum selectDatum = currentSession.getNeededDatum();
         if (selectDatum instanceof EntityDatum) {
-            EntityDatum entityDatum = (EntityDatum)selectDatum;
-            if (entityDatum.isAutoSelectEnabled()) {
-                Vector<TreeReference> entityListElements = ec.expandReference(entityDatum.getNodeset());
-                if (entityListElements.size() == 1) {
-                    return entityListElements.elementAt(0);
-                }
-            }
+            return ((EntityDatum)selectDatum).getCurrentAutoselectableCase(this.ec);
         }
         return null;
     }
