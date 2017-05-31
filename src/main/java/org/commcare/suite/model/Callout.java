@@ -76,8 +76,8 @@ public class Callout implements Externalizable, DetailTemplate {
                 evaluatedExtras.put(key, evaluatedKey);
             } catch (XPathException e) {
                 // If we get an XPathException while trying to evaluate the value, then assume that
-                // the app was built in the pre-2.36 format, which expected ONLY raw/literal values,
-                // and not xpath expressions
+                // the app was built in the pre-2.36 format (which expected ONLY raw/literal values,
+                // without any surrounding quotes
                 evaluatedExtras.put(key, rawValue);
             }
             catch (XPathSyntaxException e) {
