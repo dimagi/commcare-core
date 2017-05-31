@@ -27,7 +27,7 @@ public class GroupDef implements IFormElement {
     // A list of questions on a group.
     private Vector<IFormElement> children;
     // True if this is a "repeat", false if it is a "group"
-    private boolean repeat;
+    private boolean isRepeat;
     // The group number.
     private int id;
     // reference to a location in the model to store data in
@@ -63,7 +63,7 @@ public class GroupDef implements IFormElement {
     public GroupDef() {
         id = Constants.NULL_ID;
         children = new Vector<>();
-        repeat = false;
+        isRepeat = false;
     }
 
     @Override
@@ -112,12 +112,12 @@ public class GroupDef implements IFormElement {
     /**
      * @return true if this represents a <repeat> element
      */
-    public boolean getRepeat() {
-        return repeat;
+    public boolean isRepeat() {
+        return isRepeat;
     }
 
-    public void setRepeat(boolean repeat) {
-        this.repeat = repeat;
+    public void setIsRepeat(boolean repeat) {
+        this.isRepeat = repeat;
     }
 
     @Override
@@ -192,7 +192,7 @@ public class GroupDef implements IFormElement {
         setBind((XPathReference)ExtUtil.read(dis, new ExtWrapTagged(), pf));
         setTextID((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         setLabelInnerText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setRepeat(ExtUtil.readBool(dis));
+        setIsRepeat(ExtUtil.readBool(dis));
         setChildren((Vector)ExtUtil.read(dis, new ExtWrapListPoly(), pf));
 
         noAddRemove = ExtUtil.readBool(dis);
@@ -219,7 +219,7 @@ public class GroupDef implements IFormElement {
         ExtUtil.write(dos, new ExtWrapTagged(getBind()));
         ExtUtil.write(dos, new ExtWrapNullable(getTextID()));
         ExtUtil.write(dos, new ExtWrapNullable(getLabelInnerText()));
-        ExtUtil.writeBool(dos, getRepeat());
+        ExtUtil.writeBool(dos, isRepeat());
         ExtUtil.write(dos, new ExtWrapListPoly(getChildren()));
 
         ExtUtil.writeBool(dos, noAddRemove);

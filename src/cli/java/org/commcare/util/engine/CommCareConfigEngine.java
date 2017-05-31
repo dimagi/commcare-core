@@ -40,10 +40,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathMissingInstanceException;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -78,7 +75,7 @@ public class CommCareConfigEngine {
 
     public CommCareConfigEngine(IStorageIndexedFactory storageFactory, InstallerFactory installerFactory) {
         this.print = new PrintStream(System.out);
-        this.platform = new CommCarePlatform(2, 34, storageFactory);
+        this.platform = new CommCarePlatform(2, 36, storageFactory);
         this.storageFactory = storageFactory;
 
 

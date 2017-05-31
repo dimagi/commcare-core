@@ -25,6 +25,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     private static final int SCREEN_WIDTH = 100;
 
     private final TreeReference[] mChoices;
+    private final String[] rows;
     private final String mHeader;
 
     private final Vector<Action> actions;
@@ -39,35 +40,42 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         this.mChoices = new TreeReference[references.size()];
         references.copyInto(mChoices);
         actions = shortDetail.getCustomActions(context);
+        rows = getRows(mChoices, context, shortDetail);
     }
-    private String[] getRows(TreeReference[] references) {
+
+    public static String[] getRows(TreeReference[] references,
+                                   EvaluationContext evaluationContext,
+                                   Detail detail) {
         String[] rows = new String[references.length];
         int i = 0;
         for (TreeReference entity : references) {
-            rows[i] = createRow(entity);
+            rows[i] = createRow(entity, evaluationContext, detail);
             ++i;
         }
         return rows;
     }
 
-    private String createRow(TreeReference entity) {
-        return createRow(entity, false);
+    private static String createRow(TreeReference entity, EvaluationContext evaluationContext, Detail detail) {
+        return createRow(entity, false, evaluationContext, detail);
     }
 
-    private String createRow(TreeReference entity, boolean collectDebug) {
-        EvaluationContext context = new EvaluationContext(rootContext, entity);
+    private static String createRow(TreeReference entity,
+                                    boolean collectDebug,
+                                    EvaluationContext evaluationContext,
+                                    Detail detail) {
+        EvaluationContext context = new EvaluationContext(evaluationContext, entity);
         EvaluationTraceReporter reporter = new AccumulatingReporter();
 
         if (collectDebug) {
             context.setDebugModeOn(reporter);
         }
-        shortDetail.populateEvaluationContextVariables(context);
+        detail.populateEvaluationContextVariables(context);
 
         if (collectDebug) {
             ScreenUtils.printAndClearTraces(reporter, "Variable Traces");
         }
 
-        DetailField[] fields = shortDetail.getFields();
+        DetailField[] fields = detail.getFields();
 
         StringBuilder row = new StringBuilder();
         int i = 0;
@@ -86,17 +94,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                 s = (String)o;
             }
 
-            int widthHint = SCREEN_WIDTH / fields.length;
-            try {
-                widthHint = Integer.parseInt(field.getTemplateWidthHint());
-            } catch (Exception e) {
-                //Really don't care if it didn't work
-            }
-            ScreenUtils.addPaddedStringToBuilder(row, s, widthHint);
-            i++;
-            if (i != fields.length) {
-                row.append(" | ");
-            }
+            row.append(s);
         }
 
         if (collectDebug) {
@@ -164,8 +162,6 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         out.println(ScreenUtils.pad("", maxLength + 1) + mHeader);
         out.println("==============================================================================================");
 
-        String[] rows = getRows(mChoices);
-
         for (int i = 0; i < mChoices.length; ++i) {
             String d = rows[i];
             out.println(ScreenUtils.pad(String.valueOf(i), maxLength) + ")" + d);
@@ -183,7 +179,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     @Override
     public String[] getOptions() {
-        return getRows(mChoices);
+        return rows;
     }
 
     @Override
@@ -205,7 +201,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             String debugArg = input.substring("debug ".length());
             try {
                 int chosenDebugIndex = Integer.valueOf(debugArg.trim());
-                createRow(this.mChoices[chosenDebugIndex], true);
+                createRow(this.mChoices[chosenDebugIndex], rootContext, shortDetail);
             } catch (NumberFormatException e) {
                 if ("list".equals(debugArg)) {
                     host.printNodesetExpansionTrace(new AccumulatingReporter());
@@ -226,5 +222,9 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             //This will result in things just executing again, which is fine.
         }
         return false;
+    }
+
+    public Detail getShortDetail() {
+        return shortDetail;
     }
 }

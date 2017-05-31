@@ -29,106 +29,106 @@ public class BasicSessionNavigationTests {
     @Test
     public void testNeedsCommandFirst() {
         // Before anything is done in the session, should need a command
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
         // After setting first command to m0, should still need another command because the 3 forms
         // within m0 have different datum needs, so will prioritize getting the next command first
         session.setCommand("m0");
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
         // After choosing the form, will need a case id
         session.setCommand("m0-f1");
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
-        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
 
         // Stepping back after choosing a command should go back only 1 level
         session.stepBack();
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
-        Assert.assertEquals(session.getCommand(), "m0");
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        Assert.assertEquals("m0", session.getCommand());
 
         // After choosing registration form, should need computed case id
         session.setCommand("m0-f0");
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_COMPUTED);
+        Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
 
         session.setComputedDatum();
-        Assert.assertEquals(session.getNeededData(), null);
+        Assert.assertEquals(null, session.getNeededData());
     }
 
     @Test
     public void testNeedsCaseFirst() {
         // Before anything is done in the session, should need a command
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
         // After setting first command to m2, should need a case id, because both forms within m2 need one
         session.setCommand("m2");
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
-        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
 
         // After setting case id, should need to choose a form
         session.setDatum("case_id", "case_two");
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
         // Should be ready to go after choosing a form
         session.setCommand("m2-f1");
-        Assert.assertEquals(session.getNeededData(), null);
+        Assert.assertEquals(null, session.getNeededData());
     }
 
     @Test
     public void testStepBackBasic() {
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
         session.setCommand("m1");
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
-        session.setCommand("m1-f1");
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
-        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        session.setCommand("m1-f3");
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
         session.setDatum("case_id", "case_one");
-        Assert.assertEquals(session.getNeededDatum(), null);
+        Assert.assertEquals(null, session.getNeededDatum());
 
         // Should result in needing a case_id again
         session.stepBack();
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
-        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
     }
 
     @Test
     public void testStepBackWithExtraValue() {
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
         session.setCommand("m1");
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
-        session.setCommand("m1-f1");
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
-        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        session.setCommand("m1-f3");
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
         session.setDatum("case_id", "case_one");
-        Assert.assertEquals(session.getNeededDatum(), null);
+        Assert.assertEquals(null, session.getNeededDatum());
         session.setDatum("return_to", "m1");
 
         // Should pop 2 values off of the session stack in order to return to the last place
         // where there was a user-inputted decision
         session.stepBack();
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
-        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
     }
 
     @Test
     public void testStepBackWithComputedDatum() {
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
         session.setCommand("m0");
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
         session.setCommand("m0-f0");
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_COMPUTED);
+        Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
         session.setComputedDatum();
-        Assert.assertEquals(session.getNeededData(), null);
+        Assert.assertEquals(null, session.getNeededData());
 
         // Should pop 2 values off of the session stack so that the next needed data isn't a
         // computed value
         session.stepBack();
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
     }
 
     @Test
     public void testStepToSyncRequest() {
         session.setCommand("patient-case-search");
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
+        Assert.assertEquals(SessionFrame.STATE_QUERY_REQUEST, session.getNeededData());
 
         ExternalDataInstance dataInstance =
                 SessionStackTests.buildRemoteExternalDataInstance(this.getClass(),
@@ -136,12 +136,12 @@ public class BasicSessionNavigationTests {
         session.setQueryDatum(dataInstance);
 
         // case_id
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
-        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
         session.setDatum("case_id", "123");
 
         // time to make sync request
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SYNC_REQUEST);
+        Assert.assertEquals(SessionFrame.STATE_SYNC_REQUEST, session.getNeededData());
     }
 
     /**
@@ -150,7 +150,7 @@ public class BasicSessionNavigationTests {
     @Test
     public void testStepToIrrelevantSyncRequest() {
         session.setCommand("patient-case-search");
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
+        Assert.assertEquals(SessionFrame.STATE_QUERY_REQUEST, session.getNeededData());
 
         ExternalDataInstance dataInstance =
                 SessionStackTests.buildRemoteExternalDataInstance(this.getClass(),
@@ -158,13 +158,13 @@ public class BasicSessionNavigationTests {
         session.setQueryDatum(dataInstance);
 
         // case_id
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
-        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
         // select case present in user_restore
         session.setDatum("case_id", "case_one");
 
         // assert that relevancy condition of post request is false
-        Assert.assertEquals(session.getNeededData(), null);
+        Assert.assertEquals(null, session.getNeededData());
     }
 
     @Test
@@ -172,15 +172,15 @@ public class BasicSessionNavigationTests {
         SessionWrapper session = mApp.getSession();
 
         session.setCommand("empty-remote-request");
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SYNC_REQUEST);
+        Assert.assertEquals(SessionFrame.STATE_SYNC_REQUEST, session.getNeededData());
     }
 
     @Test
     public void testStepToSyncRequestRelevancy() {
         session.setCommand("irrelevant-remote-request");
-        Assert.assertEquals(session.getNeededData(), null);
+        Assert.assertEquals(null, session.getNeededData());
 
         session.setCommand("relevant-remote-request");
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SYNC_REQUEST);
+        Assert.assertEquals(SessionFrame.STATE_SYNC_REQUEST, session.getNeededData());
     }
 }

@@ -287,7 +287,7 @@ public class FormOverview {
 
     private static boolean listGroup (FormDef f, GroupDef g, int indent, StringBuffer sb) {
         FormEntryModel femodel = new FormEntryModel(f);
-        boolean repeat = g.getRepeat();
+        boolean repeat = g.isRepeat();
         String caption = ExtUtil.nullIfEmpty(femodel.getCaptionPrompt().getLongText());
         TreeElement instanceNode = getInstanceNode(f.getInstance(), g.getBind());
 

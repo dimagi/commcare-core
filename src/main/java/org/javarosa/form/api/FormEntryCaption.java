@@ -208,7 +208,7 @@ public class FormEntryCaption {
     //TODO: localize the default captions
     public String getRepeatText(String typeKey) {
         GroupDef g = (GroupDef)element;
-        if (!g.getRepeat()) {
+        if (!g.isRepeat()) {
             throw new RuntimeException("not a repeat");
         }
 
@@ -275,7 +275,7 @@ public class FormEntryCaption {
     }
 
     private String getRepetitionText(String type, FormIndex index, boolean newrep) {
-        if (element instanceof GroupDef && ((GroupDef)element).getRepeat() && index.getElementMultiplicity() >= 0) {
+        if (element instanceof GroupDef && ((GroupDef)element).isRepeat() && index.getElementMultiplicity() >= 0) {
             GroupDef g = (GroupDef)element;
 
             String title = getLongText();
@@ -308,7 +308,7 @@ public class FormEntryCaption {
 
     public Vector<String> getRepetitionsText() {
         GroupDef g = (GroupDef)element;
-        if (!g.getRepeat()) {
+        if (!g.isRepeat()) {
             throw new RuntimeException("not a repeat");
         }
 
@@ -377,7 +377,7 @@ public class FormEntryCaption {
      */
     public boolean repeats() {
         if (element instanceof GroupDef) {
-            return ((GroupDef)element).getRepeat();
+            return ((GroupDef)element).isRepeat();
         } else {
             return false;
         }

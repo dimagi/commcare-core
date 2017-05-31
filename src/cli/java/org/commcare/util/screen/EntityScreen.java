@@ -113,7 +113,7 @@ public class EntityScreen extends CompoundScreenHost {
         return mCurrentScreen;
     }
 
-    public String getReturnValueFromSelection(TreeReference contextRef, EntityDatum needed, EvaluationContext context) {
+    public static String getReturnValueFromSelection(TreeReference contextRef, EntityDatum needed, EvaluationContext context) {
         // grab the session's (form) element reference, and load it.
         TreeReference elementRef =
                 XPathReference.getPathExpr(needed.getValue()).getReference();
@@ -230,5 +230,9 @@ public class EntityScreen extends CompoundScreenHost {
 
     public EvaluationContext getEvalContext() {
         return evalContext;
+    }
+
+    public TreeReference getCurrentSelection() {
+        return mCurrentSelection;
     }
 }
