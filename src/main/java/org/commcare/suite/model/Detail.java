@@ -291,7 +291,7 @@ public class Detail implements Externalizable {
     /**
      * @return The indices of which fields should be used for sorting and their order
      */
-    public int[] getSortOrder() {
+    public int[] getOrderedFieldIndicesForSorting() {
         Vector<Integer> indices = new Vector<>();
         outer:
         for (int i = 0; i < fields.length; ++i) {
