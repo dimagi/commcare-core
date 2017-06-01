@@ -1,12 +1,11 @@
 package org.commcare.core.graph.c3;
 
-import android.graphics.Color;
-
 import org.commcare.core.graph.model.AnnotationData;
 import org.commcare.core.graph.model.BubblePointData;
 import org.commcare.core.graph.model.GraphData;
 import org.commcare.core.graph.model.SeriesData;
 import org.commcare.core.graph.model.XYPointData;
+import org.commcare.core.graph.util.Color;
 import org.commcare.core.graph.util.GraphException;
 import org.commcare.core.graph.util.GraphUtil;
 
