@@ -8,6 +8,7 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -69,10 +70,17 @@ public class Callout implements Externalizable, DetailTemplate {
 
         while (keys.hasMoreElements()) {
             String key = (String)keys.nextElement();
+            String rawValue = extras.get(key);
             try {
-                String evaluatedKey = FunctionUtils.toString(XPathParseTool.parseXPath(extras.get(key)).eval(context));
+                String evaluatedKey = FunctionUtils.toString(XPathParseTool.parseXPath(rawValue).eval(context));
                 evaluatedExtras.put(key, evaluatedKey);
-            } catch (XPathSyntaxException e) {
+            } catch (XPathException e) {
+                // If we get an XPathException while trying to evaluate the value, then assume that
+                // the app was built in the pre-2.36 format (which expected ONLY raw/literal values,
+                // without any surrounding quotes
+                evaluatedExtras.put(key, rawValue);
+            }
+            catch (XPathSyntaxException e) {
                 // do nothing
             }
         }
