@@ -5,25 +5,23 @@ import java.util.Locale;
 
 /**
  * These functions are copied directly from android.graphics.Color for use in the core
- * classes.
+ * (graphing) classes
  *
- * TODO: Unify with non-Android Java methods (though the name -> color mappings are tricky)
  */
 
-public class Color {
+public class ColorUtils {
 
-    public static final int BLACK       = 0xFF000000;
-    public static final int DKGRAY      = 0xFF444444;
-    public static final int GRAY        = 0xFF888888;
-    public static final int LTGRAY      = 0xFFCCCCCC;
-    public static final int WHITE       = 0xFFFFFFFF;
-    public static final int RED         = 0xFFFF0000;
-    public static final int GREEN       = 0xFF00FF00;
-    public static final int BLUE        = 0xFF0000FF;
-    public static final int YELLOW      = 0xFFFFFF00;
-    public static final int CYAN        = 0xFF00FFFF;
-    public static final int MAGENTA     = 0xFFFF00FF;
-    public static final int TRANSPARENT = 0;
+    private static final int BLACK       = 0xFF000000;
+    private static final int DKGRAY      = 0xFF444444;
+    private static final int GRAY        = 0xFF888888;
+    private static final int LTGRAY      = 0xFFCCCCCC;
+    private static final int WHITE       = 0xFFFFFFFF;
+    private static final int RED         = 0xFFFF0000;
+    private static final int GREEN       = 0xFF00FF00;
+    private static final int BLUE        = 0xFF0000FF;
+    private static final int YELLOW      = 0xFFFFFF00;
+    private static final int CYAN        = 0xFF00FFFF;
+    private static final int MAGENTA     = 0xFFFF00FF;
 
     private static final HashMap<String, Integer> sColorNameMap;
 

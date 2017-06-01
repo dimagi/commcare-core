@@ -5,7 +5,7 @@ import org.commcare.core.graph.model.BubblePointData;
 import org.commcare.core.graph.model.GraphData;
 import org.commcare.core.graph.model.SeriesData;
 import org.commcare.core.graph.model.XYPointData;
-import org.commcare.core.graph.util.Color;
+import org.commcare.core.graph.util.ColorUtils;
 import org.commcare.core.graph.util.GraphException;
 import org.commcare.core.graph.util.GraphUtil;
 
@@ -338,11 +338,11 @@ public class DataConfiguration extends Configuration {
     /**
      * Calculate opacity of given color.
      *
-     * @param color Color in format "#AARRGGBB"
+     * @param color ColorUtils in format "#AARRGGBB"
      * @return Opacity, which will be between 0 and 1, inclusive
      */
     private double getOpacity(String color) {
-        return Color.alpha(Color.parseColor(color)) / (double)255;
+        return ColorUtils.alpha(ColorUtils.parseColor(color)) / (double)255;
     }
 
     /**
