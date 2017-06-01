@@ -1,5 +1,7 @@
 package org.commcare.modern.database;
 
+import com.carrotsearch.hppc.IntCollection;
+import com.carrotsearch.hppc.cursors.IntCursor;
 import org.commcare.modern.models.MetaField;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.services.storage.IMetaData;
@@ -11,11 +13,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * Functions for generating CommCare SQL statements based on classes
@@ -29,6 +27,8 @@ import java.util.Vector;
 public class TableBuilder {
 
     private final String name;
+
+    private static final int MAX_SQL_ARGS = 950;
 
     private final Vector<String> cols;
     private final Vector<String> rawCols;
@@ -96,17 +96,19 @@ public class TableBuilder {
 
         if (p instanceof IMetaData) {
             String[] keys = ((IMetaData)p).getMetaDataFields();
-            for (String key : keys) {
-                String columnName = scrubName(key);
-                if (!rawCols.contains(columnName)) {
-                    rawCols.add(columnName);
-                    String columnDef = columnName;
+            if (keys != null) {
+                for (String key : keys) {
+                    String columnName = scrubName(key);
+                    if (!rawCols.contains(columnName)) {
+                        rawCols.add(columnName);
+                        String columnDef = columnName;
 
-                    //Modifiers
-                    if (unique.contains(columnName)) {
-                        columnDef += " UNIQUE";
+                        //Modifiers
+                        if (unique.contains(columnName)) {
+                            columnDef += " UNIQUE";
+                        }
+                        cols.add(columnDef);
                     }
-                    cols.add(columnDef);
                 }
             }
         }
@@ -175,8 +177,7 @@ public class TableBuilder {
     }
 
     public static String scrubName(String input) {
-        // sqlite doesn't like dashes
-        return input.replace("-", "_");
+        return input.replace("-", "_").replace(".", "_");
     }
 
     public static byte[] toBlob(Externalizable externalizable) {
@@ -188,5 +189,91 @@ public class TableBuilder {
                     " for content values wth exception " + e);
         }
         return bos.toByteArray();
+    }
+
+    // TODO: Copied from AndroidTableBuilder, delete that when merged
+    /**
+     * Given a list of integer params to insert and a maximum number of args, return the
+     * String containing (?, ?,...) to be used in the SQL query and the array of args
+     * to replace them with
+     */
+    public static List<Pair<String, String[]>> sqlList(Collection<?> input) {
+        return sqlList(input, "?");
+    }
+
+    public static List<Pair<String, String[]>> sqlList(Collection<?> input, String questionMarkType) {
+        return sqlList(input, MAX_SQL_ARGS, questionMarkType);
+    }
+
+    private static List<Pair<String, String[]>> sqlList(Collection<?> input, int maxArgs, String questionMark) {
+
+        List<Pair<String, String[]>> ops = new ArrayList<>();
+
+        //figure out how many iterations we'll need
+        int numIterations = (int)Math.ceil(((double)input.size()) / maxArgs);
+
+        Iterator<?> iterator = input.iterator();
+
+        for (int currentRound = 0; currentRound < numIterations; ++currentRound) {
+
+            int startPoint = currentRound * maxArgs;
+            int lastIndex = Math.min((currentRound + 1) * maxArgs, input.size());
+            StringBuilder stringBuilder = new StringBuilder("(");
+            for (int i = startPoint; i < lastIndex; ++i) {
+                stringBuilder.append(questionMark);
+                stringBuilder.append(",");
+            }
+
+            String[] array = new String[lastIndex - startPoint];
+            int count = 0;
+            for (int i = startPoint; i < lastIndex; ++i) {
+                array[count++] = String.valueOf(iterator.next());
+            }
+
+            ops.add(new Pair<>(stringBuilder.toString().substring(0,
+                    stringBuilder.toString().length() - 1) + ")", array));
+
+        }
+        return ops;
+    }
+
+    public static List<Pair<String, String[]>> sqlList(IntCollection input) {
+        return sqlList(input, MAX_SQL_ARGS);
+    }
+
+    /**
+     * Given a list of integer params to insert and a maximum number of args, return the
+     * String containing (?, ?,...) to be used in the SQL query and the array of args
+     * to replace them with
+     */
+    private static List<Pair<String, String[]>> sqlList(IntCollection input, int maxArgs) {
+
+        List<Pair<String, String[]>> ops = new ArrayList<>();
+
+        //figure out how many iterations we'll need
+        int numIterations = (int)Math.ceil(((double)input.size()) / maxArgs);
+
+        Iterator<IntCursor> iterator = input.iterator();
+
+        for (int currentRound = 0; currentRound < numIterations; ++currentRound) {
+
+            int startPoint = currentRound * maxArgs;
+            int lastIndex = Math.min((currentRound + 1) * maxArgs, input.size());
+            StringBuilder stringBuilder = new StringBuilder("(");
+            for (int i = startPoint; i < lastIndex; ++i) {
+                stringBuilder.append("?,");
+            }
+
+            String[] array = new String[lastIndex - startPoint];
+            int count = 0;
+            for (int i = startPoint; i < lastIndex; ++i) {
+                array[count++] = String.valueOf(iterator.next().value);
+            }
+
+            ops.add(new Pair<>(stringBuilder.toString().substring(0,
+                    stringBuilder.toString().length() - 1) + ")", array));
+
+        }
+        return ops;
     }
 }
