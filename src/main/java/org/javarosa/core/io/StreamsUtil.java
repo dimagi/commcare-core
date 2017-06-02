@@ -93,8 +93,8 @@ public class StreamsUtil {
      * Writes input stream to output stream in a buffered fasion, but doesn't
      * close either stream.
      */
-    public static void writeFromInputToOutputUnmanaged(InputStream is,
-                                                       OutputStream os) throws IOException {
+    public static void writeFromInputToOutputUnmanaged(InputStream is, OutputStream os)
+            throws InputIOException, OutputIOException {
         int count;
         byte[] buffer = new byte[8192];
         try {
