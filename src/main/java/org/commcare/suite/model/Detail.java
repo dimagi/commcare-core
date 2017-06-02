@@ -29,9 +29,11 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -82,6 +84,8 @@ public class Detail implements Externalizable {
 
     private String printTemplatePath;
 
+    private XPathExpression parsedRelevancyExpression;
+
     // REGION -- These fields are only used if this detail is a case tile
 
     // Allows for the possibility of case tiles being displayed in a grid
@@ -100,13 +104,11 @@ public class Detail implements Externalizable {
 
     }
 
-    public Detail(String id, DisplayUnit title, String nodeset,
-                  Vector<Detail> detailsVector,
-                  Vector<DetailField> fieldsVector,
-                  OrderedHashtable<String, String> variables,
+    public Detail(String id, DisplayUnit title, String nodeset, Vector<Detail> detailsVector,
+                  Vector<DetailField> fieldsVector, OrderedHashtable<String, String> variables,
                   Vector<Action> actions, Callout callout, String fitAcross,
                   String uniformUnitsString, String forceLandscape, String focusFunction,
-                  String printPathProvided) {
+                  String printPathProvided, String relevancy) {
 
         if (detailsVector.size() > 0 && fieldsVector.size() > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
@@ -144,6 +146,15 @@ public class Detail implements Externalizable {
         } else {
             numEntitiesToDisplayPerRow = 1;
         }
+
+        if (relevancy != null) {
+            try {
+                this.parsedRelevancyExpression = XPathParseTool.parseXPath(relevancy);
+            } catch (XPathSyntaxException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e.getMessage());
+            }
+        }
     }
 
     /**
@@ -174,6 +185,16 @@ public class Detail implements Externalizable {
      */
     public Detail[] getDetails() {
         return details;
+    }
+
+    public Detail[] getDisplayableChildDetails(EvaluationContext ec) {
+        Vector<Detail> displayableDetails = new Vector<>();
+        for (Detail d : this.details) {
+            if (d.isRelevant(ec)) {
+                displayableDetails.add(d);
+            }
+        }
+        return ArrayUtilities.copyIntoArray(displayableDetails, new Detail[displayableDetails.size()]);
     }
 
     /**
@@ -518,6 +539,21 @@ public class Detail implements Externalizable {
                         parentDetail, baseContext);
         NodeEntityFactory factory = new NodeEntityFactory(this, entityFactoryContext);
         return factory.getEntity(selectedEntityRef);
+    }
+
+    /**
+     * If this detail is a tab (i.e a child detail), returns whether the tab should be shown
+     * NOTE that this method should only be used/considered in the context of a sub-detail (i.e. a tab)
+     *
+     * @param context Context in which to evaluate the detail.
+     * @return true iff the detail should be displayed as a tab
+     * @throws XPathSyntaxException
+     */
+    public boolean isRelevant(EvaluationContext context) {
+        if (parsedRelevancyExpression == null) {
+            return true;
+        }
+        return FunctionUtils.toBoolean(parsedRelevancyExpression.eval(context));
     }
 
 }
