@@ -107,13 +107,12 @@ public class MenuLoader {
                                            Vector<MenuDisplayable> items,
                                            Hashtable<String, Entry> map)
             throws XPathSyntaxException {
-        EvaluationContext ec = sessionWrapper.getEvaluationContext();
         xPathErrorMessage = "";
         for (String command : m.getCommandIds()) {
             XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
             if (mRelevantCondition != null) {
                 xPathErrorMessage = m.getCommandRelevanceRaw(m.indexOfCommand(command));
-                Object ret = mRelevantCondition.eval(ec);
+                Object ret = mRelevantCondition.eval(sessionWrapper.getEvaluationContext(command));
                 try {
                     if (!FunctionUtils.toBoolean(ret)) {
                         continue;
