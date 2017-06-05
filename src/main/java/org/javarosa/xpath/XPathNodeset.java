@@ -120,6 +120,10 @@ public class XPathNodeset {
         return nodes.elementAt(i);
     }
 
+    public DataInstance getInstance() {
+        return instance;
+    }
+
     protected Object getValAt(int i) {
         return XPathPathExpr.getRefValue(instance, ec, getRefAt(i));
     }
