@@ -60,7 +60,7 @@ public abstract class DerivedCaseQueryLookup implements QuerySetLookup {
     public List<Integer> performSetLookup(TreeReference lookupIdKey, QueryContext queryContext) {
         List<Integer> rootLookup = root.performSetLookup(lookupIdKey, queryContext);
         ModelQuerySet set = getOrLoadCachedQuerySet(queryContext);
-        if(set == null) {
+        if (set == null || rootLookup == null) {
             return null;
         }
 
