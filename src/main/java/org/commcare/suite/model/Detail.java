@@ -187,16 +187,6 @@ public class Detail implements Externalizable {
         return details;
     }
 
-    public Detail[] getDisplayableChildDetails(EvaluationContext ec) {
-        Vector<Detail> displayableDetails = new Vector<>();
-        for (Detail d : this.details) {
-            if (d.isRelevant(ec)) {
-                displayableDetails.add(d);
-            }
-        }
-        return ArrayUtilities.copyIntoArray(displayableDetails, new Detail[displayableDetails.size()]);
-    }
-
     /**
      * Given a detail, return an array of details that will contain either
      * - all child details
@@ -541,6 +531,16 @@ public class Detail implements Externalizable {
         return factory.getEntity(selectedEntityRef);
     }
 
+    public Detail[] getDisplayableChildDetails(EvaluationContext ec) {
+        Vector<Detail> displayableDetails = new Vector<>();
+        for (Detail d : this.details) {
+            if (d.isRelevant(ec)) {
+                displayableDetails.add(d);
+            }
+        }
+        return ArrayUtilities.copyIntoArray(displayableDetails, new Detail[displayableDetails.size()]);
+    }
+
     /**
      * If this detail is a tab (i.e a child detail), returns whether the tab should be shown
      * NOTE that this method should only be used/considered in the context of a sub-detail (i.e. a tab)
@@ -549,7 +549,7 @@ public class Detail implements Externalizable {
      * @return true iff the detail should be displayed as a tab
      * @throws XPathSyntaxException
      */
-    public boolean isRelevant(EvaluationContext context) {
+    private boolean isRelevant(EvaluationContext context) {
         if (parsedRelevancyExpression == null) {
             return true;
         }
