@@ -542,10 +542,9 @@ public class Detail implements Externalizable {
     }
 
     /**
-     * If this detail is a tab (i.e a child detail), returns whether the tab should be shown
      * NOTE that this method should only be used/considered in the context of a sub-detail (i.e. a tab)
      *
-     * @param context Context in which to evaluate the detail.
+     * @param context The context in which to evaluate the relevancy condition
      * @return true iff the detail should be displayed as a tab
      * @throws XPathSyntaxException
      */
