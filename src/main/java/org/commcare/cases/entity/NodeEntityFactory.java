@@ -2,19 +2,19 @@ package org.commcare.cases.entity;
 
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
-import org.commcare.cases.query.queryset.QuerySetCache;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
-import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.List;
 
 /**
@@ -27,12 +27,19 @@ public class NodeEntityFactory {
     protected final EvaluationContext ec;
     protected final Detail detail;
     private final ReducingTraceReporter reporter = new ReducingTraceReporter();
-
+    private PrintStream mProfilePrintStream;
     private boolean inDebugMode = false;
 
     public NodeEntityFactory(Detail d, EvaluationContext ec) {
         this.detail = d;
         this.ec = ec;
+        this.mProfilePrintStream = System.out;
+    }
+
+    public NodeEntityFactory(Detail d, EvaluationContext ec, OutputStream profileOutput) {
+        this.detail = d;
+        this.ec = ec;
+        this.mProfilePrintStream = new PrintStream(profileOutput);
     }
 
     public void activateDebugTraceOutput() {
@@ -141,14 +148,14 @@ public class NodeEntityFactory {
             return;
         }
         if (reporter.wereTracesReported()) {
-            System.out.println(description);
+            mProfilePrintStream.println(description);
         }
 
         StringEvaluationTraceSerializer serializer = new StringEvaluationTraceSerializer();
 
         for (EvaluationTrace trace : reporter.getCollectedTraces()) {
-            System.out.println(trace.getExpression() + ": " + trace.getValue());
-            System.out.print(serializer.serializeEvaluationLevels(trace));
+            mProfilePrintStream.println(trace.getExpression() + ": " + trace.getValue());
+            mProfilePrintStream.print(serializer.serializeEvaluationLevels(trace));
         }
 
         reporter.reset();
