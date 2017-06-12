@@ -17,11 +17,7 @@ import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * A collection of objects that affect the evaluation of an expression, like
@@ -496,6 +492,10 @@ public class EvaluationContext {
                 return null;
             }
         }
+    }
+
+    public List<String> getInstanceIds() {
+        return new ArrayList<>(formInstances.keySet());
     }
 
     public DataInstance getMainInstance() {
