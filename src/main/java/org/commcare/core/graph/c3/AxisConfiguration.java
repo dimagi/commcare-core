@@ -1,13 +1,9 @@
 package org.commcare.core.graph.c3;
 
-<<<<<<< HEAD
-import org.commcare.core.graph.util.GraphException;
-=======
 import org.commcare.core.graph.model.GraphData;
 import org.commcare.core.graph.model.SeriesData;
 import org.commcare.core.graph.util.GraphException;
 import org.commcare.core.graph.util.GraphUtil;
->>>>>>> master
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,22 +17,15 @@ import java.util.Iterator;
  * Created by jschweers on 11/16/2015.
  */
 public class AxisConfiguration extends Configuration {
-<<<<<<< HEAD
-    public AxisConfiguration(org.commcare.core.graph.model.GraphData data) throws GraphException, JSONException {
-=======
+
     public AxisConfiguration(GraphData data) throws GraphException, JSONException {
->>>>>>> master
         super(data);
 
         JSONObject x = getAxis("x");
         JSONObject y = getAxis("y");
         JSONObject y2 = getAxis("secondary-y");
 
-<<<<<<< HEAD
-        if (mData.getType().equals(org.commcare.core.graph.util.GraphUtil.TYPE_TIME)) {
-=======
         if (mData.getType().equals(GraphUtil.TYPE_TIME)) {
->>>>>>> master
             x.put("type", "timeseries");
         }
 
@@ -45,11 +34,7 @@ public class AxisConfiguration extends Configuration {
         mConfiguration.put("y2", y2);
 
         // Bar graphs may be rotated. C3 defaults to vertical bars.
-<<<<<<< HEAD
-        if (mData.getType().equals(org.commcare.core.graph.util.GraphUtil.TYPE_BAR)
-=======
         if (mData.getType().equals(GraphUtil.TYPE_BAR)
->>>>>>> master
                 && !mData.getConfiguration("bar-orientation", "horizontal").equalsIgnoreCase("vertical")) {
             mConfiguration.put("rotated", true);
         }
@@ -77,11 +62,7 @@ public class AxisConfiguration extends Configuration {
         String key = prefix + "-" + suffix;
         String value = mData.getConfiguration(key);
         if (value != null) {
-<<<<<<< HEAD
-            if (prefix.equals("x") && mData.getType().equals(org.commcare.core.graph.util.GraphUtil.TYPE_TIME)) {
-=======
             if (prefix.equals("x") && mData.getType().equals(GraphUtil.TYPE_TIME)) {
->>>>>>> master
                 axis.put(suffix, parseTime(value, key));
             } else {
                 axis.put(suffix, parseDouble(value, key));
@@ -113,13 +94,8 @@ public class AxisConfiguration extends Configuration {
                 JSONArray labels = new JSONArray(labelString);
                 JSONArray values = new JSONArray();
                 for (int i = 0; i < labels.length(); i++) {
-<<<<<<< HEAD
-                    String value = String.valueOf(labels.get(i));
-                    if (isX && mData.getType().equals(org.commcare.core.graph.util.GraphUtil.TYPE_TIME)) {
-=======
                     String value = labels.getString(i);
                     if (isX && mData.getType().equals(GraphUtil.TYPE_TIME)) {
->>>>>>> master
                         values.put(parseTime(value, key));
                     } else {
                         values.put(parseDouble(value, key));
@@ -137,11 +113,7 @@ public class AxisConfiguration extends Configuration {
                     Iterator i = labels.keys();
                     while (i.hasNext()) {
                         String location = (String)i.next();
-<<<<<<< HEAD
-                        if (isX && mData.getType().equals(org.commcare.core.graph.util.GraphUtil.TYPE_TIME)) {
-=======
                         if (isX && mData.getType().equals(GraphUtil.TYPE_TIME)) {
->>>>>>> master
                             values.put(parseTime(location, key));
                         } else {
                             values.put(parseDouble(location, key));
@@ -158,22 +130,14 @@ public class AxisConfiguration extends Configuration {
             }
         }
 
-<<<<<<< HEAD
-        if (isX && !usingCustomText && mData.getType().equals(org.commcare.core.graph.util.GraphUtil.TYPE_TIME)) {
-=======
         if (isX && !usingCustomText && mData.getType().equals(GraphUtil.TYPE_TIME)) {
->>>>>>> master
             tick.put("format", mData.getConfiguration("x-labels-time-format", "%Y-%m-%d"));
         }
 
         if (key.startsWith("secondary-y")) {
             // If there aren't any series for the secondary y axis, don't label it
             boolean hasSecondaryAxis = false;
-<<<<<<< HEAD
-            for (org.commcare.core.graph.model.SeriesData s : mData.getSeries()) {
-=======
             for (SeriesData s : mData.getSeries()) {
->>>>>>> master
                 hasSecondaryAxis = hasSecondaryAxis || Boolean.valueOf(s.getConfiguration("secondary-y", "false"));
                 if (hasSecondaryAxis) {
                     break;

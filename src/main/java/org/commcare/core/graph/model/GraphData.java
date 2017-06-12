@@ -1,8 +1,5 @@
 package org.commcare.core.graph.model;
 
-<<<<<<< HEAD
-import java.util.Hashtable;
-=======
 import org.commcare.core.graph.util.GraphException;
 import org.commcare.core.graph.c3.AxisConfiguration;
 import org.commcare.core.graph.c3.DataConfiguration;
@@ -14,7 +11,6 @@ import org.json.JSONObject;
 import java.util.Hashtable;
 import java.util.SortedMap;
 import java.util.TreeMap;
->>>>>>> master
 import java.util.Vector;
 
 /**
@@ -23,14 +19,11 @@ import java.util.Vector;
  * @author jschweers
  */
 public class GraphData implements ConfigurableData {
+
     private String mType;
     private final Vector<SeriesData> mSeries;
     private final Hashtable<String, String> mConfiguration;
-<<<<<<< HEAD
-    private final Vector<org.commcare.core.graph.model.AnnotationData> mAnnotations;
-=======
     private final Vector<AnnotationData> mAnnotations;
->>>>>>> master
 
     public GraphData() {
         mSeries = new Vector<>();
@@ -54,19 +47,11 @@ public class GraphData implements ConfigurableData {
         mSeries.addElement(s);
     }
 
-<<<<<<< HEAD
-    public void addAnnotation(org.commcare.core.graph.model.AnnotationData a) {
-        mAnnotations.addElement(a);
-    }
-
-    public Vector<org.commcare.core.graph.model.AnnotationData> getAnnotations() {
-=======
     public void addAnnotation(AnnotationData a) {
         mAnnotations.addElement(a);
     }
 
     public Vector<AnnotationData> getAnnotations() {
->>>>>>> master
         return mAnnotations;
     }
 
@@ -89,8 +74,6 @@ public class GraphData implements ConfigurableData {
         return value;
     }
 
-<<<<<<< HEAD
-=======
     /**
      * @return The full HTML page that will comprise this graph (including head, body, and all
      * script and style tags)
@@ -178,5 +161,4 @@ public class GraphData implements ConfigurableData {
         return html.toString();
     }
 
->>>>>>> master
 }
