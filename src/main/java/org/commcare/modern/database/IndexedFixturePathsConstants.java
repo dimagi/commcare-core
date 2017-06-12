@@ -15,6 +15,13 @@ public class IndexedFixturePathsConstants {
                     ", " + IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_BASE +
                     ", " + IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_CHILD + ");";
 
+    public final static String INDEXED_FIXTURE_PATHS_TABLE_SELECT_STMT =
+            "SELECT " +
+                    IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_BASE + ", " +
+                    IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_CHILD  +
+                    " FROM " + IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE +
+                    " WHERE " + IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_NAME + " = ?;";
+
     public final static String INDEXED_FIXTURE_INDEXING_STMT =
             DatabaseIndexingUtils.indexOnTableCommand("fixture_name_index",
                     IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE, IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_NAME);
