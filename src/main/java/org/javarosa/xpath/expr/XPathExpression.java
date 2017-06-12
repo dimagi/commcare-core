@@ -74,9 +74,11 @@ public abstract class XPathExpression implements Externalizable {
 
         DataInstance instance = nodeset.getInstance();
         Vector<TreeReference> refs = nodeset.getReferences();
+
         if (refs == null) {
             return;
         }
+
         for (TreeReference ref : refs) {
             AbstractTreeElement treeElement = instance.resolveReference(ref);
             s.serialize(treeElement);

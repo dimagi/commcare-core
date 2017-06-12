@@ -81,7 +81,7 @@ public class Detail implements Externalizable {
     // A button to print this detail should be provided
     private boolean printEnabled;
 
-    private String derivedPrintTemplatePath;
+    private String printTemplatePath;
 
     // REGION -- These fields are only used if this detail is a case tile
 
@@ -292,7 +292,7 @@ public class Detail implements Externalizable {
     /**
      * @return The indices of which fields should be used for sorting and their order
      */
-    public int[] getSortOrder() {
+    public int[] getOrderedFieldIndicesForSorting() {
         Vector<Integer> indices = new Vector<>();
         outer:
         for (int i = 0; i < fields.length; ++i) {
@@ -480,8 +480,8 @@ public class Detail implements Externalizable {
             return true;
         } else if (templatePathProvided != null) {
             try {
-                this.derivedPrintTemplatePath =
-                        ReferenceManager.instance().DeriveReference(templatePathProvided).getLocalURI();
+                ReferenceManager.instance().DeriveReference(templatePathProvided).getLocalURI();
+                this.printTemplatePath = templatePathProvided;
                 return true;
             } catch (InvalidReferenceException e) {
                 System.out.println("Invalid print template path provided for detail with id " + this.id);
@@ -494,8 +494,8 @@ public class Detail implements Externalizable {
         return this.printEnabled;
     }
 
-    public String getDerivedPrintTemplatePath() {
-        return this.derivedPrintTemplatePath;
+    public String getPrintTemplatePath() {
+        return this.printTemplatePath;
     }
 
     public HashMap<String, DetailFieldPrintInfo> getKeyValueMapForPrint(TreeReference selectedEntityRef,

@@ -86,7 +86,7 @@ public abstract class CliCommand {
                     + e.getResource().getResourceId());
             e.printStackTrace();
         } catch (UnfullfilledRequirementsException e) {
-            System.out.println("While attempting to resolve the necessary resources, a requirement wasn't met");;
+            System.out.println("While attempting to resolve the necessary resources, a requirement wasn't met");
             e.printStackTrace();
         }
         System.exit(-1);

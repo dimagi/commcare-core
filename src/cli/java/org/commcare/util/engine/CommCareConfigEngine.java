@@ -111,7 +111,8 @@ public class CommCareConfigEngine {
         ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
     }
 
-    public void initFromArchive(String archiveURL) throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
+    public void initFromArchive(String archiveURL) throws InstallCancelledException,
+            UnresolvedResourceException, UnfullfilledRequirementsException {
         String fileName;
         if (archiveURL.startsWith("http")) {
             fileName = downloadToTemp(archiveURL);
@@ -164,7 +165,8 @@ public class CommCareConfigEngine {
         }
     }
 
-    public void initFromLocalFileResource(String resource) throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
+    public void initFromLocalFileResource(String resource) throws InstallCancelledException,
+            UnresolvedResourceException, UnfullfilledRequirementsException {
         String reference = setFileSystemRootFromResourceAndReturnRelativeRef(resource);
         init(reference);
     }
@@ -193,8 +195,8 @@ public class CommCareConfigEngine {
         return "jr://file/" + filePart;
     }
 
-
-    protected void init(String profileRef) throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
+    private void init(String profileRef) throws InstallCancelledException,
+            UnresolvedResourceException, UnfullfilledRequirementsException {
         installAppFromReference(profileRef);
     }
 

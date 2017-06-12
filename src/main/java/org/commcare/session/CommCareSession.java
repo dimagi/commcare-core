@@ -872,8 +872,8 @@ public class CommCareSession {
         int stepId = -1;
         //walk to our datum
         for (int i = 0; i < steps.size(); ++i) {
-            if (SessionFrame.STATE_DATUM_VAL.equals(steps.elementAt(i).getType()) &&
-                    steps.elementAt(i).getId().equals(datumId)) {
+            StackFrameStep step = steps.elementAt(i);
+            if (step.getId().equals(datumId) && stepIsOfType(step, SessionFrame.STATE_DATUM_VAL)) {
                 stepId = i;
                 break;
             }
@@ -900,6 +900,19 @@ public class CommCareSession {
             }
         }
         return null;
+    }
+
+    /**
+     *
+     * @param step
+     * @param desiredType
+     * @return true if the given step is either explicitly of the given type, or if it is of
+     * unknown type and guessUnknownType() returns the given type
+     */
+    private boolean stepIsOfType(StackFrameStep step, String desiredType) {
+        return desiredType.equals(step.getType()) ||
+                (SessionFrame.STATE_UNKNOWN.equals(step.getType())
+                        && desiredType.equals(guessUnknownType(step)));
     }
 
     private void markCurrentFrameForDeath() {
