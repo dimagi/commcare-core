@@ -195,7 +195,6 @@ public class TableBuilder {
         return bos.toByteArray();
     }
 
-    // TODO: Copied from AndroidTableBuilder, delete that when merged
     /**
      * Given a list of integer params to insert and a maximum number of args, return the
      * String containing (?, ?,...) to be used in the SQL query and the array of args
