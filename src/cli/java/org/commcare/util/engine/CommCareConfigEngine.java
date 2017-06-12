@@ -167,7 +167,7 @@ public class CommCareConfigEngine {
                     }
                     conn.disconnect();
                 } catch (IOException ex) {
-                    // Log error writing file and bail out.
+                    print.println("Exception closing file connection: " + ex);
                 }
             }
         } catch (IOException e) {
