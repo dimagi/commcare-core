@@ -29,11 +29,9 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Vector;
 
 /**
@@ -246,6 +244,7 @@ public class Detail implements Externalizable {
         focusFunction = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
         numEntitiesToDisplayPerRow = (int)ExtUtil.readNumeric(in);
         useUniformUnitsInCaseTile = ExtUtil.readBool(in);
+        parsedRelevancyExpression = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
     }
 
     @Override
@@ -263,6 +262,8 @@ public class Detail implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(focusFunction == null ? null : new ExtWrapTagged(focusFunction)));
         ExtUtil.writeNumeric(out, numEntitiesToDisplayPerRow);
         ExtUtil.writeBool(out, useUniformUnitsInCaseTile);
+        ExtUtil.write(out, new ExtWrapNullable(
+                parsedRelevancyExpression == null ? null : new ExtWrapTagged(parsedRelevancyExpression)));
     }
 
     public OrderedHashtable<String, XPathExpression> getVariableDeclarations() {
