@@ -1,5 +1,9 @@
 package org.commcare.core.graph.c3;
 
+<<<<<<< HEAD
+=======
+import org.commcare.core.graph.model.GraphData;
+>>>>>>> master
 import org.commcare.core.graph.util.GraphException;
 
 import org.json.JSONObject;
@@ -21,11 +25,19 @@ import java.util.TreeMap;
 public class Configuration {
     private final SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+<<<<<<< HEAD
     final org.commcare.core.graph.model.GraphData mData;
     final JSONObject mConfiguration;
     final SortedMap<String, String> mVariables;
 
     Configuration(org.commcare.core.graph.model.GraphData data) {
+=======
+    final GraphData mData;
+    final JSONObject mConfiguration;
+    final SortedMap<String, String> mVariables;
+
+    Configuration(GraphData data) {
+>>>>>>> master
         mData = data;
         mConfiguration = new JSONObject();
         mVariables = new TreeMap<>();

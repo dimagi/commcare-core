@@ -1,5 +1,6 @@
 package org.commcare.core.graph.util;
 
+<<<<<<< HEAD
 import org.commcare.core.graph.c3.AxisConfiguration;
 import org.commcare.core.graph.c3.GridConfiguration;
 import org.commcare.core.graph.c3.LegendConfiguration;
@@ -9,6 +10,8 @@ import org.json.JSONObject;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+=======
+>>>>>>> master
 /**
  * Constants used by graphing
  *
@@ -19,6 +22,7 @@ public class GraphUtil {
     public static final String TYPE_BAR = "bar";
     public static final String TYPE_BUBBLE = "bubble";
     public static final String TYPE_TIME = "time";
+<<<<<<< HEAD
 
     /**
      * Get the HTML that will comprise this graph.
@@ -108,4 +112,6 @@ public class GraphUtil {
         }
         return html.toString();
     }
+=======
+>>>>>>> master
 }

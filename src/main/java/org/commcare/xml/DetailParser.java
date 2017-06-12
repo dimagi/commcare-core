@@ -117,6 +117,6 @@ public class DetailParser extends CommCareElementParser<Detail> {
     }
 
     protected GraphParser getGraphParser() {
-        return new AndroidGraphParser(parser);
+        return new GraphParser(parser);
     }
 }
