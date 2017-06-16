@@ -214,14 +214,7 @@ public class CommCareConfigEngine {
         //Make sure there's a default locale, since the app doesn't necessarily use the
         //localization engine
         Localization.getGlobalLocalizerAdvanced().addAvailableLocale("default");
-
         Localization.setDefaultLocale("default");
-
-        print.println("Locales defined: ");
-        for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
-            System.out.println("* " + locale);
-        }
-
         setDefaultLocale();
     }
 
