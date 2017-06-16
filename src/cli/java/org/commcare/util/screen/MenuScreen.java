@@ -24,8 +24,17 @@ import java.util.Arrays;
 public class MenuScreen extends Screen {
 
     private MenuDisplayable[] mChoices;
+    private String[] badges;
 
     private String mTitle;
+
+    public String[] getBadges() {
+        return badges;
+    }
+
+    public void setBadges(String[] badges) {
+        this.badges = badges;
+    }
 
     class ScreenLogger implements LoggerInterface {
 
@@ -46,6 +55,7 @@ public class MenuScreen extends Screen {
         MenuLoader menuLoader = new MenuLoader(session.getPlatform(), session, root, new ScreenLogger());
         this.mChoices = menuLoader.getMenus();
         this.mTitle = this.getBestTitle();
+        this.badges = menuLoader.getBadgeText();
         Exception loadException = menuLoader.getLoadException();
         if (loadException != null) {
             throw new CommCareSessionException(menuLoader.getErrorMessage());
