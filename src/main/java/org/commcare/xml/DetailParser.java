@@ -34,6 +34,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
         String useUniformUnits = parser.getAttributeValue(null, "uniform-units");
         String forceLandscapeView = parser.getAttributeValue(null, "force-landscape");
         String printTemplatePath = parser.getAttributeValue(null, "print-template");
+        String relevancy = parser.getAttributeValue(null, "relevant");
 
         // First fetch the title
         getNextTagInBlock("detail");
@@ -109,7 +110,8 @@ public class DetailParser extends CommCareElementParser<Detail> {
         }
 
         return new Detail(id, title, nodeset, subdetails, fields, variables, actions, callout,
-                fitAcross, useUniformUnits, forceLandscapeView, focusFunction, printTemplatePath);
+                fitAcross, useUniformUnits, forceLandscapeView, focusFunction, printTemplatePath,
+                relevancy);
     }
 
     protected DetailParser getDetailParser() {
@@ -117,6 +119,6 @@ public class DetailParser extends CommCareElementParser<Detail> {
     }
 
     protected GraphParser getGraphParser() {
-        return new AndroidGraphParser(parser);
+        return new GraphParser(parser);
     }
 }

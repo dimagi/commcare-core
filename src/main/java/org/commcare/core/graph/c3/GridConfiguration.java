@@ -1,5 +1,6 @@
 package org.commcare.core.graph.c3;
 
+import org.commcare.core.graph.model.GraphData;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -9,7 +10,8 @@ import org.json.JSONObject;
  * Created by jschweers on 11/16/2015.
  */
 public class GridConfiguration extends Configuration {
-    public GridConfiguration(org.commcare.core.graph.model.GraphData data) throws JSONException {
+
+    public GridConfiguration(GraphData data) throws JSONException {
         super(data);
 
         boolean showGrid = Boolean.valueOf(mData.getConfiguration("show-grid", "true"));

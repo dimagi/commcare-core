@@ -86,7 +86,7 @@ public class EntityScreen extends CompoundScreenHost {
             }
         } else {
             mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext);
-            initDetailScreens();
+            initDetailScreens(evalContext);
         }
     }
 
@@ -154,7 +154,7 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
-    private void initDetailScreens() {
+    private void initDetailScreens(EvaluationContext ec) {
         String longDetailId = this.mNeededDatum.getLongDetail();
         if (longDetailId == null) {
             mLongDetailList = null;
@@ -165,19 +165,17 @@ public class EntityScreen extends CompoundScreenHost {
             mLongDetailList = null;
             return;
         }
-        mLongDetailList = d.getDetails();
+        mLongDetailList = d.getDisplayableChildDetails(ec);
         if (mLongDetailList == null || mLongDetailList.length == 0) {
             mLongDetailList = new Detail[]{d};
         }
     }
 
     public boolean setCurrentScreenToDetail() throws CommCareSessionException {
-        initDetailScreens();
-
+        initDetailScreens(evalContext);
         if (mLongDetailList == null) {
             return false;
         }
-
         setCurrentScreenToDetail(0);
         return true;
     }

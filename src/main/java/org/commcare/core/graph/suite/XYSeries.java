@@ -25,6 +25,7 @@ import java.util.Vector;
  * @author jschweers
  */
 public class XYSeries implements Externalizable, Configurable {
+
     private String mNodeSet;
     private Hashtable<String, Text> mConfiguration;
 

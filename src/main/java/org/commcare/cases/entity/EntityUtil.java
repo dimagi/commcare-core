@@ -37,7 +37,7 @@ public class EntityUtil {
      * @return An evaluation context ready to be used as the base of the subnode detail, including
      * any variable definitions included by the parent.
      */
-    private static EvaluationContext prepareCompoundEvaluationContext(TreeReference childReference,
+    public static EvaluationContext prepareCompoundEvaluationContext(TreeReference childReference,
                                                                       Detail parentDetail,
                                                                       EvaluationContext baseContext) {
         EvaluationContext parentDetailContext = new EvaluationContext(baseContext, childReference);

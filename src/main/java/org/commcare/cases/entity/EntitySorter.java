@@ -6,30 +6,29 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.FunctionUtils;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import java.util.Comparator;
 
 public class EntitySorter implements Comparator<Entity<TreeReference>> {
     private final DetailField[] detailFields;
     private final boolean reverseSort;
-    private final int[] currentSort;
+    private final int[] fieldIndicesToSortBy;
     private boolean hasWarned;
     private EntitySortNotificationInterface notifier;
 
-    public EntitySorter(DetailField[] detailFields, boolean reverseSort, int[] currentSort,
+    public EntitySorter(DetailField[] detailFields, boolean reverseSort, int[] fieldIndicesToSortBy,
                         EntitySortNotificationInterface notifier) {
         this.detailFields = detailFields;
-        this.currentSort = currentSort;
+        this.fieldIndicesToSortBy = fieldIndicesToSortBy;
         this.reverseSort = reverseSort;
         this.notifier = notifier;
     }
 
     @Override
     public int compare(Entity<TreeReference> object1, Entity<TreeReference> object2) {
-        for (int aCurrentSort : currentSort) {
-            boolean reverse = (detailFields[aCurrentSort].getSortDirection() == DetailField.DIRECTION_DESCENDING) ^ reverseSort;
-            int cmp = getCmp(object1, object2, aCurrentSort, reverse);
+        for (int fieldIndex : fieldIndicesToSortBy) {
+            boolean reverse = (detailFields[fieldIndex].getSortDirection() == DetailField.DIRECTION_DESCENDING) ^ reverseSort;
+            int cmp = getCmp(object1, object2, fieldIndex, reverse);
             if (cmp != 0) {
                 return cmp;
             }
@@ -98,7 +97,7 @@ public class EntitySorter implements Comparator<Entity<TreeReference>> {
                     String[] stringArgs = new String[3];
                     stringArgs[2] = value;
                     if (!hasWarned) {
-                        notifier.notifyBadfilter(stringArgs);
+                        notifier.notifyBadFilter(stringArgs);
                         hasWarned = true;
                     }
                 }
@@ -110,7 +109,7 @@ public class EntitySorter implements Comparator<Entity<TreeReference>> {
                     String[] stringArgs = new String[3];
                     stringArgs[2] = value;
                     if (!hasWarned) {
-                        notifier.notifyBadfilter(stringArgs);
+                        notifier.notifyBadFilter(stringArgs);
                         hasWarned = true;
                     }
                 }
