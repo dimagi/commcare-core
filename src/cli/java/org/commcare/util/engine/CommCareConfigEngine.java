@@ -226,7 +226,6 @@ public class CommCareConfigEngine {
                 break;
             }
         }
-        print.println("Setting locale to: " + defaultLocale);
         Localization.setLocale(defaultLocale);
     }
 
