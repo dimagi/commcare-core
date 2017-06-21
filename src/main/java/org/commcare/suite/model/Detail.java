@@ -83,6 +83,8 @@ public class Detail implements Externalizable {
 
     private String printTemplatePath;
 
+    private XPathExpression parsedRelevancyExpression;
+
     // REGION -- These fields are only used if this detail is a case tile
 
     // Allows for the possibility of case tiles being displayed in a grid
@@ -101,13 +103,11 @@ public class Detail implements Externalizable {
 
     }
 
-    public Detail(String id, DisplayUnit title, String nodeset,
-                  Vector<Detail> detailsVector,
-                  Vector<DetailField> fieldsVector,
-                  OrderedHashtable<String, String> variables,
+    public Detail(String id, DisplayUnit title, String nodeset, Vector<Detail> detailsVector,
+                  Vector<DetailField> fieldsVector, OrderedHashtable<String, String> variables,
                   Vector<Action> actions, Callout callout, String fitAcross,
                   String uniformUnitsString, String forceLandscape, String focusFunction,
-                  String printPathProvided) {
+                  String printPathProvided, String relevancy) {
 
         if (detailsVector.size() > 0 && fieldsVector.size() > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
@@ -144,6 +144,15 @@ public class Detail implements Externalizable {
             }
         } else {
             numEntitiesToDisplayPerRow = 1;
+        }
+
+        if (relevancy != null) {
+            try {
+                this.parsedRelevancyExpression = XPathParseTool.parseXPath(relevancy);
+            } catch (XPathSyntaxException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e.getMessage());
+            }
         }
     }
 
@@ -236,6 +245,7 @@ public class Detail implements Externalizable {
         focusFunction = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
         numEntitiesToDisplayPerRow = (int)ExtUtil.readNumeric(in);
         useUniformUnitsInCaseTile = ExtUtil.readBool(in);
+        parsedRelevancyExpression = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
     }
 
     @Override
@@ -253,6 +263,8 @@ public class Detail implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(focusFunction == null ? null : new ExtWrapTagged(focusFunction)));
         ExtUtil.writeNumeric(out, numEntitiesToDisplayPerRow);
         ExtUtil.writeBool(out, useUniformUnitsInCaseTile);
+        ExtUtil.write(out, new ExtWrapNullable(
+                parsedRelevancyExpression == null ? null : new ExtWrapTagged(parsedRelevancyExpression)));
     }
 
     public OrderedHashtable<String, XPathExpression> getVariableDeclarations() {
@@ -533,6 +545,30 @@ public class Detail implements Externalizable {
                         parentDetail, baseContext);
         NodeEntityFactory factory = new NodeEntityFactory(this, entityFactoryContext);
         return factory.getEntity(selectedEntityRef);
+    }
+
+    public Detail[] getDisplayableChildDetails(EvaluationContext ec) {
+        Vector<Detail> displayableDetails = new Vector<>();
+        for (Detail d : this.details) {
+            if (d.isRelevant(ec)) {
+                displayableDetails.add(d);
+            }
+        }
+        return ArrayUtilities.copyIntoArray(displayableDetails, new Detail[displayableDetails.size()]);
+    }
+
+    /**
+     * NOTE that this method should only be used/considered in the context of a sub-detail (i.e. a tab)
+     *
+     * @param context The context in which to evaluate the relevancy condition
+     * @return true iff the detail should be displayed as a tab
+     * @throws XPathSyntaxException
+     */
+    private boolean isRelevant(EvaluationContext context) {
+        if (parsedRelevancyExpression == null) {
+            return true;
+        }
+        return FunctionUtils.toBoolean(parsedRelevancyExpression.eval(context));
     }
 
 }
