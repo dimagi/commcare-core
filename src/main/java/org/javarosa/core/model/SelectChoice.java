@@ -18,6 +18,7 @@ public class SelectChoice implements Externalizable {
     private String textID;
     private boolean isLocalizable;
     private String value;
+    public String evaluatedSortProperty;
     private int index = -1;
 
     public TreeElement copyNode; //if this choice represents part of an <itemset>, and the itemset uses 'copy'
@@ -54,6 +55,10 @@ public class SelectChoice implements Externalizable {
         this(isLocalizable ? labelOrID : null,
                 isLocalizable ? null : labelOrID,
                 Value, isLocalizable);
+    }
+
+    public void setSortProperty(String s) {
+        this.evaluatedSortProperty = s;
     }
 
     public void setIndex(int index) {
