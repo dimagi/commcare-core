@@ -12,8 +12,6 @@ import java.util.LinkedHashSet;
 
 public class CaseGroupResultCache implements QueryCache {
 
-    public static final int MAX_PREFETCH_CASE_BLOCK = 7500;
-
     private HashMap<String,LinkedHashSet<Integer>> bulkFetchBodies = new HashMap<>();
 
     private HashMap<Integer, Case> cachedCases = new HashMap<>();
