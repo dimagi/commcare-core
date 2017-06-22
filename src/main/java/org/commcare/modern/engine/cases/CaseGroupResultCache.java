@@ -2,6 +2,7 @@ package org.commcare.modern.engine.cases;
 
 import org.commcare.cases.model.Case;
 import org.commcare.cases.query.QueryCache;
+import org.commcare.modern.util.Pair;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -34,10 +35,11 @@ public class CaseGroupResultCache implements QueryCache {
         return getTranche(recordId) != null;
     }
 
-    public LinkedHashSet<Integer> getTranche(int recordId) {
-        for(LinkedHashSet<Integer> tranche: bulkFetchBodies.values()) {
+    public Pair<String, LinkedHashSet<Integer>> getTranche(int recordId) {
+        for(String key : bulkFetchBodies.keySet()) {
+            LinkedHashSet<Integer> tranche = bulkFetchBodies.get(key);
             if(tranche.contains(recordId)){
-                return tranche;
+                return new Pair<>(key, tranche);
             }
         }
         return null;
