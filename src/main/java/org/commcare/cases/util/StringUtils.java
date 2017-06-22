@@ -1,6 +1,7 @@
 package org.commcare.cases.util;
 
 import org.commcare.modern.util.Pair;
+import org.javarosa.core.util.ArrayUtilities;
 
 import java.text.Normalizer;
 import java.util.regex.Pattern;
@@ -45,9 +46,9 @@ public class StringUtils {
         //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
         normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
         //} else {
-            //TODO: I doubt it's worth it, but in theory we could run
-            //some other normalization for the minority of pre-API9
-            //devices.
+        //TODO: I doubt it's worth it, but in theory we could run
+        //some other normalization for the minority of pre-API9
+        //devices.
         //}
 
         String output = diacritics.matcher(normalized).replaceAll("").toLowerCase();
@@ -133,5 +134,19 @@ public class StringUtils {
 
         // the distance is the cost for transforming all letters in both strings
         return cost[len0 - 1];
+    }
+
+    /*
+     * Converts a string to a string array.
+	 */
+    public static String[] toArray(String str) {
+
+        String[] myArray = new String[str.length()];
+
+        for (int i = 0; i < str.length(); i++) {
+            myArray[i] = str.substring(i, i + 1);
+        }
+
+        return myArray;
     }
 }
