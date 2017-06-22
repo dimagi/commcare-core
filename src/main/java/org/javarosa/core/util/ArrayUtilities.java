@@ -34,9 +34,9 @@ public class ArrayUtilities {
         return true;
     }
 
-    /*
-    * Reverses an array
-    */
+    /**
+     * Reverses an Array
+     */
     public static <T> T[] reverse(Object[] myArray, Class<? extends T[]> tClass) {
         Object[] reversed = new Object[myArray.length];
 

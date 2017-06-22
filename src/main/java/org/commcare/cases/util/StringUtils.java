@@ -136,9 +136,9 @@ public class StringUtils {
         return cost[len0 - 1];
     }
 
-    /*
+    /**
      * Converts a string to a string array.
-	 */
+     */
     public static String[] toArray(String str) {
 
         String[] myArray = new String[str.length()];
