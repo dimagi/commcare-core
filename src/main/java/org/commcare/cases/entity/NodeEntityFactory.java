@@ -125,7 +125,7 @@ public class NodeEntityFactory {
      * we're currently iterating over a potentially large set of elements and should batch
      * appropriately
      */
-    private void setEvaluationContextDefaultQuerySet(EvaluationContext ec,
+    protected void setEvaluationContextDefaultQuerySet(EvaluationContext ec,
                                                      List<TreeReference> result) {
 
         QueryContext newContext = ec.getCurrentQueryContext()

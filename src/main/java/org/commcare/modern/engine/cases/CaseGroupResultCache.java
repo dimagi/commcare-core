@@ -7,15 +7,21 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 
 /**
+ * A case group result cache keeps track of different sets of "Bulk" cases which are
+ * likely to have data or operations tracked about them (IE: results of a common query which
+ * are likely to have further filtering applied.
+ *
+ * Since these results are often captured/reported before a context is escalated, this cache
+ * doesn't directly hold the resulting cached cases themselves. Rather a CaseObjectCache should
+ * be used to track the resulting cases. This will ensure that cache can be attached to the
+ * appropriate lifecycle
+ *
  * Created by ctsims on 1/25/2017.
  */
 
 public class CaseGroupResultCache implements QueryCache {
 
     private HashMap<String,LinkedHashSet<Integer>> bulkFetchBodies = new HashMap<>();
-
-    private HashMap<Integer, Case> cachedCases = new HashMap<>();
-
 
     public void reportBulkCaseBody(String key, LinkedHashSet<Integer> ids) {
         if(bulkFetchBodies.containsKey(key)) {
@@ -25,7 +31,7 @@ public class CaseGroupResultCache implements QueryCache {
     }
 
     public boolean hasMatchingCaseSet(int recordId) {
-        return isLoaded(recordId) || getTranche(recordId) != null;
+        return getTranche(recordId) != null;
     }
 
     public LinkedHashSet<Integer> getTranche(int recordId) {
@@ -35,17 +41,5 @@ public class CaseGroupResultCache implements QueryCache {
             }
         }
         return null;
-    }
-
-    public boolean isLoaded(int recordId) {
-        return cachedCases.containsKey(recordId);
-    }
-
-    public HashMap<Integer, Case> getLoadedCaseMap() {
-        return cachedCases;
-    }
-
-    public Case getLoadedCase(int recordId) {
-        return cachedCases.get(recordId);
     }
 }
