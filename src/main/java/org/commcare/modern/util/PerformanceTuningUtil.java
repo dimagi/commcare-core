@@ -39,12 +39,12 @@ public class PerformanceTuningUtil {
      * amount of memory which should be available for optimizations.
      */
     public static int identifyDefaultPrefetchBlockSize(long availableMemoryInBytes) {
-        if(availableMemoryInBytes ==0 || availableMemoryInBytes == -1) {
+        if (availableMemoryInBytes == 0 || availableMemoryInBytes == -1) {
             return 7500;
         } else {
-            if(availableMemoryInBytes <= MB_64) {
+            if (availableMemoryInBytes <= MB_64) {
                 return 2500;
-            } else if(availableMemoryInBytes <= MB_256) {
+            } else if (availableMemoryInBytes <= MB_256) {
                 return 7500;
             } else if (availableMemoryInBytes <= MB_1024) {
                 return 15000;
@@ -58,7 +58,7 @@ public class PerformanceTuningUtil {
      * @return The maximum number of cases which will be included in a "Pre-Fetch Batch".
      */
     public static int getMaxPrefetchCaseBlock() {
-        if(MAX_PREFETCH_CASE_BLOCK == -1) {
+        if (MAX_PREFETCH_CASE_BLOCK == -1) {
             updateMaxPrefetchCaseBlock(identifyDefaultPrefetchBlockSize());
         }
         return MAX_PREFETCH_CASE_BLOCK;

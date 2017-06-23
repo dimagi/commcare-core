@@ -25,7 +25,7 @@ public class CaseGroupResultCache implements QueryCache {
     private HashMap<String,LinkedHashSet<Integer>> bulkFetchBodies = new HashMap<>();
 
     public void reportBulkCaseBody(String key, LinkedHashSet<Integer> ids) {
-        if(bulkFetchBodies.containsKey(key)) {
+        if (bulkFetchBodies.containsKey(key)) {
             return;
         }
         bulkFetchBodies.put(key, ids);
@@ -36,9 +36,9 @@ public class CaseGroupResultCache implements QueryCache {
     }
 
     public Pair<String, LinkedHashSet<Integer>> getTranche(int recordId) {
-        for(String key : bulkFetchBodies.keySet()) {
+        for (String key : bulkFetchBodies.keySet()) {
             LinkedHashSet<Integer> tranche = bulkFetchBodies.get(key);
-            if(tranche.contains(recordId)){
+            if (tranche.contains(recordId)) {
                 return new Pair<>(key, tranche);
             }
         }
