@@ -80,6 +80,7 @@ public class FunctionUtils {
         funcList.put(XPathUuidFunc.NAME, XPathUuidFunc.class);
         funcList.put(XPathIdCompressFunc.NAME, XPathIdCompressFunc.class);
         funcList.put(XPathJoinChunkFunc.NAME, XPathJoinChunkFunc.class);
+        funcList.put(XPathChecksumFunc.NAME, XPathChecksumFunc.class);
     }
 
     private static final CacheTable<String, Double> mDoubleParseCache = new CacheTable<>();
