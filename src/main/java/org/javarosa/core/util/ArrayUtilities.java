@@ -1,7 +1,5 @@
 package org.javarosa.core.util;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.Vector;
 
 /**
@@ -33,20 +31,6 @@ public class ArrayUtilities {
         }
         return true;
     }
-
-    /**
-     * Reverses an Array
-     */
-    public static <T> T[] reverse(Object[] myArray, Class<? extends T[]> tClass) {
-        Object[] reversed = new Object[myArray.length];
-
-        for (int i = 0; i < myArray.length; i++) {
-            reversed[i] = myArray[myArray.length - (i + 1)];
-        }
-
-        return Arrays.copyOf(reversed, reversed.length, tClass);
-    }
-
 
     /**
      * Find a single intersecting element common to two lists, or null if none

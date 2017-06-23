@@ -4,6 +4,8 @@ import org.commcare.modern.util.Pair;
 import org.javarosa.core.util.ArrayUtilities;
 
 import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -137,16 +139,16 @@ public class StringUtils {
     }
 
     /**
-     * Converts a string to a string array.
+     * Converts a string to a list of Characters.
      */
-    public static String[] toArray(String str) {
+    public static ArrayList<Character> toList(String str) {
 
-        String[] myArray = new String[str.length()];
+        ArrayList<Character> myArrayList = new ArrayList<>(str.length());
 
         for (int i = 0; i < str.length(); i++) {
-            myArray[i] = str.substring(i, i + 1);
+            myArrayList.add(i, str.charAt(i));
         }
 
-        return myArray;
+        return myArrayList;
     }
 }

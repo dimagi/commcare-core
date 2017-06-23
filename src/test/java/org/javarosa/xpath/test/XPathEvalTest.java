@@ -58,8 +58,8 @@ public class XPathEvalTest {
             if (exceptionExpected) {
                 fail("Expected exception, expression : " + expr);
             } else if ((result instanceof Double && expected instanceof Double)) {
-                Double o = (Double) result;
-                Double t = (Double) expected;
+                Double o = (Double)result;
+                Double t = (Double)expected;
                 if (Math.abs(o - t) > DOUBLE_TOLERANCE) {
                     fail("Doubles outside of tolerance [" + o + "," + t + " ]");
                 } else if (Double.isNaN(o) && !Double.isNaN(t)) {
@@ -678,12 +678,12 @@ public class XPathEvalTest {
             if (!(predicates.elementAt(0) instanceof XPathNumericLiteral)) {
                 throw new IllegalArgumentException("only position [] predicates allowed");
             }
-            double d = ((XPathNumericLiteral) predicates.elementAt(0)).d;
-            if (d != (double) ((int) d)) {
+            double d = ((XPathNumericLiteral)predicates.elementAt(0)).d;
+            if (d != (double)((int)d)) {
                 throw new IllegalArgumentException("invalid position: " + d);
             }
 
-            int multiplicity = (int) d - 1;
+            int multiplicity = (int)d - 1;
             if (treeRef.getMultiplicity(i) != TreeReference.INDEX_UNBOUND) {
                 throw new IllegalArgumentException("Cannot inline already qualified steps");
             }
@@ -769,7 +769,7 @@ public class XPathEvalTest {
 
             @Override
             public Object eval(Object[] args, EvaluationContext ec) {
-                return new Double(((Double) args[0]).doubleValue() + ((Double) args[1]).doubleValue());
+                return new Double(((Double)args[0]).doubleValue() + ((Double)args[1]).doubleValue());
             }
         });
 
@@ -929,7 +929,7 @@ public class XPathEvalTest {
 
             @Override
             public Object eval(Object[] args, EvaluationContext ec) {
-                return ((Boolean) args[0]).booleanValue() ? new CustomSubType() : new CustomType();
+                return ((Boolean)args[0]).booleanValue() ? new CustomSubType() : new CustomType();
             }
         });
 
@@ -982,7 +982,7 @@ public class XPathEvalTest {
             int lastIndex = Math.max(fullName.lastIndexOf('.'), fullName.lastIndexOf('$'));
             sb.append(fullName.substring(lastIndex + 1, fullName.length()));
             sb.append(":");
-            sb.append(oa[i] instanceof Date ? DateUtils.formatDate((Date) oa[i], DateUtils.FORMAT_ISO8601) : oa[i].toString());
+            sb.append(oa[i] instanceof Date ? DateUtils.formatDate((Date)oa[i], DateUtils.FORMAT_ISO8601) : oa[i].toString());
             if (i < oa.length - 1)
                 sb.append(",");
         }
@@ -1059,7 +1059,7 @@ public class XPathEvalTest {
 
         @Override
         public Object eval(Object[] args, EvaluationContext ec) {
-            val = (String) args[0];
+            val = (String)args[0];
             return Boolean.TRUE;
         }
     };

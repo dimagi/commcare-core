@@ -1,11 +1,16 @@
 package org.javarosa.xpath.expr;
 
+
 import org.commcare.cases.util.StringUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.xpath.XPathUnsupportedException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class XPathChecksumFunc extends XPathFuncExpr {
     public static final String NAME = "checksum";
@@ -32,7 +37,7 @@ public class XPathChecksumFunc extends XPathFuncExpr {
      * @param o2 input we are calculating checksum for
      * @return checksum of {@code o2} calculated using  {@code o1} type algorithm
      */
-    private String checksum(Object o1, Object o2) {
+    private static String checksum(Object o1, Object o2) {
         String algorithmKey = FunctionUtils.toString(o1);
         String input = FunctionUtils.toString(o2);
 
@@ -40,7 +45,7 @@ public class XPathChecksumFunc extends XPathFuncExpr {
             case ALGORITHM_KEY_VERHOEFF:
                 return verhoeffChecksum(input);
             default:
-                throw new XPathUnsupportedException("Algorithm key " + algorithmKey + " is not supported for checksum");
+                throw new XPathUnsupportedException("Bad algorithm key " + algorithmKey + ". We only support 'verhoeff' as algorithm key right now.");
         }
     }
 
@@ -51,7 +56,7 @@ public class XPathChecksumFunc extends XPathFuncExpr {
      * @return Verhoeff checksum value for {@code input}
      * @see <a href="https://en.wikibooks.org/wiki/Algorithm_Implementation/Checksums/Verhoeff_Algorithm#Java">Based on Verhoeff checksum implementation here</a>
      */
-    private String verhoeffChecksum(String input) {
+    private static String verhoeffChecksum(String input) {
 
         // The multiplication table
         int[][] op = new int[][]{
@@ -82,12 +87,12 @@ public class XPathChecksumFunc extends XPathFuncExpr {
         // The inverse table
         int[] inv = {0, 4, 3, 2, 1, 5, 6, 7, 8, 9};
 
+        ArrayList<Character> inputList = StringUtils.toList(input);
+        Collections.reverse(inputList);
+
         int check = 0;
-
-        String[] mArray = ArrayUtilities.reverse(StringUtils.toArray(input), String[].class);
-
-        for (int i = 0; i < mArray.length; i++) {
-            check = op[check][p[((i + 1) % 8)][Integer.parseInt(mArray[i])]];
+        for (int i = 0; i < inputList.size(); i++) {
+            check = op[check][p[((i + 1) % 8)][Character.getNumericValue(inputList.get(i))]];
         }
 
         return Integer.toString(inv[check]);
