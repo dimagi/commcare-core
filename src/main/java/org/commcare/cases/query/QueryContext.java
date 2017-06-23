@@ -39,9 +39,17 @@ public class QueryContext {
 
     private QueryContext potentialSpawnedContext;
 
-    //Until we can keep track more robustly of the individual spheres of 'bulk' models
-    //we'll just keep track of the dominant factor in our queries to know what to expect
-    //WRT whether optimizatons will help or hurt
+    /**
+     * Context scope roughly keeps track of "how many times is the current query possibly going to
+     * run". For instance, when evaluating an xpath like
+     *
+     * instance('casedb')/casedb/case[@case_type='person'][complex_filter = 'pass']
+     *
+     * If 500 <case/> nodes match the first predicate (='person') the context scope will escalate
+     * to 500. This lets individual expressions later (like 'complex_filter' )identify that it's
+     * worth them doing a bit of extra work if they can anticipate making the 'next' evaluation
+     * faster.
+     */
     private int contextScope = 1;
 
     public QueryContext() {

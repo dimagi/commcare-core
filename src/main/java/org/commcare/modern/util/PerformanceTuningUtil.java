@@ -39,6 +39,10 @@ public class PerformanceTuningUtil {
      * amount of memory which should be available for optimizations.
      */
     public static int guessLargestSupportedBulkCaseFetchSizeFromHeap(long availableMemoryInBytes) {
+        //NOTE: These are just tuned from experience and testing on mobile devices around values
+        //which prevent them from running out of memory. It would be well worth it in the
+        //future to take a more comprehensive approach.
+
         if (availableMemoryInBytes == 0 || availableMemoryInBytes == -1) {
             //This was the existing tuned default, so don't change it until we have a better guess.
             return 7500;
