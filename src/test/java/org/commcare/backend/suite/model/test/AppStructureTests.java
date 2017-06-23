@@ -61,7 +61,7 @@ public class AppStructureTests {
             mApp.getSession().getPlatform().getDetail("m0_case_short").getCallout();
 
         // specifies the callout's intent type
-        assertEquals(callout.getRawCalloutData().getType(), "text/plain");
+        assertEquals(callout.evaluate(mApp.getSession().getEvaluationContext()).getType(), "text/plain");
 
         // If the detail block represents an entity list, then the 'lookup' can
         // have a detail field describing the UI for displaying callout result

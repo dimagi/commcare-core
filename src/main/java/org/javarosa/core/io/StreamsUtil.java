@@ -93,13 +93,26 @@ public class StreamsUtil {
      * Writes input stream to output stream in a buffered fasion, but doesn't
      * close either stream.
      */
-    public static void writeFromInputToOutputUnmanaged(InputStream is,
-                                                       OutputStream os) throws IOException {
+    public static void writeFromInputToOutputUnmanaged(InputStream is, OutputStream os)
+            throws InputIOException, OutputIOException {
+        int count;
         byte[] buffer = new byte[8192];
-        int count = is.read(buffer);
-        while (count != -1) {
-            os.write(buffer, 0, count);
+        try {
             count = is.read(buffer);
+        } catch (IOException e) {
+            throw new StreamsUtil().new InputIOException(e);
+        }
+        while (count != -1) {
+            try {
+                os.write(buffer, 0, count);
+            } catch (IOException e) {
+                throw new StreamsUtil().new OutputIOException(e);
+            }
+            try {
+                count = is.read(buffer);
+            } catch (IOException e) {
+                throw new StreamsUtil().new InputIOException(e);
+            }
         }
     }
 

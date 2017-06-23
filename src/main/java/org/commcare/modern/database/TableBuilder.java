@@ -47,6 +47,10 @@ public class TableBuilder {
         rawCols = new Vector<>();
     }
 
+    public TableBuilder(Class c) {
+        this(c, ((Table)c.getAnnotation(Table.class)).value());
+    }
+
     public void addData(Class c) {
         cols.add(DatabaseHelper.ID_COL + " INTEGER PRIMARY KEY");
         rawCols.add(DatabaseHelper.ID_COL);
@@ -191,7 +195,6 @@ public class TableBuilder {
         return bos.toByteArray();
     }
 
-    // TODO: Copied from AndroidTableBuilder, delete that when merged
     /**
      * Given a list of integer params to insert and a maximum number of args, return the
      * String containing (?, ?,...) to be used in the SQL query and the array of args

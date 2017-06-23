@@ -9,7 +9,7 @@ import java.util.Vector;
  * @author jschweers
  */
 public class SeriesData implements ConfigurableData {
-    private final Vector<org.commcare.core.graph.model.XYPointData> mPoints;
+    private final Vector<XYPointData> mPoints;
     private final Hashtable<String, String> mConfiguration;
 
     public SeriesData() {
@@ -17,11 +17,11 @@ public class SeriesData implements ConfigurableData {
         mConfiguration = new Hashtable<>();
     }
 
-    public void addPoint(org.commcare.core.graph.model.XYPointData p) {
+    public void addPoint(XYPointData p) {
         mPoints.addElement(p);
     }
 
-    public Vector<org.commcare.core.graph.model.XYPointData> getPoints() {
+    public Vector<XYPointData> getPoints() {
         return mPoints;
     }
 
