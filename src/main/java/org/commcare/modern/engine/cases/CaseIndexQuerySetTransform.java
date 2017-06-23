@@ -7,6 +7,7 @@ import org.commcare.cases.query.queryset.DualTableSingleMatchModelQuerySet;
 import org.commcare.cases.query.queryset.ModelQuerySet;
 import org.commcare.cases.query.queryset.QuerySetLookup;
 import org.commcare.cases.query.queryset.QuerySetTransform;
+import org.commcare.modern.util.PerformanceTuningUtil;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
 
@@ -66,8 +67,8 @@ public class CaseIndexQuerySetTransform implements QuerySetTransform {
 
         private void cacheCaseModelQuerySet(QueryContext queryContext, DualTableSingleMatchModelQuerySet ret) {
             int modelQueryMagnitude = ret.getSetBody().size();
-            if(modelQueryMagnitude > QueryContext.BULK_QUERY_THRESHOLD && modelQueryMagnitude < CaseGroupResultCache.MAX_PREFETCH_CASE_BLOCK) {
-                queryContext.getQueryCache(CaseGroupResultCache.class).reportBulkCaseBody(this.getCurrentQuerySetId(), ret.getSetBody());
+            if(modelQueryMagnitude > QueryContext.BULK_QUERY_THRESHOLD && modelQueryMagnitude < PerformanceTuningUtil.getMaxPrefetchCaseBlock()) {
+                queryContext.getQueryCache(CaseSetResultCache.class).reportBulkCaseSet(this.getCurrentQuerySetId(), ret.getSetBody());
             }
         }
 
