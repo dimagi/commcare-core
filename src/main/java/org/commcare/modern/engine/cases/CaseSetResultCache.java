@@ -1,6 +1,5 @@
 package org.commcare.modern.engine.cases;
 
-import org.commcare.cases.model.Case;
 import org.commcare.cases.query.QueryCache;
 import org.commcare.modern.util.Pair;
 
@@ -20,11 +19,11 @@ import java.util.LinkedHashSet;
  * Created by ctsims on 1/25/2017.
  */
 
-public class CaseGroupResultCache implements QueryCache {
+public class CaseSetResultCache implements QueryCache {
 
     private HashMap<String,LinkedHashSet<Integer>> bulkFetchBodies = new HashMap<>();
 
-    public void reportBulkCaseBody(String key, LinkedHashSet<Integer> ids) {
+    public void reportBulkCaseSet(String key, LinkedHashSet<Integer> ids) {
         if (bulkFetchBodies.containsKey(key)) {
             return;
         }
@@ -32,10 +31,10 @@ public class CaseGroupResultCache implements QueryCache {
     }
 
     public boolean hasMatchingCaseSet(int recordId) {
-        return getTranche(recordId) != null;
+        return getCaseSetForRecord(recordId) != null;
     }
 
-    public Pair<String, LinkedHashSet<Integer>> getTranche(int recordId) {
+    public Pair<String, LinkedHashSet<Integer>> getCaseSetForRecord(int recordId) {
         for (String key : bulkFetchBodies.keySet()) {
             LinkedHashSet<Integer> tranche = bulkFetchBodies.get(key);
             if (tranche.contains(recordId)) {

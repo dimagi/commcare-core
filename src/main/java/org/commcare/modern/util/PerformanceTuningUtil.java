@@ -27,19 +27,20 @@ public class PerformanceTuningUtil {
      * @return A heuristic for the largest safe value for block prefetch based on the
      * current device runtime.
      */
-    public static int identifyDefaultPrefetchBlockSize() {
+    public static int guessLargestSupportedBulkCaseFetchSizeFromHeap() {
         Runtime rt = Runtime.getRuntime();
         long maxMemory = rt.maxMemory();
 
-        return identifyDefaultPrefetchBlockSize(maxMemory);
+        return guessLargestSupportedBulkCaseFetchSizeFromHeap(maxMemory);
     }
 
     /**
      * @return A heuristic for the largest safe value for block prefetch based on a provided
      * amount of memory which should be available for optimizations.
      */
-    public static int identifyDefaultPrefetchBlockSize(long availableMemoryInBytes) {
+    public static int guessLargestSupportedBulkCaseFetchSizeFromHeap(long availableMemoryInBytes) {
         if (availableMemoryInBytes == 0 || availableMemoryInBytes == -1) {
+            //This was the existing tuned default, so don't change it until we have a better guess.
             return 7500;
         } else {
             if (availableMemoryInBytes <= MB_64) {
@@ -59,7 +60,7 @@ public class PerformanceTuningUtil {
      */
     public static int getMaxPrefetchCaseBlock() {
         if (MAX_PREFETCH_CASE_BLOCK == -1) {
-            updateMaxPrefetchCaseBlock(identifyDefaultPrefetchBlockSize());
+            updateMaxPrefetchCaseBlock(guessLargestSupportedBulkCaseFetchSizeFromHeap());
         }
         return MAX_PREFETCH_CASE_BLOCK;
     }
