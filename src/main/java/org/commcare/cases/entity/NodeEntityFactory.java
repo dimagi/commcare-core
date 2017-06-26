@@ -67,11 +67,17 @@ public class NodeEntityFactory {
                     sortData[count] = sortText.evaluate(nodeContext);
                 }
                 relevancyData[count] = f.isRelevant(nodeContext);
-            } catch (XPathSyntaxException e) {
-                storeErrorDetails(e, count, fieldData, relevancyData);
-            } catch (XPathException xpe) {
-                //XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpe);
-                storeErrorDetails(xpe, count, fieldData, relevancyData);
+            } catch (XPathSyntaxException | XPathException e) {
+                /**
+                 * TODO: 25/06/17 remove catch blocks from here
+                 * We are wrapping the original exception in a new XPathException to avoid
+                 * refactoring large number of functions caused by throwing XPathSyntaxException here.
+                 */
+                XPathException xe = new XPathException(e.getMessage(), e);
+                if (e instanceof XPathException) {
+                    xe.setSource(((XPathException)e).getSource());
+                }
+                throw xe;
             }
             count++;
         }
@@ -97,15 +103,6 @@ public class NodeEntityFactory {
         return null;
     }
 
-    private static void storeErrorDetails(Exception e, int index,
-                                          Object[] details,
-                                          boolean[] relevancyDetails) {
-        e.printStackTrace();
-        details[index] = "<invalid xpath: " + e.getMessage() + ">";
-        // assume that if there's an error, user should see it
-        relevancyDetails[index] = true;
-    }
-
     public List<TreeReference> expandReferenceList(TreeReference treeReference) {
         EvaluationContext tracableContext = new EvaluationContext(ec, ec.getOriginalContext());
         if (inDebugMode) {
@@ -125,7 +122,7 @@ public class NodeEntityFactory {
      * we're currently iterating over a potentially large set of elements and should batch
      * appropriately
      */
-    private void setEvaluationContextDefaultQuerySet(EvaluationContext ec,
+    protected void setEvaluationContextDefaultQuerySet(EvaluationContext ec,
                                                      List<TreeReference> result) {
 
         QueryContext newContext = ec.getCurrentQueryContext()
