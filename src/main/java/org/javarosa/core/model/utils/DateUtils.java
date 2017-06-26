@@ -336,7 +336,9 @@ public class DateUtils {
                 } else if (c == 'a') {    //Three letter short text day
                     String[] dayNames = new String[]{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
                     sb.append(dayNames[f.dow - 1]);
-                } else if (Arrays.asList('c', 'C', 'D', 'F', 'g', 'G', 'I', 'j', 'k', 'l', 'p', 'P', 'r', 'R', 's', 't', 'T', 'u', 'U', 'V', 'w', 'W', 'x', 'X', 'z', 'Z').contains(c)) {
+                } else if (c == 'w') {    //Day of the week (0 through 6), Sunday being 0.
+                    sb.append(f.dow - 1);
+                } else if (Arrays.asList('c', 'C', 'D', 'F', 'g', 'G', 'I', 'j', 'k', 'l', 'p', 'P', 'r', 'R', 's', 't', 'T', 'u', 'U', 'V', 'W', 'x', 'X', 'z', 'Z').contains(c)) {
                     // Format specifiers supported by libc's strftime: https://www.gnu.org/software/libc/manual/html_node/Formatting-Calendar-Time.html
                     throw new RuntimeException("unsupported escape in date format string [%" + c + "]");
                 } else {
