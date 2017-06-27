@@ -67,7 +67,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         shortDetail.populateEvaluationContextVariables(context);
 
         if (collectDebug) {
-            ScreenUtils.printAndClearTraces(reporter, "Variable Traces");
+            reporter.printAndClearTraces("Variable Traces");
         }
 
         DetailField[] fields = shortDetail.getFields();
@@ -103,7 +103,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         }
 
         if (collectDebug) {
-            ScreenUtils.printAndClearTraces(reporter, "Template Traces:");
+            reporter.printAndClearTraces("Template Traces:");
         }
         return row.toString();
     }

@@ -5,6 +5,7 @@ import org.commcare.modern.session.SessionWrapperInterface;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LoggerInterface;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.FunctionUtils;
@@ -25,11 +26,16 @@ public class MenuLoader {
     private MenuDisplayable[] menus;
     private LoggerInterface loggerInterface;
 
+    private ReducingTraceReporter traceReporter;
+
     public MenuLoader(CommCarePlatform platform,
                       SessionWrapperInterface sessionWrapper,
                       String menuId,
-                      LoggerInterface loggerInterface) {
+                      LoggerInterface loggerInterface, boolean shouldOutputEvalTrace) {
         this.loggerInterface = loggerInterface;
+        if (shouldOutputEvalTrace) {
+            this.traceReporter = new ReducingTraceReporter();
+        }
         this.getMenuDisplayables(platform, sessionWrapper, menuId);
     }
 
@@ -97,7 +103,15 @@ public class MenuLoader {
         if (m.getMenuRelevance() != null) {
             xPathErrorMessage = m.getMenuRelevanceRaw();
             EvaluationContext ec = sessionWrapper.getEvaluationContext(m.getId());
-            return FunctionUtils.toBoolean(relevance.eval(ec));
+            EvaluationContext traceableContext = new EvaluationContext(ec, ec.getOriginalContext());
+            if (traceReporter != null) {
+                traceableContext.setDebugModeOn(traceReporter);
+            }
+            boolean result = FunctionUtils.toBoolean(relevance.eval(traceableContext));
+            if (traceReporter != null) {
+                traceReporter.printAndClearTraces("menu load expand");
+            }
+            return result;
         }
         return true;
     }

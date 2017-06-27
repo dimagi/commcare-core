@@ -195,7 +195,6 @@ public class EntityScreen extends CompoundScreenHost {
     public void printNodesetExpansionTrace(EvaluationTraceReporter reporter) {
         evalContext.setDebugModeOn(reporter);
         this.expandEntityReferenceSet(evalContext);
-
-        ScreenUtils.printAndClearTraces(reporter, "Entity Nodeset");
+        reporter.printAndClearTraces("Entity Nodeset");
     }
 }

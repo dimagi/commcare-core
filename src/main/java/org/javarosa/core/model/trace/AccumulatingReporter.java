@@ -8,7 +8,7 @@ import java.util.Vector;
  *
  * Created by ctsims on 10/19/2016.
  */
-public class AccumulatingReporter implements EvaluationTraceReporter {
+public class AccumulatingReporter extends EvaluationTraceReporter {
     private final Vector<EvaluationTrace> traces = new Vector<>();
 
     @Override
@@ -30,4 +30,5 @@ public class AccumulatingReporter implements EvaluationTraceReporter {
     public void reset() {
         this.traces.clear();
     }
+
 }

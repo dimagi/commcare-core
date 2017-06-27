@@ -9,12 +9,28 @@ import java.util.Vector;
  *
  * Created by ctsims on 10/19/2016.
  */
-public interface EvaluationTraceReporter {
-    boolean wereTracesReported();
+public abstract class EvaluationTraceReporter {
 
-    void reportTrace(EvaluationTrace trace);
+    abstract boolean wereTracesReported();
 
-    void reset();
+    public abstract void reportTrace(EvaluationTrace trace);
 
-    Vector<EvaluationTrace> getCollectedTraces();
+    abstract void reset();
+
+    abstract Vector<EvaluationTrace> getCollectedTraces();
+
+    public void printAndClearTraces(String description) {
+        if (wereTracesReported()) {
+            System.out.println(description);
+        }
+
+        StringEvaluationTraceSerializer serializer = new StringEvaluationTraceSerializer();
+
+        for (EvaluationTrace trace : getCollectedTraces()) {
+            System.out.println(trace.getExpression() + ": " + trace.getValue());
+            System.out.print(serializer.serializeEvaluationLevels(trace));
+        }
+
+        reset();
+    }
 }
