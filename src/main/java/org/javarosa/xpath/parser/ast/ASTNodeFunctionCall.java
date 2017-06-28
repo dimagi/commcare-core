@@ -163,6 +163,8 @@ public class ASTNodeFunctionCall extends ASTNode {
                 return new XPathJoinChunkFunc(args);
             case "id-compress":
                 return new XPathIdCompressFunc(args);
+            case "sort":
+                return new XPathSortFunc(args);
             default:
                 return new XPathCustomRuntimeFunc(name, args);
         }

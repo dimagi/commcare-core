@@ -99,6 +99,15 @@ public class XPathEvalTest {
     }
 
     @Test
+    public void sortTests() {
+        testEval("sort('commcare is the best tool ever', false())", null, null, "tool the is ever commcare best");
+        testEval("sort('a b c', '4 2 5 1', true())", null, null, new XPathTypeMismatchException());
+        testEval("sort('2222 5555 9999 1111', 'd b c a', true())", null, null, "1111 5555 9999 2222");
+        testEval("sort('a b c d e f', '4 2 1 5 3 2', true())", null, null, "c b f e a d");
+        testEval("sort('a b c d e f', '4 2 1 5 3 2', false())", null, null, "d a e b f c");
+    }
+
+    @Test
     public void doTests() {
         EvaluationContext ec = getFunctionHandlers();
 
