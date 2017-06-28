@@ -1616,7 +1616,7 @@ public class XFormParser {
 
         tref = tref.parent(parentRef);
         if (tref == null) {
-            throw new XFormParseException("Binding path [" + tref + "] not allowed with parent binding of [" + parentRef + "]");
+            throw new XFormParseException("Binding path [" + ref.getReference().toString(true) + "] not allowed with parent binding of [" + parentRef + "]");
         }
 
         return new XPathReference(tref);
