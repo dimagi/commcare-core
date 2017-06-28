@@ -114,7 +114,7 @@ public class Detail implements Externalizable {
 
         this.id = id;
         this.title = title;
-        if (nodeset != null) {
+        if (nodeset != null && !"".equals(nodeset)) {
             this.nodeset = XPathReference.getPathExpr(nodeset).getReference();
         }
         this.details = ArrayUtilities.copyIntoArray(detailsVector, new Detail[detailsVector.size()]);
