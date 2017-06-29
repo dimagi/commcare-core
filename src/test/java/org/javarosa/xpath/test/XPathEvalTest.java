@@ -100,12 +100,20 @@ public class XPathEvalTest {
 
     @Test
     public void sortTests() {
+        // simple sort
         testEval("sort('commcare is the best tool ever', false())", null, null, "tool the is ever commcare best");
-        testEval("sort('a b c', '4 2 5 1', true())", null, null, new XPathTypeMismatchException());
+
+        // sort 2nd list by 1st
         testEval("sort('2222 5555 9999 1111', 'd b c a', true())", null, null, "1111 5555 9999 2222");
-        testEval("sort('a b c d e f', '4 2 1 5 3 2', true())", null, null, "c b f e a d");
         testEval("sort('a b c d e f', '4 2 1 5 3 2', false())", null, null, "d a e b f c");
         testEval("sort('c c z f z f', '4 2 1 5 3 2', true())", null, null, "z c f z c f");
+
+        // ascending bool not explicitly included
+        testEval("sort('a b c d e f', '4 2 1 5 3 2')", null, null, "c b f e a d");
+        testEval("sort('commcare is the best tool ever')", null, null, "best commcare ever is the tool");
+
+        // uneven list sizes
+        testEval("sort('a b c', '4 2 5 1', true())", null, null, new XPathTypeMismatchException());
     }
 
     @Test

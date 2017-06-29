@@ -24,7 +24,7 @@ public class XPathSortFunc extends XPathFuncExpr {
 
     public static final String NAME = "sort";
 
-    // since we accept 2 or 3 arguments
+    // since we accept 1-3 arguments
     private static final int EXPECTED_ARG_COUNT = -1;
 
     public XPathSortFunc() {
@@ -38,18 +38,26 @@ public class XPathSortFunc extends XPathFuncExpr {
 
     @Override
     protected void validateArgCount() throws XPathSyntaxException {
-        if (args.length != 2 && args.length != 3) {
-            throw new XPathArityException(name, "2 or 3 arguments", args.length);
+        if (args.length < 1 || args.length > 3) {
+            throw new XPathArityException(name, "between 1 and 3 arguments", args.length);
         }
     }
 
     @Override
     protected Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         List<String> sortedList;
-        if (evaluatedArgs.length == 2) {
-            sortedList =
-                    sortSingleList(FunctionUtils.toString(evaluatedArgs[0]),
-                            FunctionUtils.toBoolean(evaluatedArgs[1]));
+        if (evaluatedArgs.length == 1) {
+            sortedList = sortSingleList(FunctionUtils.toString(evaluatedArgs[0]), true);
+        } else if (evaluatedArgs.length == 2) {
+            Object lastArg = evaluatedArgs[1];
+            if (lastArg instanceof Boolean) {
+                sortedList =
+                        sortSingleList(FunctionUtils.toString(evaluatedArgs[0]),
+                                FunctionUtils.toBoolean(evaluatedArgs[1]));
+            } else {
+                sortedList = sortListByOtherList(FunctionUtils.toString(evaluatedArgs[0]),
+                        FunctionUtils.toString(evaluatedArgs[1]), true);
+            }
         } else {
             sortedList =
                     sortListByOtherList(FunctionUtils.toString(evaluatedArgs[0]),
