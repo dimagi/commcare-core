@@ -78,7 +78,7 @@ public class XPathSortFunc extends XPathFuncExpr {
             throw new XPathTypeMismatchException("Length of lists passed to sort() must match");
         }
 
-        Map<String, Object> stringMapping =
+        Map<String, List<String>> stringMapping =
                 createMappingFromComparisonToTarget(comparisonListItems, targetListItems);
 
         List<String> sortedComparisonList = sortSingleList(s2, ascending);
@@ -90,37 +90,27 @@ public class XPathSortFunc extends XPathFuncExpr {
                 // Means we already grabbed all the target strings corresponding to this reference string
                 continue;
             }
-            Object mappedStrings = stringMapping.get(stringInSortedList);
-            if (mappedStrings instanceof String) {
-                sortedTargetList.add((String)mappedStrings);
-            } else {
-                sortedTargetList.addAll((List<String>)mappedStrings);
-            }
+            sortedTargetList.addAll(stringMapping.get(stringInSortedList));
             previousComparisonString = stringInSortedList;
         }
 
         return sortedTargetList;
     }
 
-    private static Map<String, Object> createMappingFromComparisonToTarget(List<String> comparisonListItems,
-                                                                               List<String> targetListItems) {
-        Map<String, Object> stringMapping = new HashMap<>();
+    private static Map<String, List<String>> createMappingFromComparisonToTarget(List<String> comparisonListItems,
+                                                                           List<String> targetListItems) {
+        Map<String, List<String>> stringMapping = new HashMap<>();
         for (int i = 0; i < comparisonListItems.size(); i++) {
             String comparisonString = comparisonListItems.get(i);
             String targetString = targetListItems.get(i);
+            List<String> correspondingStrings;
             if (stringMapping.containsKey(comparisonString)) {
-                Object alreadyMapped = stringMapping.get(comparisonString);
-                if (alreadyMapped instanceof String) {
-                    List<String> multipleValues = new ArrayList<>();
-                    multipleValues.add((String)alreadyMapped);
-                    multipleValues.add(targetString);
-                    stringMapping.put(comparisonString, multipleValues);
-                } else {
-                    ((List<String>)alreadyMapped).add(targetString);
-                }
+                correspondingStrings = stringMapping.get(comparisonString);
             } else {
-                stringMapping.put(comparisonString, targetString);
+                correspondingStrings = new ArrayList<>();
+                stringMapping.put(comparisonString, correspondingStrings);
             }
+            correspondingStrings.add(targetString);
         }
         return stringMapping;
     }
