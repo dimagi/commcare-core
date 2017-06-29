@@ -1614,9 +1614,10 @@ public class XFormParser {
             tref = TreeReference.selfRef(); //only happens for <group>s with no binding
         }
 
+        TreeReference refPreContextualization = tref;
         tref = tref.parent(parentRef);
         if (tref == null) {
-            throw new XFormParseException("Binding path [" + tref + "] not allowed with parent binding of [" + parentRef + "]");
+            throw new XFormParseException("Binding path [" + refPreContextualization.toString(true) + "] not allowed with parent binding of [" + parentRef + "]");
         }
 
         return new XPathReference(tref);
