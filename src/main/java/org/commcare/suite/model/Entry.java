@@ -20,6 +20,9 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
+
 /**
  * Describes a user-initiated action, what information needs to be collected
  * before that action can begin, and what the UI should present to the user
@@ -140,11 +143,12 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
     }
 
     @Override
-    public String getTextForBadge(EvaluationContext ec) {
+    public Observable<String> getTextForBadge(EvaluationContext ec) {
         if (display.getBadgeText() == null) {
-            return null;
+            return Observable.just("");
         }
-        return display.getBadgeText().evaluate(ec);
+        return Observable.just(display.getBadgeText().evaluate(ec))
+                .subscribeOn(Schedulers.computation());
     }
 
     @Override

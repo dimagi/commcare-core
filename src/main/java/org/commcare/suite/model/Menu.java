@@ -15,6 +15,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
+
 /**
  * A Menu definition describes the structure of how
  * actions should be provided to the user in a CommCare
@@ -191,11 +194,11 @@ public class Menu implements Externalizable, MenuDisplayable {
     }
 
     @Override
-    public String getTextForBadge(EvaluationContext ec) {
+    public Observable<String> getTextForBadge(EvaluationContext ec) {
         if (display.getBadgeText() == null) {
-            return null;
+            return Observable.just("");
         }
-        return display.getBadgeText().evaluate(ec);
+        return Observable.just(display.getBadgeText().evaluate(ec));
     }
 
     @Override
