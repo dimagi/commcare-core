@@ -67,15 +67,19 @@ public class XPathSortFunc extends XPathFuncExpr {
         return listToString(sortedList);
     }
 
-    private List<String> sortSingleList(String spaceSeparatedString, final boolean ascending) {
+    private List<String> sortSingleList(String spaceSeparatedString, boolean ascending) {
         List<String> items = stringToList(spaceSeparatedString);
+        sortSingleList(items, ascending);
+        return items;
+    }
+
+    private void sortSingleList(List<String> items, final boolean ascending) {
         Collections.sort(items, new Comparator<String>() {
             @Override
             public int compare(String s1, String s2) {
                 return (ascending ? 1 : -1) * s1.compareTo(s2);
             }
         });
-        return items;
     }
 
     private List<String> sortListByOtherList(String s1, String s2, boolean ascending) {
@@ -98,7 +102,11 @@ public class XPathSortFunc extends XPathFuncExpr {
                 // Means we already grabbed all the target strings corresponding to this reference string
                 continue;
             }
-            sortedTargetList.addAll(stringMapping.get(stringInSortedList));
+            List<String> correspondingStrings = stringMapping.get(stringInSortedList);
+            if (correspondingStrings.size() > 1) {
+                sortSingleList(correspondingStrings, ascending);
+            }
+            sortedTargetList.addAll(correspondingStrings);
             previousComparisonString = stringInSortedList;
         }
 
