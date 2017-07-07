@@ -182,7 +182,16 @@ public class XPathConditional implements IConditionExpr {
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.write(out, new ExtWrapTagged(expr));
+        try {
+            ExtUtil.write(out, new ExtWrapTagged(expr));
+        } catch(StackOverflowError soe) {
+            soe.printStackTrace();
+            RuntimeException e =
+                    new RuntimeException("Error: Expression is too deep to process:\n\n" +
+                            expr.toPrettyString());
+            e.initCause(soe);
+            throw e;
+        }
         ExtUtil.writeBool(out, hasNow);
     }
 
