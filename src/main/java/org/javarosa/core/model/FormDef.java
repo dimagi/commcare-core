@@ -1,5 +1,6 @@
 package org.javarosa.core.model;
 
+import org.commcare.cases.query.QueryContext;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.actions.Action;
@@ -25,7 +26,9 @@ import org.javarosa.core.model.instance.InvalidReferenceException;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
+import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.util.CacheTable;
@@ -132,6 +135,8 @@ public class FormDef implements IFormElement, IMetaData,
     private ActionController actionController;
     //If this instance is just being edited, don't fire end of form events
     private boolean isCompletedInstance;
+
+    private boolean mProfilingEnabled = true;
 
     /**
      * Cache children that trigger target will cascade to. For speeding up
@@ -1318,8 +1323,20 @@ public class FormDef implements IFormElement, IMetaData,
             fi = getMainInstance();
         }
 
-        Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(fi,
-                new EvaluationContext(exprEvalContext, itemset.contextRef.contextualize(curQRef)));
+        EvaluationContext ec =
+                new EvaluationContext(exprEvalContext, itemset.contextRef.contextualize(curQRef));
+
+        ReducingTraceReporter reporter= null;
+        if(mProfilingEnabled) {
+            reporter = new ReducingTraceReporter();
+            ec.setDebugModeOn(reporter);
+        }
+
+        Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(fi,ec);
+
+        if(reporter != null) {
+            InstrumentationUtils.printAndClearTraces(reporter, "itemset expansion");
+        }
 
         if (matches == null) {
             String instanceName = itemset.nodesetRef.getInstanceName();
@@ -1333,10 +1350,16 @@ public class FormDef implements IFormElement, IMetaData,
             }
         }
 
+        //Escalate the new context if our result set is substantial, this will prevent reverting
+        //from a bulk read mode to a scanned read mode
+        QueryContext newContext = ec.getCurrentQueryContext()
+                .checkForDerivativeContextAndReturn(matches.size());
+        ec.setQueryContext(newContext);
+
         for (int i = 0; i < matches.size(); i++) {
             TreeReference item = matches.elementAt(i);
 
-            String label = itemset.labelExpr.evalReadable(fi, new EvaluationContext(exprEvalContext, item));
+            String label = itemset.labelExpr.evalReadable(fi, new EvaluationContext(ec, item));
             String value = null;
             TreeElement copyNode = null;
 
@@ -1344,7 +1367,7 @@ public class FormDef implements IFormElement, IMetaData,
                 copyNode = this.getMainInstance().resolveReference(itemset.copyRef.contextualize(item));
             }
             if (itemset.valueRef != null) {
-                value = itemset.valueExpr.evalReadable(fi, new EvaluationContext(exprEvalContext, item));
+                value = itemset.valueExpr.evalReadable(fi, new EvaluationContext(ec, item));
             }
             SelectChoice choice = new SelectChoice(label, value != null ? value : "dynamic:" + i, itemset.labelIsItext);
             choice.setIndex(i);
@@ -1355,6 +1378,10 @@ public class FormDef implements IFormElement, IMetaData,
         }
 
         itemset.setChoices(choices, this.getLocalizer());
+
+        if(reporter != null) {
+            InstrumentationUtils.printAndClearTraces(reporter, "itemset population");
+        }
     }
 
     public String toString() {
