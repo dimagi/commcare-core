@@ -50,7 +50,8 @@ public class ResourceManager {
      *                         version numbers?
      */
     public static void installAppResources(CommCarePlatform platform, String profileReference,
-                                           ResourceTable global, boolean forceInstall)
+                                           ResourceTable global, boolean forceInstall,
+                                           int authorityForProfile)
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
@@ -64,11 +65,10 @@ public class ResourceManager {
                     global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
             if (profile == null) {
-                // grab the local profile and parse it
+                // Create a stub for the profile resource that points to the authority and location
+                // from which we will install it
                 Vector<ResourceLocation> locations = new Vector<>();
-                locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, profileReference));
-
-                // We need a way to identify this version...
+                locations.addElement(new ResourceLocation(authorityForProfile, profileReference));
                 Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
                         CommCarePlatform.APP_PROFILE_RESOURCE_ID,
                         locations, "Application Descriptor");
