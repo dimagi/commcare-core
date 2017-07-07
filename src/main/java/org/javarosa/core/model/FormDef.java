@@ -136,7 +136,7 @@ public class FormDef implements IFormElement, IMetaData,
     //If this instance is just being edited, don't fire end of form events
     private boolean isCompletedInstance;
 
-    private boolean mProfilingEnabled = true;
+    private boolean mProfilingEnabled = false;
 
     /**
      * Cache children that trigger target will cascade to. For speeding up
