@@ -33,7 +33,7 @@ public class DatabaseIndexingUtils {
     }
 
     private static String makeIndexingStatement(String tableName, String index) {
-        String indexName = tableName + index + "_index";
+        String indexName = "fixture_" + tableName + "_" + index + "_index";
         if (index.contains(",")) {
             indexName = index.replaceAll(",", "_") + "_index";
         }

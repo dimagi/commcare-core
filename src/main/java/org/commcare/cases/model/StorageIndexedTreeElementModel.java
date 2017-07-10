@@ -110,6 +110,10 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
         return root;
     }
 
+    public Vector<String> getIndices() {
+        return this.indices;
+    }
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
