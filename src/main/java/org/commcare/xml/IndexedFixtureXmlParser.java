@@ -94,7 +94,6 @@ public class IndexedFixtureXmlParser extends TransactionParser<StorageIndexedTre
 
     private void processEntry(TreeElement child, Set<String> indices) throws IOException {
         StorageIndexedTreeElementModel model = new StorageIndexedTreeElementModel(indices, child);
-        
         commit(model);
     }
 
