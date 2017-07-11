@@ -1,5 +1,6 @@
 package org.javarosa.xpath.expr;
 
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.util.DataUtil;
@@ -8,9 +9,9 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by amstone326 on 7/11/17.
@@ -54,7 +55,7 @@ public class XPathSortByFunc extends XPathFuncExpr {
         return DataUtil.listToString(sortedList);
     }
 
-    private List<String> sortListByOtherList(String s1, String s2, boolean ascending) {
+    private List<String> sortListByOtherList(String s1, String s2, final boolean ascending) {
         List<String> targetListItems = DataUtil.stringToList(s1);
         List<String> comparisonListItems = DataUtil.stringToList(s2);
 
@@ -63,45 +64,34 @@ public class XPathSortByFunc extends XPathFuncExpr {
                     "but received lists: " + s1 + " and " + s2);
         }
 
-        Map<String, List<String>> stringMapping =
-                createMappingFromComparisonToTarget(comparisonListItems, targetListItems);
+        List<Pair<String, String>> pairsList =
+                createComparisonToTargetPairings(comparisonListItems, targetListItems);
 
-        List<String> sortedComparisonList = XPathSortFunc.sortSingleList(s2, ascending);
+        Collections.sort(pairsList, new Comparator<Pair<String, String>>() {
+            @Override
+            public int compare(Pair<String, String> pair1, Pair<String, String> pair2) {
+                return (ascending ? 1 : -1) * pair1.first.compareTo(pair2.first);
+            }
+        });
+
         List<String> sortedTargetList = new ArrayList<>();
-        String previousComparisonString = "";
-        for (int i = 0; i < sortedComparisonList.size(); i++) {
-            String stringInSortedList = sortedComparisonList.get(i);
-            if (stringInSortedList.equals(previousComparisonString)) {
-                // Means we already grabbed all the target strings corresponding to this reference string
-                continue;
-            }
-            List<String> correspondingStrings = stringMapping.get(stringInSortedList);
-            if (correspondingStrings.size() > 1) {
-                XPathSortFunc.sortSingleList(correspondingStrings, ascending);
-            }
-            sortedTargetList.addAll(correspondingStrings);
-            previousComparisonString = stringInSortedList;
+        for (int i = 0; i < pairsList.size(); i++) {
+            sortedTargetList.add(pairsList.get(i).second);
         }
 
         return sortedTargetList;
     }
 
-    private static Map<String, List<String>> createMappingFromComparisonToTarget(List<String> comparisonListItems,
-                                                                                 List<String> targetListItems) {
-        Map<String, List<String>> stringMapping = new HashMap<>();
+    private static List<Pair<String, String>> createComparisonToTargetPairings(List<String> comparisonListItems,
+                                                                               List<String> targetListItems) {
+        List<Pair<String, String>> pairings = new ArrayList<>();
         for (int i = 0; i < comparisonListItems.size(); i++) {
             String comparisonString = comparisonListItems.get(i);
             String targetString = targetListItems.get(i);
-            List<String> correspondingStrings;
-            if (stringMapping.containsKey(comparisonString)) {
-                correspondingStrings = stringMapping.get(comparisonString);
-            } else {
-                correspondingStrings = new ArrayList<>();
-                stringMapping.put(comparisonString, correspondingStrings);
-            }
-            correspondingStrings.add(targetString);
+            Pair<String, String> pair = new Pair<>(comparisonString, targetString);
+            pairings.add(pair);
         }
-        return stringMapping;
+        return pairings;
     }
 
 }
