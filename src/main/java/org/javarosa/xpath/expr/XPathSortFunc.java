@@ -87,7 +87,8 @@ public class XPathSortFunc extends XPathFuncExpr {
         List<String> comparisonListItems = stringToList(s2);
 
         if (targetListItems.size() != comparisonListItems.size()) {
-            throw new XPathTypeMismatchException("Length of lists passed to sort() must match");
+            throw new XPathTypeMismatchException("Length of lists passed to sort() must match, " +
+                    "but received lists: " + s1 + " and " + s2);
         }
 
         Map<String, List<String>> stringMapping =
