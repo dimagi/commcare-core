@@ -105,7 +105,7 @@ public class XPathEvalTest {
 
         // sort 2nd list by 1st
         testEval("sort-by('2222 5555 9999 1111', 'd b c a', true())", null, null, "1111 5555 9999 2222");
-        testEval("sort-by('a b c d e f', '4 2 1 5 3 2', false())", null, null, "d a e b f c");
+        testEval("sort-by('a b c d e f', '4 2 1 5 3 2', false())", null, null, "d a e f b c");
         testEval("sort-by('c c z f z f', '4 2 1 5 3 2', true())", null, null, "z c f z c f");
 
         // ascending bool not explicitly included
