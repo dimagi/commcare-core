@@ -2,6 +2,7 @@ package org.javarosa.xpath.expr;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -19,12 +20,11 @@ import javax.xml.crypto.dsig.spec.XPathType;
 /**
  * Created by amstone326 on 6/28/17.
  */
-
 public class XPathSortFunc extends XPathFuncExpr {
 
     public static final String NAME = "sort";
 
-    // since we accept 1-3 arguments
+    // since we accept 1-2 arguments
     private static final int EXPECTED_ARG_COUNT = -1;
 
     public XPathSortFunc() {
@@ -38,8 +38,8 @@ public class XPathSortFunc extends XPathFuncExpr {
 
     @Override
     protected void validateArgCount() throws XPathSyntaxException {
-        if (args.length < 1 || args.length > 3) {
-            throw new XPathArityException(name, "between 1 and 3 arguments", args.length);
+        if (args.length < 1 || args.length > 2) {
+            throw new XPathArityException(name, "1 or 2 arguments", args.length);
         }
     }
 
@@ -48,100 +48,26 @@ public class XPathSortFunc extends XPathFuncExpr {
         List<String> sortedList;
         if (evaluatedArgs.length == 1) {
             sortedList = sortSingleList(FunctionUtils.toString(evaluatedArgs[0]), true);
-        } else if (evaluatedArgs.length == 2) {
-            Object lastArg = evaluatedArgs[1];
-            if (lastArg instanceof Boolean) {
-                sortedList =
-                        sortSingleList(FunctionUtils.toString(evaluatedArgs[0]),
-                                FunctionUtils.toBoolean(evaluatedArgs[1]));
-            } else {
-                sortedList = sortListByOtherList(FunctionUtils.toString(evaluatedArgs[0]),
-                        FunctionUtils.toString(evaluatedArgs[1]), true);
-            }
         } else {
-            sortedList =
-                    sortListByOtherList(FunctionUtils.toString(evaluatedArgs[0]),
-                            FunctionUtils.toString(evaluatedArgs[1]),
-                            FunctionUtils.toBoolean(evaluatedArgs[2]));
+            sortedList = sortSingleList(FunctionUtils.toString(evaluatedArgs[0]),
+                    FunctionUtils.toBoolean(evaluatedArgs[1]));
         }
-        return listToString(sortedList);
+        return DataUtil.listToString(sortedList);
     }
 
-    private List<String> sortSingleList(String spaceSeparatedString, boolean ascending) {
-        List<String> items = stringToList(spaceSeparatedString);
+    protected  static List<String> sortSingleList(String spaceSeparatedString, boolean ascending) {
+        List<String> items = DataUtil.stringToList(spaceSeparatedString);
         sortSingleList(items, ascending);
         return items;
     }
 
-    private void sortSingleList(List<String> items, final boolean ascending) {
+    protected static void sortSingleList(List<String> items, final boolean ascending) {
         Collections.sort(items, new Comparator<String>() {
             @Override
             public int compare(String s1, String s2) {
                 return (ascending ? 1 : -1) * s1.compareTo(s2);
             }
         });
-    }
-
-    private List<String> sortListByOtherList(String s1, String s2, boolean ascending) {
-        List<String> targetListItems = stringToList(s1);
-        List<String> comparisonListItems = stringToList(s2);
-
-        if (targetListItems.size() != comparisonListItems.size()) {
-            throw new XPathTypeMismatchException("Length of lists passed to sort() must match, " +
-                    "but received lists: " + s1 + " and " + s2);
-        }
-
-        Map<String, List<String>> stringMapping =
-                createMappingFromComparisonToTarget(comparisonListItems, targetListItems);
-
-        List<String> sortedComparisonList = sortSingleList(s2, ascending);
-        List<String> sortedTargetList = new ArrayList<>();
-        String previousComparisonString = "";
-        for (int i = 0; i < sortedComparisonList.size(); i++) {
-            String stringInSortedList = sortedComparisonList.get(i);
-            if (stringInSortedList.equals(previousComparisonString)) {
-                // Means we already grabbed all the target strings corresponding to this reference string
-                continue;
-            }
-            List<String> correspondingStrings = stringMapping.get(stringInSortedList);
-            if (correspondingStrings.size() > 1) {
-                sortSingleList(correspondingStrings, ascending);
-            }
-            sortedTargetList.addAll(correspondingStrings);
-            previousComparisonString = stringInSortedList;
-        }
-
-        return sortedTargetList;
-    }
-
-    private static Map<String, List<String>> createMappingFromComparisonToTarget(List<String> comparisonListItems,
-                                                                           List<String> targetListItems) {
-        Map<String, List<String>> stringMapping = new HashMap<>();
-        for (int i = 0; i < comparisonListItems.size(); i++) {
-            String comparisonString = comparisonListItems.get(i);
-            String targetString = targetListItems.get(i);
-            List<String> correspondingStrings;
-            if (stringMapping.containsKey(comparisonString)) {
-                correspondingStrings = stringMapping.get(comparisonString);
-            } else {
-                correspondingStrings = new ArrayList<>();
-                stringMapping.put(comparisonString, correspondingStrings);
-            }
-            correspondingStrings.add(targetString);
-        }
-        return stringMapping;
-    }
-
-    private static List<String> stringToList(String s) {
-        return Arrays.asList(s.split(" "));
-    }
-
-    private static String listToString(List<String> list) {
-        StringBuilder sb = new StringBuilder();
-        for (String s : list) {
-            sb.append(s + " ");
-        }
-        return sb.toString().substring(0, sb.length()-1);
     }
 
 }
