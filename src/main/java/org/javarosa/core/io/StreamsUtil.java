@@ -90,7 +90,7 @@ public class StreamsUtil {
     }
 
     /**
-     * Writes input stream to output stream in a buffered fasion, but doesn't
+     * Writes input stream to output stream in a buffered fashion, but doesn't
      * close either stream.
      */
     public static void writeFromInputToOutputUnmanaged(InputStream is, OutputStream os)

@@ -6,6 +6,9 @@ import org.javarosa.core.log.WrappedException;
 
 import java.util.Date;
 
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+
 public class Logger {
     private static final int MAX_MSG_LENGTH = 2048;
 
@@ -25,7 +28,7 @@ public class Logger {
     /**
      * Posts the given data to an existing Incident Log, if one has
      * been registered and if logging is enabled on the device.
-     *
+     * <p>
      * NOTE: This method makes a best faith attempt to log the given
      * data, but will not produce any output if such attempts fail.
      *

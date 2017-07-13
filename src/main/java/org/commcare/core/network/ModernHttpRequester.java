@@ -8,21 +8,19 @@ import org.commcare.modern.util.Pair;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.User;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.Authenticator;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import javax.ws.rs.core.UriBuilder;
+import okhttp3.FormBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 /**
  * Make http get/post requests with query params encoded in get url or post
@@ -46,7 +44,8 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     private HttpResponseProcessor responseProcessor;
     protected final URL url;
     protected final HashMap<String, String> params;
-    private HttpURLConnection httpConnection;
+    private String credential = null;
+    private Response<ResponseBody> response;
 
     // for an already-logged-in user
     public ModernHttpRequester(BitCacheFactory.CacheDirSetup cacheDirSetup,
@@ -83,9 +82,6 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
             }
             final String password = user.getCachedPwd();
             setupAuthentication(username, password, user);
-        } else {
-            // clear any prior set authenticator to make unauthed requests
-            Authenticator.setDefault(null);
         }
     }
 
@@ -98,12 +94,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         } else if (!"https".equals(url.getProtocol())) {
             throw new PlainTextPasswordException();
         } else {
-            Authenticator.setDefault(new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(username, password.toCharArray());
-                }
-            });
+            credential = getCredentials(username, password);
         }
     }
 
@@ -116,74 +107,40 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
 
     public void request() {
         try {
-            httpConnection = setupConnection(buildUrl());
-            processResponse();
+            CommCareNetworkService commCareNetworkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(credential);
+            if (isPostRequest) {
+                RequestBody postBody = getPostBody();
+                response = commCareNetworkService.makePostRequest(url.toString(), new HashMap(), getPostHeaders(postBody), postBody).execute();
+            } else {
+                response = commCareNetworkService.makeGetRequest(url.toString(), params, new HashMap()).execute();
+            }
+            processResponse(responseProcessor, response.code(), this);
         } catch (IOException e) {
             e.printStackTrace();
             responseProcessor.handleIOException(e);
-        } finally {
-            if (httpConnection != null) {
-                httpConnection.disconnect();
-            }
         }
     }
 
-    private URL buildUrl() throws IOException {
-        if (isPostRequest) {
-            return url;
-        } else {
-            return buildUrlWithParams();
-        }
-    }
-
-    protected HttpURLConnection setupConnection(URL builtUrl) throws IOException {
-        HttpURLConnection httpConnection = (HttpURLConnection)builtUrl.openConnection();
-        setupConnectionInner(httpConnection);
-        if (isPostRequest) {
-            httpConnection.setRequestMethod("POST");
-            httpConnection.setDoOutput(true);
-            buildPostPayload(httpConnection);
-        } else {
-            httpConnection.setRequestMethod("GET");
-        }
-
-        return httpConnection;
-    }
-
-    private static void setupConnectionInner(HttpURLConnection httpConnection) {
-        httpConnection.setConnectTimeout(CONNECTION_TIMEOUT);
-        httpConnection.setReadTimeout(CONNECTION_SO_TIMEOUT);
-        httpConnection.setDoInput(true);
-        httpConnection.setInstanceFollowRedirects(true);
-    }
-
-    private void buildPostPayload(HttpURLConnection httpConnection) throws IOException {
-        String paramsString = buildUrlWithParams().getQuery();
-        int bodySize = paramsString.length();
-        httpConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        httpConnection.setRequestProperty("Content-Length", bodySize + "");
-        // write to connection
-        OutputStream os = httpConnection.getOutputStream();
-        BufferedWriter writer = new BufferedWriter(
-                new OutputStreamWriter(os, "UTF-8"));
-        writer.write(paramsString);
-        writer.flush();
-        writer.close();
-        os.close();
-    }
-
-    protected URL buildUrlWithParams() throws MalformedURLException {
-        UriBuilder b = UriBuilder.fromUri(url.toString());
+    private RequestBody getPostBody() {
+        FormBody.Builder formBodyBuilder = new FormBody.Builder();
         for (Map.Entry<String, String> param : params.entrySet()) {
-            b.queryParam(param.getKey(), param.getValue());
+            formBodyBuilder.add(param.getKey(), param.getValue());
         }
-        return b.build().toURL();
+        return formBodyBuilder.build();
     }
 
-    private void processResponse() throws IOException {
-        int responseCode = httpConnection.getResponseCode();
-        processResponse(responseProcessor, responseCode, this);
+    private Map<String, String> getPostHeaders(RequestBody postBody) {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/x-www-form-urlencoded");
+        try {
+            headers.put("Content-Length", postBody.contentLength() + "");
+        } catch (IOException e) {
+            // Do we care ?
+            e.printStackTrace();
+        }
+        return headers;
     }
+
 
     public static void processResponse(HttpResponseProcessor responseProcessor,
                                        int responseCode,
@@ -210,29 +167,38 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
 
     @Override
     public InputStream getResponseStream() throws IOException {
-        InputStream connectionStream = httpConnection.getInputStream();
-
-        long dataSizeGuess = setContentLengthProps(httpConnection);
-        BitCache cache = BitCacheFactory.getCache(cacheDirSetup, dataSizeGuess);
-
+        InputStream inputStream = response.body().byteStream();
+        BitCache cache = BitCacheFactory.getCache(cacheDirSetup, getContentLength(response));
         cache.initializeCache();
-
         OutputStream cacheOut = cache.getCacheStream();
-        StreamsUtil.writeFromInputToOutputNew(connectionStream, cacheOut);
-
+        StreamsUtil.writeFromInputToOutputNew(inputStream, cacheOut);
         return cache.retrieveCache();
     }
 
-    private static long setContentLengthProps(HttpURLConnection httpConnection) {
-        long dataSizeGuess = -1;
-        String lengthHeader = httpConnection.getHeaderField("Content-Length");
-        if (lengthHeader != null) {
-            try {
-                dataSizeGuess = Integer.parseInt(lengthHeader);
-            } catch (Exception e) {
-                dataSizeGuess = -1;
-            }
+    private static String getCredentials(String username, String password) {
+        if (username == null || password == null) {
+            return null;
+        } else {
+            return okhttp3.Credentials.basic(username, password);
         }
-        return dataSizeGuess;
+    }
+
+    public static long getContentLength(Response response) {
+        long contentLength = -1;
+        String length = getFirstHeader(response, "Content-Length");
+        try {
+            contentLength = Long.parseLong(length);
+        } catch (Exception e) {
+            //Whatever.
+        }
+        return contentLength;
+    }
+
+    public static String getFirstHeader(Response response, String headerName) {
+        List<String> headers = response.headers().values(headerName);
+        if (headers.size() > 0) {
+            return headers.get(0);
+        }
+        return null;
     }
 }
