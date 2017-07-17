@@ -1355,27 +1355,42 @@ public class FormDef implements IFormElement, IMetaData,
         ec.setQueryContext(newContext);
 
         for (int i = 0; i < matches.size(); i++) {
-            choices.addElement(buildSelectChoice(matches.elementAt(i), itemset, formInstance, ec, i));
+            choices.addElement(buildSelectChoice(matches.elementAt(i), itemset, formInstance,
+                    ec, reporter, i));
         }
         itemset.setChoices(choices);
     }
 
     private SelectChoice buildSelectChoice(TreeReference choiceRef, ItemsetBinding itemset,
-                                           DataInstance formInstance, EvaluationContext ec, int index) {
+                                           DataInstance formInstance, EvaluationContext ec,
+                                           ReducingTraceReporter reporter, int index) {
+
         String label = itemset.labelExpr.evalReadable(formInstance,
                 new EvaluationContext(ec, choiceRef));
+
+        if(reporter != null) {
+            InstrumentationUtils.printAndClearTraces(reporter, "ItemSet [label] population");
+        }
+
         String value = null;
         TreeElement copyNode = null;
+
         if (itemset.copyMode) {
             copyNode = this.getMainInstance().resolveReference(itemset.copyRef.contextualize(choiceRef));
         }
+
         if (itemset.valueRef != null) {
             value = itemset.valueExpr.evalReadable(formInstance,
                     new EvaluationContext(ec, choiceRef));
         }
 
+        if(reporter != null) {
+            InstrumentationUtils.printAndClearTraces(reporter, "ItemSet [value] population");
+        }
+
         SelectChoice choice = new SelectChoice(label, value != null ? value : "dynamic:" + index,
                 itemset.labelIsItext);
+
         choice.setIndex(index);
 
         if (itemset.copyMode) {
@@ -1388,11 +1403,11 @@ public class FormDef implements IFormElement, IMetaData,
             choice.setSortProperty(evaluatedSortProperty);
         }
 
-        return choice;
-
         if(reporter != null) {
-            InstrumentationUtils.printAndClearTraces(reporter, "itemset population");
+            InstrumentationUtils.printAndClearTraces(reporter, "ItemSet [sort] population");
         }
+
+        return choice;
     }
 
     public String toString() {
