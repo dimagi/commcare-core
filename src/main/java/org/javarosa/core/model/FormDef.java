@@ -1310,17 +1310,14 @@ public class FormDef implements IFormElement, IMetaData,
      *                used to determine the values to be chosen from.
      */
     public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef) {
-        Vector<SelectChoice> choices = new Vector<>();
-
-        DataInstance fi;
-        if (itemset.nodesetRef.getInstanceName() != null) //We're not dealing with the default instance
-        {
-            fi = getNonMainInstance(itemset.nodesetRef.getInstanceName());
-            if (fi == null) {
+        DataInstance formInstance;
+        if (itemset.nodesetRef.getInstanceName() != null) {
+            formInstance = getNonMainInstance(itemset.nodesetRef.getInstanceName());
+            if (formInstance == null) {
                 throw new XPathException("Instance " + itemset.nodesetRef.getInstanceName() + " not found");
             }
         } else {
-            fi = getMainInstance();
+            formInstance = getMainInstance();
         }
 
         EvaluationContext ec =
@@ -1332,7 +1329,7 @@ public class FormDef implements IFormElement, IMetaData,
             ec.setDebugModeOn(reporter);
         }
 
-        Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(fi,ec);
+        Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(formInstance,ec);
 
         if(reporter != null) {
             InstrumentationUtils.printAndClearTraces(reporter, "itemset expansion");
@@ -1350,6 +1347,7 @@ public class FormDef implements IFormElement, IMetaData,
             }
         }
 
+        Vector<SelectChoice> choices = new Vector<>();
         //Escalate the new context if our result set is substantial, this will prevent reverting
         //from a bulk read mode to a scanned read mode
         QueryContext newContext = ec.getCurrentQueryContext()
@@ -1357,27 +1355,40 @@ public class FormDef implements IFormElement, IMetaData,
         ec.setQueryContext(newContext);
 
         for (int i = 0; i < matches.size(); i++) {
-            TreeReference item = matches.elementAt(i);
+            choices.addElement(buildSelectChoice(matches.elementAt(i), itemset, formInstance, ec, i));
+        }
+        itemset.setChoices(choices);
+    }
 
-            String label = itemset.labelExpr.evalReadable(fi, new EvaluationContext(ec, item));
-            String value = null;
-            TreeElement copyNode = null;
-
-            if (itemset.copyMode) {
-                copyNode = this.getMainInstance().resolveReference(itemset.copyRef.contextualize(item));
-            }
-            if (itemset.valueRef != null) {
-                value = itemset.valueExpr.evalReadable(fi, new EvaluationContext(ec, item));
-            }
-            SelectChoice choice = new SelectChoice(label, value != null ? value : "dynamic:" + i, itemset.labelIsItext);
-            choice.setIndex(i);
-            if (itemset.copyMode)
-                choice.copyNode = copyNode;
-
-            choices.addElement(choice);
+    private SelectChoice buildSelectChoice(TreeReference choiceRef, ItemsetBinding itemset,
+                                           DataInstance formInstance, EvaluationContext ec, int index) {
+        String label = itemset.labelExpr.evalReadable(formInstance,
+                new EvaluationContext(ec, choiceRef));
+        String value = null;
+        TreeElement copyNode = null;
+        if (itemset.copyMode) {
+            copyNode = this.getMainInstance().resolveReference(itemset.copyRef.contextualize(choiceRef));
+        }
+        if (itemset.valueRef != null) {
+            value = itemset.valueExpr.evalReadable(formInstance,
+                    new EvaluationContext(ec, choiceRef));
         }
 
-        itemset.setChoices(choices, this.getLocalizer());
+        SelectChoice choice = new SelectChoice(label, value != null ? value : "dynamic:" + index,
+                itemset.labelIsItext);
+        choice.setIndex(index);
+
+        if (itemset.copyMode) {
+            choice.copyNode = copyNode;
+        }
+
+        if (itemset.sortRef != null) {
+            String evaluatedSortProperty = itemset.sortExpr.evalReadable(formInstance,
+                    new EvaluationContext(ec, choiceRef));
+            choice.setSortProperty(evaluatedSortProperty);
+        }
+
+        return choice;
 
         if(reporter != null) {
             InstrumentationUtils.printAndClearTraces(reporter, "itemset population");

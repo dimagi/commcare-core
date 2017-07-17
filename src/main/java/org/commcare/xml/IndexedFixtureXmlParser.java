@@ -39,11 +39,11 @@ public class IndexedFixtureXmlParser extends TransactionParser<StorageIndexedTre
     private IStorageUtilityIndexed<StorageIndexedTreeElementModel> indexedFixtureStorage;
     private IStorageUtilityIndexed<FormInstance> normalFixtureStorage;
 
-    public IndexedFixtureXmlParser(KXmlParser parser, String fixtureName,
+    public IndexedFixtureXmlParser(KXmlParser parser, String fixtureId,
                                    FixtureIndexSchema schema, UserSandbox sandbox) {
         super(parser);
         this.sandbox = sandbox;
-        this.fixtureName = fixtureName;
+        this.fixtureName = fixtureId;
 
         if (schema == null) {
             // don't create any table indices if there was no fixture index schema
@@ -60,32 +60,31 @@ public class IndexedFixtureXmlParser extends TransactionParser<StorageIndexedTre
             XmlPullParserException, UnfullfilledRequirementsException {
         checkNode("fixture");
 
-        String fixtureId = parser.getAttributeValue(null, "id");
-        if (fixtureId == null) {
+        if (fixtureName == null) {
             throw new InvalidStructureException("fixture is lacking id attribute", parser);
         }
 
         if (nextTagInBlock("fixture")) {
             // only commit fixtures with bodies to storage
-            TreeElement root = new TreeElementParser(parser, 0, fixtureId).parse();
-            processRoot(root, fixtureId);
+            TreeElement root = new TreeElementParser(parser, 0, fixtureName).parse();
+            processRoot(root);
 
             // commit whole instance to normal fixture storage to allow for
             // migrations going forward, if ever needed
             String userId = parser.getAttributeValue(null, "user_id");
             Pair<FormInstance, Boolean> instanceAndCommitStatus =
                     FixtureXmlParser.setupInstance(getNormalFixtureStorage(),
-                            root, fixtureId, userId, true);
+                            root, fixtureName, userId, true);
             commitToNormalStorage(instanceAndCommitStatus.first);
         }
 
         return null;
     }
 
-    private void processRoot(TreeElement root, String fixtureId) throws IOException {
+    private void processRoot(TreeElement root) throws IOException {
         if (root.hasChildren()) {
             String entryName = root.getChildAt(0).getName();
-            writeFixtureIndex(fixtureId, root.getName(), entryName);
+            writeFixtureIndex(root.getName(), entryName);
 
             for (TreeElement entry : root.getChildrenWithName(entryName)) {
                 processEntry(entry, indices);
@@ -95,7 +94,6 @@ public class IndexedFixtureXmlParser extends TransactionParser<StorageIndexedTre
 
     private void processEntry(TreeElement child, Set<String> indices) throws IOException {
         StorageIndexedTreeElementModel model = new StorageIndexedTreeElementModel(indices, child);
-        
         commit(model);
     }
 
@@ -128,9 +126,9 @@ public class IndexedFixtureXmlParser extends TransactionParser<StorageIndexedTre
 
     /**
      * Store base and child node names associated with a fixture.
-     * Used for reconstructiong fixture instance
+     * Used for reconstructing fixture instance
      */
-    private void writeFixtureIndex(String fixtureName, String baseName, String childName) {
+    private void writeFixtureIndex(String baseName, String childName) {
         sandbox.setIndexedFixturePathBases(fixtureName, baseName, childName);
     }
 }
