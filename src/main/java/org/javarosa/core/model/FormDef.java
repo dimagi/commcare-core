@@ -1,5 +1,6 @@
 package org.javarosa.core.model;
 
+import org.commcare.cases.query.QueryContext;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.actions.Action;
@@ -25,7 +26,9 @@ import org.javarosa.core.model.instance.InvalidReferenceException;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
+import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.util.CacheTable;
@@ -132,6 +135,8 @@ public class FormDef implements IFormElement, IMetaData,
     private ActionController actionController;
     //If this instance is just being edited, don't fire end of form events
     private boolean isCompletedInstance;
+
+    private boolean mProfilingEnabled = false;
 
     /**
      * Cache children that trigger target will cascade to. For speeding up
@@ -1305,21 +1310,30 @@ public class FormDef implements IFormElement, IMetaData,
      *                used to determine the values to be chosen from.
      */
     public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef) {
-        Vector<SelectChoice> choices = new Vector<>();
-
-        DataInstance fi;
-        if (itemset.nodesetRef.getInstanceName() != null) //We're not dealing with the default instance
-        {
-            fi = getNonMainInstance(itemset.nodesetRef.getInstanceName());
-            if (fi == null) {
+        DataInstance formInstance;
+        if (itemset.nodesetRef.getInstanceName() != null) {
+            formInstance = getNonMainInstance(itemset.nodesetRef.getInstanceName());
+            if (formInstance == null) {
                 throw new XPathException("Instance " + itemset.nodesetRef.getInstanceName() + " not found");
             }
         } else {
-            fi = getMainInstance();
+            formInstance = getMainInstance();
         }
 
-        Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(fi,
-                new EvaluationContext(exprEvalContext, itemset.contextRef.contextualize(curQRef)));
+        EvaluationContext ec =
+                new EvaluationContext(exprEvalContext, itemset.contextRef.contextualize(curQRef));
+
+        ReducingTraceReporter reporter= null;
+        if(mProfilingEnabled) {
+            reporter = new ReducingTraceReporter();
+            ec.setDebugModeOn(reporter);
+        }
+
+        Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(formInstance,ec);
+
+        if(reporter != null) {
+            InstrumentationUtils.printAndClearTraces(reporter, "itemset expansion");
+        }
 
         if (matches == null) {
             String instanceName = itemset.nodesetRef.getInstanceName();
@@ -1333,28 +1347,67 @@ public class FormDef implements IFormElement, IMetaData,
             }
         }
 
+        Vector<SelectChoice> choices = new Vector<>();
+        //Escalate the new context if our result set is substantial, this will prevent reverting
+        //from a bulk read mode to a scanned read mode
+        QueryContext newContext = ec.getCurrentQueryContext()
+                .checkForDerivativeContextAndReturn(matches.size());
+        ec.setQueryContext(newContext);
+
         for (int i = 0; i < matches.size(); i++) {
-            TreeReference item = matches.elementAt(i);
+            choices.addElement(buildSelectChoice(matches.elementAt(i), itemset, formInstance,
+                    ec, reporter, i));
+        }
+        itemset.setChoices(choices);
+    }
 
-            String label = itemset.labelExpr.evalReadable(fi, new EvaluationContext(exprEvalContext, item));
-            String value = null;
-            TreeElement copyNode = null;
+    private SelectChoice buildSelectChoice(TreeReference choiceRef, ItemsetBinding itemset,
+                                           DataInstance formInstance, EvaluationContext ec,
+                                           ReducingTraceReporter reporter, int index) {
 
-            if (itemset.copyMode) {
-                copyNode = this.getMainInstance().resolveReference(itemset.copyRef.contextualize(item));
-            }
-            if (itemset.valueRef != null) {
-                value = itemset.valueExpr.evalReadable(fi, new EvaluationContext(exprEvalContext, item));
-            }
-            SelectChoice choice = new SelectChoice(label, value != null ? value : "dynamic:" + i, itemset.labelIsItext);
-            choice.setIndex(i);
-            if (itemset.copyMode)
-                choice.copyNode = copyNode;
+        String label = itemset.labelExpr.evalReadable(formInstance,
+                new EvaluationContext(ec, choiceRef));
 
-            choices.addElement(choice);
+        if(reporter != null) {
+            InstrumentationUtils.printAndClearTraces(reporter, "ItemSet [label] population");
         }
 
-        itemset.setChoices(choices, this.getLocalizer());
+        String value = null;
+        TreeElement copyNode = null;
+
+        if (itemset.copyMode) {
+            copyNode = this.getMainInstance().resolveReference(itemset.copyRef.contextualize(choiceRef));
+        }
+
+        if (itemset.valueRef != null) {
+            value = itemset.valueExpr.evalReadable(formInstance,
+                    new EvaluationContext(ec, choiceRef));
+        }
+
+        if(reporter != null) {
+            InstrumentationUtils.printAndClearTraces(reporter, "ItemSet [value] population");
+        }
+
+        SelectChoice choice = new SelectChoice(label, value != null ? value : "dynamic:" + index,
+                itemset.labelIsItext);
+
+        choice.setIndex(index);
+
+        if (itemset.copyMode) {
+            choice.copyNode = copyNode;
+        }
+
+        if (itemset.sortRef != null) {
+            String evaluatedSortProperty = itemset.sortExpr.evalReadable(formInstance,
+                    new EvaluationContext(ec, choiceRef));
+            choice.setSortProperty(evaluatedSortProperty);
+        }
+
+        if(reporter != null) {
+            InstrumentationUtils.printAndClearTraces(reporter, "ItemSet [sort] population");
+        }
+
+        return choice;
     }
 
     public String toString() {

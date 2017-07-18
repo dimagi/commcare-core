@@ -656,7 +656,7 @@ public class LocalizerTest {
 
     }
 
-    private void runAsync(Runnable test) {
+    private void runAsync(Runnable test, String label) {
         Thread t = new Thread(test);
         t.start();
         try {
@@ -666,7 +666,7 @@ public class LocalizerTest {
         }
         if (t.isAlive()) {
             t.stop();
-            throw new RuntimeException("Failed to return from recursive argument processing");
+            throw new RuntimeException("Failed to return from recursive argument processing: "+  label);
         }
     }
 

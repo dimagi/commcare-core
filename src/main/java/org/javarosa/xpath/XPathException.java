@@ -17,6 +17,10 @@ public class XPathException extends RuntimeException {
         super(s);
     }
 
+    public XPathException(String s, Throwable cause) {
+        super(s, cause);
+    }
+
     public void setMessagePrefix(String prefix){
         this.prefix = prefix;
     }

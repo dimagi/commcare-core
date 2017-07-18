@@ -1,5 +1,6 @@
 package org.javarosa.core.util;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -45,6 +46,18 @@ public class DataUtil {
         HashSet<T> setB = b instanceof HashSet ? (HashSet<T>)b : new HashSet<>(b);
         setA.retainAll(setB);
         return new Vector<>(setA);
+    }
+
+    public static String listToString(List<String> list) {
+        StringBuilder sb = new StringBuilder();
+        for (String s : list) {
+            sb.append(s + " ");
+        }
+        return sb.toString().substring(0, sb.length()-1);
+    }
+
+    public static List<String> stringToList(String s) {
+        return Arrays.asList(splitOnSpaces(s));
     }
 
     public static String[] splitOnSpaces(String s) {

@@ -7,11 +7,7 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -246,6 +242,13 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, T> recordMap) {
+        for(int i : cuedCases) {
+            recordMap.put(i, data.get(i));
         }
     }
 }
