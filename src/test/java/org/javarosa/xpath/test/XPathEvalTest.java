@@ -87,7 +87,7 @@ public class XPathEvalTest {
     }
 
     @Test
-    public void testTypeCoercion(){
+    public void testTypeCoercion() {
         Object str = FunctionUtils.InferType("notadouble");
         Assert.assertTrue("'notadouble' coerced to the wrong type, "
                 + str.getClass().toString(), str instanceof String);
@@ -541,6 +541,10 @@ public class XPathEvalTest {
         testEval("id-compress(0, 'CD','','ABCDE',1)", null, ec, new XPathException());
         testEval("id-compress(0, 'CD','CD','ABCDE',1)", null, ec, new XPathException());
 
+        testEval("checksum('verhoeff','41310785898')", null, null, "4");
+        testEval("checksum('verhoeff','66671496237')", null, null, "3");
+        testEval("checksum('verhoefffff','41310785898')", null, null, new XPathUnsupportedException());
+
         //Variables
         EvaluationContext varContext = getVariableContext();
         testEval("$var_float_five", null, varContext, new Double(5.0));
@@ -643,24 +647,24 @@ public class XPathEvalTest {
         ec.addFunctionHandler(new IFunctionHandler() {
             @Override
             public String getName() {
-              return "now";
+                return "now";
             }
 
             @Override
             public Vector getPrototypes() {
-              Vector<Class[]> p = new Vector<>();
-              p.addElement(new Class[0]);
-              return p;
+                Vector<Class[]> p = new Vector<>();
+                p.addElement(new Class[0]);
+                return p;
             }
 
             @Override
             public boolean rawArgs() {
-              return false;
+                return false;
             }
 
             @Override
             public Object eval(Object[] args, EvaluationContext ec) {
-              return "pass";
+                return "pass";
             }
         });
 
