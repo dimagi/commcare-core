@@ -40,7 +40,7 @@ public class XPathMaxFunc extends XPathFuncExpr {
      * Identify the largest value from the list of provided values.
      */
     private static Object max(Object[] argVals) {
-        double max = Double.MIN_VALUE;
+        double max = -1 * Double.MAX_VALUE;
         for (Object argVal : argVals) {
             max = Math.max(max, FunctionUtils.toNumeric(argVal));
         }
