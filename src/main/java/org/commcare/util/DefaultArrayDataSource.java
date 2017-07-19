@@ -1,6 +1,10 @@
 package org.commcare.util;
 
 /**
+ * The default source of month name data in alternate calendars.
+ *
+ * Should be maintained for any calendars which are in the core system and not extensions.
+ *
  * Created by ctsims on 7/19/2017.
  */
 
