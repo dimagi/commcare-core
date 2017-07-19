@@ -1,7 +1,9 @@
 package org.javarosa.xform.util;
 
 import org.commcare.util.ArrayDataSource;
+import org.commcare.util.DefaultArrayDataSource;
 import org.commcare.util.LocaleArrayDataSource;
+import org.javarosa.core.model.utils.DateUtils;
 import org.joda.time.Chronology;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -14,23 +16,42 @@ import java.util.HashMap;
 
 public class CalendarUtils {
 
-    private static ArrayDataSource arrayDataSource = new LocaleArrayDataSource();
+    private static ArrayDataSource arrayDataSource = new LocaleArrayDataSource(
+            new DefaultArrayDataSource());
 
-    private static String ConvertToEthiopian(int gregorianYear, int gregorianMonth, int gregorianDay) {
+    private static String ConvertToEthiopian(int gregorianYear, int gregorianMonth, int gregorianDay, String format) {
         Chronology chron_eth = EthiopicChronology.getInstance();
         Chronology chron_greg = GregorianChronology.getInstance();
+
         DateTime jodaDateTime = new DateTime(gregorianYear, gregorianMonth, gregorianDay, 0, 0, 0, chron_greg);
         DateTime dtEthiopic = jodaDateTime.withChronology(chron_eth);
-        String[] monthsArray = getMonthsArray("ethiopian_months");
-        return dtEthiopic.getDayOfMonth() + " "
-                + monthsArray[dtEthiopic.getMonthOfYear() - 1] + " "
-                + dtEthiopic.getYear();
+
+        DateUtils.CalendarStrings strings = getStringsWithMonth(getMonthsArray("ethiopian_months"));
+
+        DateUtils.DateFields df = DateUtils.getFieldsForNonGregorianCalendar(dtEthiopic.getYear(),
+                dtEthiopic.getMonthOfYear(),
+                dtEthiopic.getDayOfMonth());
+
+        return DateUtils.format(df, format, strings);
     }
 
-    public static String ConvertToEthiopian(Date d) {
+    private static DateUtils.CalendarStrings getStringsWithMonth(String[] months) {
+        DateUtils.CalendarStrings strings = new DateUtils.CalendarStrings();
+
+        strings.monthNamesLong = months;
+        strings.monthNamesShort = months;
+
+        return strings;
+    }
+
+    public static String ConvertToEthiopian(Date d, String format) {
+        if(format == null) {
+            format = "%e %B %Y";
+        }
+
         Calendar c = Calendar.getInstance();
         c.setTime(d);
-        return ConvertToEthiopian(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH));
+        return ConvertToEthiopian(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH), format);
     }
 
     private static final HashMap<Integer, int[]> NEPALI_YEAR_MONTHS = new HashMap<>();
@@ -216,12 +237,21 @@ public class CalendarUtils {
      * formatted as 'd MMMM yyyy'.
      *
      * @param date       Gregorian Date to convert
+     * @param format     Optional (null to not use) format. Defaults to "d MMMM yyyy" (%e %B %Y)
      * @return Nepali date string in 'd MMMM yyyy' format
      */
-    public static String convertToNepaliString(Date date) {
+    public static String convertToNepaliString(Date date, String format) {
+        if(format == null) {
+            format = "%e %B %Y";
+        }
+
         UniversalDate dateUniv = CalendarUtils.fromMillis(date.getTime());
-        String[] monthsArray = getMonthsArray("nepali_months");
-        return dateUniv.day + " " + monthsArray[dateUniv.month - 1] + " " + dateUniv.year;
+        DateUtils.DateFields df = DateUtils.getFieldsForNonGregorianCalendar(dateUniv.year,
+                dateUniv.month, dateUniv.day);
+
+        DateUtils.CalendarStrings strings = getStringsWithMonth(getMonthsArray("nepali_months"));
+
+        return DateUtils.format(df, format, strings);
     }
 
     public static UniversalDate decrementMonth(UniversalDate date) {
@@ -316,7 +346,7 @@ public class CalendarUtils {
     }
 
     public static UniversalDate fromMillis(long millisFromJavaEpoch) {
-        return fromMillis(millisFromJavaEpoch, DateTimeZone.getDefault());
+        return fromMillis(millisFromJavaEpoch, DateTimeZone.UTC);
     }
 
     public static UniversalDate incrementMonth(UniversalDate date) {
