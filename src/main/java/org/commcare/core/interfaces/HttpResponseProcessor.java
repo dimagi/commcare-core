@@ -15,11 +15,6 @@ public interface HttpResponseProcessor {
     void processSuccess(int responseCode, InputStream responseData);
 
     /**
-     * Http response was in the 300s
-     */
-    void processRedirection(int responseCode);
-
-    /**
      * Http response was in the 400s.
      *
      * Can represent authentication issues, data parity issues between client

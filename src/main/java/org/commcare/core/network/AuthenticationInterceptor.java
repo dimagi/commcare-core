@@ -22,10 +22,17 @@ public class AuthenticationInterceptor implements Interceptor{
     public Response intercept(Chain chain) throws IOException {
         Request original = chain.request();
 
+        if(!original.isHttps() && credential !=null){
+            throw new PlainTextPasswordException();
+        }
+
         Request.Builder builder = original.newBuilder()
                 .header("Authorization", credential);
 
         Request request = builder.build();
         return chain.proceed(request);
+    }
+
+    public static class PlainTextPasswordException extends RuntimeException {
     }
 }

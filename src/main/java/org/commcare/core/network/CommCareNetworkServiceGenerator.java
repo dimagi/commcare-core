@@ -1,11 +1,14 @@
 package org.commcare.core.network;
 
 
-import org.javarosa.core.services.Logger;
-
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.X509TrustManager;
+
+import okhttp3.ConnectionSpec;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -60,10 +63,10 @@ public class CommCareNetworkServiceGenerator {
 
     public static CommCareNetworkService createCommCareNetworkService(final String credential) {
         if (credential != null) {
-            AuthenticationInterceptor interceptor =
+            AuthenticationInterceptor authInterceptor =
                     new AuthenticationInterceptor(credential);
-            if (!httpClient.interceptors().contains(interceptor)) {
-                httpClient.addInterceptor(interceptor);
+            if (!httpClient.interceptors().contains(authInterceptor)) {
+                httpClient.addInterceptor(authInterceptor);
 
                 builder.client(httpClient.build());
                 retrofit = builder.build();

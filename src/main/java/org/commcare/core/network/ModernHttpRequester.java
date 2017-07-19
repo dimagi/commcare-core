@@ -17,10 +17,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nullable;
+
 import okhttp3.FormBody;
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+import okhttp3.internal.http.HttpMethod;
 import retrofit2.Response;
+
+import static org.commcare.core.network.HTTPMethod.*;
+import static org.commcare.core.network.HTTPMethod.MULTIPART_POST;
+import static org.commcare.core.network.HTTPMethod.POST;
 
 /**
  * Make http get/post requests with query params encoded in get url or post
@@ -39,81 +47,39 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
      */
     public static final int CONNECTION_SO_TIMEOUT = (int)TimeUnit.MINUTES.toMillis(1);
 
-    private final boolean isPostRequest;
+    private final HTTPMethod method;
     private final BitCacheFactory.CacheDirSetup cacheDirSetup;
+    private final RequestBody requestBody;
+    private final List<MultipartBody.Part> parts;
     private HttpResponseProcessor responseProcessor;
     protected final URL url;
     protected final HashMap<String, String> params;
-    private String credential = null;
+    protected final HashMap<String, String> headers;
     private Response<ResponseBody> response;
+    private CommCareNetworkService commCareNetworkService;
 
-    // for an already-logged-in user
     public ModernHttpRequester(BitCacheFactory.CacheDirSetup cacheDirSetup,
-                               URL url, HashMap<String, String> params,
-                               User user, String domain, boolean isAuthenticatedRequest,
-                               boolean isPostRequest) {
-        this.isPostRequest = isPostRequest;
+                               URL url, HashMap<String, String> params, HashMap<String, String> headers,
+                               @Nullable RequestBody requestBody, @Nullable List<MultipartBody.Part> parts,
+                               CommCareNetworkService commCareNetworkService,
+                               HTTPMethod method) {
         this.cacheDirSetup = cacheDirSetup;
         this.params = params;
+        this.headers = headers;
         this.url = url;
-
-        setupAuthentication(isAuthenticatedRequest, user, domain);
-    }
-
-    // for a not-yet-logged-in user
-    public ModernHttpRequester(BitCacheFactory.CacheDirSetup cacheDirSetup,
-                               URL url, HashMap<String, String> params,
-                               Pair<String, String> usernameAndPasswordToAuthWith, boolean isPostRequest) {
-        this.isPostRequest = isPostRequest;
-        this.cacheDirSetup = cacheDirSetup;
-        this.params = params;
-        this.url = url;
-
-        setupAuthentication(usernameAndPasswordToAuthWith.first, usernameAndPasswordToAuthWith.second, null);
-    }
-
-    private void setupAuthentication(boolean isAuth, User user, String domain) {
-        if (isAuth) {
-            final String username;
-            if (domain != null) {
-                username = user.getUsername() + "@" + domain;
-            } else {
-                username = user.getUsername();
-            }
-            final String password = user.getCachedPwd();
-            setupAuthentication(username, password, user);
-        }
-    }
-
-    private void setupAuthentication(final String username, final String password, User user) {
-        if (username == null || password == null ||
-                (user != null && User.TYPE_DEMO.equals(user.getUserType()))) {
-            String message =
-                    "Trying to make authenticated http request without proper credentials";
-            throw new RuntimeException(message);
-        } else if (!"https".equals(url.getProtocol())) {
-            throw new PlainTextPasswordException();
-        } else {
-            credential = getCredentials(username, password);
-        }
+        this.method = method;
+        this.requestBody = requestBody;
+        this.parts = parts;
+        this.commCareNetworkService = commCareNetworkService;
     }
 
     public void setResponseProcessor(HttpResponseProcessor responseProcessor) {
         this.responseProcessor = responseProcessor;
     }
 
-    public static class PlainTextPasswordException extends RuntimeException {
-    }
-
     public void request() {
         try {
-            CommCareNetworkService commCareNetworkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(credential);
-            if (isPostRequest) {
-                RequestBody postBody = getPostBody();
-                response = commCareNetworkService.makePostRequest(url.toString(), new HashMap(), getPostHeaders(postBody), postBody).execute();
-            } else {
-                response = commCareNetworkService.makeGetRequest(url.toString(), params, new HashMap()).execute();
-            }
+            response = makeRequest();
             processResponse(responseProcessor, response.code(), this);
         } catch (IOException e) {
             e.printStackTrace();
@@ -121,13 +87,24 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         }
     }
 
-    private RequestBody getPostBody() {
-        FormBody.Builder formBodyBuilder = new FormBody.Builder();
-        for (Map.Entry<String, String> param : params.entrySet()) {
-            formBodyBuilder.add(param.getKey(), param.getValue());
+    protected Response<ResponseBody> makeRequest() throws IOException {
+        Response<ResponseBody> response;
+        switch (method) {
+            case POST:
+                response = commCareNetworkService.makePostRequest(url.toString(), params, getPostHeaders(requestBody), requestBody).execute();
+                break;
+            case MULTIPART_POST:
+                response = commCareNetworkService.makeMultipartPostRequest(url.toString(), new HashMap(), getPostHeaders(requestBody), parts).execute();
+                break;
+            case GET:
+                response = commCareNetworkService.makeGetRequest(url.toString(), params, new HashMap()).execute();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid HTTPMethod " + method.toString());
         }
-        return formBodyBuilder.build();
+        return response;
     }
+
 
     private Map<String, String> getPostHeaders(RequestBody postBody) {
         Map<String, String> headers = new HashMap<>();
@@ -154,9 +131,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
                 return;
             }
             responseProcessor.processSuccess(responseCode, responseStream);
-        } else if (responseCode >= 300 && responseCode < 400) {
-            responseProcessor.processRedirection(responseCode);
-        } else if (responseCode >= 400 && responseCode < 500) {
+        }else if (responseCode >= 400 && responseCode < 500) {
             responseProcessor.processClientError(responseCode);
         } else if (responseCode >= 500 && responseCode < 600) {
             responseProcessor.processServerError(responseCode);
@@ -175,7 +150,26 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         return cache.retrieveCache();
     }
 
-    private static String getCredentials(String username, String password) {
+    public static RequestBody getPostBody(HashMap<String, String> inputs) {
+        FormBody.Builder formBodyBuilder = new FormBody.Builder();
+        for (Map.Entry<String, String> param : inputs.entrySet()) {
+            formBodyBuilder.add(param.getKey(), param.getValue());
+        }
+        return formBodyBuilder.build();
+    }
+
+    public static String getCredential(User user, String domain) {
+        final String username;
+        if (domain != null) {
+            username = user.getUsername() + "@" + domain;
+        } else {
+            username = user.getUsername();
+        }
+        final String password = user.getCachedPwd();
+        return getCredential(username, password);
+    }
+
+    public static String getCredential(String username, String password) {
         if (username == null || password == null) {
             return null;
         } else {
