@@ -252,6 +252,12 @@ public class XPathEvalTest {
         testEval("date(convertible())", null, ec, new XPathTypeMismatchException());
         testEval("format-date-for-calendar('', 'ethiopian')", null, null, "");
         testEval("format-date-for-calendar(date('1970-01-01'), 'neverland')", null, null, new XPathUnsupportedException());
+
+        testEval("format-date-for-calendar('2017-07-15', 'ethiopian', '%Y-%m-%d')", null, null, "2009-11-08");
+        testEval("format-date-for-calendar('2017-07-15', 'nepali', '%Y-%m-%d')", null, null, "2074-03-31");
+
+
+
         //note: there are lots of time and timezone-like issues with dates that should be tested (particularly DST changes),
         //    but it's just too hard and client-dependent, so not doing it now
         //  basically:
@@ -288,10 +294,14 @@ public class XPathEvalTest {
 
         testEval("min(5.5, 0.5)", null, null, new Double(0.5));
         testEval("min(5.5)", null, null, new Double(5.5));
+        testEval("min(-2,-3)", null, null, new Double(-3));
+        testEval("min(2,-3)", null, null, new Double(-3));
         testEval("date(min(date('2012-02-05'), date('2012-01-01')))", null, null, DateUtils.parseDate("2012-01-01"));
 
         testEval("max(5.5, 0.5)", null, null, new Double(5.5));
         testEval("max(0.5)", null, null, new Double(0.5));
+        testEval("max(-2,-3)", null, null, new Double(-2));
+        testEval("max(2,-3)", null, null, new Double(2));
         testEval("date(max(date('2012-02-05'), date('2012-01-01')))", null, null, DateUtils.parseDate("2012-02-05"));
 
 
