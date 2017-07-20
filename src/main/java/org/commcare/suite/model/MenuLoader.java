@@ -23,6 +23,7 @@ public class MenuLoader {
     private Exception loadException;
     private String xPathErrorMessage;
     private MenuDisplayable[] menus;
+    private String[] badges;
     private LoggerInterface loggerInterface;
 
     public MenuLoader(CommCarePlatform platform,
@@ -47,16 +48,17 @@ public class MenuLoader {
                                                         String menuID) {
 
         Vector<MenuDisplayable> items = new Vector<>();
+        Vector<String> badges = new Vector<>();
         Hashtable<String, Entry> map = platform.getMenuMap();
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
                 try {
                     if (m.getId().equals(menuID)) {
                         if (menuIsRelevant(sessionWrapper, m)) {
-                            addRelevantCommandEntries(sessionWrapper, m, items, map);
+                            addRelevantCommandEntries(sessionWrapper, m, items, badges, map);
                         }
                     } else {
-                        addUnaddedMenu(sessionWrapper, menuID, m, items);
+                        addUnaddedMenu(sessionWrapper, menuID, m, items, badges);
                     }
                 } catch (CommCareInstanceInitializer.FixtureInitializationException
                         | XPathSyntaxException | XPathException xpe) {
@@ -68,11 +70,14 @@ public class MenuLoader {
         }
         menus = new MenuDisplayable[items.size()];
         items.copyInto(menus);
+        this.badges = new String[badges.size()];
+        badges.copyInto(this.badges);
     }
 
     private void addUnaddedMenu(SessionWrapperInterface sessionWrapper,
                                        String menuID, Menu m,
-                                       Vector<MenuDisplayable> items) throws XPathSyntaxException {
+                                       Vector<MenuDisplayable> items,
+                                       Vector<String> badges) throws XPathSyntaxException {
         if (menuID.equals(m.getRoot())) {
             //make sure we didn't already add this ID
             boolean idExists = false;
@@ -87,6 +92,7 @@ public class MenuLoader {
             if (!idExists) {
                 if (menuIsRelevant(sessionWrapper, m)) {
                     items.add(m);
+                    badges.add(m.getTextForBadge(sessionWrapper.getEvaluationContext(m.getCommandID())));
                 }
             }
         }
@@ -105,6 +111,7 @@ public class MenuLoader {
     private void addRelevantCommandEntries(SessionWrapperInterface sessionWrapper,
                                            Menu m,
                                            Vector<MenuDisplayable> items,
+                                           Vector<String> badges,
                                            Hashtable<String, Entry> map)
             throws XPathSyntaxException {
         xPathErrorMessage = "";
@@ -137,6 +144,7 @@ public class MenuLoader {
             }
 
             items.add(e);
+            badges.add(e.getTextForBadge(sessionWrapper.getEvaluationContext(e.getCommandId())));
         }
     }
 
@@ -162,5 +170,13 @@ public class MenuLoader {
 
     public void setMenus(MenuDisplayable[] menus) {
         this.menus = menus;
+    }
+
+    public String[] getBadgeText() {
+        return badges;
+    }
+
+    public void setBadgeText(String[] badgeText) {
+        this.badges = badgeText;
     }
 }

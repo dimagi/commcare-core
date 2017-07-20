@@ -8,6 +8,8 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
+import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.IStorageIndexedFactory;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
@@ -33,15 +35,21 @@ public class CommCarePlatform {
     // TODO: We should make this unique using the parser to invalidate this ID or something
     public static final String APP_PROFILE_RESOURCE_ID = "commcare-application-profile";
     private int profile;
+    private Profile cachedProfile;
+
     private OfflineUserRestore offlineUserRestore;
 
     private final int majorVersion;
     private final int minorVersion;
+    private final Vector<Suite> installedSuites;
+    private final IStorageIndexedFactory storageFactory;
 
-    public CommCarePlatform(int majorVersion, int minorVersion) {
+    public CommCarePlatform(int majorVersion, int minorVersion, IStorageIndexedFactory storageFactory) {
         profile = -1;
         this.majorVersion = majorVersion;
         this.minorVersion = minorVersion;
+        installedSuites = new Vector<>();
+        this.storageFactory = storageFactory;
     }
 
     public int getMajorVersion() {
@@ -53,18 +61,13 @@ public class CommCarePlatform {
     }
 
     public Profile getCurrentProfile() {
-        return (Profile)(StorageManager.getStorage(Profile.STORAGE_KEY).read(profile));
+        if(cachedProfile != null) {
+            return cachedProfile;
+        }
+        return (Profile)(storage(Profile.STORAGE_KEY, Profile.class).read(profile));
     }
 
     public Vector<Suite> getInstalledSuites() {
-        Vector<Suite> installedSuites = new Vector<>();
-        IStorageUtilityIndexed utility = StorageManager.getStorage(Suite.STORAGE_KEY);
-
-        IStorageIterator iterator = utility.iterate();
-
-        while(iterator.hasMore()){
-            installedSuites.addElement((Suite)utility.read(iterator.nextID()));
-        }
         return installedSuites;
     }
     
@@ -90,9 +93,11 @@ public class CommCarePlatform {
 
     public void setProfile(Profile p) {
         this.profile = p.getID();
+        this.cachedProfile = p;
     }
 
     public void registerSuite(Suite s) {
+        installedSuites.add(s);
     }
 
     /**
@@ -170,5 +175,13 @@ public class CommCarePlatform {
 
     public void registerDemoUserRestore(OfflineUserRestore offlineUserRestore) {
         this.offlineUserRestore = offlineUserRestore;
+    }
+
+    public IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
+        return storage("fixture", FormInstance.class);
+    }
+
+    public IStorageUtilityIndexed storage(String name, Class type) {
+        return storageFactory.newStorage(name, type);
     }
 }

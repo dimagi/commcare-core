@@ -65,7 +65,7 @@ public abstract class Screen implements OptionsScreen {
      * @return The title of this specific screen. This method should be overriden by subclasses
      * who can provide a title.
      */
-    protected String getScreenTitle() {
+    public String getScreenTitle() {
         return null;
     }
 

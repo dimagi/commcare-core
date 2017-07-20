@@ -1,27 +1,14 @@
 package org.javarosa.core.services.storage.util;
 
-import org.javarosa.core.services.storage.EntityFilter;
-import org.javarosa.core.services.storage.IMetaData;
-import org.javarosa.core.services.storage.IStorageIterator;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.services.storage.*;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.LinkedHashSet;
-import java.util.NoSuchElementException;
-import java.util.Vector;
+import java.io.*;
+import java.util.*;
 
 /**
  * @author ctsims

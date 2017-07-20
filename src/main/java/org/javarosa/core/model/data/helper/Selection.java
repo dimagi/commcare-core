@@ -112,17 +112,14 @@ public class Selection implements Externalizable {
         if (choice != null) {
             attachChoice(choice);
         } else {
-            throw new XPathTypeMismatchException("value " + xmlValue + " could not be loaded into question " + q.getTextID()
-                    + ".  Check to see if value " + xmlValue + " is a valid option for question " + q.getTextID() + ".");
+            this.choice = null;
+            this.xmlValue = "";
+            this.index = -1;
         }
     }
 
     public String getValue() {
-        if (xmlValue != null && xmlValue.length() > 0) {
-            return xmlValue;
-        } else {
-            throw new RuntimeException("don't know xml value! perhaps selection was stored as index only and has not yet been linked up to a formdef?");
-        }
+        return xmlValue;
     }
 
     @Override

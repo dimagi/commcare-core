@@ -1,10 +1,14 @@
 package org.commcare.util.screen;
 
+import org.commcare.core.graph.model.GraphData;
+import org.commcare.core.graph.util.GraphException;
+import org.commcare.core.graph.util.GraphUtil;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.condition.EvaluationContext;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 
 /**
  * An entity detail subscreen displays one of the detail screens associated with an
@@ -20,24 +24,59 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
 
     private final String[] rows;
     private final String[] mDetailListTitles;
-
+    private final Object[] data ;
+    private final String[] headers;
     private final int mCurrentIndex;
+    private Detail detail;
 
     public EntityDetailSubscreen(int currentIndex, Detail detail, EvaluationContext subContext, String[] detailListTitles) {
+        this.detail = detail;
         DetailField[] fields = detail.getFields();
-        rows = new String[fields.length];
+
+        ArrayList<String> rowTemporary = new ArrayList<>();
+        ArrayList<String> headersTemporary = new ArrayList<>();
+        ArrayList<Object> dataTemporary = new ArrayList<>();
 
         detail.populateEvaluationContextVariables(subContext);
 
-        for (int i = 0; i < fields.length; ++i) {
-            rows[i] = createRow(fields[i], subContext);
+        for (DetailField field : fields) {
+            Object data = createData(field, subContext);
+            // don't add empty details
+            if (data != null && !data.toString().trim().equals("")) {
+                dataTemporary.add(data);
+                headersTemporary.add(createHeader(field, subContext));
+                rowTemporary.add(createRow(field, subContext, data));
+            }
         }
-        mDetailListTitles = detailListTitles;
 
+        rows = new String[rowTemporary.size()];
+        headers = new String[rowTemporary.size()];
+        data = new Object[rowTemporary.size()];
+
+        rowTemporary.toArray(rows);
+        headersTemporary.toArray(headers);
+        dataTemporary.toArray(data);
+
+        mDetailListTitles = detailListTitles;
         mCurrentIndex = currentIndex;
     }
 
-    private String createRow(DetailField field, EvaluationContext ec) {
+    private String createHeader(DetailField field, EvaluationContext ec){return field.getHeader().evaluate(ec);}
+
+    private Object createData(DetailField field, EvaluationContext ec){
+        Object o;
+        o = field.getTemplate().evaluate(ec);
+        if(o instanceof GraphData) {
+            try {
+                o = GraphUtil.getHTML((GraphData) o, "").replace("\"", "'");
+            } catch (GraphException e) {
+                o = "Error loading graph " + e;
+            }
+        }
+        return o;
+    }
+
+    private String createRow(DetailField field, EvaluationContext ec, Object o) {
         StringBuilder row = new StringBuilder();
         String header = field.getHeader().evaluate(ec);
 
@@ -45,7 +84,6 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
         row.append(" | ");
 
         String value;
-        Object o = field.getTemplate().evaluate(ec);
         if (!(o instanceof String)) {
             value = "{ " + field.getTemplateForm() + " data}";
         } else {
@@ -113,5 +151,23 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
             //This will result in things just executing again, which is fine.
         }
         return false;
+    }
+
+    public Object[] getData() {
+        return data;
+    }
+
+    public String[] getHeaders(){
+        return headers;
+    }
+
+    public String[] getTitles() { return mDetailListTitles;}
+
+    public Detail getDetail() {
+        return detail;
+    }
+
+    public void setDetail(Detail detail) {
+        this.detail = detail;
     }
 }

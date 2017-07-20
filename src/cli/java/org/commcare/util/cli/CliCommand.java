@@ -66,7 +66,7 @@ public abstract class CliCommand {
     }
 
     protected static CommCareConfigEngine configureApp(String resourcePath, PrototypeFactory factory) {
-        CommCareConfigEngine engine = new CommCareConfigEngine(System.out, factory);
+        CommCareConfigEngine engine = new CommCareConfigEngine(factory);
 
         //TODO: check arg for whether it's a local or global file resource and
         //make sure it's absolute
@@ -76,20 +76,20 @@ public abstract class CliCommand {
             } else {
                 engine.initFromLocalFileResource(resourcePath);
             }
+            engine.initEnvironment();
+            return engine;
         } catch (InstallCancelledException e) {
             System.out.println("Install was cancelled by the user or system");
-            e.printStackTrace(System.out);
-            System.exit(-1);
+            e.printStackTrace();
         } catch (UnresolvedResourceException e) {
-            System.out.println("While attempting to resolve the necessary resources, one couldn't be found: " + e.getResource().getResourceId());
-            e.printStackTrace(System.out);
-            System.exit(-1);
+            System.out.println("While attempting to resolve the necessary resources, one couldn't be found: "
+                    + e.getResource().getResourceId());
+            e.printStackTrace();
         } catch (UnfullfilledRequirementsException e) {
             System.out.println("While attempting to resolve the necessary resources, a requirement wasn't met");
-            e.printStackTrace(System.out);
-            System.exit(-1);
+            e.printStackTrace();
         }
-        engine.initEnvironment();
-        return engine;
+        System.exit(-1);
+        return null;
     }
 }

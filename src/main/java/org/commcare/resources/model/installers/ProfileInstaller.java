@@ -33,12 +33,13 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
 
     @SuppressWarnings("unused")
     public ProfileInstaller() {
+        super();
         forceVersion = false;
     }
-
     public ProfileInstaller(boolean forceVersion) {
         this.forceVersion = forceVersion;
     }
+
 
     private Hashtable<String, Profile> getlocal() {
         if (localTable == null) {

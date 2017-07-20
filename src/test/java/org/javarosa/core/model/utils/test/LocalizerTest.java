@@ -637,7 +637,7 @@ public class LocalizerTest {
         assertEquals(Localizer.processArguments("1${arbitrary}2", new String[]{F}), "1" + F + "2");
 
         final String[] holder = new String[1];
-
+        
         runAsync(new Runnable() {
             @Override
             public void run() {

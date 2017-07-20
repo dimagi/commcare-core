@@ -1,11 +1,6 @@
 package org.commcare.resources.model.installers;
 
-import org.commcare.resources.model.MissingMediaException;
-import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceLocation;
-import org.commcare.resources.model.ResourceTable;
-import org.commcare.resources.model.UnreliableSourceException;
-import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.resources.model.*;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
@@ -25,6 +20,8 @@ import java.util.Vector;
  * @author ctsims
  */
 public class SuiteInstaller extends CacheInstaller<Suite> {
+
+    public SuiteInstaller(){}
 
     @Override
     public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
@@ -53,7 +50,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
             InputStream incoming = null;
             try {
                 incoming = ref.getStream();
-                SuiteParser parser = new SuiteParser(incoming, table, r.getRecordGuid());
+                SuiteParser parser = new SuiteParser(incoming, table, r.getRecordGuid(), instance.getFixtureStorage());
                 if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_REMOTE) {
                     parser.setMaximumAuthority(Resource.RESOURCE_AUTHORITY_REMOTE);
                 }

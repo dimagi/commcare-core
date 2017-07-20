@@ -45,7 +45,7 @@ public class MockDataUtils {
         //this because it's app data, not user data.
         try {
             appFixtureStorage =
-                    (IStorageUtilityIndexed)StorageManager.getStorage("fixture");
+                    (IStorageUtilityIndexed)StorageManager.instance().getStorage("fixture");
         } catch(RuntimeException re) {
             //We use this in some contexsts with app fixture storage and some without, so
             //if we don't find it, that's ok.

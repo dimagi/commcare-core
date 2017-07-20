@@ -19,6 +19,7 @@ import java.util.Vector;
  * @author jschweers
  */
 public class GraphData implements ConfigurableData {
+
     private String mType;
     private final Vector<SeriesData> mSeries;
     private final Hashtable<String, String> mConfiguration;

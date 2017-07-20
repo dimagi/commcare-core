@@ -17,6 +17,7 @@ import java.util.Iterator;
  * Created by jschweers on 11/16/2015.
  */
 public class AxisConfiguration extends Configuration {
+
     public AxisConfiguration(GraphData data) throws GraphException, JSONException {
         super(data);
 

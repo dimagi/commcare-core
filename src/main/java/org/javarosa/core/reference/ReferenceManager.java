@@ -28,7 +28,13 @@ import java.util.Vector;
  */
 public class ReferenceManager {
 
-    private static ReferenceManager instance;
+    private static ThreadLocal<ReferenceManager> instance = new ThreadLocal<ReferenceManager>() {
+        @Override
+        protected ReferenceManager initialValue()
+        {
+            return new ReferenceManager();
+        }
+    };
 
     private final Vector<RootTranslator> translators;
     private final Vector<ReferenceFactory> factories;
@@ -45,10 +51,7 @@ public class ReferenceManager {
      * ReferenceManager.
      */
     public static ReferenceManager instance() {
-        if (instance == null) {
-            instance = new ReferenceManager();
-        }
-        return instance;
+        return instance.get();
     }
 
     /**
