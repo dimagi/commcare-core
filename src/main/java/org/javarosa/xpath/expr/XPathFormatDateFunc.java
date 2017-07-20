@@ -32,5 +32,4 @@ public class XPathFormatDateFunc extends XPathFuncExpr {
         }
         return DateUtils.format(expandedDate, FunctionUtils.toString(of));
     }
-
 }

@@ -252,6 +252,12 @@ public class XPathEvalTest {
         testEval("date(convertible())", null, ec, new XPathTypeMismatchException());
         testEval("format-date-for-calendar('', 'ethiopian')", null, null, "");
         testEval("format-date-for-calendar(date('1970-01-01'), 'neverland')", null, null, new XPathUnsupportedException());
+
+        testEval("format-date-for-calendar('2017-07-15', 'ethiopian', '%Y-%m-%d')", null, null, "2009-11-08");
+        testEval("format-date-for-calendar('2017-07-15', 'nepali', '%Y-%m-%d')", null, null, "2074-03-31");
+
+
+
         //note: there are lots of time and timezone-like issues with dates that should be tested (particularly DST changes),
         //    but it's just too hard and client-dependent, so not doing it now
         //  basically:
