@@ -1,5 +1,6 @@
 package org.commcare.util.screen;
 
+import org.commcare.cases.entity.EntityUtil;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Action;
@@ -34,7 +35,6 @@ public class EntityScreen extends CompoundScreenHost {
     private CommCarePlatform mPlatform;
 
     private Detail mShortDetail;
-    private Detail[] mLongDetailList;
 
     private EntityDatum mNeededDatum;
     private Action mPendingAction;
@@ -86,7 +86,6 @@ public class EntityScreen extends CompoundScreenHost {
             }
         } else {
             mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext);
-            initDetailScreens(evalContext);
         }
     }
 
@@ -154,26 +153,9 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
-    private void initDetailScreens(EvaluationContext ec) {
-        String longDetailId = this.mNeededDatum.getLongDetail();
-        if (longDetailId == null) {
-            mLongDetailList = null;
-            return;
-        }
-        Detail d = mPlatform.getDetail(longDetailId);
-        if (d == null) {
-            mLongDetailList = null;
-            return;
-        }
-        mLongDetailList = d.getDisplayableChildDetails(ec);
-        if (mLongDetailList == null || mLongDetailList.length == 0) {
-            mLongDetailList = new Detail[]{d};
-        }
-    }
-
     public boolean setCurrentScreenToDetail() throws CommCareSessionException {
-        initDetailScreens(evalContext);
-        if (mLongDetailList == null) {
+        Detail[] longDetailList = getLongDetailList(mCurrentSelection);
+        if (longDetailList == null) {
             return false;
         }
         setCurrentScreenToDetail(0);
@@ -182,24 +164,42 @@ public class EntityScreen extends CompoundScreenHost {
 
     public void setCurrentScreenToDetail(int index) throws CommCareSessionException {
         EvaluationContext subContext = new EvaluationContext(evalContext, this.mCurrentSelection);
-
-        TreeReference detailNodeset = this.mLongDetailList[index].getNodeset();
+        Detail[] longDetailList = getLongDetailList(this.mCurrentSelection);
+        TreeReference detailNodeset = longDetailList[index].getNodeset();
         if (detailNodeset != null) {
             TreeReference contextualizedNodeset = detailNodeset.contextualize(this.mCurrentSelection);
-            this.mCurrentScreen = new EntityListSubscreen(this.mLongDetailList[index], subContext.expandReference(contextualizedNodeset), subContext);
+            this.mCurrentScreen = new EntityListSubscreen(longDetailList[index], subContext.expandReference(contextualizedNodeset), subContext);
         } else {
-            this.mCurrentScreen = new EntityDetailSubscreen(index, this.mLongDetailList[index], subContext, getDetailListTitles(subContext));
+            this.mCurrentScreen = new EntityDetailSubscreen(index, longDetailList[index], subContext, getDetailListTitles(subContext, this.mCurrentSelection));
         }
     }
 
-    public Detail[] getLongDetailList(){
-        return mLongDetailList;
+    public Detail[] getLongDetailList(TreeReference ref){
+        Detail[] longDetailList;
+        String longDetailId = this.mNeededDatum.getLongDetail();
+        if (longDetailId == null) {
+            return null;
+        }
+        Detail d = mPlatform.getDetail(longDetailId);
+        if (d == null) {
+            return null;
+        }
+
+        EvaluationContext contextForChildDetailDisplayConditions =
+                EntityUtil.prepareCompoundEvaluationContext(ref, d, evalContext);
+
+        longDetailList = d.getDisplayableChildDetails(contextForChildDetailDisplayConditions);
+        if (longDetailList == null || longDetailList.length == 0) {
+            longDetailList = new Detail[]{d};
+        }
+        return longDetailList;
     }
 
-    public String[] getDetailListTitles(EvaluationContext subContext) {
+    public String[] getDetailListTitles(EvaluationContext subContext, TreeReference reference) {
+        Detail[] mLongDetailList = getLongDetailList(reference);
         String[] titles = new String[mLongDetailList.length];
         for (int i = 0; i < mLongDetailList.length; ++i) {
-            titles[i] = this.mLongDetailList[i].getTitle().getText().evaluate(subContext);
+            titles[i] = mLongDetailList[i].getTitle().getText().evaluate(subContext);
         }
         return titles;
     }
