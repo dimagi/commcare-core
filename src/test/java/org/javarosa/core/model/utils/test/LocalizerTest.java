@@ -637,26 +637,47 @@ public class LocalizerTest {
         assertEquals(Localizer.processArguments("1${arbitrary}2", new String[]{F}), "1" + F + "2");
 
         final String[] holder = new String[1];
-
-        holder[0] = Localizer.processArguments("${0}", new String[]{C});
+        
+        runAsync(new Runnable() {
+            @Override
+            public void run() {
+                holder[0] = Localizer.processArguments("${0}", new String[]{C});
+            }
+        }, "Argument processing: " + C);
 
         assertEquals(holder[0], C);
 
-        holder[0] = Localizer.processArguments("${0}", new String[]{D});
+
+        runAsync(new Runnable() {
+            @Override
+            public void run() {
+                holder[0] = Localizer.processArguments("${0}", new String[]{D});
+            }
+        }, "Argument processing: " + D);
 
         assertEquals(holder[0], D);
 
-        holder[0] = Localizer.processArguments(holder[0], res);
+        runAsync(new Runnable() {
+            @Override
+            public void run() {
+                holder[0] = Localizer.processArguments(holder[0], res);
+            }
+        }, "Argument processing: " + res[1] + res[0]);
 
         assertEquals(holder[0], res[1] + res[0]);
 
-        holder[0] = Localizer.processArguments("$ {0} ${1}", res);
+        runAsync(new Runnable() {
+            @Override
+            public void run() {
+                holder[0] = Localizer.processArguments("$ {0} ${1}", res);
+            }
+        }, "Argument processing: " + "$ {0} " + res[1]);
 
         assertEquals(holder[0], "$ {0} " + res[1]);
 
     }
 
-    private void runAsync(Runnable test) {
+    private void runAsync(Runnable test, String label) {
         Thread t = new Thread(test);
         t.start();
         try {
@@ -666,7 +687,7 @@ public class LocalizerTest {
         }
         if (t.isAlive()) {
             t.stop();
-            throw new RuntimeException("Failed to return from recursive argument processing");
+            throw new RuntimeException("Failed to return from recursive argument processing: "+  label);
         }
     }
 

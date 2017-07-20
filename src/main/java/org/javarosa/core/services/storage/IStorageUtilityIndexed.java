@@ -3,7 +3,8 @@ package org.javarosa.core.services.storage;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -160,4 +161,12 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      *                                contains the value of the index requested.
      */
     E getRecordForValue(String fieldName, Object value) throws NoSuchElementException, InvalidIndexException;
+
+    /**
+     * Load multiple record objects from storage at one time from a list of record ids.
+     *
+     * If the provided recordMap already contains entries for any ids, it is _not_
+     * required for them to be retrieved from storage again.
+     */
+    void bulkRead(LinkedHashSet<Integer> ids, HashMap<Integer, E> recordMap);
 }

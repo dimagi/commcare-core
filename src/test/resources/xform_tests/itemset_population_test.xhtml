@@ -1,0 +1,65 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml"
+    xmlns="http://www.w3.org/2002/xforms"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:jr="http://openrosa.org/javarosa"
+    >
+    <h:head>
+        <h:title>Itemset Test</h:title>
+        <model>
+            <instance>
+                <data
+                    xmlns="http://openrosa.org/formdesigner/itemset-test"
+                    uiVersion="1" version="1" name="Itemset Test">
+                    <filter/>
+                    <question/>
+                </data>
+            </instance>
+
+            <instance id="itemset_data">
+                <item_list>
+                    <i filter="a">
+                        <label>1A</label>
+                        <value>1_a</value>
+                    </i>
+                    <i filter="a">
+                        <label>2A</label>
+                        <value>2_a</value>
+                    </i>
+                    <i filter="a">
+                        <label>3A</label>
+                        <value>3_a</value>
+                    </i>
+
+                    <i filter="b">
+                        <label>1B</label>
+                        <value>1_b</value>
+                    </i>
+                    <i filter="b">
+                        <label>2B</label>
+                        <value>2_b</value>
+                    </i>
+                </item_list>
+            </instance>
+        </model>
+    </h:head>
+    <h:body>
+        <select1 ref="/data/filter">
+            <label>Filter</label>
+            <item>
+                <label>A</label>
+                <value>a</value>
+            </item>
+            <item>
+                <label>B</label>
+                <value>b</value>
+            </item>
+        </select1>
+        <select1 ref="/data/question">
+            <label>Filter</label>
+            <itemset nodeset="instance('itemset_data')/item_list/i[@filter = /data/filter]">
+                <label ref="label"/>
+                <value ref="value"/>
+            </itemset>
+        </select1>
+    </h:body>
+</h:html>

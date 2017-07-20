@@ -75,7 +75,7 @@ public class CommCareConfigEngine {
 
     public CommCareConfigEngine(IStorageIndexedFactory storageFactory, InstallerFactory installerFactory) {
         this.print = new PrintStream(System.out);
-        this.platform = new CommCarePlatform(2, 36, storageFactory);
+        this.platform = new CommCarePlatform(2, 37, storageFactory);
         this.storageFactory = storageFactory;
 
 
@@ -200,9 +200,11 @@ public class CommCareConfigEngine {
         installAppFromReference(profileRef);
     }
 
-    public void installAppFromReference(String profileReference) throws UnresolvedResourceException,
+    public void installAppFromReference(String profileReference)
+            throws UnresolvedResourceException,
             UnfullfilledRequirementsException, InstallCancelledException {
-        ResourceManager.installAppResources(platform, profileReference, this.table, true);
+        ResourceManager.installAppResources(platform, profileReference, this.table, true,
+                Resource.RESOURCE_AUTHORITY_LOCAL);
     }
 
     public void initEnvironment() {

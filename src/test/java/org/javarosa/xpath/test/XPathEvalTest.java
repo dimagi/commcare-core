@@ -87,7 +87,7 @@ public class XPathEvalTest {
     }
 
     @Test
-    public void testTypeCoercion(){
+    public void testTypeCoercion() {
         Object str = FunctionUtils.InferType("notadouble");
         Assert.assertTrue("'notadouble' coerced to the wrong type, "
                 + str.getClass().toString(), str instanceof String);
@@ -96,6 +96,24 @@ public class XPathEvalTest {
 
         Assert.assertTrue("'5.0' coerced to the wrong type, "
                 + d.getClass().toString(), d instanceof Double);
+    }
+
+    @Test
+    public void sortTests() {
+        // simple sort
+        testEval("sort('commcare is the best tool ever', false())", null, null, "tool the is ever commcare best");
+
+        // sort 2nd list by 1st
+        testEval("sort-by('2222 5555 9999 1111', 'd b c a', true())", null, null, "1111 5555 9999 2222");
+        testEval("sort-by('a b c d e f', '4 2 1 5 3 2', false())", null, null, "d a e f b c");
+        testEval("sort-by('c c z f z f', '4 2 1 5 3 2', true())", null, null, "z c f z c f");
+
+        // ascending bool not explicitly included
+        testEval("sort-by('a b c d e f', '4 2 1 5 3 2')", null, null, "c b f e a d");
+        testEval("sort('commcare is the best tool ever')", null, null, "best commcare ever is the tool");
+
+        // uneven list sizes
+        testEval("sort-by('a b c', '4 2 5 1', true())", null, null, new XPathTypeMismatchException());
     }
 
     @Test
@@ -523,6 +541,10 @@ public class XPathEvalTest {
         testEval("id-compress(0, 'CD','','ABCDE',1)", null, ec, new XPathException());
         testEval("id-compress(0, 'CD','CD','ABCDE',1)", null, ec, new XPathException());
 
+        testEval("checksum('verhoeff','41310785898')", null, null, "4");
+        testEval("checksum('verhoeff','66671496237')", null, null, "3");
+        testEval("checksum('verhoefffff','41310785898')", null, null, new XPathUnsupportedException());
+
         //Variables
         EvaluationContext varContext = getVariableContext();
         testEval("$var_float_five", null, varContext, new Double(5.0));
@@ -625,24 +647,24 @@ public class XPathEvalTest {
         ec.addFunctionHandler(new IFunctionHandler() {
             @Override
             public String getName() {
-              return "now";
+                return "now";
             }
 
             @Override
             public Vector getPrototypes() {
-              Vector<Class[]> p = new Vector<>();
-              p.addElement(new Class[0]);
-              return p;
+                Vector<Class[]> p = new Vector<>();
+                p.addElement(new Class[0]);
+                return p;
             }
 
             @Override
             public boolean rawArgs() {
-              return false;
+                return false;
             }
 
             @Override
             public Object eval(Object[] args, EvaluationContext ec) {
-              return "pass";
+                return "pass";
             }
         });
 

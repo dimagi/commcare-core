@@ -87,6 +87,7 @@ public class XFormParser {
     private static final String EVENT_ATTR = "event";
     private static final String SELECTONE = "select1";
     private static final String SELECT = "select";
+    private static final String SORT = "sort";
 
     public static final String NAMESPACE_JAVAROSA = "http://openrosa.org/javarosa";
     public static final String NAMESPACE_HTML = "http://www.w3.org/1999/xhtml";
@@ -1386,62 +1387,13 @@ public class XFormParser {
             String childName = (child != null ? child.getName() : null);
 
             if (LABEL_ELEMENT.equals(childName)) {
-                // is the child element a label tag?
-                String labelXpath = child.getAttributeValue("", REF_ATTR);
-                boolean labelItext = false;
-
-                //print unused attribute warning message for child element
-                if (XFormUtils.showUnusedAttributeWarning(child, labelUA)) {
-                    reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(child, labelUA), getVagueLocation(child));
-                }
-                /////////////////////////////////////////////////////////////
-
-                if (labelXpath != null) {
-                    if (labelXpath.startsWith("jr:itext(") && labelXpath.endsWith(")")) {
-                        labelXpath = labelXpath.substring("jr:itext(".length(), labelXpath.indexOf(")"));
-                        labelItext = true;
-                    }
-                } else {
-                    throw new XFormParseException("<label> in <itemset> requires 'ref'");
-                }
-
-                XPathPathExpr labelPath = XPathReference.getPathExpr(labelXpath);
-                itemset.labelRef = FormInstance.unpackReference(getAbsRef(new XPathReference(labelPath), itemset.nodesetRef));
-                itemset.labelExpr = new XPathConditional(labelPath);
-                itemset.labelIsItext = labelItext;
+                parseItemsetLabelElement(child, itemset, labelUA);
             } else if ("copy".equals(childName)) {
-                // is the child element a copy tag?
-
-                String copyRef = child.getAttributeValue("", REF_ATTR);
-
-                // print unused attribute warning message for child element
-                if (XFormUtils.showUnusedAttributeWarning(child, copyUA)) {
-                    reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(child, copyUA), getVagueLocation(child));
-                }
-
-                if (copyRef == null) {
-                    throw new XFormParseException("<copy> in <itemset> requires 'ref'");
-                }
-
-                itemset.copyRef = FormInstance.unpackReference(getAbsRef(new XPathReference(copyRef), itemset.nodesetRef));
-                itemset.copyMode = true;
+                parseItemsetCopyElement(child, itemset, copyUA);
             } else if (VALUE.equals(childName)) {
-                // is the child element a value tag?
-                String valueXpath = child.getAttributeValue("", REF_ATTR);
-
-                //print unused attribute warning message for child element
-                if (XFormUtils.showUnusedAttributeWarning(child, valueUA)) {
-                    reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(child, valueUA), getVagueLocation(child));
-                }
-
-                if (valueXpath == null) {
-                    throw new XFormParseException("<value> in <itemset> requires 'ref'");
-                }
-
-                XPathPathExpr valuePath = XPathReference.getPathExpr(valueXpath);
-                itemset.valueRef = FormInstance.unpackReference(getAbsRef(new XPathReference(valuePath), itemset.nodesetRef));
-                itemset.valueExpr = new XPathConditional(valuePath);
-                itemset.copyMode = false;
+                parseItemsetValueElement(child, itemset, valueUA);
+            } else if (SORT.equals(childName)) {
+                parseItemsetSortElement(child, itemset);
             }
         }
 
@@ -1462,11 +1414,72 @@ public class XFormParser {
         q.setDynamicChoices(itemset);
         itemsets.addElement(itemset);
 
-        //print unused attribute warning message for parent element
         if (XFormUtils.showUnusedAttributeWarning(e, usedAtts)) {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
         }
 
+    }
+
+    private void parseItemsetLabelElement(Element child, ItemsetBinding itemset, Vector<String> labelUA) {
+        String labelXpath = child.getAttributeValue("", REF_ATTR);
+        boolean labelItext = false;
+
+        if (XFormUtils.showUnusedAttributeWarning(child, labelUA)) {
+            reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(child, labelUA), getVagueLocation(child));
+        }
+
+        if (labelXpath != null) {
+            if (labelXpath.startsWith("jr:itext(") && labelXpath.endsWith(")")) {
+                labelXpath = labelXpath.substring("jr:itext(".length(), labelXpath.indexOf(")"));
+                labelItext = true;
+            }
+        } else {
+            throw new XFormParseException("<label> in <itemset> requires 'ref'");
+        }
+
+        XPathPathExpr labelPath = XPathReference.getPathExpr(labelXpath);
+        itemset.labelRef = FormInstance.unpackReference(getAbsRef(new XPathReference(labelPath), itemset.nodesetRef));
+        itemset.labelExpr = new XPathConditional(labelPath);
+        itemset.labelIsItext = labelItext;
+    }
+
+    private void parseItemsetCopyElement(Element child, ItemsetBinding itemset, Vector<String> copyUA) {
+        String copyRef = child.getAttributeValue("", REF_ATTR);
+        if (XFormUtils.showUnusedAttributeWarning(child, copyUA)) {
+            reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(child, copyUA), getVagueLocation(child));
+        }
+        if (copyRef == null) {
+            throw new XFormParseException("<copy> in <itemset> requires 'ref'");
+        }
+        itemset.copyRef = FormInstance.unpackReference(getAbsRef(new XPathReference(copyRef), itemset.nodesetRef));
+        itemset.copyMode = true;
+    }
+
+    private void parseItemsetValueElement(Element child, ItemsetBinding itemset, Vector<String> valueUA) {
+        String valueXpath = child.getAttributeValue("", REF_ATTR);
+
+        if (XFormUtils.showUnusedAttributeWarning(child, valueUA)) {
+            reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(child, valueUA), getVagueLocation(child));
+        }
+        if (valueXpath == null) {
+            throw new XFormParseException("<value> in <itemset> requires 'ref'");
+        }
+
+        XPathPathExpr valuePath = XPathReference.getPathExpr(valueXpath);
+        itemset.valueRef = FormInstance.unpackReference(getAbsRef(new XPathReference(valuePath), itemset.nodesetRef));
+        itemset.valueExpr = new XPathConditional(valuePath);
+        itemset.copyMode = false;
+    }
+
+    private void parseItemsetSortElement(Element child, ItemsetBinding itemset) {
+        String sortXpathString = child.getAttributeValue("", REF_ATTR);
+        if (sortXpathString == null) {
+            throw new XFormParseException("<sort> in <itemset> requires 'ref'");
+        }
+
+        XPathPathExpr sortPath = XPathReference.getPathExpr(sortXpathString);
+        itemset.sortRef = FormInstance.unpackReference(getAbsRef(new XPathReference(sortPath), itemset.nodesetRef));
+        itemset.sortExpr = new XPathConditional(sortPath);
     }
 
     private void parseGroup(IFormElement parent, Element e, int groupType) {
@@ -1611,9 +1624,10 @@ public class XFormParser {
             tref = TreeReference.selfRef(); //only happens for <group>s with no binding
         }
 
+        TreeReference refPreContextualization = tref;
         tref = tref.parent(parentRef);
         if (tref == null) {
-            throw new XFormParseException("Binding path [" + tref + "] not allowed with parent binding of [" + parentRef + "]");
+            throw new XFormParseException("Binding path [" + refPreContextualization.toString(true) + "] not allowed with parent binding of [" + parentRef + "]");
         }
 
         return new XPathReference(tref);

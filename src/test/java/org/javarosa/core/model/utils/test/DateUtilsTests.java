@@ -197,6 +197,7 @@ public class DateUtilsTests {
         escapesResults.put("%B", "November");
         escapesResults.put("%d", "05");
         escapesResults.put("%e", "5");
+        escapesResults.put("%w", "6");
 
         for (String escape : escapesResults.keySet()) {
             String result = escapesResults.get(escape);

@@ -45,6 +45,18 @@ public class IndexedFixtureTests {
         assertEquals(4, sandbox.getIndexedFixtureStorage("commtrack:products").getNumRecords());
     }
 
+    @Test
+    public void queryLargeBodyLookup() throws XPathSyntaxException, UnfullfilledRequirementsException,
+            XmlPullParserException, IOException, InvalidStructureException {
+        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/indexed_fixture/large_body.xml"), sandbox);
+
+        EvaluationContext ec =
+                MockDataUtils.buildContextWithInstance(sandbox, "testfixture", "jr://fixture/testfixture");
+
+        CaseTestUtils.xpathEvalAndAssert(ec, "count(instance('testfixture')/test/entry[@type = 'a'][value = 1])", 40.0);
+    }
+
+
     @Test(expected = InvalidStructureException.class)
     public void errorOnSchemaAfterFixtureTest() throws XPathSyntaxException, UnfullfilledRequirementsException,
             XmlPullParserException, IOException, InvalidStructureException {

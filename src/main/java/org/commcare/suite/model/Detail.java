@@ -146,7 +146,7 @@ public class Detail implements Externalizable {
             numEntitiesToDisplayPerRow = 1;
         }
 
-        if (relevancy != null) {
+        if (relevancy != null && !"".equals(relevancy)) {
             try {
                 this.parsedRelevancyExpression = XPathParseTool.parseXPath(relevancy);
             } catch (XPathSyntaxException e) {
