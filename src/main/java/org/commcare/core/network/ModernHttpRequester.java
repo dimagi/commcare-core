@@ -81,9 +81,9 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         try {
             response = makeRequest();
             processResponse(responseProcessor, response.code(), this);
-        } catch (IOException e) {
+        } catch (IOException | AuthenticationInterceptor.PlainTextPasswordException e) {
             e.printStackTrace();
-            responseProcessor.handleIOException(e);
+            responseProcessor.handleException(e);
         }
     }
 
@@ -127,11 +127,11 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
             try {
                 responseStream = streamAccessor.getResponseStream();
             } catch (IOException e) {
-                responseProcessor.handleIOException(e);
+                responseProcessor.handleException(e);
                 return;
             }
             responseProcessor.processSuccess(responseCode, responseStream);
-        }else if (responseCode >= 400 && responseCode < 500) {
+        } else if (responseCode >= 400 && responseCode < 500) {
             responseProcessor.processClientError(responseCode);
         } else if (responseCode >= 500 && responseCode < 600) {
             responseProcessor.processServerError(responseCode);

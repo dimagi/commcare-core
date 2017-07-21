@@ -22,6 +22,7 @@ public class AuthenticationInterceptor implements Interceptor{
     public Response intercept(Chain chain) throws IOException {
         Request original = chain.request();
 
+        // NOTE PLM: we will eventually support 'http' urls, but won't include authentication credentials in them
         if(!original.isHttps() && credential !=null){
             throw new PlainTextPasswordException();
         }
