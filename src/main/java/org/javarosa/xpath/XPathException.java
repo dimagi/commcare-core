@@ -17,8 +17,8 @@ public class XPathException extends RuntimeException {
         super(s);
     }
 
-    public XPathException(String s, Throwable cause) {
-        super(s, cause);
+    public XPathException(Throwable cause) {
+        super(cause);
     }
 
     public void setMessagePrefix(String prefix){

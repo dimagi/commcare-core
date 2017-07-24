@@ -73,10 +73,7 @@ public class NodeEntityFactory {
                  * We are wrapping the original exception in a new XPathException to avoid
                  * refactoring large number of functions caused by throwing XPathSyntaxException here.
                  */
-                XPathException xe = new XPathException(e.getMessage(), e);
-                if (e instanceof XPathException) {
-                    xe.setSource(((XPathException)e).getSource());
-                }
+                XPathException xe = new XPathException(e);
                 throw xe;
             }
             count++;
