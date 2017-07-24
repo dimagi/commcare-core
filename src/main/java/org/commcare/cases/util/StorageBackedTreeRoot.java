@@ -64,14 +64,41 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
         QueryContext queryContext = evalContext.getCurrentQueryContext();
 
-        //First, go get a list of predicates that we _might_ be able to evaluate more efficiently
-        collectPredicateProfiles(predicates, indices, evalContext, profiles,queryContext);
+        //First, attempt to use 'preferred' optimizations detectable by the query planner
+        //using advanced inspection of the predicates
 
+        Vector<PredicateProfile> preferredProfiles = new Vector<>();
+
+        preferredProfiles.addAll(getQueryPlanner().collectPredicateProfiles(
+                predicates, queryContext, evalContext));
+
+        //For now we are going to skip looking deeper if we trigger
+        //any of the planned optimizations
+        if(preferredProfiles.size() > 0) {
+            Collection<TreeReference> response = processPredicatesAndPrepareResponse(preferredProfiles,
+                    queryContext, predicates);
+
+            //For now if there are any results we should press forward. We don't have a meaningful
+            //way to combine these results with native optimizations
+            if(response != null) {
+                return response;
+            }
+        }
+
+        //Otherwise, identify predicates that we _might_ be able to evaluate more efficiently
+        //based on normal keyed behavior
+        collectNativePredicateProfiles(predicates, indices, evalContext, profiles);
+
+        return processPredicatesAndPrepareResponse(profiles, queryContext, predicates);
+    }
+
+    private Collection<TreeReference> processPredicatesAndPrepareResponse(Vector<PredicateProfile> profiles,
+                                                                          QueryContext queryContext,
+                                                                          Vector<XPathExpression> predicates) {
         //Now go through each profile and see if we can match / process any of them. If not, we
         // will return null and move on
         Vector<Integer> toRemove = new Vector<>();
-        Collection<Integer> selectedElements = processPredicates(toRemove, profiles,
-                queryContext);
+        Collection<Integer> selectedElements = processPredicates(toRemove, profiles, queryContext);
 
         //if we weren't able to evaluate any predicates, signal that.
         if (selectedElements == null) {
@@ -86,20 +113,10 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         return buildReferencesFromFetchResults(selectedElements);
     }
 
-    private void collectPredicateProfiles(Vector<XPathExpression> predicates,
+    private void collectNativePredicateProfiles(Vector<XPathExpression> predicates,
                                           Hashtable<XPathPathExpr, String> indices,
                                           EvaluationContext evalContext,
-                                          Vector<PredicateProfile> optimizations,
-                                          QueryContext queryContext) {
-
-        optimizations.addAll(getQueryPlanner().collectPredicateProfiles(predicates, queryContext, evalContext));
-
-        //For now we are going to skip looking deeper if we trigger
-        //any of the planned optimizations
-        if(optimizations.size() > 0) {
-            return;
-        }
-
+                                          Vector<PredicateProfile> optimizations) {
 
         predicate:
         for (XPathExpression xpe : predicates) {
