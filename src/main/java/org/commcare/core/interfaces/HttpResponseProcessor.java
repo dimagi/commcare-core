@@ -33,7 +33,7 @@ public interface HttpResponseProcessor {
     void processOther(int responseCode);
 
     /**
-     * A I/O issue occurred while processing the http request or response
+     * A issue occurred while processing the http request or response
      */
     void handleException(Exception exception);
 }

@@ -4,7 +4,6 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.interfaces.ResponseStreamAccessor;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
-import org.commcare.modern.util.Pair;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.User;
 
@@ -23,12 +22,7 @@ import okhttp3.FormBody;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import okhttp3.internal.http.HttpMethod;
 import retrofit2.Response;
-
-import static org.commcare.core.network.HTTPMethod.*;
-import static org.commcare.core.network.HTTPMethod.MULTIPART_POST;
-import static org.commcare.core.network.HTTPMethod.POST;
 
 /**
  * Make http get/post requests with query params encoded in get url or post
@@ -51,18 +45,23 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     private final BitCacheFactory.CacheDirSetup cacheDirSetup;
     private final RequestBody requestBody;
     private final List<MultipartBody.Part> parts;
-    private HttpResponseProcessor responseProcessor;
-    protected final URL url;
+    private final HttpResponseProcessor responseProcessor;
+    protected final String url;
     protected final HashMap<String, String> params;
     protected final HashMap<String, String> headers;
     private Response<ResponseBody> response;
     private CommCareNetworkService commCareNetworkService;
 
+    /**
+     * responseProcessor Can be null if you want to process the response yourself. Please use makeRequest() instead of processRequest()
+     * to make a request in case of responseProcessor being null.
+     */
     public ModernHttpRequester(BitCacheFactory.CacheDirSetup cacheDirSetup,
-                               URL url, HashMap<String, String> params, HashMap<String, String> headers,
+                               String url, HashMap<String, String> params, HashMap<String, String> headers,
                                @Nullable RequestBody requestBody, @Nullable List<MultipartBody.Part> parts,
                                CommCareNetworkService commCareNetworkService,
-                               HTTPMethod method) {
+                               HTTPMethod method,
+                               @Nullable HttpResponseProcessor responseProcessor) {
         this.cacheDirSetup = cacheDirSetup;
         this.params = params;
         this.headers = headers;
@@ -71,13 +70,17 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         this.requestBody = requestBody;
         this.parts = parts;
         this.commCareNetworkService = commCareNetworkService;
-    }
-
-    public void setResponseProcessor(HttpResponseProcessor responseProcessor) {
         this.responseProcessor = responseProcessor;
     }
 
-    public void request() {
+    /**
+     * Executes and process the Request using the ResponseProcessor. Use makeRequest if you don't want ModernHTTPRequester to process the response.
+     */
+    @Nullable
+    public void processRequest() {
+        if (responseProcessor == null) {
+            throw new IllegalStateException("Please call makeRequest since responseProcessor is null");
+        }
         try {
             response = makeRequest();
             processResponse(responseProcessor, response.code(), this);
@@ -87,17 +90,23 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         }
     }
 
-    protected Response<ResponseBody> makeRequest() throws IOException {
+    /**
+     * Executes the HTTP Request. Can be called directly to bypass response processor.
+     *
+     * @return Response from the HTTP call
+     * @throws IOException
+     */
+    public Response<ResponseBody> makeRequest() throws IOException {
         Response<ResponseBody> response;
         switch (method) {
             case POST:
-                response = commCareNetworkService.makePostRequest(url.toString(), params, getPostHeaders(requestBody), requestBody).execute();
+                response = commCareNetworkService.makePostRequest(url, params, getPostHeaders(requestBody), requestBody).execute();
                 break;
             case MULTIPART_POST:
-                response = commCareNetworkService.makeMultipartPostRequest(url.toString(), new HashMap(), getPostHeaders(requestBody), parts).execute();
+                response = commCareNetworkService.makeMultipartPostRequest(url, new HashMap(), getPostHeaders(requestBody), parts).execute();
                 break;
             case GET:
-                response = commCareNetworkService.makeGetRequest(url.toString(), params, new HashMap()).execute();
+                response = commCareNetworkService.makeGetRequest(url, params, new HashMap()).execute();
                 break;
             default:
                 throw new IllegalArgumentException("Invalid HTTPMethod " + method.toString());
@@ -140,6 +149,12 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         }
     }
 
+    /**
+     * Only gets called if response processor is supplied
+     *
+     * @return Input Stream from cache
+     * @throws IOException
+     */
     @Override
     public InputStream getResponseStream() throws IOException {
         InputStream inputStream = response.body().byteStream();
