@@ -2,6 +2,7 @@ package org.commcare.cases.instance;
 
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.QuerySensitive;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 
@@ -12,7 +13,7 @@ import org.javarosa.core.model.instance.TreeReference;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class IndexedFixtureChildElement extends StorageBackedChildElement<StorageIndexedTreeElementModel> {
+public class IndexedFixtureChildElement extends StorageBackedChildElement<StorageIndexedTreeElementModel> implements QuerySensitive{
     private TreeElement empty;
 
     protected IndexedFixtureChildElement(StorageInstanceTreeElement<StorageIndexedTreeElementModel, ?> parent,
@@ -64,5 +65,10 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
         template.empty = modelTemplate.getRoot();
         template.empty.setMult(TreeReference.INDEX_TEMPLATE);
         return template;
+    }
+
+    @Override
+    public void prepareForUseInCurrentContext(QueryContext queryContext) {
+        cache(queryContext);
     }
 }

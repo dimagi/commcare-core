@@ -37,6 +37,33 @@ public class DateUtils {
         super();
     }
 
+    private static CalendarStrings defaultCalendarStrings = new CalendarStrings();
+
+    public static class CalendarStrings {
+        public String[] monthNamesLong;
+        public String[] monthNamesShort;
+        public String[] dayNamesLong;
+        public String[] dayNamesShort;
+
+        public CalendarStrings(String[] monthNamesLong, String[] monthNamesShort,
+                               String[] dayNamesLong, String[] dayNamesShort) {
+            this.monthNamesLong = monthNamesLong;
+            this.monthNamesShort = monthNamesShort;
+            this.dayNamesLong = dayNamesLong;
+            this.dayNamesShort = dayNamesShort;
+
+        }
+
+        public CalendarStrings() {
+            this(
+                    new String[]{"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"},
+                    new String[]{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"},
+                    new String[]{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"},
+                    new String[]{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}
+            );
+        }
+    };
+
     public static class DateFields {
         public DateFields() {
             year = 1970;
@@ -47,6 +74,8 @@ public class DateUtils {
             second = 0;
             secTicks = 0;
             dow = 0;
+
+            noValidation = false;
 
 //            tzStr = "Z";
 //            tzOffset = 0;
@@ -59,6 +88,7 @@ public class DateUtils {
         public int minute; //0-59
         public int second; //0-59
         public int secTicks; //0-999 (ms)
+        boolean noValidation = false; // true or false. Set to true when using foreign calendars
 
         /**
          * NOTE: CANNOT BE USED TO SPECIFY A DATE *
@@ -69,9 +99,18 @@ public class DateUtils {
 //        public int tzOffset; //s ahead of UTC
 
         public boolean check() {
-            return (inRange(month, 1, 12) && inRange(day, 1, daysInMonth(month - MONTH_OFFSET, year)) &&
-                    inRange(hour, 0, 23) && inRange(minute, 0, 59) && inRange(second, 0, 59) && inRange(secTicks, 0, 999));
+            return noValidation ||
+                    ((inRange(month, 1, 12) && inRange(day, 1, daysInMonth(month - MONTH_OFFSET, year)) &&
+                    inRange(hour, 0, 23) && inRange(minute, 0, 59) && inRange(second, 0, 59) && inRange(secTicks, 0, 999)));
         }
+    }
+
+    public static DateFields getFieldsForNonGregorianCalendar(int year, int monthOfYear, int dayOfMonth) {
+        DateFields nonGregorian = new DateFields();
+        nonGregorian.year = year;
+        nonGregorian.month = monthOfYear;
+        nonGregorian.day = dayOfMonth;
+        return nonGregorian;
     }
 
     public static DateFields getFields(Date d) {
@@ -287,6 +326,10 @@ public class DateUtils {
     }
 
     public static String format(DateFields f, String format) {
+        return format(f, format, defaultCalendarStrings);
+    }
+
+    public static String format(DateFields f, String format, CalendarStrings stringsSource) {
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < format.length(); i++) {
@@ -311,11 +354,9 @@ public class DateUtils {
                 } else if (c == 'n') {    //numeric month
                     sb.append(f.month);
                 } else if (c == 'B') {    //long text month
-                    String[] months = new String[]{"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-                    sb.append(months[f.month - 1]);
+                    sb.append(stringsSource.monthNamesLong[f.month - 1]);
                 } else if (c == 'b') {    //short text month
-                    String[] months = new String[]{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-                    sb.append(months[f.month - 1]);
+                    sb.append(stringsSource.monthNamesShort[f.month - 1]);
                 } else if (c == 'd') {    //0-padded day of month
                     sb.append(intPad(f.day, 2));
                 } else if (c == 'e') {    //day of month
@@ -331,12 +372,12 @@ public class DateUtils {
                 } else if (c == '3') {    //0-padded millisecond ticks (000-999)
                     sb.append(intPad(f.secTicks, 3));
                 } else if (c == 'A') {    //long text day
-                    String[] dayNames = new String[]{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-                    sb.append(dayNames[f.dow - 1]);
+                    sb.append(stringsSource.dayNamesLong[f.dow - 1]);
                 } else if (c == 'a') {    //Three letter short text day
-                    String[] dayNames = new String[]{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-                    sb.append(dayNames[f.dow - 1]);
-                } else if (Arrays.asList('c', 'C', 'D', 'F', 'g', 'G', 'I', 'j', 'k', 'l', 'p', 'P', 'r', 'R', 's', 't', 'T', 'u', 'U', 'V', 'w', 'W', 'x', 'X', 'z', 'Z').contains(c)) {
+                    sb.append(stringsSource.dayNamesShort[f.dow - 1]);
+                } else if (c == 'w') {    //Day of the week (0 through 6), Sunday being 0.
+                    sb.append(f.dow - 1);
+                } else if (Arrays.asList('c', 'C', 'D', 'F', 'g', 'G', 'I', 'j', 'k', 'l', 'p', 'P', 'r', 'R', 's', 't', 'T', 'u', 'U', 'V', 'W', 'x', 'X', 'z', 'Z').contains(c)) {
                     // Format specifiers supported by libc's strftime: https://www.gnu.org/software/libc/manual/html_node/Formatting-Calendar-Time.html
                     throw new RuntimeException("unsupported escape in date format string [%" + c + "]");
                 } else {

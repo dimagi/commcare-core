@@ -5,6 +5,8 @@ import org.commcare.cases.query.IndexedSetMemberLookup;
 import org.commcare.cases.query.IndexedValueLookup;
 import org.commcare.cases.query.PredicateProfile;
 import org.commcare.cases.query.handlers.BasicStorageBackedCachingQueryHandler;
+import org.commcare.modern.engine.cases.RecordSetResultCache;
+import org.commcare.modern.util.PerformanceTuningUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -20,6 +22,7 @@ import org.javarosa.xpath.expr.XPathSelectedFunc;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Vector;
 
@@ -258,24 +261,39 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
         IndexedValueLookup op = (IndexedValueLookup)profiles.elementAt(0);
 
-
         EvaluationTrace trace = new EvaluationTrace("Model Index[" + op.key + "] Lookup");
 
         //Get matches if it works
-        List<Integer> returnValue = storage.getIDsForValue(op.key, op.value);
+        List<Integer> ids = storage.getIDsForValue(op.key, op.value);
 
-        trace.setOutcome("results: " + returnValue.size());
+        if(getStorageCacheName() != null &&
+                ids.size() > 50 && ids.size() < PerformanceTuningUtil.getMaxPrefetchCaseBlock()) {
+            RecordSetResultCache cue = currentQueryContext.getQueryCache(RecordSetResultCache.class);
+            String bulkRecordSetKey = String.format("%s|%s", op.key, op.value);
+            cue.reportBulkRecordSet(bulkRecordSetKey, getStorageCacheName(), new LinkedHashSet(ids));
+        }
+
+
+        trace.setOutcome("results: " + ids.size());
+
         if (currentQueryContext != null) {
             currentQueryContext.reportTrace(trace);
         }
 
         if(defaultCacher != null) {
-            defaultCacher.cacheResult(op.key, op.value, returnValue);
+            defaultCacher.cacheResult(op.key, op.value, ids);
         }
 
         //If we processed this, pop it off the queue
         profiles.removeElementAt(0);
 
-        return returnValue;
+        return ids;
     }
+
+    /**
+     * @return A string which will provide a unique name for the storage that is used in this tree
+     * root. Used to differentiate the record ID's retrieved during operations on this root in
+     * internal caches
+     */
+    protected abstract String getStorageCacheName();
 }

@@ -17,7 +17,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -253,6 +255,13 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, T> recordMap) {
+        for(int i : cuedCases) {
+            recordMap.put(i, data.get(i));
         }
     }
 }

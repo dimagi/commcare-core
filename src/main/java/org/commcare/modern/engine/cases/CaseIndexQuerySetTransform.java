@@ -1,5 +1,6 @@
 package org.commcare.modern.engine.cases;
 
+import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.queryset.CaseQuerySetLookup;
 import org.commcare.cases.query.queryset.DerivedCaseQueryLookup;
@@ -68,7 +69,9 @@ public class CaseIndexQuerySetTransform implements QuerySetTransform {
         private void cacheCaseModelQuerySet(QueryContext queryContext, DualTableSingleMatchModelQuerySet ret) {
             int modelQueryMagnitude = ret.getSetBody().size();
             if(modelQueryMagnitude > QueryContext.BULK_QUERY_THRESHOLD && modelQueryMagnitude < PerformanceTuningUtil.getMaxPrefetchCaseBlock()) {
-                queryContext.getQueryCache(CaseSetResultCache.class).reportBulkCaseSet(this.getCurrentQuerySetId(), ret.getSetBody());
+                queryContext.getQueryCache(RecordSetResultCache.class).
+                        reportBulkRecordSet(this.getCurrentQuerySetId(),
+                                CaseInstanceTreeElement.MODEL_NAME, ret.getSetBody());
             }
         }
 

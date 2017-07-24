@@ -643,7 +643,7 @@ public class LocalizerTest {
             public void run() {
                 holder[0] = Localizer.processArguments("${0}", new String[]{C});
             }
-        });
+        }, "Argument processing: " + C);
 
         assertEquals(holder[0], C);
 
@@ -653,7 +653,7 @@ public class LocalizerTest {
             public void run() {
                 holder[0] = Localizer.processArguments("${0}", new String[]{D});
             }
-        });
+        }, "Argument processing: " + D);
 
         assertEquals(holder[0], D);
 
@@ -662,7 +662,7 @@ public class LocalizerTest {
             public void run() {
                 holder[0] = Localizer.processArguments(holder[0], res);
             }
-        });
+        }, "Argument processing: " + res[1] + res[0]);
 
         assertEquals(holder[0], res[1] + res[0]);
 
@@ -671,23 +671,28 @@ public class LocalizerTest {
             public void run() {
                 holder[0] = Localizer.processArguments("$ {0} ${1}", res);
             }
-        });
+        }, "Argument processing: " + "$ {0} " + res[1]);
 
         assertEquals(holder[0], "$ {0} " + res[1]);
 
     }
 
-    private void runAsync(Runnable test) {
+    private void runAsync(Runnable test, String label) {
         Thread t = new Thread(test);
         t.start();
-        try {
-            t.join(50);
-        } catch (InterruptedException e) {
+        int attempts = 4;
 
+        for(int i = 0 ; i < attempts ; ++i) {
+            try {
+                t.join(50);
+                break;
+            } catch (InterruptedException e) {
+
+            }
         }
         if (t.isAlive()) {
             t.stop();
-            throw new RuntimeException("Failed to return from recursive argument processing");
+            throw new RuntimeException("Failed to return from recursive argument processing: "+  label);
         }
     }
 

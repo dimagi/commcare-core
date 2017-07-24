@@ -614,4 +614,31 @@ public class FormDefTest {
             fec.answerQuestion(new SelectOneData(new Selection("yes")));
         } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
     }
+
+    @Test
+    public void testItemsetPopulationAndFilter() {
+        FormParseInit fpi = new FormParseInit("/xform_tests/itemset_population_test.xhtml");
+
+        FormEntryController fec = fpi.getFormEntryController();
+
+        do {
+            QuestionDef q = fpi.getCurrentQuestion();
+            if (q == null) {
+                continue;
+            }
+            TreeReference currentRef = fec.getModel().getFormIndex().getReference();
+            if(currentRef == null) { continue; }
+
+            if(currentRef.genericize().toString().equals("/data/filter")) {
+                fec.answerQuestion(new SelectOneData(new Selection("a")));
+            }
+
+            if(currentRef.genericize().toString().equals("/data/question")) {
+                assertEquals("Itemset Filter returned the wrong size",
+                        fec.getModel().getQuestionPrompt().getSelectChoices().size(),
+                        3);
+            }
+
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+    }
 }

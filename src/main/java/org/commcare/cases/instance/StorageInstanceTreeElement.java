@@ -2,6 +2,9 @@ package org.commcare.cases.instance;
 
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.util.StorageBackedTreeRoot;
+import org.commcare.modern.engine.cases.RecordObjectCache;
+import org.commcare.modern.engine.cases.RecordSetResultCache;
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeElement;
@@ -14,6 +17,7 @@ import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.Interner;
 import org.javarosa.core.util.externalizable.Externalizable;
 
+import java.util.LinkedHashSet;
 import java.util.Vector;
 
 /**
@@ -269,7 +273,60 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
                                       int recordId, String id, int mult);
 
     protected Model getElement(int recordId, QueryContext context) {
-        EvaluationTrace trace = new EvaluationTrace("Model Load[" + childName+"]");
+        if (context == null || getStorageCacheName() == null) {
+            return getElementSingular(recordId, context);
+        }
+        RecordSetResultCache recordSetCache = context.getQueryCacheOrNull(RecordSetResultCache.class);
+
+        RecordObjectCache<Model> recordObjectCache = getRecordObjectCacheIfRelevant(context);
+
+        if(recordObjectCache != null) {
+            if (recordObjectCache.isLoaded(recordId)) {
+                return recordObjectCache.getLoadedRecordObject(recordId);
+            }
+
+            if (canLoadRecordFromGroup(recordSetCache, recordId)) {
+                Pair<String, LinkedHashSet<Integer>> tranche =
+                        recordSetCache.getRecordSetForRecordId(getStorageCacheName(), recordId);
+                EvaluationTrace loadTrace =
+                        new EvaluationTrace(String.format("Model [%s]: Bulk Load [%s}",
+                                this.getStorageCacheName(),tranche.first));
+
+                LinkedHashSet<Integer>  body = tranche.second;
+                storage.bulkRead(body, recordObjectCache.getLoadedCaseMap());
+                loadTrace.setOutcome("Loaded: " + body.size());
+                context.reportTrace(loadTrace);
+
+                return recordObjectCache.getLoadedRecordObject(recordId);
+            }
+        }
+
+        return getElementSingular(recordId, context);
+    }
+
+    private boolean canLoadRecordFromGroup(RecordSetResultCache recordSetCache, int recordId) {
+        return recordSetCache != null && recordSetCache.hasMatchingRecordSet(getStorageCacheName(), recordId);
+    }
+
+    /**
+     * Get a record object cache if it's appropriate in the current context.
+     */
+    private RecordObjectCache getRecordObjectCacheIfRelevant(QueryContext context) {
+        // If the query isn't currently in a bulk mode, don't force an object cache to exist unless
+        // it already does
+        if (context.getScope() < QueryContext.BULK_QUERY_THRESHOLD) {
+            return context.getQueryCacheOrNull(RecordObjectCache.class);
+        } else {
+            return context.getQueryCache(RecordObjectCache.class);
+        }
+    }
+
+    /**
+     * Retrieves a model for the provided record ID using a guaranteed singular lookup from
+     * storage. This is the "Safe" fallback behavior for lookups.
+     */
+    protected Model getElementSingular(int recordId, QueryContext context) {
+        EvaluationTrace trace = new EvaluationTrace(String.format("Model [%s]: Singular Load", getStorageCacheName()));
 
         Model m = storage.read(recordId);
 
