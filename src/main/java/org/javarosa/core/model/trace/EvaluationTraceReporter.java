@@ -11,13 +11,13 @@ import java.util.Vector;
  */
 public abstract class EvaluationTraceReporter {
 
-    abstract boolean wereTracesReported();
+    public abstract boolean wereTracesReported();
 
     public abstract void reportTrace(EvaluationTrace trace);
 
-    abstract void reset();
+    public abstract void reset();
 
-    abstract Vector<EvaluationTrace> getCollectedTraces();
+    public abstract Vector<EvaluationTrace> getCollectedTraces();
 
     public void printAndClearTraces(String description) {
         if (wereTracesReported()) {
