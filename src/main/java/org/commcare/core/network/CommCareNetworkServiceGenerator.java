@@ -1,6 +1,9 @@
 package org.commcare.core.network;
 
 
+import org.commcare.util.LogTypes;
+import org.javarosa.core.services.Logger;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -38,12 +41,10 @@ public class CommCareNetworkServiceGenerator {
             if (response.code() == 301) {
                 String newUrl = response.header("Location");
                 if (!isValidRedirect(request.url(), HttpUrl.parse(newUrl))) {
-                    // TODO: 13/07/17
-//                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Invalid redirect from " + request.url().toString() + " to " + response.request().url().toString());
+                    Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Invalid redirect from " + request.url().toString() + " to " + response.request().url().toString());
                     throw new IOException("Invalid redirect from secure server to insecure server");
                 }
             }
-
             return response;
         }
     };

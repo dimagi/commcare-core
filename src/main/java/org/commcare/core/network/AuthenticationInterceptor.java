@@ -6,10 +6,6 @@ import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
-/**
- * Created by dimagi on 11/07/17.
- */
-
 public class AuthenticationInterceptor implements Interceptor{
 
     private String credential;
