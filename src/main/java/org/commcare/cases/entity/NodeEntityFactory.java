@@ -67,7 +67,7 @@ public class NodeEntityFactory {
                     sortData[count] = sortText.evaluate(nodeContext);
                 }
                 relevancyData[count] = f.isRelevant(nodeContext);
-            } catch (XPathSyntaxException | XPathException e) {
+            } catch (XPathSyntaxException e) {
                 /**
                  * TODO: 25/06/17 remove catch blocks from here
                  * We are wrapping the original exception in a new XPathException to avoid
