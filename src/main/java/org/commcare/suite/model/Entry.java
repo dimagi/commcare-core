@@ -147,8 +147,7 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
         if (display.getBadgeText() == null) {
             return Observable.just("");
         }
-        return Observable.just(display.getBadgeText().evaluate(ec))
-                .subscribeOn(Schedulers.computation());
+        return Observable.just(display.getBadgeText().evaluate(ec));
     }
 
     @Override
