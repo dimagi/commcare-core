@@ -69,6 +69,7 @@ dependencies {
       compile "com.squareup.retrofit2:retrofit:2.3.0"
       compile 'com.squareup.okhttp3:logging-interceptor:3.8.0'
       compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+      compile 'io.reactivex.rxjava2:rxjava:2.1.1'
 
 
     cliCompile 'org.json:json:20140107'
@@ -77,6 +78,7 @@ dependencies {
       cliCompile 'commons-cli:commons-cli:1.3.1'
       cliCompile 'xpp3:xpp3:1.1.4c'
       cliCompile 'joda-time:joda-time:2.9.3'
+      cliCompile 'io.reactivex.rxjava2:rxjava:2.1.1'
 
       testCompile sourceSets.main.output
       testCompile sourceSets.api.output
@@ -91,6 +93,7 @@ dependencies {
       apiCompile 'org.xerial:sqlite-jdbc:3.8.11.1'
       apiCompile 'kxml2:kxml2:2.3.0'
       apiCompile 'joda-time:joda-time:2.9.3'
+      apiCompile 'io.reactivex.rxjava2:rxjava:2.1.1'
 
       translateCompile 'kxml2:kxml2:2.3.0'
       translateCompile 'xpp3:xpp3:1.1.4c'
@@ -99,6 +102,7 @@ dependencies {
       translateCompile files('lib/json-simple-1.1.1.jar')
       translateCompile 'joda-time:joda-time:2.9.3'
       translateCompile 'org.json:json:20140107'
+      translateCompile 'io.reactivex.rxjava2:rxjava:2.1.1'
 
     // 'compile' dependency is also needed to run 'gradle jmh' for some reason,
     // but leaving it in conflicts with apk builds, so only uncomment the

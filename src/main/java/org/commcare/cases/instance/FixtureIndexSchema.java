@@ -57,7 +57,7 @@ public class FixtureIndexSchema {
         return columnIndices;
     }
 
-    private static String escapeIndex(String index) {
+    public static String escapeIndex(String index) {
         if (index.contains(",")) {
             StringBuilder compoundIndex = new StringBuilder();
             String prefix = "";
