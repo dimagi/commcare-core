@@ -22,6 +22,7 @@ import okhttp3.FormBody;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+import retrofit2.Call;
 import retrofit2.Response;
 
 /**
@@ -51,6 +52,9 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     protected final HashMap<String, String> headers;
     private Response<ResponseBody> response;
     private CommCareNetworkService commCareNetworkService;
+
+    @Nullable
+    private Call currentCall;
 
     /**
      * responseProcessor Can be null if you want to process the response yourself. Please use makeRequest() instead of processRequest()
@@ -97,21 +101,20 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
      * @throws IOException
      */
     public Response<ResponseBody> makeRequest() throws IOException {
-        Response<ResponseBody> response;
         switch (method) {
             case POST:
-                response = commCareNetworkService.makePostRequest(url, params, getPostHeaders(requestBody), requestBody).execute();
+                currentCall = commCareNetworkService.makePostRequest(url, params, getPostHeaders(requestBody), requestBody);
                 break;
             case MULTIPART_POST:
-                response = commCareNetworkService.makeMultipartPostRequest(url, new HashMap(), getPostHeaders(requestBody), parts).execute();
+                currentCall = commCareNetworkService.makeMultipartPostRequest(url, new HashMap(), getPostHeaders(requestBody), parts);
                 break;
             case GET:
-                response = commCareNetworkService.makeGetRequest(url, params, new HashMap()).execute();
+                currentCall = commCareNetworkService.makeGetRequest(url, params, new HashMap());
                 break;
             default:
                 throw new IllegalArgumentException("Invalid HTTPMethod " + method.toString());
         }
-        return response;
+        return currentCall.execute();
     }
 
 
@@ -209,5 +212,11 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
             return headers.get(0);
         }
         return null;
+    }
+
+    public void cancelRequest() {
+        if (currentCall != null) {
+            currentCall.cancel();
+        }
     }
 }
