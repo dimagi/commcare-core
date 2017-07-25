@@ -288,7 +288,6 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
             if (recordObjectCache.isLoaded(storageCacheKey, recordId)) {
                 return recordObjectCache.getLoadedRecordObject(storageCacheKey, recordId);
             }
-            FunctionUtils.toString(XPathParseTool.parseXPath().eval(evalContext));
 
             if (canLoadRecordFromGroup(recordSetCache, recordId)) {
                 Pair<String, LinkedHashSet<Integer>> tranche =
