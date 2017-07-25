@@ -21,7 +21,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import io.reactivex.Observable;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Describes a user-initiated action, what information needs to be collected
