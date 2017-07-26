@@ -10,7 +10,6 @@ import org.javarosa.core.model.User;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,13 +102,13 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     public Response<ResponseBody> makeRequest() throws IOException {
         switch (method) {
             case POST:
-                currentCall = commCareNetworkService.makePostRequest(url, params, getPostHeaders(requestBody), requestBody);
+                currentCall = commCareNetworkService.makePostRequest(url, params, addPostHeaders(requestBody), requestBody);
                 break;
             case MULTIPART_POST:
-                currentCall = commCareNetworkService.makeMultipartPostRequest(url, new HashMap(), getPostHeaders(requestBody), parts);
+                currentCall = commCareNetworkService.makeMultipartPostRequest(url, params, headers, parts);
                 break;
             case GET:
-                currentCall = commCareNetworkService.makeGetRequest(url, params, new HashMap());
+                currentCall = commCareNetworkService.makeGetRequest(url, params, headers);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid HTTPMethod " + method.toString());
@@ -118,8 +117,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     }
 
 
-    private Map<String, String> getPostHeaders(RequestBody postBody) {
-        Map<String, String> headers = new HashMap<>();
+    private Map<String, String> addPostHeaders(RequestBody postBody) {
         headers.put("Content-Type", "application/x-www-form-urlencoded");
         try {
             headers.put("Content-Length", postBody.contentLength() + "");
