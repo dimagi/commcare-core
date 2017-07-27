@@ -8,7 +8,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathMinFunc extends XPathFuncExpr {
     public static final String NAME = "min";
-    // one or more arguments
+    // zero or more arguments
     private static final int EXPECTED_ARG_COUNT = -1;
 
     public XPathMinFunc() {
@@ -22,9 +22,7 @@ public class XPathMinFunc extends XPathFuncExpr {
 
     @Override
     protected void validateArgCount() throws XPathSyntaxException {
-        if (args.length < 1) {
-            throw new XPathArityException(name, "at least one argument", args.length);
-        }
+        // Any number of arguments are accepted
     }
 
     @Override
@@ -37,6 +35,10 @@ public class XPathMinFunc extends XPathFuncExpr {
     }
 
     private static Object min(Object[] argVals) {
+        if(argVals.length < 1){
+            return Double.NaN;
+        }
+
         double min = Double.MAX_VALUE;
         for (Object argVal : argVals) {
             min = Math.min(min, FunctionUtils.toNumeric(argVal));

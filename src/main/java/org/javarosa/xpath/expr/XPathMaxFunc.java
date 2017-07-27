@@ -8,7 +8,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathMaxFunc extends XPathFuncExpr {
     public static final String NAME = "max";
-    // one or more arguments
+    // zero or more arguments
     private static final int EXPECTED_ARG_COUNT = -1;
 
     public XPathMaxFunc() {
@@ -22,9 +22,7 @@ public class XPathMaxFunc extends XPathFuncExpr {
 
     @Override
     protected void validateArgCount() throws XPathSyntaxException {
-        if (args.length < 1) {
-            throw new XPathArityException(name, "at least one argument", args.length);
-        }
+       // Any number of arguments are accepted
     }
 
     @Override
@@ -40,6 +38,10 @@ public class XPathMaxFunc extends XPathFuncExpr {
      * Identify the largest value from the list of provided values.
      */
     private static Object max(Object[] argVals) {
+        if(argVals.length < 1){
+            return Double.NaN;
+        }
+
         double max = Double.NEGATIVE_INFINITY;
         for (Object argVal : argVals) {
             max = Math.max(max, FunctionUtils.toNumeric(argVal));
