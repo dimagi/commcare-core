@@ -296,12 +296,14 @@ public class XPathEvalTest {
         testEval("min(5.5)", null, null, new Double(5.5));
         testEval("min(-2,-3)", null, null, new Double(-3));
         testEval("min(2,-3)", null, null, new Double(-3));
+        testEval("min()", null, null, Double.NaN);
         testEval("date(min(date('2012-02-05'), date('2012-01-01')))", null, null, DateUtils.parseDate("2012-01-01"));
 
         testEval("max(5.5, 0.5)", null, null, new Double(5.5));
         testEval("max(0.5)", null, null, new Double(0.5));
         testEval("max(-2,-3)", null, null, new Double(-2));
         testEval("max(2,-3)", null, null, new Double(2));
+        testEval("max()", null, null, Double.NaN);
         testEval("date(max(date('2012-02-05'), date('2012-01-01')))", null, null, DateUtils.parseDate("2012-02-05"));
 
 
@@ -478,8 +480,6 @@ public class XPathEvalTest {
         testEval("depend()", null, null, new XPathArityException());
         testEval("depend('1', '2')", null, null, "1");
         testEval("uuid('1', '2')", null, null, new XPathArityException());
-        testEval("max()", null, null, new XPathArityException());
-        testEval("min()", null, null, new XPathArityException());
         testEval("true(5)", null, null, new XPathArityException());
         testEval("number()", null, null, new XPathArityException());
         testEval("string('too', 'many', 'args')", null, null, new XPathArityException());
