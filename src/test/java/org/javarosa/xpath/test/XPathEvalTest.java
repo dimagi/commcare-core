@@ -615,6 +615,9 @@ public class XPathEvalTest {
         addDataRef(instance, "/data/strtest[2]/@val", new StringData("b"));
         addDataRef(instance, "/data/strtest[3]/@val", new StringData("string"));
 
+        addDataRef(instance, "/data/rangetest[1]/@num", new StringData("-2"));
+        addDataRef(instance, "/data/rangetest[2]/@num", new StringData("3"));
+
         testEval("/data/string", instance, null, "string");
         testEval("/data/int", instance, null, new Double(17.0));
 
@@ -641,6 +644,11 @@ public class XPathEvalTest {
         testEval("weighted-checklist(1, 2, /data/predtest[1]/@val = 2, 1, /data/predtest[2]/@val = 2, 1, /data/predtest[3]/@val = 2, 1)", instance, null, Boolean.TRUE);
         testEval("weighted-checklist(-1, 1, /data/predtest[1]/@val = 2, 1, /data/predtest[2]/@val = 2, 1, /data/predtest[3]/@val = 2, 1)", instance, null, Boolean.FALSE);
         testEval("weighted-checklist(3, 4, /data/predtest[1]/@val = 2, 1, /data/predtest[2]/@val = 2, 1, /data/predtest[3]/@val = 2, 1)", instance, null, Boolean.FALSE);
+
+        testEval("max(/data/rangetest[0])", instance, null, Double.NaN);
+        testEval("min(/data/rangetest[0])", instance, null, Double.NaN);
+        testEval("max(/data/rangetest/@num)", instance, null, new Double("3"));
+        testEval("min(/data/rangetest/@num)", instance, null, new Double("-2"));
     }
 
     @Test

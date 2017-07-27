@@ -40,6 +40,10 @@ public class XPathMaxFunc extends XPathFuncExpr {
      * Identify the largest value from the list of provided values.
      */
     private static Object max(Object[] argVals) {
+        if(argVals.length < 1){
+            return Double.NaN;
+        }
+
         double max = Double.NEGATIVE_INFINITY;
         for (Object argVal : argVals) {
             max = Math.max(max, FunctionUtils.toNumeric(argVal));
