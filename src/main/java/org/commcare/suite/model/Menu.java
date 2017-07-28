@@ -193,11 +193,16 @@ public class Menu implements Externalizable, MenuDisplayable {
     }
 
     @Override
-    public Observable<String> getTextForBadge(EvaluationContext ec) {
+    public String getTextForBadge(EvaluationContext ec) {
         if (display.getBadgeText() == null) {
-            return Observable.just("");
+            return "";
         }
-        return Observable.just(display.getBadgeText().evaluate(ec));
+        return display.getBadgeText().evaluate(ec);
+    }
+
+    @Override
+    public Observable<String> getObservableForBadge(EvaluationContext ec) {
+        return Observable.just(getTextForBadge(ec));
     }
 
     @Override

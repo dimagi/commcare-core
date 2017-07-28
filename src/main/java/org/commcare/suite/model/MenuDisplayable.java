@@ -18,7 +18,9 @@ public interface MenuDisplayable {
 
     String getDisplayText();
 
-    Observable<String> getTextForBadge(EvaluationContext ec);
+    Observable<String> getObservableForBadge(EvaluationContext ec);
+
+    String getTextForBadge(EvaluationContext ec);
 
     String getCommandID();
 }
