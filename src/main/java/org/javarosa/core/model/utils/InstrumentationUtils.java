@@ -16,17 +16,19 @@ public class InstrumentationUtils {
      * Prints out traces (if any exist) from the provided reporter with a description into sysout
      */
     public static void printAndClearTraces(EvaluationTraceReporter reporter, String description) {
-        if (reporter.wereTracesReported()) {
-            System.out.println(description);
+        if (reporter != null) {
+            if (reporter.wereTracesReported()) {
+                System.out.println(description);
+            }
+
+            StringEvaluationTraceSerializer serializer = new StringEvaluationTraceSerializer();
+
+            for (EvaluationTrace trace : reporter.getCollectedTraces()) {
+                System.out.println(trace.getExpression() + ": " + trace.getValue());
+                System.out.print(serializer.serializeEvaluationLevels(trace));
+            }
+
+            reporter.reset();
         }
-
-        StringEvaluationTraceSerializer serializer = new StringEvaluationTraceSerializer();
-
-        for (EvaluationTrace trace : reporter.getCollectedTraces()) {
-            System.out.println(trace.getExpression() + ": " + trace.getValue());
-            System.out.print(serializer.serializeEvaluationLevels(trace));
-        }
-
-        reporter.reset();
     }
 }

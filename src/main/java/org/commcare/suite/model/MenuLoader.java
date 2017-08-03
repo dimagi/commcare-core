@@ -6,6 +6,7 @@ import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LoggerInterface;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
+import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.FunctionUtils;
@@ -108,9 +109,7 @@ public class MenuLoader {
                 traceableContext.setDebugModeOn(traceReporter);
             }
             boolean result = FunctionUtils.toBoolean(relevance.eval(traceableContext));
-            if (traceReporter != null) {
-                traceReporter.printAndClearTraces("menu load expand");
-            }
+            InstrumentationUtils.printAndClearTraces(traceReporter, "menu load expand");
             return result;
         }
         return true;

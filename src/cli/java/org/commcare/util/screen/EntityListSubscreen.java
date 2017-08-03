@@ -10,6 +10,7 @@ import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
+import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.xpath.XPathException;
 
 import java.io.PrintStream;
@@ -67,7 +68,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         shortDetail.populateEvaluationContextVariables(context);
 
         if (collectDebug) {
-            reporter.printAndClearTraces("Variable Traces");
+            InstrumentationUtils.printAndClearTraces(reporter, "Variable Traces");
         }
 
         DetailField[] fields = shortDetail.getFields();
@@ -103,7 +104,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         }
 
         if (collectDebug) {
-            reporter.printAndClearTraces("Template Traces:");
+            InstrumentationUtils.printAndClearTraces(reporter, "Template Traces:");
         }
         return row.toString();
     }

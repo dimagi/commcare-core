@@ -8,6 +8,7 @@ import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
+import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
@@ -109,7 +110,7 @@ public class NodeEntityFactory {
 
     public void printAndClearTraces(String description) {
         if (traceReporter != null) {
-            traceReporter.printAndClearTraces(description);
+            InstrumentationUtils.printAndClearTraces(traceReporter, description);
         }
     }
 

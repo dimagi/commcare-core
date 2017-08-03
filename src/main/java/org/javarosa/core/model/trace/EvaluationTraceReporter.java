@@ -19,18 +19,4 @@ public abstract class EvaluationTraceReporter {
 
     public abstract Vector<EvaluationTrace> getCollectedTraces();
 
-    public void printAndClearTraces(String description) {
-        if (wereTracesReported()) {
-            System.out.println(description);
-        }
-
-        StringEvaluationTraceSerializer serializer = new StringEvaluationTraceSerializer();
-
-        for (EvaluationTrace trace : getCollectedTraces()) {
-            System.out.println(trace.getExpression() + ": " + trace.getValue());
-            System.out.print(serializer.serializeEvaluationLevels(trace));
-        }
-
-        reset();
-    }
 }
