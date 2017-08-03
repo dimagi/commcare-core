@@ -9,14 +9,14 @@ import java.util.Vector;
  *
  * Created by ctsims on 10/19/2016.
  */
-public abstract class EvaluationTraceReporter {
+public interface EvaluationTraceReporter {
 
-    public abstract boolean wereTracesReported();
+    boolean wereTracesReported();
 
-    public abstract void reportTrace(EvaluationTrace trace);
+    void reportTrace(EvaluationTrace trace);
 
-    public abstract void reset();
+    void reset();
 
-    public abstract Vector<EvaluationTrace> getCollectedTraces();
+    Vector<EvaluationTrace> getCollectedTraces();
 
 }

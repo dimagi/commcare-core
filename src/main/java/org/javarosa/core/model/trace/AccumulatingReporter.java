@@ -8,7 +8,7 @@ import java.util.Vector;
  *
  * Created by ctsims on 10/19/2016.
  */
-public class AccumulatingReporter extends EvaluationTraceReporter {
+public class AccumulatingReporter implements EvaluationTraceReporter {
     private final Vector<EvaluationTrace> traces = new Vector<>();
 
     @Override

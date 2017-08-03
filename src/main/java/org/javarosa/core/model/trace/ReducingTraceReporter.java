@@ -12,7 +12,7 @@ import java.util.Vector;
  *
  * Created by ctsims on 1/27/2017.
  */
-public class ReducingTraceReporter extends EvaluationTraceReporter {
+public class ReducingTraceReporter implements EvaluationTraceReporter {
     OrderedHashtable<String, EvaluationTraceReduction> traceMap = new OrderedHashtable<>();
 
     @Override
