@@ -37,6 +37,10 @@ public class XPathMinFunc extends XPathFuncExpr {
     }
 
     private static Object min(Object[] argVals) {
+        if(argVals.length < 1){
+            return Double.NaN;
+        }
+
         double min = Double.MAX_VALUE;
         for (Object argVal : argVals) {
             min = Math.min(min, FunctionUtils.toNumeric(argVal));

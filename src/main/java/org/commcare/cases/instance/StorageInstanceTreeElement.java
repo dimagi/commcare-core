@@ -16,6 +16,8 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.Interner;
 import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.FunctionUtils;
 
 import java.util.LinkedHashSet;
 import java.util.Vector;
@@ -280,24 +282,26 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
 
         RecordObjectCache<Model> recordObjectCache = getRecordObjectCacheIfRelevant(context);
 
+        String storageCacheKey = getStorageCacheName();
+
         if(recordObjectCache != null) {
-            if (recordObjectCache.isLoaded(recordId)) {
-                return recordObjectCache.getLoadedRecordObject(recordId);
+            if (recordObjectCache.isLoaded(storageCacheKey, recordId)) {
+                return recordObjectCache.getLoadedRecordObject(storageCacheKey, recordId);
             }
 
             if (canLoadRecordFromGroup(recordSetCache, recordId)) {
                 Pair<String, LinkedHashSet<Integer>> tranche =
-                        recordSetCache.getRecordSetForRecordId(getStorageCacheName(), recordId);
+                        recordSetCache.getRecordSetForRecordId(storageCacheKey, recordId);
                 EvaluationTrace loadTrace =
                         new EvaluationTrace(String.format("Model [%s]: Bulk Load [%s}",
                                 this.getStorageCacheName(),tranche.first));
 
                 LinkedHashSet<Integer>  body = tranche.second;
-                storage.bulkRead(body, recordObjectCache.getLoadedCaseMap());
+                storage.bulkRead(body, recordObjectCache.getLoadedCaseMap(storageCacheKey));
                 loadTrace.setOutcome("Loaded: " + body.size());
                 context.reportTrace(loadTrace);
 
-                return recordObjectCache.getLoadedRecordObject(recordId);
+                return recordObjectCache.getLoadedRecordObject(storageCacheKey, recordId);
             }
         }
 
