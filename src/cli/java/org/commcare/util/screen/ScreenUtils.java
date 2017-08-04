@@ -68,19 +68,4 @@ public class ScreenUtils {
             return new GeoPointData(new double[]{lat, lon, 0, 10}).getDisplayText();
         }
     }
-
-    public static void printAndClearTraces(EvaluationTraceReporter reporter, String description) {
-        if (reporter.wereTracesReported()) {
-            System.out.println(description);
-        }
-
-        StringEvaluationTraceSerializer serializer = new StringEvaluationTraceSerializer();
-
-        for (EvaluationTrace trace : reporter.getCollectedTraces()) {
-            System.out.println(trace.getExpression() + ": " + trace.getValue());
-            System.out.print(serializer.serializeEvaluationLevels(trace));
-        }
-
-        reporter.reset();
-    }
 }
