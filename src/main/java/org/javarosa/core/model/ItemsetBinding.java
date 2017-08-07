@@ -120,8 +120,8 @@ public class ItemsetBinding implements Externalizable {
         copyRef = (TreeReference)ExtUtil.read(in, new ExtWrapNullable(TreeReference.class), pf);
         labelIsItext = ExtUtil.readBool(in);
         copyMode = ExtUtil.readBool(in);
-        sortRef = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
-        sortExpr = (IConditionExpr)ExtUtil.read(in, new ExtWrapTagged(), pf);
+        sortRef = (TreeReference)ExtUtil.read(in, new ExtWrapNullable(TreeReference.class), pf);
+        sortExpr = (IConditionExpr)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
     }
 
     @Override
@@ -136,7 +136,7 @@ public class ItemsetBinding implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(copyRef));
         ExtUtil.writeBool(out, labelIsItext);
         ExtUtil.writeBool(out, copyMode);
-        ExtUtil.write(out, sortRef);
-        ExtUtil.write(out, new ExtWrapTagged(sortExpr));
+        ExtUtil.write(out, new ExtWrapNullable(sortRef));
+        ExtUtil.write(out, new ExtWrapNullable(sortExpr == null ? null : new ExtWrapTagged(sortExpr)));
     }
 }
