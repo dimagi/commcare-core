@@ -125,7 +125,14 @@ public class MenuLoader {
             XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
             if (mRelevantCondition != null) {
                 xPathErrorMessage = m.getCommandRelevanceRaw(m.indexOfCommand(command));
-                Object ret = mRelevantCondition.eval(sessionWrapper.getEvaluationContext(command));
+                EvaluationContext ec = sessionWrapper.getEvaluationContext(command);
+                EvaluationContext traceableContext = new EvaluationContext(ec, ec.getOriginalContext());
+                if (traceReporter != null) {
+                    traceableContext.setDebugModeOn(traceReporter);
+                }
+                Object ret = mRelevantCondition.eval(traceableContext);
+                InstrumentationUtils.printAndClearTraces(traceReporter, "Form Condition: " + command);
+
                 try {
                     if (!FunctionUtils.toBoolean(ret)) {
                         continue;
