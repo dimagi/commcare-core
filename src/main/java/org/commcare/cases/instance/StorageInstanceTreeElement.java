@@ -105,7 +105,7 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
         }
         elements = new Vector<>();
         int mult = 0;
-        for (IStorageIterator i = storage.iterate(); i.hasMore(); ) {
+        for (IStorageIterator i = storage.iterate(false); i.hasMore(); ) {
             int id = i.nextID();
             elements.add(buildElement(this, id, null, mult));
             objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
