@@ -16,6 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Vector;
 
 public abstract class XPathExpression implements Externalizable {
@@ -336,4 +337,8 @@ public abstract class XPathExpression implements Externalizable {
      * provide a human with a clear depiction of the expression.
      */
     public abstract String toPrettyString();
+
+    //public abstract boolean isLeafExpression();
+
+    //public abstract List<XPathExpression> getChildExpressions();
 }
