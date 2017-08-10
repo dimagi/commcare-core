@@ -38,4 +38,5 @@ public class ReducingTraceReporter implements EvaluationTraceReporter {
     public Vector<EvaluationTrace> getCollectedTraces() {
         return new Vector<EvaluationTrace>(traceMap.values());
     }
+
 }

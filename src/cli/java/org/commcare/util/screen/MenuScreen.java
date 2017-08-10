@@ -52,7 +52,7 @@ public class MenuScreen extends Screen {
     @Override
     public void init(SessionWrapper session) throws CommCareSessionException {
         String root = deriveMenuRoot(session);
-        MenuLoader menuLoader = new MenuLoader(session.getPlatform(), session, root, new ScreenLogger());
+        MenuLoader menuLoader = new MenuLoader(session.getPlatform(), session, root, new ScreenLogger(), false);
         this.mChoices = menuLoader.getMenus();
         this.mTitle = this.getBestTitle();
         this.badges = menuLoader.getBadgeText();

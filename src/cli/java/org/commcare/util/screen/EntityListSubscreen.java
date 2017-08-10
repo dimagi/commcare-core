@@ -9,6 +9,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.AccumulatingReporter;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
+import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.xpath.XPathException;
 
 import java.io.PrintStream;
@@ -72,7 +73,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         detail.populateEvaluationContextVariables(context);
 
         if (collectDebug) {
-            ScreenUtils.printAndClearTraces(reporter, "Variable Traces");
+            InstrumentationUtils.printAndClearTraces(reporter, "Variable Traces");
         }
 
         DetailField[] fields = detail.getFields();
@@ -98,7 +99,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         }
 
         if (collectDebug) {
-            ScreenUtils.printAndClearTraces(reporter, "Template Traces:");
+            //ScreenUtils.printAndClearTraces(reporter, "Template Traces:");
         }
         return row.toString();
     }

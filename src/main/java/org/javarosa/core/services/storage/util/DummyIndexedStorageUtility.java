@@ -131,6 +131,12 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     @Override
+    public IStorageIterator<T> iterate(boolean includeData) {
+        return iterate();
+    }
+
+
+    @Override
     public T read(int id) {
         try {
             T t = prototype.newInstance();
