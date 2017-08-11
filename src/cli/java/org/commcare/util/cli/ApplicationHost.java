@@ -7,6 +7,7 @@ import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.SessionDatum;
@@ -14,7 +15,11 @@ import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.engine.CommCareConfigEngine;
 import org.commcare.util.mocks.CLISessionWrapper;
+import org.commcare.util.mocks.CoreNetworkContext;
+import org.commcare.util.mocks.JavaPlatformFormSubmitTool;
+import org.commcare.util.mocks.JavaPlatformSyncTool;
 import org.commcare.util.mocks.MockUserDataSandbox;
+import org.commcare.util.mocks.SyncStateMachine;
 import org.commcare.util.screen.CommCareSessionException;
 import org.commcare.util.screen.EntityScreen;
 import org.commcare.util.screen.MenuScreen;
@@ -50,6 +55,7 @@ import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.util.ArrayList;
 
 /**
  * CLI host for running a commcare application which has been configured and instatiated
@@ -74,6 +80,9 @@ public class ApplicationHost {
     private String[] mLocalUserCredentials;
     private String mRestoreFile;
     private boolean mRestoreStrategySet = false;
+
+    private ArrayList<byte[]> formQueue = new ArrayList<>();
+    private boolean submissionsEnabled = false;
 
     public ApplicationHost(CommCareConfigEngine engine, PrototypeFactory prototypeFactory) {
         this.mEngine = engine;
@@ -201,6 +210,11 @@ public class ApplicationHost {
                             continue;
                         }
 
+                        if(input.equals(":submit")) {
+                            attemptFormSubmissions();
+                            continue;
+                        }
+
                         if (input.startsWith(":lang")) {
                             String[] langArgs = input.split(" ");
                             if (langArgs.length != 2) {
@@ -257,6 +271,9 @@ public class ApplicationHost {
                     if (!processResultInstance(player.getResultStream())) {
                         return true;
                     }
+                    if(submissionsEnabled) {
+                        formQueue.add(player.getResultBytes());
+                    }
                     finishSession();
                     return true;
                 } else if (player.getExecutionResult() == XFormPlayer.FormResult.Cancelled) {
@@ -270,6 +287,33 @@ public class ApplicationHost {
         }
         //After we finish, continue executing
         return true;
+    }
+
+    private void attemptFormSubmissions() {
+        if(!submissionsEnabled) {
+            System.out.println("Form submissions are not enabled! Please restart the cli with the 's' flag");
+            return;
+        }
+
+        if(this.formQueue.size() == 0) {
+            System.out.println("No pending forms");
+            return;
+        }
+        JavaPlatformFormSubmitTool submitter =
+                new JavaPlatformFormSubmitTool(this.mSandbox, new CoreNetworkContext(mLocalUserCredentials[0],mLocalUserCredentials[1]));
+
+        System.out.println(String.format("Submitting %d forms to %s", this.formQueue.size(), submitter.getSubmitUrl()));
+
+        ArrayList<byte[]> copyQueue = new ArrayList<>(formQueue);
+        for(int i = 0 ; i < copyQueue.size() ; ++i) {
+            byte[] form = copyQueue.get(i);
+            System.out.println(String.format("Submitting Form [%d/%d].....",  i+1, this.formQueue.size()));
+            if(submitter.submitFormToServer(form)) {
+                formQueue.remove(i);
+            } else {
+                System.out.println("Ending form submission due to failure. Retry to continue");
+            }
+        }
     }
 
     private void printStack(CLISessionWrapper mSession) {
@@ -411,76 +455,14 @@ public class ApplicationHost {
         System.out.println("Setting logged in user to: " + u.getUsername());
     }
 
-    public static void restoreUserToSandbox(UserSandbox sandbox, CLISessionWrapper session,
+    public static void restoreUserToSandbox(UserSandbox sandbox, SessionWrapper session,
                                             String username, final String password) {
-        String urlStateParams = "";
 
-        boolean failed = true;
+        JavaPlatformSyncTool tool = new JavaPlatformSyncTool(username, password, sandbox, session);
 
-        boolean incremental = false;
 
-        if (sandbox.getLoggedInUser() != null) {
-            String syncToken = sandbox.getSyncToken();
-            String caseStateHash = CaseDBUtils.computeCaseDbHash(sandbox.getCaseStorage());
+        if(attemptSync(tool)) {
 
-            urlStateParams = String.format("&since=%s&state=ccsh:%s", syncToken, caseStateHash);
-            incremental = true;
-
-            System.out.println(String.format(
-                    "\nIncremental sync requested. \nSync Token: %s\nState Hash: %s",
-                    syncToken, caseStateHash));
-        }
-
-        //fetch the restore data and set credentials
-        String otaFreshRestoreUrl = PropertyManager.instance().getSingularProperty("ota-restore-url") +
-                "?version=2.0";
-
-        String otaSyncUrl = otaFreshRestoreUrl + urlStateParams;
-
-        String domain = PropertyManager.instance().getSingularProperty("cc_user_domain");
-        final String qualifiedUsername = username + "@" + domain;
-
-        Authenticator.setDefault(new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(qualifiedUsername, password.toCharArray());
-            }
-        });
-
-        //Go get our sandbox!
-        try {
-            System.out.println("GET: " + otaSyncUrl);
-            URL url = new URL(otaSyncUrl);
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-
-            if (conn.getResponseCode() == 412) {
-                System.out.println("Server Response 412 - The user sandbox is not consistent with " +
-                        "the server's data. \n\nThis is expected if you have changed cases locally, " +
-                        "since data is not sent to the server for updates. \n\nServer response cannot be restored," +
-                        " you will need to restart the user's session to get new data.");
-            } else if (conn.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                System.out.println("\nInvalid username or password!");
-            } else if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
-
-                System.out.println("Restoring user " + username + " to domain " + domain);
-
-                ParseUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), sandbox);
-
-                System.out.println("User data processed, new state token: " + sandbox.getSyncToken());
-                failed = false;
-            } else {
-                System.out.println("Unclear/Unexpected server response code: " + conn.getResponseCode());
-            }
-        } catch (InvalidStructureException | IOException
-                | XmlPullParserException | UnfullfilledRequirementsException e) {
-            e.printStackTrace();
-        }
-
-        if (failed) {
-            if (!incremental) {
-                System.exit(-1);
-            }
-        } else {
             //Initialize our User
             for (IStorageIterator<User> iterator = sandbox.getUserStorage().iterate(); iterator.hasMore(); ) {
                 User u = iterator.nextRecord();
@@ -488,11 +470,67 @@ public class ApplicationHost {
                     sandbox.setLoggedInUser(u);
                 }
             }
-        }
 
-        if (session != null) {
-            // old session data is now no longer valid
-            session.clearVolitiles();
+            if (session != null) {
+                // old session data is now no longer valid
+                session.clearVolitiles();
+            }
+        }
+    }
+
+    private static boolean attemptSync(JavaPlatformSyncTool tool) {
+        try {
+            tool.initialize();
+
+            while (tool.getCurrentState() == SyncStateMachine.State.Ready_For_Request) {
+
+                tool.performRequest();
+
+                switch (tool.getCurrentState()) {
+                    case Waiting_For_Progress:
+                        tool.processWaitSignal();
+                        break;
+                    case Recovery_Requested:
+                        tool.transitionToRecoveryStrategy();
+                        break;
+                    case Recoverable_Error:
+                        tool.resetFromError();
+                        break;
+                }
+            }
+
+            tool.processPayload();
+            return true;
+        } catch(SyncStateMachine.SyncErrorException e) {
+            String errorMessage = String.format("Sync Failed While [%s]\nError: ",
+                    e.getStateBeforeError());
+
+            switch(e.getSyncError()){
+                case Invalid_Credentials:
+                    errorMessage += "Invalid user credentials";
+                    break;
+                case Unexpected_Server_Response_Code:
+                    errorMessage += "Unexpected server response code: " + tool.getServerResponseCode();
+                    break;
+                case Network_Error:
+                    errorMessage += "Network problems, please try to sync again";
+                    break;
+                case Invalid_Payload:
+                    errorMessage += "Invalid Server Response";
+                    break;
+                case Unhandled_Situation:
+                    errorMessage += "Unhandled Behavior";
+                    break;
+            }
+            if(e.getMessage() != null) {
+                errorMessage +="\nDetails: " + e.getMessage();
+            }
+            System.out.println(errorMessage);
+
+            if(tool.getStrategy() == SyncStateMachine.Strategy.Fresh) {
+                System.exit(-1);
+            }
+            return false;
         }
     }
 
@@ -531,6 +569,15 @@ public class ApplicationHost {
         performCasePurge(mSandbox);
 
         if (mLocalUserCredentials != null) {
+
+            if(submissionsEnabled && this.formQueue.size() > 0) {
+                attemptFormSubmissions();
+                if(this.formQueue.size() > 0) {
+                    System.out.println("Cancelling sync until all forms are submitted.");
+                    return;
+                }
+            }
+
             System.out.println("Requesting sync...");
 
             restoreUserToSandbox(mSandbox, mSession, mLocalUserCredentials[0], mLocalUserCredentials[1]);
@@ -563,4 +610,7 @@ public class ApplicationHost {
         }
     }
 
+    public void setSubmissionsEnabled() {
+        submissionsEnabled = true;
+    }
 }

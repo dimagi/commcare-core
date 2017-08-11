@@ -35,7 +35,15 @@ public class CliPlayCommand extends CliCommand {
                 .required(false)
                 .optionalArg(false)
                 .build();
-        options.addOption(restoreFile).addOption(demoUser);
+        Option submissionEnabled = Option.builder("s")
+                .argName("SUBMIT_ENABLED")
+                .desc("Enable Submitting forms to the server")
+                .longOpt("enable-submission")
+                .required(false)
+                .optionalArg(false)
+                .build();
+
+        options.addOption(restoreFile).addOption(demoUser).addOption(submissionEnabled);
 
         return options;
     }
@@ -58,6 +66,10 @@ public class CliPlayCommand extends CliCommand {
         try {
             CommCareConfigEngine engine = configureApp(resourcePath, prototypeFactory);
             ApplicationHost host = new ApplicationHost(engine, prototypeFactory);
+
+            if(cmd.hasOption("s")) {
+                host.setSubmissionsEnabled();
+            }
 
             if (cmd.hasOption("r")) {
                 host.setRestoreToLocalFile(cmd.getOptionValue("r"));

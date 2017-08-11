@@ -1,0 +1,13 @@
+app.display.name=Replication: Sync Overwrite
+cchq.case=Case
+cchq.referral=Referral
+forms.m0f0=Registration
+forms.m1f0=Visit
+forms.m1f1=Close
+homescreen.title=Replication: Sync Overwrite
+lang.current=en
+m0.case_long.case_name_1.header=Name
+m0.case_short.case_name_1.header=Name
+m1.case_short.case_name_1.header=Name
+modules.m0=Registration
+modules.m1=Follow Up

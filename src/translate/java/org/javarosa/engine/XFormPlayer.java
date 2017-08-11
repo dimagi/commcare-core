@@ -249,6 +249,10 @@ public class XFormPlayer {
         return new ByteArrayInputStream(mExecutionInstance);
     }
 
+    public byte[] getResultBytes() {
+        return mExecutionInstance;
+    }
+
     /**
      * Evaluate input to eval mode, and exit eval mode if
      * the input is blank.
