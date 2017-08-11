@@ -7,10 +7,12 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.analysis.XPathAccumulatingAnalyzer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Vector;
 
 public abstract class XPathBinaryOpExpr extends XPathOpExpr {
@@ -82,5 +84,12 @@ public abstract class XPathBinaryOpExpr extends XPathOpExpr {
 
         //Otherwise, return the value
         return this.eval(model, evalContext);
+    }
+
+    @Override
+    public void applyAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
+        analyzer.extractTargetValues(XPathBinaryOpExpr.this);
+        this.a.applyAccumulatingAnalyzer(analyzer);
+        this.b.applyAccumulatingAnalyzer(analyzer);
     }
 }

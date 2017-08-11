@@ -5,6 +5,8 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.analysis.XPathAccumulatingAnalyzer;
+import org.javarosa.xpath.analysis.XPathAnalyzable;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -14,7 +16,7 @@ import java.io.IOException;
  * An XPathQName is string literal that meets the requirements to be an element or attribute
  * name in an XML document
  */
-public class XPathQName implements Externalizable {
+public class XPathQName implements Externalizable, XPathAnalyzable {
     private String namespace;
     public String name;
     private int hashCode;
@@ -84,5 +86,12 @@ public class XPathQName implements Externalizable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapNullable(namespace));
         ExtUtil.writeString(out, name);
+    }
+
+    @Override
+    public void applyAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
+        analyzer.extractTargetValues(XPathQName.this);
+
+        // TODO: Figure out how to dispatch this downwards
     }
 }

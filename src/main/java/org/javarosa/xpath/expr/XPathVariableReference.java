@@ -5,6 +5,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.analysis.XPathAccumulatingAnalyzer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -59,5 +60,11 @@ public class XPathVariableReference extends XPathExpression {
     @Override
     public String toPrettyString() {
         return "$" + id.toString();
+    }
+
+    @Override
+    public void applyAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
+        analyzer.extractTargetValues(XPathVariableReference.this);
+        this.id.applyAccumulatingAnalyzer(analyzer);
     }
 }
