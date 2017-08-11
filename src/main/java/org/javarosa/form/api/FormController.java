@@ -130,7 +130,7 @@ public class FormController {
      * @return true if index is in a "field-list". False otherwise.
      */
     private boolean indexIsInFieldList(FormIndex index) {
-        FormIndex fieldListHost = this.getFieldListHost(index);
+        FormIndex fieldListHost = getHostWithAppearance(index, FormEntryController.FIELD_LIST);
         return fieldListHost != null;
     }
 
@@ -140,7 +140,16 @@ public class FormController {
      * @return true if index is in a "field-list". False otherwise.
      */
     public boolean indexIsInFieldList() {
-        return indexIsInFieldList(mFormEntryController.getModel().getFormIndex());
+        return indexIsInFieldList(getFormIndex());
+    }
+
+    private boolean indexIsInCompact(FormIndex index) {
+        FormIndex compactHost = getHostWithAppearance(index, FormEntryController.COMPACT);
+        return compactHost != null;
+    }
+
+    public boolean indexIsInCompact() {
+        return indexIsInCompact(getFormIndex());
     }
 
     /**
@@ -178,7 +187,7 @@ public class FormController {
      * @return the next event that should be handled by a view.
      */
     public int stepToNextEvent(boolean stepOverGroup) {
-        FormIndex nextIndex = getNextFormIndex(mFormEntryController.getModel().getFormIndex(), stepOverGroup, true);
+        FormIndex nextIndex = getNextFormIndex(getFormIndex(), stepOverGroup, true);
         return jumpToIndex(nextIndex);
     }
 
@@ -251,7 +260,7 @@ public class FormController {
 
 
         // If after we've stepped, we're in a field-list, jump back to the beginning of the group
-        FormIndex host = getFieldListHost(this.getFormIndex());
+        FormIndex host = getHostWithAppearance(getFormIndex(), FormEntryController.FIELD_LIST);
         if (host != null) {
             return mFormEntryController.jumpToIndex(host);
         }
@@ -263,7 +272,7 @@ public class FormController {
     /**
      * Retrieves the index of the Group that is the host of a given field list.
      */
-    private FormIndex getFieldListHost(FormIndex child) {
+    private FormIndex getHostWithAppearance(FormIndex child, String appearanceTag) {
         int event = mFormEntryController.getModel().getEvent(child);
 
         if (event == FormEntryController.EVENT_QUESTION || event == FormEntryController.EVENT_GROUP || event == FormEntryController.EVENT_REPEAT) {
@@ -276,7 +285,7 @@ public class FormController {
             //host index.
             for (FormEntryCaption caption : captions) {
                 FormIndex parentIndex = caption.getIndex();
-                if (mFormEntryController.isFieldListHost(parentIndex)) {
+                if (mFormEntryController.isHostWithAppearance(parentIndex, appearanceTag)) {
                     return parentIndex;
                 }
             }
