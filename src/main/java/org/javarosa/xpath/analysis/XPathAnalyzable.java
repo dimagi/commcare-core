@@ -8,5 +8,4 @@ public interface XPathAnalyzable {
 
     void applyAndPropagateAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer);
 
-    //void applyBooleanAnalyzer(XPathBooleanAnalyzer analyzer);
 }
