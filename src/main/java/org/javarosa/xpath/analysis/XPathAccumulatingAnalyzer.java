@@ -1,5 +1,6 @@
 package org.javarosa.xpath.analysis;
 
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.expr.XPathPathExpr;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public abstract class XPathAccumulatingAnalyzer<T> {
     public void extractTargetValues(XPathAnalyzable analyzable) {
     }
 
-    public void extractTargetValues(XPathPathExpr analyzable) {
+    public void extractTargetValues(TreeReference treeRef) {
     }
 
     public List<T> accumulate(XPathAnalyzable rootExpression) {

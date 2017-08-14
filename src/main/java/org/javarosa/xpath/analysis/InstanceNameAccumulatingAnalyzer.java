@@ -1,6 +1,6 @@
 package org.javarosa.xpath.analysis;
 
-import org.javarosa.xpath.expr.XPathPathExpr;
+import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.ArrayList;
 
@@ -16,8 +16,10 @@ public class InstanceNameAccumulatingAnalyzer extends XPathAccumulatingAnalyzer<
     }
 
     @Override
-    public void extractTargetValues(XPathPathExpr analyzable) {
-
+    public void extractTargetValues(TreeReference treeRef) {
+        if (treeRef.getContextType() == TreeReference.CONTEXT_INSTANCE) {
+            accumulatedList.add(treeRef.getInstanceName());
+        }
     }
 
 }

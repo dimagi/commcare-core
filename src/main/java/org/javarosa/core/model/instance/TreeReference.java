@@ -438,7 +438,7 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
 
         TreeReference newRef = anchor(contextRef);
         newRef.hashCode = -1;
-        newRef.contextType = contextRef.getContext();
+        newRef.contextType = contextRef.getContextType();
 
         // apply multiplicites and fill in wildcards as necessary, based on the
         // context ref
@@ -758,7 +758,7 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
         throw new RuntimeException("Impossible state");
     }
 
-    public int getContext() {
+    public int getContextType() {
         return this.contextType;
     }
 
