@@ -435,7 +435,6 @@ public class XPathPathExpr extends XPathExpression {
     @Override
     public void applyAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
         analyzer.extractTargetValues(XPathPathExpr.this);
-
-        // TODO: Figure out how to dispatch this downwards
+        getReference().applyAccumulatingAnalyzer(analyzer);
     }
 }

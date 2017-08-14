@@ -16,7 +16,7 @@ import java.io.IOException;
  * An XPathQName is string literal that meets the requirements to be an element or attribute
  * name in an XML document
  */
-public class XPathQName implements Externalizable, XPathAnalyzable {
+public class XPathQName implements Externalizable {
     private String namespace;
     public String name;
     private int hashCode;
@@ -88,10 +88,4 @@ public class XPathQName implements Externalizable, XPathAnalyzable {
         ExtUtil.writeString(out, name);
     }
 
-    @Override
-    public void applyAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
-        analyzer.extractTargetValues(XPathQName.this);
-
-        // TODO: Figure out how to dispatch this downwards
-    }
 }

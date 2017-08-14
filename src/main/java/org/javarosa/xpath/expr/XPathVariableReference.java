@@ -65,6 +65,5 @@ public class XPathVariableReference extends XPathExpression {
     @Override
     public void applyAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
         analyzer.extractTargetValues(XPathVariableReference.this);
-        this.id.applyAccumulatingAnalyzer(analyzer);
     }
 }

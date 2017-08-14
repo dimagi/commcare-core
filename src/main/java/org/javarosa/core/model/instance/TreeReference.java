@@ -5,6 +5,8 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.analysis.XPathAccumulatingAnalyzer;
+import org.javarosa.xpath.analysis.XPathAnalyzable;
 import org.javarosa.xpath.expr.XPathExpression;
 
 import java.io.DataInputStream;
@@ -15,7 +17,7 @@ import java.util.Vector;
 
 // TODO: This class needs to be immutable so that we can perform caching
 // optimizations.
-public class TreeReference implements Externalizable {
+public class TreeReference implements Externalizable, XPathAnalyzable {
 
     private int hashCode = -1;
 
@@ -831,5 +833,8 @@ public class TreeReference implements Externalizable {
         return relativeStart;
     }
 
-
+    @Override
+    public void applyAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
+        analyzer.extractTargetValues(TreeReference.this);
+    }
 }
