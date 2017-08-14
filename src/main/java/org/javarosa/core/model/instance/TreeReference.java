@@ -834,7 +834,7 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
     }
 
     @Override
-    public void applyAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
+    public void applyAndPropagateAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
         analyzer.extractTargetValues(TreeReference.this);
     }
 }

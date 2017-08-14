@@ -212,10 +212,10 @@ public abstract class XPathFuncExpr extends XPathExpression {
     }
 
     @Override
-    public void applyAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
+    public void applyAndPropagateAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
         analyzer.extractTargetValues(XPathFuncExpr.this);
         for (XPathExpression expr : this.args) {
-            expr.applyAccumulatingAnalyzer(analyzer);
+            expr.applyAndPropagateAccumulatingAnalyzer(analyzer);
         }
     }
 }

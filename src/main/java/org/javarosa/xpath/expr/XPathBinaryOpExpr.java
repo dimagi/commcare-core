@@ -12,7 +12,6 @@ import org.javarosa.xpath.analysis.XPathAccumulatingAnalyzer;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.List;
 import java.util.Vector;
 
 public abstract class XPathBinaryOpExpr extends XPathOpExpr {
@@ -87,9 +86,9 @@ public abstract class XPathBinaryOpExpr extends XPathOpExpr {
     }
 
     @Override
-    public void applyAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
+    public void applyAndPropagateAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
         analyzer.extractTargetValues(XPathBinaryOpExpr.this);
-        this.a.applyAccumulatingAnalyzer(analyzer);
-        this.b.applyAccumulatingAnalyzer(analyzer);
+        this.a.applyAndPropagateAccumulatingAnalyzer(analyzer);
+        this.b.applyAndPropagateAccumulatingAnalyzer(analyzer);
     }
 }

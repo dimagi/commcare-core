@@ -433,8 +433,8 @@ public class XPathPathExpr extends XPathExpression {
     }
 
     @Override
-    public void applyAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
+    public void applyAndPropagateAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
         analyzer.extractTargetValues(XPathPathExpr.this);
-        getReference().applyAccumulatingAnalyzer(analyzer);
+        getReference().applyAndPropagateAccumulatingAnalyzer(analyzer);
     }
 }

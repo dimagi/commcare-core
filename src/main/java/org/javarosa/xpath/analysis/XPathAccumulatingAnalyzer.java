@@ -1,9 +1,7 @@
 package org.javarosa.xpath.analysis;
 
-import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathPathExpr;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,14 +13,13 @@ public abstract class XPathAccumulatingAnalyzer<T> {
     protected List<T> accumulatedList;
 
     public void extractTargetValues(XPathAnalyzable analyzable) {
-
     }
 
     public void extractTargetValues(XPathPathExpr analyzable) {
     }
 
     public List<T> accumulate(XPathAnalyzable rootExpression) {
-        rootExpression.applyAccumulatingAnalyzer(this);
+        rootExpression.applyAndPropagateAccumulatingAnalyzer(this);
         return accumulatedList;
     }
 

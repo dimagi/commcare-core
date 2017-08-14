@@ -63,7 +63,7 @@ public class XPathStringLiteral extends XPathExpression {
     }
 
     @Override
-    public void applyAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
+    public void applyAndPropagateAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
         analyzer.extractTargetValues(XPathStringLiteral.this);
     }
 }

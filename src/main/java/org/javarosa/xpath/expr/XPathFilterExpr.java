@@ -106,11 +106,11 @@ public class XPathFilterExpr extends XPathExpression {
     }
 
     @Override
-    public void applyAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
+    public void applyAndPropagateAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
         analyzer.extractTargetValues(XPathFilterExpr.this);
-        this.x.applyAccumulatingAnalyzer(analyzer);
+        this.x.applyAndPropagateAccumulatingAnalyzer(analyzer);
         for (XPathExpression expr : this.predicates) {
-            expr.applyAccumulatingAnalyzer(analyzer);
+            expr.applyAndPropagateAccumulatingAnalyzer(analyzer);
         }
     }
 }

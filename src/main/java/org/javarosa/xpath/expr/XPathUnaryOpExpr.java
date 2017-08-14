@@ -47,8 +47,8 @@ public abstract class XPathUnaryOpExpr extends XPathOpExpr {
     }
 
     @Override
-    public void applyAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
+    public void applyAndPropagateAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
         analyzer.extractTargetValues(XPathUnaryOpExpr.this);
-        this.a.applyAccumulatingAnalyzer(analyzer);
+        this.a.applyAndPropagateAccumulatingAnalyzer(analyzer);
     }
 }
