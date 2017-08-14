@@ -100,7 +100,7 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
         for (Enumeration en = instances.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
 
-            //This is silly, all of these are externaldata instances. TODO: save their
+            //This is silly, all of these are external data instances. TODO: save their
             //construction details instead.
             DataInstance cur = instances.get(key);
             if (limitingList == null || limitingList.contains(cur.getInstanceId())) {

@@ -7,6 +7,8 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.analysis.XPathAccumulatingAnalyzer;
+import org.javarosa.xpath.analysis.XPathAnalyzable;
 import org.javarosa.xpath.expr.XPathExpression;
 
 import java.io.DataInputStream;
@@ -17,7 +19,7 @@ import java.util.Vector;
 /**
  * @author ctsims
  */
-public class TreeReferenceLevel implements Externalizable {
+public class TreeReferenceLevel implements Externalizable, XPathAnalyzable {
     public static final int MULT_UNINIT = -16;
 
     private String name;
@@ -166,5 +168,15 @@ public class TreeReferenceLevel implements Externalizable {
      */
     public static void attachCacheTable(Interner<TreeReferenceLevel> refs) {
         TreeReferenceLevel.refs = refs;
+    }
+
+    @Override
+    public void applyAndPropagateAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
+        analyzer.extractTargetValues(TreeReferenceLevel.this);
+        if (predicates != null) {
+            for (XPathExpression predicate : this.predicates) {
+                predicate.applyAndPropagateAccumulatingAnalyzer(analyzer);
+            }
+        }
     }
 }
