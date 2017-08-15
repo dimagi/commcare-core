@@ -29,7 +29,7 @@ import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnsupportedException;
-import org.javarosa.xpath.analysis.XPathAccumulatingAnalyzer;
+import org.javarosa.xpath.analysis.XPathAnalyzer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -433,8 +433,8 @@ public class XPathPathExpr extends XPathExpression {
     }
 
     @Override
-    public void applyAndPropagateAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
-        analyzer.extractTargetValues(XPathPathExpr.this);
-        getReference().applyAndPropagateAccumulatingAnalyzer(analyzer);
+    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) {
+        analyzer.doAnalysis(XPathPathExpr.this);
+        getReference().applyAndPropagateAnalyzer(analyzer);
     }
 }

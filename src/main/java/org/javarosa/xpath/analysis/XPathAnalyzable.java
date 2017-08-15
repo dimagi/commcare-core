@@ -6,6 +6,6 @@ package org.javarosa.xpath.analysis;
 
 public interface XPathAnalyzable {
 
-    void applyAndPropagateAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer);
+    void applyAndPropagateAnalyzer(XPathAnalyzer analyzer);
 
 }

@@ -7,8 +7,8 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xpath.analysis.XPathAccumulatingAnalyzer;
 import org.javarosa.xpath.analysis.XPathAnalyzable;
+import org.javarosa.xpath.analysis.XPathAnalyzer;
 import org.javarosa.xpath.expr.XPathExpression;
 
 import java.io.DataInputStream;
@@ -171,11 +171,11 @@ public class TreeReferenceLevel implements Externalizable, XPathAnalyzable {
     }
 
     @Override
-    public void applyAndPropagateAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
-        analyzer.extractTargetValues(TreeReferenceLevel.this);
+    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) {
+        analyzer.doAnalysis(TreeReferenceLevel.this);
         if (predicates != null) {
             for (XPathExpression predicate : this.predicates) {
-                predicate.applyAndPropagateAccumulatingAnalyzer(analyzer);
+                predicate.applyAndPropagateAnalyzer(analyzer);
             }
         }
     }

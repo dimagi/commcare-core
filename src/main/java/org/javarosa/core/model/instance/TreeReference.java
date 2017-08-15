@@ -5,8 +5,8 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xpath.analysis.XPathAccumulatingAnalyzer;
 import org.javarosa.xpath.analysis.XPathAnalyzable;
+import org.javarosa.xpath.analysis.XPathAnalyzer;
 import org.javarosa.xpath.expr.XPathExpression;
 
 import java.io.DataInputStream;
@@ -424,8 +424,7 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
         // further contextualizaiton can be applied unless the instances match
         if (this.isAbsolute()) {
             if (this.getInstanceName() == null) {
-                // If this refers to the main instance, but our context ref
-                // doesn't
+                // If this refers to the main instance, but our context ref doesn't
                 if (contextRef.getInstanceName() != null) {
                     return this.clone();
                 }
@@ -440,7 +439,7 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
         newRef.hashCode = -1;
         newRef.contextType = contextRef.getContextType();
 
-        // apply multiplicites and fill in wildcards as necessary, based on the
+        // apply multiplicities and fill in wildcards as necessary, based on the
         // context ref
         for (int i = 0; i < contextRef.size() && i < newRef.size(); i++) {
             // If the the contextRef can provide a definition for a wildcard, do so
@@ -834,10 +833,22 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
     }
 
     @Override
-    public void applyAndPropagateAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
-        analyzer.extractTargetValues(TreeReference.this);
+    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) {
+        TreeReference refToAnalyze = TreeReference.this;
+        if (this.contextType == CONTEXT_INHERITED) {
+            // a ./ ref
+        } else if (this.contextType == CONTEXT_ORIGINAL) {
+            // a current() ref
+            if (analyzer.hasContextRef()) {
+                refToAnalyze = this.contextualize(analyzer.getRootContextRef());
+            } else {
+                analyzer.invalidateResults();
+            }
+        }
+        analyzer.doAnalysis(refToAnalyze);
+
         for (TreeReferenceLevel subLevel : this.data) {
-            subLevel.applyAndPropagateAccumulatingAnalyzer(analyzer);
+            subLevel.applyAndPropagateAnalyzer(analyzer);
         }
     }
 }

@@ -9,7 +9,7 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathArityException;
-import org.javarosa.xpath.analysis.XPathAccumulatingAnalyzer;
+import org.javarosa.xpath.analysis.XPathAnalyzer;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -212,10 +212,10 @@ public abstract class XPathFuncExpr extends XPathExpression {
     }
 
     @Override
-    public void applyAndPropagateAccumulatingAnalyzer(XPathAccumulatingAnalyzer analyzer) {
-        analyzer.extractTargetValues(XPathFuncExpr.this);
+    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) {
+        analyzer.doAnalysis(XPathFuncExpr.this);
         for (XPathExpression expr : this.args) {
-            expr.applyAndPropagateAccumulatingAnalyzer(analyzer);
+            expr.applyAndPropagateAnalyzer(analyzer);
         }
     }
 }

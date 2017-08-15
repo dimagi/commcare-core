@@ -16,7 +16,7 @@ public class InstanceNameAccumulatingAnalyzer extends XPathAccumulatingAnalyzer<
     }
 
     @Override
-    public void extractTargetValues(TreeReference treeRef) {
+    public void doAnalysis(TreeReference treeRef) {
         if (treeRef.getContextType() == TreeReference.CONTEXT_INSTANCE) {
             accumulatedList.add(treeRef.getInstanceName());
         }

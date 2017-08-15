@@ -6,29 +6,31 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.reactivex.annotations.Nullable;
+
 /**
  * Created by amstone326 on 8/11/17.
  */
 
-public abstract class XPathAccumulatingAnalyzer<T> {
+public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
 
     protected List<T> accumulatedList;
 
-    public void extractTargetValues(XPathAnalyzable analyzable) {
-        // so that the default behavior is to do nothing
-    }
-
-    public void extractTargetValues(TreeReference treeRef) {
-        // so that InstanceNameAccumulatingAnalyzer can override this
-    }
-
+    @Nullable
     public List<T> accumulateAsList(XPathAnalyzable rootExpression) {
-        rootExpression.applyAndPropagateAccumulatingAnalyzer(this);
+        rootExpression.applyAndPropagateAnalyzer(this);
+        if (this.resultIsInvalid) {
+            return null;
+        }
         return accumulatedList;
     }
 
+    @Nullable
     public Set<T> accumulateAsSet(XPathAnalyzable rootExpression) {
-        rootExpression.applyAndPropagateAccumulatingAnalyzer(this);
+        rootExpression.applyAndPropagateAnalyzer(this);
+        if (this.resultIsInvalid) {
+            return null;
+        }
         return convertResultToSet();
     }
 
