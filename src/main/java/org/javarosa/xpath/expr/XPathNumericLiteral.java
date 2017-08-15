@@ -5,6 +5,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.analysis.AnalysisInvalidException;
 import org.javarosa.xpath.analysis.XPathAnalyzer;
 
 import java.io.DataInputStream;
@@ -73,7 +74,7 @@ public class XPathNumericLiteral extends XPathExpression {
     }
 
     @Override
-    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) {
+    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
         analyzer.doAnalysis(XPathNumericLiteral.this);
     }
 }

@@ -16,22 +16,32 @@ public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
 
     protected List<T> accumulatedList;
 
+    public XPathAccumulatingAnalyzer() {
+
+    }
+
+    public XPathAccumulatingAnalyzer(TreeReference contextRef) {
+        super(contextRef);
+    }
+
     @Nullable
     public List<T> accumulateAsList(XPathAnalyzable rootExpression) {
-        rootExpression.applyAndPropagateAnalyzer(this);
-        if (this.resultIsInvalid) {
+        try {
+            rootExpression.applyAndPropagateAnalyzer(this);
+            return accumulatedList;
+        } catch (AnalysisInvalidException e) {
             return null;
         }
-        return accumulatedList;
     }
 
     @Nullable
     public Set<T> accumulateAsSet(XPathAnalyzable rootExpression) {
-        rootExpression.applyAndPropagateAnalyzer(this);
-        if (this.resultIsInvalid) {
+        try {
+            rootExpression.applyAndPropagateAnalyzer(this);
+            return convertResultToSet();
+        } catch (AnalysisInvalidException e) {
             return null;
         }
-        return convertResultToSet();
     }
 
     private Set<T> convertResultToSet() {
@@ -40,6 +50,35 @@ public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
             set.add(item);
         }
         return set;
+    }
+
+    // For all AccumulatingAnalyzers, it is sufficient to handle a current() reference by
+    // applying the analyzer separately to the expression itself and to the context ref
+    @Override
+    public void doAnalysisForTreeRefWithCurrent(TreeReference expressionWithContextTypeCurrent)
+            throws AnalysisInvalidException {
+
+        if (getOriginalContext() == null) {
+            throw new AnalysisInvalidException();
+
+        }
+
+        doNormalTreeRefAnalysis(expressionWithContextTypeCurrent);
+        getOriginalContext().applyAndPropagateAnalyzer(this);
+    }
+
+    // For all AccumulatingAnalyzers, it is sufficient to handle a relative reference by
+    // applying the analyzer separately to the expression itself and to the context ref
+    @Override
+    public void doAnalysisForRelativeTreeRef(TreeReference expressionWithContextTypeRelative)
+            throws AnalysisInvalidException {
+
+        if (getContext() == null) {
+            throw new AnalysisInvalidException();
+        }
+
+        doNormalTreeRefAnalysis(expressionWithContextTypeRelative);
+        getContext().applyAndPropagateAnalyzer(this);
     }
 
 }

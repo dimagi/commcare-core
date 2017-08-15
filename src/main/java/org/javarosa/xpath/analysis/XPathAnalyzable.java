@@ -6,6 +6,6 @@ package org.javarosa.xpath.analysis;
 
 public interface XPathAnalyzable {
 
-    void applyAndPropagateAnalyzer(XPathAnalyzer analyzer);
+    void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException;
 
 }

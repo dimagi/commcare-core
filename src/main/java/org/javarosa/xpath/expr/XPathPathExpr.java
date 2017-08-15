@@ -29,6 +29,7 @@ import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnsupportedException;
+import org.javarosa.xpath.analysis.AnalysisInvalidException;
 import org.javarosa.xpath.analysis.XPathAnalyzer;
 
 import java.io.DataInputStream;
@@ -175,7 +176,7 @@ public class XPathPathExpr extends XPathExpression {
         TreeReference ref;
 
         if (genericRef.getContextType() == TreeReference.CONTEXT_ORIGINAL) {
-            // reference begins with "current()" so contexutalize in the original context
+            // reference begins with "current()" so contextualize in the original context
             ref = genericRef.contextualize(ec.getOriginalContext());
         } else {
             ref = genericRef.contextualize(ec.getContextRef());
@@ -433,7 +434,7 @@ public class XPathPathExpr extends XPathExpression {
     }
 
     @Override
-    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) {
+    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
         analyzer.doAnalysis(XPathPathExpr.this);
         getReference().applyAndPropagateAnalyzer(analyzer);
     }

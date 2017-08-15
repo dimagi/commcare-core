@@ -9,6 +9,7 @@ import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathUnsupportedException;
+import org.javarosa.xpath.analysis.AnalysisInvalidException;
 import org.javarosa.xpath.analysis.XPathAnalyzer;
 
 import java.io.DataInputStream;
@@ -106,7 +107,7 @@ public class XPathFilterExpr extends XPathExpression {
     }
 
     @Override
-    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) {
+    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
         analyzer.doAnalysis(XPathFilterExpr.this);
         this.x.applyAndPropagateAnalyzer(analyzer);
         for (XPathExpression expr : this.predicates) {

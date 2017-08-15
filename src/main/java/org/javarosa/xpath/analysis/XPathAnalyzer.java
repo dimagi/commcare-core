@@ -8,32 +8,55 @@ import org.javarosa.core.model.instance.TreeReference;
 
 public abstract class XPathAnalyzer {
 
-    private TreeReference contextRefToUseDownstream;
-    protected boolean resultIsInvalid;
+    private TreeReference originalContextRef;
+    private TreeReference contextRef;
 
-    public void setRootContextRef(TreeReference rootContextRef) {
-        this.contextRefToUseDownstream = rootContextRef;
+    public XPathAnalyzer() {
+
     }
 
-    public boolean hasContextRef() {
-        return this.contextRefToUseDownstream != null;
+    public XPathAnalyzer(TreeReference contextRef) {
+        this.contextRef = contextRef;
     }
 
-    public TreeReference getRootContextRef() {
-        return this.contextRefToUseDownstream;
+    public TreeReference getContext() {
+        return this.contextRef;
     }
 
-    public void invalidateResults() {
-        // Something happened in the course of our analysis to indicate that we may not be able
-        // to do a complete/accurate analysis, so we should not consider the results valid
-        this.resultIsInvalid = true;
+    public TreeReference getOriginalContext() {
+        if (this.originalContextRef != null) {
+            return this.originalContextRef;
+        }
+        // Means that we only have 1 level of context
+        return this.contextRef;
     }
 
-    public void doAnalysis(XPathAnalyzable analyzable) {
+    public void doAnalysis(XPathAnalyzable analyzable) throws AnalysisInvalidException {
         // So that the default behavior is to do nothing
     }
 
-    public void doAnalysis(TreeReference treeReference) {
-        // Overridden by InstanceNameAccumulatingAnalyzer
+    public void doAnalysis(TreeReference ref) throws AnalysisInvalidException {
+        if (ref.getContextType() == TreeReference.CONTEXT_INHERITED) {
+            doAnalysisForRelativeTreeRef(ref);
+        } else if (ref.getContextType() == TreeReference.CONTEXT_ORIGINAL) {
+            doAnalysisForTreeRefWithCurrent(ref);
+        } else {
+            doNormalTreeRefAnalysis(ref);
+        }
+    }
+
+    public void doNormalTreeRefAnalysis(TreeReference treeReference)
+            throws AnalysisInvalidException {
+        // So that the default behavior is to do nothing
+    }
+
+    public void doAnalysisForTreeRefWithCurrent(TreeReference expressionWithContextTypeCurrent)
+            throws AnalysisInvalidException {
+        // So that the default behavior is to do nothing
+    }
+
+    public void doAnalysisForRelativeTreeRef(TreeReference expressionWithContextTypeRelative)
+            throws AnalysisInvalidException {
+        // So that the default behavior is to do nothing
     }
 }

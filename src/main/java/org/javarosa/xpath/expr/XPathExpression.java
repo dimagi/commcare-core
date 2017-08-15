@@ -339,7 +339,4 @@ public abstract class XPathExpression implements Externalizable, XPathAnalyzable
      */
     public abstract String toPrettyString();
 
-    //public abstract boolean isLeafExpression();
-
-    //public abstract List<XPathExpression> getChildExpressions();
 }

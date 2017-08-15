@@ -5,6 +5,7 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.analysis.AnalysisInvalidException;
 import org.javarosa.xpath.analysis.XPathAnalyzable;
 import org.javarosa.xpath.analysis.XPathAnalyzer;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -833,20 +834,8 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
     }
 
     @Override
-    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) {
-        TreeReference refToAnalyze = TreeReference.this;
-        if (this.contextType == CONTEXT_INHERITED) {
-            // a ./ ref
-        } else if (this.contextType == CONTEXT_ORIGINAL) {
-            // a current() ref
-            if (analyzer.hasContextRef()) {
-                refToAnalyze = this.contextualize(analyzer.getRootContextRef());
-            } else {
-                analyzer.invalidateResults();
-            }
-        }
-        analyzer.doAnalysis(refToAnalyze);
-
+    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        analyzer.doAnalysis(TreeReference.this);
         for (TreeReferenceLevel subLevel : this.data) {
             subLevel.applyAndPropagateAnalyzer(analyzer);
         }

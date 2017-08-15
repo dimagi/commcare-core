@@ -7,6 +7,7 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.analysis.AnalysisInvalidException;
 import org.javarosa.xpath.analysis.XPathAnalyzer;
 
 import java.io.DataInputStream;
@@ -86,7 +87,7 @@ public abstract class XPathBinaryOpExpr extends XPathOpExpr {
     }
 
     @Override
-    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) {
+    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
         analyzer.doAnalysis(XPathBinaryOpExpr.this);
         this.a.applyAndPropagateAnalyzer(analyzer);
         this.b.applyAndPropagateAnalyzer(analyzer);
