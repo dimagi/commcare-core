@@ -143,13 +143,9 @@ public class FormController {
         return indexIsInFieldList(getFormIndex());
     }
 
-    private boolean indexIsInCompact(FormIndex index) {
+    public boolean indexIsInCompact(FormIndex index) {
         FormIndex compactHost = getHostWithAppearance(index, FormEntryController.COMPACT);
         return compactHost != null;
-    }
-
-    public boolean indexIsInCompact() {
-        return indexIsInCompact(getFormIndex());
     }
 
     /**
@@ -279,7 +275,7 @@ public class FormController {
             // caption[0..len-1]
             // caption[len-1] == the event itself
             // caption[len-2] == the groups containing this group
-            FormEntryCaption[] captions = mFormEntryController.getModel().getCaptionHierarchy();
+            FormEntryCaption[] captions = mFormEntryController.getModel().getCaptionHierarchy(child);
 
             //This starts at the beginning of the heirarchy, so it'll catch the top-level
             //host index.
