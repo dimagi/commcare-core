@@ -897,7 +897,7 @@ public class FormDef implements IFormElement, IMetaData,
             }
 
             // Re-execute all triggerables to collect traces
-            initAllTriggerables();
+            initAllTriggerables(false);
             mDebugModeEnabled = true;
         }
     }
@@ -955,13 +955,15 @@ public class FormDef implements IFormElement, IMetaData,
         return debugInfo;
     }
 
-    private void initAllTriggerables() {
+    private void initAllTriggerables(boolean isReadOnly) {
         // Use all triggerables because we can assume they are rooted by rootRef
         TreeReference rootRef = TreeReference.rootRef();
 
         Vector<Triggerable> applicable = new Vector<>();
         for (Triggerable triggerable : triggerables) {
-            applicable.addElement(triggerable);
+            if (!isReadOnly || triggerable instanceof Condition) {
+                applicable.addElement(triggerable);
+            }
         }
 
         evaluateTriggerables(applicable, rootRef, false);
@@ -1505,9 +1507,7 @@ public class FormDef implements IFormElement, IMetaData,
             actionController.triggerActionsFromEvent(Action.EVENT_XFORMS_READY, this);
         }
         this.isCompletedInstance = isCompletedInstance;
-        if (!isReadOnly) {
-            initAllTriggerables();
-        }
+        initAllTriggerables(isReadOnly);
     }
 
     private void initLocale(String locale) {
