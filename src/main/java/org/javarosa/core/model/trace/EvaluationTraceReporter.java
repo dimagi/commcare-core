@@ -10,6 +10,7 @@ import java.util.Vector;
  * Created by ctsims on 10/19/2016.
  */
 public interface EvaluationTraceReporter {
+
     boolean wereTracesReported();
 
     void reportTrace(EvaluationTrace trace);
@@ -17,4 +18,5 @@ public interface EvaluationTraceReporter {
     void reset();
 
     Vector<EvaluationTrace> getCollectedTraces();
+
 }
