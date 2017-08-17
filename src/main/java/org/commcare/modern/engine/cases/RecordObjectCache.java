@@ -16,17 +16,28 @@ import java.util.HashMap;
 
 public class RecordObjectCache<T> implements QueryCache {
 
-    private HashMap<Integer, T> cachedRecordObjects = new HashMap<>();
+    private HashMap<String,HashMap<Integer, T>> caches = new HashMap<>();
 
-    public boolean isLoaded(int recordId) {
-        return cachedRecordObjects.containsKey(recordId);
+    public boolean isLoaded(String storageSetID, int recordId) {
+        return getCache(storageSetID).containsKey(recordId);
     }
 
-    public HashMap<Integer, T> getLoadedCaseMap() {
-        return cachedRecordObjects;
+    public HashMap<Integer, T> getLoadedCaseMap(String storageSetID) {
+        return getCache(storageSetID);
     }
 
-    public T getLoadedRecordObject(int recordId) {
-        return cachedRecordObjects.get(recordId);
+    public T getLoadedRecordObject(String storageSetID, int recordId) {
+        return getCache(storageSetID).get(recordId);
+    }
+
+    private HashMap<Integer, T> getCache(String storageSetID) {
+        HashMap<Integer, T> cache;
+        if(!caches.containsKey(storageSetID)) {
+            cache = new HashMap<>();
+            caches.put(storageSetID, cache);
+        } else {
+            cache = caches.get(storageSetID);
+        }
+        return cache;
     }
 }

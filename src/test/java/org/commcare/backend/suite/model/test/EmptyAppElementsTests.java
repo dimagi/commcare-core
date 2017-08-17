@@ -42,7 +42,7 @@ public class EmptyAppElementsTests {
     public void testEmptyMenu() {
         SessionWrapper session = mApp.getSession();
 
-        MenuLoader menuLoader = new MenuLoader(session.getPlatform(), session, "root", new TestLogger());
+        MenuLoader menuLoader = new MenuLoader(session.getPlatform(), session, "root", new TestLogger(), false);
         this.mChoices = menuLoader.getMenus();
         Assert.assertEquals("Number of Menu roots in empty example", this.mChoices.length, 1);
     }

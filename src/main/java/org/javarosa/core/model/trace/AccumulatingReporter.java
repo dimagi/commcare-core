@@ -30,4 +30,5 @@ public class AccumulatingReporter implements EvaluationTraceReporter {
     public void reset() {
         this.traces.clear();
     }
+
 }
