@@ -36,7 +36,7 @@ public class EvalContextTests {
         Menu m0 = suite.getMenusWithId("m0").get(0);
         XPathExpression relevancyCondition = m0.getMenuRelevance();
         Set<String> instancesNeededByRelevancyCondition =
-                (new InstanceNameAccumulatingAnalyzer()).accumulateAsSet(relevancyCondition);
+                (new InstanceNameAccumulatingAnalyzer()).accumulate(relevancyCondition);
 
         // Get the eval context for a command ID that has 3 instances in scope, but restrict it
         // to just those needed by the relevancy condition (only "casedb" in this case)
@@ -58,7 +58,7 @@ public class EvalContextTests {
         Menu m1 = suite.getMenusWithId("m1").get(0);
         XPathExpression relevancyCondition = m1.getMenuRelevance();
         Set<String> instancesNeededByRelevancyCondition =
-                (new InstanceNameAccumulatingAnalyzer()).accumulateAsSet(relevancyCondition);
+                (new InstanceNameAccumulatingAnalyzer()).accumulate(relevancyCondition);
 
         // Get the eval context for a command ID that has 3 instances in scope, but restrict it
         // to just those needed by the relevancy condition (only "commcaresession" in this case)

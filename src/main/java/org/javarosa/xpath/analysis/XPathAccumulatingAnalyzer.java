@@ -13,6 +13,13 @@ import io.reactivex.annotations.Nullable;
  * A type of XPathAnalyzer which collects and aggregates a specified type of information from
  * wherever it is present in the expression.
  *
+ * IMPORTANT NOTE: An accumulating analyzer may analyze the same sub-expression or context ref of
+ * an expression multiple times in a single analysis pass. This means:
+ * - An AccumulatingAnalyzer is NOT appropriate to use for answering questions such as
+ * "How many times is X referenced in this expression?"
+ * - An accumulating analyzer IS appropriate to use for answering questions such as
+ * "What is the set of all things of X type which are referenced at least one time in this expression?"
+ *
  * @author Aliza Stone
  */
 public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
@@ -28,17 +35,7 @@ public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
     }
 
     @Nullable
-    public List<T> accumulateAsList(XPathAnalyzable rootExpression) {
-        try {
-            rootExpression.applyAndPropagateAnalyzer(this);
-            return aggregateResults(new ArrayList<T>());
-        } catch (AnalysisInvalidException e) {
-            return null;
-        }
-    }
-
-    @Nullable
-    public Set<T> accumulateAsSet(XPathAnalyzable rootExpression) {
+    public Set<T> accumulate(XPathAnalyzable rootExpression) {
         try {
             rootExpression.applyAndPropagateAnalyzer(this);
             Set<T> set = new HashSet<>();
@@ -92,6 +89,17 @@ public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
             // Relative refs only introduce something new to analyze if they are in the top-level
             // expression
             getContextRef().applyAndPropagateAnalyzer(this);
+        }
+    }
+
+    // FOR TESTING PURPOSES ONLY -- This can NOT be relied upon to not return duplicates in certain scenarios
+    @Nullable
+    public List<T> accumulateAsList(XPathAnalyzable rootExpression) {
+        try {
+            rootExpression.applyAndPropagateAnalyzer(this);
+            return aggregateResults(new ArrayList<T>());
+        } catch (AnalysisInvalidException e) {
+            return null;
         }
     }
 

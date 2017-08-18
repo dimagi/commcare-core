@@ -15,7 +15,6 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
@@ -108,7 +107,7 @@ public class MenuLoader {
             xPathErrorMessage = m.getMenuRelevanceRaw();
 
             Set<String> instancesNeededByRelevancyCondition =
-                    (new InstanceNameAccumulatingAnalyzer()).accumulateAsSet(relevance);
+                    (new InstanceNameAccumulatingAnalyzer()).accumulate(relevance);
             EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(m.getId(),
                     instancesNeededByRelevancyCondition);
 
@@ -136,7 +135,7 @@ public class MenuLoader {
                 xPathErrorMessage = m.getCommandRelevanceRaw(m.indexOfCommand(command));
 
                 Set<String> instancesNeededByRelevancyCondition =
-                        (new InstanceNameAccumulatingAnalyzer()).accumulateAsSet(relevancyCondition);
+                        (new InstanceNameAccumulatingAnalyzer()).accumulate(relevancyCondition);
                 EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(command,
                         instancesNeededByRelevancyCondition);
 

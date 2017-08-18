@@ -8,7 +8,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -59,15 +58,15 @@ public class StaticAnalysisTest {
 
     @Test
     public void testInstanceAccumulatingAnalyzer() throws XPathSyntaxException {
-        testInstanceAnalysisAsList(NO_INSTANCES_EXPR,
+        testInstanceAnalysis(NO_INSTANCES_EXPR,
                 new String[]{});
-        testInstanceAnalysisAsList(ONE_INSTANCE_EXPR,
+        testInstanceAnalysis(ONE_INSTANCE_EXPR,
                 new String[]{"casedb"});
-        testInstanceAnalysisAsSet(DUPLICATED_INSTANCE_EXPR,
+        testInstanceAnalysis(DUPLICATED_INSTANCE_EXPR,
                 new String[]{"commcaresession"});
-        testInstanceAnalysisAsSet(EXPR_WITH_INSTANCE_IN_PREDICATE,
+        testInstanceAnalysis(EXPR_WITH_INSTANCE_IN_PREDICATE,
                 new String[]{"casedb", "commcaresession"});
-        testInstanceAnalysisAsSet(RIDICULOUS_RELEVANCY_CONDITION_FROM_REAL_APP,
+        testInstanceAnalysis(RIDICULOUS_RELEVANCY_CONDITION_FROM_REAL_APP,
                 new String[]{"casedb", "commcaresession", "schedule:m5:p2:f2"});
 
         // Test the length of the result with list accumulation, just to ensure it gets them all
@@ -79,27 +78,27 @@ public class StaticAnalysisTest {
 
     @Test
     public void testCurrentAndRelativeRefs() throws XPathSyntaxException {
-        testInstanceAnalysisAsSet(BASIC_RELATIVE_EXPR, new String[]{"casedb"},
+        testInstanceAnalysis(BASIC_RELATIVE_EXPR, new String[]{"casedb"},
                 BASE_CONTEXT_REF_aCase);
-        testInstanceAnalysisAsSet(EXPR_WITH_CURRENT_AT_TOP_LEVEL, new String[]{"adherence:calendar", "casedb"},
+        testInstanceAnalysis(EXPR_WITH_CURRENT_AT_TOP_LEVEL, new String[]{"adherence:calendar", "casedb"},
                 BASE_CONTEXT_REF_aCase);
 
         // expect null because no context ref was provided when it was needed
-        testInstanceAnalysisAsSet(BASIC_RELATIVE_EXPR, null);
-        testInstanceAnalysisAsSet(EXPR_WITH_CURRENT_AT_TOP_LEVEL, null);
+        testInstanceAnalysis(BASIC_RELATIVE_EXPR, null);
+        testInstanceAnalysis(EXPR_WITH_CURRENT_AT_TOP_LEVEL, null);
 
         // should be OK not to provide a base context ref here because current() is only being
         // used within a predicate, so it should use the sub-context
-        testInstanceAnalysisAsSet(EXPR_WITH_CURRENT_IN_PREDICATE, new String[]{"casedb"});
+        testInstanceAnalysis(EXPR_WITH_CURRENT_IN_PREDICATE, new String[]{"casedb"});
     }
 
-    private void testInstanceAnalysisAsSet(String expressionString, String[] expectedInstances)
+    private void testInstanceAnalysis(String expressionString, String[] expectedInstances)
             throws XPathSyntaxException {
-        testInstanceAnalysisAsSet(expressionString, expectedInstances, null);
+        testInstanceAnalysis(expressionString, expectedInstances, null);
     }
 
-    private void testInstanceAnalysisAsSet(String expressionString, String[] expectedInstances,
-                                           String baseContextString)
+    private void testInstanceAnalysis(String expressionString, String[] expectedInstances,
+                                      String baseContextString)
             throws XPathSyntaxException {
 
         InstanceNameAccumulatingAnalyzer analyzer;
@@ -121,21 +120,7 @@ public class StaticAnalysisTest {
         }
 
         Set<String> parsedInstancesSet =
-                analyzer.accumulateAsSet(XPathParseTool.parseXPath(expressionString));
+                analyzer.accumulate(XPathParseTool.parseXPath(expressionString));
         Assert.assertEquals(expectedInstancesSet, parsedInstancesSet);
-    }
-
-    private void testInstanceAnalysisAsList(String expressionString, String[] expectedInstances)
-            throws XPathSyntaxException {
-        InstanceNameAccumulatingAnalyzer analyzer = new InstanceNameAccumulatingAnalyzer();
-
-        List<String> expectedInstancesList = new ArrayList<>();
-        for (String s : expectedInstances) {
-            expectedInstancesList.add(s);
-        }
-
-        List<String> parsedInstancesList =
-                analyzer.accumulateAsList(XPathParseTool.parseXPath(expressionString));
-        Assert.assertEquals(expectedInstancesList, parsedInstancesList);
     }
 }
