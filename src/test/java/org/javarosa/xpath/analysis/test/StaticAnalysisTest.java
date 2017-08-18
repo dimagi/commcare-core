@@ -14,9 +14,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Created by amstone326 on 8/14/17.
+ * Tests for the XPath static analysis infrastructure
+ *
+ * @author Aliza Stone
  */
-
 public class StaticAnalysisTest {
 
     private static String NO_INSTANCES_EXPR =

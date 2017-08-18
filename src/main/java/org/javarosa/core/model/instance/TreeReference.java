@@ -16,8 +16,7 @@ import java.io.IOException;
 import java.util.Vector;
 
 
-// TODO: This class needs to be immutable so that we can perform caching
-// optimizations.
+// TODO: This class needs to be immutable so that we can perform caching optimizations.
 public class TreeReference implements Externalizable, XPathAnalyzable {
 
     private int hashCode = -1;
@@ -46,8 +45,7 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
     public static final int INDEX_REPEAT_JUNCTURE = -10;
 
 
-    //TODO: Roll these into RefLevel? Or more likely, take absolute
-    //ref out of refLevel
+    //TODO: Roll these into RefLevel? Or more likely, take absolute ref out of refLevel
     public static final int CONTEXT_ABSOLUTE = 0;
     // context is inherited since the path is relative
     public static final int CONTEXT_INHERITED = 1;

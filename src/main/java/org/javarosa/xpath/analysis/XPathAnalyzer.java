@@ -44,6 +44,7 @@ public abstract class XPathAnalyzer {
         // So that the default behavior is to do nothing
     }
 
+    // TODO: There should be special handling for references that contain "../" as well
     public void doAnalysis(TreeReference ref) throws AnalysisInvalidException {
         if (ref.getContextType() == TreeReference.CONTEXT_INHERITED) {
             doAnalysisForRelativeTreeRef(ref);
