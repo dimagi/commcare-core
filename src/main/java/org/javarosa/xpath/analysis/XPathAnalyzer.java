@@ -18,7 +18,6 @@ public abstract class XPathAnalyzer {
 
     public XPathAnalyzer() {
         this.subAnalyzers = new ArrayList<>();
-        this.contextRef = TreeReference.rootRef();
     }
 
     public XPathAnalyzer(TreeReference contextRef) {

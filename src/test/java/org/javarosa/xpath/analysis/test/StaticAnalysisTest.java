@@ -46,11 +46,14 @@ public class StaticAnalysisTest {
                     "int(@due) + int(@starts)) and (@expires = '' or today() <= (date(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_load_ccs_record0]/add) + " +
                     "int(@due) + int(@expires))))]) > 0)";
 
-    private static String baseContextRefCase = "instance('casedb')/casedb/case[651]";
+    private static String BASE_CONTEXT_REF_CASE = "instance('casedb')/casedb/case[651]";
     private static String BASIC_RELATIVE_EXPR = "./@case_name";
-    private static String EXPR_WITH_CURRENT =
+    private static String EXPR_WITH_CURRENT_AT_TOP_LEVEL =
             "(instance('adherence:calendar')/calendar/year/month/day[@date > (today()-36) and " +
                     "@date < (today()-28) and @name='Sunday']/@date) = current()/date_registered";
+    private static String EXPR_WITH_CURRENT_IN_PREDICATE =
+            "if(instance('casedb')/casedb/case[@case_id=current()/index/parent]/date_hh_registration = '', '', " +
+                    "format_date(date(instance('casedb')/casedb/case[@case_id=current()/index/parent]/date_hh_registration),'short'))";
 
 
     @Test
@@ -76,9 +79,17 @@ public class StaticAnalysisTest {
     @Test
     public void testCurrentAndRelativeRefs() throws XPathSyntaxException {
         testInstanceAnalysisAsSet(BASIC_RELATIVE_EXPR, new String[]{"casedb"},
-                baseContextRefCase);
-        testInstanceAnalysisAsSet(EXPR_WITH_CURRENT, new String[]{"adherence:calendar", "casedb"},
-                baseContextRefCase);
+                BASE_CONTEXT_REF_CASE);
+        testInstanceAnalysisAsSet(EXPR_WITH_CURRENT_AT_TOP_LEVEL, new String[]{"adherence:calendar", "casedb"},
+                BASE_CONTEXT_REF_CASE);
+
+        // expect null because no context ref was provided when it was needed
+        testInstanceAnalysisAsSet(BASIC_RELATIVE_EXPR, null);
+        testInstanceAnalysisAsSet(EXPR_WITH_CURRENT_AT_TOP_LEVEL, null);
+
+        // should be OK not to provide a base context ref here because current() is only being
+        // used within a predicate, so it should use the sub-context
+        testInstanceAnalysisAsSet(EXPR_WITH_CURRENT_IN_PREDICATE, new String[]{"casedb"});
     }
 
     private void testInstanceAnalysisAsSet(String expressionString, String[] expectedInstances)
@@ -100,9 +111,12 @@ public class StaticAnalysisTest {
             analyzer = new InstanceNameAccumulatingAnalyzer();
         }
 
-        Set<String> expectedInstancesSet = new HashSet<>();
-        for (String s : expectedInstances) {
-            expectedInstancesSet.add(s);
+        Set<String> expectedInstancesSet = null;
+        if (expectedInstances != null) {
+            expectedInstancesSet = new HashSet<>();
+            for (String s : expectedInstances) {
+                expectedInstancesSet.add(s);
+            }
         }
 
         Set<String> parsedInstancesSet =
