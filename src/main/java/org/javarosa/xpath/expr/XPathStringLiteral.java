@@ -6,7 +6,6 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.analysis.AnalysisInvalidException;
-import org.javarosa.xpath.analysis.XPathAccumulatingAnalyzer;
 import org.javarosa.xpath.analysis.XPathAnalyzer;
 
 import java.io.DataInputStream;

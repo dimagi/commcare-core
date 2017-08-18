@@ -12,7 +12,6 @@ import io.reactivex.annotations.Nullable;
 /**
  * Created by amstone326 on 8/11/17.
  */
-
 public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
 
     protected List<T> accumulatedList;
@@ -69,8 +68,8 @@ public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
 
         doNormalTreeRefAnalysis(expressionWithContextTypeCurrent);
         // TODO: There may be a way to figure out more carefully under which circumstances
-        // getOriginalContextRef() actually represents something new to analyze, but for now this
-        // seems hard to determine
+        // getOriginalContextRef() actually represents something new to analyze (similar to the
+        // check below in doAnalysisForRelativeTreeRef), but for now this seems hard to determine
         getOriginalContextRef().applyAndPropagateAnalyzer(this);
     }
 

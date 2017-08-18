@@ -46,7 +46,7 @@ public class StaticAnalysisTest {
                     "int(@due) + int(@starts)) and (@expires = '' or today() <= (date(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_load_ccs_record0]/add) + " +
                     "int(@due) + int(@expires))))]) > 0)";
 
-    private static String BASE_CONTEXT_REF_CASE = "instance('casedb')/casedb/case[651]";
+    private static String BASE_CONTEXT_REF_aCase = "instance('casedb')/casedb/case[651]";
     private static String BASIC_RELATIVE_EXPR = "./@case_name";
     private static String EXPR_WITH_CURRENT_AT_TOP_LEVEL =
             "(instance('adherence:calendar')/calendar/year/month/day[@date > (today()-36) and " +
@@ -79,9 +79,9 @@ public class StaticAnalysisTest {
     @Test
     public void testCurrentAndRelativeRefs() throws XPathSyntaxException {
         testInstanceAnalysisAsSet(BASIC_RELATIVE_EXPR, new String[]{"casedb"},
-                BASE_CONTEXT_REF_CASE);
+                BASE_CONTEXT_REF_aCase);
         testInstanceAnalysisAsSet(EXPR_WITH_CURRENT_AT_TOP_LEVEL, new String[]{"adherence:calendar", "casedb"},
-                BASE_CONTEXT_REF_CASE);
+                BASE_CONTEXT_REF_aCase);
 
         // expect null because no context ref was provided when it was needed
         testInstanceAnalysisAsSet(BASIC_RELATIVE_EXPR, null);

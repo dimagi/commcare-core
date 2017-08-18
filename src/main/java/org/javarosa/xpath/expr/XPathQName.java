@@ -5,8 +5,6 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xpath.analysis.XPathAccumulatingAnalyzer;
-import org.javarosa.xpath.analysis.XPathAnalyzable;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -87,5 +85,4 @@ public class XPathQName implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(namespace));
         ExtUtil.writeString(out, name);
     }
-
 }
