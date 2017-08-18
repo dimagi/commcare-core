@@ -2,6 +2,9 @@ package org.javarosa.xpath.analysis;
 
 import org.javarosa.core.model.instance.TreeReference;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by amstone326 on 8/15/17.
  */
@@ -10,20 +13,24 @@ public abstract class XPathAnalyzer {
 
     private TreeReference originalContextRef;
     private TreeReference contextRef;
+    protected List<XPathAnalyzer> subAnalyzers;
+    protected boolean isSubAnalyzer;
 
     public XPathAnalyzer() {
-
+        this.subAnalyzers = new ArrayList<>();
+        this.contextRef = TreeReference.rootRef();
     }
 
     public XPathAnalyzer(TreeReference contextRef) {
+        this();
         this.contextRef = contextRef;
     }
 
-    public TreeReference getContext() {
+    public TreeReference getContextRef() {
         return this.contextRef;
     }
 
-    public TreeReference getOriginalContext() {
+    public TreeReference getOriginalContextRef() {
         if (this.originalContextRef != null) {
             return this.originalContextRef;
         }
@@ -59,4 +66,16 @@ public abstract class XPathAnalyzer {
             throws AnalysisInvalidException {
         // So that the default behavior is to do nothing
     }
+
+    public XPathAnalyzer spawnSubAnalyzer(TreeReference subContext) {
+        XPathAnalyzer subAnalyzer = initSameTypeAnalyzer();
+        subAnalyzer.isSubAnalyzer = true;
+        subAnalyzer.originalContextRef = this.getOriginalContextRef();
+        subAnalyzer.contextRef = subContext;
+        this.subAnalyzers.add(subAnalyzer);
+        return subAnalyzer;
+    }
+
+    abstract XPathAnalyzer initSameTypeAnalyzer();
+
 }

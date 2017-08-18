@@ -86,6 +86,7 @@ public class XPathPathExpr extends XPathExpression {
                 break;
             case XPathPathExpr.INIT_CONTEXT_RELATIVE:
                 ref.setRefLevel(0);
+                ref.setContextType(TreeReference.CONTEXT_INHERITED);
                 parentsAllowed = true;
                 break;
             case XPathPathExpr.INIT_CONTEXT_EXPR:

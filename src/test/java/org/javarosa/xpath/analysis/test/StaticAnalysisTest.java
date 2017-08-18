@@ -1,7 +1,9 @@
 package org.javarosa.xpath.analysis.test;
 
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
+import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -44,13 +46,25 @@ public class StaticAnalysisTest {
                     "int(@due) + int(@starts)) and (@expires = '' or today() <= (date(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_load_ccs_record0]/add) + " +
                     "int(@due) + int(@expires))))]) > 0)";
 
+    private static String baseContextRefCase = "instance('casedb')/casedb/case[651]";
+    private static String BASIC_RELATIVE_EXPR = "./@case_name";
+    private static String EXPR_WITH_CURRENT =
+            "(instance('adherence:calendar')/calendar/year/month/day[@date > (today()-36) and " +
+                    "@date < (today()-28) and @name='Sunday']/@date) = current()/date_registered";
+
+
     @Test
     public void testInstanceAccumulatingAnalyzer() throws XPathSyntaxException {
-        testInstanceAnalysisAsList(NO_INSTANCES_EXPR, new String[]{});
-        testInstanceAnalysisAsList(ONE_INSTANCE_EXPR, new String[]{"casedb"});
-        testInstanceAnalysisAsSet(DUPLICATED_INSTANCE_EXPR, new String[]{"commcaresession"});
-        testInstanceAnalysisAsSet(EXPR_WITH_INSTANCE_IN_PREDICATE, new String[]{"casedb", "commcaresession"});
-        testInstanceAnalysisAsSet(RIDICULOUS_RELEVANCY_CONDITION_FROM_REAL_APP, new String[]{"casedb", "commcaresession", "schedule:m5:p2:f2"});
+        testInstanceAnalysisAsList(NO_INSTANCES_EXPR,
+                new String[]{});
+        testInstanceAnalysisAsList(ONE_INSTANCE_EXPR,
+                new String[]{"casedb"});
+        testInstanceAnalysisAsSet(DUPLICATED_INSTANCE_EXPR,
+                new String[]{"commcaresession"});
+        testInstanceAnalysisAsSet(EXPR_WITH_INSTANCE_IN_PREDICATE,
+                new String[]{"casedb", "commcaresession"});
+        testInstanceAnalysisAsSet(RIDICULOUS_RELEVANCY_CONDITION_FROM_REAL_APP,
+                new String[]{"casedb", "commcaresession", "schedule:m5:p2:f2"});
 
         // Test the length of the result with list accumulation, just to ensure it gets them all
         List<String> parsedInstancesList =
@@ -59,9 +73,32 @@ public class StaticAnalysisTest {
         Assert.assertEquals(27, parsedInstancesList.size());
     }
 
+    @Test
+    public void testCurrentAndRelativeRefs() throws XPathSyntaxException {
+        testInstanceAnalysisAsSet(BASIC_RELATIVE_EXPR, new String[]{"casedb"},
+                baseContextRefCase);
+        testInstanceAnalysisAsSet(EXPR_WITH_CURRENT, new String[]{"adherence:calendar", "casedb"},
+                baseContextRefCase);
+    }
+
     private void testInstanceAnalysisAsSet(String expressionString, String[] expectedInstances)
             throws XPathSyntaxException {
-        InstanceNameAccumulatingAnalyzer analyzer = new InstanceNameAccumulatingAnalyzer();
+        testInstanceAnalysisAsSet(expressionString, expectedInstances, null);
+    }
+
+    private void testInstanceAnalysisAsSet(String expressionString, String[] expectedInstances,
+                                           String baseContextString)
+            throws XPathSyntaxException {
+
+        InstanceNameAccumulatingAnalyzer analyzer;
+
+        if (baseContextString != null) {
+            TreeReference baseContextRef =
+                    ((XPathPathExpr)XPathParseTool.parseXPath(baseContextString)).getReference();
+            analyzer = new InstanceNameAccumulatingAnalyzer(baseContextRef);
+        } else {
+            analyzer = new InstanceNameAccumulatingAnalyzer();
+        }
 
         Set<String> expectedInstancesSet = new HashSet<>();
         for (String s : expectedInstances) {

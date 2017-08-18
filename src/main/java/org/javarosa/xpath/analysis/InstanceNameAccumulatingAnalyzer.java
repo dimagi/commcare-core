@@ -15,11 +15,21 @@ public class InstanceNameAccumulatingAnalyzer extends XPathAccumulatingAnalyzer<
         this.accumulatedList = new ArrayList<>();
     }
 
+    public InstanceNameAccumulatingAnalyzer(TreeReference contextRef) {
+        super(contextRef);
+        this.accumulatedList = new ArrayList<>();
+    }
+
     @Override
     public void doNormalTreeRefAnalysis(TreeReference treeRef) throws AnalysisInvalidException {
         if (treeRef.getContextType() == TreeReference.CONTEXT_INSTANCE) {
             accumulatedList.add(treeRef.getInstanceName());
         }
+    }
+
+    @Override
+    XPathAnalyzer initSameTypeAnalyzer() {
+        return new InstanceNameAccumulatingAnalyzer();
     }
 
 }

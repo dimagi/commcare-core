@@ -262,6 +262,10 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
         this.refLevel = refLevel;
     }
 
+    public void setContextType(int contextType) {
+        this.contextType = contextType;
+    }
+
     public void incrementRefLevel() {
         hashCode = -1;
         if (!isAbsolute()) {
@@ -836,8 +840,15 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
         analyzer.doAnalysis(TreeReference.this);
-        for (TreeReferenceLevel subLevel : this.data) {
-            subLevel.applyAndPropagateAnalyzer(analyzer);
+        for (int i = 0; i < data.size(); i++) {
+            TreeReferenceLevel subLevel = data.get(i);
+            if (subLevel.getPredicates() != null) {
+                TreeReference subContext = this.removePredicates().getSubReference(i);
+                XPathAnalyzer subAnalyzer = analyzer.spawnSubAnalyzer(subContext);
+                for (XPathExpression expr : subLevel.getPredicates()) {
+                    expr.applyAndPropagateAnalyzer(subAnalyzer);
+                }
+            }
         }
     }
 }

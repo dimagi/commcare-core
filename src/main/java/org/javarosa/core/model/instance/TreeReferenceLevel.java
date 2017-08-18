@@ -20,7 +20,7 @@ import java.util.Vector;
 /**
  * @author ctsims
  */
-public class TreeReferenceLevel implements Externalizable, XPathAnalyzable {
+public class TreeReferenceLevel implements Externalizable {
     public static final int MULT_UNINIT = -16;
 
     private String name;
@@ -171,13 +171,4 @@ public class TreeReferenceLevel implements Externalizable, XPathAnalyzable {
         TreeReferenceLevel.refs = refs;
     }
 
-    @Override
-    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
-        analyzer.doAnalysis(TreeReferenceLevel.this);
-        if (predicates != null) {
-            for (XPathExpression predicate : this.predicates) {
-                predicate.applyAndPropagateAnalyzer(analyzer);
-            }
-        }
-    }
 }
