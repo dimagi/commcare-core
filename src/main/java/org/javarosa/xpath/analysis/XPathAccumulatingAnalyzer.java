@@ -68,6 +68,9 @@ public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
         }
 
         doNormalTreeRefAnalysis(expressionWithContextTypeCurrent);
+        // TODO: There may be a way to figure out more carefully under which circumstances
+        // getOriginalContextRef() actually represents something new to analyze, but for now this
+        // seems hard to determine
         getOriginalContextRef().applyAndPropagateAnalyzer(this);
     }
 
