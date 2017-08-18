@@ -5,7 +5,10 @@ import org.javarosa.core.model.instance.TreeReference;
 import java.util.ArrayList;
 
 /**
- * Created by amstone326 on 8/11/17.
+ * An XPathAccumulatingAnalyzer that collects all of the instance names that are referenced
+ * in an expression
+ *
+ * @author Aliza Stone
  */
 
 public class InstanceNameAccumulatingAnalyzer extends XPathAccumulatingAnalyzer<String> {

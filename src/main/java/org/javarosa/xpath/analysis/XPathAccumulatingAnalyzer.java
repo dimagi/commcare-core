@@ -10,7 +10,10 @@ import java.util.Set;
 import io.reactivex.annotations.Nullable;
 
 /**
- * Created by amstone326 on 8/11/17.
+ * A type of XPathAnalyzer which collects and aggregates a specified type of information from
+ * wherever it is present in the expression.
+ *
+ * @author Aliza Stone
  */
 public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
 

@@ -6,9 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by amstone326 on 8/15/17.
+ * An XPathAnalyzer is an object that can perform static analysis of any XPathAnalyzable
+ * (an XPathExpression or TreeReference) to ascertain specific semantic information about the
+ * raw content of the expression string itself
+ *
+ * @author Aliza Stone
  */
-
 public abstract class XPathAnalyzer {
 
     private TreeReference originalContextRef;

@@ -1,9 +1,11 @@
 package org.javarosa.xpath.analysis;
 
 /**
- * Created by amstone326 on 8/11/17.
+ * Represents any object which may be subject to static analysis by an XPathAnalyzer
+ * (XPathExpressions and TreeReferences)
+ *
+ * @author Aliza Stone
  */
-
 public interface XPathAnalyzable {
 
     void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException;
