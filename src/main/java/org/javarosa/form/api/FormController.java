@@ -13,6 +13,8 @@ import org.javarosa.model.xform.XPathReference;
 import java.io.IOException;
 import java.util.Vector;
 
+import io.reactivex.annotations.Nullable;
+
 /**
  * This class is a wrapper for Javarosa's FormEntryController. In theory, if you wanted to replace
  * javarosa as the form engine, you should only need to replace the methods in this file. Also, we
@@ -143,9 +145,13 @@ public class FormController {
         return indexIsInFieldList(getFormIndex());
     }
 
+    /**
+     * Tests if the FormIndex 'index' is located inside a group that is marked with "compact" appearance
+     *
+     * @return true if index is in a group with appearance "compact". False otherwise.
+     */
     public boolean indexIsInCompact(FormIndex index) {
-        FormIndex compactHost = getHostWithAppearance(index, FormEntryController.COMPACT);
-        return compactHost != null;
+        return getHostWithAppearance(index, FormEntryController.COMPACT) != null;
     }
 
     /**
@@ -266,8 +272,9 @@ public class FormController {
     }
 
     /**
-     * Retrieves the index of the Group that is the host of a given field list.
+     * Retrieves the index of the Group which hosts child index and is marked with given appearanceTag, null otherwise
      */
+    @Nullable
     private FormIndex getHostWithAppearance(FormIndex child, String appearanceTag) {
         int event = mFormEntryController.getModel().getEvent(child);
 
@@ -286,11 +293,11 @@ public class FormController {
                 }
             }
 
-            //none of this node's parents are field lists
+            //none of this node's parents are marked with appearanceTag
             return null;
 
         } else {
-            // Non-host elements can't have field list hosts.
+            // Non-host elements can't have hosts marked as appearanceTag .
             return null;
         }
     }

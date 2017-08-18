@@ -431,9 +431,9 @@ public class FormEntryController {
     }
 
     /**
-     * A convenience method for determining if the current FormIndex is a group that is/should be
-     * displayed as a multi-question view of all of its descendants. This is useful for returning
-     * from the formhierarchy view to a selected index.
+     * A convenience method for determining if the current FormIndex is a group that is marked
+     * with the appearance appearanceTag. This is useful for returning
+     * from the form hierarchy view to a selected index.
      */
     public boolean isHostWithAppearance(FormIndex index, String appearanceTag) {
         // if this isn't a group or is a repeat, return right away
