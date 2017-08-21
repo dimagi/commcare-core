@@ -1,5 +1,6 @@
 package org.javarosa.core.util;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
 /**
@@ -8,7 +9,7 @@ import java.util.Random;
  * @author ctsims
  */
 public class MathUtils {
-    private static Random r;
+    private static SecureRandom r;
 
     //a - b * floor(a / b)
     public static long modLongNotSuck(long a, long b) {
@@ -19,9 +20,9 @@ public class MathUtils {
         return (a - modLongNotSuck(a, b)) / b;
     }
 
-    public static Random getRand() {
+    public static SecureRandom getRand() {
         if (r == null) {
-            r = new Random();
+            r = new SecureRandom();
         }
         return r;
     }
