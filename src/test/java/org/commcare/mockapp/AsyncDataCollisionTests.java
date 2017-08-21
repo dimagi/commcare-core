@@ -37,6 +37,8 @@ public class AsyncDataCollisionTests {
     private SessionNavigator app2SessionNavigator;
 
 
+    private static final String TEST_CASE_ID = "8a612ef5-7388-4e16-821c-3768bb074132";
+
     @Before
     public void setUp() throws Exception {
         LivePrototypeFactory sharedFactory = new LivePrototypeFactory();
@@ -150,7 +152,7 @@ public class AsyncDataCollisionTests {
 
         navigator.startNextSessionStep();
 
-        session.setDatum("case_id", "56792937-d93e-465c-8619-5d75e98a6c88");
+        session.setDatum("case_id", TEST_CASE_ID);
         navigator.startNextSessionStep();
         session.setCommand("m0-f0");
         navigator.startNextSessionStep();
