@@ -9,7 +9,7 @@ import okhttp3.ResponseBody;
 import okio.BufferedSource;
 import okio.Okio;
 
-public class FakeResponseBody extends ResponseBody{
+public class FakeResponseBody extends ResponseBody {
     private final InputStream inputStream;
 
     public FakeResponseBody(InputStream inputStream) {

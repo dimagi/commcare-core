@@ -6,7 +6,7 @@ import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class AuthenticationInterceptor implements Interceptor{
+public class AuthenticationInterceptor implements Interceptor {
 
     private String credential;
 
@@ -19,7 +19,7 @@ public class AuthenticationInterceptor implements Interceptor{
         Request original = chain.request();
 
         // NOTE PLM: we will eventually support 'http' urls, but won't include authentication credentials in them
-        if(!original.isHttps() && credential !=null){
+        if (!original.isHttps() && credential !=null) {
             throw new PlainTextPasswordException();
         }
 
