@@ -286,7 +286,7 @@ public class ApplicationHost {
     }
 
     private void finishSession() {
-        mSession.clearVolitiles();
+        mSession.clearVolatiles();
         if (mSession.finishExecuteAndPop(mSession.getEvaluationContext())) {
             mSessionHasNextFrameReady = true;
         }
@@ -492,7 +492,7 @@ public class ApplicationHost {
 
         if (session != null) {
             // old session data is now no longer valid
-            session.clearVolitiles();
+            session.clearVolatiles();
         }
     }
 

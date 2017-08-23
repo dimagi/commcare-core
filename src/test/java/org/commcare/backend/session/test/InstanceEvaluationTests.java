@@ -24,7 +24,7 @@ public class InstanceEvaluationTests {
         MockSessionNavigationResponder mockSessionNavigationResponder =
                 new MockSessionNavigationResponder(mApp.getSession());
         sessionNavigator = new SessionNavigator(mockSessionNavigationResponder);
-        mApp.getSession().clearVolitiles();
+        mApp.getSession().clearVolatiles();
     }
 
     /**
