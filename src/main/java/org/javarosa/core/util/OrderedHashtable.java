@@ -52,7 +52,10 @@ public class OrderedHashtable<K, V> extends Hashtable<K, V> {
     @Override
     public V put(K key, V value) {
         if (key == null) {
-            throw new NullPointerException(String.format("No value found for key %s in table %s", key, this.toString()));
+            NullPointerException npe =  new NullPointerException(
+                    String.format("No value found for key %s in table %s", key, this.toString()));
+            npe.printStackTrace();
+            throw npe;
         }
 
         V v = super.put(key, value);
