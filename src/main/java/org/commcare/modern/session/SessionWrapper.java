@@ -61,7 +61,7 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
         return this.mSandbox;
     }
 
-    public void clearVolitiles() {
+    public void clearVolatiles() {
         initializer = null;
     }
 
