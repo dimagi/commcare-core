@@ -24,24 +24,24 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     /**
      * Owned by the user or a group
      */
-    private static final int STATUS_OWNED = 1;
+    public static final int STATUS_OWNED = 1;
 
     /**
      * Should be included in the set of cases seen by the user
      */
-    private static final int STATUS_RELEVANT = 2;
+    public static final int STATUS_RELEVANT = 2;
 
     /**
      * Isn't precluded from being included in a sync for any reason
      */
-    private static final int STATUS_AVAILABLE = 4;
+    public static final int STATUS_AVAILABLE = 4;
 
     /**
      * Should remain on the phone.
      */
-    private static final int STATUS_ALIVE = 8;
+    public static final int STATUS_ALIVE = 8;
 
-    private static final int STATUS_OPEN = 16;
+    public static final int STATUS_OPEN = 16;
 
     private final Vector<Integer> idsToRemove = new Vector<>();
 
@@ -74,12 +74,52 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      *                    this behavior
      */
     public CasePurgeFilter(IStorageUtilityIndexed<Case> caseStorage, Vector<String> owners) {
-        setIdsToRemoveWithNewExtensions(caseStorage, owners);
+        this(getFullCaseGraph(caseStorage, owners));
     }
 
-    private void setIdsToRemoveWithNewExtensions(IStorageUtilityIndexed<Case> caseStorage, Vector<String> owners) {
-        internalCaseDAG = new DAG<>();
+    public CasePurgeFilter(DAG<String, int[], String> graph) {
+        setIdsToRemoveWithNewExtensions(graph);
+    }
 
+    private void setIdsToRemoveWithNewExtensions(DAG<String, int[], String> graph) {
+        internalCaseDAG = graph;
+
+        // It is important that actual edge removal be done after the call to getInvalidEdges() is
+        // complete, to prevent a ConcurrentModificationException
+        Vector<String[]> edgesToRemove = getInvalidEdges();
+        for (String[] edge : edgesToRemove) {
+            internalCaseDAG.removeEdge(edge[0], edge[1]);
+        }
+
+        propagateRelevance(internalCaseDAG);
+        propagateAvailabile(internalCaseDAG);
+        propagateLive(internalCaseDAG);
+
+        // Ok, so now just go through all nodes and signal that we need to remove anything
+        // that isn't live!
+        for (Enumeration iterator = internalCaseDAG.getNodes(); iterator.hasMoreElements(); ) {
+            int[] node = (int[])iterator.nextElement();
+            if (!caseStatusIs(node[0], STATUS_ALIVE)) {
+                idsToRemove.addElement(new Integer(node[1]));
+            }
+        }
+    }
+
+    /**
+     * Given the case storage and valid owners in the current environment, produce a case graph of
+     * the state on the phone.
+     *
+     * The Index of each node is its case id guid
+     * The Node element for the guide consists of an integer array [STATUS_FLAGS, storageid]
+     *         storageid is the id of the row of the case in the provided storage
+     *         STATUS_FLAGS is a bitmasked integer. It should be initialized with any of STATUS_OWNED,
+     *              STATUS_OPEN, and/or STATUS_RELEVANT as applies to the node (A node starts as relevant
+     *              if it is OWNED and it is OPEN)
+     *
+     * The Edge string is the 'type' of index from the originating case to the target case(ie: parent, or extension)
+     */
+    public static DAG<String, int[], String> getFullCaseGraph(IStorageUtilityIndexed<Case> caseStorage, Vector<String> owners) {
+        DAG<String, int[], String> caseGraph = new DAG<>();
         Vector<CaseIndex> indexHolder = new Vector<>();
 
         // Pass 1: Create a DAG which contains all of the cases on the phone as nodes, and has a
@@ -128,34 +168,15 @@ public class CasePurgeFilter extends EntityFilter<Case> {
                 nodeStatus |= STATUS_RELEVANT;
             }
 
-            internalCaseDAG.addNode(c.getCaseId(), new int[]{nodeStatus, c.getID()});
+            caseGraph.addNode(c.getCaseId(), new int[]{nodeStatus, c.getID()});
 
             for (CaseIndex index : indexHolder) {
-                internalCaseDAG.setEdge(c.getCaseId(), index.getTarget(), index.getRelationship());
+                caseGraph.setEdge(c.getCaseId(), index.getTarget(), index.getRelationship());
             }
             indexHolder.removeAllElements();
         }
 
-
-        // It is important that actual edge removal be done after the call to getInvalidEdges() is
-        // complete, to prevent a ConcurrentModificationException
-        Vector<String[]> edgesToRemove = getInvalidEdges();
-        for (String[] edge : edgesToRemove) {
-            internalCaseDAG.removeEdge(edge[0], edge[1]);
-        }
-
-        propagateRelevance(internalCaseDAG);
-        propagateAvailabile(internalCaseDAG);
-        propagateLive(internalCaseDAG);
-
-        // Ok, so now just go through all nodes and signal that we need to remove anything
-        // that isn't live!
-        for (Enumeration iterator = internalCaseDAG.getNodes(); iterator.hasMoreElements(); ) {
-            int[] node = (int[])iterator.nextElement();
-            if (!caseStatusIs(node[0], STATUS_ALIVE)) {
-                idsToRemove.addElement(new Integer(node[1]));
-            }
-        }
+        return caseGraph;
     }
 
     private static void propagateRelevance(DAG<String, int[], String> g) {
@@ -358,4 +379,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         return false;
     }
 
+    public Vector<Integer> getCasesToRemove() {
+        return idsToRemove;
+    }
 }
