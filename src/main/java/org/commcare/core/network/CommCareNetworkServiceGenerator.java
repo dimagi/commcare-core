@@ -52,35 +52,20 @@ public class CommCareNetworkServiceGenerator {
     private static HttpLoggingInterceptor logging = new HttpLoggingInterceptor()
             .setLevel(HttpLoggingInterceptor.Level.BASIC);
 
+    private static AuthenticationInterceptor authenticationInterceptor = new AuthenticationInterceptor(null);
+
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder()
             .connectTimeout(ModernHttpRequester.CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)
             .readTimeout(ModernHttpRequester.CONNECTION_SO_TIMEOUT, TimeUnit.MILLISECONDS)
             .addNetworkInterceptor(redirectionInterceptor)
+            .addInterceptor(authenticationInterceptor)
             .addInterceptor(logging)
             .followRedirects(true);
 
-    private static Retrofit retrofit = builder.build();
-
+    private static Retrofit retrofit = builder.client(httpClient.build()).build();
 
     public static CommCareNetworkService createCommCareNetworkService(final String credential) {
-        if (credential != null) {
-            AuthenticationInterceptor authInterceptor =
-                    new AuthenticationInterceptor(credential);
-            if (!httpClient.interceptors().contains(authInterceptor)) {
-                httpClient.addInterceptor(authInterceptor);
-
-                builder.client(httpClient.build());
-                retrofit = builder.build();
-            }
-        } else {
-            for (Interceptor interceptor : httpClient.interceptors()) {
-                if (interceptor instanceof AuthenticationInterceptor) {
-                    httpClient.interceptors().remove(interceptor);
-                    retrofit = builder.build();
-                    break;
-                }
-            }
-        }
+        authenticationInterceptor.setCredential(credential);
         return retrofit.create(CommCareNetworkService.class);
     }
 

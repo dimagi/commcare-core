@@ -56,7 +56,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     private Call currentCall;
 
     /**
-     * responseProcessor Can be null if you want to process the response yourself. Please use makeRequest() instead of processRequest()
+     * responseProcessor Can be null if you want to process the response yourself. Please use makeRequest() instead of makeRequestAndProcess()
      * to make a request in case of responseProcessor being null.
      */
     public ModernHttpRequester(BitCacheFactory.CacheDirSetup cacheDirSetup,
@@ -77,10 +77,10 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     }
 
     /**
-     * Executes and process the Request using the ResponseProcessor. Use makeRequest if you don't want ModernHTTPRequester to process the response.
+     * Executes and process the Request using the ResponseProcessor.
      */
     @Nullable
-    public void processRequest() {
+    public void makeRequestAndProcess() {
         if (responseProcessor == null) {
             throw new IllegalStateException("Please call makeRequest since responseProcessor is null");
         }
@@ -172,25 +172,6 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
             formBodyBuilder.add(param.getKey(), param.getValue());
         }
         return formBodyBuilder.build();
-    }
-
-    public static String getCredential(User user, String domain) {
-        final String username;
-        if (domain != null) {
-            username = user.getUsername() + "@" + domain;
-        } else {
-            username = user.getUsername();
-        }
-        final String password = user.getCachedPwd();
-        return getCredential(username, password);
-    }
-
-    public static String getCredential(String username, String password) {
-        if (username == null || password == null) {
-            return null;
-        } else {
-            return okhttp3.Credentials.basic(username, password);
-        }
     }
 
     public static long getContentLength(Response response) {

@@ -2,15 +2,18 @@ package org.commcare.core.network;
 
 import java.io.IOException;
 
+import javax.annotation.Nullable;
+
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class AuthenticationInterceptor implements Interceptor{
+public class AuthenticationInterceptor implements Interceptor {
 
+    @Nullable
     private String credential;
 
-    public AuthenticationInterceptor(String credential) {
+    public AuthenticationInterceptor(@Nullable String credential) {
         this.credential = credential;
     }
 
@@ -18,8 +21,13 @@ public class AuthenticationInterceptor implements Interceptor{
     public Response intercept(Chain chain) throws IOException {
         Request original = chain.request();
 
-        // NOTE PLM: we will eventually support 'http' urls, but won't include authentication credentials in them
-        if(!original.isHttps() && credential !=null){
+        // if credentials are null, proceed without authenticating
+        if (credential == null) {
+            return chain.proceed(original);
+        }
+
+        // Throw an exception if we are sending an authenticated request over HTTP
+        if (!original.isHttps() && credential != null) {
             throw new PlainTextPasswordException();
         }
 
@@ -28,6 +36,15 @@ public class AuthenticationInterceptor implements Interceptor{
 
         Request request = builder.build();
         return chain.proceed(request);
+    }
+
+    @Nullable
+    public String getCredential() {
+        return credential;
+    }
+
+    public void setCredential(@Nullable String credential) {
+        this.credential = credential;
     }
 
     public static class PlainTextPasswordException extends RuntimeException {

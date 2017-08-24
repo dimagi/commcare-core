@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 public class StreamsUtil {
     /**
@@ -90,10 +89,6 @@ public class StreamsUtil {
             output.write(buffer, 0, bytesRead);
         }
         return output.toByteArray();
-    }
-
-    public static InputStream toInputStream(String s) {
-        return new ByteArrayInputStream(s.getBytes(Charset.forName("UTF-8")));
     }
 
     /**

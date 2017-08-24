@@ -11,7 +11,7 @@ import retrofit2.Response;
 /**
  * Response Factory for OkHTTP Response
  */
-public class OkHTTPResponseMock {
+public class OkHTTPResponseMockFactory {
 
     public static Response<ResponseBody> createResponse(Integer responseCode) {
         return createResponse(responseCode, "");
@@ -26,16 +26,16 @@ public class OkHTTPResponseMock {
         return createResponse(responseCode, responseBody);
     }
 
-    public static Response<ResponseBody> createResponse(Integer responseCode, String body) {
+    private static Response<ResponseBody> createResponse(Integer responseCode, String body) {
         ResponseBody responseBody = ResponseBody.create(null, body);
         return createResponse(responseCode, responseBody);
     }
 
-    public static Response<ResponseBody> createResponse(Integer responseCode, ResponseBody responseBody) {
+    private static Response<ResponseBody> createResponse(Integer responseCode, ResponseBody responseBody) {
         return createResponse(responseCode, responseBody, null);
     }
 
-    public static Response<ResponseBody> createResponse(Integer responseCode, ResponseBody responseBody, Headers headers) {
+    private static Response<ResponseBody> createResponse(Integer responseCode, ResponseBody responseBody, Headers headers) {
 
         okhttp3.Response.Builder responseBuilder = new okhttp3.Response.Builder() //
                 .code(responseCode)
