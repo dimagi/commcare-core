@@ -37,7 +37,7 @@ public class OkHTTPResponseMockFactory {
 
     private static Response<ResponseBody> createResponse(Integer responseCode, ResponseBody responseBody, Headers headers) {
 
-        okhttp3.Response.Builder responseBuilder = new okhttp3.Response.Builder() //
+        okhttp3.Response.Builder responseBuilder = new okhttp3.Response.Builder()
                 .code(responseCode)
                 .protocol(Protocol.HTTP_1_1)
                 .request(new Request.Builder().url("http://localhost/").build());
