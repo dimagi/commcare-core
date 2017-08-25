@@ -13,10 +13,6 @@ public class AuthenticationInterceptor implements Interceptor {
     @Nullable
     private String credential;
 
-    public AuthenticationInterceptor(@Nullable String credential) {
-        this.credential = credential;
-    }
-
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request original = chain.request();
@@ -36,11 +32,6 @@ public class AuthenticationInterceptor implements Interceptor {
 
         Request request = builder.build();
         return chain.proceed(request);
-    }
-
-    @Nullable
-    public String getCredential() {
-        return credential;
     }
 
     public void setCredential(@Nullable String credential) {

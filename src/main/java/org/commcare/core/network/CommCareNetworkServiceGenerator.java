@@ -49,17 +49,13 @@ public class CommCareNetworkServiceGenerator {
         }
     };
 
-    private static HttpLoggingInterceptor logging = new HttpLoggingInterceptor()
-            .setLevel(HttpLoggingInterceptor.Level.BASIC);
-
-    private static AuthenticationInterceptor authenticationInterceptor = new AuthenticationInterceptor(null);
+    private static AuthenticationInterceptor authenticationInterceptor = new AuthenticationInterceptor();
 
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder()
             .connectTimeout(ModernHttpRequester.CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)
             .readTimeout(ModernHttpRequester.CONNECTION_SO_TIMEOUT, TimeUnit.MILLISECONDS)
             .addNetworkInterceptor(redirectionInterceptor)
             .addInterceptor(authenticationInterceptor)
-            .addInterceptor(logging)
             .followRedirects(true);
 
     private static Retrofit retrofit = builder.client(httpClient.build()).build();

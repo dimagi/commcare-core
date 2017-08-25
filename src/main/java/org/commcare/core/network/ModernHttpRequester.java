@@ -5,7 +5,6 @@ import org.commcare.core.interfaces.ResponseStreamAccessor;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
 import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.model.User;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -102,7 +101,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     public Response<ResponseBody> makeRequest() throws IOException {
         switch (method) {
             case POST:
-                currentCall = commCareNetworkService.makePostRequest(url, params, addPostHeaders(requestBody), requestBody);
+                currentCall = commCareNetworkService.makePostRequest(url, params, addContentHeaders(requestBody), requestBody);
                 break;
             case MULTIPART_POST:
                 currentCall = commCareNetworkService.makeMultipartPostRequest(url, params, headers, parts);
@@ -117,7 +116,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     }
 
 
-    private Map<String, String> addPostHeaders(RequestBody postBody) {
+    private Map<String, String> addContentHeaders(RequestBody postBody) {
         headers.put("Content-Type", "application/x-www-form-urlencoded");
         try {
             headers.put("Content-Length", postBody.contentLength() + "");
