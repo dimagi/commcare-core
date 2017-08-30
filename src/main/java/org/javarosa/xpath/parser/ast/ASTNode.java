@@ -14,148 +14,152 @@ public abstract class ASTNode {
 
     private int indent;
 
-    private void printStr(String s) {
-        for (int i = 0; i < 2 * indent; i++)
-            System.out.print(" ");
-        System.out.println(s);
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        translate(this, sb);
+        return sb.toString();
     }
 
-    public void print(Object o) {
+    private void translate(Object o, StringBuilder sb) {
         indent += 1;
-
         if (o instanceof ASTNodeAbstractExpr) {
             ASTNodeAbstractExpr x = (ASTNodeAbstractExpr)o;
-            printStr("abstractexpr {");
+            append(sb, "abstractexpr {");
             for (int i = 0; i < x.size(); i++) {
                 if (x.getType(i) == ASTNodeAbstractExpr.CHILD)
-                    print(x.content.get(i));
+                    translate(x.content.get(i), sb);
                 else
-                    printStr(x.getToken(i).toString());
+                    append(sb, x.getToken(i).toString());
             }
-            printStr("}");
+            append(sb, "}");
         } else if (o instanceof ASTNodePredicate) {
             ASTNodePredicate x = (ASTNodePredicate)o;
-            printStr("predicate {");
-            print(x.expr);
-            printStr("}");
+            append(sb, "predicate {");
+            translate(x.expr, sb);
+            append(sb, "}");
         } else if (o instanceof ASTNodeFunctionCall) {
             ASTNodeFunctionCall x = (ASTNodeFunctionCall)o;
             if (x.args.size() == 0) {
-                printStr("func {" + x.name.toString() + ", args {none}}");
+                append(sb, "func {" + x.name.toString() + ", args {none}}");
             } else {
-                printStr("func {" + x.name.toString() + ", args {{");
+                append(sb, "func {" + x.name.toString() + ", args {{");
                 for (int i = 0; i < x.args.size(); i++) {
-                    print(x.args.get(i));
+                    translate(x.args.get(i), sb);
                     if (i < x.args.size() - 1)
-                        printStr(" } {");
+                        append(sb, " } {");
                 }
-                printStr("}}}");
+                append(sb, "}}}");
             }
         } else if (o instanceof ASTNodeBinaryOp) {
             ASTNodeBinaryOp x = (ASTNodeBinaryOp)o;
-            printStr("opexpr {");
+            append(sb, "opexpr {");
             for (int i = 0; i < x.exprs.size(); i++) {
-                print(x.exprs.get(i));
+                translate(x.exprs.get(i), sb);
                 if (i < x.exprs.size() - 1) {
                     switch (x.ops.get(i)) {
                         case Token.AND:
-                            printStr("and:");
+                            append(sb, "and:");
                             break;
                         case Token.OR:
-                            printStr("or:");
+                            append(sb, "or:");
                             break;
                         case Token.EQ:
-                            printStr("eq:");
+                            append(sb, "eq:");
                             break;
                         case Token.NEQ:
-                            printStr("neq:");
+                            append(sb, "neq:");
                             break;
                         case Token.LT:
-                            printStr("lt:");
+                            append(sb, "lt:");
                             break;
                         case Token.LTE:
-                            printStr("lte:");
+                            append(sb, "lte:");
                             break;
                         case Token.GT:
-                            printStr("gt:");
+                            append(sb, "gt:");
                             break;
                         case Token.GTE:
-                            printStr("gte:");
+                            append(sb, "gte:");
                             break;
                         case Token.PLUS:
-                            printStr("plus:");
+                            append(sb, "plus:");
                             break;
                         case Token.MINUS:
-                            printStr("minus:");
+                            append(sb, "minus:");
                             break;
                         case Token.DIV:
-                            printStr("div:");
+                            append(sb, "div:");
                             break;
                         case Token.MOD:
-                            printStr("mod:");
+                            append(sb, "mod:");
                             break;
                         case Token.MULT:
-                            printStr("mult:");
+                            append(sb, "mult:");
                             break;
                         case Token.UNION:
-                            printStr("union:");
+                            append(sb, "union:");
                             break;
                     }
                 }
             }
-            printStr("}");
+            append(sb, "}");
         } else if (o instanceof ASTNodeUnaryOp) {
             ASTNodeUnaryOp x = (ASTNodeUnaryOp)o;
-            printStr("opexpr {");
+            append(sb, "opexpr {");
             switch (x.op) {
                 case Token.UMINUS:
-                    printStr("num-neg:");
+                    append(sb, "num-neg:");
                     break;
             }
-            print(x.expr);
-            printStr("}");
+            translate(x.expr, sb);
+            append(sb, "}");
         } else if (o instanceof ASTNodeLocPath) {
             ASTNodeLocPath x = (ASTNodeLocPath)o;
-            printStr("pathexpr {");
+            append(sb, "pathexpr {");
             int offset = x.isAbsolute() ? 1 : 0;
             for (int i = 0; i < x.clauses.size() + offset; i++) {
                 if (offset == 0 || i > 0)
-                    print(x.clauses.elementAt(i - offset));
+                    translate(x.clauses.elementAt(i - offset), sb);
                 if (i < x.separators.size()) {
                     switch (x.separators.get(i)) {
                         case Token.DBL_SLASH:
-                            printStr("dbl-slash:");
+                            append(sb, "dbl-slash:");
                             break;
                         case Token.SLASH:
-                            printStr("slash:");
+                            append(sb, "slash:");
                             break;
                     }
                 }
             }
-            printStr("}");
+            append(sb, "}");
 
         } else if (o instanceof ASTNodePathStep) {
             ASTNodePathStep x = (ASTNodePathStep)o;
-            printStr("step {axis: " + x.axisType + " node test type: " + x.nodeTestType);
+            append(sb, "step {axis: " + x.axisType + " node test type: " + x.nodeTestType);
             if (x.axisType == ASTNodePathStep.AXIS_TYPE_EXPLICIT)
-                printStr("  axis type: " + x.axisVal);
+                append(sb, "  axis type: " + x.axisVal);
             if (x.nodeTestType == ASTNodePathStep.NODE_TEST_TYPE_QNAME)
-                printStr("  node test name: " + x.nodeTestQName.toString());
-            if (x.nodeTestType == ASTNodePathStep.NODE_TEST_TYPE_FUNC) print(x.nodeTestFunc);
-            printStr("predicates...");
+                append(sb, "  node test name: " + x.nodeTestQName.toString());
+            if (x.nodeTestType == ASTNodePathStep.NODE_TEST_TYPE_FUNC) translate(x.nodeTestFunc, sb);
+            append(sb, "predicates...");
             for (Enumeration e = x.predicates.elements(); e.hasMoreElements(); )
-                print(e.nextElement());
-            printStr("}");
+                translate(e.nextElement(), sb);
+            append(sb, "}");
         } else if (o instanceof ASTNodeFilterExpr) {
             ASTNodeFilterExpr x = (ASTNodeFilterExpr)o;
-            printStr("filter expr {");
-            print(x.expr);
-            printStr("predicates...");
+            append(sb, "filter expr {");
+            translate(x.expr, sb);
+            append(sb, "predicates...");
             for (Enumeration e = x.predicates.elements(); e.hasMoreElements(); )
-                print(e.nextElement());
-            printStr("}");
+                translate(e.nextElement(), sb);
+            append(sb, "}");
         }
-
         indent -= 1;
+    }
+
+    private void append(StringBuilder sb, String s) {
+        for (int i = 0; i < 2 * indent; i++)
+            sb.append(" ");
+        sb.append(s);
     }
 }
