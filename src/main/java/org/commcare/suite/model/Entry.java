@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
 
@@ -142,11 +143,16 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
     }
 
     @Override
-    public Observable<String> getTextForBadge(EvaluationContext ec) {
+    public Observable<String> getTextForBadge(final EvaluationContext ec) {
         if (display.getBadgeText() == null) {
             return Observable.just("");
         }
-        return Observable.just(display.getBadgeText().evaluate(ec));
+        return Observable.fromCallable(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                return display.getBadgeText().evaluate(ec);
+            }
+        });
     }
 
     @Override
