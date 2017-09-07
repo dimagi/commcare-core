@@ -10,6 +10,7 @@ import org.javarosa.core.model.trace.AccumulatingReporter;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.utils.InstrumentationUtils;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.xpath.XPathException;
 
 import java.io.PrintStream;
@@ -104,15 +105,6 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         return row.toString();
     }
 
-    private static boolean intArrayContains(int[]sorts, int sortIndex) {
-        for (int sort: sorts) {
-            if (sort == sortIndex) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static Pair<String[], int[]> getHeaders(Detail shortDetail, EvaluationContext context, int sortIndex){
         DetailField[] fields = shortDetail.getFields();
         String[] headers = new String[fields.length];
@@ -136,7 +128,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
             ScreenUtils.addPaddedStringToBuilder(row, s, widthHint);
 
-            if (intArrayContains(sorts, i)) {
+            if (DataUtil.intArrayContains(sorts, i)) {
                 if (i == sortIndex) {
                     if (reverse) {
                         s = s + " Λ ";
