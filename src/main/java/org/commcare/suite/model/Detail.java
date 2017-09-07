@@ -441,6 +441,8 @@ public class Detail implements Externalizable {
         return callout;
     }
 
+
+
     private abstract class Map<E> {
         private final E a;
 

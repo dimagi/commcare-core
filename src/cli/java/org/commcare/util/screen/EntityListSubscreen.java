@@ -104,10 +104,23 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         return row.toString();
     }
 
-    public static Pair<String[], int[]> getHeaders(Detail shortDetail, EvaluationContext context){
+    private static boolean intArrayContains(int[]sorts, int sortIndex) {
+        for (int sort: sorts) {
+            if (sort == sortIndex) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static Pair<String[], int[]> getHeaders(Detail shortDetail, EvaluationContext context, int sortIndex){
         DetailField[] fields = shortDetail.getFields();
         String[] headers = new String[fields.length];
         int[] widthHints = new int[fields.length];
+
+        boolean reverse = sortIndex < 0;
+        sortIndex = Math.abs(sortIndex) - 1;
+        int[] sorts = shortDetail.getOrderedFieldIndicesForSorting();
 
         StringBuilder row = new StringBuilder();
         int i = 0;
@@ -120,7 +133,18 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             } catch (Exception e) {
                 //Really don't care if it didn't work
             }
+
             ScreenUtils.addPaddedStringToBuilder(row, s, widthHint);
+
+            if (intArrayContains(sorts, i)) {
+                if (i == sortIndex) {
+                    if (reverse) {
+                        s = s + " Λ ";
+                    } else {
+                        s = s + " V ";
+                    }
+                }
+            }
 
             headers[i] = s;
             widthHints[i] = widthHint;
