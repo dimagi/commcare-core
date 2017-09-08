@@ -28,6 +28,7 @@ public class FormEntryController {
     public static final int EVENT_REPEAT = 16;
     public static final int EVENT_REPEAT_JUNCTURE = 32;
 
+    // 'appearance' attributes for a group
     public final static String FIELD_LIST = "field-list";
     public final static String COMPACT = "compact";
 
