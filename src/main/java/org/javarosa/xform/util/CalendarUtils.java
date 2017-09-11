@@ -346,7 +346,7 @@ public class CalendarUtils {
     }
 
     public static UniversalDate fromMillis(long millisFromJavaEpoch) {
-        return fromMillis(millisFromJavaEpoch, DateTimeZone.UTC);
+        return fromMillis(millisFromJavaEpoch, DateTimeZone.getDefault());
     }
 
     public static UniversalDate incrementMonth(UniversalDate date) {
