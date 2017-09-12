@@ -14,6 +14,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
+import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
 
@@ -193,11 +194,16 @@ public class Menu implements Externalizable, MenuDisplayable {
     }
 
     @Override
-    public Observable<String> getTextForBadge(EvaluationContext ec) {
+    public Observable<String> getTextForBadge(final EvaluationContext ec) {
         if (display.getBadgeText() == null) {
             return Observable.just("");
         }
-        return Observable.just(display.getBadgeText().evaluate(ec));
+        return Observable.fromCallable(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                return display.getBadgeText().evaluate(ec);
+            }
+        });
     }
 
     @Override
