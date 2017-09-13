@@ -63,7 +63,9 @@ public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
             throws AnalysisInvalidException {
 
         if (getOriginalContextRef() == null) {
-            throw new AnalysisInvalidException();
+            throw new AnalysisInvalidException("No original context ref was available when " +
+                    "trying to analyze the following expression with context type current: " +
+                    expressionWithContextTypeCurrent.toString());
         }
 
         doNormalTreeRefAnalysis(expressionWithContextTypeCurrent);
@@ -80,7 +82,9 @@ public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
             throws AnalysisInvalidException {
 
         if (getContextRef() == null) {
-            throw new AnalysisInvalidException();
+            throw new AnalysisInvalidException("No context ref was available when trying to " +
+                    "analyze the following expression with context type relative: " +
+                    expressionWithContextTypeRelative.toString());
         }
 
         doNormalTreeRefAnalysis(expressionWithContextTypeRelative);
