@@ -1,12 +1,12 @@
 package org.javarosa.xpath.expr;
 
+import org.apache.regexp.RE;
+import org.apache.regexp.RESyntaxException;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-import me.regexp.RE;
-import me.regexp.RESyntaxException;
 
 public class XPathReplaceFunc extends XPathFuncExpr {
     public static final String NAME = "replace";
