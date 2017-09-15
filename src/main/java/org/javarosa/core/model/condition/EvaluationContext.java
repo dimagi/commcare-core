@@ -86,6 +86,7 @@ public class EvaluationContext {
         this(instance, new Hashtable<String, DataInstance>());
     }
 
+    // *** This is the only EC constructor where a NEW context is actually passed in
     public EvaluationContext(EvaluationContext base, TreeReference context) {
         this(base, base.instance, context, base.formInstances);
     }

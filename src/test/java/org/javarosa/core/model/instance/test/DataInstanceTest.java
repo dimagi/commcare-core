@@ -75,7 +75,7 @@ public class DataInstanceTest {
         TreeReference ref = null;
         try {
             TreeReference genericRef = xpe.getReference();
-            if (genericRef.getContext() == TreeReference.CONTEXT_ORIGINAL) {
+            if (genericRef.getContextType() == TreeReference.CONTEXT_ORIGINAL) {
                 ref = genericRef.contextualize(eval_ctx.getOriginalContext());
             } else {
                 ref = genericRef.contextualize(eval_ctx.getContextRef());
