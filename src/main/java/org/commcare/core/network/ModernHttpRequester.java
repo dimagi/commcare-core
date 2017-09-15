@@ -86,9 +86,9 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         try {
             response = makeRequest();
             processResponse(responseProcessor, response.code(), this);
-        } catch (IOException | AuthenticationInterceptor.PlainTextPasswordException e) {
+        } catch (IOException e) {
             e.printStackTrace();
-            responseProcessor.handleException(e);
+            responseProcessor.handleIOException(e);
         }
     }
 
@@ -101,7 +101,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     public Response<ResponseBody> makeRequest() throws IOException {
         switch (method) {
             case POST:
-                currentCall = commCareNetworkService.makePostRequest(url, params, addContentHeaders(requestBody), requestBody);
+                currentCall = commCareNetworkService.makePostRequest(url, params, headers, requestBody);
                 break;
             case MULTIPART_POST:
                 currentCall = commCareNetworkService.makeMultipartPostRequest(url, params, headers, parts);
@@ -115,19 +115,6 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         return currentCall.execute();
     }
 
-
-    private Map<String, String> addContentHeaders(RequestBody postBody) {
-        headers.put("Content-Type", "application/x-www-form-urlencoded");
-        try {
-            headers.put("Content-Length", postBody.contentLength() + "");
-        } catch (IOException e) {
-            // Do we care ?
-            e.printStackTrace();
-        }
-        return headers;
-    }
-
-
     public static void processResponse(HttpResponseProcessor responseProcessor,
                                        int responseCode,
                                        ResponseStreamAccessor streamAccessor) {
@@ -136,7 +123,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
             try {
                 responseStream = streamAccessor.getResponseStream();
             } catch (IOException e) {
-                responseProcessor.handleException(e);
+                responseProcessor.handleIOException(e);
                 return;
             }
             responseProcessor.processSuccess(responseCode, responseStream);

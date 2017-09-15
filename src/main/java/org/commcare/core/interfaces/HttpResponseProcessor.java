@@ -35,5 +35,5 @@ public interface HttpResponseProcessor {
     /**
      * A issue occurred while processing the http request or response
      */
-    void handleException(Exception exception);
+    void handleIOException(IOException exception);
 }

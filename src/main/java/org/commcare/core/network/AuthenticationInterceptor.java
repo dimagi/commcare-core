@@ -23,7 +23,7 @@ public class AuthenticationInterceptor implements Interceptor {
         }
 
         // Throw an exception if we are sending an authenticated request over HTTP
-        if (!original.isHttps() && credential != null) {
+        if (secureEndpointEnforced() && !original.isHttps() && credential != null) {
             throw new PlainTextPasswordException();
         }
 
@@ -34,10 +34,15 @@ public class AuthenticationInterceptor implements Interceptor {
         return chain.proceed(request);
     }
 
+    // TODO: 16/09/17 This needs to come from android developer preference settings
+    private boolean secureEndpointEnforced() {
+        return false;
+    }
+
     public void setCredential(@Nullable String credential) {
         this.credential = credential;
     }
 
-    public static class PlainTextPasswordException extends RuntimeException {
+    public static class PlainTextPasswordException extends IOException {
     }
 }

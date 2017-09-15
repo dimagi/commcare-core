@@ -29,7 +29,7 @@ import retrofit2.Retrofit;
 public class CommCareNetworkServiceGenerator {
 
     // Retrofit needs a base url to generate an instance but since our apis are fully dynamic it's not getting used.
-    private static final String BASE_URL = "https://www.commcarehq.org/";
+    private static final String BASE_URL = "http://example.url/";
 
     private static Retrofit.Builder builder = new Retrofit.Builder().baseUrl(BASE_URL);
 
