@@ -113,7 +113,7 @@ public class XPathConditional implements IConditionExpr {
             TreeReference ref = ((XPathPathExpr)expr).getReference();
             TreeReference contextualized = ref;
 
-            if (ref.getContext() == TreeReference.CONTEXT_ORIGINAL ||
+            if (ref.getContextType() == TreeReference.CONTEXT_ORIGINAL ||
                     (contextRef == null && !ref.isAbsolute())) {
                 // Expr's ref begins with 'current()' or is relative and the
                 // context ref is missing.

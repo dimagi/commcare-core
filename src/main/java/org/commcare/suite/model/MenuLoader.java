@@ -9,11 +9,13 @@ import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -103,11 +105,17 @@ public class MenuLoader {
         XPathExpression relevance = m.getMenuRelevance();
         if (m.getMenuRelevance() != null) {
             xPathErrorMessage = m.getMenuRelevanceRaw();
-            EvaluationContext ec = sessionWrapper.getEvaluationContext(m.getId());
+
+            Set<String> instancesNeededByRelevancyCondition =
+                    (new InstanceNameAccumulatingAnalyzer()).accumulate(relevance);
+            EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(m.getId(),
+                    instancesNeededByRelevancyCondition);
+
             EvaluationContext traceableContext = new EvaluationContext(ec, ec.getOriginalContext());
             if (traceReporter != null) {
                 traceableContext.setDebugModeOn(traceReporter);
             }
+
             boolean result = FunctionUtils.toBoolean(relevance.eval(traceableContext));
             InstrumentationUtils.printAndClearTraces(traceReporter, "menu load expand");
             return result;
@@ -122,10 +130,16 @@ public class MenuLoader {
             throws XPathSyntaxException {
         xPathErrorMessage = "";
         for (String command : m.getCommandIds()) {
-            XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
-            if (mRelevantCondition != null) {
+            XPathExpression relevancyCondition = m.getCommandRelevance(m.indexOfCommand(command));
+            if (relevancyCondition != null) {
                 xPathErrorMessage = m.getCommandRelevanceRaw(m.indexOfCommand(command));
-                Object ret = mRelevantCondition.eval(sessionWrapper.getEvaluationContext(command));
+
+                Set<String> instancesNeededByRelevancyCondition =
+                        (new InstanceNameAccumulatingAnalyzer()).accumulate(relevancyCondition);
+                EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(command,
+                        instancesNeededByRelevancyCondition);
+
+                Object ret = relevancyCondition.eval(ec);
                 try {
                     if (!FunctionUtils.toBoolean(ret)) {
                         continue;

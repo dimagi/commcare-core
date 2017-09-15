@@ -9,6 +9,8 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathArityException;
+import org.javarosa.xpath.analysis.AnalysisInvalidException;
+import org.javarosa.xpath.analysis.XPathAnalyzer;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -207,6 +209,14 @@ public abstract class XPathFuncExpr extends XPathExpression {
     protected void validateArgCount() throws XPathSyntaxException {
         if (expectedArgCount != args.length) {
             throw new XPathArityException(name, expectedArgCount, args.length);
+        }
+    }
+
+    @Override
+    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        analyzer.doAnalysis(XPathFuncExpr.this);
+        for (XPathExpression expr : this.args) {
+            expr.applyAndPropagateAnalyzer(analyzer);
         }
     }
 }
