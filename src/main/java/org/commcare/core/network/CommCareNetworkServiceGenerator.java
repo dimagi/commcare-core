@@ -60,8 +60,9 @@ public class CommCareNetworkServiceGenerator {
 
     private static Retrofit retrofit = builder.client(httpClient.build()).build();
 
-    public static CommCareNetworkService createCommCareNetworkService(final String credential) {
+    public static CommCareNetworkService createCommCareNetworkService(final String credential, boolean enforceSecureEndpoint) {
         authenticationInterceptor.setCredential(credential);
+        authenticationInterceptor.setEnforceSecureEndpoint(enforceSecureEndpoint);
         return retrofit.create(CommCareNetworkService.class);
     }
 

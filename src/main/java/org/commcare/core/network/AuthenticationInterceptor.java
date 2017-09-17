@@ -12,6 +12,7 @@ public class AuthenticationInterceptor implements Interceptor {
 
     @Nullable
     private String credential;
+    private boolean enforceSecureEndpoint;
 
     @Override
     public Response intercept(Chain chain) throws IOException {
@@ -23,7 +24,7 @@ public class AuthenticationInterceptor implements Interceptor {
         }
 
         // Throw an exception if we are sending an authenticated request over HTTP
-        if (secureEndpointEnforced() && !original.isHttps() && credential != null) {
+        if (enforceSecureEndpoint && !original.isHttps() && credential != null) {
             throw new PlainTextPasswordException();
         }
 
@@ -34,9 +35,8 @@ public class AuthenticationInterceptor implements Interceptor {
         return chain.proceed(request);
     }
 
-    // TODO: 16/09/17 This needs to come from android developer preference settings
-    private boolean secureEndpointEnforced() {
-        return false;
+    public void setEnforceSecureEndpoint(boolean enforceSecureEndpoint) {
+        this.enforceSecureEndpoint = enforceSecureEndpoint;
     }
 
     public void setCredential(@Nullable String credential) {
