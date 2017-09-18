@@ -66,7 +66,11 @@ dependencies {
       compile 'xpp3:xpp3:1.1.4c'
       compile 'joda-time:joda-time:2.9.3'
       compile 'com.carrotsearch:hppc:0.7.2'
+      compile "com.squareup.retrofit2:retrofit:2.3.0"
+      compile 'com.squareup.okhttp3:logging-interceptor:3.8.0'
+      compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
       compile 'io.reactivex.rxjava2:rxjava:2.1.1'
+
 
       cliCompile 'org.json:json:20140107'
       cliCompile files('lib/regexp-me.jar')
