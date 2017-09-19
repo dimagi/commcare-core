@@ -315,7 +315,7 @@ public class EvaluationContext {
             predicates = predCopy;
         }
 
-        AbstractTreeElement node = sourceInstance.resolveReference(workingRef);
+        AbstractTreeElement node = sourceInstance.resolveReference(workingRef, this);
 
         this.openBulkTrace();
 
@@ -515,7 +515,7 @@ public class EvaluationContext {
                 (instance == null || instance.getInstanceId() == null || !instance.getInstanceId().equals(qualifiedRef.getInstanceName()))) {
             instance = this.getInstance(qualifiedRef.getInstanceName());
         }
-        return instance.resolveReference(qualifiedRef);
+        return instance.resolveReference(qualifiedRef, this);
     }
 
     /**

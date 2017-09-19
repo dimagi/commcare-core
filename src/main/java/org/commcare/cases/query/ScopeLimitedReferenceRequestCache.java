@@ -33,7 +33,7 @@ public class ScopeLimitedReferenceRequestCache implements QueryCache {
      * Replaces the tree element cache used to hold the final partial tree elements, since
      * the in-instance cache isn't safe to store those partial elements
      */
-    private HashMap<String, HashMap<Integer, WeakReference<TreeElement>>> treeElementCache
+    private HashMap<String, HashMap<Integer, TreeElement>> treeElementCache
             = new HashMap<>();
 
     /**
@@ -95,11 +95,11 @@ public class ScopeLimitedReferenceRequestCache implements QueryCache {
         if(!treeElementCache.containsKey(instanceName) || !treeElementCache.get(instanceName).containsKey(recordId)) {
             return null;
         }
-        return treeElementCache.get(instanceName).get(recordId).get();
+        return treeElementCache.get(instanceName).get(recordId);
     }
 
     public void cacheElement(String instanceName, int recordId, TreeElement element) {
-        treeElementCache.get(instanceName).put(recordId, new WeakReference<TreeElement>(element));
+        treeElementCache.get(instanceName).put(recordId, element);
     }
 
     /**
@@ -112,7 +112,7 @@ public class ScopeLimitedReferenceRequestCache implements QueryCache {
      */
     public void setInternalScopeLimit(String instanceName, String[] columnNameCacheLoads) {
         this.instanceScopeLimitCache.put(instanceName, columnNameCacheLoads);
-        treeElementCache.put(instanceName, new HashMap<Integer, WeakReference<TreeElement>>());
+        treeElementCache.put(instanceName, new HashMap());
     }
 
     /**

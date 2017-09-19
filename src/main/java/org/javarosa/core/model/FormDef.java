@@ -45,6 +45,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.analysis.AnalysisInvalidException;
 import org.javarosa.xpath.analysis.TreeReferenceAccumulatingAnalyzer;
 
 import java.io.DataInputStream;
@@ -53,10 +54,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -1331,7 +1334,7 @@ public class FormDef implements IFormElement, IMetaData,
             ec.setDebugModeOn(reporter);
         }
 
-        QueryContext isolatedContext = ec.signalNewQueryContextForIsolation();
+        setPotentiallyLimitedScopeContext(ec, itemset);
 
         Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(formInstance,ec);
 
@@ -1362,19 +1365,58 @@ public class FormDef implements IFormElement, IMetaData,
             choices.addElement(buildSelectChoice(matches.elementAt(i), itemset, formInstance,
                     ec, reporter, i));
         }
+        if(reporter != null) {
+            InstrumentationUtils.printAndClearTraces(reporter, "ItemSet Field Population");
+        }
+
         itemset.setChoices(choices);
+    }
+
+    private void setPotentiallyLimitedScopeContext(EvaluationContext ec, ItemsetBinding itemset) {
+        TreeReferenceAccumulatingAnalyzer analyzer = new TreeReferenceAccumulatingAnalyzer(ec);
+        Set<TreeReference> references = analyzer.accumulate(itemset.nodesetRef);
+        if (references == null) {
+            return;
+        }
+
+        EvaluationContext subContext = new EvaluationContext(ec, itemset.nodesetRef);
+
+        try {
+            references.addAll(getAccumulatedReferencesOrThrow(subContext, itemset.labelRef));
+            references.addAll(getAccumulatedReferencesOrThrow(subContext, itemset.valueRef));
+            references.addAll(getAccumulatedReferencesOrThrow(subContext, itemset.sortRef));
+        } catch (AnalysisInvalidException e) {
+            return;
+        }
+
+        QueryContext isolatedContext = ec.signalNewQueryContextForIsolation();
+        ScopeLimitedReferenceRequestCache cache = isolatedContext.getQueryCache(ScopeLimitedReferenceRequestCache.class);
+        cache.addTreeReferencesToLimitedScope(references);
+        return;
+    }
+
+    private Set<TreeReference> getAccumulatedReferencesOrThrow(EvaluationContext subContext,
+                                                               TreeReference newRef) throws AnalysisInvalidException {
+        if(newRef == null) {
+            return new HashSet<>();
+        }
+        TreeReferenceAccumulatingAnalyzer analyzer = new TreeReferenceAccumulatingAnalyzer(subContext);
+
+        Set<TreeReference> newReferences = analyzer.accumulate(newRef);
+
+        if(newReferences == null) {
+            throw new AnalysisInvalidException("itemset accumulation");
+        }
+        return newReferences;
     }
 
     private SelectChoice buildSelectChoice(TreeReference choiceRef, ItemsetBinding itemset,
                                            DataInstance formInstance, EvaluationContext ec,
                                            ReducingTraceReporter reporter, int index) {
 
-        String label = itemset.labelExpr.evalReadable(formInstance,
-                new EvaluationContext(ec, choiceRef));
+        EvaluationContext subContext = new EvaluationContext(ec, choiceRef);
 
-        if(reporter != null) {
-            InstrumentationUtils.printAndClearTraces(reporter, "ItemSet [label] population");
-        }
+        String label = itemset.labelExpr.evalReadable(formInstance, subContext);
 
         String value = null;
         TreeElement copyNode = null;
@@ -1384,12 +1426,7 @@ public class FormDef implements IFormElement, IMetaData,
         }
 
         if (itemset.valueRef != null) {
-            value = itemset.valueExpr.evalReadable(formInstance,
-                    new EvaluationContext(ec, choiceRef));
-        }
-
-        if(reporter != null) {
-            InstrumentationUtils.printAndClearTraces(reporter, "ItemSet [value] population");
+            value = itemset.valueExpr.evalReadable(formInstance, subContext);
         }
 
         SelectChoice choice = new SelectChoice(label, value != null ? value : "dynamic:" + index,
@@ -1402,15 +1439,9 @@ public class FormDef implements IFormElement, IMetaData,
         }
 
         if (itemset.sortRef != null) {
-            String evaluatedSortProperty = itemset.sortExpr.evalReadable(formInstance,
-                    new EvaluationContext(ec, choiceRef));
+            String evaluatedSortProperty = itemset.sortExpr.evalReadable(formInstance, subContext);
             choice.setSortProperty(evaluatedSortProperty);
         }
-
-        if(reporter != null) {
-            InstrumentationUtils.printAndClearTraces(reporter, "ItemSet [sort] population");
-        }
-
         return choice;
     }
 

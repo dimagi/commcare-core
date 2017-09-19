@@ -297,7 +297,14 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
             currentQueryContext.reportTrace(trace);
         }
 
-        if(defaultCacher != null) {
+        boolean inTemporaryQueryContext =
+                currentQueryContext.
+                        getQueryCacheOrNull(ScopeLimitedReferenceRequestCache.class) != null;
+
+        //TODO: This is resulting in things not making it into the recordsetresultcache, since
+        //this cacher has its own lifecycle, which seems pretty bad. Generally it's likely
+        //it should be disabled even more often than it is.
+        if(defaultCacher != null && !inTemporaryQueryContext) {
             defaultCacher.cacheResult(op.key, op.value, ids);
         }
 

@@ -11,6 +11,7 @@ import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.core.model.trace.EvaluationTraceReduction;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.expr.XPathPathExpr;
 
@@ -42,14 +43,14 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
         }
 
         synchronized (parent.treeCache) {
-            TreeElement element = parent.treeCache.retrieve(recordId);
-            if (element != null) {
-                return element;
-            }
-
             TreeElement partialMatch = detectAndProcessLimitedScopeResponse(recordId,context);
             if(partialMatch != null) {
                 return partialMatch;
+            }
+
+            TreeElement element = parent.treeCache.retrieve(recordId);
+            if (element != null) {
+                return element;
             }
 
             StorageIndexedTreeElementModel model = parent.getElement(recordId, context);
@@ -91,6 +92,10 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
 
         String[] scopeSufficientColumnList = analyseScopeSufficientColumnList(cache);
 
+        if(scopeSufficientColumnList == null) {
+            return null;
+        }
+
         String[] objectMetadata = getElementMetadata(recordId, scopeSufficientColumnList, context);
 
         partialMatch = this.buildPartialElementFromMetadata(scopeSufficientColumnList, objectMetadata);
@@ -119,6 +124,7 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
             if (StorageInstanceTreeElement.canLoadRecordFromGroup(recordSetCache, recordSetKey, recordId)) {
                 Pair<String, LinkedHashSet<Integer>> tranche =
                         recordSetCache.getRecordSetForRecordId(recordSetKey, recordId);
+
                 EvaluationTrace loadTrace =
                         new EvaluationTrace(String.format("Model [%s]: Limited Scope Partial Bulk Load [%s}",
                                 recordObjectKey,tranche.first));
@@ -126,6 +132,7 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
                 LinkedHashSet<Integer>  body = tranche.second;
                 parent.getStorage().bulkReadMetadata(body, metaFields, recordObjectCache.getLoadedCaseMap(recordObjectKey));
                 loadTrace.setOutcome("Loaded: " + body.size());
+
                 context.reportTrace(loadTrace);
 
                 return recordObjectCache.getLoadedRecordObject(recordObjectKey, recordId);
@@ -165,6 +172,12 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
         HashSet<String> columnNameCacheLoads = new HashSet<>();
 
         for(TreeReference inScopeReference : referencesInScope) {
+            //raw references to this node are expected if predicates exist, and don't require
+            //specific reads
+            if(inScopeReference.equals(baseRefForChildElement)) {
+                continue;
+            }
+
             TreeReference subReference = inScopeReference.relativize(baseRefForChildElement);
             if(!stepToColumnName.containsKey(subReference)){
                 failed = true;
