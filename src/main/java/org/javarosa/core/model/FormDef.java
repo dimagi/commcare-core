@@ -1,6 +1,7 @@
 package org.javarosa.core.model;
 
 import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.ScopeLimitedReferenceRequestCache;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.actions.Action;
@@ -44,6 +45,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.analysis.TreeReferenceAccumulatingAnalyzer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -1328,6 +1330,8 @@ public class FormDef implements IFormElement, IMetaData,
             reporter = new ReducingTraceReporter();
             ec.setDebugModeOn(reporter);
         }
+
+        QueryContext isolatedContext = ec.signalNewQueryContextForIsolation();
 
         Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(formInstance,ec);
 

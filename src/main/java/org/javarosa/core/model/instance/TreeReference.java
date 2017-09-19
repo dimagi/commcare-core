@@ -476,7 +476,8 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
         if (parent.isParentOf(this, false)) {
             TreeReference relRef = selfRef();
             for (int i = parent.size(); i < this.size(); i++) {
-                relRef.add(this.getName(i), INDEX_UNBOUND);
+                int index = this.getMultiplicity(i) == INDEX_ATTRIBUTE ? INDEX_ATTRIBUTE : INDEX_UNBOUND;
+                relRef.add(this.getName(i), index);
             }
             return relRef;
         } else {

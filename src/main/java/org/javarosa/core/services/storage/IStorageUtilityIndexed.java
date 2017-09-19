@@ -179,4 +179,8 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      * required for them to be retrieved from storage again.
      */
     void bulkRead(LinkedHashSet<Integer> ids, HashMap<Integer, E> recordMap);
+
+
+    String[] getMetaDataForRecord(int recordId, String[] fieldNames);
+    void bulkReadMetadata(LinkedHashSet<Integer> body, String[] metaFields, HashMap<Integer, String[]> metadataMap);
 }

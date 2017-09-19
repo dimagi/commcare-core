@@ -690,4 +690,14 @@ public class EvaluationContext {
     public EvaluationTrace getEvaluationTrace() {
         return mTraceRoot;
     }
+
+    /**
+     * Replaces the current query context with a spanwed subcontext, regardless of the current
+     * query scope. Used when an upcoming evaluation will produce caching effects which
+     * shouldn't persist to this EC's parent's context.
+     */
+    public QueryContext signalNewQueryContextForIsolation() {
+        this.queryContext = queryContext.forceNewChildContext();
+        return queryContext;
+    }
 }

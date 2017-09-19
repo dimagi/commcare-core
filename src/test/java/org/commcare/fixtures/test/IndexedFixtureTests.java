@@ -1,12 +1,19 @@
 package org.commcare.fixtures.test;
 
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.ScopeLimitedReferenceRequestCache;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.analysis.TreeReferenceAccumulatingAnalyzer;
+import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,4 +75,48 @@ public class IndexedFixtureTests {
             XmlPullParserException, IOException, InvalidStructureException {
         ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/malicious-indexed-fixture.xml"), sandbox, true);
     }
+
+    @Test
+    public void testPartialQueryLoads() throws XPathSyntaxException, UnfullfilledRequirementsException,
+            XmlPullParserException, IOException, InvalidStructureException {
+        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/indexed_fixture/partial_lookup_load_body.xml"), sandbox);
+
+        EvaluationContext ec =
+                MockDataUtils.buildContextWithInstance(sandbox, "testfixture", "jr://fixture/testfixture");
+
+        EvaluationContext ecForTest = new EvaluationContext(ec, TreeReference.rootRef());
+
+        QueryContext context = ecForTest.signalNewQueryContextForIsolation();
+        ScopeLimitedReferenceRequestCache cache = context.getQueryCache(ScopeLimitedReferenceRequestCache.class);
+
+        String exprString = "instance('testfixture')/test/entry[@filter_attribute = 'pass'][true() and filter_one = 'pass']/name";
+        XPathExpression expr = XPathParseTool.parseXPath(exprString);
+
+        cache.addTreeReferencesToLimitedScope(new TreeReferenceAccumulatingAnalyzer(ecForTest).accumulate(expr));
+
+        CaseTestUtils.xpathEvalAndAssert(ecForTest, exprString, "succeed");
+    }
+
+    @Test
+    public void testPartialQueryLoadsInBulkMode() throws XPathSyntaxException, UnfullfilledRequirementsException,
+            XmlPullParserException, IOException, InvalidStructureException {
+        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/indexed_fixture/partial_lookup_load_body_large_scope.xml"), sandbox);
+
+        EvaluationContext ec =
+                MockDataUtils.buildContextWithInstance(sandbox, "testfixture", "jr://fixture/testfixture");
+
+        EvaluationContext ecForTest = new EvaluationContext(ec, TreeReference.rootRef());
+
+        QueryContext context = ecForTest.signalNewQueryContextForIsolation();
+        ScopeLimitedReferenceRequestCache cache = context.getQueryCache(ScopeLimitedReferenceRequestCache.class);
+
+        String exprString = "instance('testfixture')/test/entry[@filter_attribute = 'pass'][true() and filter_one = 'pass']/name";
+        XPathExpression expr = XPathParseTool.parseXPath(exprString);
+
+        cache.addTreeReferencesToLimitedScope(new TreeReferenceAccumulatingAnalyzer(ecForTest).accumulate(expr));
+
+        CaseTestUtils.xpathEvalAndAssert(ecForTest, exprString, "succeed");
+    }
+
+
 }

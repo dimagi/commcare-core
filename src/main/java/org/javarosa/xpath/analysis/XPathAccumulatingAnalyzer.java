@@ -24,15 +24,7 @@ import io.reactivex.annotations.Nullable;
  */
 public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
 
-    protected List<T> accumulatedList;
-
-    public XPathAccumulatingAnalyzer() {
-        super();
-    }
-
-    public XPathAccumulatingAnalyzer(TreeReference contextRef) {
-        super(contextRef);
-    }
+    private List<T> accumulatedList = new ArrayList<>();
 
     @Nullable
     public Set<T> accumulate(XPathAnalyzable rootExpression) {
@@ -48,52 +40,16 @@ public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
         }
     }
 
+    protected void addResultToList(T t) {
+        accumulatedList.add(t);
+    }
+
     private List<T> aggregateResults(List<T> aggregated) {
         aggregated.addAll(this.accumulatedList);
         for (XPathAnalyzer subAnalyzer : this.subAnalyzers) {
             ((XPathAccumulatingAnalyzer)subAnalyzer).aggregateResults(aggregated);
         }
         return aggregated;
-    }
-
-    // For all AccumulatingAnalyzers, it should be sufficient to handle a current() reference by
-    // applying the analyzer separately to the expression itself and to the context ref
-    @Override
-    public void doAnalysisForTreeRefWithCurrent(TreeReference expressionWithContextTypeCurrent)
-            throws AnalysisInvalidException {
-
-        if (getOriginalContextRef() == null) {
-            throw new AnalysisInvalidException("No original context ref was available when " +
-                    "trying to analyze the following expression with context type current: " +
-                    expressionWithContextTypeCurrent.toString());
-        }
-
-        doNormalTreeRefAnalysis(expressionWithContextTypeCurrent);
-        // TODO: There may be a way to figure out more carefully under which circumstances
-        // getOriginalContextRef() actually represents something new to analyze (similar to the
-        // check below in doAnalysisForRelativeTreeRef), but for now this seems hard to determine
-        getOriginalContextRef().applyAndPropagateAnalyzer(this);
-    }
-
-    // For all AccumulatingAnalyzers, it should be sufficient to handle a relative reference by
-    // applying the analyzer separately to the expression itself and to the context ref
-    @Override
-    public void doAnalysisForRelativeTreeRef(TreeReference expressionWithContextTypeRelative)
-            throws AnalysisInvalidException {
-
-        if (getContextRef() == null) {
-            throw new AnalysisInvalidException("No context ref was available when trying to " +
-                    "analyze the following expression with context type relative: " +
-                    expressionWithContextTypeRelative.toString());
-        }
-
-        doNormalTreeRefAnalysis(expressionWithContextTypeRelative);
-
-        if (!this.isSubAnalyzer) {
-            // Relative refs only introduce something new to analyze if they are in the top-level
-            // expression
-            getContextRef().applyAndPropagateAnalyzer(this);
-        }
     }
 
     // FOR TESTING PURPOSES ONLY -- This can NOT be relied upon to not return duplicates in certain scenarios

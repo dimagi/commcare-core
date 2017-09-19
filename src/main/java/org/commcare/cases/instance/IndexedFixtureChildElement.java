@@ -3,8 +3,22 @@ package org.commcare.cases.instance;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.QuerySensitive;
+import org.commcare.cases.query.ScopeLimitedReferenceRequestCache;
+import org.commcare.modern.engine.cases.RecordObjectCache;
+import org.commcare.modern.engine.cases.RecordSetResultCache;
+import org.commcare.modern.util.Pair;
+import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.expr.XPathPathExpr;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.Vector;
 
 /**
  * Child TreeElement of an indexed fixture whose data is loaded from a DB.
@@ -33,6 +47,11 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
                 return element;
             }
 
+            TreeElement partialMatch = detectAndProcessLimitedScopeResponse(recordId,context);
+            if(partialMatch != null) {
+                return partialMatch;
+            }
+
             StorageIndexedTreeElementModel model = parent.getElement(recordId, context);
             TreeElement cacheBuilder = buildElementFromModel(model);
 
@@ -40,6 +59,159 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
 
             return cacheBuilder;
         }
+    }
+
+    /**
+     * Identifies whether in the current context it is potentially the case that a "partial"
+     * response is acceptable, and builds the response if so.
+     *
+     * Returns null if that strategy is not applicable or if a partial response could not
+     * be generated
+     */
+    private TreeElement detectAndProcessLimitedScopeResponse(int recordId, QueryContext context) {
+        if(context == null) {
+            return null;
+        }
+        ScopeLimitedReferenceRequestCache cache =
+                context.getQueryCacheOrNull(ScopeLimitedReferenceRequestCache.class);
+
+        if(cache == null) {
+            return null;
+        }
+
+        //If cache already contains partial match, return it here...
+        TreeElement partialMatch = cache.getCachedElementIfExists(this.getInstanceName(), recordId);
+        if(partialMatch != null) {
+            return partialMatch;
+        }
+
+        if(!cache.isInstancePotentiallyScopeLimited(this.getInstanceName())) {
+            return null;
+        }
+
+        String[] scopeSufficientColumnList = analyseScopeSufficientColumnList(cache);
+
+        String[] objectMetadata = getElementMetadata(recordId, scopeSufficientColumnList, context);
+
+        partialMatch = this.buildPartialElementFromMetadata(scopeSufficientColumnList, objectMetadata);
+        cache.cacheElement(this.getInstanceName(), recordId, partialMatch);
+        return partialMatch;
+    }
+
+    protected String[] getElementMetadata(int recordId, String[] metaFields, QueryContext context) {
+        if (context == null || this.parent.getStorageCacheName() == null) {
+            return parent.storage.getMetaDataForRecord(recordId, metaFields);
+        }
+        RecordSetResultCache recordSetCache = context.getQueryCacheOrNull(RecordSetResultCache.class);
+
+        String recordSetKey = parent.getStorageCacheName();
+
+        String recordObjectKey = parent.getStorageCacheName() + "_partial";
+
+        RecordObjectCache<String[]> recordObjectCache = StorageInstanceTreeElement.getRecordObjectCacheIfRelevant(
+                context);
+
+        if(recordObjectCache != null) {
+            if (recordObjectCache.isLoaded(recordObjectKey, recordId)) {
+                return recordObjectCache.getLoadedRecordObject(recordObjectKey, recordId);
+            }
+
+            if (StorageInstanceTreeElement.canLoadRecordFromGroup(recordSetCache, recordSetKey, recordId)) {
+                Pair<String, LinkedHashSet<Integer>> tranche =
+                        recordSetCache.getRecordSetForRecordId(recordSetKey, recordId);
+                EvaluationTrace loadTrace =
+                        new EvaluationTrace(String.format("Model [%s]: Limited Scope Partial Bulk Load [%s}",
+                                recordObjectKey,tranche.first));
+
+                LinkedHashSet<Integer>  body = tranche.second;
+                parent.getStorage().bulkReadMetadata(body, metaFields, recordObjectCache.getLoadedCaseMap(recordObjectKey));
+                loadTrace.setOutcome("Loaded: " + body.size());
+                context.reportTrace(loadTrace);
+
+                return recordObjectCache.getLoadedRecordObject(recordObjectKey, recordId);
+            }
+        }
+
+        return parent.storage.getMetaDataForRecord(recordId, metaFields);
+    }
+
+    private String[] analyseScopeSufficientColumnList(ScopeLimitedReferenceRequestCache cache) {
+        String[] limitedScope = cache.getInternalScopedLimit(this.getInstanceName());
+        if(limitedScope != null) {
+            return limitedScope;
+        }
+
+        //If we don't already have that list, build it (or detect that it's won't be possible and tell
+        //the cache to not try.
+
+        Set<TreeReference> referencesInScope =
+                cache.getLimitedReferenceSet(this.getInstanceName());
+
+        StorageIndexedTreeElementModel model = parent.getModelTemplate();
+
+        //TODO: Make sure this doesn't recursively call cache...
+        TreeReference baseRefForChildElement = this.getRef().genericize();
+
+        Vector<String> relativeSteps = model.getIndexedTreeReferenceSteps();
+        HashMap<TreeReference, String> stepToColumnName = new HashMap<>();
+
+        for(String relativeStep : relativeSteps) {
+            stepToColumnName.put(XPathReference.getPathExpr(relativeStep).getReference(),
+                    StorageIndexedTreeElementModel.getSqlColumnNameFromElementOrAttribute(relativeStep));
+        }
+
+        boolean failed = false;
+
+        HashSet<String> columnNameCacheLoads = new HashSet<>();
+
+        for(TreeReference inScopeReference : referencesInScope) {
+            TreeReference subReference = inScopeReference.relativize(baseRefForChildElement);
+            if(!stepToColumnName.containsKey(subReference)){
+                failed = true;
+                break;
+            } else {
+                columnNameCacheLoads.add(stepToColumnName.get(subReference));
+            }
+        }
+
+        if(failed) {
+            cache.setScopeLimitUnhelpful(this.getInstanceName());
+            return null;
+        }
+
+        String[] columnList = new String[columnNameCacheLoads.size()];
+        int i = 0;
+        for(String s : columnNameCacheLoads) {
+            columnList[i] = s;
+            i++;
+        }
+
+        cache.setInternalScopeLimit(this.getInstanceName(), columnList);
+
+        return columnList;
+    }
+
+    private TreeElement buildPartialElementFromMetadata(String[] columnNames, String[] metadataValues) {
+        TreeElement partial = new TreeElement(parent.getChildHintName());
+        partial.setMult(mult);
+        partial.setParent(this.parent);
+
+        for(int i =0 ; i < columnNames.length; ++i) {
+            String columnName = columnNames[i];
+            String value = metadataValues[i];
+
+            String metadataName = StorageIndexedTreeElementModel.
+                    getElementOrAttributeFromSqlColumnName(columnName);
+
+            if(metadataName.startsWith("@")) {
+                partial.setAttribute(null, metadataName.substring(1), value);
+            } else {
+                TreeElement child = new TreeElement(metadataName);
+                child.setValue(new UncastData(value));
+                partial.addChild(child);
+            }
+        }
+        return partial;
     }
 
     private TreeElement buildElementFromModel(StorageIndexedTreeElementModel model) {

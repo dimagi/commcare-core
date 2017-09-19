@@ -71,7 +71,7 @@ public class IndexedFixtureInstanceTreeElement
         return storageIndexMap;
     }
 
-    protected String getStorageCacheName() {
+    public String getStorageCacheName() {
         return cacheKey;
     }
 }

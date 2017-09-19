@@ -152,4 +152,11 @@ public class QueryContext {
         getQueryCache(QuerySetCache.class).
                 addModelQuerySet(CurrentModelQuerySet.CURRENT_QUERY_SET_ID, hackyOriginalContextBody);
     }
+
+    /**
+     * Creates a new child context from this base context
+     */
+    public QueryContext forceNewChildContext() {
+        return new QueryContext(this);
+    }
 }
