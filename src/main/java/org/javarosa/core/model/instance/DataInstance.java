@@ -1,5 +1,8 @@
 package org.javarosa.core.model.instance;
 
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.QuerySensitiveTreeElement;
+import org.commcare.cases.query.QuerySensitiveTreeElementWrapper;
 import org.commcare.cases.util.QueryUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.utils.CacheHost;
@@ -101,7 +104,9 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         T result = null;
         for (int i = 0; i < ref.size(); i++) {
             if (ec != null) {
-                QueryUtils.prepareSensitiveObjectForUseInCurrentContext(node, ec.getCurrentQueryContext());
+                QueryContext context = ec.getCurrentQueryContext();
+                QueryUtils.prepareSensitiveObjectForUseInCurrentContext(node, context);
+                node = QuerySensitiveTreeElementWrapper.WrapWithContext(node, context);
             }
             String name = ref.getName(i);
             int mult = ref.getMultiplicity(i);

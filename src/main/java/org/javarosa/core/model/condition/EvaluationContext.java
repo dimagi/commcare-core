@@ -1,6 +1,8 @@
 package org.javarosa.core.model.condition;
 
 import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.QuerySensitiveTreeElement;
+import org.commcare.cases.query.QuerySensitiveTreeElementWrapper;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.cases.util.QueryUtils;
 import org.javarosa.core.model.data.IAnswerData;
@@ -403,6 +405,10 @@ public class EvaluationContext {
                                                          boolean includeTemplates) {
         Vector<TreeReference> childSet = new Vector<>();
         QueryUtils.prepareSensitiveObjectForUseInCurrentContext(node, getCurrentQueryContext());
+
+        node = QuerySensitiveTreeElementWrapper.WrapWithContext(node, getCurrentQueryContext());
+        //NOTE: This currently won't propogate the wrapped context.
+
         if (node.hasChildren()) {
             if (childMult == TreeReference.INDEX_UNBOUND) {
                 int count = node.getChildMultiplicity(childName);

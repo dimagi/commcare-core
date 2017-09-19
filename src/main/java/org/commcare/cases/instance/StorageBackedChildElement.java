@@ -1,6 +1,7 @@
 package org.commcare.cases.instance;
 
 import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.QuerySensitiveTreeElement;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
@@ -24,7 +25,7 @@ import java.util.Vector;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public abstract class StorageBackedChildElement<Model extends Externalizable>
-        implements AbstractTreeElement<TreeElement> {
+        implements QuerySensitiveTreeElement<TreeElement> {
 
     protected final StorageInstanceTreeElement<Model, ?> parent;
     private TreeReference ref;
@@ -64,8 +65,8 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
     }
 
     @Override
-    public TreeElement getChild(String name, int multiplicity) {
-        TreeElement cached = cache();
+    public TreeElement getChild(QueryContext context, String name, int multiplicity) {
+        TreeElement cached = cache(context);
         TreeElement child = cached.getChild(name, multiplicity);
         if (multiplicity >= 0 && child == null) {
             TreeElement emptyNode = new TreeElement(name);
@@ -76,6 +77,12 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
         return child;
     }
 
+
+    @Override
+    public TreeElement getChild(String name, int multiplicity) {
+        return getChild(null, name, multiplicity);
+    }
+
     @Override
     public Vector<TreeElement> getChildrenWithName(String name) {
         return cache().getChildrenWithName(name);
@@ -83,6 +90,10 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
 
     @Override
     public boolean hasChildren() {
+        return hasChildren(null);
+    }
+
+    public boolean hasChildren(QueryContext context) {
         return true;
     }
 
@@ -111,7 +122,11 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
 
     @Override
     public int getChildMultiplicity(String name) {
-        return cache().getChildMultiplicity(name);
+        return getChildMultiplicity(null, name);
+    }
+
+    public int getChildMultiplicity(QueryContext context, String name) {
+        return cache(context).getChildMultiplicity(name);
     }
 
     @Override
@@ -181,28 +196,35 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
 
     @Override
     public TreeReference getRef() {
+        return getRef(null);
+    }
+
+
+    @Override
+    public TreeReference getRef(QueryContext context) {
         if (ref == null) {
             ref = TreeReference.buildRefFromTreeElement(this);
         }
         return ref;
     }
 
-    @Override
-    public TreeElement getAttribute(String namespace, String name) {
+
+    //Context Sensitive Methods
+    public TreeElement getAttribute(QueryContext context, String namespace, String name) {
         if (name.equals(nameId)) {
             if (recordId != TreeReference.INDEX_TEMPLATE) {
                 //if we're already cached, don't bother with this nonsense
                 synchronized (parent.treeCache) {
                     TreeElement element = parent.treeCache.retrieve(recordId);
                     if (element != null) {
-                        return cache().getAttribute(namespace, name);
+                        return cache(context).getAttribute(namespace, name);
                     }
                 }
             }
 
             //TODO: CACHE GET ID THING
             if (entityId == null) {
-                return cache().getAttribute(namespace, name);
+                return cache(context).getAttribute(namespace, name);
             }
 
             //otherwise, don't cache this just yet if we have the ID handy
@@ -211,7 +233,12 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
             entity.setParent(this);
             return entity;
         }
-        return cache().getAttribute(namespace, name);
+        return cache(context).getAttribute(namespace, name);
+    }
+
+    @Override
+    public TreeElement getAttribute(String namespace, String name) {
+        return this.getAttribute(null, namespace, name);
     }
 
     @Override
@@ -227,4 +254,6 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
     }
 
     protected abstract TreeElement cache(QueryContext context);
+
+
 }
