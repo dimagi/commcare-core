@@ -283,11 +283,14 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         //Get matches if it works
         List<Integer> ids = storage.getIDsForValue(op.key, op.value);
 
+        boolean triggeredRecordSetCache = false;
+
         if(getStorageCacheName() != null &&
                 ids.size() > 50 && ids.size() < PerformanceTuningUtil.getMaxPrefetchCaseBlock()) {
             RecordSetResultCache cue = currentQueryContext.getQueryCache(RecordSetResultCache.class);
             String bulkRecordSetKey = String.format("%s|%s", op.key, op.value);
             cue.reportBulkRecordSet(bulkRecordSetKey, getStorageCacheName(), new LinkedHashSet(ids));
+            triggeredRecordSetCache = true;
         }
 
 
@@ -296,15 +299,10 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         if (currentQueryContext != null) {
             currentQueryContext.reportTrace(trace);
         }
-
-        boolean inTemporaryQueryContext =
-                currentQueryContext.
-                        getQueryCacheOrNull(ScopeLimitedReferenceRequestCache.class) != null;
-
-        //TODO: This is resulting in things not making it into the recordsetresultcache, since
-        //this cacher has its own lifecycle, which seems pretty bad. Generally it's likely
-        //it should be disabled even more often than it is.
-        if(defaultCacher != null && !inTemporaryQueryContext) {
+        //Don't cache anything that's recorded as a record set, since it will prevent that set
+        //from being cued into future contexts (storing the defaultCacher outside of the
+        //QueryContext gives it some bad semantics that should be reviewed...)
+        if(defaultCacher != null && !triggeredRecordSetCache) {
             defaultCacher.cacheResult(op.key, op.value, ids);
         }
 
