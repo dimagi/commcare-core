@@ -207,6 +207,11 @@ public class Menu implements Externalizable, MenuDisplayable {
     }
 
     @Override
+    public Text getRawBadgeTextObject() {
+        return display.getBadgeText();
+    }
+
+    @Override
     public String getCommandID() {
         return id;
     }
