@@ -309,11 +309,13 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         mMostRecentBatchFetch[0] = namesToMatch;
         mMostRecentBatchFetch[1] = valuesToMatch;
 
+        String storageTreeName = this.getStorageCacheName();
+
         LinkedHashSet<Integer> ids;
         if(mIndexResultCache.containsKey(cacheKey)) {
             ids = mIndexResultCache.get(cacheKey);
         } else {
-            EvaluationTrace trace = new EvaluationTrace("Storage Lookup" + "["+keyDescription + "]");
+            EvaluationTrace trace = new EvaluationTrace(String.format("Storage [%s] Key Lookup [%s]", storageTreeName, keyDescription));
             ids = new LinkedHashSet<>();
             storage.getIDsForValues(namesToMatch, valuesToMatch, ids);
             trace.setOutcome("Results: " + ids.size());
