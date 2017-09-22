@@ -19,7 +19,6 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.FunctionUtils;
 
-import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.Vector;
 
