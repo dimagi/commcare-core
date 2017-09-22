@@ -45,12 +45,15 @@ public class RecordSetResultCache implements QueryCache {
 
     public Pair<String, LinkedHashSet<Integer>> getRecordSetForRecordId(String recordSetName,
                                                                         int recordId) {
+        Pair<String, LinkedHashSet<Integer>> match = null;
         for (String key : bulkFetchBodies.keySet()) {
             Pair<String, LinkedHashSet<Integer>> tranche = bulkFetchBodies.get(key);
             if (tranche.second.contains(recordId) && tranche.first.equals(recordSetName)) {
-                return new Pair<>(key, tranche.second);
+                if(match == null || (tranche.second.size() < match.second.size())) {
+                    match = new Pair<>(key, tranche.second);
+                }
             }
         }
-        return null;
+        return match;
     }
 }
