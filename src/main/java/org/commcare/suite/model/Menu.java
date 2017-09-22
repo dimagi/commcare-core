@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
-import io.reactivex.Observable;
+import io.reactivex.Single;
 
 /**
  * A Menu definition describes the structure of how
@@ -194,11 +194,11 @@ public class Menu implements Externalizable, MenuDisplayable {
     }
 
     @Override
-    public Observable<String> getTextForBadge(final EvaluationContext ec) {
+    public Single<String> getTextForBadge(final EvaluationContext ec) {
         if (display.getBadgeText() == null) {
-            return Observable.just("");
+            return Single.just("");
         }
-        return Observable.fromCallable(new Callable<String>() {
+        return Single.fromCallable(new Callable<String>() {
             @Override
             public String call() throws Exception {
                 return display.getBadgeText().evaluate(ec);
