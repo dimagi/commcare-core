@@ -43,6 +43,14 @@ public class RecordSetResultCache implements QueryCache {
         return getRecordSetForRecordId(recordSetName, recordId) != null;
     }
 
+    /**
+     * Retrieves a record set result which contains the provided record ID and record set.
+     *
+     * If no record sets contain the provided record, returns null.
+     *
+     * If multiple record set results contain the provided record, this method will return the
+     * result of the smallest size.
+     */
     public Pair<String, LinkedHashSet<Integer>> getRecordSetForRecordId(String recordSetName,
                                                                         int recordId) {
         Pair<String, LinkedHashSet<Integer>> match = null;
