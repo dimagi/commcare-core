@@ -28,7 +28,9 @@ import java.util.Vector;
  */
 public class XPathLazyNodeset extends XPathNodeset {
 
-    private Boolean evaluated = Boolean.FALSE;
+    //Since we're using this as a lock, we need to be very careful to ensure that each
+    //nodeset gets its own new object.
+    private Boolean evaluated = new Boolean(false);
     private final TreeReference unExpandedRef;
 
     /**
@@ -55,7 +57,7 @@ public class XPathLazyNodeset extends XPathNodeset {
                 }
             }
             this.setReferences(nodes);
-            evaluated = true;
+            evaluated = new Boolean(true);
         }
     }
 
