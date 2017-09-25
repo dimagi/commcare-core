@@ -36,6 +36,18 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
     protected final Hashtable<Integer, Integer> objectIdMapping = new Hashtable<>();
 
+    /**
+     * Super basic cache for Key/Index responses from the DB
+     */
+    private Hashtable<String, LinkedHashSet<Integer>> mIndexResultCache = new Hashtable<>();
+
+    /**
+     * Get the key/value meta lookups for the most recent batch fetch. Used to prime a couple
+     * of other caches, although this should eventually migrate to use the new cueing framework
+     */
+    protected String[][] mMostRecentBatchFetch = null;
+
+
     protected abstract String getChildHintName();
 
     protected abstract Hashtable<XPathPathExpr, String> getStorageIndexMap();
@@ -272,45 +284,80 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
     protected Collection<Integer> getNextIndexMatch(Vector<PredicateProfile> profiles,
                                                     IStorageUtilityIndexed<?> storage,
                                                     QueryContext currentQueryContext) throws IllegalArgumentException {
-        if(!(profiles.elementAt(0) instanceof IndexedValueLookup)) {
+        int numKeysToProcess = this.getNumberOfBatchableKeysInProfileSet(profiles);
+
+        if(numKeysToProcess == -1) {
             throw new IllegalArgumentException("No optimization path found for optimization type");
         }
 
-        IndexedValueLookup op = (IndexedValueLookup)profiles.elementAt(0);
 
-        EvaluationTrace trace = new EvaluationTrace("Model Index[" + op.key + "] Lookup");
+        String[] namesToMatch = new String[numKeysToProcess];
+        String[] valuesToMatch = new String[numKeysToProcess];
 
-        //Get matches if it works
-        List<Integer> ids = storage.getIDsForValue(op.key, op.value);
+        String cacheKey = "";
+        String keyDescription ="";
 
-        boolean triggeredRecordSetCache = false;
+        for (int i = numKeysToProcess - 1; i >= 0; i--) {
+            namesToMatch[i] = profiles.elementAt(i).getKey();
+            valuesToMatch[i] = (String)
+                    (((IndexedValueLookup)profiles.elementAt(i)).value);
 
-        if(getStorageCacheName() != null &&
-                ids.size() > 50 && ids.size() < PerformanceTuningUtil.getMaxPrefetchCaseBlock()) {
-            RecordSetResultCache cue = currentQueryContext.getQueryCache(RecordSetResultCache.class);
-            String bulkRecordSetKey = String.format("%s|%s", op.key, op.value);
-            cue.reportBulkRecordSet(bulkRecordSetKey, getStorageCacheName(), new LinkedHashSet(ids));
-            triggeredRecordSetCache = true;
+            cacheKey += "|" + namesToMatch[i] + "=" + valuesToMatch[i];
+            keyDescription += namesToMatch[i] + "|";
         }
+        mMostRecentBatchFetch = new String[2][];
+        mMostRecentBatchFetch[0] = namesToMatch;
+        mMostRecentBatchFetch[1] = valuesToMatch;
 
+        String storageTreeName = this.getStorageCacheName();
 
-        trace.setOutcome("results: " + ids.size());
-
-        if (currentQueryContext != null) {
+        LinkedHashSet<Integer> ids;
+        if(mIndexResultCache.containsKey(cacheKey)) {
+            ids = mIndexResultCache.get(cacheKey);
+        } else {
+            EvaluationTrace trace = new EvaluationTrace(String.format("Storage [%s] Key Lookup [%s]", storageTreeName, keyDescription));
+            ids = new LinkedHashSet<>();
+            storage.getIDsForValues(namesToMatch, valuesToMatch, ids);
+            trace.setOutcome("Results: " + ids.size());
             currentQueryContext.reportTrace(trace);
+
+            mIndexResultCache.put(cacheKey, ids);
         }
 
-        //Don't cache anything that's recorded as a record set, since it will prevent that set
-        //from being cued into future contexts (storing the defaultCacher outside of the
-        //QueryContext gives it some bad semantics that should be reviewed...)
-        if(defaultCacher != null && !triggeredRecordSetCache) {
-            defaultCacher.cacheResult(op.key, op.value, ids);
+        if(ids.size() > 50 && ids.size() < PerformanceTuningUtil.getMaxPrefetchCaseBlock()) {
+            RecordSetResultCache cue = currentQueryContext.getQueryCache(RecordSetResultCache.class);
+            cue.reportBulkRecordSet(cacheKey, getStorageCacheName(), ids);
         }
 
-        //If we processed this, pop it off the queue
-        profiles.removeElementAt(0);
-
+        //Ok, we matched! Remove all of the keys that we matched
+        for (int i = 0; i < numKeysToProcess; ++i) {
+            profiles.removeElementAt(0);
+        }
         return ids;
+    }
+
+    /**
+     * Provide the number of keys that should be included in a general multi-key metadata lookup
+     * from the provided set. Each key in the returned set should be an indexed value lookup
+     * which can be matched in flat metadata with no additional processing.
+     *
+     * @param profiles A set of potential predicate profiles for bulk processing
+     * @return The number of elements to process from the provided set. If only the first
+     * profile would be processed, for instance, this method should return 1
+     */
+    protected int getNumberOfBatchableKeysInProfileSet(Vector<PredicateProfile> profiles) {
+        int keysToBatch = 0;
+        //Otherwise see how many of these we can bulk process
+        for (int i = 0; i < profiles.size(); ++i) {
+            //If the current key isn't an indexedvalue lookup, we can't process in this step
+            if (!(profiles.elementAt(i) instanceof IndexedValueLookup)) {
+                break;
+            }
+
+            //otherwise, it's now in our queue
+            keysToBatch++;
+        }
+        return keysToBatch;
     }
 
     /**
