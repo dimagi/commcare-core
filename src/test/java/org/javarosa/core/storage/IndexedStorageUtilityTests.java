@@ -104,12 +104,12 @@ public abstract class IndexedStorageUtilityTests {
         List<Integer> matches =
                 storage.getIDsForValue(Shoe.META_SIZE, "3");
 
-        Assert.assertEquals("Failed single index match [size][3]", sizeMatch, new HashSet<Integer>(matches));
+        Assert.assertEquals("Failed single index match [size][3]", sizeMatch, new HashSet<>(matches));
 
         List<Integer> matchesOnVector =
                 storage.getIDsForValues(new String[]{Shoe.META_SIZE}, new String[] {"3"});
 
-        Assert.assertEquals("Failed single vector index match [size][3]", sizeMatch, new HashSet<Integer>(matchesOnVector));
+        Assert.assertEquals("Failed single vector index match [size][3]", sizeMatch, new HashSet<>(matchesOnVector));
 
     }
 
