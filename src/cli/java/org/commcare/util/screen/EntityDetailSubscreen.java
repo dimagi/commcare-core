@@ -5,6 +5,7 @@ import org.commcare.core.graph.util.GraphException;
 import org.commcare.core.graph.util.GraphUtil;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.Style;
 import org.javarosa.core.model.condition.EvaluationContext;
 
 import java.io.PrintStream;
@@ -26,6 +27,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
     private final String[] mDetailListTitles;
     private final Object[] data ;
     private final String[] headers;
+    private final Style[] styles;
     private final int mCurrentIndex;
     private Detail detail;
 
@@ -36,6 +38,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
         ArrayList<String> rowTemporary = new ArrayList<>();
         ArrayList<String> headersTemporary = new ArrayList<>();
         ArrayList<Object> dataTemporary = new ArrayList<>();
+        ArrayList<Style> stylesTemporary = new ArrayList<>();
 
         detail.populateEvaluationContextVariables(subContext);
 
@@ -46,19 +49,26 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
                 dataTemporary.add(data);
                 headersTemporary.add(createHeader(field, subContext));
                 rowTemporary.add(createRow(field, subContext, data));
+                stylesTemporary.add(createStyle(field));
             }
         }
 
         rows = new String[rowTemporary.size()];
         headers = new String[rowTemporary.size()];
         data = new Object[rowTemporary.size()];
+        styles = new Style[rowTemporary.size()];
 
         rowTemporary.toArray(rows);
         headersTemporary.toArray(headers);
         dataTemporary.toArray(data);
+        stylesTemporary.toArray(styles);
 
         mDetailListTitles = detailListTitles;
         mCurrentIndex = currentIndex;
+    }
+
+    private Style createStyle(DetailField field) {
+        return new Style(field);
     }
 
     private String createHeader(DetailField field, EvaluationContext ec){return field.getHeader().evaluate(ec);}
@@ -169,5 +179,9 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
 
     public void setDetail(Detail detail) {
         this.detail = detail;
+    }
+
+    public Style[] getStyles() {
+        return styles;
     }
 }
