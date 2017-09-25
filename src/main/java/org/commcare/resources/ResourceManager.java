@@ -22,12 +22,6 @@ public class ResourceManager {
     protected final ResourceTable upgradeTable;
     protected final ResourceTable tempTable;
 
-    /**
-     * Lock to synchronize update logic so that multiple threads don't try to
-     * manipulate tables simultaneously.
-     */
-    protected final static Object updateLock = new Object();
-
     public ResourceManager(CommCarePlatform platform,
                            ResourceTable masterTable,
                            ResourceTable upgradeTable,
@@ -55,7 +49,7 @@ public class ResourceManager {
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
-        synchronized (updateLock) {
+        synchronized (platform) {
             if (!global.isReady()) {
                 global.prepareResources(null, platform);
             }
@@ -87,7 +81,7 @@ public class ResourceManager {
      */
     public void stageUpgradeTable(String profileRef, boolean clearProgress) throws
             UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
-        synchronized (updateLock) {
+        synchronized (platform) {
             ensureMasterTableValid();
 
             if (clearProgress) {
@@ -147,7 +141,7 @@ public class ResourceManager {
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException, IllegalArgumentException,
             InstallCancelledException {
-        synchronized (updateLock) {
+        synchronized (platform) {
             ensureMasterTableValid();
 
             // TODO: Table's acceptable states here may be incomplete
@@ -170,7 +164,7 @@ public class ResourceManager {
      */
     public void upgrade()
             throws UnresolvedResourceException, IllegalArgumentException {
-        synchronized (updateLock) {
+        synchronized (platform) {
             boolean upgradeSuccess = false;
             try {
                 Logger.log("Resource", "Upgrade table fetched, beginning upgrade");
