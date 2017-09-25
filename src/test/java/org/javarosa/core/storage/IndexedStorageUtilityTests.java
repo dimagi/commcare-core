@@ -21,7 +21,7 @@ import java.util.Vector;
  * Created by ctsims on 9/22/2017.
  */
 
-public class IndexedStorageUtilityTests {
+public abstract class IndexedStorageUtilityTests {
 
     IStorageUtilityIndexed<Shoe> storage;
 
@@ -33,9 +33,7 @@ public class IndexedStorageUtilityTests {
 
     Shoe[] fiveSizesOfMensVans;
 
-    protected IStorageUtilityIndexed<Shoe> createStorageUtility() {
-        return new DummyIndexedStorageUtility<>(Shoe.class, new LivePrototypeFactory());
-    }
+    protected abstract IStorageUtilityIndexed<Shoe> createStorageUtility();
 
     @Before
     public void setupStorageContainer() {
