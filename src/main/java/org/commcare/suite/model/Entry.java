@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
-import io.reactivex.Observable;
+import io.reactivex.Single;
 
 /**
  * Describes a user-initiated action, what information needs to be collected
@@ -157,17 +157,23 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
     }
 
     @Override
-    public Observable<String> getTextForBadge(final EvaluationContext ec) {
+    public Single<String> getTextForBadge(final EvaluationContext ec) {
         if (display.getBadgeText() == null) {
-            return Observable.just("");
+            return Single.just("");
         }
-        return Observable.fromCallable(new Callable<String>() {
+        return Single.fromCallable(new Callable<String>() {
             @Override
             public String call() throws Exception {
                 return display.getBadgeText().evaluate(ec);
             }
         });
     }
+
+    @Override
+    public Text getRawBadgeTextObject() {
+        return display.getBadgeText();
+    }
+
 
     @Override
     public String getCommandID() {

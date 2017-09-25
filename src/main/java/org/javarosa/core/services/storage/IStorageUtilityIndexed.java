@@ -5,6 +5,7 @@ import org.javarosa.core.util.externalizable.Externalizable;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -157,6 +158,33 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      *                          meta data
      */
     Vector<Integer> getIDsForValue(String fieldName, Object value);
+
+     /* Retrieves a Vector of IDs of Externalizable objects in storage for which the field
+     * specified contains the values specified.
+     *
+     * @param fieldNames A list of metadata field names to match
+     * @param value     The values which must match the field names provided
+     * @return A Vector of Integers such that retrieving the Externalizable object with any
+     * of those integer IDs will result in an object for which the fields specified are equal
+     * to the value provided.
+     * @throws RuntimeException (Fix this exception type) if the field is unrecognized by the
+     *                          meta data
+     */
+    List<Integer> getIDsForValues(String[] fieldNames, Object[] values);
+
+     /* Retrieves a Vector of IDs of Externalizable objects in storage for which the field
+     * specified contains the values specified.
+     *
+     * @param fieldNames A list of metadata field names to match
+     * @param value     The values which must match the field names provided
+     * @param returnSet A LinkedHashSet of integers which match the return value 
+     * @return A Vector of Integers such that retrieving the Externalizable object with any
+     * of those integer IDs will result in an object for which the fields specified are equal
+     * to the value provided.
+     * @throws RuntimeException (Fix this exception type) if the field is unrecognized by the
+     *                          meta data
+     */
+     List<Integer> getIDsForValues(String[] fieldNames, Object[] values, LinkedHashSet<Integer> returnSet);
 
     /**
      * Retrieves a Externalizable object from the storage which is reference by the unique index fieldName.

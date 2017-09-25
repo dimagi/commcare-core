@@ -11,6 +11,9 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.analysis.AnalysisInvalidException;
+import org.javarosa.xpath.analysis.XPathAnalyzable;
+import org.javarosa.xpath.analysis.XPathAnalyzer;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -43,7 +46,7 @@ import java.util.Vector;
  *
  * @author ctsims
  */
-public class Text implements Externalizable, DetailTemplate {
+public class Text implements Externalizable, DetailTemplate, XPathAnalyzable {
     private int type;
     private String argument;
 
@@ -182,10 +185,7 @@ public class Text implements Externalizable, DetailTemplate {
                 return Localization.get(id);
             case TEXT_TYPE_XPATH:
                 try {
-                    if (cacheParse == null) {
-                        //Do an XPath cast to a string as part of the operation.
-                        cacheParse = XPathParseTool.parseXPath("string(" + argument + ")");
-                    }
+                    ensureCacheIsParsed();
 
                     //We need an EvaluatonContext in a specific sense in order to evaluate certain components
                     //like Instance references or relative references to some models, but it's valid to use
@@ -208,14 +208,14 @@ public class Text implements Externalizable, DetailTemplate {
                                 return "";
                             }
 
-                            String type = (String)args[1];
+                            String type = (String) args[1];
                             int format = DateUtils.FORMAT_HUMAN_READABLE_SHORT;
                             if (type.equals("short")) {
                                 format = DateUtils.FORMAT_HUMAN_READABLE_SHORT;
                             } else if (type.equals("long")) {
                                 format = DateUtils.FORMAT_ISO8601;
                             }
-                            return DateUtils.formatDate((Date)o, format);
+                            return DateUtils.formatDate((Date) o, format);
                         }
 
                         @Override
@@ -271,12 +271,12 @@ public class Text implements Externalizable, DetailTemplate {
 
 
                     for (Enumeration en = arguments.keys(); en.hasMoreElements(); ) {
-                        String key = (String)en.nextElement();
+                        String key = (String) en.nextElement();
                         String value = arguments.get(key).evaluate(context);
                         temp.setVariable(key, value);
                     }
 
-                    return (String)cacheParse.eval(temp.getMainInstance(), temp);
+                    return (String) cacheParse.eval(temp.getMainInstance(), temp);
                 } catch (XPathSyntaxException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -314,5 +314,28 @@ public class Text implements Externalizable, DetailTemplate {
 
     public String getArgument() {
         return argument;
+    }
+
+    @Override
+    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        if(this.type == Text.TEXT_TYPE_XPATH) {
+            try {
+                ensureCacheIsParsed();
+            } catch(XPathSyntaxException e) {
+                throw new AnalysisInvalidException("Couldn't parse Text XPath Expression");
+            }
+            cacheParse.applyAndPropagateAnalyzer(analyzer);
+        } else if(arguments != null) {
+            for(Text t : arguments.values()) {
+                t.applyAndPropagateAnalyzer(analyzer);
+            }
+        }
+    }
+
+    public void ensureCacheIsParsed() throws XPathSyntaxException {
+        if (cacheParse == null) {
+            //Do an XPath cast to a string as part of the operation.
+            cacheParse = XPathParseTool.parseXPath("string(" + argument + ")");
+        }
     }
 }

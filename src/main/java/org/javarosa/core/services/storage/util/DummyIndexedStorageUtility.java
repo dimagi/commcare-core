@@ -16,10 +16,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -81,6 +83,27 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
             return new Vector<>();
         }
         return meta.get(fieldName).get(value);
+    }
+
+    @Override
+    public List<Integer> getIDsForValues(String[] fieldNames, Object[] values) {
+        return getIDsForValues(fieldNames, values, new LinkedHashSet<Integer>());
+    }
+
+    @Override
+    public List<Integer> getIDsForValues(String[] fieldNames, Object[] values, LinkedHashSet<Integer> returnSet) {
+        List<Integer> accumulator = null;
+        for(int i = 0; i < fieldNames.length; ++i) {
+            Vector<Integer> matches = getIDsForValue(fieldNames[i], values[i]);
+            if (accumulator == null) {
+                accumulator = new Vector<>(matches);
+            } else {
+                accumulator = DataUtil.intersection(accumulator, matches);
+            }
+        }
+
+        returnSet.addAll(accumulator);
+        return accumulator;
     }
 
     @Override
