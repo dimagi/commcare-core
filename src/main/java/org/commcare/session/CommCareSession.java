@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -565,7 +566,7 @@ public class CommCareSession {
      * @return Evaluation context for current session state
      */
     public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif) {
-        return this.getEvaluationContext(iif, getCommand());
+        return this.getEvaluationContext(iif, getCommand(), null);
     }
 
     /**
@@ -575,7 +576,9 @@ public class CommCareSession {
      * @param iif the instance initializer for the current platform
      * @return Evaluation context for a command in the installed app
      */
-    public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif, String command) {
+    public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif,
+                                                  String command,
+                                                  Set<String> instancesToInclude) {
         if (command == null) {
             return new EvaluationContext(null);
         }
@@ -587,7 +590,7 @@ public class CommCareSession {
 
         Entry entry = entries.elementAt(0);
 
-        Hashtable<String, DataInstance> instancesInScope = entry.getInstances();
+        Hashtable<String, DataInstance> instancesInScope = entry.getInstances(instancesToInclude);
 
         for (Enumeration en = instancesInScope.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();

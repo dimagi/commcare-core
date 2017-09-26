@@ -14,8 +14,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
+import java.util.concurrent.Callable;
 
-import io.reactivex.Observable;
+import io.reactivex.Single;
 
 /**
  * A Menu definition describes the structure of how
@@ -201,8 +202,8 @@ public class Menu implements Externalizable, MenuDisplayable {
     }
 
     @Override
-    public Observable<String> getObservableForBadge(EvaluationContext ec) {
-        return Observable.just(getTextForBadge(ec));
+    public Text getRawBadgeTextObject() {
+        return display.getBadgeText();
     }
 
     @Override

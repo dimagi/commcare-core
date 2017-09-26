@@ -8,12 +8,9 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathPathExpr;
 
 import java.util.Collection;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-
-import sun.reflect.generics.tree.Tree;
 
 /**
  * Generates potential model query set lookups for references into the case database model.
@@ -118,7 +115,7 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
     }
 
     private boolean isCurrentRef(TreeReference ref) {
-        return ref.getContext() == TreeReference.CONTEXT_ORIGINAL;
+        return ref.getContextType() == TreeReference.CONTEXT_ORIGINAL;
     }
 
 

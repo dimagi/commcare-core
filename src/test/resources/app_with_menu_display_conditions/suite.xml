@@ -1,0 +1,141 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="16" descriptor="Suite File">
+  <xform>
+    <resource id="a9fe250f809487b4457c783d604764a2e5276dd7" version="15" descriptor="Form: (Module Menu 1) - Registration Form">
+      <location authority="local">./modules-0/forms-0.xml</location>
+      <location authority="remote">./modules-0/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="ee2be993c2f7bd0b99ecc101f0d4b85087e080ad" version="15" descriptor="Form: (Module Menu 2) - Followup Form">
+      <location authority="local">./modules-1/forms-0.xml</location>
+      <location authority="remote">./modules-1/forms-0.xml</location>
+    </resource>
+  </xform>
+  <detail id="m0_case_short">
+    <title>
+      <text>
+        <locale id="cchq.case"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m0_case_long">
+    <title>
+      <text>
+        <locale id="cchq.case"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_long.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <detail id="m1_case_short">
+    <title>
+      <text>
+        <locale id="cchq.case"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m1_case_long">
+    <title>
+      <text>
+        <locale id="cchq.case"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_long.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <entry>
+    <form>http://openrosa.org/formdesigner/176924C1-4A88-4E5F-B7FD-F1AC499C1DC8</form>
+    <command id="m0-f0">
+      <text>
+        <locale id="forms.m0f0"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <instance id="City" src="jr://fixture/item-list:City"/>
+    <session>
+      <datum id="case_id_new_case_0" function="uuid()"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/A07B61A8-850A-4E4F-BCB5-B4B9D288C6E7</form>
+    <command id="m1-f0">
+      <text>
+        <locale id="forms.m1f0"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <instance id="City" src="jr://fixture/item-list:City"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='case'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long"/>
+    </session>
+  </entry>
+  <menu relevant="count(instance('casedb')/casedb/case[@case_type='case'][@status='open']) &gt; 0" id="m0">
+    <text>
+      <locale id="modules.m0"/>
+    </text>
+    <command id="m0-f0"/>
+  </menu>
+  <menu relevant="count(instance('commcaresession')/session/user/data/role) &gt; 0" id="m1">
+    <text>
+      <locale id="modules.m1"/>
+    </text>
+    <command id="m1-f0"/>
+  </menu>
+</suite>

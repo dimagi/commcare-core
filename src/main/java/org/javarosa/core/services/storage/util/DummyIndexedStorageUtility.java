@@ -71,6 +71,27 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     @Override
+    public List<Integer> getIDsForValues(String[] fieldNames, Object[] values) {
+        return getIDsForValues(fieldNames, values, new LinkedHashSet<Integer>());
+    }
+
+    @Override
+    public List<Integer> getIDsForValues(String[] fieldNames, Object[] values, LinkedHashSet<Integer> returnSet) {
+        List<Integer> accumulator = null;
+        for(int i = 0; i < fieldNames.length; ++i) {
+            Vector<Integer> matches = getIDsForValue(fieldNames[i], values[i]);
+            if (accumulator == null) {
+                accumulator = new Vector<>(matches);
+            } else {
+                accumulator = DataUtil.intersection(accumulator, matches);
+            }
+        }
+
+        returnSet.addAll(accumulator);
+        return accumulator;
+    }
+
+    @Override
     public T getRecordForValue(String fieldName, Object value) throws NoSuchElementException, InvalidIndexException {
         if (meta.get(fieldName) == null) {
             throw new NoSuchElementException("No record matching meta index " + fieldName + " with value " + value);
