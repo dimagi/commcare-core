@@ -94,5 +94,8 @@ public class LogTypes {
     public static final String TYPE_FORM_DUMP = "form-dump";
 
     public static final String TYPE_FORCECLOSE = "forceclose";
+
     public static final String TYPE_GRAPHING = "graphing";
+
+    public static final String TYPE_PRINTING = "printing";
 }
