@@ -1,7 +1,8 @@
 package org.javarosa.core.model.condition;
 
 /**
- * An object which can be passed to convey
+ * An object which can be passed through a call chain to portably keep track of the abandoned
+ * status of a lifecycle.
  *
  * Created by ctsims on 9/28/2017.
  */
