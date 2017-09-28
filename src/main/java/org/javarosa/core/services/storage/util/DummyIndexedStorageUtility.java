@@ -1,5 +1,7 @@
 package org.javarosa.core.services.storage.util;
 
+import org.javarosa.core.model.condition.Abandonable;
+import org.javarosa.core.model.condition.pivot.IntegerRangeHint;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.IStorageIterator;
@@ -288,9 +290,14 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     @Override
-    public void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, T> recordMap) {
+    public void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, T> recordMap, Abandonable abandonable) {
         for(int i : cuedCases) {
             recordMap.put(i, data.get(i));
         }
+    }
+
+    @Override
+    public void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, T> recordMap) {
+        bulkRead(cuedCases, recordMap, null);
     }
 }

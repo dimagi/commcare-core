@@ -23,6 +23,7 @@ import java.util.Vector;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Single;
+import io.reactivex.functions.Action;
 
 /**
  * Describes a user-initiated action, what information needs to be collected
@@ -157,14 +158,22 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
     }
 
     @Override
-    public Single<String> getTextForBadge(final EvaluationContext ec) {
+    public Single<String> getTextForBadge(EvaluationContext ec) {
+        final EvaluationContext[] abandonableContext =
+                new EvaluationContext[] {ec.spawnWithCleanLifecycle()};
         if (display.getBadgeText() == null) {
             return Single.just("");
         }
         return Single.fromCallable(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                return display.getBadgeText().evaluate(ec);
+                return display.getBadgeText().evaluate(abandonableContext[0]);
+            }
+        }).doOnDispose(new Action() {
+            @Override
+            public void run() throws Exception {
+                abandonableContext[0].signalAbandoned();
+                abandonableContext[0] = null;
             }
         });
     }

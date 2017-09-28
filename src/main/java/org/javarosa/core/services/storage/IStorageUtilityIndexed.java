@@ -1,5 +1,6 @@
 package org.javarosa.core.services.storage;
 
+import org.javarosa.core.model.condition.Abandonable;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
@@ -123,7 +124,7 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
 
     /**
      * Return an iterator to iterate through all records in this store
-     *
+     * <p>
      * if includeData is false, the iterator is only guaranteed to be able to return ID's for
      * records, not full values.
      *
@@ -159,32 +160,32 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      */
     Vector<Integer> getIDsForValue(String fieldName, Object value);
 
-     /* Retrieves a Vector of IDs of Externalizable objects in storage for which the field
-     * specified contains the values specified.
-     *
-     * @param fieldNames A list of metadata field names to match
-     * @param value     The values which must match the field names provided
-     * @return A Vector of Integers such that retrieving the Externalizable object with any
-     * of those integer IDs will result in an object for which the fields specified are equal
-     * to the value provided.
-     * @throws RuntimeException (Fix this exception type) if the field is unrecognized by the
-     *                          meta data
-     */
+    /* Retrieves a Vector of IDs of Externalizable objects in storage for which the field
+    * specified contains the values specified.
+    *
+    * @param fieldNames A list of metadata field names to match
+    * @param value     The values which must match the field names provided
+    * @return A Vector of Integers such that retrieving the Externalizable object with any
+    * of those integer IDs will result in an object for which the fields specified are equal
+    * to the value provided.
+    * @throws RuntimeException (Fix this exception type) if the field is unrecognized by the
+    *                          meta data
+    */
     List<Integer> getIDsForValues(String[] fieldNames, Object[] values);
 
-     /* Retrieves a Vector of IDs of Externalizable objects in storage for which the field
-     * specified contains the values specified.
-     *
-     * @param fieldNames A list of metadata field names to match
-     * @param value     The values which must match the field names provided
-     * @param returnSet A LinkedHashSet of integers which match the return value 
-     * @return A Vector of Integers such that retrieving the Externalizable object with any
-     * of those integer IDs will result in an object for which the fields specified are equal
-     * to the value provided.
-     * @throws RuntimeException (Fix this exception type) if the field is unrecognized by the
-     *                          meta data
-     */
-     List<Integer> getIDsForValues(String[] fieldNames, Object[] values, LinkedHashSet<Integer> returnSet);
+    /* Retrieves a Vector of IDs of Externalizable objects in storage for which the field
+    * specified contains the values specified.
+    *
+    * @param fieldNames A list of metadata field names to match
+    * @param value     The values which must match the field names provided
+    * @param returnSet A LinkedHashSet of integers which match the return value
+    * @return A Vector of Integers such that retrieving the Externalizable object with any
+    * of those integer IDs will result in an object for which the fields specified are equal
+    * to the value provided.
+    * @throws RuntimeException (Fix this exception type) if the field is unrecognized by the
+    *                          meta data
+    */
+    List<Integer> getIDsForValues(String[] fieldNames, Object[] values, LinkedHashSet<Integer> returnSet);
 
     /**
      * Retrieves a Externalizable object from the storage which is reference by the unique index fieldName.
@@ -200,11 +201,18 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      */
     E getRecordForValue(String fieldName, Object value) throws NoSuchElementException, InvalidIndexException;
 
+    void bulkRead(LinkedHashSet<Integer> ids, HashMap<Integer, E> recordMap);
+
     /**
      * Load multiple record objects from storage at one time from a list of record ids.
-     *
+     * <p>
      * If the provided recordMap already contains entries for any ids, it is _not_
      * required for them to be retrieved from storage again.
+     *
+     * Since this method can have a significant runtime, an abandonable is provided to enable the
+     * request to be shortcircuited. Implementations should regularly assert that the request
+     * has not been abandoned on long-running bulk reads
      */
-    void bulkRead(LinkedHashSet<Integer> ids, HashMap<Integer, E> recordMap);
+
+    void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, E> recordMap, Abandonable abandonable);
 }
