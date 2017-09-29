@@ -1,6 +1,7 @@
 package org.javarosa.core.services.storage;
 
 import org.javarosa.core.model.condition.Abandonable;
+import org.javarosa.core.model.condition.RequestAbandonedException;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
