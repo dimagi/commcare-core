@@ -21,11 +21,16 @@ import org.javarosa.xpath.expr.XPathExpression;
 
 import java.util.*;
 
+import javax.management.Query;
+
 /**
  * A collection of objects that affect the evaluation of an expression, like
  * function handlers and (not supported) variable bindings.
  */
-public class EvaluationContext {
+public class EvaluationContext implements Abandonable {
+
+    private boolean isIrrelevant = false;
+
     /**
      * Whether XPath expressions being evaluated should be traced during
      * execution for debugging.
@@ -698,12 +703,25 @@ public class EvaluationContext {
     }
 
     /**
-     * Replaces the current query context with a spanwed subcontext, regardless of the current
-     * query scope. Used when an upcoming evaluation will produce caching effects which
-     * shouldn't persist to this EC's parent's context.
+     * Spawn a new evaluation context with the same context information as this context
+     * but which can maintain it's own lifecycle, including a fresh query context and
+     * capacity to abandon requests
      */
-    public QueryContext signalNewQueryContextForIsolation() {
-        this.queryContext = queryContext.forceNewChildContext();
-        return queryContext;
+    public EvaluationContext spawnWithCleanLifecycle() {
+        EvaluationContext ec = new EvaluationContext(this, this.getContextRef());
+        QueryContext qc = ec.getCurrentQueryContext().forceNewChildContext();
+        qc.attachLifecycleSignaler(new LifecycleSignaler());
+        ec.setQueryContext(qc);
+        return ec;
+    }
+
+    @Override
+    public void assertNotAbandoned() {
+        LifecycleSignaler.AssertNotAbandoned(this.getCurrentQueryContext().getLifecycleSignaler());
+    }
+
+    @Override
+    public void signalAbandoned() {
+        LifecycleSignaler.SignalAbandoned(this.getCurrentQueryContext().getLifecycleSignaler());
     }
 }

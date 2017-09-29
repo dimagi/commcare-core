@@ -1334,7 +1334,7 @@ public class FormDef implements IFormElement, IMetaData,
             ec.setDebugModeOn(reporter);
         }
 
-        setPotentiallyLimitedScopeContext(ec, itemset);
+        ec = getPotentiallyLimitedScopeContext  (ec, itemset);
 
         Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(formInstance,ec);
 
@@ -1372,27 +1372,28 @@ public class FormDef implements IFormElement, IMetaData,
         itemset.setChoices(choices);
     }
 
-    private void setPotentiallyLimitedScopeContext(EvaluationContext ec, ItemsetBinding itemset) {
+    private EvaluationContext getPotentiallyLimitedScopeContext(EvaluationContext ec, ItemsetBinding itemset) {
         TreeReferenceAccumulatingAnalyzer analyzer = new TreeReferenceAccumulatingAnalyzer(ec);
         Set<TreeReference> references = analyzer.accumulate(itemset.nodesetRef);
         if (references == null) {
-            return;
+            return ec;
         }
 
-        EvaluationContext subContext = new EvaluationContext(ec, itemset.nodesetRef);
+        EvaluationContext prototypeSubContextEnvironment = new EvaluationContext(ec, itemset.nodesetRef);
 
         try {
-            references.addAll(getAccumulatedReferencesOrThrow(subContext, itemset.labelRef));
-            references.addAll(getAccumulatedReferencesOrThrow(subContext, itemset.valueRef));
-            references.addAll(getAccumulatedReferencesOrThrow(subContext, itemset.sortRef));
+            references.addAll(getAccumulatedReferencesOrThrow(prototypeSubContextEnvironment, itemset.labelRef));
+            references.addAll(getAccumulatedReferencesOrThrow(prototypeSubContextEnvironment, itemset.valueRef));
+            references.addAll(getAccumulatedReferencesOrThrow(prototypeSubContextEnvironment, itemset.sortRef));
         } catch (AnalysisInvalidException e) {
-            return;
+            return ec;
         }
+        EvaluationContext newContext = ec.spawnWithCleanLifecycle();
 
-        QueryContext isolatedContext = ec.signalNewQueryContextForIsolation();
+        QueryContext isolatedContext = newContext.getCurrentQueryContext();
         ScopeLimitedReferenceRequestCache cache = isolatedContext.getQueryCache(ScopeLimitedReferenceRequestCache.class);
         cache.addTreeReferencesToLimitedScope(references);
-        return;
+        return newContext;
     }
 
     private Set<TreeReference> getAccumulatedReferencesOrThrow(EvaluationContext subContext,

@@ -84,9 +84,9 @@ public class IndexedFixtureTests {
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(sandbox, "testfixture", "jr://fixture/testfixture");
 
-        EvaluationContext ecForTest = new EvaluationContext(ec, TreeReference.rootRef());
+        EvaluationContext ecForTest = ec.spawnWithCleanLifecycle();
 
-        QueryContext context = ecForTest.signalNewQueryContextForIsolation();
+        QueryContext context = ecForTest.getCurrentQueryContext();
         ScopeLimitedReferenceRequestCache cache = context.getQueryCache(ScopeLimitedReferenceRequestCache.class);
 
         String exprString = "instance('testfixture')/test/entry[@filter_attribute = 'pass'][true() and filter_one = 'pass']/name";
@@ -105,9 +105,9 @@ public class IndexedFixtureTests {
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(sandbox, "testfixture", "jr://fixture/testfixture");
 
-        EvaluationContext ecForTest = new EvaluationContext(ec, TreeReference.rootRef());
+        EvaluationContext ecForTest = ec.spawnWithCleanLifecycle();
 
-        QueryContext context = ecForTest.signalNewQueryContextForIsolation();
+        QueryContext context = ecForTest.getCurrentQueryContext();
         ScopeLimitedReferenceRequestCache cache = context.getQueryCache(ScopeLimitedReferenceRequestCache.class);
 
         String exprString = "instance('testfixture')/test/entry[@filter_attribute = 'pass'][true() and filter_one = 'pass']/name";

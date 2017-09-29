@@ -2,7 +2,9 @@ package org.commcare.cases.query;
 
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.cases.query.queryset.QuerySetCache;
+import org.javarosa.core.model.condition.Abandonable;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.LifecycleSignaler;
 import org.javarosa.core.model.trace.EvaluationTrace;
 
 /**
@@ -39,6 +41,8 @@ public class QueryContext {
 
     private QueryContext potentialSpawnedContext;
 
+    LifecycleSignaler lifecycleSignaler;
+
     /**
      * Context scope roughly keeps track of "how many times is the current query possibly going to
      * run". For instance, when evaluating an xpath like
@@ -60,6 +64,7 @@ public class QueryContext {
         this.traceRoot = parent.traceRoot;
         this.cache = new QueryCacheHost(parent.cache);
         this.contextScope = parent.contextScope;
+        this.lifecycleSignaler = parent.lifecycleSignaler;
     }
 
     /**
@@ -158,5 +163,14 @@ public class QueryContext {
      */
     public QueryContext forceNewChildContext() {
         return new QueryContext(this);
+    }
+
+    public void attachLifecycleSignaler(LifecycleSignaler lifecycleSignaler) {
+        //TODO: chain?
+        this.lifecycleSignaler = lifecycleSignaler;
+    }
+
+    public LifecycleSignaler getLifecycleSignaler() {
+        return lifecycleSignaler;
     }
 }
