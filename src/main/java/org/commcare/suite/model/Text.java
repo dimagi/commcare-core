@@ -26,6 +26,10 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.concurrent.Callable;
+
+import io.reactivex.Single;
+import io.reactivex.functions.*;
 
 /**
  * <p>Text objects are a model for holding strings which
@@ -337,5 +341,28 @@ public class Text implements Externalizable, DetailTemplate, XPathAnalyzable {
             //Do an XPath cast to a string as part of the operation.
             cacheParse = XPathParseTool.parseXPath("string(" + argument + ")");
         }
+    }
+
+    /**
+     * Get back a single disposable which can be executed to calculate the value of this Text.
+     *
+     * The query evaluation will be abandoned if disposed.
+     */
+    public Single<String> getDisposableSingleForEvaluation(EvaluationContext ec) {
+        final EvaluationContext[] abandonableContext =
+                new EvaluationContext[] {ec.spawnWithCleanLifecycle()};
+
+        return Single.fromCallable(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                return evaluate(abandonableContext[0]);
+            }
+        }).doOnDispose(new io.reactivex.functions.Action() {
+            @Override
+            public void run() throws Exception {
+                abandonableContext[0].signalAbandoned();
+                abandonableContext[0] = null;
+            }
+        });
     }
 }
