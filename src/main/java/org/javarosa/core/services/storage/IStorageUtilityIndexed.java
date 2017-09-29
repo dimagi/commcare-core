@@ -212,7 +212,13 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      * Since this method can have a significant runtime, an abandonable is provided to enable the
      * request to be shortcircuited. Implementations should regularly assert that the request
      * has not been abandoned on long-running bulk reads
+     * 
+     * @throws RequestAbandonedException If the current request is abandoned, this method will
+     *                                   throw a RequestAbandonedException. Callers should not
+     *                                   generally catch that exception unless they rethrow it
+     *                                   or another exception, but they should anticipate that
+     *                                   they may need to clean up if the bulk read doesn't complete
      */
 
-    void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, E> recordMap, Abandonable abandonable);
+    void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, E> recordMap, Abandonable abandonable) throws RequestAbandonedException;
 }
