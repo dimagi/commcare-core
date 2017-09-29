@@ -198,12 +198,8 @@ public class Menu implements Externalizable, MenuDisplayable {
         if (display.getBadgeText() == null) {
             return Single.just("");
         }
-        return Single.fromCallable(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                return display.getBadgeText().evaluate(ec);
-            }
-        });
+
+        return display.getBadgeText().getDisposableSingleForEvaluation(ec);
     }
 
     @Override

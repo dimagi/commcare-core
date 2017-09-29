@@ -159,23 +159,10 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
 
     @Override
     public Single<String> getTextForBadge(EvaluationContext ec) {
-        final EvaluationContext[] abandonableContext =
-                new EvaluationContext[] {ec.spawnWithCleanLifecycle()};
         if (display.getBadgeText() == null) {
             return Single.just("");
         }
-        return Single.fromCallable(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                return display.getBadgeText().evaluate(abandonableContext[0]);
-            }
-        }).doOnDispose(new Action() {
-            @Override
-            public void run() throws Exception {
-                abandonableContext[0].signalAbandoned();
-                abandonableContext[0] = null;
-            }
-        });
+        return display.getBadgeText().getDisposableSingleForEvaluation(ec);
     }
 
     @Override
