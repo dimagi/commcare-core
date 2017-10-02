@@ -1502,9 +1502,9 @@ public class FormDef implements IFormElement, IMetaData,
             // of saved instances. Ensures setvalues triggered by xform-ready,
             // useful for recording form start dates.
             actionController.triggerActionsFromEvent(Action.EVENT_XFORMS_READY, this);
+            initAllTriggerables();
         }
         this.isCompletedInstance = isCompletedInstance;
-        initAllTriggerables();
     }
 
     private void initLocale(String locale) {
