@@ -27,6 +27,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.Vector;
 
 import static org.junit.Assert.fail;
@@ -118,6 +119,7 @@ public class XPathEvalTest {
 
     @Test
     public void doTests() {
+        System.setProperty("user.timezone", "UTC");
         EvaluationContext ec = getFunctionHandlers();
 
         FormInstance instance = createTestInstance();
