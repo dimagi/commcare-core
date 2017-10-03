@@ -1468,15 +1468,22 @@ public class FormDef implements IFormElement, IMetaData,
      */
     public void initialize(boolean newInstance, boolean isCompletedInstance,
                            InstanceInitializationFactory factory) {
-        initialize(newInstance, isCompletedInstance, factory, null);
+        initialize(newInstance, isCompletedInstance, factory, null, true);
     }
 
     public void initialize(boolean newInstance, InstanceInitializationFactory factory) {
-        initialize(newInstance, false, factory, null);
+        initialize(newInstance, false, factory, null, true);
     }
 
     public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale) {
-        initialize(newInstance, false, factory, locale);
+        initialize(newInstance, false, factory, locale, true);
+    }
+
+    public void initialize(boolean newInstance,
+                           boolean isCompletedInstance,
+                           InstanceInitializationFactory factory,
+                           String locale) {
+        initialize(newInstance, isCompletedInstance, factory, locale, true);
     }
 
     /**
@@ -1487,8 +1494,11 @@ public class FormDef implements IFormElement, IMetaData,
      * @param locale The default locale in the current environment, if provided. Can be null
      *               to rely on the form's internal default.
      */
-    public void initialize(boolean newInstance, boolean isCompletedInstance,
-                           InstanceInitializationFactory factory, String locale) {
+    public void initialize(boolean newInstance,
+                           boolean isCompletedInstance,
+                           InstanceInitializationFactory factory,
+                           String locale,
+                           boolean reloadingIncompleteForm) {
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
@@ -1502,8 +1512,13 @@ public class FormDef implements IFormElement, IMetaData,
             // of saved instances. Ensures setvalues triggered by xform-ready,
             // useful for recording form start dates.
             actionController.triggerActionsFromEvent(Action.EVENT_XFORMS_READY, this);
+        }
+        // We only want to re-initialize triggerables in the event that we're opening a saved form and
+        // databases may have changed
+        if (newInstance || reloadingIncompleteForm) {
             initAllTriggerables();
         }
+
         this.isCompletedInstance = isCompletedInstance;
     }
 
