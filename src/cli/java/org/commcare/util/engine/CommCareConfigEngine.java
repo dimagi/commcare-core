@@ -69,13 +69,9 @@ public class CommCareConfigEngine {
         this(new DummyIndexedStorageFactory(prototypeFactory), new InstallerFactory());
     }
 
-    public CommCareConfigEngine(IStorageIndexedFactory storageFactory) {
-        this(storageFactory, new InstallerFactory());
-    }
-
     public CommCareConfigEngine(IStorageIndexedFactory storageFactory, InstallerFactory installerFactory) {
         this.print = new PrintStream(System.out);
-        this.platform = new CommCarePlatform(2, 37, storageFactory);
+        this.platform = new CommCarePlatform(2, 39, storageFactory);
         this.storageFactory = storageFactory;
 
 

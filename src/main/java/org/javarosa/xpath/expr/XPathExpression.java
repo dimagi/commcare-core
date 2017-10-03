@@ -10,15 +10,17 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.XPathNodeset;
+import org.javarosa.xpath.analysis.XPathAnalyzable;
 import org.kxml2.io.KXmlSerializer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Vector;
 
-public abstract class XPathExpression implements Externalizable {
+public abstract class XPathExpression implements Externalizable, XPathAnalyzable {
 
     public Object eval(EvaluationContext evalContext) {
         return eval(evalContext.getMainInstance(), evalContext);
@@ -338,4 +340,5 @@ public abstract class XPathExpression implements Externalizable {
      * provide a human with a clear depiction of the expression.
      */
     public abstract String toPrettyString();
+
 }

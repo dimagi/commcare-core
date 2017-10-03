@@ -5,6 +5,8 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.analysis.AnalysisInvalidException;
+import org.javarosa.xpath.analysis.XPathAnalyzer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -59,5 +61,10 @@ public class XPathStringLiteral extends XPathExpression {
     @Override
     public String toPrettyString() {
         return "'" + s + "'";
+    }
+
+    @Override
+    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        analyzer.doAnalysis(XPathStringLiteral.this);
     }
 }

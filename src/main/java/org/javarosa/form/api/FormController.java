@@ -13,6 +13,8 @@ import org.javarosa.model.xform.XPathReference;
 import java.io.IOException;
 import java.util.Vector;
 
+import io.reactivex.annotations.Nullable;
+
 /**
  * This class is a wrapper for Javarosa's FormEntryController. In theory, if you wanted to replace
  * javarosa as the form engine, you should only need to replace the methods in this file. Also, we
@@ -130,7 +132,7 @@ public class FormController {
      * @return true if index is in a "field-list". False otherwise.
      */
     private boolean indexIsInFieldList(FormIndex index) {
-        FormIndex fieldListHost = this.getFieldListHost(index);
+        FormIndex fieldListHost = getHostWithAppearance(index, FormEntryController.FIELD_LIST);
         return fieldListHost != null;
     }
 
@@ -140,7 +142,16 @@ public class FormController {
      * @return true if index is in a "field-list". False otherwise.
      */
     public boolean indexIsInFieldList() {
-        return indexIsInFieldList(mFormEntryController.getModel().getFormIndex());
+        return indexIsInFieldList(getFormIndex());
+    }
+
+    /**
+     * Tests if the FormIndex 'index' is located inside a group that is marked with "compact" appearance
+     *
+     * @return true if index is in a group with appearance "compact". False otherwise.
+     */
+    public boolean indexIsInCompact(FormIndex index) {
+        return getHostWithAppearance(index, FormEntryController.COMPACT) != null;
     }
 
     /**
@@ -178,7 +189,7 @@ public class FormController {
      * @return the next event that should be handled by a view.
      */
     public int stepToNextEvent(boolean stepOverGroup) {
-        FormIndex nextIndex = getNextFormIndex(mFormEntryController.getModel().getFormIndex(), stepOverGroup, true);
+        FormIndex nextIndex = getNextFormIndex(getFormIndex(), stepOverGroup, true);
         return jumpToIndex(nextIndex);
     }
 
@@ -251,7 +262,7 @@ public class FormController {
 
 
         // If after we've stepped, we're in a field-list, jump back to the beginning of the group
-        FormIndex host = getFieldListHost(this.getFormIndex());
+        FormIndex host = getHostWithAppearance(getFormIndex(), FormEntryController.FIELD_LIST);
         if (host != null) {
             return mFormEntryController.jumpToIndex(host);
         }
@@ -261,31 +272,32 @@ public class FormController {
     }
 
     /**
-     * Retrieves the index of the Group that is the host of a given field list.
+     * Retrieves the index of the Group which hosts child index and is marked with given appearanceTag, null otherwise
      */
-    private FormIndex getFieldListHost(FormIndex child) {
+    @Nullable
+    private FormIndex getHostWithAppearance(FormIndex child, String appearanceTag) {
         int event = mFormEntryController.getModel().getEvent(child);
 
         if (event == FormEntryController.EVENT_QUESTION || event == FormEntryController.EVENT_GROUP || event == FormEntryController.EVENT_REPEAT) {
             // caption[0..len-1]
             // caption[len-1] == the event itself
             // caption[len-2] == the groups containing this group
-            FormEntryCaption[] captions = mFormEntryController.getModel().getCaptionHierarchy();
+            FormEntryCaption[] captions = mFormEntryController.getModel().getCaptionHierarchy(child);
 
             //This starts at the beginning of the heirarchy, so it'll catch the top-level
             //host index.
             for (FormEntryCaption caption : captions) {
                 FormIndex parentIndex = caption.getIndex();
-                if (mFormEntryController.isFieldListHost(parentIndex)) {
+                if (mFormEntryController.isHostWithAppearance(parentIndex, appearanceTag)) {
                     return parentIndex;
                 }
             }
 
-            //none of this node's parents are field lists
+            //none of this node's parents are marked with appearanceTag
             return null;
 
         } else {
-            // Non-host elements can't have field list hosts.
+            // Non-host elements can't have hosts marked as appearanceTag .
             return null;
         }
     }

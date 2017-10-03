@@ -28,7 +28,9 @@ public class FormEntryController {
     public static final int EVENT_REPEAT = 16;
     public static final int EVENT_REPEAT_JUNCTURE = 32;
 
+    // 'appearance' attributes for a group
     public final static String FIELD_LIST = "field-list";
+    public final static String COMPACT = "compact";
 
     private final FormEntryModel model;
     private final FormEntrySessionRecorder formEntrySession;
@@ -394,7 +396,7 @@ public class FormEntryController {
         //If we're in a group, we will collect of the questions in this group
         if (element instanceof GroupDef) {
             //Assert that this is a valid condition (only field lists return prompts)
-            if (!this.isFieldListHost(currentIndex)) {
+            if (!this.isHostWithAppearance(currentIndex, FIELD_LIST)) {
                 throw new RuntimeException("Cannot get question prompts from a non-field-list group");
             }
 
@@ -430,11 +432,11 @@ public class FormEntryController {
     }
 
     /**
-     * A convenience method for determining if the current FormIndex is a group that is/should be
-     * displayed as a multi-question view of all of its descendants. This is useful for returning
-     * from the formhierarchy view to a selected index.
+     * A convenience method for determining if the current FormIndex is a group that is marked
+     * with the appearance appearanceTag. This is useful for returning
+     * from the form hierarchy view to a selected index.
      */
-    public boolean isFieldListHost(FormIndex index) {
+    public boolean isHostWithAppearance(FormIndex index, String appearanceTag) {
         // if this isn't a group or is a repeat, return right away
         if (!(this.getModel().getForm().getChild(index) instanceof GroupDef) ||
                 ((GroupDef)this.getModel().getForm().getChild(index)).isRepeat()) {
@@ -446,6 +448,6 @@ public class FormEntryController {
         //descendant group
 
         GroupDef gd = (GroupDef)this.getModel().getForm().getChild(index); // exceptions?
-        return (FIELD_LIST.equalsIgnoreCase(gd.getAppearanceAttr()));
+        return (appearanceTag.equalsIgnoreCase(gd.getAppearanceAttr()));
     }
 }

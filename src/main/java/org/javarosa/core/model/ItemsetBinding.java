@@ -56,7 +56,6 @@ public class ItemsetBinding implements Externalizable {
 
     public void setChoices(Vector<SelectChoice> choices) {
         if (this.choices != null) {
-            System.out.println("warning: previous choices not cleared out");
             clearChoices();
         }
         this.choices = choices;

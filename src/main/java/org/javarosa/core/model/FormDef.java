@@ -1468,15 +1468,16 @@ public class FormDef implements IFormElement, IMetaData,
      */
     public void initialize(boolean newInstance, boolean isCompletedInstance,
                            InstanceInitializationFactory factory) {
-        initialize(newInstance, isCompletedInstance, factory, null);
+        initialize(newInstance, isCompletedInstance, factory, null, false);
     }
 
     public void initialize(boolean newInstance, InstanceInitializationFactory factory) {
-        initialize(newInstance, false, factory, null);
+        initialize(newInstance, false, factory, null, false);
     }
 
-    public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale) {
-        initialize(newInstance, false, factory, locale);
+    public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale,
+                           boolean isReadOnly) {
+        initialize(newInstance, false, factory, locale, isReadOnly);
     }
 
     /**
@@ -1488,7 +1489,7 @@ public class FormDef implements IFormElement, IMetaData,
      *               to rely on the form's internal default.
      */
     public void initialize(boolean newInstance, boolean isCompletedInstance,
-                           InstanceInitializationFactory factory, String locale) {
+                           InstanceInitializationFactory factory, String locale, boolean isReadOnly) {
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
@@ -1504,7 +1505,9 @@ public class FormDef implements IFormElement, IMetaData,
             actionController.triggerActionsFromEvent(Action.EVENT_XFORMS_READY, this);
         }
         this.isCompletedInstance = isCompletedInstance;
-        initAllTriggerables();
+        if (!isReadOnly) {
+            initAllTriggerables();
+        }
     }
 
     private void initLocale(String locale) {
