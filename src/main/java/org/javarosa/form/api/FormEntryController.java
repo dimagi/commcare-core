@@ -450,4 +450,8 @@ public class FormEntryController {
         GroupDef gd = (GroupDef)this.getModel().getForm().getChild(index); // exceptions?
         return (appearanceTag.equalsIgnoreCase(gd.getAppearanceAttr()));
     }
+
+    public boolean isFieldListHost(FormIndex index) {
+        return isHostWithAppearance(index, FIELD_LIST);
+    }
 }
