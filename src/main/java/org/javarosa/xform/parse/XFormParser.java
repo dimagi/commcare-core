@@ -13,6 +13,7 @@ import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.QuestionString;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.SubmissionProfile;
+import org.javarosa.core.model.actions.SendAction;
 import org.javarosa.core.model.actions.SetValueAction;
 import org.javarosa.core.model.condition.Condition;
 import org.javarosa.core.model.condition.Constraint;
@@ -99,7 +100,6 @@ public class XFormParser {
     private static Hashtable<String, IElementHandler> topLevelHandlers;
     private static Hashtable<String, IElementHandler> groupLevelHandlers;
     private static Hashtable<String, Integer> typeMappings;
-    private static Vector<SubmissionParser> submissionParsers;
 
     private final Vector<QuestionExtensionParser> extensionParsers = new Vector<>();
 
@@ -160,7 +160,6 @@ public class XFormParser {
     private static void staticInit() {
         initProcessingRules();
         initTypeMappings();
-        submissionParsers = new Vector<>();
     }
 
     private static void initProcessingRules() {
@@ -270,6 +269,7 @@ public class XFormParser {
     private static void setupActionHandlers() {
         actionHandlers = new Hashtable<>();
         registerActionHandler(SetValueAction.ELEMENT_NAME, SetValueAction.getHandler());
+        registerActionHandler(SendAction.ELEMENT_NAME, SendAction.getHandler());
     }
 
     /**
@@ -849,56 +849,67 @@ public class XFormParser {
         source.registerEventListener(event, action);
     }
 
+    public void parseSendAction(ActionController source, Element e) {
+        String event = this.getRequiredAttribute(e, "event");
+        String id = this.getRequiredAttribute(e, "submission");
+
+        SendAction action = new SendAction(id);
+        source.registerEventListener(event, action);
+    }
+
+    private String getRequiredAttribute(Element e, String attrName) {
+        String value = e.getAttributeValue(null, attrName);
+        if(value == null || value == "") {
+            throw new XFormParseException("Missing required attribute "+ attrName + " in element",
+                    e);
+        }
+        return value;
+    }
+
     private void parseSubmission(Element submission) {
         String id = submission.getAttributeValue(null, ID_ATTR);
 
-        //These two are always required
+        String resource = getRequiredAttribute(submission, "resource");
+        String targetref = getRequiredAttribute(submission, "targetref");
+
+        String ref = submission.getAttributeValue(null, "ref");
+
+        //For Validation Only
         String method = submission.getAttributeValue(null, "method");
-        String action = submission.getAttributeValue(null, "action");
 
-        SubmissionParser parser = new SubmissionParser();
-        for (SubmissionParser p : submissionParsers) {
-            if (p.matchesCustomMethod(method)) {
-                parser = p;
-            }
+        if(!("get".equals(method))) {
+            throw new XFormParseException("Unsupported submission @method: " + method);
         }
 
-        //These two might exist, but if neither do, we just assume you want the entire instance.
-        String ref = submission.getAttributeValue(null, REF_ATTR);
-        String bind = submission.getAttributeValue(null, BIND_ATTR);
+        String replace = submission.getAttributeValue(null, "replace");
 
-        XPathReference dataRef = null;
-        boolean refFromBind = false;
-
-        if (bind != null) {
-            DataBinding binding = bindingsByID.get(bind);
-            if (binding == null) {
-                throw new XFormParseException("XForm Parse: invalid binding ID in submit'" + bind + "'", submission);
-            }
-            dataRef = binding.getReference();
-            refFromBind = true;
-        } else if (ref != null) {
-            dataRef = new XPathReference(ref);
-        } else {
-            //no reference! No big deal, assume we want the root reference
-            dataRef = new XPathReference("/");
+        if(!("text".equals(replace))) {
+            throw new XFormParseException("Unsupported submission @replace: " + replace);
         }
 
-        if (dataRef != null) {
-            if (!refFromBind) {
-                dataRef = getAbsRef(dataRef, TreeReference.rootRef());
-            }
+        String mode = submission.getAttributeValue(null, "mode");
+
+        if(!("synchronous".equals(mode))) {
+            throw new XFormParseException("Unsupported submission @mode: " + mode);
         }
 
-        SubmissionProfile profile = parser.parseSubmission(method, action, dataRef, submission);
-
-        if (id == null) {
-            //default submission profile
-            _f.setDefaultSubmission(profile);
-        } else {
-            //typed submission profile
-            _f.addSubmissionProfile(id, profile);
+        TreeReference targetReference = XPathReference.getPathExpr(targetref).getReference();
+        if(targetReference.getInstanceName() != null) {
+            throw new XFormParseException("<submission> events can only target the main instance", submission);
         }
+        registerActionTarget(targetReference);
+
+
+        TreeReference refReference = null;
+        if(ref != null) {
+            refReference = XPathReference.getPathExpr(ref).getReference();
+            registerActionTarget(refReference);
+        }
+
+        SubmissionProfile profile = new SubmissionProfile(resource, targetReference, refReference);
+
+        //add the profile
+        _f.addSubmissionProfile(id, profile);
     }
 
     private void saveInstanceNode(Element instance) {
