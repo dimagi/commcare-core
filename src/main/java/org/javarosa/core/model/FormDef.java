@@ -1458,14 +1458,10 @@ public class FormDef implements IFormElement, IMetaData,
         actionController = (ActionController)ExtUtil.read(dis, ActionController.class, pf);
     }
 
-    /**
-     * meant to be called after deserialization and initialization of handlers
-     *
-     * @param newInstance true if the form is to be used for a new entry interaction,
-     *                    false if it is using an existing IDataModel
-     * @param isCompletedInstance true if this is an already completed instance we are editing
-     *                            (presumably in HQ) - so don't fire end of form event.
-     */
+    public void initialize(boolean newInstance, InstanceInitializationFactory factory) {
+        initialize(newInstance, false, factory, null, false, true);
+    }
+
     public void initialize(boolean newInstance, boolean isCompletedInstance,
                            InstanceInitializationFactory factory) {
         initialize(newInstance, isCompletedInstance, factory, null, false, true);
@@ -1473,10 +1469,6 @@ public class FormDef implements IFormElement, IMetaData,
 
     public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale, boolean isReadOnly) {
         initialize(newInstance, isCompletedInstance, factory, locale, isReadOnly, true);
-    }
-
-    public void initialize(boolean newInstance, InstanceInitializationFactory factory) {
-        initialize(newInstance, false, factory, null, false, true);
     }
 
     public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale) {
@@ -1489,14 +1481,21 @@ public class FormDef implements IFormElement, IMetaData,
                            String locale) {
         initialize(newInstance, isCompletedInstance, factory, locale, false, true);
     }
-
     /**
      * meant to be called after deserialization and initialization of handlers
      *
      * @param newInstance true if the form is to be used for a new entry interaction,
      *                    false if it is using an existing IDataModel
+     * @param isCompletedInstance true if this is an already completed instance we are editing
+     *                            (presumably in HQ) - so don't fire end of form event.
+     * @param factory instance factory containing references to external data sources
      * @param locale The default locale in the current environment, if provided. Can be null
      *               to rely on the form's internal default.
+     * @param isReadOnly true if this form has already been saved and so should not be re-processed
+     *
+     * @param reloadingIncompleteForm true if this form is being reloaded from an incomplete form
+     *                                and so we should re-process triggerables to account for
+     *                                changes to user databases
      */
     public void initialize(boolean newInstance,
                            boolean isCompletedInstance,
