@@ -19,11 +19,16 @@ import org.javarosa.xpath.expr.XPathExpression;
 
 import java.util.*;
 
+import javax.management.Query;
+
 /**
  * A collection of objects that affect the evaluation of an expression, like
  * function handlers and (not supported) variable bindings.
  */
-public class EvaluationContext {
+public class EvaluationContext implements Abandonable {
+
+    private boolean isIrrelevant = false;
+
     /**
      * Whether XPath expressions being evaluated should be traced during
      * execution for debugging.
@@ -86,6 +91,7 @@ public class EvaluationContext {
         this(instance, new Hashtable<String, DataInstance>());
     }
 
+    // *** This is the only EC constructor where a NEW context is actually passed in
     public EvaluationContext(EvaluationContext base, TreeReference context) {
         this(base, base.instance, context, base.formInstances);
     }
@@ -688,5 +694,28 @@ public class EvaluationContext {
      */
     public EvaluationTrace getEvaluationTrace() {
         return mTraceRoot;
+    }
+
+    /**
+     * Spawn a new evaluation context with the same context information as this context
+     * but which can maintain it's own lifecycle, including a fresh query context and
+     * capacity to abandon requests
+     */
+    public EvaluationContext spawnWithCleanLifecycle() {
+        EvaluationContext ec = new EvaluationContext(this, this.getContextRef());
+        QueryContext qc = ec.getCurrentQueryContext().forceNewChildContext();
+        qc.attachLifecycleSignaler(new LifecycleSignaler());
+        ec.setQueryContext(qc);
+        return ec;
+    }
+
+    @Override
+    public void assertNotAbandoned() {
+        LifecycleSignaler.AssertNotAbandoned(this.getCurrentQueryContext().getLifecycleSignaler());
+    }
+
+    @Override
+    public void signalAbandoned() {
+        LifecycleSignaler.SignalAbandoned(this.getCurrentQueryContext().getLifecycleSignaler());
     }
 }

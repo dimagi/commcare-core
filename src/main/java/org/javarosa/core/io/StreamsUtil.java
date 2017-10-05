@@ -1,9 +1,11 @@
 package org.javarosa.core.io;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 public class StreamsUtil {
     /**
@@ -90,7 +92,7 @@ public class StreamsUtil {
     }
 
     /**
-     * Writes input stream to output stream in a buffered fasion, but doesn't
+     * Writes input stream to output stream in a buffered fashion, but doesn't
      * close either stream.
      */
     public static void writeFromInputToOutputUnmanaged(InputStream is, OutputStream os)

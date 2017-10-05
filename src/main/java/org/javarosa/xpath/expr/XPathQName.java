@@ -10,6 +10,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+/**
+ * An XPathQName is string literal that meets the requirements to be an element or attribute
+ * name in an XML document
+ */
 public class XPathQName implements Externalizable {
     private String namespace;
     public String name;

@@ -15,11 +15,6 @@ public interface HttpResponseProcessor {
     void processSuccess(int responseCode, InputStream responseData);
 
     /**
-     * Http response was in the 300s
-     */
-    void processRedirection(int responseCode);
-
-    /**
      * Http response was in the 400s.
      *
      * Can represent authentication issues, data parity issues between client
@@ -38,7 +33,7 @@ public interface HttpResponseProcessor {
     void processOther(int responseCode);
 
     /**
-     * A I/O issue occurred while processing the http request or response
+     * A issue occurred while processing the http request or response
      */
     void handleIOException(IOException exception);
 }

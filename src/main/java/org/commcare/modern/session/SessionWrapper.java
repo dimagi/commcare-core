@@ -6,6 +6,8 @@ import org.commcare.session.CommCareSession;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 
+import java.util.Set;
+
 /**
  * Extends a generic CommCare session to include context about the
  * current runtime environment
@@ -37,12 +39,18 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
         return getEvaluationContext(getIIF());
     }
 
+    @Override
+    public EvaluationContext getRestrictedEvaluationContext(String commandId,
+                                                            Set<String> instancesToInclude) {
+        return getEvaluationContext(getIIF(), commandId, instancesToInclude);
+    }
+
     /**
      * @param commandId The id of the command to evaluate against
      * @return The evaluation context relevant for the provided command id
      */
     public EvaluationContext getEvaluationContext(String commandId) {
-        return getEvaluationContext(getIIF(), commandId);
+        return getEvaluationContext(getIIF(), commandId, null);
     }
 
     public CommCareInstanceInitializer getIIF() {
