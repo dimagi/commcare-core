@@ -1846,10 +1846,10 @@ public class FormDef implements IFormElement, IMetaData,
         submissionProfiles.put(submissionId, profile);
     }
 
+    /**
+     * @return The submission profile with the given ID.
+     */
     public SubmissionProfile getSubmissionProfile(String id) {
-        //At some point these profiles will be set by the <submit> control in the form.
-        //In the mean time, though, we can only promise that the default one will be used.
-
         return submissionProfiles.get(id);
     }
 
