@@ -421,14 +421,7 @@ public class FormController {
      * Find the portion of the form that is to be submitted
      */
     private XPathReference getSubmissionDataReference() {
-        FormDef formDef = mFormEntryController.getModel().getForm();
-        // Determine the information about the submission...
-        SubmissionProfile p = formDef.getSubmissionProfile();
-        if (p == null || p.getRef() == null) {
-            return new XPathReference("/");
-        } else {
-            return p.getRef();
-        }
+        return new XPathReference("/");
     }
 
     /**
@@ -481,19 +474,7 @@ public class FormController {
         FormDef formDef = mFormEntryController.getModel().getForm();
         TreeElement rootElement = formDef.getInstance().getRoot();
 
-        TreeElement trueSubmissionElement;
-        // Determine the information about the submission...
-        SubmissionProfile p = formDef.getSubmissionProfile();
-        if (p == null || p.getRef() == null) {
-            trueSubmissionElement = rootElement;
-        } else {
-            XPathReference ref = p.getRef();
-            trueSubmissionElement = formDef.getInstance().resolveReference(ref);
-            // resolveReference returns null if the reference is to the root element...
-            if (trueSubmissionElement == null) {
-                trueSubmissionElement = rootElement;
-            }
-        }
+        TreeElement trueSubmissionElement = rootElement;
 
         // and find the depth-first meta block in this...
         TreeElement e = findDepthFirst(trueSubmissionElement, "meta");
