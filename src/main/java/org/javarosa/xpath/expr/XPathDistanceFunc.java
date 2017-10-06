@@ -5,6 +5,7 @@ import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.utils.GeoPointUtils;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathDistanceFunc extends XPathFuncExpr {
@@ -39,11 +40,15 @@ public class XPathDistanceFunc extends XPathFuncExpr {
             return new Double(-1.0);
         }
 
-        // Casting and uncasting seems strange but is consistent with the codebase
-        GeoPointData castedFrom = new GeoPointData().cast(new UncastData(unpackedFrom));
-        GeoPointData castedTo = new GeoPointData().cast(new UncastData(unpackedTo));
+        try {
+            // Casting and uncasting seems strange but is consistent with the codebase
+            GeoPointData castedFrom = new GeoPointData().cast(new UncastData(unpackedFrom));
+            GeoPointData castedTo = new GeoPointData().cast(new UncastData(unpackedTo));
 
-        return new Double(GeoPointUtils.computeDistanceBetween(castedFrom, castedTo));
+            return new Double(GeoPointUtils.computeDistanceBetween(castedFrom, castedTo));
+        } catch (NumberFormatException e) {
+            throw new XPathTypeMismatchException("distance() function requires arguments containing numeric values only");
+        }
     }
 
 }
