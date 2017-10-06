@@ -44,7 +44,7 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
 
         synchronized (parent.treeCache) {
             TreeElement partialMatch = detectAndProcessLimitedScopeResponse(recordId,context);
-            if(partialMatch != null) {
+            if (partialMatch != null) {
                 return partialMatch;
             }
 
@@ -70,29 +70,29 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
      * be generated
      */
     private TreeElement detectAndProcessLimitedScopeResponse(int recordId, QueryContext context) {
-        if(context == null) {
+        if (context == null) {
             return null;
         }
         ScopeLimitedReferenceRequestCache cache =
                 context.getQueryCacheOrNull(ScopeLimitedReferenceRequestCache.class);
 
-        if(cache == null) {
+        if (cache == null) {
             return null;
         }
 
         //If cache already contains partial match, return it here...
         TreeElement partialMatch = cache.getCachedElementIfExists(this.getInstanceName(), recordId);
-        if(partialMatch != null) {
+        if (partialMatch != null) {
             return partialMatch;
         }
 
-        if(!cache.isInstancePotentiallyScopeLimited(this.getInstanceName())) {
+        if (!cache.isInstancePotentiallyScopeLimited(this.getInstanceName())) {
             return null;
         }
 
         String[] scopeSufficientColumnList = analyseScopeSufficientColumnList(cache);
 
-        if(scopeSufficientColumnList == null) {
+        if (scopeSufficientColumnList == null) {
             return null;
         }
 
@@ -116,7 +116,7 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
         RecordObjectCache<String[]> recordObjectCache = StorageInstanceTreeElement.getRecordObjectCacheIfRelevant(
                 context);
 
-        if(recordObjectCache != null) {
+        if (recordObjectCache != null) {
             if (recordObjectCache.isLoaded(recordObjectKey, recordId)) {
                 return recordObjectCache.getLoadedRecordObject(recordObjectKey, recordId);
             }
@@ -144,7 +144,7 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
 
     private String[] analyseScopeSufficientColumnList(ScopeLimitedReferenceRequestCache cache) {
         String[] limitedScope = cache.getInternalScopedLimit(this.getInstanceName());
-        if(limitedScope != null) {
+        if (limitedScope != null) {
             return limitedScope;
         }
 
@@ -174,12 +174,12 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
         for(TreeReference inScopeReference : referencesInScope) {
             //raw references to this node are expected if predicates exist, and don't require
             //specific reads
-            if(inScopeReference.equals(baseRefForChildElement)) {
+            if (inScopeReference.equals(baseRefForChildElement)) {
                 continue;
             }
 
             TreeReference subReference = inScopeReference.relativize(baseRefForChildElement);
-            if(!stepToColumnName.containsKey(subReference)){
+            if (!stepToColumnName.containsKey(subReference)){
                 failed = true;
                 break;
             } else {
@@ -187,7 +187,7 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
             }
         }
 
-        if(failed) {
+        if (failed) {
             cache.setScopeLimitUnhelpful(this.getInstanceName());
             return null;
         }
@@ -216,7 +216,7 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
             String metadataName = StorageIndexedTreeElementModel.
                     getElementOrAttributeFromSqlColumnName(columnName);
 
-            if(metadataName.startsWith("@")) {
+            if (metadataName.startsWith("@")) {
                 partial.setAttribute(null, metadataName.substring(1), value);
             } else {
                 TreeElement child = new TreeElement(metadataName);

@@ -49,14 +49,14 @@ public class ScopeLimitedReferenceRequestCache implements QueryCache {
     }
 
     public void addTreeReferencesToLimitedScope(Set<TreeReference> references) {
-        for(TreeReference reference : references) {
+        for (TreeReference reference : references) {
             String instanceName = reference.getInstanceName();
-            if(instanceName == null) {
+            if (instanceName == null) {
                 instanceName = DEFAULT_INSTANCE_KEY;
             }
 
             Set<TreeReference> existingRefs;
-            if(map.containsKey(instanceName)) {
+            if (map.containsKey(instanceName)) {
                 existingRefs = map.get(instanceName);
             } else {
                 existingRefs = new HashSet<>();
@@ -92,7 +92,7 @@ public class ScopeLimitedReferenceRequestCache implements QueryCache {
 
 
     public TreeElement getCachedElementIfExists(String instanceName, int recordId) {
-        if(!treeElementCache.containsKey(instanceName) || !treeElementCache.get(instanceName).containsKey(recordId)) {
+        if (!treeElementCache.containsKey(instanceName) || !treeElementCache.get(instanceName).containsKey(recordId)) {
             return null;
         }
         return treeElementCache.get(instanceName).get(recordId);

@@ -224,5 +224,6 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
     void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, E> recordMap, Abandonable abandonable) throws RequestAbandonedException;
 
     String[] getMetaDataForRecord(int recordId, String[] fieldNames);
+
     void bulkReadMetadata(LinkedHashSet<Integer> body, String[] metaFields, HashMap<Integer, String[]> metadataMap);
 }

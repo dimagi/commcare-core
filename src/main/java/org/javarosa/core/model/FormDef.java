@@ -1342,7 +1342,7 @@ public class FormDef implements IFormElement, IMetaData,
 
         Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(formInstance,ec);
 
-        if(reporter != null) {
+        if (reporter != null) {
             InstrumentationUtils.printAndClearTraces(reporter, "itemset expansion");
         }
 
@@ -1402,14 +1402,14 @@ public class FormDef implements IFormElement, IMetaData,
 
     private Set<TreeReference> getAccumulatedReferencesOrThrow(EvaluationContext subContext,
                                                                TreeReference newRef) throws AnalysisInvalidException {
-        if(newRef == null) {
+        if (newRef == null) {
             return new HashSet<>();
         }
         TreeReferenceAccumulatingAnalyzer analyzer = new TreeReferenceAccumulatingAnalyzer(subContext);
 
         Set<TreeReference> newReferences = analyzer.accumulate(newRef);
 
-        if(newReferences == null) {
+        if (newReferences == null) {
             throw new AnalysisInvalidException("itemset accumulation");
         }
         return newReferences;
