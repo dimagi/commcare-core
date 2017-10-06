@@ -842,6 +842,10 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
         for (int i = 0; i < data.size(); i++) {
             TreeReferenceLevel subLevel = data.get(i);
             if (subLevel.getPredicates() != null) {
+                if (!this.isAbsolute()) {
+                    throw new AnalysisInvalidException(
+                            "Not currently capable of analyzing a relative ref with predicates");
+                }
                 TreeReference subContext = this.removePredicates().getSubReference(i);
                 XPathAnalyzer subAnalyzer = analyzer.spawnSubAnalyzer(subContext);
                 for (XPathExpression expr : subLevel.getPredicates()) {
