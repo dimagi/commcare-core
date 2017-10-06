@@ -47,7 +47,8 @@ public class XPathDistanceFunc extends XPathFuncExpr {
 
             return new Double(GeoPointUtils.computeDistanceBetween(castedFrom, castedTo));
         } catch (NumberFormatException e) {
-            throw new XPathTypeMismatchException("distance() function requires arguments containing numeric values only");
+            throw new XPathTypeMismatchException("distance() function requires arguments containing " +
+                    "numeric values only, but received arguments: " + unpackedFrom + " and " + unpackedTo);
         }
     }
 
