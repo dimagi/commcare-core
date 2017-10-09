@@ -1338,7 +1338,7 @@ public class FormDef implements IFormElement, IMetaData,
             ec.setDebugModeOn(reporter);
         }
 
-        ec = getPotentiallyLimitedScopeContext  (ec, itemset);
+        ec = getPotentiallyLimitedScopeContext(ec, itemset);
 
         Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(formInstance,ec);
 
