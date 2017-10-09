@@ -22,7 +22,7 @@ public class QuerySensitiveTreeElementWrapper<T extends AbstractTreeElement> imp
     QuerySensitiveTreeElement<T> wrapped;
     QueryContext context;
 
-        public static <T extends AbstractTreeElement> AbstractTreeElement<T> WrapWithContext(AbstractTreeElement<T> element, QueryContext context) {
+    public static <T extends AbstractTreeElement> AbstractTreeElement<T> WrapWithContext(AbstractTreeElement<T> element, QueryContext context) {
         if (context == null) { return element; }
         if (element instanceof QuerySensitiveTreeElement) {
             return new QuerySensitiveTreeElementWrapper<>((QuerySensitiveTreeElement<T>)element, context);
