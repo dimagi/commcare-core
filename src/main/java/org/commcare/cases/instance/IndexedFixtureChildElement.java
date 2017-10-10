@@ -11,9 +11,7 @@ import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
-import org.javarosa.core.model.trace.EvaluationTraceReduction;
 import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.expr.XPathPathExpr;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -152,7 +150,7 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
         //the cache to not try.
 
         Set<TreeReference> referencesInScope =
-                cache.getLimitedReferenceSet(this.getInstanceName());
+                cache.getInScopeReferences(this.getInstanceName());
 
         StorageIndexedTreeElementModel model = parent.getModelTemplate();
 

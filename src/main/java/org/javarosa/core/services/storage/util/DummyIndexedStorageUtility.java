@@ -46,7 +46,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     public DummyIndexedStorageUtility(T instance, PrototypeFactory factory) {
-        this.prototype = (Class<T>) instance.getClass();
+        this.prototype = (Class<T>)instance.getClass();
         this.mFactory = factory;
         initMetaFromInstance(instance);
     }
@@ -68,7 +68,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         if (!(p instanceof IMetaData)) {
             return;
         }
-        IMetaData m = (IMetaData) p;
+        IMetaData m = (IMetaData)p;
         for (String key : m.getMetaDataFields()) {
             if (!meta.containsKey(key)) {
                 meta.put(key, new Hashtable<Object, Vector<Integer>>());
@@ -219,7 +219,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     public Vector<Integer> removeAll(EntityFilter ef) {
         Vector<Integer> removed = new Vector<>();
         for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
-            Integer i = (Integer) en.nextElement();
+            Integer i = (Integer)en.nextElement();
             switch (ef.preFilter(i, null)) {
                 case EntityFilter.PREFILTER_INCLUDE:
                     removed.addElement(i);
@@ -249,11 +249,11 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     @Override
     public void write(Persistable p) {
         if (p.getID() != -1) {
-            this.data.put(DataUtil.integer(p.getID()), (T) p);
+            this.data.put(DataUtil.integer(p.getID()), (T)p);
             syncMeta();
         } else {
             p.setID(curCount);
-            this.add((T) p);
+            this.add((T)p);
         }
     }
 
@@ -263,13 +263,13 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         }
 
         for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
-            Integer i = (Integer) en.nextElement();
+            Integer i = (Integer)en.nextElement();
             Externalizable e = data.get(i);
 
             if (e instanceof IMetaData) {
-                IMetaData m = (IMetaData) e;
+                IMetaData m = (IMetaData)e;
                 for (Enumeration keys = meta.keys(); keys.hasMoreElements(); ) {
-                    String key = (String) keys.nextElement();
+                    String key = (String)keys.nextElement();
 
                     Object value = m.getMetaData(key);
                     if (value == null) {
@@ -301,7 +301,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     public String[] getMetaDataForRecord(int recordId, String[] fieldNames) {
         String[] response = new String[fieldNames.length];
         for (int i = 0; i < fieldNames.length; ++i) {
-            response[i] = (String) ((IMetaData) data.get(recordId)).getMetaData(fieldNames[i]);
+            response[i] = (String)((IMetaData)data.get(recordId)).getMetaData(fieldNames[i]);
         }
         return response;
     }

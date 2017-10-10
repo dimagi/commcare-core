@@ -3,8 +3,6 @@ package org.javarosa.xpath.analysis;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 
-import java.util.ArrayList;
-
 /**
  *
  * Accumulates all of the treereferences that are included in a given xpath expression.

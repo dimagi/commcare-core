@@ -27,6 +27,8 @@ public class ScopeLimitedReferenceRequestCache implements QueryCache {
 
     private final String DEFAULT_INSTANCE_KEY = "/";
 
+    // Maps instance names to the set of tree references that are "in scope" (i.e. that we must be
+    // able to evaluate) for that instance in the current context
     private HashMap<String, Set<TreeReference>> map = new HashMap<>();
 
     /**
@@ -76,9 +78,9 @@ public class ScopeLimitedReferenceRequestCache implements QueryCache {
     }
 
     /**
-     * Get all tree references for the provided instance
+     * Get all of the in-scope tree references for the provided instance
      */
-    public Set<TreeReference> getLimitedReferenceSet(String instanceName) {
+    public Set<TreeReference> getInScopeReferences(String instanceName) {
         return map.get(instanceName);
     }
 

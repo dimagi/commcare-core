@@ -1,7 +1,6 @@
 package org.javarosa.core.model.condition;
 
 import org.commcare.cases.query.QueryContext;
-import org.commcare.cases.query.QuerySensitiveTreeElement;
 import org.commcare.cases.query.QuerySensitiveTreeElementWrapper;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.cases.util.QueryUtils;
