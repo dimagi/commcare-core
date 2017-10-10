@@ -118,6 +118,10 @@ public class TreeReferenceAccumulatorTest {
         return runAndTest(null, text, matches);
     }
 
+    /**
+     * Tests that running TreeReferenceAccumulatingAnalyzer on the XPath expression represented
+     * by @text results in accumulating all of the tree refs listed in @matches
+     */
     private Set<TreeReference> runAndTest(EvaluationContext context, String text, String... matches)  {
         XPathExpression expression;
         try {
@@ -127,20 +131,20 @@ public class TreeReferenceAccumulatorTest {
         }
 
         TreeReferenceAccumulatingAnalyzer analyzer;
-        if(context == null) {
+        if (context == null) {
             analyzer = new TreeReferenceAccumulatingAnalyzer();
         } else {
             analyzer = new TreeReferenceAccumulatingAnalyzer(context);
         }
 
         Set<TreeReference> results = analyzer.accumulate(expression);
-        if(results == null) {
+        if (results == null) {
             return null;
         }
 
         Set<TreeReference> expressions = new HashSet<>();
 
-        for(String match : matches) {
+        for (String match : matches) {
             expressions.add(XPathReference.getPathExpr(match).getReference());
         }
 
