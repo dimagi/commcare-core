@@ -47,6 +47,8 @@ public class StaticAnalysisTest {
                     "int(@due) + int(@expires))))]) > 0)";
 
     private static String BASE_CONTEXT_REF_aCase = "instance('casedb')/casedb/case[651]";
+    private static String BASE_CONTEXT_REF_aNode = "instance('baseinstance')/base/element";
+
     private static String BASIC_RELATIVE_EXPR = "./@case_name";
     private static String EXPR_WITH_CURRENT_AT_TOP_LEVEL =
             "(instance('adherence:calendar')/calendar/year/month/day[@date > (today()-36) and " +
@@ -54,7 +56,8 @@ public class StaticAnalysisTest {
     private static String EXPR_WITH_CURRENT_IN_PREDICATE =
             "if(instance('casedb')/casedb/case[@case_id=current()/index/parent]/date_hh_registration = '', '', " +
                     "format_date(date(instance('casedb')/casedb/case[@case_id=current()/index/parent]/date_hh_registration),'short'))";
-
+    private static String RELATIVE_EXPR_WITH_PREDICATE =
+            "../element[@id=instance('commcaresession')/session/data/case_id_loaded]";
 
     @Test
     public void testInstanceAccumulatingAnalyzer() throws XPathSyntaxException {
@@ -90,6 +93,12 @@ public class StaticAnalysisTest {
         // should be OK not to provide a base context ref here because current() is only being
         // used within a predicate, so it should use the sub-context
         testInstanceAnalysis(EXPR_WITH_CURRENT_IN_PREDICATE, new String[]{"casedb"});
+
+        // This analysis should fail because no context ref was provided
+        testInstanceAnalysis(RELATIVE_EXPR_WITH_PREDICATE, null);
+
+        testInstanceAnalysis(RELATIVE_EXPR_WITH_PREDICATE,
+                new String[]{"commcaresession", "baseinstance"}, BASE_CONTEXT_REF_aNode);
     }
 
     private void testInstanceAnalysis(String expressionString, String[] expectedInstances)
