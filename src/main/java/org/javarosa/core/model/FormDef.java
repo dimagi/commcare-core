@@ -1493,7 +1493,7 @@ public class FormDef implements IFormElement, IMetaData,
      *               to rely on the form's internal default.
      * @param isReadOnly true if this form has already been saved and so should not be re-processed
      *
-     * @param reloadingIncompleteForm true if this form is being reloaded from an incomplete form
+     * @param initializeTriggerables true if this form is being reloaded from an incomplete form
      *                                and so we should re-process triggerables to account for
      *                                changes to user databases
      */
@@ -1502,7 +1502,7 @@ public class FormDef implements IFormElement, IMetaData,
                            InstanceInitializationFactory factory,
                            String locale,
                            boolean isReadOnly,
-                           boolean reloadingIncompleteForm) {
+                           boolean initializeTriggerables) {
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
@@ -1519,7 +1519,7 @@ public class FormDef implements IFormElement, IMetaData,
         }
         // We only want to re-initialize triggerables in the event that we're opening a saved form and
         // databases may have changed
-        if ((newInstance || reloadingIncompleteForm) && !isReadOnly) {
+        if ((newInstance || initializeTriggerables) && !isReadOnly) {
             initAllTriggerables();
         }
 
