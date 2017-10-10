@@ -565,7 +565,7 @@ public class FormDefTest {
 
     private static FormEntryController initFormEntry(FormParseInit fpi, String locale) {
         FormEntryController fec = fpi.getFormEntryController();
-        fpi.getFormDef().initialize(true, null, locale, false);
+        fpi.getFormDef().initialize(true, null, locale);
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
         return fec;
     }
