@@ -58,7 +58,7 @@ public class XFormEnvironment {
     public FormEntryController setup(InstanceInitializationFactory factory) {
         form.setEvaluationContext(buildBaseEvaluationContext());
 
-        form.initialize(true, factory, preferredLocale, false);
+        form.initialize(true, factory, preferredLocale);
 
         if(recording) {
             session = new Session();
