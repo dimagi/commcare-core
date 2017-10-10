@@ -1376,28 +1376,51 @@ public class FormDef implements IFormElement, IMetaData,
         itemset.setChoices(choices);
     }
 
-    private EvaluationContext getPotentiallyLimitedScopeContext(EvaluationContext ec, ItemsetBinding itemset) {
-        TreeReferenceAccumulatingAnalyzer analyzer = new TreeReferenceAccumulatingAnalyzer(ec);
-        Set<TreeReference> references = analyzer.accumulate(itemset.nodesetRef);
-        if (references == null) {
-            return ec;
-        }
-
-        EvaluationContext prototypeSubContextEnvironment = new EvaluationContext(ec, itemset.nodesetRef);
-
+    /**
+     * Returns an evaluation context which can be used to evaluate the itemset's references, and
+     * if possible will be more efficient than the base context provided through static analysis
+     * of the itemset expressions.
+     */
+    private EvaluationContext getPotentiallyLimitedScopeContext(EvaluationContext questionContext,
+                                                                ItemsetBinding itemset) {
+        Set<TreeReference> references;
         try {
-            references.addAll(getAccumulatedReferencesOrThrow(prototypeSubContextEnvironment, itemset.labelRef));
-            references.addAll(getAccumulatedReferencesOrThrow(prototypeSubContextEnvironment, itemset.valueRef));
-            references.addAll(getAccumulatedReferencesOrThrow(prototypeSubContextEnvironment, itemset.sortRef));
+             references = pullAllReferencesFromItemset(questionContext, itemset);
         } catch (AnalysisInvalidException e) {
-            return ec;
+            return questionContext;
         }
-        EvaluationContext newContext = ec.spawnWithCleanLifecycle();
+
+        EvaluationContext newContext = questionContext.spawnWithCleanLifecycle();
 
         QueryContext isolatedContext = newContext.getCurrentQueryContext();
         ScopeLimitedReferenceRequestCache cache = isolatedContext.getQueryCache(ScopeLimitedReferenceRequestCache.class);
         cache.addTreeReferencesToLimitedScope(references);
         return newContext;
+    }
+
+    /**
+     * Tries to get all of the absolute tree references which are referenced in the itemset, either in
+     * the nodeset calculation, or the individual (label, value, etc...) itemset element calculations.
+     *
+     * If a value is returned, that value should contain all tree references which will need to be
+     * evaluated to produce the itemset output
+     *
+     * @throws AnalysisInvalidException If the itemset's references could not be fully understood
+     * or qualified through static evaluation
+     */
+    private Set<TreeReference> pullAllReferencesFromItemset(EvaluationContext questionContext, ItemsetBinding itemset)
+            throws AnalysisInvalidException{
+
+
+        Set<TreeReference> references = getAccumulatedReferencesOrThrow(questionContext, itemset.nodesetRef);
+
+        EvaluationContext itemsetSubexpressionContext = new EvaluationContext(questionContext, itemset.nodesetRef);
+
+        references.addAll(getAccumulatedReferencesOrThrow(itemsetSubexpressionContext, itemset.labelRef));
+        references.addAll(getAccumulatedReferencesOrThrow(itemsetSubexpressionContext, itemset.valueRef));
+        references.addAll(getAccumulatedReferencesOrThrow(itemsetSubexpressionContext, itemset.sortRef));
+
+        return references;
     }
 
     private Set<TreeReference> getAccumulatedReferencesOrThrow(EvaluationContext subContext,

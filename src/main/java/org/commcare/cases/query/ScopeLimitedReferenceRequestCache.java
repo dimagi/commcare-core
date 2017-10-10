@@ -3,7 +3,6 @@ package org.commcare.cases.query;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,20 +15,20 @@ import java.util.Set;
  * query scope.
  *
  * This cache should only get created in a query context which is guaranteed to be
- * transient.
+ * transient: IE: After an escalation. Generally speaking you should force a child
+ * context to spawn before populating this cache unless you are sure the query context
+ * is transient.
  *
  * Created by ctsims on 9/18/2017.
  */
 
 public class ScopeLimitedReferenceRequestCache implements QueryCache {
 
-    //TODO: Do we get anything from sealing the scope other than vague confidence?
-
     private final String DEFAULT_INSTANCE_KEY = "/";
 
     // Maps instance names to the set of tree references that are "in scope" (i.e. that we must be
     // able to evaluate) for that instance in the current context
-    private HashMap<String, Set<TreeReference>> map = new HashMap<>();
+    private HashMap<String, Set<TreeReference>> instanceNameToReferenceSetMap = new HashMap<>();
 
     /**
      * Replaces the tree element cache used to hold the final partial tree elements, since
@@ -58,14 +57,14 @@ public class ScopeLimitedReferenceRequestCache implements QueryCache {
             }
 
             Set<TreeReference> existingRefs;
-            if (map.containsKey(instanceName)) {
-                existingRefs = map.get(instanceName);
+            if (instanceNameToReferenceSetMap.containsKey(instanceName)) {
+                existingRefs = instanceNameToReferenceSetMap.get(instanceName);
             } else {
                 existingRefs = new HashSet<>();
             }
 
             existingRefs.add(reference);
-            map.put(instanceName, existingRefs);
+            instanceNameToReferenceSetMap.put(instanceName, existingRefs);
         }
     }
 
@@ -74,14 +73,14 @@ public class ScopeLimitedReferenceRequestCache implements QueryCache {
      * the cache that it should be excluded from future requests.
      */
     public boolean isInstancePotentiallyScopeLimited(String instanceName) {
-        return map.containsKey(instanceName) && !excludedInstances.contains(instanceName);
+        return instanceNameToReferenceSetMap.containsKey(instanceName) && !excludedInstances.contains(instanceName);
     }
 
     /**
      * Get all of the in-scope tree references for the provided instance
      */
     public Set<TreeReference> getInScopeReferences(String instanceName) {
-        return map.get(instanceName);
+        return instanceNameToReferenceSetMap.get(instanceName);
     }
 
     /**

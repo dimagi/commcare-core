@@ -109,7 +109,7 @@ public class EvaluationTraceReduction extends EvaluationTrace {
         return response;
     }
 
-    public static String getRuntimeCount(long l) {
+    public String getRuntimeCount(long l) {
         if (l / 1000 / 1000 > 0) {
             return l /1000 / 1000 + "ms";
         } else if (l / 1000 > 0) {

@@ -31,7 +31,7 @@ public class QuerySensitiveTreeElementWrapper<T extends AbstractTreeElement> imp
         }
     }
 
-    public QuerySensitiveTreeElementWrapper(QuerySensitiveTreeElement<T> wrapped, QueryContext context) {
+    private QuerySensitiveTreeElementWrapper(QuerySensitiveTreeElement<T> wrapped, QueryContext context) {
         this.wrapped = wrapped;
         this.context = context;
     }

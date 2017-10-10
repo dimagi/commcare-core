@@ -4,6 +4,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.analysis.AnalysisInvalidException;
 import org.javarosa.xpath.analysis.TreeReferenceAccumulatingAnalyzer;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -22,13 +23,13 @@ public class TreeReferenceAccumulatorTest {
 
 
     @Test
-    public void testNonParses() throws XPathSyntaxException {
+    public void testNonParses() throws XPathSyntaxException, AnalysisInvalidException {
         runAndTest("4+4");
         runAndTest("if('steve' = 'bob', 4, $jim)");
     }
 
     @Test
-    public void testBasicParses() throws XPathSyntaxException {
+    public void testBasicParses() throws XPathSyntaxException, AnalysisInvalidException {
         runAndTest("instance('casedb')/casedb/case[@case_id = /data/test]/value",
                 "instance('casedb')/casedb/case/@case_id",
                 "instance('casedb')/casedb/case/value",
@@ -55,7 +56,7 @@ public class TreeReferenceAccumulatorTest {
     }
 
     @Test
-    public void testParsesWithContext() throws XPathSyntaxException {
+    public void testParsesWithContext() throws XPathSyntaxException, AnalysisInvalidException {
         EvaluationContext ecBase = new EvaluationContext(null);
         EvaluationContext root = new EvaluationContext(ecBase,
                 XPathReference.getPathExpr("instance('baseinstance')/base/element").getReference());
@@ -89,10 +90,6 @@ public class TreeReferenceAccumulatorTest {
                 "instance('models')/models/model/make",
                 "instance('baseinstance')/base/element/year"
                 );
-
-
-
-
     }
 
 
@@ -103,26 +100,25 @@ public class TreeReferenceAccumulatorTest {
         runForError("current()/relative");
     }
 
-
-
-
     private void runForError(String text) {
-        Set<TreeReference> references = runAndTest(text);
-        if (references != null) {
-            Assert.fail(String.format("Should have failed to analyse expression %s", text));
+        try {
+            runAndTest(text);
+        } catch (AnalysisInvalidException e) {
+            return;
         }
+        Assert.fail(String.format("Should have failed to analyse expression %s", text));
     }
 
 
-    private Set<TreeReference> runAndTest(String text, String... matches) {
-        return runAndTest(null, text, matches);
+    private void runAndTest(String text, String... matches) throws AnalysisInvalidException {
+        runAndTest(null, text, matches);
     }
 
     /**
      * Tests that running TreeReferenceAccumulatingAnalyzer on the XPath expression represented
      * by @text results in accumulating all of the tree refs listed in @matches
      */
-    private Set<TreeReference> runAndTest(EvaluationContext context, String text, String... matches)  {
+    private void runAndTest(EvaluationContext context, String text, String... matches) throws AnalysisInvalidException {
         XPathExpression expression;
         try {
             expression = XPathParseTool.parseXPath(text);
@@ -139,7 +135,7 @@ public class TreeReferenceAccumulatorTest {
 
         Set<TreeReference> results = analyzer.accumulate(expression);
         if (results == null) {
-            return null;
+            throw new AnalysisInvalidException(String.format("Couldn't analyze expression: %s",text));
         }
 
         Set<TreeReference> expressions = new HashSet<>();
@@ -149,7 +145,6 @@ public class TreeReferenceAccumulatorTest {
         }
 
         Assert.assertEquals(text, expressions, results);
-        return results;
     }
 
 

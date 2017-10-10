@@ -88,7 +88,7 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
             return null;
         }
 
-        String[] scopeSufficientColumnList = analyseScopeSufficientColumnList(cache);
+        String[] scopeSufficientColumnList = getScopeSufficientColumnListIfExists(cache);
 
         if (scopeSufficientColumnList == null) {
             return null;
@@ -103,44 +103,78 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
 
     protected String[] getElementMetadata(int recordId, String[] metaFields, QueryContext context) {
         if (context == null || this.parent.getStorageCacheName() == null) {
-            return parent.storage.getMetaDataForRecord(recordId, metaFields);
+            return readSingleRecordMetadataFromStorage(recordId, metaFields);
         }
+
+        RecordObjectCache<String[]> recordObjectCache = StorageInstanceTreeElement.getRecordObjectCacheIfRelevant(
+                context);
+        String recordObjectKey = parent.getStorageCacheName() + "_partial";
+
+
+        //If no object cache is available, perform the read naively
+        if (recordObjectCache == null) {
+            return readSingleRecordMetadataFromStorage(recordId, metaFields);
+        }
+
+        //If the object is already cached, return it from there.
+        if (recordObjectCache.isLoaded(recordObjectKey, recordId)) {
+            return recordObjectCache.getLoadedRecordObject(recordObjectKey, recordId);
+        }
+
+        //Otherwise, see if we have a record set result which can be used to load the record in
+        //bulk along with other records.
         RecordSetResultCache recordSetCache = context.getQueryCacheOrNull(RecordSetResultCache.class);
 
         String recordSetKey = parent.getStorageCacheName();
 
-        String recordObjectKey = parent.getStorageCacheName() + "_partial";
-
-        RecordObjectCache<String[]> recordObjectCache = StorageInstanceTreeElement.getRecordObjectCacheIfRelevant(
-                context);
-
-        if (recordObjectCache != null) {
-            if (recordObjectCache.isLoaded(recordObjectKey, recordId)) {
-                return recordObjectCache.getLoadedRecordObject(recordObjectKey, recordId);
-            }
-
-            if (StorageInstanceTreeElement.canLoadRecordFromGroup(recordSetCache, recordSetKey, recordId)) {
-                Pair<String, LinkedHashSet<Integer>> tranche =
-                        recordSetCache.getRecordSetForRecordId(recordSetKey, recordId);
-
-                EvaluationTrace loadTrace =
-                        new EvaluationTrace(String.format("Model [%s]: Limited Scope Partial Bulk Load [%s}",
-                                recordObjectKey,tranche.first));
-
-                LinkedHashSet<Integer>  body = tranche.second;
-                parent.getStorage().bulkReadMetadata(body, metaFields, recordObjectCache.getLoadedCaseMap(recordObjectKey));
-                loadTrace.setOutcome("Loaded: " + body.size());
-
-                context.reportTrace(loadTrace);
-
-                return recordObjectCache.getLoadedRecordObject(recordObjectKey, recordId);
-            }
+        if (!StorageInstanceTreeElement.canLoadRecordFromGroup(recordSetCache, recordSetKey, recordId)) {
+            return readSingleRecordMetadataFromStorage(recordId, metaFields);
         }
 
+        return populateMetaDataCacheAndReadForRecord(recordSetCache, recordSetKey, recordObjectCache, recordObjectKey, metaFields, context);
+    }
+
+    private String[] populateMetaDataCacheAndReadForRecord(RecordSetResultCache recordSetCache,
+                                                           String recordSetKey,
+                                                           RecordObjectCache<String[]> recordObjectCache,
+                                                           String recordObjectKey,
+                                                           String[] metaFields,
+                                                           QueryContext context) {
+        Pair<String, LinkedHashSet<Integer>> tranche =
+                recordSetCache.getRecordSetForRecordId(recordSetKey, recordId);
+
+        EvaluationTrace loadTrace =
+                new EvaluationTrace(String.format("Model [%s]: Limited Scope Partial Bulk Load [%s}",
+                        recordObjectKey,tranche.first));
+
+        LinkedHashSet<Integer>  body = tranche.second;
+        parent.getStorage().bulkReadMetadata(body, metaFields, recordObjectCache.getLoadedCaseMap(recordObjectKey));
+        loadTrace.setOutcome("Loaded: " + body.size());
+
+        context.reportTrace(loadTrace);
+
+        return recordObjectCache.getLoadedRecordObject(recordObjectKey, recordId);
+    }
+
+    private String[] readSingleRecordMetadataFromStorage(int recordId, String[] metaFields) {
         return parent.storage.getMetaDataForRecord(recordId, metaFields);
     }
 
-    private String[] analyseScopeSufficientColumnList(ScopeLimitedReferenceRequestCache cache) {
+
+
+    /**
+     * This method identifies whether the provided limited reference scope can be serviced
+     * by a fixed set of meta data fields, rather than by expanding the subdocument
+     * entirely.
+     *
+     * This method will update the cache with the result as well, so it is safe to call this method
+     * multiple times against it without concern for recomputing the request.
+     *
+     * @return A list of meta data field ids which need to be loaded for this element to fulfill
+     * the limited scope request. Null if this fixture can't guarantee that the limited request can
+     * be fulfilled entirely with meta data fields.
+     */
+    private String[] getScopeSufficientColumnListIfExists(ScopeLimitedReferenceRequestCache cache) {
         String[] limitedScope = cache.getInternalScopedLimit(this.getInstanceName());
         if (limitedScope != null) {
             return limitedScope;
@@ -154,8 +188,37 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
 
         StorageIndexedTreeElementModel model = parent.getModelTemplate();
 
-        //TODO: Make sure this doesn't recursively call cache...
         TreeReference baseRefForChildElement = this.getRef().genericize();
+
+        HashSet<String> sufficientColumns =
+                filterMetaDataForReferences(model, referencesInScope, baseRefForChildElement);
+
+        if (sufficientColumns == null) {
+            cache.setScopeLimitUnhelpful(this.getInstanceName());
+            return null;
+        }
+
+        String[] columnList = new String[sufficientColumns.size()];
+        int i = 0;
+        for(String s : sufficientColumns) {
+            columnList[i] = s;
+            i++;
+        }
+
+        cache.setInternalScopeLimit(this.getInstanceName(), columnList);
+
+        return columnList;
+    }
+
+    /**
+     * Identifies whether the provided references all are references to metadata for the provided
+     * model, and returns a list of the metadata fields which are being referenced if so. If the
+     * list of references reference any data which isn't included in the model's metadata, null
+     * is returned.
+     */
+    private HashSet<String> filterMetaDataForReferences(StorageIndexedTreeElementModel model,
+                                                        Set<TreeReference> referencesInScope,
+                                                        TreeReference baseRefForChildElement) {
 
         Vector<String> relativeSteps = model.getIndexedTreeReferenceSteps();
         HashMap<TreeReference, String> stepToColumnName = new HashMap<>();
@@ -165,7 +228,6 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
                     StorageIndexedTreeElementModel.getSqlColumnNameFromElementOrAttribute(relativeStep));
         }
 
-        boolean failed = false;
 
         HashSet<String> columnNameCacheLoads = new HashSet<>();
 
@@ -178,28 +240,12 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
 
             TreeReference subReference = inScopeReference.relativize(baseRefForChildElement);
             if (!stepToColumnName.containsKey(subReference)){
-                failed = true;
-                break;
+                return null;
             } else {
                 columnNameCacheLoads.add(stepToColumnName.get(subReference));
             }
         }
-
-        if (failed) {
-            cache.setScopeLimitUnhelpful(this.getInstanceName());
-            return null;
-        }
-
-        String[] columnList = new String[columnNameCacheLoads.size()];
-        int i = 0;
-        for(String s : columnNameCacheLoads) {
-            columnList[i] = s;
-            i++;
-        }
-
-        cache.setInternalScopeLimit(this.getInstanceName(), columnList);
-
-        return columnList;
+        return columnNameCacheLoads;
     }
 
     private TreeElement buildPartialElementFromMetadata(String[] columnNames, String[] metadataValues) {
