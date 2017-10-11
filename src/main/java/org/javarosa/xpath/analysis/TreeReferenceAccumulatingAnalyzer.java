@@ -29,28 +29,6 @@ public class TreeReferenceAccumulatingAnalyzer extends XPathAccumulatingAnalyzer
         addResultToList(treeRef.removePredicates());
     }
 
-    // For all AccumulatingAnalyzers, it should be sufficient to handle a current() reference by
-    // applying the analyzer separately to the expression itself and to the context ref
-    @Override
-    public void doAnalysisForTreeRefWithCurrent(TreeReference expressionWithContextTypeCurrent)
-            throws AnalysisInvalidException {
-
-        requireOriginalContext(expressionWithContextTypeCurrent);
-        doNormalTreeRefAnalysis(expressionWithContextTypeCurrent.contextualize(getOriginalContextRef()));
-    }
-
-    // For all AccumulatingAnalyzers, it should be sufficient to handle a relative reference by
-    // applying the analyzer separately to the expression itself and to the context ref
-    @Override
-    public void doAnalysisForRelativeTreeRef(TreeReference expressionWithContextTypeRelative)
-            throws AnalysisInvalidException {
-
-        requireContext(expressionWithContextTypeRelative);
-
-        doNormalTreeRefAnalysis(expressionWithContextTypeRelative.contextualize(this.getContextRef()));
-    }
-
-
     @Override
     XPathAnalyzer initSameTypeAnalyzer() {
         return new TreeReferenceAccumulatingAnalyzer();

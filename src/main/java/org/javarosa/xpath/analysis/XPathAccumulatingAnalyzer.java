@@ -63,4 +63,22 @@ public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
         }
     }
 
+    // This implementation should work for most accumulating analyzers, but some subclasses may want
+    // to override and provide more specific behavior
+    @Override
+    public void doAnalysisForTreeRefWithCurrent(TreeReference expressionWithContextTypeCurrent)
+            throws AnalysisInvalidException {
+        requireOriginalContext(expressionWithContextTypeCurrent);
+        doNormalTreeRefAnalysis(expressionWithContextTypeCurrent.contextualize(getOriginalContextRef()));
+    }
+
+    // This implementation should work for most accumulating analyzers, but some subclasses may want
+    // to override and provide more specific behavior
+    @Override
+    public void doAnalysisForRelativeTreeRef(TreeReference expressionWithContextTypeRelative)
+            throws AnalysisInvalidException {
+        requireContext(expressionWithContextTypeRelative);
+        doNormalTreeRefAnalysis(expressionWithContextTypeRelative.contextualize(this.getContextRef()));
+    }
+
 }
