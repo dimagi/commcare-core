@@ -63,7 +63,7 @@ public class QuerySensitiveTreeElementWrapper<T extends AbstractTreeElement> imp
 
     @Override
     public boolean hasChildren() {
-        return wrapped.hasChildren(context);
+        return wrapped.hasChildren();
     }
 
     @Override
@@ -128,7 +128,7 @@ public class QuerySensitiveTreeElementWrapper<T extends AbstractTreeElement> imp
 
     @Override
     public TreeReference getRef() {
-        return wrapped.getRef(context);
+        return wrapped.getRef();
     }
 
     @Override

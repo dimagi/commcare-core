@@ -146,7 +146,4 @@ public class TreeReferenceAccumulatorTest {
 
         Assert.assertEquals(text, expressions, results);
     }
-
-
 }
-

@@ -29,8 +29,4 @@ public interface QuerySensitiveTreeElement<T extends AbstractTreeElement> extend
      * @param multiplicity is the n-th occurence of an element with a given name
      */
     T getChild(QueryContext context, String name, int multiplicity);
-
-    boolean hasChildren(QueryContext context);
-
-    TreeReference getRef(QueryContext context);
 }

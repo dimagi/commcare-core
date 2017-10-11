@@ -90,10 +90,6 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
 
     @Override
     public boolean hasChildren() {
-        return hasChildren(null);
-    }
-
-    public boolean hasChildren(QueryContext context) {
         return true;
     }
 
@@ -196,12 +192,6 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
 
     @Override
     public TreeReference getRef() {
-        return getRef(null);
-    }
-
-
-    @Override
-    public TreeReference getRef(QueryContext context) {
         if (ref == null) {
             ref = TreeReference.buildRefFromTreeElement(this);
         }
@@ -210,6 +200,7 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
 
 
     //Context Sensitive Methods
+    @Override
     public TreeElement getAttribute(QueryContext context, String namespace, String name) {
         if (name.equals(nameId)) {
             if (recordId != TreeReference.INDEX_TEMPLATE) {
@@ -254,6 +245,5 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
     }
 
     protected abstract TreeElement cache(QueryContext context);
-
 
 }
