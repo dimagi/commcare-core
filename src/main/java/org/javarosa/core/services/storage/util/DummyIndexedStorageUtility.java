@@ -65,7 +65,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     private void initMetaFromInstance(Persistable p) {
-        if(!(p instanceof IMetaData)) {
+        if (!(p instanceof IMetaData)) {
             return;
         }
         IMetaData m = (IMetaData)p;
@@ -79,8 +79,8 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     @Override
     public Vector<Integer> getIDsForValue(String fieldName, Object value) {
         //We don't support all index types
-        if(meta.get(fieldName) == null) {
-            throw new IllegalArgumentException("Unsupported index: "+ fieldName + " for storage of " + prototype.getName());
+        if (meta.get(fieldName) == null) {
+            throw new IllegalArgumentException("Unsupported index: " + fieldName + " for storage of " + prototype.getName());
         }
         if (meta.get(fieldName).get(value) == null) {
             return new Vector<>();
@@ -292,8 +292,24 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 
     @Override
     public void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, T> recordMap, Abandonable abandonable) throws RequestAbandonedException {
-        for(int i : cuedCases) {
+        for (int i : cuedCases) {
             recordMap.put(i, data.get(i));
+        }
+    }
+
+    @Override
+    public String[] getMetaDataForRecord(int recordId, String[] fieldNames) {
+        String[] response = new String[fieldNames.length];
+        for (int i = 0; i < fieldNames.length; ++i) {
+            response[i] = (String)((IMetaData)data.get(recordId)).getMetaData(fieldNames[i]);
+        }
+        return response;
+    }
+
+    @Override
+    public void bulkReadMetadata(LinkedHashSet cuedCases, String[] metaDataIds, HashMap metadataMap) {
+        for(int i : ((LinkedHashSet<Integer>)cuedCases)) {
+            metadataMap.put(i, getMetaDataForRecord(i, metaDataIds));
         }
     }
 

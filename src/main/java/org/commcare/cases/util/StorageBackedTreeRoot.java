@@ -365,5 +365,5 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
      * root. Used to differentiate the record ID's retrieved during operations on this root in
      * internal caches
      */
-    protected abstract String getStorageCacheName();
+    public abstract String getStorageCacheName();
 }

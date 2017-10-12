@@ -68,6 +68,15 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
         return STORAGE_KEY_PREFIX + cleanedName;
     }
 
+    /**
+     * @return The list of elements from this model which are indexed, this list will be in the input
+     * format, which generally can be interpreted as a treereference step into the model which
+     * will reference the metadata field in the virtual instance, IE: "@attributename"
+     */
+    public Vector<String> getIndexedTreeReferenceSteps() {
+        return indices;
+    }
+
     @Override
     public String[] getMetaDataFields() {
         return metaDataFields;

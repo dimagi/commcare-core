@@ -454,4 +454,15 @@ public class TreeReferenceTest {
         Assert.assertEquals("current()/c.relative(0) -> ./c", floatc2, currentC.getRelativeReferenceAfter(0));
     }
 
+    @Test
+    public void testRelativize() {
+        Assert.assertEquals(
+                r("child/@attribute"),
+                r("/data/full/path/to/child/@attribute").relativize(r("/data/full/path/to")));
+    }
+
+
+    private TreeReference r(String reference) {
+        return XPathReference.getPathExpr(reference).getReference();
+    }
 }
