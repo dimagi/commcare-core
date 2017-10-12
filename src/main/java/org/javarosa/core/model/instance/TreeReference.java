@@ -839,17 +839,31 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
         analyzer.doAnalysis(TreeReference.this);
-        for (int i = 0; i < data.size(); i++) {
-            TreeReferenceLevel subLevel = data.get(i);
-            if (subLevel.getPredicates() != null) {
-                if (!this.isAbsolute()) {
+        if (this.hasPredicates()) {
+
+            TreeReference contextForPredicates = this;
+            if (this.contextType == CONTEXT_ORIGINAL) {
+                if (analyzer.getOriginalContextRef() == null) {
                     throw new AnalysisInvalidException(
-                            "Not currently capable of analyzing a relative ref with predicates");
+                            "No original context available when needed to evaluate: " + this);
                 }
-                TreeReference subContext = this.removePredicates().getSubReference(i);
-                XPathAnalyzer subAnalyzer = analyzer.spawnSubAnalyzer(subContext);
-                for (XPathExpression expr : subLevel.getPredicates()) {
-                    expr.applyAndPropagateAnalyzer(subAnalyzer);
+                contextForPredicates = this.contextualize(analyzer.getOriginalContextRef());
+            } else if (!this.isAbsolute()) {
+                if (analyzer.getContextRef() == null) {
+                    throw new AnalysisInvalidException(
+                            "No context available when needed to evaluate: " + this);
+                }
+                contextForPredicates = this.contextualize(analyzer.getContextRef());
+            }
+
+            for (int i = 0; i < data.size(); i++) {
+                TreeReferenceLevel subLevel = data.get(i);
+                if (subLevel.getPredicates() != null) {
+                    TreeReference subContext = contextForPredicates.removePredicates().getSubReference(i);
+                    XPathAnalyzer subAnalyzer = analyzer.spawnSubAnalyzer(subContext);
+                    for (XPathExpression expr : subLevel.getPredicates()) {
+                        expr.applyAndPropagateAnalyzer(subAnalyzer);
+                    }
                 }
             }
         }
