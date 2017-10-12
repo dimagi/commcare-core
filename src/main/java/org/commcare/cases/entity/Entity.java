@@ -105,7 +105,9 @@ public class Entity<T> {
         for (int i = 0; i < data.length; i++) {
             sb.append("\n").append(i).append("\n");
             sb.append("Data: ").append(data[i]).append("|");
-            sb.append("SortData: ").append(sortData[i]).append("|");
+            if (sortData[i] != null) {
+                sb.append("SortData: ").append(sortData[i]).append("|");
+            }
             sb.append("IsValidField: ").append(isValidField(i));
         }
         return sb.toString() + "\n" + super.toString();
