@@ -135,8 +135,9 @@ public class NodeEntityFactory {
      * Performs the underlying work to prepare the entity set
      * (see prepareEntities()). Separated out to enforce timing
      * related to preparing and utilizing results
+     * @param entities
      */
-    protected void prepareEntitiesInternal() {
+    protected void prepareEntitiesInternal(List<Entity<TreeReference>> entities) {
         //No implementation in normal factory
     }
 
@@ -146,9 +147,9 @@ public class NodeEntityFactory {
      * usage. This preparation occurs asynchronously, and the returned entity
      * set should not be manipulated until it has completed.
      */
-    public final void prepareEntities() {
+    public final void prepareEntities(List<Entity<TreeReference>> entities) {
         synchronized (mPreparationLock) {
-            prepareEntitiesInternal();
+            prepareEntitiesInternal(entities);
             mEntitySetInitialized = true;
         }
     }

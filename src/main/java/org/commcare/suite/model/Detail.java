@@ -426,6 +426,15 @@ public class Detail implements Externalizable {
         return callout;
     }
 
+    public boolean hasSortField() {
+        for (DetailField f : getFields()) {
+            if (f.getSortOrder() > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private abstract class Map<E> {
         private final E a;
 
