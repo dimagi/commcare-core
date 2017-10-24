@@ -1490,20 +1490,30 @@ public class FormDef implements IFormElement, IMetaData,
         initialize(newInstance, isCompletedInstance, factory, locale, false, true);
     }
 
+    public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale, boolean initializeTriggerables) {
+        initialize(newInstance, false, factory, locale, false, initializeTriggerables);
+    }
+
     /**
      * meant to be called after deserialization and initialization of handlers
      *
      * @param newInstance true if the form is to be used for a new entry interaction,
      *                    false if it is using an existing IDataModel
+     * @param isCompletedInstance true if this is an already completed instance we are editing
+     *                            (presumably in HQ) - so don't fire end of form event.
+     * @param factory instance factory containing references to external data sources
      * @param locale The default locale in the current environment, if provided. Can be null
-     *               to rely on the form's internal default.
+     *               to rely on the form's internal default
+     * @param initializeTriggerables true if this form is being reloaded from an incomplete form
+     *                                and so we should re-process triggerables to account for
+     *                                changes to user databases
      */
     public void initialize(boolean newInstance,
                            boolean isCompletedInstance,
                            InstanceInitializationFactory factory,
                            String locale,
                            boolean isReadOnly,
-                           boolean reloadingIncompleteForm) {
+                           boolean initializeTriggerables) {
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
@@ -1520,7 +1530,7 @@ public class FormDef implements IFormElement, IMetaData,
         }
         // We only want to re-initialize triggerables in the event that we're opening a saved form and
         // databases may have changed
-        if (!isReadOnly && newInstance || reloadingIncompleteForm) {
+        if (!isReadOnly && (newInstance || initializeTriggerables)) {
             initAllTriggerables();
         }
 
@@ -1859,10 +1869,10 @@ public class FormDef implements IFormElement, IMetaData,
         submissionProfiles.put(submissionId, profile);
     }
 
+    /**
+     * @return The submission profile with the given ID.
+     */
     public SubmissionProfile getSubmissionProfile(String id) {
-        //At some point these profiles will be set by the <submit> control in the form.
-        //In the mean time, though, we can only promise that the default one will be used.
-
         return submissionProfiles.get(id);
     }
 

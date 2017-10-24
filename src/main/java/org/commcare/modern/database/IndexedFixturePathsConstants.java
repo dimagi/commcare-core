@@ -11,7 +11,7 @@ public class IndexedFixturePathsConstants {
     public final static String INDEXED_FIXTURE_PATHS_TABLE_STMT =
             "CREATE TABLE IF NOT EXISTS " +
                     IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE +
-                    " (" + IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_NAME +
+                    " (" + IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_NAME + " UNIQUE" +
                     ", " + IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_BASE +
                     ", " + IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_CHILD + ");";
 
