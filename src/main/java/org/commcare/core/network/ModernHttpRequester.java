@@ -46,8 +46,8 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     private final List<MultipartBody.Part> parts;
     private final HttpResponseProcessor responseProcessor;
     protected final String url;
-    protected final HashMap<String, String> params;
-    protected final HashMap<String, String> headers;
+    protected final Map<String, String> params;
+    protected final Map<String, String> headers;
     private Response<ResponseBody> response;
     private CommCareNetworkService commCareNetworkService;
 
@@ -59,7 +59,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
      * to make a request in case of responseProcessor being null.
      */
     public ModernHttpRequester(BitCacheFactory.CacheDirSetup cacheDirSetup,
-                               String url, HashMap<String, String> params, HashMap<String, String> headers,
+                               String url, Map<String, String> params, HashMap<String, String> headers,
                                @Nullable RequestBody requestBody, @Nullable List<MultipartBody.Part> parts,
                                CommCareNetworkService commCareNetworkService,
                                HTTPMethod method,
