@@ -64,6 +64,9 @@ public class CommCareConfigEngine {
 
     private static IStorageIndexedFactory storageFactory;
 
+    public static final int MAJOR_VERSION = 2;
+    public static final int MINOR_VERSION = 41;
+
     public CommCareConfigEngine() {
         this(new LivePrototypeFactory());
     }
@@ -74,7 +77,7 @@ public class CommCareConfigEngine {
 
     public CommCareConfigEngine(OutputStream output, PrototypeFactory prototypeFactory) {
         this.print = new PrintStream(output);
-        this.platform = new CommCarePlatform(2, 41);
+        this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION);
         this.liveFactory = prototypeFactory;
 
         if (storageFactory == null) {
