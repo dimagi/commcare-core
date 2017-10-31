@@ -232,4 +232,9 @@ public class EntityScreen extends CompoundScreenHost {
     public TreeReference getCurrentSelection() {
         return mCurrentSelection;
     }
+
+    @Override
+    public String toString() {
+        return "EntityScreen [Detail=" + mShortDetail + ", selection=" + mCurrentSelection + "]";
+    }
 }
