@@ -42,8 +42,17 @@ public class ArchiveFileRoot implements ReferenceFactory {
         return URI.toLowerCase().startsWith("jr://archive/");
     }
 
-    public String addArchiveFile(ZipFile zip) {
-        String mGUID = PropertyUtils.genGUID(GUID_LENGTH);
+    public String addArchiveFile(ZipFile zipFile) {
+        return addArchiveFile(zipFile, null);
+    }
+
+    public String addArchiveFile(ZipFile zip, String appId) {
+        String mGUID;
+        if (appId == null) {
+            mGUID = PropertyUtils.genGUID(GUID_LENGTH);
+        } else {
+            mGUID = appId;
+        }
         guidToFolderMap.put(mGUID, zip);
         return mGUID;
     }
