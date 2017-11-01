@@ -195,7 +195,7 @@ public class CommCareConfigEngine {
         return "jr://file/" + filePart;
     }
 
-    private void init(String profileRef) throws InstallCancelledException,
+    protected void init(String profileRef) throws InstallCancelledException,
             UnresolvedResourceException, UnfullfilledRequirementsException {
         installAppFromReference(profileRef);
     }
