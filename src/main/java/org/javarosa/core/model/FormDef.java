@@ -5,6 +5,7 @@ import org.commcare.modern.util.Pair;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.actions.Action;
 import org.javarosa.core.model.actions.ActionController;
+import org.javarosa.core.model.actions.FormSendCalloutHandler;
 import org.javarosa.core.model.condition.Condition;
 import org.javarosa.core.model.condition.Constraint;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -54,6 +55,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -137,6 +139,8 @@ public class FormDef implements IFormElement, IMetaData,
     private boolean isCompletedInstance;
 
     private boolean mProfilingEnabled = false;
+
+    FormSendCalloutHandler sendCalloutHandler;
 
     /**
      * Cache children that trigger target will cascade to. For speeding up
@@ -1842,11 +1846,11 @@ public class FormDef implements IFormElement, IMetaData,
         submissionProfiles.put(submissionId, profile);
     }
 
-    public SubmissionProfile getSubmissionProfile() {
+    public SubmissionProfile getSubmissionProfile(String id) {
         //At some point these profiles will be set by the <submit> control in the form.
         //In the mean time, though, we can only promise that the default one will be used.
 
-        return submissionProfiles.get(DEFAULT_SUBMISSION_PROFILE);
+        return submissionProfiles.get(id);
     }
 
     public <X extends XFormExtension> X getExtension(Class<X> extension) {
@@ -1879,5 +1883,20 @@ public class FormDef implements IFormElement, IMetaData,
         conditionRepeatTargetIndex = null;
         //We may need ths one, actually
         exprEvalContext = null;
+    }
+
+    /**
+     * Register a handler which is capable of handling send actions.
+     */
+    public void setSendCalloutHandler(FormSendCalloutHandler sendCalloutHandler) {
+        this.sendCalloutHandler = sendCalloutHandler;
+    }
+
+    public String dispatchSendCallout(String url, Map<String, String> paramMap) {
+        if(sendCalloutHandler == null) {
+            return null;
+        } else {
+            return sendCalloutHandler.performHttpCalloutForResponse(url, paramMap);
+        }
     }
 }

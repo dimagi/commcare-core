@@ -1,5 +1,7 @@
 package org.javarosa.core.services.storage.util;
 
+import org.javarosa.core.model.condition.Abandonable;
+import org.javarosa.core.model.condition.RequestAbandonedException;
 import org.javarosa.core.services.storage.*;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.InvalidIndexException;
@@ -273,9 +275,14 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     @Override
-    public void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, T> recordMap) {
+    public void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, T> recordMap, Abandonable abandonable) throws RequestAbandonedException {
         for(int i : cuedCases) {
             recordMap.put(i, data.get(i));
         }
+    }
+
+    @Override
+    public void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, T> recordMap) {
+        bulkRead(cuedCases, recordMap, null);
     }
 }

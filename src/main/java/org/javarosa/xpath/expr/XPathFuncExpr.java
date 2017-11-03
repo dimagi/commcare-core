@@ -213,6 +213,13 @@ public abstract class XPathFuncExpr extends XPathExpression {
         }
     }
 
+    public int getExpectedArgCount() {
+        return expectedArgCount;
+    }
+
+    public String getName() {
+        return name;
+    }
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
         analyzer.doAnalysis(XPathFuncExpr.this);
