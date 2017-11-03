@@ -21,6 +21,7 @@ public class ResourceManager {
     private final ResourceTable masterTable;
     protected final ResourceTable upgradeTable;
     protected final ResourceTable tempTable;
+    String s = "a no-op change";
 
     /**
      * Lock to synchronize update logic so that multiple threads don't try to
