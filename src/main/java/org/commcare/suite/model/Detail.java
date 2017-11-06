@@ -305,9 +305,13 @@ public class Detail implements Externalizable {
      */
     public int[] getOrderedFieldIndicesForSorting() {
         Vector<Integer> indices = new Vector<>();
+        Vector<Integer> cacheAndIndexedIndices = new Vector<>();
         outer:
         for (int i = 0; i < fields.length; ++i) {
             int order = fields[i].getSortOrder();
+            if (order == -2) {
+                cacheAndIndexedIndices.addElement(i);
+            }
             if (order < 1) {
                 continue;
             }
@@ -321,15 +325,18 @@ public class Detail implements Externalizable {
             indices.addElement(i);
             continue;
         }
-        if (indices.size() == 0) {
-            return new int[]{};
-        } else {
-            int[] ret = new int[indices.size()];
-            for (int i = 0; i < ret.length; ++i) {
-                ret[i] = indices.elementAt(i);
-            }
-            return ret;
+
+        int resultLength = indices.size() + cacheAndIndexedIndices.size();
+        int[] ret = new int[resultLength];
+        int i = 0;
+        for (;i < indices.size(); ++i) {
+            ret[i] = indices.elementAt(i);
         }
+        // add all cacheAndIndexed element at end
+        for (; i < resultLength; ++i) {
+            ret[i] = cacheAndIndexedIndices.elementAt(i - indices.size());
+        }
+        return ret;
     }
 
     //These are just helpers around the old structure. Shouldn't really be
@@ -505,7 +512,7 @@ public class Detail implements Externalizable {
     }
 
     public HashMap<String, DetailFieldPrintInfo> getKeyValueMapForPrint(TreeReference selectedEntityRef,
-                                                          EvaluationContext baseContext) {
+                                                                        EvaluationContext baseContext) {
         HashMap<String, DetailFieldPrintInfo> mapping = new HashMap<>();
         populateMappingWithDetailFields(mapping, selectedEntityRef, baseContext, null);
         return mapping;
