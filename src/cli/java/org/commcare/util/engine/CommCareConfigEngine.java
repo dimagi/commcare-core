@@ -57,7 +57,7 @@ public class CommCareConfigEngine {
     private final ResourceTable updateTable;
     private final ResourceTable recoveryTable;
     private final CommCarePlatform platform;
-    private final PrintStream print;
+    protected final PrintStream print;
 
     protected ArchiveFileRoot mArchiveRoot;
     private IStorageIndexedFactory storageFactory;
