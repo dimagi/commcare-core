@@ -2,6 +2,7 @@ package org.commcare.suite.model;
 
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
+import org.commcare.util.CollectionUtils;
 import org.commcare.util.DetailFieldPrintInfo;
 import org.commcare.cases.entity.EntityUtil;
 import org.commcare.util.GridCoordinate;
@@ -325,18 +326,7 @@ public class Detail implements Externalizable {
             indices.addElement(i);
             continue;
         }
-
-        int resultLength = indices.size() + cacheAndIndexedIndices.size();
-        int[] ret = new int[resultLength];
-        int i = 0;
-        for (;i < indices.size(); ++i) {
-            ret[i] = indices.elementAt(i);
-        }
-        // add all cacheAndIndexed element at end
-        for (; i < resultLength; ++i) {
-            ret[i] = cacheAndIndexedIndices.elementAt(i - indices.size());
-        }
-        return ret;
+        return CollectionUtils.mergeIntegerVectorsInArray(indices, cacheAndIndexedIndices);
     }
 
     //These are just helpers around the old structure. Shouldn't really be
