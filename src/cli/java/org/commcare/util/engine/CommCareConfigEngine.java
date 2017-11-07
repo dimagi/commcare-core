@@ -5,6 +5,7 @@ import org.commcare.modern.reference.JavaFileRoot;
 import org.commcare.modern.reference.JavaHttpRoot;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelledException;
+import org.commcare.resources.model.InstallerFactory;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -57,35 +58,33 @@ public class CommCareConfigEngine {
     private final ResourceTable updateTable;
     private final ResourceTable recoveryTable;
     private final CommCarePlatform platform;
-    private final PrototypeFactory liveFactory;
     private final PrintStream print;
 
     private ArchiveFileRoot mArchiveRoot;
 
     private static IStorageIndexedFactory storageFactory;
 
+    public static final int MAJOR_VERSION = 2;
+    public static final int MINOR_VERSION = 41;
+
     public CommCareConfigEngine() {
         this(new LivePrototypeFactory());
     }
 
     public CommCareConfigEngine(PrototypeFactory prototypeFactory) {
-        this(System.out, prototypeFactory);
+        this(setupDummyStorageFactory(prototypeFactory), new InstallerFactory());
     }
-
-    public CommCareConfigEngine(OutputStream output, PrototypeFactory prototypeFactory) {
-        this.print = new PrintStream(output);
-        this.platform = new CommCarePlatform(2, 41);
-        this.liveFactory = prototypeFactory;
-
-        if (storageFactory == null) {
-            setupDummyStorageFactory();
-        }
+    public CommCareConfigEngine(IStorageIndexedFactory storageFactory,
+                                InstallerFactory installerFactory) {
+        this.print = new PrintStream(System.out);
+        this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION);
+        setStorageFactory(storageFactory);
 
         setRoots();
 
-        table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class));
-        updateTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_UPGRADE_TABLE", Resource.class));
-        recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", Resource.class));
+        table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class), installerFactory);
+        updateTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_UPGRADE_TABLE", Resource.class), installerFactory);
+        recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", Resource.class), installerFactory);
 
 
         //All of the below is on account of the fact that the installers
@@ -101,13 +100,13 @@ public class CommCareConfigEngine {
         StorageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
     }
 
-    private void setupDummyStorageFactory() {
-        CommCareConfigEngine.setStorageFactory(new IStorageIndexedFactory() {
+    private static IStorageIndexedFactory setupDummyStorageFactory(final PrototypeFactory prototypeFactory) {
+        return new IStorageIndexedFactory() {
             @Override
             public IStorageUtilityIndexed newStorage(String name, Class type) {
-                return new DummyIndexedStorageUtility(type, liveFactory);
+                return new DummyIndexedStorageUtility(type, prototypeFactory);
             }
-        });
+        };
     }
 
     public static void setStorageFactory(IStorageIndexedFactory storageFactory) {
@@ -304,8 +303,7 @@ public class CommCareConfigEngine {
     }
 
     public FormDef loadFormByXmlns(String xmlns) {
-        IStorageUtilityIndexed<FormDef> formStorage =
-                (IStorageUtilityIndexed)StorageManager.getStorage(FormDef.STORAGE_KEY);
+        IStorageUtilityIndexed<FormDef> formStorage = storageFactory.newStorage(FormDef.STORAGE_KEY, FormDef.class);
         return formStorage.getRecordForValue("XMLNS", xmlns);
     }
 
