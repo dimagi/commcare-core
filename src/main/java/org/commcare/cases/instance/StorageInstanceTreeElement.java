@@ -1,6 +1,7 @@
 package org.commcare.cases.instance;
 
 import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.ScopeLimitedReferenceRequestCache;
 import org.commcare.cases.util.StorageBackedTreeRoot;
 import org.commcare.modern.engine.cases.RecordObjectCache;
 import org.commcare.modern.engine.cases.RecordSetResultCache;
@@ -280,16 +281,16 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
         }
         RecordSetResultCache recordSetCache = context.getQueryCacheOrNull(RecordSetResultCache.class);
 
-        RecordObjectCache<Model> recordObjectCache = getRecordObjectCacheIfRelevant(context);
-
         String storageCacheKey = getStorageCacheName();
+
+        RecordObjectCache<Model> recordObjectCache = getRecordObjectCacheIfRelevant(context);
 
         if(recordObjectCache != null) {
             if (recordObjectCache.isLoaded(storageCacheKey, recordId)) {
                 return recordObjectCache.getLoadedRecordObject(storageCacheKey, recordId);
             }
 
-            if (canLoadRecordFromGroup(recordSetCache, recordId)) {
+            if (canLoadRecordFromGroup(recordSetCache, getStorageCacheName(), recordId)) {
                 Pair<String, LinkedHashSet<Integer>> tranche =
                         recordSetCache.getRecordSetForRecordId(storageCacheKey, recordId);
                 EvaluationTrace loadTrace =
@@ -308,14 +309,14 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
         return getElementSingular(recordId, context);
     }
 
-    private boolean canLoadRecordFromGroup(RecordSetResultCache recordSetCache, int recordId) {
-        return recordSetCache != null && recordSetCache.hasMatchingRecordSet(getStorageCacheName(), recordId);
+    public static boolean canLoadRecordFromGroup(RecordSetResultCache recordSetCache, String cacheName, int recordId) {
+        return recordSetCache != null && recordSetCache.hasMatchingRecordSet(cacheName, recordId);
     }
 
     /**
      * Get a record object cache if it's appropriate in the current context.
      */
-    private RecordObjectCache getRecordObjectCacheIfRelevant(QueryContext context) {
+    public static RecordObjectCache getRecordObjectCacheIfRelevant(QueryContext context) {
         // If the query isn't currently in a bulk mode, don't force an object cache to exist unless
         // it already does
         if (context.getScope() < QueryContext.BULK_QUERY_THRESHOLD) {

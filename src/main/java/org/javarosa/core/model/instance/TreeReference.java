@@ -476,7 +476,8 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
         if (parent.isParentOf(this, false)) {
             TreeReference relRef = selfRef();
             for (int i = parent.size(); i < this.size(); i++) {
-                relRef.add(this.getName(i), INDEX_UNBOUND);
+                int index = this.getMultiplicity(i) == INDEX_ATTRIBUTE ? INDEX_ATTRIBUTE : INDEX_UNBOUND;
+                relRef.add(this.getName(i), index);
             }
             return relRef;
         } else {
@@ -838,13 +839,31 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
         analyzer.doAnalysis(TreeReference.this);
-        for (int i = 0; i < data.size(); i++) {
-            TreeReferenceLevel subLevel = data.get(i);
-            if (subLevel.getPredicates() != null) {
-                TreeReference subContext = this.removePredicates().getSubReference(i);
-                XPathAnalyzer subAnalyzer = analyzer.spawnSubAnalyzer(subContext);
-                for (XPathExpression expr : subLevel.getPredicates()) {
-                    expr.applyAndPropagateAnalyzer(subAnalyzer);
+        if (this.hasPredicates()) {
+
+            TreeReference contextForPredicates = this;
+            if (this.contextType == CONTEXT_ORIGINAL) {
+                if (analyzer.getOriginalContextRef() == null) {
+                    throw new AnalysisInvalidException(
+                            "No original context available when needed to evaluate: " + this);
+                }
+                contextForPredicates = this.contextualize(analyzer.getOriginalContextRef());
+            } else if (!this.isAbsolute()) {
+                if (analyzer.getContextRef() == null) {
+                    throw new AnalysisInvalidException(
+                            "No context available when needed to evaluate: " + this);
+                }
+                contextForPredicates = this.contextualize(analyzer.getContextRef());
+            }
+
+            for (int i = 0; i < data.size(); i++) {
+                TreeReferenceLevel subLevel = data.get(i);
+                if (subLevel.getPredicates() != null) {
+                    TreeReference subContext = contextForPredicates.removePredicates().getSubReference(i);
+                    XPathAnalyzer subAnalyzer = analyzer.spawnSubAnalyzer(subContext);
+                    for (XPathExpression expr : subLevel.getPredicates()) {
+                        expr.applyAndPropagateAnalyzer(subAnalyzer);
+                    }
                 }
             }
         }

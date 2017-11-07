@@ -1,6 +1,7 @@
 package org.javarosa.core.model.condition;
 
 import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.QuerySensitiveTreeElementWrapper;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.cases.util.QueryUtils;
 import org.javarosa.core.model.data.IAnswerData;
@@ -318,7 +319,7 @@ public class EvaluationContext implements Abandonable {
             predicates = predCopy;
         }
 
-        AbstractTreeElement node = sourceInstance.resolveReference(workingRef);
+        AbstractTreeElement node = sourceInstance.resolveReference(workingRef, this);
 
         this.openBulkTrace();
 
@@ -408,6 +409,10 @@ public class EvaluationContext implements Abandonable {
                                                          boolean includeTemplates) {
         Vector<TreeReference> childSet = new Vector<>();
         QueryUtils.prepareSensitiveObjectForUseInCurrentContext(node, getCurrentQueryContext());
+
+        node = QuerySensitiveTreeElementWrapper.WrapWithContext(node, getCurrentQueryContext());
+        //NOTE: This currently won't propogate the wrapped context.
+
         if (node.hasChildren()) {
             if (childMult == TreeReference.INDEX_UNBOUND) {
                 int count = node.getChildMultiplicity(childName);
@@ -514,7 +519,7 @@ public class EvaluationContext implements Abandonable {
                 (instance == null || instance.getInstanceId() == null || !instance.getInstanceId().equals(qualifiedRef.getInstanceName()))) {
             instance = this.getInstance(qualifiedRef.getInstanceName());
         }
-        return instance.resolveReference(qualifiedRef);
+        return instance.resolveReference(qualifiedRef, this);
     }
 
     /**

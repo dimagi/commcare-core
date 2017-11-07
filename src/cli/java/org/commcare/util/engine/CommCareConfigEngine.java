@@ -35,6 +35,7 @@ import org.javarosa.core.services.properties.Property;
 import org.javarosa.core.services.storage.IStorageIndexedFactory;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -56,35 +57,33 @@ public class CommCareConfigEngine {
     private final ResourceTable updateTable;
     private final ResourceTable recoveryTable;
     private final CommCarePlatform platform;
-    protected final PrintStream print;
+    private final PrintStream print;
 
     protected ArchiveFileRoot mArchiveRoot;
     private IStorageIndexedFactory storageFactory;
 
     public static final int MAJOR_VERSION = 2;
-    public static final int MINOR_VERSION = 39;
+    public static final int MINOR_VERSION = 41;
 
     public CommCareConfigEngine() {
         this(new LivePrototypeFactory());
     }
 
     public CommCareConfigEngine(PrototypeFactory prototypeFactory) {
-        this(new DummyIndexedStorageFactory(prototypeFactory), new InstallerFactory());
+        this(setupDummyStorageFactory(prototypeFactory), new InstallerFactory());
     }
 
-    public CommCareConfigEngine(IStorageIndexedFactory storageFactory, InstallerFactory installerFactory) {
+    public CommCareConfigEngine(IStorageIndexedFactory storageFactory,
+                                InstallerFactory installerFactory) {
         this.print = new PrintStream(System.out);
         this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION, storageFactory);
         this.storageFactory = storageFactory;
 
-
         setRoots();
-        table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class),
-                installerFactory);
-        updateTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_UPGRADE_TABLE", Resource.class),
-                installerFactory);
-        recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", Resource.class),
-                installerFactory);
+
+        table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class), installerFactory);
+        updateTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_UPGRADE_TABLE", Resource.class), installerFactory);
+        recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", Resource.class), installerFactory);
 
 
         //All of the below is on account of the fact that the installers
@@ -99,6 +98,15 @@ public class CommCareConfigEngine {
         StorageManager.instance().registerStorage(FormDef.STORAGE_KEY, FormDef.class);
         StorageManager.instance().registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
         StorageManager.instance().registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
+    }
+
+    private static IStorageIndexedFactory setupDummyStorageFactory(final PrototypeFactory prototypeFactory) {
+        return new IStorageIndexedFactory() {
+            @Override
+            public IStorageUtilityIndexed newStorage(String name, Class type) {
+                return new DummyIndexedStorageUtility(type, prototypeFactory);
+            }
+        };
     }
 
     protected void setRoots() {
