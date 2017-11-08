@@ -8,11 +8,11 @@ import java.util.Vector;
 /**
  * A Cache Table is a self-purging weak reference store that can be used
  * to maintain a cache of objects keyed by a dynamic type.
- *
+ * <p>
  * Cache tables will automatically clean up references to freed week references
  * on an internal schedule, and compact the table size to maintain as small
  * of a footprint as possible.
- *
+ * <p>
  * Cache tables are only available with Weak References to maintain compatibility
  * with j2me runtimes.
  *
@@ -23,7 +23,12 @@ public class CacheTable<T, K> {
 
     private Hashtable<T, WeakReference> currentTable;
 
-    private static final Vector<WeakReference> caches = new Vector<>();
+    private static final ThreadLocal<Vector<WeakReference>> caches = new ThreadLocal<Vector<WeakReference>>() {
+        @Override
+        protected Vector<WeakReference> initialValue() {
+            return new Vector<>();
+        }
+    };
 
     private static final Thread cleaner = new Thread(new Runnable() {
         @Override
@@ -32,8 +37,8 @@ public class CacheTable<T, K> {
             while (true) {
                 try {
                     toRemove.removeAllElements();
-                    for (int i = 0; i < caches.size(); ++i) {
-                        CacheTable cache = (CacheTable)caches.elementAt(i).get();
+                    for (int i = 0; i < caches.get().size(); ++i) {
+                        CacheTable cache = (CacheTable) caches.get().elementAt(i).get();
                         if (cache == null) {
                             toRemove.addElement(DataUtil.integer(i));
                         } else {
@@ -70,7 +75,7 @@ public class CacheTable<T, K> {
                         }
                     }
                     for (int id = toRemove.size() - 1; id >= 0; --id) {
-                        caches.removeElementAt(toRemove.elementAt(id));
+                        caches.get().removeElementAt(toRemove.elementAt(id));
                     }
                     try {
                         Thread.sleep(3000);
@@ -87,7 +92,7 @@ public class CacheTable<T, K> {
     });
 
     private static void registerCache(CacheTable table) {
-        caches.addElement(new WeakReference(table));
+        caches.get().addElement(new WeakReference(table));
         synchronized (cleaner) {
             if (!cleaner.isAlive()) {
                 cleaner.start();
@@ -107,7 +112,7 @@ public class CacheTable<T, K> {
             if (!currentTable.containsKey(key)) {
                 return null;
             }
-            K retVal = (K)currentTable.get(key).get();
+            K retVal = (K) currentTable.get(key).get();
             if (retVal == null) {
                 currentTable.remove(key);
             }
@@ -122,8 +127,8 @@ public class CacheTable<T, K> {
         }
     }
 
-    public void clear(){
+    public void clear() {
         currentTable.clear();
-        caches.removeAllElements();
+        caches.get().removeAllElements();
     }
 }
