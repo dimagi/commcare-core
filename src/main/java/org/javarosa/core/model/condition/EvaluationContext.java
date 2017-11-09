@@ -4,7 +4,6 @@ import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.QuerySensitiveTreeElementWrapper;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.cases.util.QueryUtils;
-import org.commcare.util.LogTypes;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -14,15 +13,14 @@ import org.javarosa.core.model.trace.BulkEvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.CacheHost;
-import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathLazyNodeset;
+import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 
 import java.util.*;
 
-import javax.management.Query;
 
 /**
  * A collection of objects that affect the evaluation of an expression, like
@@ -522,9 +520,7 @@ public class EvaluationContext implements Abandonable {
             instance = this.getInstance(qualifiedRef.getInstanceName());
         }
         if (instance == null) {
-            Logger.log(LogTypes.SOFT_ASSERT, "Instance was null in " +
-                    "EvaluationContext.resolveReference(). This means that there was no main " +
-                    "instance and the ref to resolve had no instance: " + qualifiedRef);
+            throw new XPathMissingInstanceException(qualifiedRef);
         }
         return instance.resolveReference(qualifiedRef, this);
     }
