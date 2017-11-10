@@ -1521,6 +1521,14 @@ public class FormDef implements IFormElement, IMetaData,
         actionController = (ActionController)ExtUtil.read(dis, ActionController.class, pf);
     }
 
+    public void initialize(boolean newInstance, InstanceInitializationFactory factory) {
+        initialize(newInstance, false, factory, null, true);
+    }
+
+    public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale, boolean initializeTriggerables) {
+        initialize(newInstance, isCompletedInstance, factory, locale, initializeTriggerables);
+    }
+
     /**
      * meant to be called after deserialization and initialization of handlers
      *
@@ -1528,31 +1536,18 @@ public class FormDef implements IFormElement, IMetaData,
      *                    false if it is using an existing IDataModel
      * @param isCompletedInstance true if this is an already completed instance we are editing
      *                            (presumably in HQ) - so don't fire end of form event.
-     */
-    public void initialize(boolean newInstance, boolean isCompletedInstance,
-                           InstanceInitializationFactory factory) {
-        initialize(newInstance, isCompletedInstance, factory, null, false);
-    }
-
-    public void initialize(boolean newInstance, InstanceInitializationFactory factory) {
-        initialize(newInstance, false, factory, null, false);
-    }
-
-    public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale,
-                           boolean isReadOnly) {
-        initialize(newInstance, false, factory, locale, isReadOnly);
-    }
-
-    /**
-     * meant to be called after deserialization and initialization of handlers
-     *
-     * @param newInstance true if the form is to be used for a new entry interaction,
-     *                    false if it is using an existing IDataModel
+     * @param factory instance factory containing references to external data sources
      * @param locale The default locale in the current environment, if provided. Can be null
-     *               to rely on the form's internal default.
+     *               to rely on the form's internal default
+     * @param initializeTriggerables true if this form is being reloaded from an incomplete form
+     *                                and so we should re-process triggerables to account for
+     *                                changes to user databases
      */
-    public void initialize(boolean newInstance, boolean isCompletedInstance,
-                           InstanceInitializationFactory factory, String locale, boolean isReadOnly) {
+    public void initialize(boolean newInstance,
+                           boolean isCompletedInstance,
+                           InstanceInitializationFactory factory,
+                           String locale,
+                           boolean initializeTriggerables) {
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
@@ -1567,10 +1562,13 @@ public class FormDef implements IFormElement, IMetaData,
             // useful for recording form start dates.
             actionController.triggerActionsFromEvent(Action.EVENT_XFORMS_READY, this);
         }
-        this.isCompletedInstance = isCompletedInstance;
-        if (!isReadOnly) {
+        // We only want to re-initialize triggerables in the event that we're opening a saved form and
+        // databases may have changed
+        if ((newInstance || initializeTriggerables)) {
             initAllTriggerables();
         }
+
+        this.isCompletedInstance = isCompletedInstance;
     }
 
     private void initLocale(String locale) {
