@@ -73,6 +73,20 @@ public class XPathFuncExprTest {
         ExprEvalUtils.testEval("substring-after('123', 2)", instance, null, "3");
     }
 
+    @Test
+    public void testDistinct() {
+        FormInstance instance = ExprEvalUtils.loadInstance("/xpath/test_distinct.xml");
+
+        ExprEvalUtils.testEval("join(' ', distinct-values(/data/places/country/@id))", instance, null, "us ca mx");
+
+        ExprEvalUtils.testEval("join(' ', distinct-values(/data/places/country/@continent))", instance, null, "na");
+        ExprEvalUtils.testEval("join(' ', distinct-values(/data/places/country/language))", instance, null, "English Spanish");
+
+        ExprEvalUtils.testEval("join(' ', distinct-values(/data/places/country[language = 'French']/@id))", instance, null, "");
+    }
+
+
+
     /**
      * Test that `position(some_ref)` throws a XPathTypeMismatchException when
      * some_ref points to an empty nodeset
