@@ -61,6 +61,9 @@ public class CommCareConfigEngine {
     protected ArchiveFileRoot mArchiveRoot;
     private IStorageIndexedFactory storageFactory;
 
+    public static final int MAJOR_VERSION = 2;
+    public static final int MINOR_VERSION = 39;
+
     public CommCareConfigEngine() {
         this(new LivePrototypeFactory());
     }
@@ -69,13 +72,9 @@ public class CommCareConfigEngine {
         this(new DummyIndexedStorageFactory(prototypeFactory), new InstallerFactory());
     }
 
-    public CommCareConfigEngine(IStorageIndexedFactory storageFactory) {
-        this(storageFactory, new InstallerFactory());
-    }
-
     public CommCareConfigEngine(IStorageIndexedFactory storageFactory, InstallerFactory installerFactory) {
         this.print = new PrintStream(System.out);
-        this.platform = new CommCarePlatform(2, 39, storageFactory);
+        this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION, storageFactory);
         this.storageFactory = storageFactory;
 
 
@@ -195,7 +194,7 @@ public class CommCareConfigEngine {
         return "jr://file/" + filePart;
     }
 
-    private void init(String profileRef) throws InstallCancelledException,
+    protected void init(String profileRef) throws InstallCancelledException,
             UnresolvedResourceException, UnfullfilledRequirementsException {
         installAppFromReference(profileRef);
     }

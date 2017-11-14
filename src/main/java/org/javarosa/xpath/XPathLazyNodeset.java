@@ -28,8 +28,9 @@ import java.util.Vector;
  */
 public class XPathLazyNodeset extends XPathNodeset {
 
-    private boolean evaluated = false;
-    public Object evaluationLock = new Object();
+    //Since we're using this as a lock, we need to be very careful to ensure that each
+    //nodeset gets its own new object.
+    private Boolean evaluated = new Boolean(false);
     private final TreeReference unExpandedRef;
 
     /**
@@ -42,7 +43,7 @@ public class XPathLazyNodeset extends XPathNodeset {
 
 
     private void performEvaluation() {
-        synchronized (evaluationLock) {
+        synchronized (evaluated) {
             if (evaluated) {
                 return;
             }
@@ -68,7 +69,7 @@ public class XPathLazyNodeset extends XPathNodeset {
      */
     @Override
     public Object unpack() {
-        synchronized (evaluationLock) {
+        synchronized (evaluated) {
             if (evaluated) {
                 return super.unpack();
             }
