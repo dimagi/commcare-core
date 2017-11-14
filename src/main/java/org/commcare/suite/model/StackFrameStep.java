@@ -228,4 +228,8 @@ public class StackFrameStep implements Externalizable {
     public void setType(String elementType) {
         this.elementType = elementType;
     }
+
+    public String getElementType() {
+        return elementType;
+    }
 }

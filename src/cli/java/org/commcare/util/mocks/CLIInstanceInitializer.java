@@ -20,7 +20,7 @@ public class CLIInstanceInitializer extends CommCareInstanceInitializer {
     }
 
     @Override
-    protected String getVersionString(){
+    public String getVersionString(){
         return "CommCare CLI Version: " + mPlatform.getMajorVersion() + "." + mPlatform.getMinorVersion();
     }
 }

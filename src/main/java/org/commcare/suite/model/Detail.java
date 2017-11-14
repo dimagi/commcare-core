@@ -1,5 +1,6 @@
 package org.commcare.suite.model;
 
+import org.commcare.modern.util.Pair;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.util.DetailFieldPrintInfo;
@@ -398,6 +399,20 @@ public class Detail implements Externalizable {
         return forceLandscapeView;
     }
 
+    public Pair<Integer, Integer> getMaxWidthHeight() {
+        int maxWidth = 0, maxHeight = 0;
+
+        for (int i = 0; i < fields.length; i++) {
+            DetailField currentField = fields[i];
+            int currentWidth = currentField.getGridX() + currentField.getGridWidth();
+            int currentHeight = currentField.getGridY()  + currentField.getGridHeight();
+            maxWidth = currentWidth > maxWidth ? currentWidth : maxWidth;
+            maxHeight = currentHeight > maxHeight ? currentHeight : maxHeight;
+        }
+
+        return new Pair<>(maxWidth, maxHeight);
+    }
+
     public GridCoordinate[] getGridCoordinates() {
         GridCoordinate[] mGC = new GridCoordinate[fields.length];
 
@@ -425,6 +440,8 @@ public class Detail implements Externalizable {
     public Callout getCallout() {
         return callout;
     }
+
+
 
     private abstract class Map<E> {
         private final E a;

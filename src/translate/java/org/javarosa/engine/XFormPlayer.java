@@ -378,7 +378,7 @@ public class XFormPlayer {
         }
     }
 
-    private static String getDisplayString(Object value) {
+    public static String getDisplayString(Object value) {
         if (value instanceof XPathNodeset) {
             return FunctionUtils.getSerializedNodeset((XPathNodeset)value);
         } else {

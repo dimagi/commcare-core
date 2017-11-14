@@ -47,18 +47,18 @@ public class SuiteParser extends ElementParser<Suite> {
 
     public SuiteParser(InputStream suiteStream,
                        ResourceTable table,
-                       String resourceGuid) throws IOException {
+                       String resourceGuid,
+                       IStorageUtilityIndexed<FormInstance> fixtureStorage) throws IOException {
         super(ElementParser.instantiateParser(suiteStream));
         this.table = table;
         this.resourceGuid = resourceGuid;
-        this.fixtureStorage =
-                (IStorageUtilityIndexed<FormInstance>)StorageManager.getStorage(FormInstance.STORAGE_KEY);
+        this.fixtureStorage = fixtureStorage;
         this.skipResources = false;
         this.isValidationPass = false;
         this.isUpgrade = false;
     }
 
-    protected SuiteParser(InputStream suiteStream,
+    public SuiteParser(InputStream suiteStream,
                           ResourceTable table, String resourceGuid,
                           IStorageUtilityIndexed<FormInstance> fixtureStorage,
                           boolean skipResources, boolean isValidationPass,
@@ -136,13 +136,6 @@ public class SuiteParser extends ElementParser<Suite> {
                             break;
                         case "user-restore":
                             parser.nextTag();
-                            Resource userRestoreResource =
-                                    new ResourceParser(parser, maximumResourceAuthority).parse();
-                            if (!skipResources) {
-                                table.addResource(userRestoreResource,
-                                        table.getInstallers().getUserRestoreInstaller(),
-                                        resourceGuid);
-                            }
                             break;
                         case "detail":
                             Detail d = getDetailParser().parse();

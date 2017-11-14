@@ -19,7 +19,9 @@ public interface MenuDisplayable {
 
     String getDisplayText();
 
-    Single<String> getTextForBadge(EvaluationContext ec);
+    String getTextForBadge(EvaluationContext ec);
+
+    Single<String> getAsyncTextForBadge(EvaluationContext ec);
 
     String getCommandID();
 

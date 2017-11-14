@@ -67,6 +67,15 @@ public class DataUtil {
         return s.split("[ ]+");
     }
 
+    public static boolean intArrayContains(int[] source, int target) {
+        for (int sort: source) {
+            if (sort == target) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static String[] splitOnDash(String s) {
         return s.split("-");
     }

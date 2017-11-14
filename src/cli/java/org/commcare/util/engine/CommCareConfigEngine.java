@@ -5,6 +5,7 @@ import org.commcare.modern.reference.JavaFileRoot;
 import org.commcare.modern.reference.JavaHttpRoot;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelledException;
+import org.commcare.resources.model.InstallerFactory;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -30,18 +31,16 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.*;
-import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
+import org.javarosa.core.services.properties.Property;
+import org.javarosa.core.services.storage.IStorageIndexedFactory;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathMissingInstanceException;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -57,61 +56,49 @@ public class CommCareConfigEngine {
     private final ResourceTable updateTable;
     private final ResourceTable recoveryTable;
     private final CommCarePlatform platform;
-    private final PrototypeFactory liveFactory;
-    private final PrintStream print;
+    protected final PrintStream print;
 
-    private ArchiveFileRoot mArchiveRoot;
+    protected ArchiveFileRoot mArchiveRoot;
+    private IStorageIndexedFactory storageFactory;
 
-    private static IStorageIndexedFactory storageFactory;
+    public static final int MAJOR_VERSION = 2;
+    public static final int MINOR_VERSION = 39;
 
     public CommCareConfigEngine() {
         this(new LivePrototypeFactory());
     }
 
     public CommCareConfigEngine(PrototypeFactory prototypeFactory) {
-        this(System.out, prototypeFactory);
+        this(new DummyIndexedStorageFactory(prototypeFactory), new InstallerFactory());
     }
 
-    public CommCareConfigEngine(OutputStream output, PrototypeFactory prototypeFactory) {
-        this.print = new PrintStream(output);
-        this.platform = new CommCarePlatform(2, 40);
-        this.liveFactory = prototypeFactory;
+    public CommCareConfigEngine(IStorageIndexedFactory storageFactory, InstallerFactory installerFactory) {
+        this.print = new PrintStream(System.out);
+        this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION, storageFactory);
+        this.storageFactory = storageFactory;
 
-        if (storageFactory == null) {
-            setupDummyStorageFactory();
-        }
 
         setRoots();
-
-        table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class));
-        updateTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_UPGRADE_TABLE", Resource.class));
-        recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", Resource.class));
+        table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class),
+                installerFactory);
+        updateTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_UPGRADE_TABLE", Resource.class),
+                installerFactory);
+        recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", Resource.class),
+                installerFactory);
 
 
         //All of the below is on account of the fact that the installers
         //aren't going through a factory method to handle them differently
         //per device.
-        StorageManager.forceClear();
-        StorageManager.setStorageFactory(storageFactory);
-        PropertyManager.initDefaultPropertyManager();
-        StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
-        StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
-        StorageManager.registerStorage(FormDef.STORAGE_KEY, FormDef.class);
-        StorageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
-        StorageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
-    }
-
-    private void setupDummyStorageFactory() {
-        CommCareConfigEngine.setStorageFactory(new IStorageIndexedFactory() {
-            @Override
-            public IStorageUtilityIndexed newStorage(String name, Class type) {
-                return new DummyIndexedStorageUtility(type, liveFactory);
-            }
-        });
-    }
-
-    public static void setStorageFactory(IStorageIndexedFactory storageFactory) {
-        CommCareConfigEngine.storageFactory = storageFactory;
+        StorageManager.instance().forceClear();
+        StorageManager.instance().setStorageFactory(storageFactory);
+        StorageManager.instance().registerStorage(PropertyManager.STORAGE_KEY, Property.class);
+        PropertyManager.setPropertyManager(storageFactory.newStorage(PropertyManager.STORAGE_KEY, Property.class));
+        StorageManager.instance().registerStorage(Profile.STORAGE_KEY, Profile.class);
+        StorageManager.instance().registerStorage(Suite.STORAGE_KEY, Suite.class);
+        StorageManager.instance().registerStorage(FormDef.STORAGE_KEY, FormDef.class);
+        StorageManager.instance().registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
+        StorageManager.instance().registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
     }
 
     protected void setRoots() {
@@ -144,23 +131,36 @@ public class CommCareConfigEngine {
         init("jr://archive/" + archiveGUID + "/profile.ccpr");
     }
 
-    private String downloadToTemp(String resource) {
+    protected String downloadToTemp(String resource) {
         try {
             URL url = new URL(resource);
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setInstanceFollowRedirects(true);  //you still need to handle redirect manully.
             HttpURLConnection.setFollowRedirects(true);
-
             File file = File.createTempFile("commcare_", ".ccz");
-
-            FileOutputStream fos = new FileOutputStream(file);
-            StreamsUtil.writeFromInputToOutput(new BufferedInputStream(conn.getInputStream()), fos);
-            return file.getAbsolutePath();
+            FileOutputStream fos = null;
+            BufferedInputStream bis = null;
+            try {
+                fos = new FileOutputStream(file);
+                bis = new BufferedInputStream(conn.getInputStream());
+                StreamsUtil.writeFromInputToOutput(bis, fos);
+                return file.getAbsolutePath();
+            } finally {
+                try {
+                    if (fos != null) {
+                        fos.close();
+                    }
+                    if (bis != null) {
+                        bis.close();
+                    }
+                    conn.disconnect();
+                } catch (IOException ex) {
+                    // Log error writing file and bail out.
+                }
+            }
         } catch (IOException e) {
             print.println("Issue downloading or create stream for " + resource);
-            e.printStackTrace(print);
-            System.exit(-1);
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -194,8 +194,7 @@ public class CommCareConfigEngine {
         return "jr://file/" + filePart;
     }
 
-
-    private void init(String profileRef) throws InstallCancelledException,
+    protected void init(String profileRef) throws InstallCancelledException,
             UnresolvedResourceException, UnfullfilledRequirementsException {
         installAppFromReference(profileRef);
     }
@@ -214,19 +213,11 @@ public class CommCareConfigEngine {
         } catch (RuntimeException e) {
             print.println("Error while initializing one of the resolved resources");
             e.printStackTrace(print);
-            System.exit(-1);
         }
         //Make sure there's a default locale, since the app doesn't necessarily use the
         //localization engine
         Localization.getGlobalLocalizerAdvanced().addAvailableLocale("default");
-
         Localization.setDefaultLocale("default");
-
-        print.println("Locales defined: ");
-        for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
-            System.out.println("* " + locale);
-        }
-
         setDefaultLocale();
     }
 
@@ -238,7 +229,6 @@ public class CommCareConfigEngine {
                 break;
             }
         }
-        print.println("Setting locale to: " + defaultLocale);
         Localization.setLocale(defaultLocale);
     }
 
@@ -304,8 +294,7 @@ public class CommCareConfigEngine {
     }
 
     public FormDef loadFormByXmlns(String xmlns) {
-        IStorageUtilityIndexed<FormDef> formStorage =
-                (IStorageUtilityIndexed)StorageManager.getStorage(FormDef.STORAGE_KEY);
+        IStorageUtilityIndexed<FormDef> formStorage = storageFactory.newStorage(FormDef.STORAGE_KEY, FormDef.class);
         return formStorage.getRecordForValue("XMLNS", xmlns);
     }
 
@@ -325,7 +314,7 @@ public class CommCareConfigEngine {
             if (datum instanceof FormIdDatum) {
                 print.println(emptyhead + "Form: " + datum.getValue());
             } else if (datum instanceof EntityDatum) {
-                String shortDetailId = ((EntityDatum)datum).getShortDetail();
+                String shortDetailId = ((EntityDatum) datum).getShortDetail();
                 if (shortDetailId != null) {
                     Detail d = s.getDetail(shortDetailId);
                     try {

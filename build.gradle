@@ -10,7 +10,7 @@ repositories {
 buildscript {
     repositories {
         maven {
-            url "https://plugins.gradle.org/m2/"
+            url "http://plugins.gradle.org/m2/"
         }
     }
     dependencies {
@@ -85,14 +85,16 @@ dependencies {
       testCompile sourceSets.cli.output
       testCompile 'junit:junit:4.12'
       testCompile 'org.json:json:20140107'
-      testCompile 'org.xerial:sqlite-jdbc:3.8.11.1'
+      testCompile 'org.xerial:sqlite-jdbc:3.16.1'
       testCompile 'joda-time:joda-time:2.9.3'
 
       apiCompile sourceSets.main.output
       apiCompile 'org.json:json:20140107'
       apiCompile 'org.xerial:sqlite-jdbc:3.8.11.1'
       apiCompile 'kxml2:kxml2:2.3.0'
+      apiCompile files('lib/regexp-me.jar')
       apiCompile 'joda-time:joda-time:2.9.3'
+      apiCompile 'com.carrotsearch:hppc:0.7.2'
       apiCompile 'io.reactivex.rxjava2:rxjava:2.1.1'
 
       translateCompile 'kxml2:kxml2:2.3.0'

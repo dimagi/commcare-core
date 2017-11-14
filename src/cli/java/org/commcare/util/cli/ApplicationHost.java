@@ -286,7 +286,7 @@ public class ApplicationHost {
     }
 
     private void finishSession() {
-        mSession.clearVolitiles();
+        mSession.clearVolatiles();
         if (mSession.finishExecuteAndPop(mSession.getEvaluationContext())) {
             mSessionHasNextFrameReady = true;
         }
@@ -373,7 +373,7 @@ public class ApplicationHost {
         //this gets configured earlier when we installed the app, should point it in the
         //right direction!
         sandbox.setAppFixtureStorageLocation((IStorageUtilityIndexed<FormInstance>)
-                StorageManager.getStorage(FormInstance.STORAGE_KEY));
+                StorageManager.instance().getStorage(FormInstance.STORAGE_KEY));
 
         mSandbox = sandbox;
         if (mLocalUserCredentials != null) {
@@ -492,7 +492,7 @@ public class ApplicationHost {
 
         if (session != null) {
             // old session data is now no longer valid
-            session.clearVolitiles();
+            session.clearVolatiles();
         }
     }
 

@@ -194,13 +194,21 @@ public class Menu implements Externalizable, MenuDisplayable {
     }
 
     @Override
-    public Single<String> getTextForBadge(final EvaluationContext ec) {
+    public String getTextForBadge(EvaluationContext ec) {
+        if (display.getBadgeText() == null) {
+            return "";
+        }
+        return display.getBadgeText().evaluate(ec);
+    }
+
+    @Override
+    public Single<String> getAsyncTextForBadge(EvaluationContext ec) {
         if (display.getBadgeText() == null) {
             return Single.just("");
         }
-
         return display.getBadgeText().getDisposableSingleForEvaluation(ec);
     }
+
 
     @Override
     public Text getRawBadgeTextObject() {

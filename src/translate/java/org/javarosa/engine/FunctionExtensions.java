@@ -3,6 +3,7 @@ package org.javarosa.engine;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
+import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.engine.xml.XmlUtil;
@@ -36,11 +37,11 @@ import java.util.Vector;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class FunctionExtensions {
-    protected static class TodayFunc implements IFunctionHandler {
+    public static class TodayFunc implements IFunctionHandler {
         private final String name;
         private final Date date;
 
-        protected TodayFunc(String name, Date date) {
+        public TodayFunc(String name, Date date) {
             this.name = name;
             this.date = date;
         }
