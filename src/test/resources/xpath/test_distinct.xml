@@ -1,0 +1,16 @@
+<data>
+    <places>
+        <country id='us' continent="na">
+            <name>United States</name>
+            <language>English</language>
+        </country>
+        <country id='ca' continent="na">
+            <name>Canada</name>
+            <language>English</language>
+        </country>
+        <country id='mx' continent="na">
+            <name>Mexico</name>
+            <language>Spanish</language>
+        </country>
+    </places>
+</data>
