@@ -33,7 +33,7 @@ import org.javarosa.core.model.util.restorable.RestoreUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.locale.TableLocaleSource;
-import org.javarosa.core.util.DFS;
+import org.javarosa.core.util.ShortestCycleAlgorithm;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.Interner;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -2895,7 +2895,7 @@ public class XFormParser {
         }
 
         if (!acyclic) {
-            ArrayList<String> cycleString = new DFS(edges).getCycle();
+            ArrayList<String> cycleString = new ShortestCycleAlgorithm(edges).getCycle();
             reporter.error("Logic is cyclical, referencing itself. Shortest Cycle " + cycleString);
             throw new RuntimeException("Logic is cyclical, referencing itself. Shortest Cycle " + cycleString);
         }
