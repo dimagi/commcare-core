@@ -7,18 +7,23 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
+ *
+ * Modeled after algorithm here https://stackoverflow.com/a/549312
+ *
+ * Given a Vector of TreeReference pairs where edges[0] references edges[1]
+ * that we assume to contain a cycle, find the smallest cycle in the set.
+ *
  * Created by willpride on 11/17/17.
  */
-public class DFS {
+public class ShortestCycleAlgorithm {
 
     Vector<TreeReference[]> edges;
     ArrayList<String> nodes = new ArrayList<>();
     Hashtable<String, ArrayList<String>> childrenMap = new OrderedHashtable<>();
     ArrayList<String> shortestCycle = null;
 
-    public DFS (Vector<TreeReference[]> edges) {
+    public ShortestCycleAlgorithm(Vector<TreeReference[]> edges) {
         this.edges = edges;
-
         for (TreeReference[] references: edges) {
             String parentKey = references[0].toString();
             String childKey = references[1].toString();
@@ -27,12 +32,11 @@ public class DFS {
         }
 
         for (String node: nodes) {
-            ArrayList<String> shortestPath = dfs(node, node, new ArrayList<>());
+            ArrayList<String> shortestPath = depthFirstSearch(node, node, new ArrayList<>());
             if (shortestPath != null && (shortestCycle == null || shortestPath.size() < shortestCycle.size())) {
                 shortestCycle = shortestPath;
             }
         }
-        System.out.println("Shortest cycle " + shortestCycle);
     }
 
     private void addChild(String parentKey, String childKey) {
@@ -43,7 +47,7 @@ public class DFS {
         childList.add(childKey);
     }
 
-    private ArrayList<String> dfs(String startNode, String currentNode, ArrayList<String> visited) {
+    private ArrayList<String> depthFirstSearch(String startNode, String currentNode, ArrayList<String> visited) {
         if (visited.contains(currentNode)) {
             if (startNode.equals(currentNode)) {
                 return visited;
@@ -52,7 +56,7 @@ public class DFS {
         }
         visited.add(currentNode);
         for (String child: childrenMap.get(currentNode)) {
-            ArrayList<String> shortestPath = dfs(startNode, child, visited);
+            ArrayList<String> shortestPath = depthFirstSearch(startNode, child, visited);
             if (shortestPath != null) {
                 return shortestPath;
             }
