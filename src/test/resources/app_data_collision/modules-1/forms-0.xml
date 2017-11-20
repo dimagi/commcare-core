@@ -1,0 +1,41 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Visit</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/52D111C9-79C6-403F-BF4C-D24B64A872E2" uiVersion="1" version="14" name="Visit">
+					<the_current_value_is/>
+					<new_number_value/>
+					<current_value/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><number_value/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance>
+			<instance src="jr://instance/casedb" id="casedb"/>
+			<instance src="jr://instance/session" id="commcaresession"/>
+			<bind nodeset="/data/the_current_value_is"/>
+			<bind nodeset="/data/new_number_value" type="xsd:int"/>
+			<bind nodeset="/data/current_value"/>
+			<setvalue event="xforms-ready" ref="/data/new_number_value" value="instance('casedb')/casedb/case[@case_id = instance('commcaresession')/session/data/case_id]/number_value"/>
+			<setvalue event="xforms-ready" ref="/data/current_value" value="instance('casedb')/casedb/case[@case_id = instance('commcaresession')/session/data/case_id]/number_value"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="the_current_value_is-label">
+						<value>The current value is:<output value="instance('casedb')/casedb/case[@case_id = instance('commcaresession')/session/data/case_id]/number_value"/> </value>
+					</text>
+					<text id="new_number_value-label">
+						<value>Enter the New Value</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind calculate="/data/new_number_value" nodeset="/data/case/update/number_value" relevant="count(/data/new_number_value) &gt; 0"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+		<vellum:hashtags>{"#case/number_value":null}</vellum:hashtags>
+		<vellum:hashtagTransforms>{"prefixes":{"#case/":"instance('casedb')/casedb/case[@case_id = instance('commcaresession')/session/data/case_id]/"}}</vellum:hashtagTransforms>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/the_current_value_is" appearance="minimal">
+			<label ref="jr:itext('the_current_value_is-label')"/>
+		</trigger>
+		<input ref="/data/new_number_value">
+			<label ref="jr:itext('new_number_value-label')"/>
+		</input>
+	</h:body>
+</h:html>
