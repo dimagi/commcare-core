@@ -2054,7 +2054,7 @@ public class XFormParser {
         //TreeElement root = buildInstanceStructure(e, null);
         loadInstanceData(e, instanceModel.getRoot());
 
-        checkDependencyCycles();
+        //checkDependencyCycles();
         _f.setInstance(instanceModel);
         try {
             _f.finalizeTriggerables();
@@ -2895,9 +2895,9 @@ public class XFormParser {
         }
 
         if (!acyclic) {
-            ArrayList<String> cycleString = new ShortestCycleAlgorithm(edges).getCycle();
-            reporter.error("Logic is cyclical, referencing itself. Shortest Cycle " + cycleString);
-            throw new RuntimeException("Logic is cyclical, referencing itself. Shortest Cycle " + cycleString);
+            String errorMessage = new ShortestCycleAlgorithm(edges).getCycleErrorMessage();
+            reporter.error(errorMessage);
+            throw new RuntimeException(errorMessage);
         }
     }
 

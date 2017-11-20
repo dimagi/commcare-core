@@ -65,7 +65,24 @@ public class ShortestCycleAlgorithm {
         return null;
     }
 
-    public ArrayList<String> getCycle() {
-        return shortestCycle;
+    public String getCycleErrorMessage() {
+        return "Logic is cyclical, referencing itself. Shortest Cycle: \n" + getCycleString();
+    }
+
+    public String getCycleString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < shortestCycle.size(); i++) {
+            stringBuilder.append(shortestCycle.get(i));
+            if (i == shortestCycle.size() - 1) {
+                stringBuilder.append(" references ");
+                stringBuilder.append(shortestCycle.get(0));
+                stringBuilder.append(".");
+            } else {
+                stringBuilder.append( " references " );
+                stringBuilder.append(shortestCycle.get(i + 1));
+                stringBuilder.append( ", \n" );
+            }
+        }
+        return stringBuilder.toString();
     }
 }
