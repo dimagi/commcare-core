@@ -83,6 +83,7 @@ public class FunctionUtils {
         funcList.put(XPathChecksumFunc.NAME, XPathChecksumFunc.class);
         funcList.put(XPathSortFunc.NAME, XPathSortFunc.class);
         funcList.put(XPathSortByFunc.NAME, XPathSortByFunc.class);
+        funcList.put(XPathDistinctValuesFunc.NAME, XPathDistinctValuesFunc.class);
     }
 
     private static final CacheTable<String, Double> mDoubleParseCache = new CacheTable<>();
