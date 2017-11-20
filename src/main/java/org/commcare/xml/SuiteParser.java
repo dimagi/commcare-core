@@ -37,6 +37,8 @@ public class SuiteParser extends ElementParser<Suite> {
     private String resourceGuid;
     private int maximumResourceAuthority = -1;
 
+    private String testAdd = "";
+
     /**
      * If set to true, the parser won't process adding incoming resources to the resource table.
      * This is helpful if the suite is being processed during a non-install phase
