@@ -2054,7 +2054,7 @@ public class XFormParser {
         //TreeElement root = buildInstanceStructure(e, null);
         loadInstanceData(e, instanceModel.getRoot());
 
-        //checkDependencyCycles();
+        checkDependencyCycles();
         _f.setInstance(instanceModel);
         try {
             _f.finalizeTriggerables();
