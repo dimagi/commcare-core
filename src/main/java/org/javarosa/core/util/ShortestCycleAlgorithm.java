@@ -32,7 +32,7 @@ public class ShortestCycleAlgorithm {
         }
 
         for (String node: nodes) {
-            ArrayList<String> shortestPath = depthFirstSearch(node, node, new ArrayList<>());
+            ArrayList<String> shortestPath = depthFirstSearch(node, node, new ArrayList<String>());
             if (shortestPath != null && (shortestCycle == null || shortestPath.size() < shortestCycle.size())) {
                 shortestCycle = shortestPath;
             }
@@ -41,7 +41,7 @@ public class ShortestCycleAlgorithm {
 
     private void addChild(String parentKey, String childKey) {
         if (!childrenMap.containsKey(parentKey)) {
-            childrenMap.put(parentKey, new ArrayList<>());
+            childrenMap.put(parentKey, new ArrayList<String>());
         }
         ArrayList<String> childList = childrenMap.get(parentKey);
         childList.add(childKey);
