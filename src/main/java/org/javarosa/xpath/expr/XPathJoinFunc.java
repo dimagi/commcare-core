@@ -29,11 +29,16 @@ public class XPathJoinFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
+        Object[] argList;
         if (args.length == 2 && evaluatedArgs[1] instanceof XPathNodeset) {
-            return join(evaluatedArgs[0], ((XPathNodeset)evaluatedArgs[1]).toArgList());
+            argList = ((XPathNodeset)evaluatedArgs[1]).toArgList();
+        } else if (args.length == 2 && evaluatedArgs[1] instanceof Object[]) {
+            argList = (Object[])evaluatedArgs[1];
         } else {
-            return join(evaluatedArgs[0], FunctionUtils.subsetArgList(evaluatedArgs, 1));
+            argList = FunctionUtils.subsetArgList(evaluatedArgs, 1);
         }
+
+        return join(evaluatedArgs[0], argList);
     }
 
     /**
