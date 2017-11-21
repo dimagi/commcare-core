@@ -2,16 +2,13 @@ package org.commcare.cases.entity;
 
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
-import org.commcare.cases.query.queryset.QuerySetCache;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.model.trace.EvaluationTrace;
-import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
-import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
+import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
@@ -26,9 +23,7 @@ public class NodeEntityFactory {
 
     protected final EvaluationContext ec;
     protected final Detail detail;
-    private final ReducingTraceReporter reporter = new ReducingTraceReporter();
-
-    private boolean inDebugMode = false;
+    private ReducingTraceReporter traceReporter;
 
     public NodeEntityFactory(Detail d, EvaluationContext ec) {
         this.detail = d;
@@ -36,7 +31,7 @@ public class NodeEntityFactory {
     }
 
     public void activateDebugTraceOutput() {
-        inDebugMode = true;
+        this.traceReporter = new ReducingTraceReporter();
     }
 
     public Detail getDetail() {
@@ -45,8 +40,8 @@ public class NodeEntityFactory {
 
     public Entity<TreeReference> getEntity(TreeReference data) {
         EvaluationContext nodeContext = new EvaluationContext(ec, data);
-        if (inDebugMode) {
-            nodeContext.setDebugModeOn(reporter);
+        if (traceReporter != null) {
+            nodeContext.setDebugModeOn(traceReporter);
         }
         detail.populateEvaluationContextVariables(nodeContext);
 
@@ -68,10 +63,13 @@ public class NodeEntityFactory {
                 }
                 relevancyData[count] = f.isRelevant(nodeContext);
             } catch (XPathSyntaxException e) {
-                storeErrorDetails(e, count, fieldData, relevancyData);
-            } catch (XPathException xpe) {
-                //XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpe);
-                storeErrorDetails(xpe, count, fieldData, relevancyData);
+                /**
+                 * TODO: 25/06/17 remove catch blocks from here
+                 * We are wrapping the original exception in a new XPathException to avoid
+                 * refactoring large number of functions caused by throwing XPathSyntaxException here.
+                 */
+                XPathException xe = new XPathException(e);
+                throw xe;
             }
             count++;
         }
@@ -97,26 +95,23 @@ public class NodeEntityFactory {
         return null;
     }
 
-    private static void storeErrorDetails(Exception e, int index,
-                                          Object[] details,
-                                          boolean[] relevancyDetails) {
-        e.printStackTrace();
-        details[index] = "<invalid xpath: " + e.getMessage() + ">";
-        // assume that if there's an error, user should see it
-        relevancyDetails[index] = true;
-    }
-
     public List<TreeReference> expandReferenceList(TreeReference treeReference) {
         EvaluationContext tracableContext = new EvaluationContext(ec, ec.getOriginalContext());
-        if (inDebugMode) {
-            tracableContext.setDebugModeOn(reporter);
+        if (traceReporter != null) {
+            tracableContext.setDebugModeOn(traceReporter);
         }
         List<TreeReference> result = tracableContext.expandReference(treeReference);
-        printAndClearTraces("expand");
+        printAndClearTraces("case load expand");
 
         setEvaluationContextDefaultQuerySet(ec, result);
 
         return result;
+    }
+
+    public void printAndClearTraces(String description) {
+        if (traceReporter != null) {
+            InstrumentationUtils.printAndClearTraces(traceReporter, description);
+        }
     }
 
     /**
@@ -125,7 +120,7 @@ public class NodeEntityFactory {
      * we're currently iterating over a potentially large set of elements and should batch
      * appropriately
      */
-    private void setEvaluationContextDefaultQuerySet(EvaluationContext ec,
+    protected void setEvaluationContextDefaultQuerySet(EvaluationContext ec,
                                                      List<TreeReference> result) {
 
         QueryContext newContext = ec.getCurrentQueryContext()
@@ -136,31 +131,13 @@ public class NodeEntityFactory {
         ec.setQueryContext(newContext);
     }
 
-    public void printAndClearTraces(String description) {
-        if (!inDebugMode) {
-            return;
-        }
-        if (reporter.wereTracesReported()) {
-            System.out.println(description);
-        }
-
-        StringEvaluationTraceSerializer serializer = new StringEvaluationTraceSerializer();
-
-        for (EvaluationTrace trace : reporter.getCollectedTraces()) {
-            System.out.println(trace.getExpression() + ": " + trace.getValue());
-            System.out.print(serializer.serializeEvaluationLevels(trace));
-        }
-
-        reporter.reset();
-    }
-
-
     /**
      * Performs the underlying work to prepare the entity set
      * (see prepareEntities()). Separated out to enforce timing
      * related to preparing and utilizing results
+     * @param entities
      */
-    protected void prepareEntitiesInternal() {
+    protected void prepareEntitiesInternal(List<Entity<TreeReference>> entities) {
         //No implementation in normal factory
     }
 
@@ -170,9 +147,9 @@ public class NodeEntityFactory {
      * usage. This preparation occurs asynchronously, and the returned entity
      * set should not be manipulated until it has completed.
      */
-    public final void prepareEntities() {
+    public final void prepareEntities(List<Entity<TreeReference>> entities) {
         synchronized (mPreparationLock) {
-            prepareEntitiesInternal();
+            prepareEntitiesInternal(entities);
             mEntitySetInitialized = true;
         }
     }

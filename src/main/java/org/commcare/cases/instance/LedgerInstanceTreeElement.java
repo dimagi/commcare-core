@@ -44,4 +44,8 @@ public class LedgerInstanceTreeElement
 
         return indices;
     }
+
+    public String getStorageCacheName() {
+        return MODEL_NAME;
+    }
 }

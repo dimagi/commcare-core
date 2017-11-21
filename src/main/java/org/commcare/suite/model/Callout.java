@@ -33,6 +33,9 @@ public class Callout implements Externalizable, DetailTemplate {
     private Hashtable<String, String> extras;
     private Vector<String> responses;
     private boolean isAutoLaunching;
+    private boolean assumePlainTextValues;
+
+    private static final String OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX = "cc:xpath_key:";
 
     /**
      * Allows case list intent callouts to map result data to cases. 'header'
@@ -59,21 +62,29 @@ public class Callout implements Externalizable, DetailTemplate {
         this.responseDetail = responseDetail;
         this.type = type;
         this.isAutoLaunching = isAutoLaunching;
+        this.assumePlainTextValues = false;
     }
 
     @Override
     public CalloutData evaluate(EvaluationContext context) {
         Hashtable<String, String> evaluatedExtras = new Hashtable<>();
-
         Enumeration keys = extras.keys();
-
         while (keys.hasMoreElements()) {
             String key = (String)keys.nextElement();
-            try {
-                String evaluatedKey = FunctionUtils.toString(XPathParseTool.parseXPath(extras.get(key)).eval(context));
-                evaluatedExtras.put(key, evaluatedKey);
-            } catch (XPathSyntaxException e) {
-                // do nothing
+            boolean overridePlainTextAssumption = key.startsWith(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX);
+            key = key.replace(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX, "");
+            String rawValue = extras.get(key);
+
+            if (assumePlainTextValues && !overridePlainTextAssumption) {
+                evaluatedExtras.put(key, rawValue);
+            } else {
+                try {
+                    String evaluatedValue =
+                            FunctionUtils.toString(XPathParseTool.parseXPath(rawValue).eval(context));
+                    evaluatedExtras.put(key, evaluatedValue);
+                } catch (XPathSyntaxException e) {
+                    // do nothing
+                }
             }
         }
 
@@ -135,5 +146,9 @@ public class Callout implements Externalizable, DetailTemplate {
 
     public boolean isSimprintsCallout() {
         return "com.simprints.id.IDENTIFY".equals(actionName);
+    }
+
+    public void setAssumePlainTextValues() {
+        this.assumePlainTextValues = true;
     }
 }

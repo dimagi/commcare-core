@@ -1,5 +1,6 @@
 package org.javarosa.core.util;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
 /**
@@ -21,7 +22,7 @@ public class MathUtils {
 
     public static Random getRand() {
         if (r == null) {
-            r = new Random();
+            r = new SecureRandom();
         }
         return r;
     }

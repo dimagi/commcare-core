@@ -2,7 +2,9 @@ package org.commcare.cases.query;
 
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.cases.query.queryset.QuerySetCache;
+import org.javarosa.core.model.condition.Abandonable;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.LifecycleSignaler;
 import org.javarosa.core.model.trace.EvaluationTrace;
 
 /**
@@ -39,9 +41,19 @@ public class QueryContext {
 
     private QueryContext potentialSpawnedContext;
 
-    //Until we can keep track more robustly of the individual spheres of 'bulk' models
-    //we'll just keep track of the dominant factor in our queries to know what to expect
-    //WRT whether optimizatons will help or hurt
+    LifecycleSignaler lifecycleSignaler;
+
+    /**
+     * Context scope roughly keeps track of "how many times is the current query possibly going to
+     * run". For instance, when evaluating an xpath like
+     *
+     * instance('casedb')/casedb/case[@case_type='person'][complex_filter = 'pass']
+     *
+     * If 500 <case/> nodes match the first predicate (='person') the context scope will escalate
+     * to 500. This lets individual expressions later (like 'complex_filter' )identify that it's
+     * worth them doing a bit of extra work if they can anticipate making the 'next' evaluation
+     * faster.
+     */
     private int contextScope = 1;
 
     public QueryContext() {
@@ -52,6 +64,7 @@ public class QueryContext {
         this.traceRoot = parent.traceRoot;
         this.cache = new QueryCacheHost(parent.cache);
         this.contextScope = parent.contextScope;
+        this.lifecycleSignaler = parent.lifecycleSignaler;
     }
 
     /**
@@ -143,5 +156,21 @@ public class QueryContext {
     public void setHackyOriginalContextBody(CurrentModelQuerySet hackyOriginalContextBody) {
         getQueryCache(QuerySetCache.class).
                 addModelQuerySet(CurrentModelQuerySet.CURRENT_QUERY_SET_ID, hackyOriginalContextBody);
+    }
+
+    /**
+     * Creates a new child context from this base context
+     */
+    public QueryContext forceNewChildContext() {
+        return new QueryContext(this);
+    }
+
+    public void attachLifecycleSignaler(LifecycleSignaler lifecycleSignaler) {
+        //TODO: chain?
+        this.lifecycleSignaler = lifecycleSignaler;
+    }
+
+    public LifecycleSignaler getLifecycleSignaler() {
+        return lifecycleSignaler;
     }
 }

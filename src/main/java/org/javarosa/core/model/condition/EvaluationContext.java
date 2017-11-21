@@ -1,6 +1,7 @@
 package org.javarosa.core.model.condition;
 
 import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.QuerySensitiveTreeElementWrapper;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.cases.util.QueryUtils;
 import org.javarosa.core.model.data.IAnswerData;
@@ -17,17 +18,18 @@ import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.*;
+
+import javax.management.Query;
 
 /**
  * A collection of objects that affect the evaluation of an expression, like
  * function handlers and (not supported) variable bindings.
  */
-public class EvaluationContext {
+public class EvaluationContext implements Abandonable {
+
+    private boolean isIrrelevant = false;
+
     /**
      * Whether XPath expressions being evaluated should be traced during
      * execution for debugging.
@@ -90,6 +92,7 @@ public class EvaluationContext {
         this(instance, new Hashtable<String, DataInstance>());
     }
 
+    // *** This is the only EC constructor where a NEW context is actually passed in
     public EvaluationContext(EvaluationContext base, TreeReference context) {
         this(base, base.instance, context, base.formInstances);
     }
@@ -316,7 +319,7 @@ public class EvaluationContext {
             predicates = predCopy;
         }
 
-        AbstractTreeElement node = sourceInstance.resolveReference(workingRef);
+        AbstractTreeElement node = sourceInstance.resolveReference(workingRef, this);
 
         this.openBulkTrace();
 
@@ -406,6 +409,10 @@ public class EvaluationContext {
                                                          boolean includeTemplates) {
         Vector<TreeReference> childSet = new Vector<>();
         QueryUtils.prepareSensitiveObjectForUseInCurrentContext(node, getCurrentQueryContext());
+
+        node = QuerySensitiveTreeElementWrapper.WrapWithContext(node, getCurrentQueryContext());
+        //NOTE: This currently won't propogate the wrapped context.
+
         if (node.hasChildren()) {
             if (childMult == TreeReference.INDEX_UNBOUND) {
                 int count = node.getChildMultiplicity(childName);
@@ -498,6 +505,10 @@ public class EvaluationContext {
         }
     }
 
+    public List<String> getInstanceIds() {
+        return new ArrayList<>(formInstances.keySet());
+    }
+
     public DataInstance getMainInstance() {
         return instance;
     }
@@ -508,7 +519,7 @@ public class EvaluationContext {
                 (instance == null || instance.getInstanceId() == null || !instance.getInstanceId().equals(qualifiedRef.getInstanceName()))) {
             instance = this.getInstance(qualifiedRef.getInstanceName());
         }
-        return instance.resolveReference(qualifiedRef);
+        return instance.resolveReference(qualifiedRef, this);
     }
 
     /**
@@ -688,5 +699,28 @@ public class EvaluationContext {
      */
     public EvaluationTrace getEvaluationTrace() {
         return mTraceRoot;
+    }
+
+    /**
+     * Spawn a new evaluation context with the same context information as this context
+     * but which can maintain it's own lifecycle, including a fresh query context and
+     * capacity to abandon requests
+     */
+    public EvaluationContext spawnWithCleanLifecycle() {
+        EvaluationContext ec = new EvaluationContext(this, this.getContextRef());
+        QueryContext qc = ec.getCurrentQueryContext().forceNewChildContext();
+        qc.attachLifecycleSignaler(new LifecycleSignaler());
+        ec.setQueryContext(qc);
+        return ec;
+    }
+
+    @Override
+    public void assertNotAbandoned() {
+        LifecycleSignaler.AssertNotAbandoned(this.getCurrentQueryContext().getLifecycleSignaler());
+    }
+
+    @Override
+    public void signalAbandoned() {
+        LifecycleSignaler.SignalAbandoned(this.getCurrentQueryContext().getLifecycleSignaler());
     }
 }

@@ -1,5 +1,6 @@
 package org.commcare.cases.model;
 
+import org.commcare.cases.instance.FixtureIndexSchema;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IMetaData;
@@ -13,6 +14,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
@@ -66,6 +68,15 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
         return STORAGE_KEY_PREFIX + cleanedName;
     }
 
+    /**
+     * @return The list of elements from this model which are indexed, this list will be in the input
+     * format, which generally can be interpreted as a treereference step into the model which
+     * will reference the metadata field in the virtual instance, IE: "@attributename"
+     */
+    public Vector<String> getIndexedTreeReferenceSteps() {
+        return indices;
+    }
+
     @Override
     public String[] getMetaDataFields() {
         return metaDataFields;
@@ -108,6 +119,14 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
 
     public TreeElement getRoot() {
         return root;
+    }
+
+    public Set<String> getIndexColumnNames() {
+        Set<String> indexColumnNames = new HashSet<>();
+        for (String index : this.indices) {
+            indexColumnNames.add(FixtureIndexSchema.escapeIndex(index));
+        }
+        return indexColumnNames;
     }
 
     @Override

@@ -21,11 +21,13 @@ import java.util.Hashtable;
 public class IndexedFixtureInstanceTreeElement
         extends StorageInstanceTreeElement<StorageIndexedTreeElementModel, IndexedFixtureChildElement> {
     private Hashtable<XPathPathExpr, String> storageIndexMap = null;
+    private String cacheKey;
 
     private IndexedFixtureInstanceTreeElement(AbstractTreeElement instanceRoot,
                                               IStorageUtilityIndexed<StorageIndexedTreeElementModel> storage,
                                               String modelName, String childName) {
         super(instanceRoot, storage, modelName, childName);
+        cacheKey = modelName + "|" + childName;
     }
 
     public static IndexedFixtureInstanceTreeElement get(UserSandbox sandbox,
@@ -67,5 +69,9 @@ public class IndexedFixtureInstanceTreeElement
         }
 
         return storageIndexMap;
+    }
+
+    public String getStorageCacheName() {
+        return cacheKey;
     }
 }

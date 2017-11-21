@@ -14,6 +14,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
+import java.util.concurrent.Callable;
+
+import io.reactivex.Single;
 
 /**
  * A Menu definition describes the structure of how
@@ -191,11 +194,17 @@ public class Menu implements Externalizable, MenuDisplayable {
     }
 
     @Override
-    public String getTextForBadge(EvaluationContext ec) {
+    public Single<String> getTextForBadge(final EvaluationContext ec) {
         if (display.getBadgeText() == null) {
-            return null;
+            return Single.just("");
         }
-        return display.getBadgeText().evaluate(ec);
+
+        return display.getBadgeText().getDisposableSingleForEvaluation(ec);
+    }
+
+    @Override
+    public Text getRawBadgeTextObject() {
+        return display.getBadgeText();
     }
 
     @Override
@@ -206,6 +215,11 @@ public class Menu implements Externalizable, MenuDisplayable {
     // unsafe! assumes that xpath expressions evaluate properly...
     public int indexOfCommand(String cmd) {
         return commandIds.indexOf(cmd);
+    }
+
+    @Override
+    public String toString() {
+        return "Menu with id " + this.getId() + " display text " + this.getDisplayText();
     }
 
 }

@@ -74,7 +74,7 @@ public class CommCareConfigEngine {
 
     public CommCareConfigEngine(OutputStream output, PrototypeFactory prototypeFactory) {
         this.print = new PrintStream(output);
-        this.platform = new CommCarePlatform(2, 37);
+        this.platform = new CommCarePlatform(2, 41);
         this.liveFactory = prototypeFactory;
 
         if (storageFactory == null) {
@@ -123,7 +123,8 @@ public class CommCareConfigEngine {
         ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
     }
 
-    public void initFromArchive(String archiveURL) {
+    public void initFromArchive(String archiveURL) throws InstallCancelledException,
+            UnresolvedResourceException, UnfullfilledRequirementsException {
         String fileName;
         if (archiveURL.startsWith("http")) {
             fileName = downloadToTemp(archiveURL);
@@ -178,9 +179,9 @@ public class CommCareConfigEngine {
         }
     }
 
-    public void initFromLocalFileResource(String resource) {
+    public void initFromLocalFileResource(String resource) throws InstallCancelledException,
+            UnresolvedResourceException, UnfullfilledRequirementsException {
         String reference = setFileSystemRootFromResourceAndReturnRelativeRef(resource);
-
         init(reference);
     }
 
@@ -209,29 +210,16 @@ public class CommCareConfigEngine {
     }
 
 
-    private void init(String profileRef) {
-        try {
-            installAppFromReference(profileRef);
-            print.println("Table resources intialized and fully resolved.");
-            print.println(table);
-        } catch (InstallCancelledException e) {
-            print.println("Install was cancelled by the user or system");
-            e.printStackTrace(print);
-            System.exit(-1);
-        } catch (UnresolvedResourceException e) {
-            print.println("While attempting to resolve the necessary resources, one couldn't be found: " + e.getResource().getResourceId());
-            e.printStackTrace(print);
-            System.exit(-1);
-        } catch (UnfullfilledRequirementsException e) {
-            print.println("While attempting to resolve the necessary resources, a requirement wasn't met");
-            e.printStackTrace(print);
-            System.exit(-1);
-        }
+    private void init(String profileRef) throws InstallCancelledException,
+            UnresolvedResourceException, UnfullfilledRequirementsException {
+        installAppFromReference(profileRef);
     }
 
-    public void installAppFromReference(String profileReference) throws UnresolvedResourceException,
+    public void installAppFromReference(String profileReference)
+            throws UnresolvedResourceException,
             UnfullfilledRequirementsException, InstallCancelledException {
-        ResourceManager.installAppResources(platform, profileReference, this.table, true);
+        ResourceManager.installAppResources(platform, profileReference, this.table, true,
+                Resource.RESOURCE_AUTHORITY_LOCAL);
     }
 
     public void initEnvironment() {

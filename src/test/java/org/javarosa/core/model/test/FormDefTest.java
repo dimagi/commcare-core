@@ -559,13 +559,13 @@ public class FormDefTest {
     }
 
 
-    private static FormEntryController initFormEntry(FormParseInit fpi) {
+    public static FormEntryController initFormEntry(FormParseInit fpi) {
         return initFormEntry(fpi, null);
     }
 
     private static FormEntryController initFormEntry(FormParseInit fpi, String locale) {
         FormEntryController fec = fpi.getFormEntryController();
-        fpi.getFormDef().initialize(true, null, locale);
+        fpi.getFormDef().initialize(true, null, locale, false);
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
         return fec;
     }
@@ -612,6 +612,33 @@ public class FormDefTest {
                 continue;
             }
             fec.answerQuestion(new SelectOneData(new Selection("yes")));
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+    }
+
+    @Test
+    public void testItemsetPopulationAndFilter() {
+        FormParseInit fpi = new FormParseInit("/xform_tests/itemset_population_test.xhtml");
+
+        FormEntryController fec = fpi.getFormEntryController();
+
+        do {
+            QuestionDef q = fpi.getCurrentQuestion();
+            if (q == null) {
+                continue;
+            }
+            TreeReference currentRef = fec.getModel().getFormIndex().getReference();
+            if(currentRef == null) { continue; }
+
+            if(currentRef.genericize().toString().equals("/data/filter")) {
+                fec.answerQuestion(new SelectOneData(new Selection("a")));
+            }
+
+            if(currentRef.genericize().toString().equals("/data/question")) {
+                assertEquals("Itemset Filter returned the wrong size",
+                        fec.getModel().getQuestionPrompt().getSelectChoices().size(),
+                        3);
+            }
+
         } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
     }
 }

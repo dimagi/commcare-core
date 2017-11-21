@@ -14,6 +14,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.subscribers.TestSubscriber;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -148,7 +154,9 @@ public class AppStructureTests {
         assertEquals("Menu 1 Text", menuWithDisplayBlock.getDisplayText());
         EvaluationContext ec =
                 appWithGoodUserRestore.getSession().getEvaluationContext(menuWithDisplayBlock.getId());
-        assertEquals("1", menuWithDisplayBlock.getTextForBadge(ec));
+        TestObserver<String> testObserver = menuWithDisplayBlock.getTextForBadge(ec).test();
+        testObserver.assertNoErrors();
+        testObserver.assertValue("1");
     }
 
     @Test

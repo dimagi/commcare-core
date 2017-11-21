@@ -27,6 +27,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.Vector;
 
 import static org.junit.Assert.fail;
@@ -87,7 +88,7 @@ public class XPathEvalTest {
     }
 
     @Test
-    public void testTypeCoercion(){
+    public void testTypeCoercion() {
         Object str = FunctionUtils.InferType("notadouble");
         Assert.assertTrue("'notadouble' coerced to the wrong type, "
                 + str.getClass().toString(), str instanceof String);
@@ -99,7 +100,26 @@ public class XPathEvalTest {
     }
 
     @Test
+    public void sortTests() {
+        // simple sort
+        testEval("sort('commcare is the best tool ever', false())", null, null, "tool the is ever commcare best");
+
+        // sort 2nd list by 1st
+        testEval("sort-by('2222 5555 9999 1111', 'd b c a', true())", null, null, "1111 5555 9999 2222");
+        testEval("sort-by('a b c d e f', '4 2 1 5 3 2', false())", null, null, "d a e f b c");
+        testEval("sort-by('c c z f z f', '4 2 1 5 3 2', true())", null, null, "z c f z c f");
+
+        // ascending bool not explicitly included
+        testEval("sort-by('a b c d e f', '4 2 1 5 3 2')", null, null, "c b f e a d");
+        testEval("sort('commcare is the best tool ever')", null, null, "best commcare ever is the tool");
+
+        // uneven list sizes
+        testEval("sort-by('a b c', '4 2 5 1', true())", null, null, new XPathTypeMismatchException());
+    }
+
+    @Test
     public void doTests() {
+        System.setProperty("user.timezone", "UTC");
         EvaluationContext ec = getFunctionHandlers();
 
         FormInstance instance = createTestInstance();
@@ -234,6 +254,12 @@ public class XPathEvalTest {
         testEval("date(convertible())", null, ec, new XPathTypeMismatchException());
         testEval("format-date-for-calendar('', 'ethiopian')", null, null, "");
         testEval("format-date-for-calendar(date('1970-01-01'), 'neverland')", null, null, new XPathUnsupportedException());
+
+        testEval("format-date-for-calendar('2017-07-15', 'ethiopian', '%Y-%m-%d')", null, null, "2009-11-08");
+        testEval("format-date-for-calendar('2017-07-15', 'nepali', '%Y-%m-%d')", null, null, "2074-03-31");
+
+
+
         //note: there are lots of time and timezone-like issues with dates that should be tested (particularly DST changes),
         //    but it's just too hard and client-dependent, so not doing it now
         //  basically:
@@ -270,10 +296,14 @@ public class XPathEvalTest {
 
         testEval("min(5.5, 0.5)", null, null, new Double(0.5));
         testEval("min(5.5)", null, null, new Double(5.5));
+        testEval("min(-2,-3)", null, null, new Double(-3));
+        testEval("min(2,-3)", null, null, new Double(-3));
         testEval("date(min(date('2012-02-05'), date('2012-01-01')))", null, null, DateUtils.parseDate("2012-01-01"));
 
         testEval("max(5.5, 0.5)", null, null, new Double(5.5));
         testEval("max(0.5)", null, null, new Double(0.5));
+        testEval("max(-2,-3)", null, null, new Double(-2));
+        testEval("max(2,-3)", null, null, new Double(2));
         testEval("date(max(date('2012-02-05'), date('2012-01-01')))", null, null, DateUtils.parseDate("2012-02-05"));
 
 
@@ -523,6 +553,10 @@ public class XPathEvalTest {
         testEval("id-compress(0, 'CD','','ABCDE',1)", null, ec, new XPathException());
         testEval("id-compress(0, 'CD','CD','ABCDE',1)", null, ec, new XPathException());
 
+        testEval("checksum('verhoeff','41310785898')", null, null, "4");
+        testEval("checksum('verhoeff','66671496237')", null, null, "3");
+        testEval("checksum('verhoefffff','41310785898')", null, null, new XPathUnsupportedException());
+
         //Variables
         EvaluationContext varContext = getVariableContext();
         testEval("$var_float_five", null, varContext, new Double(5.0));
@@ -583,6 +617,9 @@ public class XPathEvalTest {
         addDataRef(instance, "/data/strtest[2]/@val", new StringData("b"));
         addDataRef(instance, "/data/strtest[3]/@val", new StringData("string"));
 
+        addDataRef(instance, "/data/rangetest[1]/@num", new StringData("-2"));
+        addDataRef(instance, "/data/rangetest[2]/@num", new StringData("3"));
+
         testEval("/data/string", instance, null, "string");
         testEval("/data/int", instance, null, new Double(17.0));
 
@@ -609,6 +646,11 @@ public class XPathEvalTest {
         testEval("weighted-checklist(1, 2, /data/predtest[1]/@val = 2, 1, /data/predtest[2]/@val = 2, 1, /data/predtest[3]/@val = 2, 1)", instance, null, Boolean.TRUE);
         testEval("weighted-checklist(-1, 1, /data/predtest[1]/@val = 2, 1, /data/predtest[2]/@val = 2, 1, /data/predtest[3]/@val = 2, 1)", instance, null, Boolean.FALSE);
         testEval("weighted-checklist(3, 4, /data/predtest[1]/@val = 2, 1, /data/predtest[2]/@val = 2, 1, /data/predtest[3]/@val = 2, 1)", instance, null, Boolean.FALSE);
+
+        testEval("max(/data/rangetest[0])", instance, null, Double.NaN);
+        testEval("min(/data/rangetest[0])", instance, null, Double.NaN);
+        testEval("max(/data/rangetest/@num)", instance, null, new Double("3"));
+        testEval("min(/data/rangetest/@num)", instance, null, new Double("-2"));
     }
 
     @Test
@@ -625,24 +667,24 @@ public class XPathEvalTest {
         ec.addFunctionHandler(new IFunctionHandler() {
             @Override
             public String getName() {
-              return "now";
+                return "now";
             }
 
             @Override
             public Vector getPrototypes() {
-              Vector<Class[]> p = new Vector<>();
-              p.addElement(new Class[0]);
-              return p;
+                Vector<Class[]> p = new Vector<>();
+                p.addElement(new Class[0]);
+                return p;
             }
 
             @Override
             public boolean rawArgs() {
-              return false;
+                return false;
             }
 
             @Override
             public Object eval(Object[] args, EvaluationContext ec) {
-              return "pass";
+                return "pass";
             }
         });
 

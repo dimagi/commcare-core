@@ -1,5 +1,8 @@
 package org.javarosa.core.services.storage.util;
 
+import org.javarosa.core.model.condition.Abandonable;
+import org.javarosa.core.model.condition.RequestAbandonedException;
+import org.javarosa.core.model.condition.pivot.IntegerRangeHint;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.IStorageIterator;
@@ -16,8 +19,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -58,7 +65,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     private void initMetaFromInstance(Persistable p) {
-        if(!(p instanceof IMetaData)) {
+        if (!(p instanceof IMetaData)) {
             return;
         }
         IMetaData m = (IMetaData)p;
@@ -72,13 +79,34 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     @Override
     public Vector<Integer> getIDsForValue(String fieldName, Object value) {
         //We don't support all index types
-        if(meta.get(fieldName) == null) {
-            throw new IllegalArgumentException("Unsupported index: "+ fieldName + " for storage of " + prototype.getName());
+        if (meta.get(fieldName) == null) {
+            throw new IllegalArgumentException("Unsupported index: " + fieldName + " for storage of " + prototype.getName());
         }
         if (meta.get(fieldName).get(value) == null) {
             return new Vector<>();
         }
         return meta.get(fieldName).get(value);
+    }
+
+    @Override
+    public List<Integer> getIDsForValues(String[] fieldNames, Object[] values) {
+        return getIDsForValues(fieldNames, values, new LinkedHashSet<Integer>());
+    }
+
+    @Override
+    public List<Integer> getIDsForValues(String[] fieldNames, Object[] values, LinkedHashSet<Integer> returnSet) {
+        List<Integer> accumulator = null;
+        for(int i = 0; i < fieldNames.length; ++i) {
+            Vector<Integer> matches = getIDsForValue(fieldNames[i], values[i]);
+            if (accumulator == null) {
+                accumulator = new Vector<>(matches);
+            } else {
+                accumulator = DataUtil.intersection(accumulator, matches);
+            }
+        }
+
+        returnSet.addAll(accumulator);
+        return accumulator;
     }
 
     @Override
@@ -140,6 +168,12 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         //We should really find a way to invalidate old iterators first here
         return new DummyStorageIterator<>(this, data);
     }
+
+    @Override
+    public IStorageIterator<T> iterate(boolean includeData) {
+        return iterate();
+    }
+
 
     @Override
     public T read(int id) {
@@ -254,5 +288,33 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
                 }
             }
         }
+    }
+
+    @Override
+    public void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, T> recordMap, Abandonable abandonable) throws RequestAbandonedException {
+        for (int i : cuedCases) {
+            recordMap.put(i, data.get(i));
+        }
+    }
+
+    @Override
+    public String[] getMetaDataForRecord(int recordId, String[] fieldNames) {
+        String[] response = new String[fieldNames.length];
+        for (int i = 0; i < fieldNames.length; ++i) {
+            response[i] = (String)((IMetaData)data.get(recordId)).getMetaData(fieldNames[i]);
+        }
+        return response;
+    }
+
+    @Override
+    public void bulkReadMetadata(LinkedHashSet cuedCases, String[] metaDataIds, HashMap metadataMap) {
+        for(int i : ((LinkedHashSet<Integer>)cuedCases)) {
+            metadataMap.put(i, getMetaDataForRecord(i, metaDataIds));
+        }
+    }
+
+    @Override
+    public void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, T> recordMap) {
+        bulkRead(cuedCases, recordMap, null);
     }
 }

@@ -5,13 +5,17 @@ import org.commcare.modern.session.SessionWrapperInterface;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LoggerInterface;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
+import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -25,11 +29,16 @@ public class MenuLoader {
     private MenuDisplayable[] menus;
     private LoggerInterface loggerInterface;
 
+    private ReducingTraceReporter traceReporter;
+
     public MenuLoader(CommCarePlatform platform,
                       SessionWrapperInterface sessionWrapper,
                       String menuId,
-                      LoggerInterface loggerInterface) {
+                      LoggerInterface loggerInterface, boolean shouldOutputEvalTrace) {
         this.loggerInterface = loggerInterface;
+        if (shouldOutputEvalTrace) {
+            this.traceReporter = new ReducingTraceReporter();
+        }
         this.getMenuDisplayables(platform, sessionWrapper, menuId);
     }
 
@@ -96,8 +105,20 @@ public class MenuLoader {
         XPathExpression relevance = m.getMenuRelevance();
         if (m.getMenuRelevance() != null) {
             xPathErrorMessage = m.getMenuRelevanceRaw();
-            EvaluationContext ec = sessionWrapper.getEvaluationContext(m.getId());
-            return FunctionUtils.toBoolean(relevance.eval(ec));
+
+            Set<String> instancesNeededByRelevancyCondition =
+                    (new InstanceNameAccumulatingAnalyzer()).accumulate(relevance);
+            EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(m.getId(),
+                    instancesNeededByRelevancyCondition);
+
+            EvaluationContext traceableContext = new EvaluationContext(ec, ec.getOriginalContext());
+            if (traceReporter != null) {
+                traceableContext.setDebugModeOn(traceReporter);
+            }
+
+            boolean result = FunctionUtils.toBoolean(relevance.eval(traceableContext));
+            InstrumentationUtils.printAndClearTraces(traceReporter, "menu load expand");
+            return result;
         }
         return true;
     }
@@ -107,13 +128,18 @@ public class MenuLoader {
                                            Vector<MenuDisplayable> items,
                                            Hashtable<String, Entry> map)
             throws XPathSyntaxException {
-        EvaluationContext ec = sessionWrapper.getEvaluationContext();
         xPathErrorMessage = "";
         for (String command : m.getCommandIds()) {
-            XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
-            if (mRelevantCondition != null) {
+            XPathExpression relevancyCondition = m.getCommandRelevance(m.indexOfCommand(command));
+            if (relevancyCondition != null) {
                 xPathErrorMessage = m.getCommandRelevanceRaw(m.indexOfCommand(command));
-                Object ret = mRelevantCondition.eval(ec);
+
+                Set<String> instancesNeededByRelevancyCondition =
+                        (new InstanceNameAccumulatingAnalyzer()).accumulate(relevancyCondition);
+                EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(command,
+                        instancesNeededByRelevancyCondition);
+
+                Object ret = relevancyCondition.eval(ec);
                 try {
                     if (!FunctionUtils.toBoolean(ret)) {
                         continue;

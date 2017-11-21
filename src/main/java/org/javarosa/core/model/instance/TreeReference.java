@@ -5,6 +5,9 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.analysis.AnalysisInvalidException;
+import org.javarosa.xpath.analysis.XPathAnalyzable;
+import org.javarosa.xpath.analysis.XPathAnalyzer;
 import org.javarosa.xpath.expr.XPathExpression;
 
 import java.io.DataInputStream;
@@ -13,9 +16,8 @@ import java.io.IOException;
 import java.util.Vector;
 
 
-// TODO: This class needs to be immutable so that we can perform caching
-// optimizations.
-public class TreeReference implements Externalizable {
+// TODO: This class needs to be immutable so that we can perform caching optimizations.
+public class TreeReference implements Externalizable, XPathAnalyzable {
 
     private int hashCode = -1;
 
@@ -43,8 +45,7 @@ public class TreeReference implements Externalizable {
     public static final int INDEX_REPEAT_JUNCTURE = -10;
 
 
-    //TODO: Roll these into RefLevel? Or more likely, take absolute
-    //ref out of refLevel
+    //TODO: Roll these into RefLevel? Or more likely, take absolute ref out of refLevel
     public static final int CONTEXT_ABSOLUTE = 0;
     // context is inherited since the path is relative
     public static final int CONTEXT_INHERITED = 1;
@@ -259,6 +260,10 @@ public class TreeReference implements Externalizable {
         this.refLevel = refLevel;
     }
 
+    public void setContextType(int contextType) {
+        this.contextType = contextType;
+    }
+
     public void incrementRefLevel() {
         hashCode = -1;
         if (!isAbsolute()) {
@@ -422,8 +427,7 @@ public class TreeReference implements Externalizable {
         // further contextualizaiton can be applied unless the instances match
         if (this.isAbsolute()) {
             if (this.getInstanceName() == null) {
-                // If this refers to the main instance, but our context ref
-                // doesn't
+                // If this refers to the main instance, but our context ref doesn't
                 if (contextRef.getInstanceName() != null) {
                     return this.clone();
                 }
@@ -436,9 +440,9 @@ public class TreeReference implements Externalizable {
 
         TreeReference newRef = anchor(contextRef);
         newRef.hashCode = -1;
-        newRef.contextType = contextRef.getContext();
+        newRef.contextType = contextRef.getContextType();
 
-        // apply multiplicites and fill in wildcards as necessary, based on the
+        // apply multiplicities and fill in wildcards as necessary, based on the
         // context ref
         for (int i = 0; i < contextRef.size() && i < newRef.size(); i++) {
             // If the the contextRef can provide a definition for a wildcard, do so
@@ -472,7 +476,8 @@ public class TreeReference implements Externalizable {
         if (parent.isParentOf(this, false)) {
             TreeReference relRef = selfRef();
             for (int i = parent.size(); i < this.size(); i++) {
-                relRef.add(this.getName(i), INDEX_UNBOUND);
+                int index = this.getMultiplicity(i) == INDEX_ATTRIBUTE ? INDEX_ATTRIBUTE : INDEX_UNBOUND;
+                relRef.add(this.getName(i), index);
             }
             return relRef;
         } else {
@@ -756,7 +761,7 @@ public class TreeReference implements Externalizable {
         throw new RuntimeException("Impossible state");
     }
 
-    public int getContext() {
+    public int getContextType() {
         return this.contextType;
     }
 
@@ -831,5 +836,36 @@ public class TreeReference implements Externalizable {
         return relativeStart;
     }
 
+    @Override
+    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        analyzer.doAnalysis(TreeReference.this);
+        if (this.hasPredicates()) {
 
+            TreeReference contextForPredicates = this;
+            if (this.contextType == CONTEXT_ORIGINAL) {
+                if (analyzer.getOriginalContextRef() == null) {
+                    throw new AnalysisInvalidException(
+                            "No original context available when needed to evaluate: " + this);
+                }
+                contextForPredicates = this.contextualize(analyzer.getOriginalContextRef());
+            } else if (!this.isAbsolute()) {
+                if (analyzer.getContextRef() == null) {
+                    throw new AnalysisInvalidException(
+                            "No context available when needed to evaluate: " + this);
+                }
+                contextForPredicates = this.contextualize(analyzer.getContextRef());
+            }
+
+            for (int i = 0; i < data.size(); i++) {
+                TreeReferenceLevel subLevel = data.get(i);
+                if (subLevel.getPredicates() != null) {
+                    TreeReference subContext = contextForPredicates.removePredicates().getSubReference(i);
+                    XPathAnalyzer subAnalyzer = analyzer.spawnSubAnalyzer(subContext);
+                    for (XPathExpression expr : subLevel.getPredicates()) {
+                        expr.applyAndPropagateAnalyzer(subAnalyzer);
+                    }
+                }
+            }
+        }
+    }
 }

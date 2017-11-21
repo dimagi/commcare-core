@@ -18,7 +18,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.Callable;
+
+import io.reactivex.Single;
+import io.reactivex.functions.Action;
 
 /**
  * Describes a user-initiated action, what information needs to be collected
@@ -83,18 +88,31 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
     }
 
     public Hashtable<String, DataInstance> getInstances() {
+        return getInstances(null);
+    }
+    /**
+     *
+     * @param limitingList a list of instance names to restrict the returning set to; null
+     *                     if no limiting is being used
+     * @return a hashtable representing the data instances that are in scope for this Entry,
+     * potentially limited by @limitingList
+     */
+    public Hashtable<String, DataInstance> getInstances(Set<String> limitingList) {
         Hashtable<String, DataInstance> copy = new Hashtable<>();
         for (Enumeration en = instances.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
 
-            //This is silly, all of these are externaldata instances. TODO: save their
+            //This is silly, all of these are external data instances. TODO: save their
             //construction details instead.
             DataInstance cur = instances.get(key);
-            if (cur instanceof ExternalDataInstance) {
-                //Copy the EDI so when it gets populated we don't keep it dependent on this object's lifecycle!!
-                copy.put(key, new ExternalDataInstance(((ExternalDataInstance)cur).getReference(), cur.getInstanceId()));
-            } else {
-                copy.put(key, cur);
+            if (limitingList == null || limitingList.contains(cur.getInstanceId())) {
+                // Make sure we either aren't using a limiting list, or the instanceid is in the list
+                if (cur instanceof ExternalDataInstance) {
+                    //Copy the EDI so when it gets populated we don't keep it dependent on this object's lifecycle!!
+                    copy.put(key, new ExternalDataInstance(((ExternalDataInstance)cur).getReference(), cur.getInstanceId()));
+                } else {
+                    copy.put(key, cur);
+                }
             }
         }
 
@@ -140,12 +158,18 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
     }
 
     @Override
-    public String getTextForBadge(EvaluationContext ec) {
+    public Single<String> getTextForBadge(EvaluationContext ec) {
         if (display.getBadgeText() == null) {
-            return null;
+            return Single.just("");
         }
-        return display.getBadgeText().evaluate(ec);
+        return display.getBadgeText().getDisposableSingleForEvaluation(ec);
     }
+
+    @Override
+    public Text getRawBadgeTextObject() {
+        return display.getBadgeText();
+    }
+
 
     @Override
     public String getCommandID() {
@@ -172,5 +196,10 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
         ExtUtil.write(out, new ExtWrapMap(instances, new ExtWrapTagged()));
         ExtUtil.write(out, new ExtWrapList(stackOperations));
         ExtUtil.write(out, new ExtWrapNullable(assertions));
+    }
+
+    @Override
+    public String toString() {
+        return "Entry with id " + this.getCommandId() + " display text " + this.getDisplayText();
     }
 }

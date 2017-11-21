@@ -4,7 +4,6 @@ import org.javarosa.core.model.condition.IConditionExpr;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
-import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
@@ -15,6 +14,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Vector;
 
 public class ItemsetBinding implements Externalizable {
@@ -37,23 +38,46 @@ public class ItemsetBinding implements Externalizable {
 
     public boolean copyMode;           //true = copy subtree; false = copy string value
     public TreeReference copyRef;      //absolute ref to copy
+
     public TreeReference valueRef;     //absolute ref to value
     public IConditionExpr valueExpr;   //path expression for value; may be relative, no predicates (must be relative if copy mode)
 
+    public TreeReference sortRef;     //absolute ref to sort
+    public IConditionExpr sortExpr;   //path expression for sort; may be relative, no predicates (must be relative if copy mode)
+
     private TreeReference destRef; //ref that identifies the repeated nodes resulting from this itemset
-    //not serialized -- set by QuestionDef.setDynamicChoices()
-    private Vector<SelectChoice> choices; //dynamic choices -- not serialized, obviously
+
+    // dynamic choices, not serialized
+    private Vector<SelectChoice> choices;
 
     public Vector<SelectChoice> getChoices() {
         return choices;
     }
 
-    public void setChoices(Vector<SelectChoice> choices, Localizer localizer) {
+    public void setChoices(Vector<SelectChoice> choices) {
         if (this.choices != null) {
-            System.out.println("warning: previous choices not cleared out");
             clearChoices();
         }
         this.choices = choices;
+        sortChoices();
+    }
+
+    private void sortChoices() {
+        if (this.sortRef != null) {
+
+            // Perform sort
+            Collections.sort(choices, new Comparator<SelectChoice>() {
+                @Override
+                public int compare(SelectChoice choice1, SelectChoice choice2) {
+                    return choice1.evaluatedSortProperty.compareTo(choice2.evaluatedSortProperty);
+                }
+            });
+
+            // Re-set indices after sorting
+            for (int i = 0; i < choices.size(); i++) {
+                choices.get(i).setIndex(i);
+            }
+        }
     }
 
     public void clearChoices() {
@@ -95,6 +119,8 @@ public class ItemsetBinding implements Externalizable {
         copyRef = (TreeReference)ExtUtil.read(in, new ExtWrapNullable(TreeReference.class), pf);
         labelIsItext = ExtUtil.readBool(in);
         copyMode = ExtUtil.readBool(in);
+        sortRef = (TreeReference)ExtUtil.read(in, new ExtWrapNullable(TreeReference.class), pf);
+        sortExpr = (IConditionExpr)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
     }
 
     @Override
@@ -109,5 +135,7 @@ public class ItemsetBinding implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(copyRef));
         ExtUtil.writeBool(out, labelIsItext);
         ExtUtil.writeBool(out, copyMode);
+        ExtUtil.write(out, new ExtWrapNullable(sortRef));
+        ExtUtil.write(out, new ExtWrapNullable(sortExpr == null ? null : new ExtWrapTagged(sortExpr)));
     }
 }

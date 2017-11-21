@@ -71,4 +71,8 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<Case, Ca
 
         return indices;
     }
+
+    public String getStorageCacheName() {
+        return CaseInstanceTreeElement.MODEL_NAME;
+    }
 }

@@ -1,8 +1,13 @@
 package org.javarosa.core.services.storage;
 
+import org.javarosa.core.model.condition.Abandonable;
+import org.javarosa.core.model.condition.RequestAbandonedException;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -119,6 +124,16 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
     IStorageIterator<E> iterate();
 
     /**
+     * Return an iterator to iterate through all records in this store
+     * <p>
+     * if includeData is false, the iterator is only guaranteed to be able to return ID's for
+     * records, not full values.
+     *
+     * @return record iterator
+     */
+    IStorageIterator<E> iterate(boolean includeData);
+
+    /**
      * Close all resources associated with this StorageUtility. Any attempt to use this StorageUtility after this call will result
      * in error. Though not strictly necessary, it is a good idea to call this when you are done with the StorageUtility, as closing
      * may trigger clean-up in the underlying device storage (reclaiming unused space, etc.).
@@ -136,7 +151,7 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      * Retrieves a Vector of IDs of Externalizable objects in storage for which the field
      * specified contains the value specified.
      *
-     * @param fieldName The name of a field which should be evaluated
+     * @param metaFieldName The name of a field which should be evaluated
      * @param value     The value which should be contained by the field specified
      * @return A Vector of Integers such that retrieving the Externalizable object with any
      * of those integer IDs will result in an object for which the field specified is equal
@@ -144,12 +159,41 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      * @throws RuntimeException (Fix this exception type) if the field is unrecognized by the
      *                          meta data
      */
-    Vector<Integer> getIDsForValue(String fieldName, Object value);
+    Vector<Integer> getIDsForValue(String metaFieldName, Object value);
+
+    /**
+    * Retrieves a Vector of IDs of Externalizable objects in storage for which the field
+    * specified contains the values specified.
+    *
+    * @param metaFieldNames A list of metadata field names to match
+    * @param values     The values which must match the field names provided
+    * @return A Vector of Integers such that retrieving the Externalizable object with any
+    * of those integer IDs will result in an object for which the fields specified are equal
+    * to the value provided.
+    * @throws RuntimeException (Fix this exception type) if the field is unrecognized by the
+    *                          meta data
+    */
+    List<Integer> getIDsForValues(String[] metaFieldNames, Object[] values);
+
+    /**
+    * Retrieves a Vector of IDs of Externalizable objects in storage for which the field
+    * specified contains the values specified.
+    *
+    * @param metaFieldNames A list of metadata field names to match
+    * @param values     The values which must match the field names provided
+    * @param returnSet A LinkedHashSet of integers which match the return value
+    * @return A Vector of Integers such that retrieving the Externalizable object with any
+    * of those integer IDs will result in an object for which the fields specified are equal
+    * to the value provided.
+    * @throws RuntimeException (Fix this exception type) if the field is unrecognized by the
+    *                          meta data
+    */
+    List<Integer> getIDsForValues(String[] metaFieldNames, Object[] values, LinkedHashSet<Integer> returnSet);
 
     /**
      * Retrieves a Externalizable object from the storage which is reference by the unique index fieldName.
      *
-     * @param fieldName The name of the index field which will be evaluated
+     * @param metaFieldName The name of the index field which will be evaluated
      * @param value     The value which should be set in the index specified by fieldName for the returned
      *                  object.
      * @return An Externalizable object e, such that e.getMetaData(fieldName).equals(value);
@@ -158,5 +202,46 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      * @throws InvalidIndexException  If the field used is an invalid index, because more than one field in the Storage
      *                                contains the value of the index requested.
      */
-    E getRecordForValue(String fieldName, Object value) throws NoSuchElementException, InvalidIndexException;
+    E getRecordForValue(String metaFieldName, Object value) throws NoSuchElementException, InvalidIndexException;
+
+    void bulkRead(LinkedHashSet<Integer> ids, HashMap<Integer, E> recordMap);
+
+    /**
+     * Load multiple record objects from storage at one time from a list of record ids.
+     * <p>
+     * If the provided recordMap already contains entries for any ids, it is _not_
+     * required for them to be retrieved from storage again.
+     *
+     * Since this method can have a significant runtime, an abandonable is provided to enable the
+     * request to be shortcircuited. Implementations should regularly assert that the request
+     * has not been abandoned on long-running bulk reads
+     * 
+     * @throws RequestAbandonedException If the current request is abandoned, this method will
+     *                                   throw a RequestAbandonedException. Callers should not
+     *                                   generally catch that exception unless they rethrow it
+     *                                   or another exception, but they should anticipate that
+     *                                   they may need to clean up if the bulk read doesn't complete
+     */
+
+    void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, E> recordMap, Abandonable abandonable) throws RequestAbandonedException;
+
+    /**
+     * Retrieves the metadata field values requested from the record at the provided record ID.
+     */
+    String[] getMetaDataForRecord(int recordId, String[] metaFieldNames);
+
+    /**
+     *
+     * Load metadata fields associated with a provided list of record IDs. For each recordId in the
+     * provided set, the metadataMap should be loaded withe metadata from storage associated with
+     * that record.
+     * <p>
+     * If the provided metadataMap already contains entries for any ids, it is _not_
+     * required for the fields to be retrieved from storage again.
+     *
+     * @param recordIds
+     * @param metaFieldNames
+     * @param metadataMap
+     */
+    void bulkReadMetadata(LinkedHashSet<Integer> recordIds, String[] metaFieldNames, HashMap<Integer, String[]> metadataMap);
 }

@@ -1,9 +1,12 @@
 package org.javarosa.core.model;
 
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.ScopeLimitedReferenceRequestCache;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.actions.Action;
 import org.javarosa.core.model.actions.ActionController;
+import org.javarosa.core.model.actions.FormSendCalloutHandler;
 import org.javarosa.core.model.condition.Condition;
 import org.javarosa.core.model.condition.Constraint;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -25,7 +28,9 @@ import org.javarosa.core.model.instance.InvalidReferenceException;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
+import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.util.CacheTable;
@@ -41,6 +46,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.analysis.AnalysisInvalidException;
+import org.javarosa.xpath.analysis.TreeReferenceAccumulatingAnalyzer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -48,10 +55,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -132,6 +142,10 @@ public class FormDef implements IFormElement, IMetaData,
     private ActionController actionController;
     //If this instance is just being edited, don't fire end of form events
     private boolean isCompletedInstance;
+
+    private boolean mProfilingEnabled = false;
+
+    FormSendCalloutHandler sendCalloutHandler;
 
     /**
      * Cache children that trigger target will cascade to. For speeding up
@@ -1305,21 +1319,32 @@ public class FormDef implements IFormElement, IMetaData,
      *                used to determine the values to be chosen from.
      */
     public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef) {
-        Vector<SelectChoice> choices = new Vector<>();
-
-        DataInstance fi;
-        if (itemset.nodesetRef.getInstanceName() != null) //We're not dealing with the default instance
-        {
-            fi = getNonMainInstance(itemset.nodesetRef.getInstanceName());
-            if (fi == null) {
+        DataInstance formInstance;
+        if (itemset.nodesetRef.getInstanceName() != null) {
+            formInstance = getNonMainInstance(itemset.nodesetRef.getInstanceName());
+            if (formInstance == null) {
                 throw new XPathException("Instance " + itemset.nodesetRef.getInstanceName() + " not found");
             }
         } else {
-            fi = getMainInstance();
+            formInstance = getMainInstance();
         }
 
-        Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(fi,
-                new EvaluationContext(exprEvalContext, itemset.contextRef.contextualize(curQRef)));
+        EvaluationContext ec =
+                new EvaluationContext(exprEvalContext, itemset.contextRef.contextualize(curQRef));
+
+        ReducingTraceReporter reporter= null;
+        if(mProfilingEnabled) {
+            reporter = new ReducingTraceReporter();
+            ec.setDebugModeOn(reporter);
+        }
+
+        ec = getPotentiallyLimitedScopeContext(ec, itemset);
+
+        Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(formInstance,ec);
+
+        if (reporter != null) {
+            InstrumentationUtils.printAndClearTraces(reporter, "itemset expansion");
+        }
 
         if (matches == null) {
             String instanceName = itemset.nodesetRef.getInstanceName();
@@ -1333,28 +1358,119 @@ public class FormDef implements IFormElement, IMetaData,
             }
         }
 
+        Vector<SelectChoice> choices = new Vector<>();
+        //Escalate the new context if our result set is substantial, this will prevent reverting
+        //from a bulk read mode to a scanned read mode
+        QueryContext newContext = ec.getCurrentQueryContext()
+                .checkForDerivativeContextAndReturn(matches.size());
+        ec.setQueryContext(newContext);
+
         for (int i = 0; i < matches.size(); i++) {
-            TreeReference item = matches.elementAt(i);
-
-            String label = itemset.labelExpr.evalReadable(fi, new EvaluationContext(exprEvalContext, item));
-            String value = null;
-            TreeElement copyNode = null;
-
-            if (itemset.copyMode) {
-                copyNode = this.getMainInstance().resolveReference(itemset.copyRef.contextualize(item));
-            }
-            if (itemset.valueRef != null) {
-                value = itemset.valueExpr.evalReadable(fi, new EvaluationContext(exprEvalContext, item));
-            }
-            SelectChoice choice = new SelectChoice(label, value != null ? value : "dynamic:" + i, itemset.labelIsItext);
-            choice.setIndex(i);
-            if (itemset.copyMode)
-                choice.copyNode = copyNode;
-
-            choices.addElement(choice);
+            choices.addElement(buildSelectChoice(matches.elementAt(i), itemset, formInstance,
+                    ec, reporter, i));
+        }
+        if(reporter != null) {
+            InstrumentationUtils.printAndClearTraces(reporter, "ItemSet Field Population");
         }
 
-        itemset.setChoices(choices, this.getLocalizer());
+        itemset.setChoices(choices);
+    }
+
+    /**
+     * Returns an evaluation context which can be used to evaluate the itemset's references, and
+     * if possible will be more efficient than the base context provided through static analysis
+     * of the itemset expressions.
+     */
+    private EvaluationContext getPotentiallyLimitedScopeContext(EvaluationContext questionContext,
+                                                                ItemsetBinding itemset) {
+        Set<TreeReference> references;
+        try {
+             references = pullAllReferencesFromItemset(questionContext, itemset);
+        } catch (AnalysisInvalidException e) {
+            return questionContext;
+        }
+
+        EvaluationContext newContext = questionContext.spawnWithCleanLifecycle();
+
+        QueryContext isolatedContext = newContext.getCurrentQueryContext();
+        ScopeLimitedReferenceRequestCache cache = isolatedContext.getQueryCache(ScopeLimitedReferenceRequestCache.class);
+        cache.addTreeReferencesToLimitedScope(references);
+        return newContext;
+    }
+
+    /**
+     * Tries to get all of the absolute tree references which are referenced in the itemset, either in
+     * the nodeset calculation, or the individual (label, value, etc...) itemset element calculations.
+     *
+     * If a value is returned, that value should contain all tree references which will need to be
+     * evaluated to produce the itemset output
+     *
+     * @throws AnalysisInvalidException If the itemset's references could not be fully understood
+     * or qualified through static evaluation
+     */
+    private Set<TreeReference> pullAllReferencesFromItemset(EvaluationContext questionContext, ItemsetBinding itemset)
+            throws AnalysisInvalidException{
+
+
+        Set<TreeReference> references = getAccumulatedReferencesOrThrow(questionContext, itemset.nodesetRef);
+
+        EvaluationContext itemsetSubexpressionContext = new EvaluationContext(questionContext, itemset.nodesetRef);
+
+        references.addAll(getAccumulatedReferencesOrThrow(itemsetSubexpressionContext, itemset.labelRef));
+        references.addAll(getAccumulatedReferencesOrThrow(itemsetSubexpressionContext, itemset.valueRef));
+        references.addAll(getAccumulatedReferencesOrThrow(itemsetSubexpressionContext, itemset.sortRef));
+
+        return references;
+    }
+
+    private Set<TreeReference> getAccumulatedReferencesOrThrow(EvaluationContext subContext,
+                                                               TreeReference newRef) throws AnalysisInvalidException {
+        if (newRef == null) {
+            return new HashSet<>();
+        }
+        TreeReferenceAccumulatingAnalyzer analyzer = new TreeReferenceAccumulatingAnalyzer(subContext);
+
+        Set<TreeReference> newReferences = analyzer.accumulate(newRef);
+
+        if (newReferences == null) {
+            throw new AnalysisInvalidException("itemset accumulation");
+        }
+        return newReferences;
+    }
+
+    private SelectChoice buildSelectChoice(TreeReference choiceRef, ItemsetBinding itemset,
+                                           DataInstance formInstance, EvaluationContext ec,
+                                           ReducingTraceReporter reporter, int index) {
+
+        EvaluationContext subContext = new EvaluationContext(ec, choiceRef);
+
+        String label = itemset.labelExpr.evalReadable(formInstance, subContext);
+
+        String value = null;
+        TreeElement copyNode = null;
+
+        if (itemset.copyMode) {
+            copyNode = this.getMainInstance().resolveReference(itemset.copyRef.contextualize(choiceRef));
+        }
+
+        if (itemset.valueRef != null) {
+            value = itemset.valueExpr.evalReadable(formInstance, subContext);
+        }
+
+        SelectChoice choice = new SelectChoice(label, value != null ? value : "dynamic:" + index,
+                itemset.labelIsItext);
+
+        choice.setIndex(index);
+
+        if (itemset.copyMode) {
+            choice.copyNode = copyNode;
+        }
+
+        if (itemset.sortRef != null) {
+            String evaluatedSortProperty = itemset.sortExpr.evalReadable(formInstance, subContext);
+            choice.setSortProperty(evaluatedSortProperty);
+        }
+        return choice;
     }
 
     public String toString() {
@@ -1415,15 +1531,16 @@ public class FormDef implements IFormElement, IMetaData,
      */
     public void initialize(boolean newInstance, boolean isCompletedInstance,
                            InstanceInitializationFactory factory) {
-        initialize(newInstance, isCompletedInstance, factory, null);
+        initialize(newInstance, isCompletedInstance, factory, null, false);
     }
 
     public void initialize(boolean newInstance, InstanceInitializationFactory factory) {
-        initialize(newInstance, false, factory, null);
+        initialize(newInstance, false, factory, null, false);
     }
 
-    public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale) {
-        initialize(newInstance, false, factory, locale);
+    public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale,
+                           boolean isReadOnly) {
+        initialize(newInstance, false, factory, locale, isReadOnly);
     }
 
     /**
@@ -1435,7 +1552,7 @@ public class FormDef implements IFormElement, IMetaData,
      *               to rely on the form's internal default.
      */
     public void initialize(boolean newInstance, boolean isCompletedInstance,
-                           InstanceInitializationFactory factory, String locale) {
+                           InstanceInitializationFactory factory, String locale, boolean isReadOnly) {
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
@@ -1451,7 +1568,9 @@ public class FormDef implements IFormElement, IMetaData,
             actionController.triggerActionsFromEvent(Action.EVENT_XFORMS_READY, this);
         }
         this.isCompletedInstance = isCompletedInstance;
-        initAllTriggerables();
+        if (!isReadOnly) {
+            initAllTriggerables();
+        }
     }
 
     private void initLocale(String locale) {
@@ -1786,11 +1905,11 @@ public class FormDef implements IFormElement, IMetaData,
         submissionProfiles.put(submissionId, profile);
     }
 
-    public SubmissionProfile getSubmissionProfile() {
-        //At some point these profiles will be set by the <submit> control in the form.
-        //In the mean time, though, we can only promise that the default one will be used.
-
-        return submissionProfiles.get(DEFAULT_SUBMISSION_PROFILE);
+    /**
+     * @return The submission profile with the given ID.
+     */
+    public SubmissionProfile getSubmissionProfile(String id) {
+        return submissionProfiles.get(id);
     }
 
     public <X extends XFormExtension> X getExtension(Class<X> extension) {
@@ -1823,5 +1942,20 @@ public class FormDef implements IFormElement, IMetaData,
         conditionRepeatTargetIndex = null;
         //We may need ths one, actually
         exprEvalContext = null;
+    }
+
+    /**
+     * Register a handler which is capable of handling send actions.
+     */
+    public void setSendCalloutHandler(FormSendCalloutHandler sendCalloutHandler) {
+        this.sendCalloutHandler = sendCalloutHandler;
+    }
+
+    public String dispatchSendCallout(String url, Map<String, String> paramMap) {
+        if(sendCalloutHandler == null) {
+            return null;
+        } else {
+            return sendCalloutHandler.performHttpCalloutForResponse(url, paramMap);
+        }
     }
 }

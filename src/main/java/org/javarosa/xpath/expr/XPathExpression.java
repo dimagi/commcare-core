@@ -2,13 +2,25 @@ package org.javarosa.xpath.expr;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
+import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.model.xform.DataModelSerializer;
+import org.javarosa.xpath.XPathLazyNodeset;
+import org.javarosa.xpath.XPathNodeset;
+import org.javarosa.xpath.analysis.XPathAnalyzable;
+import org.kxml2.io.KXmlSerializer;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Vector;
 
-public abstract class XPathExpression implements Externalizable {
+public abstract class XPathExpression implements Externalizable, XPathAnalyzable {
 
     public Object eval(EvaluationContext evalContext) {
         return eval(evalContext.getMainInstance(), evalContext);
@@ -26,6 +38,48 @@ public abstract class XPathExpression implements Externalizable {
         evalContext.reportTraceValue(value);
         evalContext.closeTrace();
         return value;
+    }
+
+    public static void serializeResult(Object value, OutputStream output) throws IOException {
+        if (!isLeafNode(value)) {
+            serializeElements((XPathNodeset) value, output);
+        } else {
+            output.write(FunctionUtils.toString(value).getBytes(StandardCharsets.UTF_8));
+        }
+    }
+
+    private static boolean isLeafNode(Object value) {
+        if (!(value instanceof XPathNodeset)) {
+            return false;
+        }
+        XPathNodeset nodeset = (XPathNodeset) value;
+        Vector<TreeReference> refs = nodeset.getReferences();
+        if (refs == null || refs.size() != 1) {
+            return false;
+        }
+
+        DataInstance instance = ((XPathLazyNodeset) value).getInstance();
+        AbstractTreeElement treeElement = instance.resolveReference(refs.get(0));
+        return treeElement.getNumChildren() == 0;
+    }
+
+    private static void serializeElements(XPathNodeset nodeset, OutputStream output) throws IOException {
+        KXmlSerializer serializer = new KXmlSerializer();
+
+        try {
+            serializer.setOutput(output, "UTF-8");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        DataModelSerializer s = new DataModelSerializer(serializer);
+
+        DataInstance instance = nodeset.getInstance();
+        Vector<TreeReference> refs = nodeset.getReferences();
+        for (TreeReference ref : refs) {
+            AbstractTreeElement treeElement = instance.resolveReference(ref);
+            s.serialize(treeElement);
+        }
     }
 
     /**
@@ -284,4 +338,5 @@ public abstract class XPathExpression implements Externalizable {
      * provide a human with a clear depiction of the expression.
      */
     public abstract String toPrettyString();
+
 }

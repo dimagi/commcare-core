@@ -5,6 +5,8 @@ import org.commcare.cases.query.IndexedSetMemberLookup;
 import org.commcare.cases.query.IndexedValueLookup;
 import org.commcare.cases.query.PredicateProfile;
 import org.commcare.cases.query.handlers.BasicStorageBackedCachingQueryHandler;
+import org.commcare.modern.engine.cases.RecordSetResultCache;
+import org.commcare.modern.util.PerformanceTuningUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -20,6 +22,7 @@ import org.javarosa.xpath.expr.XPathSelectedFunc;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Vector;
 
@@ -32,6 +35,18 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
     protected BasicStorageBackedCachingQueryHandler defaultCacher;
 
     protected final Hashtable<Integer, Integer> objectIdMapping = new Hashtable<>();
+
+    /**
+     * Super basic cache for Key/Index responses from the DB
+     */
+    private Hashtable<String, LinkedHashSet<Integer>> mIndexResultCache = new Hashtable<>();
+
+    /**
+     * Get the key/value meta lookups for the most recent batch fetch. Used to prime a couple
+     * of other caches, although this should eventually migrate to use the new cueing framework
+     */
+    protected String[][] mMostRecentBatchFetch = null;
+
 
     protected abstract String getChildHintName();
 
@@ -61,14 +76,41 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
         QueryContext queryContext = evalContext.getCurrentQueryContext();
 
-        //First, go get a list of predicates that we _might_ be able to evaluate more efficiently
-        collectPredicateProfiles(predicates, indices, evalContext, profiles,queryContext);
+        //First, attempt to use 'preferred' optimizations detectable by the query planner
+        //using advanced inspection of the predicates
 
+        Vector<PredicateProfile> preferredProfiles = new Vector<>();
+
+        preferredProfiles.addAll(getQueryPlanner().collectPredicateProfiles(
+                predicates, queryContext, evalContext));
+
+        //For now we are going to skip looking deeper if we trigger
+        //any of the planned optimizations
+        if(preferredProfiles.size() > 0) {
+            Collection<TreeReference> response = processPredicatesAndPrepareResponse(preferredProfiles,
+                    queryContext, predicates);
+
+            //For now if there are any results we should press forward. We don't have a meaningful
+            //way to combine these results with native optimizations
+            if(response != null) {
+                return response;
+            }
+        }
+
+        //Otherwise, identify predicates that we _might_ be able to evaluate more efficiently
+        //based on normal keyed behavior
+        collectNativePredicateProfiles(predicates, indices, evalContext, profiles);
+
+        return processPredicatesAndPrepareResponse(profiles, queryContext, predicates);
+    }
+
+    private Collection<TreeReference> processPredicatesAndPrepareResponse(Vector<PredicateProfile> profiles,
+                                                                          QueryContext queryContext,
+                                                                          Vector<XPathExpression> predicates) {
         //Now go through each profile and see if we can match / process any of them. If not, we
         // will return null and move on
         Vector<Integer> toRemove = new Vector<>();
-        Collection<Integer> selectedElements = processPredicates(toRemove, profiles,
-                queryContext);
+        Collection<Integer> selectedElements = processPredicates(toRemove, profiles, queryContext);
 
         //if we weren't able to evaluate any predicates, signal that.
         if (selectedElements == null) {
@@ -83,20 +125,10 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         return buildReferencesFromFetchResults(selectedElements);
     }
 
-    private void collectPredicateProfiles(Vector<XPathExpression> predicates,
+    private void collectNativePredicateProfiles(Vector<XPathExpression> predicates,
                                           Hashtable<XPathPathExpr, String> indices,
                                           EvaluationContext evalContext,
-                                          Vector<PredicateProfile> optimizations,
-                                          QueryContext queryContext) {
-
-        optimizations.addAll(getQueryPlanner().collectPredicateProfiles(predicates, queryContext, evalContext));
-
-        //For now we are going to skip looking deeper if we trigger
-        //any of the planned optimizations
-        if(optimizations.size() > 0) {
-            return;
-        }
-
+                                          Vector<PredicateProfile> optimizations) {
 
         predicate:
         for (XPathExpression xpe : predicates) {
@@ -252,30 +284,86 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
     protected Collection<Integer> getNextIndexMatch(Vector<PredicateProfile> profiles,
                                                     IStorageUtilityIndexed<?> storage,
                                                     QueryContext currentQueryContext) throws IllegalArgumentException {
-        if(!(profiles.elementAt(0) instanceof IndexedValueLookup)) {
+        int numKeysToProcess = this.getNumberOfBatchableKeysInProfileSet(profiles);
+
+        if(numKeysToProcess == -1) {
             throw new IllegalArgumentException("No optimization path found for optimization type");
         }
 
-        IndexedValueLookup op = (IndexedValueLookup)profiles.elementAt(0);
 
+        String[] namesToMatch = new String[numKeysToProcess];
+        String[] valuesToMatch = new String[numKeysToProcess];
 
-        EvaluationTrace trace = new EvaluationTrace("Model Index[" + op.key + "] Lookup");
+        String cacheKey = "";
+        String keyDescription ="";
 
-        //Get matches if it works
-        List<Integer> returnValue = storage.getIDsForValue(op.key, op.value);
+        for (int i = numKeysToProcess - 1; i >= 0; i--) {
+            namesToMatch[i] = profiles.elementAt(i).getKey();
+            valuesToMatch[i] = (String)
+                    (((IndexedValueLookup)profiles.elementAt(i)).value);
 
-        trace.setOutcome("results: " + returnValue.size());
-        if (currentQueryContext != null) {
+            cacheKey += "|" + namesToMatch[i] + "=" + valuesToMatch[i];
+            keyDescription += namesToMatch[i] + "|";
+        }
+        mMostRecentBatchFetch = new String[2][];
+        mMostRecentBatchFetch[0] = namesToMatch;
+        mMostRecentBatchFetch[1] = valuesToMatch;
+
+        String storageTreeName = this.getStorageCacheName();
+
+        LinkedHashSet<Integer> ids;
+        if(mIndexResultCache.containsKey(cacheKey)) {
+            ids = mIndexResultCache.get(cacheKey);
+        } else {
+            EvaluationTrace trace = new EvaluationTrace(String.format("Storage [%s] Key Lookup [%s]", storageTreeName, keyDescription));
+            ids = new LinkedHashSet<>();
+            storage.getIDsForValues(namesToMatch, valuesToMatch, ids);
+            trace.setOutcome("Results: " + ids.size());
             currentQueryContext.reportTrace(trace);
+
+            mIndexResultCache.put(cacheKey, ids);
         }
 
-        if(defaultCacher != null) {
-            defaultCacher.cacheResult(op.key, op.value, returnValue);
+        if(ids.size() > 50 && ids.size() < PerformanceTuningUtil.getMaxPrefetchCaseBlock()) {
+            RecordSetResultCache cue = currentQueryContext.getQueryCache(RecordSetResultCache.class);
+            cue.reportBulkRecordSet(cacheKey, getStorageCacheName(), ids);
         }
 
-        //If we processed this, pop it off the queue
-        profiles.removeElementAt(0);
-
-        return returnValue;
+        //Ok, we matched! Remove all of the keys that we matched
+        for (int i = 0; i < numKeysToProcess; ++i) {
+            profiles.removeElementAt(0);
+        }
+        return ids;
     }
+
+    /**
+     * Provide the number of keys that should be included in a general multi-key metadata lookup
+     * from the provided set. Each key in the returned set should be an indexed value lookup
+     * which can be matched in flat metadata with no additional processing.
+     *
+     * @param profiles A set of potential predicate profiles for bulk processing
+     * @return The number of elements to process from the provided set. If only the first
+     * profile would be processed, for instance, this method should return 1
+     */
+    protected int getNumberOfBatchableKeysInProfileSet(Vector<PredicateProfile> profiles) {
+        int keysToBatch = 0;
+        //Otherwise see how many of these we can bulk process
+        for (int i = 0; i < profiles.size(); ++i) {
+            //If the current key isn't an indexedvalue lookup, we can't process in this step
+            if (!(profiles.elementAt(i) instanceof IndexedValueLookup)) {
+                break;
+            }
+
+            //otherwise, it's now in our queue
+            keysToBatch++;
+        }
+        return keysToBatch;
+    }
+
+    /**
+     * @return A string which will provide a unique name for the storage that is used in this tree
+     * root. Used to differentiate the record ID's retrieved during operations on this root in
+     * internal caches
+     */
+    public abstract String getStorageCacheName();
 }
