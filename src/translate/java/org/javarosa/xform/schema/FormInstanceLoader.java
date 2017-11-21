@@ -7,9 +7,11 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
 import org.javarosa.xform.util.XFormUtils;
+import org.javarosa.xpath.XPathMissingInstanceException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 /**
  * Logic for loading a particular xml form instance into a FormDef.
@@ -62,10 +64,17 @@ public class FormInstanceLoader {
             // populate the data model
             TreeReference tr = TreeReference.rootRef();
             tr.add(templateRoot.getName(), TreeReference.INDEX_UNBOUND);
-            templateRoot.populate(savedRoot);
+            ArrayList<TreeElement> elements = templateRoot.populate(savedRoot);
 
             // populated model to current form
             formDef.getInstance().setRoot(templateRoot);
+            for (TreeElement element: elements) {
+                try {
+                    formDef.triggerTriggerables(element.getRef());
+                } catch(XPathMissingInstanceException e) {
+                    // pass
+                }
+            }
         }
 
         return formDef;

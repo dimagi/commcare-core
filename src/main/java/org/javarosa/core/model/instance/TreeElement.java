@@ -22,10 +22,7 @@ import org.javarosa.xpath.expr.XPathPathExpr;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * An element of a FormInstance.
@@ -256,7 +253,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
             }
         }
         children.insertElementAt(child, i);
-
         initAddedSubNode(child);
     }
 
@@ -416,7 +412,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         } else {
             setMaskVar(MASK_RELEVANT, relevant);
         }
-
         if (isRelevant() != oldRelevancy) {
             if (attributes != null) {
                 for (int i = 0; i < attributes.size(); ++i) {
@@ -651,7 +646,12 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     /**
      * Rebuilding this node from an imported instance
      */
-    public void populate(TreeElement incoming) {
+
+    public ArrayList<TreeElement> populate(TreeElement incoming) {
+        return populate(incoming, new ArrayList<TreeElement>());
+    }
+
+    public ArrayList<TreeElement> populate(TreeElement incoming, ArrayList<TreeElement> treeElements) {
         if (this.isLeaf()) {
             // copy incoming element's value over
             IAnswerData value = incoming.getValue();
@@ -659,6 +659,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                 this.setValue(null);
             } else {
                 this.setValue(AnswerDataFactory.templateByDataType(this.dataType).cast(value.uncast()));
+                treeElements.add(this);
             }
         } else {
             // recur on children
@@ -684,14 +685,14 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                             children = new Vector<>();
                         }
                         this.children.insertElementAt(newChild, i + k + 1);
-                        newChild.populate((TreeElement)newChildren.elementAt(k));
+                        newChild.populate((TreeElement)newChildren.elementAt(k), treeElements);
                     }
                     i += newChildren.size();
                 } else {
                     if (newChildren.size() == 0) {
                         child.setRelevant(false);
                     } else {
-                        child.populate((TreeElement)newChildren.elementAt(0));
+                        child.populate((TreeElement)newChildren.elementAt(0), treeElements);
                     }
                 }
             }
@@ -705,6 +706,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
 
             this.setAttribute(ns, name, value);
         }
+        return treeElements;
     }
 
     //this method is for copying in the answers to an itemset. the template node of the destination
