@@ -66,6 +66,11 @@ public class BasicStorageBackedCachingQueryHandler implements QueryHandler<Index
     }
 
     public void cacheResult(String key, Object value, List<Integer> results) {
+
+        //TODO: It's great that we're feeding these back, but it's really dangerous that this
+        //handler prevents the creation of RecordSets. Maybe minimize that by limiting the number
+        //of elements in the results cache?
+
         LruCache<Object, List<Integer>> cache;
         if (!caches.containsKey(key)) {
             cache = new LruCache<>(10);

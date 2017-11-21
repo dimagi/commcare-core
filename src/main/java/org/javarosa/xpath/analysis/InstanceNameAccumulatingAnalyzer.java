@@ -15,20 +15,32 @@ public class InstanceNameAccumulatingAnalyzer extends XPathAccumulatingAnalyzer<
 
     public InstanceNameAccumulatingAnalyzer() {
         super();
-        this.accumulatedList = new ArrayList<>();
     }
 
     public InstanceNameAccumulatingAnalyzer(TreeReference contextRef) {
-        super(contextRef);
-        this.accumulatedList = new ArrayList<>();
+        super();
+        setContext(contextRef);
     }
 
     @Override
     public void doNormalTreeRefAnalysis(TreeReference treeRef) throws AnalysisInvalidException {
         if (treeRef.getContextType() == TreeReference.CONTEXT_INSTANCE) {
-            accumulatedList.add(treeRef.getInstanceName());
+            addResultToList(treeRef.getInstanceName());
         }
     }
+
+    @Override
+    public void doAnalysisForRelativeTreeRef(TreeReference expressionWithContextTypeRelative)
+            throws AnalysisInvalidException {
+        if (!this.isSubAnalyzer) {
+            // For instance accumulation, relative refs only introduce something new to analyze
+            // if they are in the top-level expression
+            super.doAnalysisForRelativeTreeRef(expressionWithContextTypeRelative);
+        } else {
+            doNormalTreeRefAnalysis(expressionWithContextTypeRelative);
+        }
+    }
+
 
     @Override
     XPathAnalyzer initSameTypeAnalyzer() {

@@ -1,5 +1,6 @@
 package org.javarosa.xpath.analysis;
 
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.ArrayList;
@@ -23,9 +24,17 @@ public abstract class XPathAnalyzer {
         this.subAnalyzers = new ArrayList<>();
     }
 
-    public XPathAnalyzer(TreeReference contextRef) {
-        this();
+    protected void setContext(EvaluationContext context) {
+        setContext(context.getContextRef(), context.getOriginalContext());
+    }
+
+    protected void setContext(TreeReference contextRef) {
+        setContext(contextRef, null);
+    }
+
+    protected void setContext(TreeReference contextRef, TreeReference originalContextRef) {
         this.contextRef = contextRef;
+        this.originalContextRef = originalContextRef;
     }
 
     public TreeReference getContextRef() {
@@ -38,6 +47,22 @@ public abstract class XPathAnalyzer {
         }
         // Means that we only have 1 level of context
         return this.contextRef;
+    }
+
+    protected void requireOriginalContext(TreeReference forReference) throws AnalysisInvalidException{
+        if (getOriginalContextRef() == null) {
+            throw new AnalysisInvalidException("No original context ref was available when " +
+                    "trying to analyze the following expression with context type current: " +
+                    forReference.toString());
+        }
+    }
+
+    protected void requireContext(TreeReference forReference) throws AnalysisInvalidException{
+        if (getContextRef() == null) {
+            throw new AnalysisInvalidException("No context ref was available when trying to " +
+                    "analyze the following expression with context type relative: " +
+                    forReference.toString());
+        }
     }
 
     public void doAnalysis(XPathAnalyzable analyzable) throws AnalysisInvalidException {

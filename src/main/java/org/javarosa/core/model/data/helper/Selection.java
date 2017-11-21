@@ -119,7 +119,11 @@ public class Selection implements Externalizable {
     }
 
     public String getValue() {
-        return xmlValue;
+        if (xmlValue != null && xmlValue.length() > 0) {
+            return xmlValue;
+        } else {
+            throw new IllegalArgumentException("Invalid XML Value for Select Option");
+        }
     }
 
     @Override
