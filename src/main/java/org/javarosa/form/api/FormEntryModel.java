@@ -12,6 +12,7 @@ import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceSerializer;
+import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -340,7 +341,7 @@ public class FormEntryModel {
                 try {
                     fullcount = ((Integer)new IntegerData().cast(count.uncast()).getValue());
                 } catch (IllegalArgumentException iae) {
-                    throw new RuntimeException("The repeat count value \""
+                    throw new XPathTypeMismatchException("The repeat count value \""
                             + count.uncast().getString() + "\" at "
                             + g.getConextualizedCountReference(index.getReference()).toString()
                             + " must be a number!");
