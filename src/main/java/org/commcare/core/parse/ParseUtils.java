@@ -14,29 +14,11 @@ import java.nio.charset.StandardCharsets;
  */
 public class ParseUtils {
 
-    public static void parseXMLIntoSandbox(String restore, CommCareTransactionParserFactory factory)
-            throws InvalidStructureException, UnfullfilledRequirementsException, XmlPullParserException, IOException {
-        InputStream stream = new ByteArrayInputStream(restore.getBytes(StandardCharsets.UTF_8));
-        parseIntoSandbox(stream, false, factory);
-    }
-
-    public static void parseFileIntoSandbox(File restore, UserSandbox sandbox)
-            throws IOException, InvalidStructureException, UnfullfilledRequirementsException, XmlPullParserException {
-        InputStream stream = new FileInputStream(restore);
-        parseIntoSandbox(stream, sandbox);
-    }
-
     public static void parseIntoSandbox(InputStream stream, UserSandbox sandbox)
             throws InvalidStructureException, UnfullfilledRequirementsException, XmlPullParserException, IOException {
         parseIntoSandbox(stream, sandbox, false);
     }
 
-    public static void parseIntoSandbox(InputStream stream,
-                                        boolean failfast,
-                                        CommCareTransactionParserFactory factory)
-            throws InvalidStructureException, IOException, UnfullfilledRequirementsException, XmlPullParserException {
-        parseIntoSandbox(stream, factory, failfast, false);
-    }
     public static void parseIntoSandbox(InputStream stream, UserSandbox sandbox, boolean failfast)
             throws InvalidStructureException, UnfullfilledRequirementsException, XmlPullParserException, IOException {
         parseIntoSandbox(stream, sandbox, failfast, false);
