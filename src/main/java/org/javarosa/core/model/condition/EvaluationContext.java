@@ -15,12 +15,12 @@ import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathLazyNodeset;
+import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 
 import java.util.*;
 
-import javax.management.Query;
 
 /**
  * A collection of objects that affect the evaluation of an expression, like
@@ -518,6 +518,9 @@ public class EvaluationContext implements Abandonable {
         if (qualifiedRef.getInstanceName() != null &&
                 (instance == null || instance.getInstanceId() == null || !instance.getInstanceId().equals(qualifiedRef.getInstanceName()))) {
             instance = this.getInstance(qualifiedRef.getInstanceName());
+        }
+        if (instance == null) {
+            throw new XPathMissingInstanceException(qualifiedRef);
         }
         return instance.resolveReference(qualifiedRef, this);
     }

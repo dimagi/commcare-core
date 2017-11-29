@@ -17,7 +17,7 @@ import java.util.Vector;
  * Resource table install and update logic.
  */
 public class ResourceManager {
-    private final CommCarePlatform platform;
+    protected final CommCarePlatform platform;
     private final ResourceTable masterTable;
     protected final ResourceTable upgradeTable;
     protected final ResourceTable tempTable;
