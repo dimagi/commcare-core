@@ -3,6 +3,7 @@ package org.commcare.suite.model;
 import org.commcare.modern.util.Pair;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
+import org.commcare.util.CollectionUtils;
 import org.commcare.util.DetailFieldPrintInfo;
 import org.commcare.cases.entity.EntityUtil;
 import org.commcare.util.GridCoordinate;
@@ -306,9 +307,13 @@ public class Detail implements Externalizable {
      */
     public int[] getOrderedFieldIndicesForSorting() {
         Vector<Integer> indices = new Vector<>();
+        Vector<Integer> cacheAndIndexedIndices = new Vector<>();
         outer:
         for (int i = 0; i < fields.length; ++i) {
             int order = fields[i].getSortOrder();
+            if (order == -2) {
+                cacheAndIndexedIndices.addElement(i);
+            }
             if (order < 1) {
                 continue;
             }
@@ -322,15 +327,7 @@ public class Detail implements Externalizable {
             indices.addElement(i);
             continue;
         }
-        if (indices.size() == 0) {
-            return new int[]{};
-        } else {
-            int[] ret = new int[indices.size()];
-            for (int i = 0; i < ret.length; ++i) {
-                ret[i] = indices.elementAt(i);
-            }
-            return ret;
-        }
+        return CollectionUtils.mergeIntegerVectorsInArray(indices, cacheAndIndexedIndices);
     }
 
     //These are just helpers around the old structure. Shouldn't really be
@@ -441,7 +438,14 @@ public class Detail implements Externalizable {
         return callout;
     }
 
-
+    public boolean hasSortField() {
+        for (DetailField f : getFields()) {
+            if (f.getSortOrder() > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private abstract class Map<E> {
         private final E a;
@@ -513,7 +517,7 @@ public class Detail implements Externalizable {
     }
 
     public HashMap<String, DetailFieldPrintInfo> getKeyValueMapForPrint(TreeReference selectedEntityRef,
-                                                          EvaluationContext baseContext) {
+                                                                        EvaluationContext baseContext) {
         HashMap<String, DetailFieldPrintInfo> mapping = new HashMap<>();
         populateMappingWithDetailFields(mapping, selectedEntityRef, baseContext, null);
         return mapping;

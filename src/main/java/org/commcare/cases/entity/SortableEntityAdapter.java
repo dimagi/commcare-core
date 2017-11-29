@@ -14,16 +14,14 @@ public abstract class SortableEntityAdapter implements EntitySortNotificationInt
     private Detail detail;
     private int[] currentSort = {};
     private boolean reverseSort = false;
-    protected boolean asyncMode = false;
 
     public SortableEntityAdapter(List<Entity<TreeReference>> entityList, Detail detail,
-                          boolean asyncMode) {
+                                 boolean sortByDefault) {
         this.entities = entityList;
         this.detail = detail;
-        this.asyncMode = asyncMode;
 
         int[] orderedFieldsForSorting = determineFieldsForSortingInOrder();
-        if (!this.asyncMode && orderedFieldsForSorting.length != 0) {
+        if (sortByDefault && orderedFieldsForSorting.length != 0) {
             sort(orderedFieldsForSorting);
         }
     }

@@ -35,6 +35,7 @@ import org.javarosa.core.services.properties.Property;
 import org.javarosa.core.services.storage.IStorageIndexedFactory;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -56,13 +57,12 @@ public class CommCareConfigEngine {
     private final ResourceTable updateTable;
     private final ResourceTable recoveryTable;
     private final CommCarePlatform platform;
-    protected final PrintStream print;
 
     protected ArchiveFileRoot mArchiveRoot;
     private IStorageIndexedFactory storageFactory;
 
     public static final int MAJOR_VERSION = 2;
-    public static final int MINOR_VERSION = 39;
+    public static final int MINOR_VERSION = 41;
 
     public CommCareConfigEngine() {
         this(new LivePrototypeFactory());
@@ -73,11 +73,8 @@ public class CommCareConfigEngine {
     }
 
     public CommCareConfigEngine(IStorageIndexedFactory storageFactory, InstallerFactory installerFactory) {
-        this.print = new PrintStream(System.out);
         this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION, storageFactory);
         this.storageFactory = storageFactory;
-
-
         setRoots();
         table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class),
                 installerFactory);
@@ -122,8 +119,8 @@ public class CommCareConfigEngine {
         try {
             zip = new ZipFile(fileName);
         } catch (IOException e) {
-            print.println("File at " + archiveURL + ": is not a valid CommCare Package. Downloaded to: " + fileName);
-            e.printStackTrace(print);
+            System.out.println("File at " + archiveURL + ": is not a valid CommCare Package. Downloaded to: " + fileName);
+            e.printStackTrace(System.out);
             return;
         }
         String archiveGUID = this.mArchiveRoot.addArchiveFile(zip);
@@ -156,10 +153,11 @@ public class CommCareConfigEngine {
                     conn.disconnect();
                 } catch (IOException ex) {
                     // Log error writing file and bail out.
+                    System.out.println("Exception closing file connection: " + ex);
                 }
             }
         } catch (IOException e) {
-            print.println("Issue downloading or create stream for " + resource);
+            System.out.println("Issue downloading or create stream for " + resource);
             throw new RuntimeException(e);
         }
     }
@@ -211,8 +209,8 @@ public class CommCareConfigEngine {
         try {
             table.initializeResources(platform, false);
         } catch (RuntimeException e) {
-            print.println("Error while initializing one of the resolved resources");
-            e.printStackTrace(print);
+            System.out.println("Error while initializing one of the resolved resources");
+            e.printStackTrace(System.out);
         }
         //Make sure there's a default locale, since the app doesn't necessarily use the
         //localization engine
@@ -233,7 +231,7 @@ public class CommCareConfigEngine {
     }
 
     public void describeApplication() {
-        print.println("Locales defined: ");
+        System.out.println("Locales defined: ");
         for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
             System.out.println("* " + locale);
         }
@@ -262,11 +260,11 @@ public class CommCareConfigEngine {
         for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
             Localization.setLocale(locale);
 
-            print.println("Application details for locale: " + locale);
-            print.println("CommCare");
+            System.out.println("Application details for locale: " + locale);
+            System.out.println("CommCare");
 
             for (Menu m : mapping.get("root")) {
-                print.println("|- " + m.getName().evaluate());
+                System.out.println("|- " + m.getName().evaluate());
                 for (String command : m.getCommandIds()) {
                     for (Suite s : platform.getInstalledSuites()) {
                         if (s.getEntries().containsKey(command)) {
@@ -306,27 +304,27 @@ public class CommCareConfigEngine {
             emptyhead += "   ";
         }
         if (e.isView()) {
-            print.println(head + "View: " + e.getText().evaluate());
+            System.out.println(head + "View: " + e.getText().evaluate());
         } else {
-            print.println(head + "Entry: " + e.getText().evaluate());
+            System.out.println(head + "Entry: " + e.getText().evaluate());
         }
         for (SessionDatum datum : e.getSessionDataReqs()) {
             if (datum instanceof FormIdDatum) {
-                print.println(emptyhead + "Form: " + datum.getValue());
+                System.out.println(emptyhead + "Form: " + datum.getValue());
             } else if (datum instanceof EntityDatum) {
                 String shortDetailId = ((EntityDatum) datum).getShortDetail();
                 if (shortDetailId != null) {
                     Detail d = s.getDetail(shortDetailId);
                     try {
-                        print.println(emptyhead + "|Select: " + d.getTitle().getText().evaluate(new EvaluationContext(null)));
+                        System.out.println(emptyhead + "|Select: " + d.getTitle().getText().evaluate(new EvaluationContext(null)));
                     } catch (XPathMissingInstanceException ex) {
-                        print.println(emptyhead + "|Select: " + "(dynamic title)");
+                        System.out.println(emptyhead + "|Select: " + "(dynamic title)");
                     }
-                    print.print(emptyhead + "| ");
+                    System.out.print(emptyhead + "| ");
                     for (DetailField f : d.getFields()) {
-                        print.print(f.getHeader().evaluate() + " | ");
+                        System.out.print(f.getHeader().evaluate() + " | ");
                     }
-                    print.print("\n");
+                    System.out.print("\n");
                 }
             }
         }
