@@ -1,9 +1,5 @@
 package org.commcare.core.graph.c3;
 
-import org.commcare.core.graph.util.Color;
-import org.commcare.core.graph.util.GraphException;
-import org.commcare.core.graph.util.GraphUtil;
-
 import org.commcare.core.graph.model.AnnotationData;
 import org.commcare.core.graph.model.BubblePointData;
 import org.commcare.core.graph.model.GraphData;
@@ -81,7 +77,6 @@ public class DataConfiguration extends Configuration {
 
         // Process data for each series
         int seriesIndex = 0;
-
         for (SeriesData s : mData.getSeries()) {
             String xID = "x" + seriesIndex;
             String yID = "y" + seriesIndex;
