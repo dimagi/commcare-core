@@ -10,7 +10,6 @@ import org.json.JSONObject;
  * Created by jschweers on 11/16/2015.
  */
 public class GridConfiguration extends Configuration {
-
     public GridConfiguration(GraphData data) throws JSONException {
         super(data);
 
