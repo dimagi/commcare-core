@@ -1,6 +1,5 @@
 package org.commcare.cases.util;
 
-import org.commcare.cases.model.Case;
 import org.commcare.cases.query.*;
 import org.commcare.cases.query.IndexedSetMemberLookup;
 import org.commcare.cases.query.IndexedValueLookup;
