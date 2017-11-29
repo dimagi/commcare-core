@@ -7,7 +7,6 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.reference.Reference;
-import org.javarosa.core.services.storage.IStorageIndexedFactory;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -21,7 +20,6 @@ import java.io.IOException;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class OfflineUserRestoreInstaller extends CacheInstaller<OfflineUserRestore> {
-
     @Override
     protected String getCacheKey() {
         return OfflineUserRestore.STORAGE_KEY;

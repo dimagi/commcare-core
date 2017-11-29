@@ -23,12 +23,8 @@ import java.util.Vector;
 public class CaseIndexPrefetchHandler implements QueryHandler<IndexedValueLookup> {
 
     /**
-<<<<<<< HEAD
-     * This is roughly the inflection point between expecting
-=======
      * This should be roughly the point at which 1 query of N items in the db will be faster
      * than N queries of 1 item, even if only one item ends up being used.
->>>>>>> origin/query-planner-refactor
      */
     private static final int BULK_LOAD_THRESHOLD = 500;
 
