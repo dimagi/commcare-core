@@ -52,6 +52,7 @@ public class Detail implements Externalizable {
 
     public static final String PRINT_TEMPLATE_PROVIDED_VIA_GLOBAL_SETTING = "provided-globally";
 
+    // id will be null if this is a child detail / tab
     private String id;
     private TreeReference nodeset;
 
