@@ -26,7 +26,7 @@ import java.util.*;
  * A collection of objects that affect the evaluation of an expression, like
  * function handlers and (not supported) variable bindings.
  */
-public class EvaluationContext implements Abandonable {
+public class EvaluationContext {
 
     private boolean isIrrelevant = false;
 
@@ -712,18 +712,7 @@ public class EvaluationContext implements Abandonable {
     public EvaluationContext spawnWithCleanLifecycle() {
         EvaluationContext ec = new EvaluationContext(this, this.getContextRef());
         QueryContext qc = ec.getCurrentQueryContext().forceNewChildContext();
-        qc.attachLifecycleSignaler(new LifecycleSignaler());
         ec.setQueryContext(qc);
         return ec;
-    }
-
-    @Override
-    public void assertNotAbandoned() {
-        LifecycleSignaler.AssertNotAbandoned(this.getCurrentQueryContext().getLifecycleSignaler());
-    }
-
-    @Override
-    public void signalAbandoned() {
-        LifecycleSignaler.SignalAbandoned(this.getCurrentQueryContext().getLifecycleSignaler());
     }
 }

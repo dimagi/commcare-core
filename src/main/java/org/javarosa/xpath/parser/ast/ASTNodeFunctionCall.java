@@ -171,6 +171,8 @@ public class ASTNodeFunctionCall extends ASTNode {
                 return new XPathSortByFunc(args);
             case "distinct-values":
                 return new XPathDistinctValuesFunc(args);
+            case "sleep":
+                return new XPathSleepFunc(args);
             default:
                 return new XPathCustomRuntimeFunc(name, args);
         }
