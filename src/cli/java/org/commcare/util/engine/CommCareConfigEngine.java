@@ -69,7 +69,7 @@ public class CommCareConfigEngine {
     }
 
     public CommCareConfigEngine(PrototypeFactory prototypeFactory) {
-        this(new DummyIndexedStorageFactory(prototypeFactory), new InstallerFactory());
+        this(setupDummyStorageFactory(prototypeFactory), new InstallerFactory());
     }
 
     public CommCareConfigEngine(IStorageIndexedFactory storageFactory, InstallerFactory installerFactory) {
@@ -96,6 +96,15 @@ public class CommCareConfigEngine {
         StorageManager.instance().registerStorage(FormDef.STORAGE_KEY, FormDef.class);
         StorageManager.instance().registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
         StorageManager.instance().registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
+    }
+
+    private static IStorageIndexedFactory setupDummyStorageFactory(final PrototypeFactory prototypeFactory) {
+        return new IStorageIndexedFactory() {
+            @Override
+            public IStorageUtilityIndexed newStorage(String name, Class type) {
+                return new DummyIndexedStorageUtility(type, prototypeFactory);
+            }
+        };
     }
 
     protected void setRoots() {
