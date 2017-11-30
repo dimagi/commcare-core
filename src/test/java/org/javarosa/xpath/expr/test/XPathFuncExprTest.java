@@ -13,6 +13,7 @@ import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathCustomRuntimeFunc;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -85,7 +86,32 @@ public class XPathFuncExprTest {
         ExprEvalUtils.testEval("join(' ', distinct-values(/data/places/country[language = 'French']/@id))", instance, null, "");
     }
 
+    @Test
+    public void testSleep() {
+        ExprEvalUtils.testEval("sleep(50, 'test')", null, null, "test");
 
+        //Make sure that interrupts respond correctly
+        long time = System.currentTimeMillis();
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                ExprEvalUtils.testEval("sleep(50000, 'test')", null, null, "test");
+
+            }
+        };
+        Thread t = new Thread(r);
+        t.start();
+        t.interrupt();
+        try {
+            t.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        long duration = System.currentTimeMillis() - time;
+        if(duration > 1000) {
+            Assert.fail("sleep function did not properly respond to interrupt signal");
+        }
+    }
 
     /**
      * Test that `position(some_ref)` throws a XPathTypeMismatchException when

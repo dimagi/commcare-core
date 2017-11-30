@@ -349,19 +349,22 @@ public class Text implements Externalizable, DetailTemplate, XPathAnalyzable {
      * The query evaluation will be abandoned if disposed.
      */
     public Single<String> getDisposableSingleForEvaluation(EvaluationContext ec) {
-        final EvaluationContext[] abandonableContext =
-                new EvaluationContext[] {ec.spawnWithCleanLifecycle()};
+        final EvaluationContext abandonableContext = ec.spawnWithCleanLifecycle();
 
+        final Thread[] toCancel = new Thread[1];
         return Single.fromCallable(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                return evaluate(abandonableContext[0]);
+                toCancel[0] = Thread.currentThread();
+                return evaluate(abandonableContext);
             }
         }).doOnDispose(new io.reactivex.functions.Action() {
             @Override
             public void run() throws Exception {
-                abandonableContext[0].signalAbandoned();
-                abandonableContext[0] = null;
+                if(toCancel[0] != null) {
+                    toCancel[0].interrupt();
+                    toCancel[0] = null;
+                }
             }
         });
     }

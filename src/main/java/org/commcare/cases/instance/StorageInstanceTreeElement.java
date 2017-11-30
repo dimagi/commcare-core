@@ -298,7 +298,7 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
                                 this.getStorageCacheName(),tranche.first));
 
                 LinkedHashSet<Integer>  body = tranche.second;
-                storage.bulkRead(body, recordObjectCache.getLoadedCaseMap(storageCacheKey), context.getLifecycleSignaler());
+                storage.bulkRead(body, recordObjectCache.getLoadedCaseMap(storageCacheKey));
                 loadTrace.setOutcome("Loaded: " + body.size());
                 context.reportTrace(loadTrace);
 
