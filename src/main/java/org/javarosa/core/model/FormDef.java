@@ -34,6 +34,7 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
+import org.javarosa.core.util.ShortestCycleAlgorithm;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -696,17 +697,16 @@ public class FormDef implements IFormElement, IMetaData,
     }
 
     private void throwGraphCyclesException(List<Triggerable> vertices) {
-        String hints = "";
+        Vector edges = new Vector<TreeReference[]>();
         for (Triggerable t : vertices) {
             for (TreeReference r : t.getTargets()) {
-                hints += "\n" + r.toString(true);
+                Vector<Triggerable> triggered = (Vector<Triggerable>)conditionsTriggeredByRef(r);
+                for (Triggerable trig: triggered) {
+                    edges.add(new TreeReference[] {r, trig.contextRef});
+                }
             }
         }
-        String message = "Cycle detected in form's relevant and calculation logic!";
-        if (!hints.equals("")) {
-            message += "\nThe following nodes are likely involved in the loop:" + hints;
-        }
-        throw new IllegalStateException(message);
+        throw new IllegalStateException(new ShortestCycleAlgorithm(edges).getCycleErrorMessage());
     }
 
     private void setOrderOfTriggerable(List<Triggerable> roots,
