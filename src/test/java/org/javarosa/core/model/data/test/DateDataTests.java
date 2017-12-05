@@ -89,9 +89,4 @@ public class DateDataTests {
         Assert.assertEquals(0, rounded.getMinutes());
     }
 
-    @Test
-    public void testToday() {
-        Date now = new Date();
-
-    }
 }
