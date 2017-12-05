@@ -80,7 +80,7 @@ public class DateDataTests {
         Calendar c = Calendar.getInstance(tz);
         c.set(2017, 0, 2, 2, 0); // Jan 2, 2017 2:00 AM
 
-        Date rounded = DateUtils.roundDate(c.getTime(), tz);
+        Date rounded = DateUtils.roundDate(c.getTime());
 
         Assert.assertEquals(2017 - 1900, rounded.getYear());
         Assert.assertEquals(0, rounded.getMonth());
