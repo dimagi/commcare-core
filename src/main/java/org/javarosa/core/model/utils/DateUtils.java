@@ -113,15 +113,15 @@ public class DateUtils {
         return nonGregorian;
     }
 
-    public static DateFields getFields(Date d) {
+    public static DateFields getFieldsInDefaultTimezone(Date d) {
         return getFields(d, null);
     }
 
-    public static DateFields getFields(Date d, String timezone) {
+    public static DateFields getFields(Date d, TimeZone timezone) {
         Calendar cd = Calendar.getInstance();
         cd.setTime(d);
         if (timezone != null) {
-            cd.setTimeZone(TimeZone.getTimeZone(timezone));
+            cd.setTimeZone(timezone);
         }
 
         DateFields fields = new DateFields();
@@ -194,7 +194,8 @@ public class DateUtils {
             return "";
         }
 
-        DateFields fields = getFields(d, format == FORMAT_TIMESTAMP_HTTP ? "UTC" : null);
+        TimeZone tz = format == FORMAT_TIMESTAMP_HTTP ? TimeZone.getTimeZone("UTC") : null;
+        DateFields fields = getFields(d, tz);
 
         String delim;
         switch (format) {
@@ -216,11 +217,13 @@ public class DateUtils {
     }
 
     public static String formatDate(Date d, int format) {
-        return (d == null ? "" : formatDate(getFields(d, format == FORMAT_TIMESTAMP_HTTP ? "UTC" : null), format));
+        TimeZone tz = format == FORMAT_TIMESTAMP_HTTP ? TimeZone.getTimeZone("UTC") : null;
+        return (d == null ? "" : formatDate(getFields(d, tz), format));
     }
 
     public static String formatTime(Date d, int format) {
-        return (d == null ? "" : formatTime(getFields(d, format == FORMAT_TIMESTAMP_HTTP ? "UTC" : null), format));
+        TimeZone tz = format == FORMAT_TIMESTAMP_HTTP ? TimeZone.getTimeZone("UTC") : null;
+        return (d == null ? "" : formatTime(getFields(d, tz), format));
     }
 
     private static String formatDate(DateFields f, int format) {
@@ -322,7 +325,7 @@ public class DateUtils {
     }
 
     public static String format(Date d, String format) {
-        return format(getFields(d), format);
+        return format(getFieldsInDefaultTimezone(d), format);
     }
 
     public static String format(DateFields f, String format) {
@@ -511,7 +514,7 @@ public class DateUtils {
 
         c.setTimeZone(TimeZone.getDefault());
 
-        DateFields adjusted = getFields(c.getTime());
+        DateFields adjusted = getFieldsInDefaultTimezone(c.getTime());
 
         df.hour = adjusted.hour;
         df.minute = adjusted.minute;
@@ -567,11 +570,18 @@ public class DateUtils {
     /* ==== DATE UTILITY FUNCTIONS ==== */
 
     /**
+     *
+     * @param d -- the date to round
+     * @param tz -- the timezone that the original date was in, to ensure proper rounding
      * @return new Date object with same date but time set to midnight (in current timezone)
      */
-    public static Date roundDate(Date d) {
-        DateFields f = getFields(d);
+    public static Date roundDate(Date d, TimeZone tz) {
+        DateFields f = getFields(d, tz);
         return getDate(f.year, f.month, f.day);
+    }
+
+    public static Date roundDate(Date d) {
+        return roundDate(d, TimeZone.getDefault());
     }
 
     public static Date today() {

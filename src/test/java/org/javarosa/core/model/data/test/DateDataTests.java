@@ -2,10 +2,13 @@ package org.javarosa.core.model.data.test;
 
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.utils.DateUtils;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -70,4 +73,20 @@ public class DateDataTests {
         assertTrue("DateData failed to throw an exception when setting null data", exceptionThrown);
         assertTrue("DateData overwrote existing value on incorrect input", data.getValue().equals(today));
     }
+
+    @Test
+    public void testRoundDate() {
+        TimeZone tz = TimeZone.getTimeZone("Europe/London");
+        Calendar c = Calendar.getInstance(tz);
+        c.set(2017, 0, 2, 2, 0); // Jan 2, 2017 2:00 AM
+
+        Date rounded = DateUtils.roundDate(c.getTime());
+
+        Assert.assertEquals(2017 - 1900, rounded.getYear());
+        Assert.assertEquals(0, rounded.getMonth());
+        Assert.assertEquals(2, rounded.getDate());
+        Assert.assertEquals(0, rounded.getHours());
+        Assert.assertEquals(0, rounded.getMinutes());
+    }
+
 }
