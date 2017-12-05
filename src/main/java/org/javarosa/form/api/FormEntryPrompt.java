@@ -203,16 +203,25 @@ public class FormEntryPrompt extends FormEntryCaption {
     public Vector<SelectChoice> getSelectChoices(boolean shouldAttemptDynamicPopulation) {
         QuestionDef q = getQuestion();
         ItemsetBinding itemset = q.getDynamicChoices();
+        Vector<SelectChoice> selectChoices;
         if (itemset != null) {
             if (populatedDynamicChoices == null && shouldAttemptDynamicPopulation) {
                 form.populateDynamicChoices(itemset, mTreeElement.getRef());
                 populatedDynamicChoices = itemset.getChoices();
             }
-            return populatedDynamicChoices;
+            selectChoices = populatedDynamicChoices;
         } else {
             // static choices
-            return q.getChoices();
+            selectChoices = q.getChoices();
         }
+        if (selectChoices != null) {
+            for (int i = 0; i < selectChoices.size(); i++) {
+                if (selectChoices.get(i).getValue().contains(" ")) {
+                    throw new IllegalArgumentException("Select answer option cannot contain spaces in question '" + getLongText() + "' with option '" + getSelectChoiceText(selectChoices.get(i)) + "'");
+                }
+            }
+        }
+        return selectChoices;
     }
 
     public Vector<SelectChoice> getOldSelectChoices() {
