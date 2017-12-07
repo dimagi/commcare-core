@@ -209,6 +209,20 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
     }
 
     @Override
+    protected int parseInt(String value) throws InvalidStructureException {
+        if (value == null) {
+            throw InvalidStructureException.readableInvalidStructureException(
+                    "Ledger Quantities must be integers, found null text instead", parser);
+        }
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException nfe) {
+            throw InvalidStructureException.readableInvalidStructureException(
+                    "Ledger Quantities must be integers, found \"" + value + "\" instead", parser);
+        }
+    }
+
+    @Override
     protected void commit(Ledger[] parsed) throws IOException {
         for (Ledger s : parsed) {
             storage().write(s);
