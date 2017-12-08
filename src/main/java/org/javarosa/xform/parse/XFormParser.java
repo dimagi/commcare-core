@@ -33,6 +33,7 @@ import org.javarosa.core.model.util.restorable.RestoreUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.locale.TableLocaleSource;
+import org.javarosa.core.util.ShortestCycleAlgorithm;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.Interner;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -57,11 +58,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Stack;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * Provides conversion from xform to epihandy object model and vice vasa.
@@ -2898,14 +2895,9 @@ public class XFormParser {
         }
 
         if (!acyclic) {
-            String errorMessage = "Logic Dependency Cycle:\n";
-            for (int i = 0; i < edges.size(); i++) {
-                TreeReference[] edge = (TreeReference[])edges.elementAt(i);
-                errorMessage += edge[0].toString() + " references " + edge[1].toString() + "\n";
-            }
+            String errorMessage = new ShortestCycleAlgorithm(edges).getCycleErrorMessage();
             reporter.error(errorMessage);
-
-            throw new RuntimeException("Logic is cyclical, referencing itself.");
+            throw new RuntimeException(errorMessage);
         }
     }
 

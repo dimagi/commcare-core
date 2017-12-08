@@ -1,6 +1,5 @@
 package org.javarosa.core.services.storage;
 
-import org.javarosa.core.model.condition.Abandonable;
 import org.javarosa.core.model.condition.RequestAbandonedException;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -25,6 +24,10 @@ import java.util.Vector;
  * If the utility manages the IDs, your objects need only implement Externalizable. You use the functions read(), add(),
  * update(), and remove(). add() will return a new ID for the record, which you then explicitly provide to all subsequent
  * calls to update().
+ *
+ * Since storage operations may have significant runtimes, those methods will frequently check for
+ * thread interruptions. If the thread is interrupted, those methods will be expected to throw
+ * an RequestAbandonedException, which signals that the current thread is no longer relevant.
  *
  * These two schemes should not be mixed within the same StorageUtility.
  */
@@ -204,18 +207,12 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      */
     E getRecordForValue(String metaFieldName, Object value) throws NoSuchElementException, InvalidIndexException;
 
-    void bulkRead(LinkedHashSet<Integer> ids, HashMap<Integer, E> recordMap);
-
     /**
      * Load multiple record objects from storage at one time from a list of record ids.
      * <p>
      * If the provided recordMap already contains entries for any ids, it is _not_
      * required for them to be retrieved from storage again.
      *
-     * Since this method can have a significant runtime, an abandonable is provided to enable the
-     * request to be shortcircuited. Implementations should regularly assert that the request
-     * has not been abandoned on long-running bulk reads
-     * 
      * @throws RequestAbandonedException If the current request is abandoned, this method will
      *                                   throw a RequestAbandonedException. Callers should not
      *                                   generally catch that exception unless they rethrow it
@@ -223,7 +220,8 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      *                                   they may need to clean up if the bulk read doesn't complete
      */
 
-    void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, E> recordMap, Abandonable abandonable) throws RequestAbandonedException;
+    void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, E> recordMap)
+            throws RequestAbandonedException;
 
     /**
      * Retrieves the metadata field values requested from the record at the provided record ID.
