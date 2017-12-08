@@ -39,8 +39,6 @@ sourceSets {
   }
     api {
         java {
-            srcDir 'src/cli/java/org/commcare/util/screen'
-            srcDir 'src/cli/java/org/commcare/util/engine'
             compileClasspath += main.output
         }
     }
@@ -79,6 +77,7 @@ dependencies {
       cliCompile 'xpp3:xpp3:1.1.4c'
       cliCompile 'joda-time:joda-time:2.9.3'
       cliCompile 'io.reactivex.rxjava2:rxjava:2.1.1'
+      cliCompile "com.squareup.retrofit2:retrofit:2.3.0"
 
       testCompile sourceSets.main.output
       testCompile sourceSets.api.output
