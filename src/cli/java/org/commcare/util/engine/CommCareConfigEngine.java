@@ -44,6 +44,7 @@ import org.javarosa.xpath.XPathMissingInstanceException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -65,6 +66,7 @@ public class CommCareConfigEngine {
 
     public static final int MAJOR_VERSION = 2;
     public static final int MINOR_VERSION = 41;
+
 
     public CommCareConfigEngine() {
         this(new LivePrototypeFactory());
@@ -107,6 +109,10 @@ public class CommCareConfigEngine {
                 return new DummyIndexedStorageUtility(type, prototypeFactory);
             }
         };
+    }
+
+    public void setStorageFactory(IStorageIndexedFactory storageFactory) {
+        this.storageFactory = storageFactory;
     }
 
     protected void setRoots() {
