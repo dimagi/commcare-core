@@ -10,7 +10,7 @@ import java.util.Iterator;
 /**
  * @author ctsims
  */
-public class DummyStorageIterator<T extends Persistable> implements IStorageIterator<T>, Iterator<T> {
+public class DummyStorageIterator<T extends Persistable> implements IStorageIterator<T> {
     private int count;
     private final Integer[] keys;
     private final DummyIndexedStorageUtility<T> dummyStorage;
@@ -51,20 +51,5 @@ public class DummyStorageIterator<T extends Persistable> implements IStorageIter
     @Override
     public int peekID() {
         return keys[count];
-    }
-
-    @Override
-    public boolean hasNext() {
-        return hasMore();
-    }
-
-    @Override
-    public T next() {
-        return nextRecord();
-    }
-
-    @Override
-    public void remove() {
-        // not implemented
     }
 }
