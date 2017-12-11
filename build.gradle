@@ -40,7 +40,9 @@ sourceSets {
     api {
         java {
             compileClasspath += main.output
-            compileClasspath += cli.output
+            srcDir 'src/cli/java'
+            exclude 'org/commcare/util/cli/**'
+            exclude 'org/commcare/util/mocks/**'
         }
     }
 
