@@ -58,14 +58,14 @@ public class CommCareConfigEngine {
     private final ResourceTable updateTable;
     private final ResourceTable recoveryTable;
     private final CommCarePlatform platform;
-    private final PrintStream print;
+    protected final PrintStream print;
 
-    private ArchiveFileRoot mArchiveRoot;
-
-    private static IStorageIndexedFactory storageFactory;
+    protected ArchiveFileRoot mArchiveRoot;
+    private IStorageIndexedFactory storageFactory;
 
     public static final int MAJOR_VERSION = 2;
     public static final int MINOR_VERSION = 41;
+
 
     public CommCareConfigEngine() {
         this(new LivePrototypeFactory());
@@ -109,8 +109,8 @@ public class CommCareConfigEngine {
         };
     }
 
-    public static void setStorageFactory(IStorageIndexedFactory storageFactory) {
-        CommCareConfigEngine.storageFactory = storageFactory;
+    public void setStorageFactory(IStorageIndexedFactory storageFactory) {
+        this.storageFactory = storageFactory;
     }
 
     protected void setRoots() {
