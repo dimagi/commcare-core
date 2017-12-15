@@ -39,9 +39,10 @@ sourceSets {
   }
     api {
         java {
-            srcDir 'src/cli/java/org/commcare/util/screen'
-            srcDir 'src/cli/java/org/commcare/util/engine'
             compileClasspath += main.output
+            srcDir 'src/cli/java'
+            exclude 'org/commcare/util/cli/**'
+            exclude 'org/commcare/util/mocks/**'
         }
     }
 
