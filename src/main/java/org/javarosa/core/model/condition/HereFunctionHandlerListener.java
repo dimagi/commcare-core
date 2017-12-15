@@ -7,5 +7,4 @@ package org.javarosa.core.model.condition;
 public interface HereFunctionHandlerListener {
     void onEvalLocationChanged();
     void onHereFunctionEvaluated();
-    String getLocation();
 }
