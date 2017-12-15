@@ -1,18 +1,9 @@
 package org.commcare.core.graph.c3;
 
-import org.commcare.core.graph.util.Color;
-import org.commcare.core.graph.util.GraphException;
-import org.commcare.core.graph.util.GraphUtil;
-
-import org.commcare.core.graph.model.AnnotationData;
-import org.commcare.core.graph.model.BubblePointData;
-import org.commcare.core.graph.model.GraphData;
-import org.commcare.core.graph.model.SeriesData;
-import org.commcare.core.graph.model.XYPointData;
+import org.commcare.core.graph.model.*;
 import org.commcare.core.graph.util.ColorUtils;
 import org.commcare.core.graph.util.GraphException;
 import org.commcare.core.graph.util.GraphUtil;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

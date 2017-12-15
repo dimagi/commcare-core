@@ -74,16 +74,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
     private String createHeader(DetailField field, EvaluationContext ec){return field.getHeader().evaluate(ec);}
 
     private Object createData(DetailField field, EvaluationContext ec){
-        Object o;
-        o = field.getTemplate().evaluate(ec);
-        if(o instanceof GraphData) {
-            try {
-                o = GraphUtil.getHTML((GraphData) o, "").replace("\"", "'");
-            } catch (GraphException e) {
-                o = "Error loading graph " + e;
-            }
-        }
-        return o;
+        return field.getTemplate().evaluate(ec);
     }
 
     private String createRow(DetailField field, EvaluationContext ec, Object o) {
