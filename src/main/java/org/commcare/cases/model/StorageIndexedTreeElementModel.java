@@ -91,11 +91,11 @@ public class StorageIndexedTreeElementModel implements Persistable, IMetaData {
             // are only made over entries with multiplicity 0
             TreeElement child = root.getChild(getElementOrAttributeFromSqlColumnName(fieldName), 0);
             if (child == null) {
-                return null;
+                return "";
             }
             IAnswerData value = child.getValue();
             if (value == null) {
-                return null;
+                return "";
             } else {
                 return value.uncast().getString();
             }
