@@ -190,11 +190,15 @@ public class DateUtils {
     /* ==== FORMATTING DATES/TIMES TO STANDARD STRINGS ==== */
 
     public static String formatDateTime(Date d, int format) {
+        return formatDateTime(d, format, null);
+    }
+
+    public static String formatDateTime(Date d, int format, String timezone) {
         if (d == null) {
             return "";
         }
 
-        DateFields fields = getFields(d, format == FORMAT_TIMESTAMP_HTTP ? "UTC" : null);
+        DateFields fields = getFields(d, format == FORMAT_TIMESTAMP_HTTP ? "UTC" : timezone);
 
         String delim;
         switch (format) {
@@ -216,11 +220,19 @@ public class DateUtils {
     }
 
     public static String formatDate(Date d, int format) {
-        return (d == null ? "" : formatDate(getFields(d, format == FORMAT_TIMESTAMP_HTTP ? "UTC" : null), format));
+        return formatDate(d, format, null);
+    }
+
+    public static String formatDate(Date d, int format, String timezone) {
+        return d == null ? "" : formatDate(getFields(d, format == FORMAT_TIMESTAMP_HTTP ? "UTC" : timezone), format);
     }
 
     public static String formatTime(Date d, int format) {
-        return (d == null ? "" : formatTime(getFields(d, format == FORMAT_TIMESTAMP_HTTP ? "UTC" : null), format));
+        return formatTime(d, format, null);
+    }
+
+    public static String formatTime(Date d, int format, String timezone) {
+        return d == null ? "" : formatTime(getFields(d, format == FORMAT_TIMESTAMP_HTTP ? "UTC" : timezone), format);
     }
 
     private static String formatDate(DateFields f, int format) {

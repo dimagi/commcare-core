@@ -3,6 +3,7 @@ package org.javarosa.core.model.utils;
 import org.javarosa.core.model.IAnswerDataSerializer;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.transport.payload.IDataPayload;
+import org.javarosa.model.xform.SerializationContext;
 import org.javarosa.model.xform.XPathReference;
 
 import java.io.IOException;

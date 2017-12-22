@@ -34,6 +34,7 @@ import org.javarosa.core.model.data.TimeData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.model.xform.SerializationContext;
 
 import java.util.Date;
 import java.util.Enumeration;
@@ -86,8 +87,9 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
      * @return A String which contains a date in xsd:date
      * formatting
      */
-    public Object serializeAnswerData(DateData data) {
-        return DateUtils.formatDate((Date)data.getValue(), DateUtils.FORMAT_ISO8601);
+    public Object serializeAnswerData(DateData data, SerializationContext context) {
+        String timezone = context == null ? null : context.getTimezone();
+        return DateUtils.formatDate((Date)data.getValue(), DateUtils.FORMAT_ISO8601, timezone);
     }
 
     /**
@@ -95,8 +97,9 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
      * @return A String which contains a date in xsd:date
      * formatting
      */
-    public Object serializeAnswerData(DateTimeData data) {
-        return DateUtils.formatDateTime((Date)data.getValue(), DateUtils.FORMAT_ISO8601);
+    public Object serializeAnswerData(DateTimeData data, SerializationContext context) {
+        String timezone = context == null ? null : context.getTimezone();
+        return DateUtils.formatDateTime((Date)data.getValue(), DateUtils.FORMAT_ISO8601, timezone);
     }
 
     /**
@@ -104,8 +107,9 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
      * @return A String which contains a date in xsd:time
      * formatting
      */
-    public Object serializeAnswerData(TimeData data) {
-        return DateUtils.formatTime((Date)data.getValue(), DateUtils.FORMAT_ISO8601);
+    public Object serializeAnswerData(TimeData data, SerializationContext context) {
+        String timezone = context == null ? null : context.getTimezone();
+        return DateUtils.formatTime((Date)data.getValue(), DateUtils.FORMAT_ISO8601, timezone);
     }
 
     /**
@@ -176,22 +180,22 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
     }
 
     @Override
-    public Object serializeAnswerData(IAnswerData data, int dataType) {
+    public Object serializeAnswerData(IAnswerData data, int dataType, SerializationContext context) {
         // First, we want to go through the additional serializers, as they should
         // take priority to the default serializations
         Enumeration en = additionalSerializers.elements();
         while (en.hasMoreElements()) {
             IAnswerDataSerializer serializer = (IAnswerDataSerializer)en.nextElement();
             if (serializer.canSerialize(data)) {
-                return serializer.serializeAnswerData(data, dataType);
+                return serializer.serializeAnswerData(data, dataType, context);
             }
         }
         //Defaults
-        return serializeAnswerData(data);
+        return serializeAnswerData(data, context);
     }
 
     @Override
-    public Object serializeAnswerData(IAnswerData data) {
+    public Object serializeAnswerData(IAnswerData data, SerializationContext context) {
         if (data instanceof StringData) {
             return serializeAnswerData((StringData)data);
         } else if (data instanceof SelectMultiData) {
@@ -205,15 +209,15 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
         } else if (data instanceof DecimalData) {
             return serializeAnswerData((DecimalData)data);
         } else if (data instanceof DateData) {
-            return serializeAnswerData((DateData)data);
+            return serializeAnswerData((DateData)data, context);
         } else if (data instanceof TimeData) {
-            return serializeAnswerData((TimeData)data);
+            return serializeAnswerData((TimeData)data, context);
         } else if (data instanceof PointerAnswerData) {
             return serializeAnswerData((PointerAnswerData)data);
         } else if (data instanceof GeoPointData) {
             return serializeAnswerData((GeoPointData)data);
         } else if (data instanceof DateTimeData) {
-            return serializeAnswerData((DateTimeData)data);
+            return serializeAnswerData((DateTimeData)data, context);
         } else if (data instanceof BooleanData) {
             return serializeAnswerData((BooleanData)data);
         } else if (data instanceof UncastData) {
