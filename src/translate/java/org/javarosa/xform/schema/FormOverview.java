@@ -231,7 +231,7 @@ public class FormOverview {
         return line;
     }
 
-    private static String printDefault (TreeElement node) {
+    private static String printDefault(TreeElement node) {
         String value = null;
 
         if (node.getPreloadHandler() != null) {
@@ -269,7 +269,7 @@ public class FormOverview {
             if (node.getValue() != null) {
                 XFormAnswerDataSerializer xfads = new XFormAnswerDataSerializer();
                 if (xfads.canSerialize(node.getValue())) {
-                    value = (String)xfads.serializeAnswerData(node.getValue(), node.getDataType());
+                    value = (String)xfads.serializeAnswerData(node.getValue(), node.getDataType(), null);
                 } else {
                     value = "unknown data";
                 }
