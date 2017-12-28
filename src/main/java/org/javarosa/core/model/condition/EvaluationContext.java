@@ -13,6 +13,7 @@ import org.javarosa.core.model.trace.BulkEvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.CacheHost;
+import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.XPathMissingInstanceException;
@@ -520,7 +521,9 @@ public class EvaluationContext {
             instance = this.getInstance(qualifiedRef.getInstanceName());
         }
         if (instance == null) {
-            throw new XPathMissingInstanceException(qualifiedRef);
+            XPathMissingInstanceException e = new XPathMissingInstanceException(qualifiedRef);
+            Logger.exception(e.getMessage(), e);
+            throw e;
         }
         return instance.resolveReference(qualifiedRef, this);
     }
