@@ -5,13 +5,13 @@ package org.javarosa.model.xform;
  */
 public class SerializationContext {
 
-    private String timezone;
+    private int timezoneOffset;
 
-    public void setTimezone(String tz) {
-        this.timezone = tz;
+    public void setTimezoneOffset(int offsetInMillis) {
+        this.timezoneOffset = offsetInMillis;
     }
 
-    public String getTimezone() {
-        return timezone;
+    public int getTimezoneOffset() {
+        return timezoneOffset;
     }
 }

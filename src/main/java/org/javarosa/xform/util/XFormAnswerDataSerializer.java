@@ -88,8 +88,8 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
      * formatting
      */
     public Object serializeAnswerData(DateData data, SerializationContext context) {
-        String timezone = context == null ? null : context.getTimezone();
-        return DateUtils.formatDate((Date)data.getValue(), DateUtils.FORMAT_ISO8601, timezone);
+        int timezoneOffset = context == null ? -1 : context.getTimezoneOffset();
+        return DateUtils.formatDate((Date)data.getValue(), DateUtils.FORMAT_ISO8601, timezoneOffset);
     }
 
     /**
@@ -98,8 +98,8 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
      * formatting
      */
     public Object serializeAnswerData(DateTimeData data, SerializationContext context) {
-        String timezone = context == null ? null : context.getTimezone();
-        return DateUtils.formatDateTime((Date)data.getValue(), DateUtils.FORMAT_ISO8601, timezone);
+        int timezoneOffset = context == null ? -1 : context.getTimezoneOffset();
+        return DateUtils.formatDateTime((Date)data.getValue(), DateUtils.FORMAT_ISO8601, timezoneOffset);
     }
 
     /**
@@ -108,8 +108,8 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
      * formatting
      */
     public Object serializeAnswerData(TimeData data, SerializationContext context) {
-        String timezone = context == null ? null : context.getTimezone();
-        return DateUtils.formatTime((Date)data.getValue(), DateUtils.FORMAT_ISO8601, timezone);
+        int timezoneOffset = context == null ? -1 : context.getTimezoneOffset();
+        return DateUtils.formatTime((Date)data.getValue(), DateUtils.FORMAT_ISO8601, timezoneOffset);
     }
 
     /**
