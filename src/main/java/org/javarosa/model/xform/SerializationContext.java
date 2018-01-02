@@ -5,7 +5,7 @@ package org.javarosa.model.xform;
  */
 public class SerializationContext {
 
-    private int timezoneOffset;
+    private int timezoneOffset = -1;
 
     public void setTimezoneOffset(int offsetInMillis) {
         this.timezoneOffset = offsetInMillis;
