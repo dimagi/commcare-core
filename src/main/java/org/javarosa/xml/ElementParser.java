@@ -269,12 +269,14 @@ public abstract class ElementParser<T> {
      */
     protected int parseInt(String value) throws InvalidStructureException {
         if (value == null) {
-            throw new InvalidStructureException("Expected an integer value, found null text instead", parser);
+            throw InvalidStructureException.readableInvalidStructureException(
+                    "Expected an integer value, found null text instead", parser);
         }
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException nfe) {
-            throw new InvalidStructureException("Expected an integer value, found " + value + " instead", parser);
+            throw InvalidStructureException.readableInvalidStructureException(
+                    "Expected an integer value, found \"" + value + "\" instead", parser);
         }
     }
 
