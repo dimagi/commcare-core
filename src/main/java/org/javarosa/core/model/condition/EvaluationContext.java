@@ -13,6 +13,7 @@ import org.javarosa.core.model.trace.BulkEvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.CacheHost;
+import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.XPathMissingInstanceException;
@@ -26,7 +27,7 @@ import java.util.*;
  * A collection of objects that affect the evaluation of an expression, like
  * function handlers and (not supported) variable bindings.
  */
-public class EvaluationContext implements Abandonable {
+public class EvaluationContext {
 
     private boolean isIrrelevant = false;
 
@@ -520,7 +521,9 @@ public class EvaluationContext implements Abandonable {
             instance = this.getInstance(qualifiedRef.getInstanceName());
         }
         if (instance == null) {
-            throw new XPathMissingInstanceException(qualifiedRef);
+            XPathMissingInstanceException e = new XPathMissingInstanceException(qualifiedRef);
+            Logger.exception(e.getMessage(), e);
+            throw e;
         }
         return instance.resolveReference(qualifiedRef, this);
     }
@@ -712,18 +715,7 @@ public class EvaluationContext implements Abandonable {
     public EvaluationContext spawnWithCleanLifecycle() {
         EvaluationContext ec = new EvaluationContext(this, this.getContextRef());
         QueryContext qc = ec.getCurrentQueryContext().forceNewChildContext();
-        qc.attachLifecycleSignaler(new LifecycleSignaler());
         ec.setQueryContext(qc);
         return ec;
-    }
-
-    @Override
-    public void assertNotAbandoned() {
-        LifecycleSignaler.AssertNotAbandoned(this.getCurrentQueryContext().getLifecycleSignaler());
-    }
-
-    @Override
-    public void signalAbandoned() {
-        LifecycleSignaler.SignalAbandoned(this.getCurrentQueryContext().getLifecycleSignaler());
     }
 }

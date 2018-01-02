@@ -1,11 +1,10 @@
 package org.javarosa.core.io;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 
 public class StreamsUtil {
     /**
@@ -41,9 +40,7 @@ public class StreamsUtil {
     public static void writeFromInputToOutput(InputStream in, OutputStream out) throws IOException {
         try {
             writeFromInputToOutputInner(in, out);
-        } catch (InputIOException e) {
-            throw e.internal;
-        } catch (OutputIOException e) {
+        } catch (InputIOException | OutputIOException e) {
             throw e.internal;
         }
     }
@@ -143,16 +140,16 @@ public class StreamsUtil {
                 count = is.read(buffer);
             }
         } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                os.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            closeStream(is);
+            closeStream(os);
+        }
+    }
+
+    public static void closeStream(Closeable stream) {
+        try {
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
