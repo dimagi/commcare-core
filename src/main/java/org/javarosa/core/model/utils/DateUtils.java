@@ -127,7 +127,9 @@ public class DateUtils {
     }
 
     /**
+     * @param d
      * @param timezoneOffset - the offset from UTC in milliseconds
+     * @return the date fields that correspond to the given moment in time at the given timezoneOffset
      */
     public static DateFields getFields(Date d, int timezoneOffset) {
         Calendar cd = Calendar.getInstance();
@@ -196,6 +198,28 @@ public class DateUtils {
         cd.set(Calendar.MINUTE, df.minute);
         cd.set(Calendar.SECOND, df.second);
         cd.set(Calendar.MILLISECOND, df.secTicks);
+
+        return cd.getTime();
+    }
+
+    /**
+     * @param df
+     * @param timezoneOffset - offset from UTC in milliseconds
+     * @return - the Date object that represents the moment in time for the given DateFields at the given timezoneOffset
+     */
+    public static Date getDate(DateFields df, int timezoneOffset) {
+        Calendar cd = Calendar.getInstance();
+        cd.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        cd.set(Calendar.YEAR, df.year);
+        cd.set(Calendar.MONTH, df.month - MONTH_OFFSET);
+        cd.set(Calendar.DAY_OF_MONTH, df.day);
+        cd.set(Calendar.HOUR_OF_DAY, df.hour);
+        cd.set(Calendar.MINUTE, df.minute);
+        cd.set(Calendar.SECOND, df.second);
+        cd.set(Calendar.MILLISECOND, df.secTicks);
+
+        cd.add(Calendar.MILLISECOND, -timezoneOffset);
 
         return cd.getTime();
     }
@@ -462,6 +486,9 @@ public class DateUtils {
     /* ==== PARSING DATES/TIMES FROM STANDARD STRINGS ==== */
 
     public static Date parseDateTime(String str) {
+        return parseDateTime(str, -1);
+    }
+    public static Date parseDateTime(String str, int timezoneOffset) {
         DateFields fields = new DateFields();
         int i = str.indexOf("T");
         if (i != -1) {
@@ -473,7 +500,12 @@ public class DateUtils {
                 return null;
             }
         }
-        return getDate(fields);
+
+        if (timezoneOffset != -1) {
+            return getDate(fields, timezoneOffset);
+        } else {
+            return getDate(fields);
+        }
     }
 
     public static Date parseDate(String str) {
@@ -481,6 +513,7 @@ public class DateUtils {
         if (!parseDateAndStore(str, fields)) {
             return null;
         }
+
         return getDate(fields);
     }
 
@@ -508,11 +541,19 @@ public class DateUtils {
     }
 
     public static Date parseTime(String str) {
+        return parseTime(str, -1);
+    }
+    public static Date parseTime(String str, int timezoneOffset) {
         DateFields fields = new DateFields();
         if (!parseTimeAndStore(str, fields)) {
             return null;
         }
-        return getDate(fields);
+
+        if (timezoneOffset != -1) {
+            return getDate(fields, timezoneOffset);
+        } else {
+            return getDate(fields);
+        }
     }
 
     private static boolean parseTimeAndStore(String timeStr, DateFields df) {

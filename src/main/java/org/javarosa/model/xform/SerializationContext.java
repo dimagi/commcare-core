@@ -1,7 +1,7 @@
 package org.javarosa.model.xform;
 
 /**
- * Provides contextualizing information needed to properly serialize an XForm
+ * Provides contextualizing information needed to properly serialize nodes in an XForm
  */
 public class SerializationContext {
 

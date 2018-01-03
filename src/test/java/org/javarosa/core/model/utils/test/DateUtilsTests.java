@@ -258,4 +258,41 @@ public class DateUtilsTests {
         assertEquals(expectedTimeUTC,
                 DateUtils.formatTime(d, DateUtils.FORMAT_ISO8601, 0));
     }
+
+    @Test
+    public void testTimeParsingWithOffset() {
+        testTimeParsingHelper("UTC");
+        testTimeParsingHelper("EST");
+        testTimeParsingHelper("Africa/Johannesburg");
+    }
+
+    private static void testTimeParsingHelper(String timezoneId) {
+        Calendar c = Calendar.getInstance();
+        TimeZone tz = TimeZone.getTimeZone(timezoneId);
+        c.setTimeZone(tz);
+        c.set(1970, 0, 1, 22, 0, 0); // Jan 1, 1970 22:00
+        c.set(Calendar.MILLISECOND, 0);
+        Date expectedDate = c.getTime();
+        assertEquals(expectedDate.getTime(),
+                DateUtils.parseTime("22:00", tz.getOffset(expectedDate.getTime())).getTime());
+    }
+
+    @Test
+    public void testDateTimeParsingWithOffset() {
+        testDateTimeParsingHelper("UTC");
+        testDateTimeParsingHelper("EST");
+        testDateTimeParsingHelper("Africa/Johannesburg");
+    }
+
+    private static void testDateTimeParsingHelper(String timezoneId) {
+        Calendar c = Calendar.getInstance();
+        TimeZone tz = TimeZone.getTimeZone(timezoneId);
+        c.setTimeZone(tz);
+        c.set(2017, 0, 2, 2, 0, 0); // Jan 2, 2017 02:00
+        c.set(Calendar.MILLISECOND, 0);
+        Date expectedDate = c.getTime();
+        assertEquals(expectedDate.getTime(),
+                DateUtils.parseDateTime("2017-01-02T02:00:00", tz.getOffset(expectedDate.getTime())).getTime());
+    }
+
 }
