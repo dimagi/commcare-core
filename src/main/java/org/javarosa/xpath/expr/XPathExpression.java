@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-public abstract class XPathExpression extends CacheableExpr implements Externalizable, XPathAnalyzable {
+public abstract class XPathExpression extends CacheableExpr implements Externalizable {
 
     public Object eval(EvaluationContext evalContext) {
         return eval(evalContext.getMainInstance(), evalContext);
@@ -350,14 +350,5 @@ public abstract class XPathExpression extends CacheableExpr implements Externali
      * provide a human with a clear depiction of the expression.
      */
     public abstract String toPrettyString();
-
-    @Override
-    public boolean isCacheable() {
-        try {
-            return (new ContainsMainInstanceRefAnalyzer()).computeResult(this);
-        } catch (AnalysisInvalidException e) {
-            return false;
-        }
-    }
 
 }

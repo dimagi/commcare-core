@@ -13,10 +13,12 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.analysis.AnalysisInvalidException;
 import org.javarosa.xpath.analysis.ContainsMainInstanceRefAnalyzer;
 import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
+import org.javarosa.xpath.analysis.XPathAnalyzable;
 import org.javarosa.xpath.analysis.XPathAnalyzer;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathBinaryOpExpr;
 import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathFilterExpr;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.expr.XPathUnaryOpExpr;
@@ -209,12 +211,14 @@ public class XPathConditional extends CacheableExpr implements IConditionExpr {
         return expr.pivot(model, evalContext);
     }
 
+
     @Override
-    public boolean isCacheable() {
-        try {
-            return (new ContainsMainInstanceRefAnalyzer()).computeResult(this.expr);
-        } catch (AnalysisInvalidException e) {
-            return false;
+    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        if (analyzer.shortCircuit()) {
+            return;
         }
+        analyzer.doAnalysis(XPathConditional.this);
+        expr.applyAndPropagateAnalyzer(analyzer);
     }
+
 }
