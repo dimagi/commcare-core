@@ -8,8 +8,10 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.model.xform.DataModelSerializer;
+import org.javarosa.xpath.CacheableExpr;
 import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.XPathNodeset;
+import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 import org.javarosa.xpath.analysis.XPathAnalyzable;
 import org.kxml2.io.KXmlSerializer;
 
@@ -18,9 +20,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
-public abstract class XPathExpression implements Externalizable, XPathAnalyzable {
+public abstract class XPathExpression extends CacheableExpr implements Externalizable, XPathAnalyzable {
 
     public Object eval(EvaluationContext evalContext) {
         return eval(evalContext.getMainInstance(), evalContext);
@@ -33,10 +36,17 @@ public abstract class XPathExpression implements Externalizable, XPathAnalyzable
      * @return The result of this expression evaluated against the provided context
      */
     public Object eval(DataInstance model, EvaluationContext evalContext) {
+        if (isCached()) {
+            return getCachedValue();
+        }
+
         evalContext.openTrace(this);
         Object value = evalRaw(model, evalContext);
         evalContext.reportTraceValue(value);
         evalContext.closeTrace();
+        if (isCacheable()) {
+            cache(value);
+        }
         return value;
     }
 
@@ -338,5 +348,14 @@ public abstract class XPathExpression implements Externalizable, XPathAnalyzable
      * provide a human with a clear depiction of the expression.
      */
     public abstract String toPrettyString();
+
+    @Override
+    public boolean isCacheable() {
+        Set<String> instancesReferenced =
+                (new InstanceNameAccumulatingAnalyzer()).accumulate(this);
+        System.out.println(instancesReferenced);
+        return false;
+        //return !instancesReferenced.contains()
+    }
 
 }

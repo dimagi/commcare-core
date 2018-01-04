@@ -10,6 +10,9 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.analysis.AnalysisInvalidException;
+import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
+import org.javarosa.xpath.analysis.XPathAnalyzer;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathBinaryOpExpr;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -21,9 +24,10 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Set;
 import java.util.Vector;
 
-public class XPathConditional implements IConditionExpr {
+public class XPathConditional extends CacheableExpr implements IConditionExpr {
     private XPathExpression expr;
     public String xpath; //not serialized!
     private boolean hasNow; //indicates whether this XpathConditional contains the now() function (used for timestamping)
@@ -45,8 +49,16 @@ public class XPathConditional implements IConditionExpr {
 
     @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+        if (isCached()) {
+            return getCachedValue();
+        }
+
         try {
-            return FunctionUtils.unpack(expr.eval(model, evalContext));
+            Object evaluated = FunctionUtils.unpack(expr.eval(model, evalContext));
+            if (isCacheable()) {
+                cache(evaluated);
+            }
+            return evaluated;
         } catch (XPathUnsupportedException e) {
             if (xpath != null) {
                 throw new XPathUnsupportedException(xpath);
@@ -194,5 +206,14 @@ public class XPathConditional implements IConditionExpr {
     @Override
     public Vector<Object> pivot(DataInstance model, EvaluationContext evalContext) throws UnpivotableExpressionException {
         return expr.pivot(model, evalContext);
+    }
+
+    @Override
+    public boolean isCacheable() {
+        Set<String> instancesReferenced =
+                (new InstanceNameAccumulatingAnalyzer()).accumulate(this.expr);
+        System.out.println(instancesReferenced);
+        return false;
+        //return !instancesReferenced.contains()
     }
 }
