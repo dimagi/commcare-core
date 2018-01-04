@@ -11,6 +11,7 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.analysis.AnalysisInvalidException;
+import org.javarosa.xpath.analysis.ContainsMainInstanceRefAnalyzer;
 import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 import org.javarosa.xpath.analysis.XPathAnalyzer;
 import org.javarosa.xpath.expr.FunctionUtils;
@@ -210,10 +211,10 @@ public class XPathConditional extends CacheableExpr implements IConditionExpr {
 
     @Override
     public boolean isCacheable() {
-        Set<String> instancesReferenced =
-                (new InstanceNameAccumulatingAnalyzer()).accumulate(this.expr);
-        System.out.println(instancesReferenced);
-        return false;
-        //return !instancesReferenced.contains()
+        try {
+            return (new ContainsMainInstanceRefAnalyzer()).computeResult(this.expr);
+        } catch (AnalysisInvalidException e) {
+            return false;
+        }
     }
 }

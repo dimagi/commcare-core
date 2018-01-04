@@ -13,13 +13,15 @@ public abstract class CacheableExpr {
     }
 
     public Object getCachedValue() {
-        return getCache().get(this);
+        return getCache() == null ? null : getCache().get(this);
     }
 
     public abstract boolean isCacheable();
 
     public void cache(Object value) {
-        getCache().put(this, value);
+        if (getCache() != null) {
+            getCache().put(this, value);
+        }
     }
 
     private Map<CacheableExpr, Object> getCache() {

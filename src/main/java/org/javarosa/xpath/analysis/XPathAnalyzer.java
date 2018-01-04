@@ -2,6 +2,7 @@ package org.javarosa.xpath.analysis;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.xpath.expr.XPathStep;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ public abstract class XPathAnalyzer {
     private TreeReference contextRef;
     protected List<XPathAnalyzer> subAnalyzers;
     protected boolean isSubAnalyzer;
+    protected boolean shortCircuit = false;
 
     public XPathAnalyzer() {
         this.subAnalyzers = new ArrayList<>();
@@ -69,6 +71,10 @@ public abstract class XPathAnalyzer {
         // So that the default behavior is to do nothing
     }
 
+    public void doAnalysis(XPathStep step) throws AnalysisInvalidException {
+        // So that the default behavior is to do nothing
+    }
+
     // TODO: There should be special handling for references that contain "../" as well
     public void doAnalysis(TreeReference ref) throws AnalysisInvalidException {
         if (ref.getContextType() == TreeReference.CONTEXT_INHERITED) {
@@ -105,5 +111,9 @@ public abstract class XPathAnalyzer {
     }
 
     abstract XPathAnalyzer initSameTypeAnalyzer();
+
+    public boolean shortCircuit() {
+        return shortCircuit;
+    }
 
 }

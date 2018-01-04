@@ -838,6 +838,9 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
 
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        if (analyzer.shortCircuit()) {
+            return;
+        }
         analyzer.doAnalysis(TreeReference.this);
         if (this.hasPredicates()) {
 

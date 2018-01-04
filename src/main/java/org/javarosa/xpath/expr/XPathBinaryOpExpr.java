@@ -88,6 +88,9 @@ public abstract class XPathBinaryOpExpr extends XPathOpExpr {
 
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        if (analyzer.shortCircuit()) {
+            return;
+        }
         analyzer.doAnalysis(XPathBinaryOpExpr.this);
         this.a.applyAndPropagateAnalyzer(analyzer);
         this.b.applyAndPropagateAnalyzer(analyzer);

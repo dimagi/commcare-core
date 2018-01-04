@@ -322,15 +322,18 @@ public class Text implements Externalizable, DetailTemplate, XPathAnalyzable {
 
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
-        if(this.type == Text.TEXT_TYPE_XPATH) {
+        if (analyzer.shortCircuit()) {
+            return;
+        }
+        if (this.type == Text.TEXT_TYPE_XPATH) {
             try {
                 ensureCacheIsParsed();
             } catch(XPathSyntaxException e) {
                 throw new AnalysisInvalidException("Couldn't parse Text XPath Expression");
             }
             cacheParse.applyAndPropagateAnalyzer(analyzer);
-        } else if(arguments != null) {
-            for(Text t : arguments.values()) {
+        } else if (arguments != null) {
+            for (Text t : arguments.values()) {
                 t.applyAndPropagateAnalyzer(analyzer);
             }
         }

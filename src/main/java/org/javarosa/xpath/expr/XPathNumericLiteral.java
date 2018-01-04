@@ -75,6 +75,9 @@ public class XPathNumericLiteral extends XPathExpression {
 
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        if (analyzer.shortCircuit()) {
+            return;
+        }
         analyzer.doAnalysis(XPathNumericLiteral.this);
     }
 }

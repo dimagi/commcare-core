@@ -65,6 +65,9 @@ public class XPathVariableReference extends XPathExpression {
 
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        if (analyzer.shortCircuit()) {
+            return;
+        }
         analyzer.doAnalysis(XPathVariableReference.this);
     }
 }

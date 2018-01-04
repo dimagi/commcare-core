@@ -11,6 +11,8 @@ import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.xpath.CacheableExpr;
 import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.XPathNodeset;
+import org.javarosa.xpath.analysis.AnalysisInvalidException;
+import org.javarosa.xpath.analysis.ContainsMainInstanceRefAnalyzer;
 import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 import org.javarosa.xpath.analysis.XPathAnalyzable;
 import org.kxml2.io.KXmlSerializer;
@@ -351,11 +353,11 @@ public abstract class XPathExpression extends CacheableExpr implements Externali
 
     @Override
     public boolean isCacheable() {
-        Set<String> instancesReferenced =
-                (new InstanceNameAccumulatingAnalyzer()).accumulate(this);
-        System.out.println(instancesReferenced);
-        return false;
-        //return !instancesReferenced.contains()
+        try {
+            return (new ContainsMainInstanceRefAnalyzer()).computeResult(this);
+        } catch (AnalysisInvalidException e) {
+            return false;
+        }
     }
 
 }

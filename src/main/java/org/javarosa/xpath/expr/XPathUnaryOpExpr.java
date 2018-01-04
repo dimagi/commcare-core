@@ -49,6 +49,9 @@ public abstract class XPathUnaryOpExpr extends XPathOpExpr {
 
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        if (analyzer.shortCircuit()) {
+            return;
+        }
         analyzer.doAnalysis(XPathUnaryOpExpr.this);
         this.a.applyAndPropagateAnalyzer(analyzer);
     }

@@ -108,6 +108,9 @@ public class XPathFilterExpr extends XPathExpression {
 
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        if (analyzer.shortCircuit()) {
+            return;
+        }
         analyzer.doAnalysis(XPathFilterExpr.this);
         this.x.applyAndPropagateAnalyzer(analyzer);
         for (XPathExpression expr : this.predicates) {

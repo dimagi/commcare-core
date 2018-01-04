@@ -214,6 +214,9 @@ public abstract class XPathFuncExpr extends XPathExpression {
 
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        if (analyzer.shortCircuit()) {
+            return;
+        }
         analyzer.doAnalysis(XPathFuncExpr.this);
         for (XPathExpression expr : this.args) {
             expr.applyAndPropagateAnalyzer(analyzer);
