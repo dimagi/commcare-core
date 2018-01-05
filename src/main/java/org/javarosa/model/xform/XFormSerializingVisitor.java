@@ -48,6 +48,8 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
 
     Vector<IDataPointer> dataPointers;
 
+    SerializationContext context;
+
     boolean respectRelevance = true;
 
     public XFormSerializingVisitor() {
@@ -56,6 +58,10 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
 
     public XFormSerializingVisitor(boolean respectRelevance) {
         this.respectRelevance = respectRelevance;
+    }
+
+    public XFormSerializingVisitor(SerializationContext context) {
+        this.context = context;
     }
 
     private void init() {
@@ -153,7 +159,8 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
         }
 
         if (instanceNode.getValue() != null) {
-            Object serializedAnswer = serializer.serializeAnswerData(instanceNode.getValue(), instanceNode.getDataType());
+            Object serializedAnswer =
+                    serializer.serializeAnswerData(instanceNode.getValue(), instanceNode.getDataType(), this.context);
 
             if (serializedAnswer instanceof Element) {
                 e = (Element)serializedAnswer;

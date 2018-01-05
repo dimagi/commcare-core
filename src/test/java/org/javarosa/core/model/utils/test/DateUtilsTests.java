@@ -16,6 +16,8 @@ import static org.junit.Assert.fail;
 
 public class DateUtilsTests {
     private static Date currentTime;
+    private static final int HOUR_IN_MILLIS = 60 * 60 * 1000;
+
 
     @BeforeClass
     public static void setUp() {
@@ -215,118 +217,82 @@ public class DateUtilsTests {
         assertTrue(didFail);
     }
 
-/*
-    private void testGetData() {
+    @Test
+    public void testDateFormattingWithOffset() {
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        c.set(2017, 0, 2, 2, 0, 0); // Jan 2, 2017 2:00 AM in UTC
+        c.set(Calendar.MILLISECOND, 0);
 
-        Date rep = (Date)DateUtils.getDate(2008, 9, 20);
-        rep.setTime(rep.getTime() - 1000);
+        Date d = c.getTime();
 
+        // Test formatDateTime()
+        String expectedDateTime1HourAhead = "2017-01-02T03:00:00.000+01";
+        assertEquals(expectedDateTime1HourAhead,
+                DateUtils.formatDateTime(d, DateUtils.FORMAT_ISO8601, HOUR_IN_MILLIS));
+        String expectedDateTime3HoursBehind = "2017-01-01T23:00:00.000-03";
+        assertEquals(expectedDateTime3HoursBehind,
+                DateUtils.formatDateTime(d, DateUtils.FORMAT_ISO8601, -3 * HOUR_IN_MILLIS));
+        String expectedDateTimeUTC = "2017-01-02T02:00:00.000Z";
+        assertEquals(expectedDateTimeUTC,
+                DateUtils.formatDateTime(d, DateUtils.FORMAT_ISO8601, 0));
 
-        //Testing the formatDateToTimeStamp
-        assertEquals("DateUtil's formatDateToTimeStamp returned an incorret Time", DateUtils.formatDateToTimeStamp(currentTime), DateUtils.getXMLStringValue(currentTime));
+        // Test formatDate()
+        String expectedDate1HourAhead = "2017-01-02";
+        assertEquals(expectedDate1HourAhead,
+                DateUtils.formatDate(d, DateUtils.FORMAT_ISO8601, HOUR_IN_MILLIS));
+        String expectedDate3HoursBehind = "2017-01-01";
+        assertEquals(expectedDate3HoursBehind,
+                DateUtils.formatDate(d, DateUtils.FORMAT_ISO8601, -3 * HOUR_IN_MILLIS));
+        String expectedDateUTC = "2017-01-02";
+        assertEquals(expectedDateUTC,
+                DateUtils.formatDate(d, DateUtils.FORMAT_ISO8601, 0));
 
-
-        Date temp = new Date(currentTime.getTime());
-        //currentTime.setTime(1234);
-        assertEquals("DateUtil's formatDateToTimeStamp returned an incorret Time", DateUtils.formatDateToTimeStamp(temp),DateUtils.getShortStringValue(temp));
-
-        //formatDateToTimeStamp
-
-        //Testing the getShortStringValue
-        assertEquals("DateUtils's getShortStringValue returned an incorrect Time", DateUtils.getShortStringValue(currentTime), currentTime.toString());
-
-        Date temp2 = new Date(currentTime.getTime());
-        //currentTime.setTime(1234);
-
-        assertEquals("DateUtils's getShortStringValue returned an incorrect Time", DateUtils.getShortStringValue(temp2), temp2.toString());
-
-        //getShortStringValue
-
-        //Testing the getXMLStringValue
-        assertEquals("DateUtils's getXMLStringValue returned an incorrect Time", DateUtils.getXMLStringValue(currentTime), currentTime.toString());
-
-        Date temp3 = new Date(currentTime.getTime());
-        //currentTime.setTime(1234);
-
-        assertEquals("DateUtils's getXMLStringValue returned an incorrect Time", DateUtils.getXMLStringValue(temp3), temp3.toString());
-
-        //getXMLStringValue
-
-
-        //Testing the getDateFromString
-
-        String date = currentTime.toString();
-        assertEquals("DateUtils's getDateFromString returned an incorrect Time", DateUtils.getDateFromString(date), currentTime);
-
-        Date temp4 = new Date(currentTime.getTime());
-        //currentTime.setTime(1234);
-
-        assertEquals("DateUtils's getDateFromString returned an incorrect Time", DateUtils.getDateFromString(temp4.toString()), temp4);
-
-        //getDateFromString
-
-
-        //Testing the get24HourTimeFromDate
-        assertEquals("DateUtils's get24HourTimeFromDate returned an incorrect Time", DateUtils.get24HourTimeFromDate(currentTime), currentTime);
-
-        Date temp1 = new Date(currentTime.getTime());
-        //currentTime.setTime(1234);
-        assertEquals("DateUtils's get24HourTimeFromDate was mutated incorrectly", DateUtils.get24HourTimeFromDate(temp1), temp1);
-
-        //get24HourTimeFromDate
-
-        //Testing method getDate
-
-        int hour = 12;
-        int minute = 50;
-        int second = 60;
-
-        currentTime.setTime(125060);
-
-        assertEquals("DateUtils's getDate returned an incorrect Time", DateUtils.getDate(hour, minute, second), currentTime);
-
-        Date now = new Date();
-        currentTime.setTime(now.getTime());
-
-        //getDate
-
-        //Testing the Method roundDate
-
-        Date testDate = new Date();
-        testDate.setTime(000000);
-        assertEquals("DateUtils's roundDate returned an incorrect Time", DateUtils.roundDate(testDate), currentTime);
-
-        Date temp5 = new Date(currentTime.getTime());
-        Date testDate2 = new Date();
-        testDate2.setTime(000000);
-
-        //currentTime.setTime(1234);
-        assertEquals("DateUtils's roundDate was mutated incorrectly", DateUtils.roundDate(temp5), testDate2);
-
-        //roundDate
-
-        //Testing the Method get24HourTimeFromDate
-
-        assertEquals("DateUtils's get24HourTimeFromDate returned an incorrect Time", DateUtils.get24HourTimeFromDate(currentTime), currentTime);
-
-        Date temp6 = new Date(currentTime.getTime());
-        //currentTime.setTime(1234);
-        assertEquals("DateUtils's get24HourTimeFromDate was mutated incorrectly", DateUtils.get24HourTimeFromDate(temp6), temp6);
-
-        //get24HourTimeFromDate
-
-        //Testing the Method daysInMonth
-        // int month = 9;
-        // int year = 2008;
-
-        //assertSame("DateUtils's daysInMonth returned an incorrect Time", DateUtils.daysInMonth(month, year));
-
-        //Date temp7 = new Date(currentTime.getTime());
-        //currentTime.setTime(1234);
-        //assertEquals("DateUtils's daysInMonth was mutated incorrectly", DateUtils.daysInMonth(month, year), temp6);
-
-        //daysInMonth
-
+        // Test formatTime()
+        String expectedTime1HourAhead = "03:00:00.000+01";
+        assertEquals(expectedTime1HourAhead,
+                DateUtils.formatTime(d, DateUtils.FORMAT_ISO8601, HOUR_IN_MILLIS));
+        String expectedTime3HoursBehind = "23:00:00.000-03";
+        assertEquals(expectedTime3HoursBehind,
+                DateUtils.formatTime(d, DateUtils.FORMAT_ISO8601, -3 * HOUR_IN_MILLIS));
+        String expectedTimeUTC = "02:00:00.000Z";
+        assertEquals(expectedTimeUTC,
+                DateUtils.formatTime(d, DateUtils.FORMAT_ISO8601, 0));
     }
-    */
+
+    @Test
+    public void testTimeParsingWithOffset() {
+        testTimeParsingHelper("UTC");
+        testTimeParsingHelper("EST");
+        testTimeParsingHelper("Africa/Johannesburg");
+    }
+
+    private static void testTimeParsingHelper(String timezoneId) {
+        Calendar c = Calendar.getInstance();
+        TimeZone tz = TimeZone.getTimeZone(timezoneId);
+        c.setTimeZone(tz);
+        c.set(1970, 0, 1, 22, 0, 0); // Jan 1, 1970 22:00
+        c.set(Calendar.MILLISECOND, 0);
+        Date expectedDate = c.getTime();
+        assertEquals(expectedDate.getTime(),
+                DateUtils.parseTime("22:00", tz.getOffset(expectedDate.getTime())).getTime());
+    }
+
+    @Test
+    public void testDateTimeParsingWithOffset() {
+        testDateTimeParsingHelper("UTC");
+        testDateTimeParsingHelper("EST");
+        testDateTimeParsingHelper("Africa/Johannesburg");
+    }
+
+    private static void testDateTimeParsingHelper(String timezoneId) {
+        Calendar c = Calendar.getInstance();
+        TimeZone tz = TimeZone.getTimeZone(timezoneId);
+        c.setTimeZone(tz);
+        c.set(2017, 0, 2, 2, 0, 0); // Jan 2, 2017 02:00
+        c.set(Calendar.MILLISECOND, 0);
+        Date expectedDate = c.getTime();
+        assertEquals(expectedDate.getTime(),
+                DateUtils.parseDateTime("2017-01-02T02:00:00", tz.getOffset(expectedDate.getTime())).getTime());
+    }
+
 }
