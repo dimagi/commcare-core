@@ -118,7 +118,7 @@ public class DateUtilsTests {
 
     private void testTime(String in, long test) {
         try {
-            Date d = DateUtils.parseTime(in);
+            Date d = DateUtils.parseTime(in, -1);
 
             // getTime here should always assume that it's in the UTC context, since that's the
             // only available mode for j2me 1.3 (IE: Dates will always come out flat). We'll

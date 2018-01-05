@@ -540,20 +540,16 @@ public class DateUtils {
         return df.check();
     }
 
-    public static Date parseTime(String str) {
-        return parseTime(str, -1);
-    }
     public static Date parseTime(String str, int timezoneOffset) {
+        if (timezoneOffset != -1  && !str.contains("+") && !str.contains("-") && !str.contains("Z")) {
+            str = str + getOffsetInStandardFormat(timezoneOffset);
+        }
+
         DateFields fields = new DateFields();
         if (!parseTimeAndStore(str, fields)) {
             return null;
         }
-
-        if (timezoneOffset != -1) {
-            return getDate(fields, timezoneOffset);
-        } else {
-            return getDate(fields);
-        }
+        return getDate(fields);
     }
 
     private static boolean parseTimeAndStore(String timeStr, DateFields df) {
@@ -628,6 +624,17 @@ public class DateUtils {
         df.secTicks = adjusted.secTicks;
 
         return df.check();
+    }
+
+    private static String getOffsetInStandardFormat(int offsetInMillis) {
+        int hours = offsetInMillis / 1000 / 60 / 60;
+        if (hours > 0) {
+            return "+" + hours;
+        } else if (hours == 0) {
+            return "Z";
+        } else {
+            return "" + hours;
+        }
     }
 
     /**
