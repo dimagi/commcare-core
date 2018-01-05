@@ -1279,8 +1279,6 @@ public class XFormParser {
     }
 
     private void parseItem(QuestionDef q, Element e) {
-        final int MAX_VALUE_LEN = 32;
-
         //catalogue of used attributes in this method/element
         Vector<String> usedAtts = new Vector<>();
         Vector<String> labelUA = new Vector<>();
@@ -1324,7 +1322,6 @@ public class XFormParser {
                 }
 
                 if (value != null) {
-
                     //validate
                     for (int k = 0; k < value.length(); k++) {
                         char c = value.charAt(k);
