@@ -1324,11 +1324,6 @@ public class XFormParser {
                 }
 
                 if (value != null) {
-                    if (value.length() > MAX_VALUE_LEN) {
-                        reporter.warning(XFormParserReporter.TYPE_ERROR_PRONE,
-                                "choice value [" + value + "] is too long; max. suggested length " + MAX_VALUE_LEN + " chars",
-                                getVagueLocation(child));
-                    }
 
                     //validate
                     for (int k = 0; k < value.length(); k++) {
