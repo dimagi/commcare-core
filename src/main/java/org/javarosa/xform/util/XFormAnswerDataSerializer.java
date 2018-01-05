@@ -33,8 +33,8 @@ import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.data.TimeData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.data.helper.Selection;
+import org.javarosa.core.model.data.helper.ValueResolutionContext;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.model.xform.SerializationContext;
 
 import java.util.Date;
 import java.util.Enumeration;
@@ -87,7 +87,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
      * @return A String which contains a date in xsd:date
      * formatting
      */
-    public Object serializeAnswerData(DateData data, SerializationContext context) {
+    public Object serializeAnswerData(DateData data, ValueResolutionContext context) {
         int timezoneOffset = context == null ? -1 : context.getTimezoneOffset();
         return DateUtils.formatDate((Date)data.getValue(), DateUtils.FORMAT_ISO8601, timezoneOffset);
     }
@@ -97,7 +97,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
      * @return A String which contains a date in xsd:date
      * formatting
      */
-    public Object serializeAnswerData(DateTimeData data, SerializationContext context) {
+    public Object serializeAnswerData(DateTimeData data, ValueResolutionContext context) {
         int timezoneOffset = context == null ? -1 : context.getTimezoneOffset();
         return DateUtils.formatDateTime((Date)data.getValue(), DateUtils.FORMAT_ISO8601, timezoneOffset);
     }
@@ -107,7 +107,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
      * @return A String which contains a date in xsd:time
      * formatting
      */
-    public Object serializeAnswerData(TimeData data, SerializationContext context) {
+    public Object serializeAnswerData(TimeData data, ValueResolutionContext context) {
         int timezoneOffset = context == null ? -1 : context.getTimezoneOffset();
         return DateUtils.formatTime((Date)data.getValue(), DateUtils.FORMAT_ISO8601, timezoneOffset);
     }
@@ -180,7 +180,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
     }
 
     @Override
-    public Object serializeAnswerData(IAnswerData data, int dataType, SerializationContext context) {
+    public Object serializeAnswerData(IAnswerData data, int dataType, ValueResolutionContext context) {
         // First, we want to go through the additional serializers, as they should
         // take priority to the default serializations
         Enumeration en = additionalSerializers.elements();
@@ -195,7 +195,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
     }
 
     @Override
-    public Object serializeAnswerData(IAnswerData data, SerializationContext context) {
+    public Object serializeAnswerData(IAnswerData data, ValueResolutionContext context) {
         if (data instanceof StringData) {
             return serializeAnswerData((StringData)data);
         } else if (data instanceof SelectMultiData) {

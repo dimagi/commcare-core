@@ -1,6 +1,6 @@
 package org.javarosa.core.model.data;
 
-import org.javarosa.core.model.data.helper.CastingContext;
+import org.javarosa.core.model.data.helper.ValueResolutionContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
@@ -25,7 +25,7 @@ import java.io.IOException;
  */
 public class UncastData implements IAnswerData {
     String value;
-    CastingContext castContext;
+    ValueResolutionContext castContext;
 
     public UncastData() {
 
@@ -38,7 +38,7 @@ public class UncastData implements IAnswerData {
         this.value = value;
     }
 
-    public UncastData(String value, CastingContext castContext) {
+    public UncastData(String value, ValueResolutionContext castContext) {
         this(value);
         this.castContext = castContext;
     }
@@ -75,7 +75,7 @@ public class UncastData implements IAnswerData {
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         value = ExtUtil.readString(in);
-        castContext = (CastingContext)ExtUtil.read(in, new ExtWrapNullable(CastingContext.class), pf);
+        castContext = (ValueResolutionContext)ExtUtil.read(in, new ExtWrapNullable(ValueResolutionContext.class), pf);
     }
 
     @Override
