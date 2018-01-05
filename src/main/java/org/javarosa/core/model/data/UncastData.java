@@ -3,6 +3,7 @@ package org.javarosa.core.model.data;
 import org.javarosa.core.model.data.helper.CastingContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.DataInputStream;
@@ -74,11 +75,13 @@ public class UncastData implements IAnswerData {
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         value = ExtUtil.readString(in);
+        castContext = (CastingContext)ExtUtil.read(in, new ExtWrapNullable(CastingContext.class), pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, value);
+        ExtUtil.write(out, new ExtWrapNullable(castContext));
     }
 
     @Override
