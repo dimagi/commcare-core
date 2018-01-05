@@ -1279,8 +1279,6 @@ public class XFormParser {
     }
 
     private void parseItem(QuestionDef q, Element e) {
-        final int MAX_VALUE_LEN = 32;
-
         //catalogue of used attributes in this method/element
         Vector<String> usedAtts = new Vector<>();
         Vector<String> labelUA = new Vector<>();
@@ -1324,12 +1322,6 @@ public class XFormParser {
                 }
 
                 if (value != null) {
-                    if (value.length() > MAX_VALUE_LEN) {
-                        reporter.warning(XFormParserReporter.TYPE_ERROR_PRONE,
-                                "choice value [" + value + "] is too long; max. suggested length " + MAX_VALUE_LEN + " chars",
-                                getVagueLocation(child));
-                    }
-
                     //validate
                     for (int k = 0; k < value.length(); k++) {
                         char c = value.charAt(k);
