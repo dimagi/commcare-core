@@ -136,6 +136,13 @@ public class SuiteParser extends ElementParser<Suite> {
                             break;
                         case "user-restore":
                             parser.nextTag();
+                            Resource userRestoreResource =
+                                    new ResourceParser(parser, maximumResourceAuthority).parse();
+                            if (!skipResources) {
+                                table.addResource(userRestoreResource,
+                                        table.getInstallers().getUserRestoreInstaller(),
+                                        resourceGuid);
+                            }
                             break;
                         case "detail":
                             Detail d = getDetailParser().parse();
