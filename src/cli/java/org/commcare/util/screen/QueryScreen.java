@@ -38,9 +38,12 @@ public class QueryScreen extends Screen {
     private String domainedUsername;
     private String password;
 
-    public QueryScreen(String domainedUsername, String password) {
+    private PrintStream out;
+
+    public QueryScreen(String domainedUsername, String password, PrintStream out) {
         this.domainedUsername = domainedUsername;
         this.password = password;
+        this.out = out;
     }
 
     @Override
@@ -65,14 +68,17 @@ public class QueryScreen extends Screen {
 
     }
 
+    private static String buildUrl(String baseUrl, Hashtable<String, String> queryParams) {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
+        for (String key: queryParams.keySet()) {
+            urlBuilder.addQueryParameter(key, queryParams.get(key));
+        }
+        return urlBuilder.build().toString();
+    }
+
 
     private InputStream makeQueryRequestReturnStream() {
-        OkHttpClient client = new OkHttpClient();
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(getBaseUrl().toString()).newBuilder();
-        for (String key: getQueryParams().keySet()) {
-            urlBuilder.addQueryParameter(key, getQueryParams().get(key));
-        }
-        String url = urlBuilder.build().toString();
+        String url = buildUrl(getBaseUrl().toString(), getQueryParams());
         String credential = Credentials.basic(domainedUsername, password);
 
         Request request = new Request.Builder()
@@ -80,7 +86,7 @@ public class QueryScreen extends Screen {
                 .header("Authorization", credential)
                 .build();
         try {
-            Response response = client.newCall(request).execute();
+            Response response = new OkHttpClient().newCall(request).execute();
             return response.body().byteStream();
         } catch (IOException e) {
             e.printStackTrace();
@@ -90,7 +96,7 @@ public class QueryScreen extends Screen {
 
     private boolean processResponse(InputStream responseData) {
         if (responseData == null) {
-            currentMessage = "Query failed";
+            currentMessage = "Query result null.";
             return false;
         }
         Pair<ExternalDataInstance, String> instanceOrError =
@@ -131,6 +137,7 @@ public class QueryScreen extends Screen {
 
     @Override
     public void prompt(PrintStream out) {
+        out.println("Enter the search fields as a space separated list.");
         for (int i=0; i< fields.length; i++) {
             out.println(i + ") " + fields[i]);
         }
@@ -152,7 +159,11 @@ public class QueryScreen extends Screen {
         }
         answerPrompts(userAnswers);
         InputStream response = makeQueryRequestReturnStream();
-        return processResponse(response);
+        boolean refresh = processResponse(response);
+        if (currentMessage != null) {
+            out.println(currentMessage);
+        }
+        return refresh;
     }
 
     public Hashtable<String, DisplayUnit> getUserInputDisplays(){

@@ -19,21 +19,19 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
- * Screen to make a sync request to HQ after a case claim
+ * Screen to make a sync request to HQ after a case claim. Unlike other all other screens,
+ * SyncScreen does not take input - it simply processes the PostRequest object, makes the request,
+ * and displays the result (if necessary)
  */
 public class SyncScreen extends Screen {
 
-    private String asUser;
-    private String builtQuery;
-    private String url;
     protected SessionWrapper sessionWrapper;
     private String username;
     private String password;
 
 
-    public SyncScreen(String asUser, String username, String password) {
+    public SyncScreen(String username, String password) {
         super();
-        this.asUser = asUser;
         this.username = username;
         this.password = password;
     }
@@ -45,57 +43,55 @@ public class SyncScreen extends Screen {
         Entry commandEntry = sessionWrapper.getPlatform().getEntry(command);
         if (commandEntry instanceof RemoteRequestEntry) {
             PostRequest syncPost = ((RemoteRequestEntry)commandEntry).getPostRequest();
-            makeSyncRequest(syncPost);
+            Response response = makeSyncRequest(syncPost);
+            if (!response.isSuccessful()) {
+                throw new CommCareSessionException(
+                        String.format("Sync request failed with code %s and message %s.",
+                                response.code(),
+                                response.message()
+                        )
+                );
+            }
         } else {
             // expected a sync entry; clear session and show vague 'session error' message to user
-            throw new RuntimeException("Initialized sync request while not on sync screen");
+            throw new CommCareSessionException("Initialized sync request while not on sync screen");
         }
     }
 
-    private void makeSyncRequest(PostRequest syncPost) {
-        setUrl(syncPost.getUrl().toString());
-        Hashtable<String, String> params = syncPost.getEvaluatedParams(sessionWrapper.getEvaluationContext());
-        OkHttpClient client = new OkHttpClient();
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(syncPost.getUrl().toString()).newBuilder();
-        MultipartBody.Builder requestBodyBuilder = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("somParam", "someValue");
+    private static String buildUrl(String baseUrl) {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
+        return urlBuilder.build().toString();
+    }
 
+    private static MultipartBody buildPostBody(Hashtable<String, String> params) {
+        MultipartBody.Builder requestBodyBuilder = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM);
+        // Add buffer param since this is necessary for some reason
         requestBodyBuilder.addFormDataPart("buffer", "buffer");
         for (String key: params.keySet()) {
             requestBodyBuilder.addFormDataPart(key, params.get(key));
         }
-        String url = urlBuilder.build().toString();
+        return requestBodyBuilder.build();
+    }
+
+    private Response makeSyncRequest(PostRequest syncPost) throws CommCareSessionException {
+        Hashtable<String, String> params = syncPost.getEvaluatedParams(sessionWrapper.getEvaluationContext());
+        String url = buildUrl(syncPost.getUrl().toString());
+        MultipartBody postBody = buildPostBody(params);
         String credential = Credentials.basic(username, password);
 
         Request request = new Request.Builder()
                 .url(url)
                 .method("POST", RequestBody.create(null, new byte[0]))
                 .header("Authorization", credential)
-                .post(requestBodyBuilder.build())
+                .post(postBody)
                 .build();
         try {
-            Response response = client.newCall(request).execute();
-            System.out.println("Response: " + response);
+            OkHttpClient client = new OkHttpClient();
+            return client.newCall(request).execute();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new CommCareSessionException("Exception while making sync request", e);
         }
-    }
-
-    public String getBuiltQuery() {
-        return builtQuery;
-    }
-
-    public void setBuiltQuery(String builtQuery) {
-        this.builtQuery = builtQuery;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
     }
 
     @Override

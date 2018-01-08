@@ -338,9 +338,9 @@ public class ApplicationHost {
         } else if (next.equals(SessionFrame.STATE_DATUM_VAL)) {
             return new EntityScreen();
         } else if (next.equals(SessionFrame.STATE_QUERY_REQUEST)) {
-            return new QueryScreen(qualifiedUsername, password);
+            return new QueryScreen(qualifiedUsername, password, System.out);
         } else if (next.equals(SessionFrame.STATE_SYNC_REQUEST)) {
-            new SyncScreen(null, qualifiedUsername, password);
+            new SyncScreen(qualifiedUsername, password);
             mSession.syncState();
             if (mSession.finishExecuteAndPop(mSession.getEvaluationContext())) {
                 mSession.clearVolatiles();
