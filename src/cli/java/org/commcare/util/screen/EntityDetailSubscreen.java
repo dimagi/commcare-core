@@ -1,8 +1,5 @@
 package org.commcare.util.screen;
 
-import org.commcare.core.graph.model.GraphData;
-import org.commcare.core.graph.util.GraphException;
-import org.commcare.core.graph.util.GraphUtil;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Style;
