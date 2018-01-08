@@ -28,18 +28,18 @@ import okhttp3.Response;
  */
 public class QueryScreen extends Screen {
 
-    protected RemoteQuerySessionManager remoteQuerySessionManager;
-    Hashtable<String, DisplayUnit> userInputDisplays;
-    SessionWrapper sessionWrapper;
-    String[] fields;
-    String mTitle;
-    String currentMessage;
+    private RemoteQuerySessionManager remoteQuerySessionManager;
+    private Hashtable<String, DisplayUnit> userInputDisplays;
+    private SessionWrapper sessionWrapper;
+    private String[] fields;
+    private String mTitle;
+    private String currentMessage;
 
-    String username;
-    String password;
+    private String domainedUsername;
+    private String password;
 
-    public QueryScreen(String username, String password) {
-        this.username = username;
+    public QueryScreen(String domainedUsername, String password) {
+        this.domainedUsername = domainedUsername;
         this.password = password;
     }
 
@@ -49,6 +49,11 @@ public class QueryScreen extends Screen {
         remoteQuerySessionManager =
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper,
                         sessionWrapper.getEvaluationContext());
+
+        if (remoteQuerySessionManager == null) {
+            throw new CommCareSessionException(String.format("QueryManager for case " +
+                    "claim screen with id %s cannot be null.", sessionWrapper.getNeededData()));
+        }
         userInputDisplays = remoteQuerySessionManager.getNeededUserInputDisplays();
 
         int count = 0;
@@ -61,14 +66,14 @@ public class QueryScreen extends Screen {
     }
 
 
-    public InputStream makeQueryRequestReturnStream() {
+    private InputStream makeQueryRequestReturnStream() {
         OkHttpClient client = new OkHttpClient();
         HttpUrl.Builder urlBuilder = HttpUrl.parse(getBaseUrl().toString()).newBuilder();
         for (String key: getQueryParams().keySet()) {
             urlBuilder.addQueryParameter(key, getQueryParams().get(key));
         }
         String url = urlBuilder.build().toString();
-        String credential = Credentials.basic(username, password);
+        String credential = Credentials.basic(domainedUsername, password);
 
         Request request = new Request.Builder()
                 .url(url)
@@ -83,7 +88,7 @@ public class QueryScreen extends Screen {
         }
     }
 
-    public boolean processResponse(InputStream responseData) {
+    private boolean processResponse(InputStream responseData) {
         if (responseData == null) {
             currentMessage = "Query failed";
             return false;
@@ -106,17 +111,17 @@ public class QueryScreen extends Screen {
         return !instance.getRoot().hasChildren();
     }
 
-    public void answerPrompts(Hashtable<String, String> answers) {
+    private void answerPrompts(Hashtable<String, String> answers) {
         for(String key: answers.keySet()){
             remoteQuerySessionManager.answerUserPrompt(key, answers.get(key));
         }
     }
 
-    public URL getBaseUrl(){
+    private URL getBaseUrl(){
         return remoteQuerySessionManager.getBaseUrl();
     }
 
-    public Hashtable<String, String> getQueryParams(){
+    private Hashtable<String, String> getQueryParams(){
         return remoteQuerySessionManager.getRawQueryParams();
     }
 
