@@ -40,13 +40,6 @@ public class MockApp {
         final LivePrototypeFactory mPrototypeFactory = setupStaticStorage();
         MockUserDataSandbox mSandbox = new MockUserDataSandbox(mPrototypeFactory);
         CommCareConfigEngine mEngine = new CommCareConfigEngine(mPrototypeFactory);
-        
-        mEngine.setStorageFactory(new IStorageIndexedFactory() {
-            @Override
-            public IStorageUtilityIndexed newStorage(String name, Class type) {
-                return new DummyIndexedStorageUtility(type, mPrototypeFactory);
-            }
-        });
 
         mEngine.installAppFromReference("jr://resource" + APP_BASE + "profile.ccpr");
         mEngine.initEnvironment();
