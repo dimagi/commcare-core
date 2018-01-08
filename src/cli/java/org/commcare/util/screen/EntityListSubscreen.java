@@ -100,7 +100,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         }
 
         if (collectDebug) {
-            //ScreenUtils.printAndClearTraces(reporter, "Template Traces:");
+            InstrumentationUtils.printAndClearTraces(reporter, "Template Traces:");
         }
         return row.toString();
     }

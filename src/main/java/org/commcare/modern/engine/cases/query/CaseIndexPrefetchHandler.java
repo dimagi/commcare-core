@@ -1,7 +1,11 @@
 package org.commcare.modern.engine.cases.query;
 
 import org.commcare.cases.model.Case;
-import org.commcare.cases.query.*;
+import org.commcare.cases.query.IndexedValueLookup;
+import org.commcare.cases.query.PredicateProfile;
+import org.commcare.cases.query.QueryCache;
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.QueryHandler;
 import org.commcare.cases.util.QueryUtils;
 import org.commcare.modern.engine.cases.CaseIndexTable;
 import org.javarosa.core.model.condition.EvaluationContext;

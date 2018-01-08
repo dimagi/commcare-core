@@ -54,7 +54,7 @@ public class MenuLoader {
 
     private void getMenuDisplayables(CommCarePlatform platform,
                                      SessionWrapperInterface sessionWrapper,
-                                                        String menuID) {
+                                     String menuID) {
 
         Vector<MenuDisplayable> items = new Vector<>();
         Vector<String> badges = new Vector<>();
@@ -84,9 +84,9 @@ public class MenuLoader {
     }
 
     private void addUnaddedMenu(SessionWrapperInterface sessionWrapper,
-                                       String menuID, Menu m,
-                                       Vector<MenuDisplayable> items,
-                                       Vector<String> badges) throws XPathSyntaxException {
+                                String menuID, Menu m,
+                                Vector<MenuDisplayable> items,
+                                Vector<String> badges) throws XPathSyntaxException {
         if (menuID.equals(m.getRoot())) {
             //make sure we didn't already add this ID
             boolean idExists = false;
