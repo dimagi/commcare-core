@@ -31,4 +31,27 @@ public class InstrumentationUtils {
             reporter.reset();
         }
     }
+
+    /**
+     * Prints out traces (if any exist) from the provided reporter with a description into sysout
+     */
+    public static String collectAndClearTraces(EvaluationTraceReporter reporter, String description) {
+        String returnValue = "";
+        if (reporter != null) {
+            if (reporter.wereTracesReported()) {
+                returnValue += description + "\n";
+            }
+
+            StringEvaluationTraceSerializer serializer = new StringEvaluationTraceSerializer();
+
+            for (EvaluationTrace trace : reporter.getCollectedTraces()) {
+                returnValue += trace.getExpression() + ": " + trace.getValue()  + "\n";
+                returnValue += serializer.serializeEvaluationLevels(trace);
+            }
+
+            reporter.reset();
+        }
+        return returnValue;
+    }
+
 }

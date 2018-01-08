@@ -68,8 +68,8 @@ public class DataUtil {
     }
 
     public static boolean intArrayContains(int[] source, int target) {
-        for (int sort: source) {
-            if (sort == target) {
+        for (int current: source) {
+            if (current == target) {
                 return true;
             }
         }
