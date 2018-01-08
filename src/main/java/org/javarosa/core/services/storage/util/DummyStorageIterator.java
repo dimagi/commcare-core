@@ -5,7 +5,6 @@ import org.javarosa.core.services.storage.Persistable;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Iterator;
 
 /**
  * @author ctsims
