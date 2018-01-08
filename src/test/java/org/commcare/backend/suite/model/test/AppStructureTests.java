@@ -98,7 +98,7 @@ public class AppStructureTests {
         Assert.assertTrue(focusFunction == null);
     }
 
-    //@Test
+    @Test
     public void testDemoUserRestoreParsing() throws Exception {
         // Test parsing an app with a properly-formed demo user restore file
         MockApp appWithGoodUserRestore = new MockApp("/app_with_good_demo_restore/");
@@ -154,7 +154,7 @@ public class AppStructureTests {
         assertEquals("Menu 1 Text", menuWithDisplayBlock.getDisplayText());
         EvaluationContext ec =
                 appWithGoodUserRestore.getSession().getEvaluationContext(menuWithDisplayBlock.getId());
-        TestObserver<String> testObserver = menuWithDisplayBlock.getAsyncTextForBadge(ec).test();
+        TestObserver<String> testObserver = menuWithDisplayBlock.getTextForBadge(ec).test();
         testObserver.assertNoErrors();
         testObserver.assertValue("1");
     }
