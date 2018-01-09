@@ -9,7 +9,6 @@ import java.util.Map;
 /**
  * Created by amstone326 on 1/4/18.
  */
-
 public abstract class InFormCacheableExpr implements XPathAnalyzable {
 
     public boolean isCached() {
