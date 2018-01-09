@@ -71,7 +71,8 @@ public class DateTimeData implements IAnswerData {
 
     @Override
     public DateTimeData cast(UncastData data) throws IllegalArgumentException {
-        Date ret = DateUtils.parseDateTime(data.value);
+        int timezoneOffset = data.castContext == null ? -1 : data.castContext.getTimezoneOffset();
+        Date ret = DateUtils.parseDateTime(data.value, timezoneOffset);
         if (ret != null) {
             return new DateTimeData(ret);
         }

@@ -75,14 +75,14 @@ public class XFormAnswerDataSerializerTest {
     @Test
     public void testDate() {
         assertTrue("Serializer Incorrectly Reports Inability to Serializer Date", serializer.canSerialize(dateElement.getValue()));
-        Object answerData = serializer.serializeAnswerData(dateData);
+        Object answerData = serializer.serializeAnswerData(dateData, null);
         assertNotNull("Serializer returns Null for valid Date Data", answerData);
     }
 
     @Test
     public void testTime() {
         assertTrue("Serializer Incorrectly Reports Inability to Serializer Time", serializer.canSerialize(timeElement.getValue()));
-        Object answerData = serializer.serializeAnswerData(timeData);
+        Object answerData = serializer.serializeAnswerData(timeData, null);
         assertNotNull("Serializer returns Null for valid Time Data", answerData);
     }
 }

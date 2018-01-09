@@ -18,6 +18,7 @@ package org.javarosa.core.model;
 
 import org.javarosa.core.data.IDataPointer;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.helper.ValueResolutionContext;
 
 
 /**
@@ -52,7 +53,7 @@ public interface IAnswerDataSerializer {
      * given object if canSerialize() would return true for that
      * object. False otherwise.
      */
-    Object serializeAnswerData(IAnswerData data, int dataType);
+    Object serializeAnswerData(IAnswerData data, int dataType, ValueResolutionContext context);
 
     /**
      * Serializes the given data object into a format that can
@@ -63,7 +64,7 @@ public interface IAnswerDataSerializer {
      * given object if canSerialize() would return true for that
      * object. False otherwise.
      */
-    Object serializeAnswerData(IAnswerData data);
+    Object serializeAnswerData(IAnswerData data, ValueResolutionContext context);
 
     /**
      * Identifies whether an answer data object contains data

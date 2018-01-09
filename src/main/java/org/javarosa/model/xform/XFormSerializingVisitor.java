@@ -2,6 +2,7 @@ package org.javarosa.model.xform;
 
 import org.javarosa.core.data.IDataPointer;
 import org.javarosa.core.model.IAnswerDataSerializer;
+import org.javarosa.core.model.data.helper.ValueResolutionContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -48,6 +49,8 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
 
     Vector<IDataPointer> dataPointers;
 
+    ValueResolutionContext context;
+
     boolean respectRelevance = true;
 
     public XFormSerializingVisitor() {
@@ -56,6 +59,10 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
 
     public XFormSerializingVisitor(boolean respectRelevance) {
         this.respectRelevance = respectRelevance;
+    }
+
+    public XFormSerializingVisitor(ValueResolutionContext context) {
+        this.context = context;
     }
 
     private void init() {
@@ -153,7 +160,8 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
         }
 
         if (instanceNode.getValue() != null) {
-            Object serializedAnswer = serializer.serializeAnswerData(instanceNode.getValue(), instanceNode.getDataType());
+            Object serializedAnswer =
+                    serializer.serializeAnswerData(instanceNode.getValue(), instanceNode.getDataType(), this.context);
 
             if (serializedAnswer instanceof Element) {
                 e = (Element)serializedAnswer;

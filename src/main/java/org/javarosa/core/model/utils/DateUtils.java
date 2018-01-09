@@ -123,17 +123,32 @@ public class DateUtils {
         if (timezone != null) {
             cd.setTimeZone(TimeZone.getTimeZone(timezone));
         }
+        return getFields(cd);
+    }
 
+    /**
+     * @param d
+     * @param timezoneOffset - the offset from UTC in milliseconds
+     * @return the date fields that correspond to the given moment in time at the given timezoneOffset
+     */
+    public static DateFields getFields(Date d, int timezoneOffset) {
+        Calendar cd = Calendar.getInstance();
+        cd.setTimeZone(TimeZone.getTimeZone("UTC"));
+        cd.setTime(d);
+        cd.add(Calendar.MILLISECOND, timezoneOffset);
+        return getFields(cd);
+    }
+
+    private static DateFields getFields(Calendar cal) {
         DateFields fields = new DateFields();
-        fields.year = cd.get(Calendar.YEAR);
-        fields.month = cd.get(Calendar.MONTH) + MONTH_OFFSET;
-        fields.day = cd.get(Calendar.DAY_OF_MONTH);
-        fields.hour = cd.get(Calendar.HOUR_OF_DAY);
-        fields.minute = cd.get(Calendar.MINUTE);
-        fields.second = cd.get(Calendar.SECOND);
-        fields.secTicks = cd.get(Calendar.MILLISECOND);
-        fields.dow = cd.get(Calendar.DAY_OF_WEEK);
-
+        fields.year = cal.get(Calendar.YEAR);
+        fields.month = cal.get(Calendar.MONTH) + MONTH_OFFSET;
+        fields.day = cal.get(Calendar.DAY_OF_MONTH);
+        fields.hour = cal.get(Calendar.HOUR_OF_DAY);
+        fields.minute = cal.get(Calendar.MINUTE);
+        fields.second = cal.get(Calendar.SECOND);
+        fields.secTicks = cal.get(Calendar.MILLISECOND);
+        fields.dow = cal.get(Calendar.DAY_OF_WEEK);
         return fields;
     }
 
@@ -187,14 +202,49 @@ public class DateUtils {
         return cd.getTime();
     }
 
+    /**
+     * @param df
+     * @param timezoneOffset - offset from UTC in milliseconds
+     * @return - the Date object that represents the moment in time for the given DateFields at the given timezoneOffset
+     */
+    public static Date getDate(DateFields df, int timezoneOffset) {
+        Calendar cd = Calendar.getInstance();
+        cd.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        cd.set(Calendar.YEAR, df.year);
+        cd.set(Calendar.MONTH, df.month - MONTH_OFFSET);
+        cd.set(Calendar.DAY_OF_MONTH, df.day);
+        cd.set(Calendar.HOUR_OF_DAY, df.hour);
+        cd.set(Calendar.MINUTE, df.minute);
+        cd.set(Calendar.SECOND, df.second);
+        cd.set(Calendar.MILLISECOND, df.secTicks);
+
+        cd.add(Calendar.MILLISECOND, -timezoneOffset);
+
+        return cd.getTime();
+    }
+
     /* ==== FORMATTING DATES/TIMES TO STANDARD STRINGS ==== */
 
     public static String formatDateTime(Date d, int format) {
+        return formatDateTime(d, format, null, -1);
+    }
+
+    public static String formatDateTime(Date d, int format, int timezoneOffset) {
+        return formatDateTime(d, format, null, timezoneOffset);
+    }
+
+    public static String formatDateTime(Date d, int format, String timezone, int timezoneOffset) {
         if (d == null) {
             return "";
         }
 
-        DateFields fields = getFields(d, format == FORMAT_TIMESTAMP_HTTP ? "UTC" : null);
+        DateFields fields;
+        if (timezoneOffset != -1) {
+            fields = getFields(d, timezoneOffset);
+        } else {
+            fields = getFields(d, format == FORMAT_TIMESTAMP_HTTP ? "UTC" : timezone);
+        }
 
         String delim;
         switch (format) {
@@ -212,15 +262,52 @@ public class DateUtils {
                 break;
         }
 
-        return formatDate(fields, format) + delim + formatTime(fields, format);
+        return formatDate(fields, format) + delim + formatTime(fields, format, timezoneOffset);
     }
 
     public static String formatDate(Date d, int format) {
-        return (d == null ? "" : formatDate(getFields(d, format == FORMAT_TIMESTAMP_HTTP ? "UTC" : null), format));
+        return formatDate(d, format, null, -1);
+    }
+
+    public static String formatDate(Date d, int format, int timezoneOffset) {
+        return formatDate(d, format, null, timezoneOffset);
+    }
+
+    public static String formatDate(Date d, int format, String timezone, int timezoneOffset) {
+        if (d == null) {
+            return "";
+        }
+
+        DateFields df;
+        if (timezoneOffset != -1) {
+            df = getFields(d, timezoneOffset);
+        } else {
+            df = getFields(d, format == FORMAT_TIMESTAMP_HTTP ? "UTC" : timezone);
+        }
+        return formatDate(df, format);
     }
 
     public static String formatTime(Date d, int format) {
-        return (d == null ? "" : formatTime(getFields(d, format == FORMAT_TIMESTAMP_HTTP ? "UTC" : null), format));
+        return formatTime(d, format, null, -1);
+    }
+
+    public static String formatTime(Date d, int format, int timezoneOffset) {
+        return formatTime(d, format, null, timezoneOffset);
+    }
+
+    public static String formatTime(Date d, int format, String timezone, int timezoneOffset) {
+        if (d == null) {
+            return "";
+        }
+
+        DateFields df;
+        if (timezoneOffset != -1) {
+            df = getFields(d, timezoneOffset);
+        } else {
+            df = getFields(d, format == FORMAT_TIMESTAMP_HTTP ? "UTC" : timezone);
+        }
+
+        return formatTime(df, format, timezoneOffset);
     }
 
     private static String formatDate(DateFields f, int format) {
@@ -240,10 +327,10 @@ public class DateUtils {
         }
     }
 
-    private static String formatTime(DateFields f, int format) {
+    private static String formatTime(DateFields f, int format, int timezoneOffset) {
         switch (format) {
             case FORMAT_ISO8601:
-                return formatTimeISO8601(f);
+                return formatTimeISO8601(f, timezoneOffset);
             case FORMAT_HUMAN_READABLE_SHORT:
                 return formatTimeColloquial(f);
             case FORMAT_TIMESTAMP_SUFFIX:
@@ -289,11 +376,16 @@ public class DateUtils {
         return f.year + intPad(f.month, 2) + intPad(f.day, 2);
     }
 
-    private static String formatTimeISO8601(DateFields f) {
+    private static String formatTimeISO8601(DateFields f, int offsetToUse) {
         String time = intPad(f.hour, 2) + ":" + intPad(f.minute, 2) + ":" + intPad(f.second, 2) + "." + intPad(f.secTicks, 3);
 
-        //Time Zone ops (1 in the first field corresponds to 'CE' ERA)
-        int offset = TimeZone.getDefault().getOffset(1, f.year, f.month - 1, f.day, f.dow, 0);
+        int offset;
+        if (offsetToUse != -1) {
+            offset = offsetToUse;
+        } else {
+            //Time Zone ops (1 in the first field corresponds to 'CE' ERA)
+            offset = TimeZone.getDefault().getOffset(1, f.year, f.month - 1, f.day, f.dow, 0);
+        }
 
         //NOTE: offset is in millis
         if (offset == 0) {
@@ -394,6 +486,9 @@ public class DateUtils {
     /* ==== PARSING DATES/TIMES FROM STANDARD STRINGS ==== */
 
     public static Date parseDateTime(String str) {
+        return parseDateTime(str, -1);
+    }
+    public static Date parseDateTime(String str, int timezoneOffset) {
         DateFields fields = new DateFields();
         int i = str.indexOf("T");
         if (i != -1) {
@@ -405,7 +500,12 @@ public class DateUtils {
                 return null;
             }
         }
-        return getDate(fields);
+
+        if (timezoneOffset != -1) {
+            return getDate(fields, timezoneOffset);
+        } else {
+            return getDate(fields);
+        }
     }
 
     public static Date parseDate(String str) {
@@ -413,6 +513,7 @@ public class DateUtils {
         if (!parseDateAndStore(str, fields)) {
             return null;
         }
+
         return getDate(fields);
     }
 
@@ -439,7 +540,11 @@ public class DateUtils {
         return df.check();
     }
 
-    public static Date parseTime(String str) {
+    public static Date parseTime(String str, int timezoneOffset) {
+        if (timezoneOffset != -1  && !str.contains("+") && !str.contains("-") && !str.contains("Z")) {
+            str = str + getOffsetInStandardFormat(timezoneOffset);
+        }
+
         DateFields fields = new DateFields();
         if (!parseTimeAndStore(str, fields)) {
             return null;
@@ -519,6 +624,17 @@ public class DateUtils {
         df.secTicks = adjusted.secTicks;
 
         return df.check();
+    }
+
+    private static String getOffsetInStandardFormat(int offsetInMillis) {
+        int hours = offsetInMillis / 1000 / 60 / 60;
+        if (hours > 0) {
+            return "+" + hours;
+        } else if (hours == 0) {
+            return "Z";
+        } else {
+            return "" + hours;
+        }
     }
 
     /**

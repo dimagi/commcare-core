@@ -255,7 +255,7 @@ public class XPathPathExpr extends XPathExpression {
         } else if (val instanceof SelectOneData) {
             return ((Selection)val.getValue()).getValue();
         } else if (val instanceof SelectMultiData) {
-            return (new XFormAnswerDataSerializer()).serializeAnswerData(val);
+            return (new XFormAnswerDataSerializer()).serializeAnswerData(val, null);
         } else if (val instanceof DateData) {
             return val.getValue();
         } else if (val instanceof DateTimeData) {
