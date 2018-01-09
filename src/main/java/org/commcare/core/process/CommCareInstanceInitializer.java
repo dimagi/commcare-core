@@ -16,6 +16,7 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.CacheTable;
 
 /**
@@ -138,7 +139,15 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
             TreeElement root = fixtureBases.retrieve(key);
             if (root == null) {
-                FormInstance fixture = SandboxUtils.loadFixture(mSandbox, refId, userId);
+                IStorageUtilityIndexed<FormInstance> fixtureStorage = null;
+                if (mPlatform != null) {
+                    fixtureStorage = mPlatform.getFixtureStorage();
+                }
+
+                FormInstance fixture = SandboxUtils.loadFixture(mSandbox,
+                        refId,
+                        userId,
+                        fixtureStorage);
 
                 if (fixture == null) {
                     throw new FixtureInitializationException(reference);

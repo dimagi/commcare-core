@@ -136,6 +136,19 @@ public class SuiteParser extends ElementParser<Suite> {
                             break;
                         case "user-restore":
                             parser.nextTag();
+                            /*
+                                Currently, we have to skip offline (demo) restores for Formplayer because these restore
+                                payloads are usually too large to store in SQLite and we don't have a file system
+                                storage abstraction setup.
+                                
+                            Resource userRestoreResource =
+                                    new ResourceParser(parser, maximumResourceAuthority).parse();
+                            if (!skipResources) {
+                                table.addResource(userRestoreResource,
+                                        table.getInstallers().getUserRestoreInstaller(),
+                                        resourceGuid);
+                            }
+                            */
                             break;
                         case "detail":
                             Detail d = getDetailParser().parse();
