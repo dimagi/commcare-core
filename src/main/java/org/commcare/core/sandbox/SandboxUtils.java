@@ -69,7 +69,10 @@ public class SandboxUtils {
         }
 
         if (appFixtureStorage != null) {
-            return loadAppFixture(appFixtureStorage, refId, userId);
+            FormInstance result = loadAppFixture(appFixtureStorage, refId, userId);
+            if (result != null) {
+                return result;
+            }
         }
         return loadAppFixture(sandbox, refId, userId);
     }
