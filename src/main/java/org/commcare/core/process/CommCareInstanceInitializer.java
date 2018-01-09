@@ -138,7 +138,13 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
             TreeElement root = fixtureBases.retrieve(key);
             if (root == null) {
-                FormInstance fixture = SandboxUtils.loadFixture(mSandbox, refId, userId);
+                FormInstance fixture = SandboxUtils.loadFixture(mSandbox,
+                        refId,
+                        userId);
+
+                if (fixture == null) {
+                    fixture = SandboxUtils.loadAppFixture(mPlatform.getFixtureStorage(), refId, userId);
+                }
 
                 if (fixture == null) {
                     throw new FixtureInitializationException(reference);

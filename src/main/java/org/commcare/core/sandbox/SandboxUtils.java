@@ -46,10 +46,13 @@ public class SandboxUtils {
      * @param sandbox The current user's sandbox
      * @param refId The jr:// reference
      * @param userId The user's ID
+     * @param appFixtureStorage Optionally, override the location to look for app fixtures
      * @return The form instance matching the refId in the sandbox
      */
     public static FormInstance loadFixture(UserSandbox sandbox,
-                                           String refId, String userId) {
+                                           String refId,
+                                           String userId,
+                                           IStorageUtilityIndexed<FormInstance> appFixtureStorage) {
         IStorageUtilityIndexed<FormInstance> userFixtureStorage =
                 sandbox.getUserFixtureStorage();
 
@@ -65,7 +68,14 @@ public class SandboxUtils {
             }
         }
 
+        if (appFixtureStorage != null) {
+            return loadAppFixture(appFixtureStorage, refId, userId);
+        }
         return loadAppFixture(sandbox, refId, userId);
+    }
+
+    public static FormInstance loadFixture(UserSandbox sandbox, String refId, String userId) {
+        return loadFixture(sandbox, refId, userId, null);
     }
 
     private static FormInstance intersectFixtureSets(IStorageUtilityIndexed<FormInstance> userFixtureStorage,
@@ -84,9 +94,13 @@ public class SandboxUtils {
         return null;
     }
 
-    private static FormInstance loadAppFixture(UserSandbox sandbox, String refId, String userId) {
+    public static FormInstance loadAppFixture(UserSandbox sandbox, String refId, String userId) {
         IStorageUtilityIndexed<FormInstance> appFixtureStorage =
                 sandbox.getAppFixtureStorage();
+        return loadAppFixture(appFixtureStorage, refId, userId);
+    }
+
+    public static FormInstance loadAppFixture(IStorageUtilityIndexed<FormInstance> appFixtureStorage, String refId, String userId) {
         Vector<Integer> appFixtures = appFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);
         Integer globalFixture =
                 ArrayUtilities.intersectSingle(appFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, ""), appFixtures);
