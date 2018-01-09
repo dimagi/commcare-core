@@ -17,8 +17,8 @@ public class ContainsMainInstanceRefAnalyzer extends XPathBooleanAnalyzer {
     }
 
     @Override
-    protected void setDefaultValue() {
-        this.result = false;
+    protected boolean getDefaultValue() {
+        return false;
     }
 
     @Override
