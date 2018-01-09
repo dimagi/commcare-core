@@ -28,23 +28,23 @@ public class DateUtils {
     public static final int FORMAT_TIMESTAMP_HTTP = 9;
 
     private static CalendarStrings defaultCalendarStrings = new CalendarStrings();
-    private static TimezoneProviderSource tzProviderSource = new TimezoneProviderSource();
+    private static TimezoneProvider tzProvider = new TimezoneProvider();
 
     public static final long DAY_IN_MS = 86400000L;
     private static final Date EPOCH_DATE = getDate(1970, 1, 1);
     private final static long EPOCH_TIME = roundDate(EPOCH_DATE).getTime();
 
     // Used by Formplayer
-    public static void setTimezoneProviderSource(TimezoneProviderSource providerSource) {
-        tzProviderSource = providerSource;
+    public static void setTimezoneProvider(TimezoneProvider provider) {
+        tzProvider = provider;
     }
 
-    public static void resetTimezoneProviderSource() {
-        tzProviderSource = new TimezoneProviderSource();
+    public static void resetTimezoneProvider() {
+        tzProvider = new TimezoneProvider();
     }
 
     private static int timezoneOffset() {
-        return tzProviderSource.getTimezoneOffsetMillis();
+        return tzProvider.getTimezoneOffsetMillis();
     }
 
     public static DateFields getFieldsForNonGregorianCalendar(int year, int monthOfYear, int dayOfMonth) {
