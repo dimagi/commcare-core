@@ -11,14 +11,10 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.analysis.AnalysisInvalidException;
-import org.javarosa.xpath.analysis.ContainsMainInstanceRefAnalyzer;
-import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
-import org.javarosa.xpath.analysis.XPathAnalyzable;
 import org.javarosa.xpath.analysis.XPathAnalyzer;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathBinaryOpExpr;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFilterExpr;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.expr.XPathUnaryOpExpr;
@@ -27,10 +23,9 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Set;
 import java.util.Vector;
 
-public class XPathConditional extends CacheableExpr implements IConditionExpr {
+public class XPathConditional extends InFormCacheableExpr implements IConditionExpr {
     private XPathExpression expr;
     public String xpath; //not serialized!
     private boolean hasNow; //indicates whether this XpathConditional contains the now() function (used for timestamping)

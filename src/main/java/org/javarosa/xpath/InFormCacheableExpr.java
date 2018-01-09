@@ -10,7 +10,7 @@ import java.util.Map;
  * Created by amstone326 on 1/4/18.
  */
 
-public abstract class CacheableExpr implements XPathAnalyzable {
+public abstract class InFormCacheableExpr implements XPathAnalyzable {
 
     public boolean isCached() {
         return getCachedValue() != null;
@@ -38,7 +38,7 @@ public abstract class CacheableExpr implements XPathAnalyzable {
         }
     }
 
-    private Map<CacheableExpr, Object> getCache() {
+    private Map<InFormCacheableExpr, Object> getCache() {
         return null;
     }
 
