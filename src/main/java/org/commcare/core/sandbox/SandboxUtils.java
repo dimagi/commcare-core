@@ -94,13 +94,13 @@ public class SandboxUtils {
         return null;
     }
 
-    public static FormInstance loadAppFixture(UserSandbox sandbox, String refId, String userId) {
+    private static FormInstance loadAppFixture(UserSandbox sandbox, String refId, String userId) {
         IStorageUtilityIndexed<FormInstance> appFixtureStorage =
                 sandbox.getAppFixtureStorage();
         return loadAppFixture(appFixtureStorage, refId, userId);
     }
 
-    public static FormInstance loadAppFixture(IStorageUtilityIndexed<FormInstance> appFixtureStorage, String refId, String userId) {
+    private static FormInstance loadAppFixture(IStorageUtilityIndexed<FormInstance> appFixtureStorage, String refId, String userId) {
         Vector<Integer> appFixtures = appFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);
         Integer globalFixture =
                 ArrayUtilities.intersectSingle(appFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, ""), appFixtures);
