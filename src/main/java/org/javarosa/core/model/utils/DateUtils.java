@@ -34,6 +34,72 @@ public class DateUtils {
     private static final Date EPOCH_DATE = getDate(1970, 1, 1);
     private final static long EPOCH_TIME = roundDate(EPOCH_DATE).getTime();
 
+    public static class CalendarStrings {
+        public String[] monthNamesLong;
+        public String[] monthNamesShort;
+        public String[] dayNamesLong;
+        public String[] dayNamesShort;
+
+        public CalendarStrings(String[] monthNamesLong, String[] monthNamesShort,
+                               String[] dayNamesLong, String[] dayNamesShort) {
+            this.monthNamesLong = monthNamesLong;
+            this.monthNamesShort = monthNamesShort;
+            this.dayNamesLong = dayNamesLong;
+            this.dayNamesShort = dayNamesShort;
+
+        }
+
+        public CalendarStrings() {
+            this(
+                    new String[]{"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"},
+                    new String[]{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"},
+                    new String[]{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"},
+                    new String[]{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}
+            );
+        }
+    };
+
+    public static class DateFields {
+        public DateFields() {
+            year = 1970;
+            month = 1;
+            day = 1;
+            hour = 0;
+            minute = 0;
+            second = 0;
+            secTicks = 0;
+            dow = 0;
+
+            noValidation = false;
+
+//            tzStr = "Z";
+//            tzOffset = 0;
+        }
+
+        public int year;
+        public int month; //1-12
+        public int day; //1-31
+        public int hour; //0-23
+        public int minute; //0-59
+        public int second; //0-59
+        public int secTicks; //0-999 (ms)
+        boolean noValidation = false; // true or false. Set to true when using foreign calendars
+
+        /**
+         * NOTE: CANNOT BE USED TO SPECIFY A DATE *
+         */
+        public int dow; //1-7;
+
+//        public String tzStr;
+//        public int tzOffset; //s ahead of UTC
+
+        public boolean check() {
+            return noValidation ||
+                    ((inRange(month, 1, 12) && inRange(day, 1, daysInMonth(month - MONTH_OFFSET, year)) &&
+                            inRange(hour, 0, 23) && inRange(minute, 0, 59) && inRange(second, 0, 59) && inRange(secTicks, 0, 999)));
+        }
+    }
+
     // Used by Formplayer
     public static void setTimezoneProvider(TimezoneProvider provider) {
         tzProvider = provider;
@@ -832,72 +898,6 @@ public class DateUtils {
             return false;
         }
         return string.contains(substring);
-    }
-
-    public static class CalendarStrings {
-        public String[] monthNamesLong;
-        public String[] monthNamesShort;
-        public String[] dayNamesLong;
-        public String[] dayNamesShort;
-
-        public CalendarStrings(String[] monthNamesLong, String[] monthNamesShort,
-                               String[] dayNamesLong, String[] dayNamesShort) {
-            this.monthNamesLong = monthNamesLong;
-            this.monthNamesShort = monthNamesShort;
-            this.dayNamesLong = dayNamesLong;
-            this.dayNamesShort = dayNamesShort;
-
-        }
-
-        public CalendarStrings() {
-            this(
-                    new String[]{"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"},
-                    new String[]{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"},
-                    new String[]{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"},
-                    new String[]{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}
-            );
-        }
-    };
-
-    public static class DateFields {
-        public DateFields() {
-            year = 1970;
-            month = 1;
-            day = 1;
-            hour = 0;
-            minute = 0;
-            second = 0;
-            secTicks = 0;
-            dow = 0;
-
-            noValidation = false;
-
-//            tzStr = "Z";
-//            tzOffset = 0;
-        }
-
-        public int year;
-        public int month; //1-12
-        public int day; //1-31
-        public int hour; //0-23
-        public int minute; //0-59
-        public int second; //0-59
-        public int secTicks; //0-999 (ms)
-        boolean noValidation = false; // true or false. Set to true when using foreign calendars
-
-        /**
-         * NOTE: CANNOT BE USED TO SPECIFY A DATE *
-         */
-        public int dow; //1-7;
-
-//        public String tzStr;
-//        public int tzOffset; //s ahead of UTC
-
-        public boolean check() {
-            return noValidation ||
-                    ((inRange(month, 1, 12) && inRange(day, 1, daysInMonth(month - MONTH_OFFSET, year)) &&
-                            inRange(hour, 0, 23) && inRange(minute, 0, 59) && inRange(second, 0, 59) && inRange(secTicks, 0, 999)));
-        }
     }
 
 }
