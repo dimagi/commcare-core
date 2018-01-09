@@ -21,88 +21,30 @@ public class DateUtils {
     public static final int FORMAT_ISO8601 = 1;
     public static final int FORMAT_HUMAN_READABLE_SHORT = 2;
     public static final int FORMAT_HUMAN_READABLE_DAYS_FROM_TODAY = 5;
-    //public static final int FORMAT_HUMAN_READABLE_LONG = 3;
     public static final int FORMAT_TIMESTAMP_SUFFIX = 7;
-
     /**
      * RFC 822 *
      */
     public static final int FORMAT_TIMESTAMP_HTTP = 9;
 
+    private static CalendarStrings defaultCalendarStrings = new CalendarStrings();
+    private static TimezoneProviderSource tzProviderSource = new TimezoneProviderSource();
+
     public static final long DAY_IN_MS = 86400000L;
     private static final Date EPOCH_DATE = getDate(1970, 1, 1);
     private final static long EPOCH_TIME = roundDate(EPOCH_DATE).getTime();
 
-    public DateUtils() {
-        super();
+    // Used by Formplayer
+    public static void setTimezoneProviderSource(TimezoneProviderSource providerSource) {
+        tzProviderSource = providerSource;
     }
 
-    private static CalendarStrings defaultCalendarStrings = new CalendarStrings();
+    public static void resetTimezoneProviderSource() {
+        tzProviderSource = new TimezoneProviderSource();
+    }
 
-    public static class CalendarStrings {
-        public String[] monthNamesLong;
-        public String[] monthNamesShort;
-        public String[] dayNamesLong;
-        public String[] dayNamesShort;
-
-        public CalendarStrings(String[] monthNamesLong, String[] monthNamesShort,
-                               String[] dayNamesLong, String[] dayNamesShort) {
-            this.monthNamesLong = monthNamesLong;
-            this.monthNamesShort = monthNamesShort;
-            this.dayNamesLong = dayNamesLong;
-            this.dayNamesShort = dayNamesShort;
-
-        }
-
-        public CalendarStrings() {
-            this(
-                    new String[]{"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"},
-                    new String[]{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"},
-                    new String[]{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"},
-                    new String[]{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}
-            );
-        }
-    };
-
-    public static class DateFields {
-        public DateFields() {
-            year = 1970;
-            month = 1;
-            day = 1;
-            hour = 0;
-            minute = 0;
-            second = 0;
-            secTicks = 0;
-            dow = 0;
-
-            noValidation = false;
-
-//            tzStr = "Z";
-//            tzOffset = 0;
-        }
-
-        public int year;
-        public int month; //1-12
-        public int day; //1-31
-        public int hour; //0-23
-        public int minute; //0-59
-        public int second; //0-59
-        public int secTicks; //0-999 (ms)
-        boolean noValidation = false; // true or false. Set to true when using foreign calendars
-
-        /**
-         * NOTE: CANNOT BE USED TO SPECIFY A DATE *
-         */
-        public int dow; //1-7;
-
-//        public String tzStr;
-//        public int tzOffset; //s ahead of UTC
-
-        public boolean check() {
-            return noValidation ||
-                    ((inRange(month, 1, 12) && inRange(day, 1, daysInMonth(month - MONTH_OFFSET, year)) &&
-                    inRange(hour, 0, 23) && inRange(minute, 0, 59) && inRange(second, 0, 59) && inRange(secTicks, 0, 999)));
-        }
+    private static int timezoneOffset() {
+        return tzProviderSource.getTimezoneOffsetMillis();
     }
 
     public static DateFields getFieldsForNonGregorianCalendar(int year, int monthOfYear, int dayOfMonth) {
@@ -122,18 +64,30 @@ public class DateUtils {
         cd.setTime(d);
         if (timezone != null) {
             cd.setTimeZone(TimeZone.getTimeZone(timezone));
+        } else if (timezoneOffset() != -1) {
+            return getFields(d, timezoneOffset());
         }
+        return getFields(cd);
+    }
 
+    private static DateFields getFields(Date d, int timezoneOffset) {
+        Calendar cd = Calendar.getInstance();
+        cd.setTimeZone(TimeZone.getTimeZone("UTC"));
+        cd.setTime(d);
+        cd.add(Calendar.MILLISECOND, timezoneOffset);
+        return getFields(cd);
+    }
+
+    private static DateFields getFields(Calendar cal) {
         DateFields fields = new DateFields();
-        fields.year = cd.get(Calendar.YEAR);
-        fields.month = cd.get(Calendar.MONTH) + MONTH_OFFSET;
-        fields.day = cd.get(Calendar.DAY_OF_MONTH);
-        fields.hour = cd.get(Calendar.HOUR_OF_DAY);
-        fields.minute = cd.get(Calendar.MINUTE);
-        fields.second = cd.get(Calendar.SECOND);
-        fields.secTicks = cd.get(Calendar.MILLISECOND);
-        fields.dow = cd.get(Calendar.DAY_OF_WEEK);
-
+        fields.year = cal.get(Calendar.YEAR);
+        fields.month = cal.get(Calendar.MONTH) + MONTH_OFFSET;
+        fields.day = cal.get(Calendar.DAY_OF_MONTH);
+        fields.hour = cal.get(Calendar.HOUR_OF_DAY);
+        fields.minute = cal.get(Calendar.MINUTE);
+        fields.second = cal.get(Calendar.SECOND);
+        fields.secTicks = cal.get(Calendar.MILLISECOND);
+        fields.dow = cal.get(Calendar.DAY_OF_WEEK);
         return fields;
     }
 
@@ -169,11 +123,13 @@ public class DateUtils {
      * @param timezone use this timezone, but if null, use default timezone
      * @return Date interpretation of DateFields at given timezone
      */
-    public static Date getDate(DateFields df, String timezone) {
+    private static Date getDate(DateFields df, String timezone) {
         Calendar cd = Calendar.getInstance();
 
         if (timezone != null) {
             cd.setTimeZone(TimeZone.getTimeZone(timezone));
+        } else if (timezoneOffset() != -1) {
+            return getDate(df, timezoneOffset());
         }
 
         cd.set(Calendar.YEAR, df.year);
@@ -183,6 +139,23 @@ public class DateUtils {
         cd.set(Calendar.MINUTE, df.minute);
         cd.set(Calendar.SECOND, df.second);
         cd.set(Calendar.MILLISECOND, df.secTicks);
+
+        return cd.getTime();
+    }
+
+    private static Date getDate(DateFields df, int timezoneOffset) {
+        Calendar cd = Calendar.getInstance();
+        cd.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        cd.set(Calendar.YEAR, df.year);
+        cd.set(Calendar.MONTH, df.month - MONTH_OFFSET);
+        cd.set(Calendar.DAY_OF_MONTH, df.day);
+        cd.set(Calendar.HOUR_OF_DAY, df.hour);
+        cd.set(Calendar.MINUTE, df.minute);
+        cd.set(Calendar.SECOND, df.second);
+        cd.set(Calendar.MILLISECOND, df.secTicks);
+
+        cd.add(Calendar.MILLISECOND, -1 * timezoneOffset);
 
         return cd.getTime();
     }
@@ -292,8 +265,13 @@ public class DateUtils {
     private static String formatTimeISO8601(DateFields f) {
         String time = intPad(f.hour, 2) + ":" + intPad(f.minute, 2) + ":" + intPad(f.second, 2) + "." + intPad(f.secTicks, 3);
 
-        //Time Zone ops (1 in the first field corresponds to 'CE' ERA)
-        int offset = TimeZone.getDefault().getOffset(1, f.year, f.month - 1, f.day, f.dow, 0);
+        int offset;
+        if (timezoneOffset() != -1) {
+            offset = timezoneOffset();
+        } else {
+            //Time Zone ops (1 in the first field corresponds to 'CE' ERA)
+            offset = TimeZone.getDefault().getOffset(1, f.year, f.month - 1, f.day, f.dow, 0);
+        }
 
         //NOTE: offset is in millis
         if (offset == 0) {
@@ -440,12 +418,28 @@ public class DateUtils {
     }
 
     public static Date parseTime(String str) {
+        if (timezoneOffset() != -1  && !str.contains("+") && !str.contains("-") && !str.contains("Z")) {
+            str = str + getOffsetInStandardFormat(timezoneOffset());
+        }
+
         DateFields fields = new DateFields();
         if (!parseTimeAndStore(str, fields)) {
             return null;
         }
         return getDate(fields);
     }
+
+    private static String getOffsetInStandardFormat(int offsetInMillis) {
+        int hours = offsetInMillis / 1000 / 60 / 60;
+        if (hours > 0) {
+            return "+" + hours;
+        } else if (hours == 0) {
+            return "Z";
+        } else {
+            return "" + hours;
+        }
+    }
+
 
     private static boolean parseTimeAndStore(String timeStr, DateFields df) {
         // get timezone information first. Make a Datefields set for the possible offset
@@ -839,4 +833,71 @@ public class DateUtils {
         }
         return string.contains(substring);
     }
+
+    public static class CalendarStrings {
+        public String[] monthNamesLong;
+        public String[] monthNamesShort;
+        public String[] dayNamesLong;
+        public String[] dayNamesShort;
+
+        public CalendarStrings(String[] monthNamesLong, String[] monthNamesShort,
+                               String[] dayNamesLong, String[] dayNamesShort) {
+            this.monthNamesLong = monthNamesLong;
+            this.monthNamesShort = monthNamesShort;
+            this.dayNamesLong = dayNamesLong;
+            this.dayNamesShort = dayNamesShort;
+
+        }
+
+        public CalendarStrings() {
+            this(
+                    new String[]{"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"},
+                    new String[]{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"},
+                    new String[]{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"},
+                    new String[]{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}
+            );
+        }
+    };
+
+    public static class DateFields {
+        public DateFields() {
+            year = 1970;
+            month = 1;
+            day = 1;
+            hour = 0;
+            minute = 0;
+            second = 0;
+            secTicks = 0;
+            dow = 0;
+
+            noValidation = false;
+
+//            tzStr = "Z";
+//            tzOffset = 0;
+        }
+
+        public int year;
+        public int month; //1-12
+        public int day; //1-31
+        public int hour; //0-23
+        public int minute; //0-59
+        public int second; //0-59
+        public int secTicks; //0-999 (ms)
+        boolean noValidation = false; // true or false. Set to true when using foreign calendars
+
+        /**
+         * NOTE: CANNOT BE USED TO SPECIFY A DATE *
+         */
+        public int dow; //1-7;
+
+//        public String tzStr;
+//        public int tzOffset; //s ahead of UTC
+
+        public boolean check() {
+            return noValidation ||
+                    ((inRange(month, 1, 12) && inRange(day, 1, daysInMonth(month - MONTH_OFFSET, year)) &&
+                            inRange(hour, 0, 23) && inRange(minute, 0, 59) && inRange(second, 0, 59) && inRange(secTicks, 0, 999)));
+        }
+    }
+
 }

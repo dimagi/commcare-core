@@ -2,6 +2,8 @@ package org.javarosa.core.model.utils.test;
 
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.model.utils.DateUtils.DateFields;
+import org.javarosa.core.model.utils.TimezoneProviderSource;
+import org.javarosa.test_utils.MockTimezoneProviderSource;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -16,6 +18,7 @@ import static org.junit.Assert.fail;
 
 public class DateUtilsTests {
     private static Date currentTime;
+    private static final int HOUR_IN_MILLIS = 60 * 60 * 1000;
 
     @BeforeClass
     public static void setUp() {
@@ -177,7 +180,6 @@ public class DateUtilsTests {
             String formatted = DateUtils.formatDateTime(in, DateUtils.FORMAT_ISO8601);
             Date out = DateUtils.parseDateTime(formatted);
             assertEquals("Fail:", in.getTime(), out.getTime());
-
         } catch (Exception e) {
             e.printStackTrace();
             fail("Error: " + in + e.getMessage());
@@ -205,7 +207,6 @@ public class DateUtilsTests {
             assertEquals("Fail: '" + escape + "' rendered unexpectedly", result, formatted);
         }
 
-
         boolean didFail = false;
         try {
             DateUtils.format(novFifth2016Fields, "%c");
@@ -214,5 +215,136 @@ public class DateUtilsTests {
         }
         assertTrue(didFail);
     }
-    
+
+    @Test
+    public void testFormatDateTimeWithOffset() {
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        c.set(2017, 0, 2, 2, 0, 0); // Jan 2, 2017 2:00 AM in UTC
+        c.set(Calendar.MILLISECOND, 0);
+        Date d = c.getTime();
+
+        MockTimezoneProviderSource tzSource = new MockTimezoneProviderSource();
+        DateUtils.setTimezoneProviderSource(tzSource);
+
+        tzSource.setOffset(HOUR_IN_MILLIS);
+        String expectedDateTime1HourAhead = "2017-01-02T03:00:00.000+01";
+        assertEquals(expectedDateTime1HourAhead,
+                DateUtils.formatDateTime(d, DateUtils.FORMAT_ISO8601));
+
+        tzSource.setOffset(-3 * HOUR_IN_MILLIS);
+        String expectedDateTime3HoursBehind = "2017-01-01T23:00:00.000-03";
+        assertEquals(expectedDateTime3HoursBehind,
+                DateUtils.formatDateTime(d, DateUtils.FORMAT_ISO8601));
+
+        tzSource.setOffset(0);
+        String expectedDateTimeUTC = "2017-01-02T02:00:00.000Z";
+        assertEquals(expectedDateTimeUTC,
+                DateUtils.formatDateTime(d, DateUtils.FORMAT_ISO8601));
+
+        DateUtils.resetTimezoneProviderSource();
+    }
+
+    @Test
+    public void testFormatDateWithOffset() {
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        c.set(2017, 0, 2, 2, 0, 0); // Jan 2, 2017 2:00 AM in UTC
+        c.set(Calendar.MILLISECOND, 0);
+        Date d = c.getTime();
+
+        MockTimezoneProviderSource tzSource = new MockTimezoneProviderSource();
+        DateUtils.setTimezoneProviderSource(tzSource);
+
+        tzSource.setOffset(HOUR_IN_MILLIS);
+        String expectedDate1HourAhead = "2017-01-02";
+        assertEquals(expectedDate1HourAhead,
+                DateUtils.formatDate(d, DateUtils.FORMAT_ISO8601));
+
+        tzSource.setOffset(-3 * HOUR_IN_MILLIS);
+        String expectedDate3HoursBehind = "2017-01-01";
+        assertEquals(expectedDate3HoursBehind,
+                DateUtils.formatDate(d, DateUtils.FORMAT_ISO8601));
+
+        tzSource.setOffset(0);
+        String expectedDateUTC = "2017-01-02";
+        assertEquals(expectedDateUTC,
+                DateUtils.formatDate(d, DateUtils.FORMAT_ISO8601));
+
+        DateUtils.resetTimezoneProviderSource();
+    }
+
+    @Test
+    public void testFormatTimeWithOffset() {
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        c.set(2017, 0, 2, 2, 0, 0); // Jan 2, 2017 2:00 AM in UTC
+        c.set(Calendar.MILLISECOND, 0);
+        Date d = c.getTime();
+
+        MockTimezoneProviderSource tzSource = new MockTimezoneProviderSource();
+        DateUtils.setTimezoneProviderSource(tzSource);
+
+        tzSource.setOffset(HOUR_IN_MILLIS);
+        String expectedTime1HourAhead = "03:00:00.000+01";
+        assertEquals(expectedTime1HourAhead,
+                DateUtils.formatTime(d, DateUtils.FORMAT_ISO8601));
+
+        tzSource.setOffset(-3 * HOUR_IN_MILLIS);
+        String expectedTime3HoursBehind = "23:00:00.000-03";
+        assertEquals(expectedTime3HoursBehind,
+                DateUtils.formatTime(d, DateUtils.FORMAT_ISO8601));
+
+        tzSource.setOffset(0);
+        String expectedTimeUTC = "02:00:00.000Z";
+        assertEquals(expectedTimeUTC,
+                DateUtils.formatTime(d, DateUtils.FORMAT_ISO8601));
+
+        DateUtils.resetTimezoneProviderSource();
+    }
+
+    @Test
+    public void testTimeParsingWithOffset() {
+        testTimeParsingHelper("UTC");
+        testTimeParsingHelper("EST");
+        testTimeParsingHelper("Africa/Johannesburg");
+    }
+
+    private static void testTimeParsingHelper(String timezoneId) {
+        Calendar c = Calendar.getInstance();
+        TimeZone tz = TimeZone.getTimeZone(timezoneId);
+        c.setTimeZone(tz);
+        c.set(1970, 0, 1, 22, 0, 0); // Jan 1, 1970 22:00
+        c.set(Calendar.MILLISECOND, 0);
+        Date expectedDate = c.getTime();
+
+        MockTimezoneProviderSource tzSource = new MockTimezoneProviderSource();
+        DateUtils.setTimezoneProviderSource(tzSource);
+        tzSource.setOffset(tz.getOffset(expectedDate.getTime()));
+
+        assertEquals(expectedDate.getTime(), DateUtils.parseTime("22:00").getTime());
+        DateUtils.resetTimezoneProviderSource();
+    }
+
+    @Test
+    public void testDateTimeParsingWithOffset() {
+        testDateTimeParsingHelper("UTC");
+        testDateTimeParsingHelper("EST");
+        testDateTimeParsingHelper("Africa/Johannesburg");
+    }
+
+    private static void testDateTimeParsingHelper(String timezoneId) {
+        Calendar c = Calendar.getInstance();
+        TimeZone tz = TimeZone.getTimeZone(timezoneId);
+        c.setTimeZone(tz);
+        c.set(2017, 0, 2, 2, 0, 0); // Jan 2, 2017 02:00
+        c.set(Calendar.MILLISECOND, 0);
+        Date expectedDate = c.getTime();
+
+        MockTimezoneProviderSource tzSource = new MockTimezoneProviderSource();
+        DateUtils.setTimezoneProviderSource(tzSource);
+        tzSource.setOffset(tz.getOffset(expectedDate.getTime()));
+
+        assertEquals(expectedDate.getTime(),
+                DateUtils.parseDateTime("2017-01-02T02:00:00").getTime());
+        DateUtils.resetTimezoneProviderSource();
+    }
+
 }
