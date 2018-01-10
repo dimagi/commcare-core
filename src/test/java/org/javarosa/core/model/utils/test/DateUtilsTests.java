@@ -304,6 +304,7 @@ public class DateUtilsTests {
         testTimeParsingHelper("UTC");
         testTimeParsingHelper("EST");
         testTimeParsingHelper("Africa/Johannesburg");
+        testTimeParsingHelper("Asia/Katmandu");
     }
 
     private static void testTimeParsingHelper(String timezoneId) {
@@ -327,6 +328,7 @@ public class DateUtilsTests {
         testDateTimeParsingHelper("UTC");
         testDateTimeParsingHelper("EST");
         testDateTimeParsingHelper("Africa/Johannesburg");
+        testDateTimeParsingHelper("Asia/Katmandu");
     }
 
     private static void testDateTimeParsingHelper(String timezoneId) {
@@ -344,6 +346,29 @@ public class DateUtilsTests {
         assertEquals(expectedDate.getTime(),
                 DateUtils.parseDateTime("2017-01-02T02:00:00").getTime());
         DateUtils.resetTimezoneProvider();
+    }
+
+    @Test
+    public void testGetOffsetString() {
+        int offset = 6 * 60 * 60 * 1000;
+        String expected = "+06";
+        offsetStringTestHelper(offset, expected);
+
+        offset = 0;
+        expected = "Z";
+        offsetStringTestHelper(offset, expected);
+
+        offset = (int)(-5.5 * 60 * 60 * 1000);
+        expected = "-05:30";
+        offsetStringTestHelper(offset, expected);
+
+        offset = (int)(5.75 * 60 * 60 * 1000);
+        expected = "+05:45";
+        offsetStringTestHelper(offset, expected);
+    }
+
+    private static void offsetStringTestHelper(int offsetInMillis, String expectedOffsetString) {
+        assertEquals(expectedOffsetString, DateUtils.getOffsetInStandardFormat(offsetInMillis));
     }
 
 }

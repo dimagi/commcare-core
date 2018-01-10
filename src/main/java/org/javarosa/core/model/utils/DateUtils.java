@@ -495,15 +495,24 @@ public class DateUtils {
         return getDate(fields);
     }
 
-    private static String getOffsetInStandardFormat(int offsetInMillis) {
+    public static String getOffsetInStandardFormat(int offsetInMillis) {
         int hours = offsetInMillis / 1000 / 60 / 60;
+        String offsetStr;
         if (hours > 0) {
-            return "+" + hours;
+            offsetStr = "+" + intPad(hours, 2);
         } else if (hours == 0) {
-            return "Z";
+            offsetStr = "Z";
         } else {
-            return "" + hours;
+            offsetStr = "-" + intPad(Math.abs(hours), 2);
         }
+
+        int totalMinutes = offsetInMillis / 1000 / 60;
+        int remainderMinutes = Math.abs(totalMinutes) % 60;
+        if (remainderMinutes != 0) {
+             offsetStr += (":" + intPad(remainderMinutes, 2));
+        }
+
+        return offsetStr;
     }
 
 
