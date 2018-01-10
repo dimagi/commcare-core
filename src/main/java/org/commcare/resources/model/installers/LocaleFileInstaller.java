@@ -212,23 +212,23 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCarePlatform> 
     }
 
     @Override
-    public boolean unstage(Resource r, int newStatus) {
+    public boolean unstage(Resource r, int newStatus, CommCarePlatform instance) {
         return true;
     }
 
     @Override
-    public boolean revert(Resource r, ResourceTable table) {
+    public boolean revert(Resource r, ResourceTable table, CommCarePlatform instance) {
         return true;
     }
 
     @Override
-    public int rollback(Resource r) {
+    public int rollback(Resource r, CommCarePlatform instance) {
         //This does nothing
         return Resource.getCleanFlag(r.getStatus());
     }
 
     @Override
-    public boolean uninstall(Resource r) throws UnresolvedResourceException {
+    public boolean uninstall(Resource r, CommCarePlatform platform) throws UnresolvedResourceException {
         //If we're not using files, just deal with the cache (this is even likely unnecessary).
         if (cache != null) {
             cache.clear();
@@ -274,7 +274,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCarePlatform> 
     }
 
     @Override
-    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
+    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems, CommCarePlatform instance) {
         try {
             if (locale == null) {
                 problems.addElement(new MissingMediaException(r, "Bad metadata, no locale"));

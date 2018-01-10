@@ -51,7 +51,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
     public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
         //Certain properties may not have been able to set during install, so we'll make sure they're
         //set here.
-        Profile p = storage().read(cacheLocation);
+        Profile p = storage(instance).read(cacheLocation);
         p.initializeProperties(instance, false);
 
         instance.setProfile(p);
@@ -82,7 +82,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
         try {
             if (getlocal().containsKey(r.getRecordGuid()) && r.getStatus() == Resource.RESOURCE_STATUS_LOCAL) {
                 Profile local = getlocal().get(r.getRecordGuid());
-                installInternal(local);
+                installInternal(local, instance);
                 table.commitCompoundResource(r, Resource.RESOURCE_STATUS_UPGRADE);
                 localTable.remove(r.getRecordGuid());
 
@@ -120,7 +120,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
                     table.commitCompoundResource(r, Resource.RESOURCE_STATUS_LOCAL, p.getVersion());
                 } else {
                     p.initializeProperties(instance, true);
-                    installInternal(p);
+                    installInternal(p, instance);
                     //TODO: What if this fails? Maybe we should be throwing exceptions...
                     table.commitCompoundResource(r, Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
                 }
@@ -148,8 +148,8 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
         }
     }
 
-    private void installInternal(Profile profile) {
-        storage().write(profile);
+    private void installInternal(Profile profile, CommCarePlatform instance) {
+        storage(instance).write(profile);
         cacheLocation = profile.getID();
     }
 
@@ -161,21 +161,21 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
         if (getlocal().containsKey(r.getRecordGuid())) {
             p = getlocal().get(r.getRecordGuid());
         } else {
-            p = storage().read(cacheLocation);
+            p = storage(instance).read(cacheLocation);
         }
         p.initializeProperties(instance, true);
-        storage().write(p);
+        storage(instance).write(p);
         return true;
     }
 
     @Override
-    public boolean unstage(Resource r, int newStatus) {
+    public boolean unstage(Resource r, int newStatus, CommCarePlatform instance) {
         //Nothing to do. Cache location is clear.
         return true;
     }
 
     @Override
-    public boolean revert(Resource r, ResourceTable table) {
+    public boolean revert(Resource r, ResourceTable table, CommCarePlatform instance) {
         //Possibly re-set this profile's default property setters.
         return true;
     }

@@ -322,12 +322,12 @@ public class ResourceTable {
     /**
      * Rolls back uncommitted resources from dirty states
      */
-    public void rollbackCommits() {
+    public void rollbackCommits(CommCarePlatform instance) {
         Stack<Resource> s = this.getResourceStack();
         while (!s.isEmpty()) {
             Resource r = s.pop();
             if (r.isDirty()) {
-                this.commit(r, r.getInstaller().rollback(r));
+                this.commit(r, r.getInstaller().rollback(r, instance));
             }
         }
     }
@@ -651,7 +651,7 @@ public class ResourceTable {
                     // Mark as being ready to transition
                     commit(peer, Resource.RESOURCE_STATUS_INSTALL_TO_UNSTAGE);
 
-                    if (!peer.getInstaller().unstage(peer, Resource.RESOURCE_STATUS_UNSTAGED)) {
+                    if (!peer.getInstaller().unstage(peer, Resource.RESOURCE_STATUS_UNSTAGED, platform)) {
                         // TODO: revert this resource table!
                         throw new UnresolvedResourceException(peer,
                                 "Couldn't make room for new resource " +
@@ -695,7 +695,7 @@ public class ResourceTable {
      * @param replacement Reference table; uninstall resources not also present
      *                    in this table
      */
-    public void uninstall(ResourceTable replacement) {
+    public void uninstall(ResourceTable replacement, CommCarePlatform platform) {
         cleanup();
         Hashtable<String, Resource> replacementMap = getResourceMap(replacement);
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
@@ -705,7 +705,7 @@ public class ResourceTable {
                 // No entry in 'replacement' so it's no longer relevant
                 // OR resource has been replaced, so flag for deletion
                 try {
-                    r.getInstaller().uninstall(r);
+                    r.getInstaller().uninstall(r, platform);
                 } catch (Exception e) {
                     Logger.log("Resource", "Error uninstalling resource " +
                             r.getRecordGuid() + ". " + e.getMessage());
@@ -713,7 +713,7 @@ public class ResourceTable {
             } else if (r.getStatus() == Resource.RESOURCE_STATUS_DELETE) {
                 // NOTE: Shouldn't be a way for this condition to occur, but check anyways...
                 try {
-                    r.getInstaller().uninstall(r);
+                    r.getInstaller().uninstall(r, platform);
                 } catch (Exception e) {
                     Logger.log("Resource", "Error uninstalling resource " +
                             r.getRecordGuid() + ". " + e.getMessage());
@@ -730,7 +730,7 @@ public class ResourceTable {
      *
      * @param incoming The table which unstaged this table's resources
      */
-    public void repairTable(ResourceTable incoming) {
+    public void repairTable(ResourceTable incoming, CommCarePlatform instance) {
         Stack<Resource> s =
                 this.getResourceStackWithStatus(Resource.RESOURCE_STATUS_UNSTAGED);
         while (!s.isEmpty()) {
@@ -744,7 +744,7 @@ public class ResourceTable {
                 if (peer != null && peer.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
                     incoming.commit(peer, Resource.RESOURCE_STATUS_INSTALL_TO_UPGRADE);
                     // TODO: Is there anything we can do about this? Shouldn't it be an exception?
-                    if (!peer.getInstaller().unstage(peer, Resource.RESOURCE_STATUS_UPGRADE)) {
+                    if (!peer.getInstaller().unstage(peer, Resource.RESOURCE_STATUS_UPGRADE, instance)) {
                         // TODO: IF there are errors here, signal that the incoming table
                         // should just be wiped out. It's not in acceptable shape
                     } else {
@@ -755,7 +755,7 @@ public class ResourceTable {
 
             // Way should be clear.
             this.commit(resource, Resource.RESOURCE_STATUS_UNSTAGE_TO_INSTALL);
-            if (resource.getInstaller().revert(resource, this)) {
+            if (resource.getInstaller().revert(resource, this, instance)) {
                 this.commit(resource, Resource.RESOURCE_STATUS_INSTALLED);
             }
         }
@@ -848,7 +848,7 @@ public class ResourceTable {
      * by it. This is important for rolling back botched upgrades without
      * leaving their files around.
      */
-    public void clear() {
+    public void clear(CommCarePlatform platform) {
         cleanup();
         Stack<Resource> s = this.getResourceStack();
         int count = 0;
@@ -856,7 +856,7 @@ public class ResourceTable {
             Resource r = s.pop();
             if (r.getStatus() == Resource.RESOURCE_STATUS_UPGRADE) {
                 try {
-                    r.getInstaller().uninstall(r);
+                    r.getInstaller().uninstall(r, platform);
                     count++;
                 } catch (UnresolvedResourceException e) {
                     // already gone!
@@ -1053,12 +1053,12 @@ public class ResourceTable {
     }
 
 
-    public void verifyInstallation(Vector<MissingMediaException> problems) {
+    public void verifyInstallation(Vector<MissingMediaException> problems, CommCarePlatform instance) {
         Vector<Resource> resources = getResources();
         int total = resources.size();
         int count = 0;
         for (Resource r : resources) {
-            r.getInstaller().verifyInstallation(r, problems);
+            r.getInstaller().verifyInstallation(r, problems, instance);
             count++;
             if (stateListener != null) {
                 stateListener.incrementProgress(count, total);

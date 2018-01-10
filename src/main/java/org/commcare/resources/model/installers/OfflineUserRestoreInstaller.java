@@ -27,7 +27,7 @@ public class OfflineUserRestoreInstaller extends CacheInstaller<OfflineUserResto
 
     @Override
     public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
-        instance.registerDemoUserRestore(storage().read(cacheLocation));
+        instance.registerDemoUserRestore(storage(instance).read(cacheLocation));
         return true;
     }
 
@@ -43,7 +43,7 @@ public class OfflineUserRestoreInstaller extends CacheInstaller<OfflineUserResto
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
             OfflineUserRestore offlineUserRestore = OfflineUserRestore.buildInMemoryUserRestore(ref.getStream());
-            storage().write(offlineUserRestore);
+            storage(instance).write(offlineUserRestore);
             if (upgrade) {
                 table.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
             } else {

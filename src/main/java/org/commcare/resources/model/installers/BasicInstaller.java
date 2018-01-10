@@ -71,22 +71,22 @@ public class BasicInstaller implements ResourceInstaller<CommCarePlatform> {
     }
 
     @Override
-    public boolean uninstall(Resource r) throws UnresolvedResourceException {
+    public boolean uninstall(Resource r, CommCarePlatform instance) throws UnresolvedResourceException {
         return true;
     }
 
     @Override
-    public boolean unstage(Resource r, int newStatus) {
+    public boolean unstage(Resource r, int newStatus, CommCarePlatform instance) {
         return true;
     }
 
     @Override
-    public boolean revert(Resource r, ResourceTable table) {
+    public boolean revert(Resource r, ResourceTable table, CommCarePlatform instance) {
         return true;
     }
 
     @Override
-    public int rollback(Resource r) {
+    public int rollback(Resource r, CommCarePlatform instance) {
         throw new RuntimeException("Basic Installer resources can't rolled back");
     }
 
@@ -105,7 +105,7 @@ public class BasicInstaller implements ResourceInstaller<CommCarePlatform> {
     }
 
     @Override
-    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
+    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems, CommCarePlatform instance) {
         //Work by default
         return true;
     }

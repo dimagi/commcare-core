@@ -35,9 +35,9 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
 
     protected abstract String getCacheKey();
 
-    protected IStorageUtilityIndexed<T> storage() {
+    protected IStorageUtilityIndexed<T> storage(CommCarePlatform instance) {
         if (cacheStorage == null) {
-            cacheStorage = StorageManager.getStorage(getCacheKey());
+            cacheStorage = instance.getStorageManager().getStorage(getCacheKey());
         }
         return cacheStorage;
     }
@@ -62,9 +62,9 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
     }
 
     @Override
-    public boolean uninstall(Resource r) {
+    public boolean uninstall(Resource r, CommCarePlatform instance) {
         try {
-            storage().remove(cacheLocation);
+            storage(instance).remove(cacheLocation);
         } catch (IllegalArgumentException e) {
             //Already gone! Shouldn't need to fail.
         }
@@ -72,19 +72,19 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
     }
 
     @Override
-    public boolean unstage(Resource r, int newStatus) {
+    public boolean unstage(Resource r, int newStatus, CommCarePlatform instance) {
         //By default, shouldn't need to move anything.
         return true;
     }
 
     @Override
-    public boolean revert(Resource r, ResourceTable table) {
+    public boolean revert(Resource r, ResourceTable table, CommCarePlatform instance) {
         //By default, shouldn't need to move anything.
         return true;
     }
 
     @Override
-    public int rollback(Resource r) {
+    public int rollback(Resource r, CommCarePlatform instance) {
         //This does nothing, since we don't do any upgrades/unstages
         return Resource.getCleanFlag(r.getStatus());
     }
@@ -107,7 +107,7 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
     }
 
     @Override
-    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> resources) {
+    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> resources, CommCarePlatform instance) {
         return false;
     }
 }

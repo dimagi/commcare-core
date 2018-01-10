@@ -36,14 +36,18 @@ public class CommCarePlatform {
     private int profile;
     private OfflineUserRestore offlineUserRestore;
 
+    private StorageManager storageManager;
     private PropertyManager propertyManager;
 
     private final int majorVersion;
     private final int minorVersion;
 
-    public CommCarePlatform(int majorVersion, int minorVersion, PropertyManager propertyManager) {
+    public CommCarePlatform(int majorVersion, int minorVersion,
+                            StorageManager storageManager,
+                            PropertyManager propertyManager) {
         this(majorVersion, minorVersion);
         this.propertyManager = propertyManager;
+        this.storageManager = storageManager;
     }
 
     public CommCarePlatform(int majorVersion, int minorVersion) {
@@ -61,12 +65,12 @@ public class CommCarePlatform {
     }
 
     public Profile getCurrentProfile() {
-        return (Profile)(StorageManager.getStorage(Profile.STORAGE_KEY).read(profile));
+        return (Profile)storageManager.getStorage(Profile.STORAGE_KEY).read(profile);
     }
 
     public Vector<Suite> getInstalledSuites() {
         Vector<Suite> installedSuites = new Vector<>();
-        IStorageUtilityIndexed utility = StorageManager.getStorage(Suite.STORAGE_KEY);
+        IStorageUtilityIndexed utility = storageManager.getStorage(Suite.STORAGE_KEY);
 
         IStorageIterator iterator = utility.iterate();
 
@@ -182,5 +186,9 @@ public class CommCarePlatform {
 
     public PropertyManager getPropertyManager() {
         return propertyManager;
+    }
+
+    public StorageManager getStorageManager() {
+        return storageManager;
     }
 }
