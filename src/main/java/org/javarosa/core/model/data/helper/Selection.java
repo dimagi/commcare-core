@@ -112,9 +112,8 @@ public class Selection implements Externalizable {
         if (choice != null) {
             attachChoice(choice);
         } else {
-            this.choice = null;
-            this.xmlValue = "";
-            this.index = -1;
+            throw new XPathTypeMismatchException("value " + xmlValue + " could not be loaded into question " + q.getTextID()
+                    + ".  Check to see if value " + xmlValue + " is a valid option for question " + q.getTextID() + ".");
         }
     }
 
