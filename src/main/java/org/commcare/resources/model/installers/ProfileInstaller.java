@@ -52,7 +52,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
         //Certain properties may not have been able to set during install, so we'll make sure they're
         //set here.
         Profile p = storage().read(cacheLocation);
-        p.initializeProperties(false);
+        p.initializeProperties(instance, false);
 
         instance.setProfile(p);
         return true;
@@ -119,7 +119,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
                     getlocal().put(r.getRecordGuid(), p);
                     table.commitCompoundResource(r, Resource.RESOURCE_STATUS_LOCAL, p.getVersion());
                 } else {
-                    p.initializeProperties(true);
+                    p.initializeProperties(instance, true);
                     installInternal(p);
                     //TODO: What if this fails? Maybe we should be throwing exceptions...
                     table.commitCompoundResource(r, Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
@@ -154,7 +154,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
     }
 
     @Override
-    public boolean upgrade(Resource r) throws UnresolvedResourceException {
+    public boolean upgrade(Resource r, CommCarePlatform instance) throws UnresolvedResourceException {
         //TODO: Hm... how to do this property setting for reverting?
 
         Profile p;
@@ -163,7 +163,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
         } else {
             p = storage().read(cacheLocation);
         }
-        p.initializeProperties(true);
+        p.initializeProperties(instance, true);
         storage().write(p);
         return true;
     }

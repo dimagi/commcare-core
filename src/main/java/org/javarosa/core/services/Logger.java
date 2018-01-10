@@ -60,21 +60,7 @@ public class Logger {
     }
 
     public static boolean isLoggingEnabled() {
-        boolean enabled;
-        boolean problemReadingFlag = false;
-        try {
-            String flag = PropertyManager.instance().getSingularProperty(LOGS_ENABLED);
-            enabled = (flag == null || flag.equals(LOGS_ENABLED_YES));
-        } catch (Exception e) {
-            enabled = true;    //default to true if problem
-            problemReadingFlag = true;
-        }
-
-        if (problemReadingFlag) {
-            logForce("log-error", "could not read 'logging enabled' flag");
-        }
-
-        return enabled;
+        return true;
     }
 
     public static void exception(Exception e) {

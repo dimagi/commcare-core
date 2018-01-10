@@ -56,7 +56,7 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
     }
 
     @Override
-    public boolean upgrade(Resource r) throws UnresolvedResourceException {
+    public boolean upgrade(Resource r, CommCarePlatform instance) throws UnresolvedResourceException {
         //Don't need to do anything, since the resource is in the RMS already.
         throw new UnresolvedResourceException(r, "Attempt to upgrade installed resource suite");
     }

@@ -170,7 +170,7 @@ public class ResourceManager {
                 Logger.log("Resource", "Upgrade table fetched, beginning upgrade");
 
                 // Try to stage the upgrade table to replace the incoming table
-                masterTable.upgradeTable(upgradeTable);
+                masterTable.upgradeTable(upgradeTable, platform);
 
                 if (upgradeTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
                     throw new RuntimeException("not all incoming resources were installed!!");
