@@ -74,6 +74,7 @@ public class CommCareConfigEngine {
     public CommCareConfigEngine(PrototypeFactory prototypeFactory) {
         this(setupDummyStorageFactory(prototypeFactory), new InstallerFactory());
     }
+
     public CommCareConfigEngine(IStorageIndexedFactory storageFactory,
                                 InstallerFactory installerFactory) {
         this.print = new PrintStream(System.out);

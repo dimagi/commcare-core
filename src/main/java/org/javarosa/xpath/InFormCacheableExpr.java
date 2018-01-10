@@ -11,15 +11,15 @@ import java.util.Map;
  */
 public abstract class InFormCacheableExpr implements XPathAnalyzable {
 
-    public boolean isCached() {
+    protected boolean isCached() {
         return getCachedValue() != null;
     }
 
-    public Object getCachedValue() {
+    protected Object getCachedValue() {
         return getCache() == null ? null : getCache().get(this);
     }
 
-    public boolean isCacheable() {
+    protected boolean isCacheable() {
         if (getCache() == null) {
             return false;
         }
@@ -31,7 +31,7 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
         }
     }
 
-    public void cache(Object value) {
+    protected void cache(Object value) {
         if (getCache() != null) {
             getCache().put(this, value);
         }
