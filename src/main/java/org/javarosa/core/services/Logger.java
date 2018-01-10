@@ -9,9 +9,6 @@ import java.util.Date;
 public class Logger {
     private static final int MAX_MSG_LENGTH = 2048;
 
-    public final static String LOGS_ENABLED = "logenabled";
-    public final static String LOGS_ENABLED_YES = "Enabled";
-
     private static ILogger logger;
 
     public static void registerLogger(ILogger theLogger) {
@@ -33,12 +30,6 @@ public class Logger {
      * @param message A message describing the incident.
      */
     public static void log(String type, String message) {
-        if (isLoggingEnabled()) {
-            logForce(type, message);
-        }
-    }
-
-    private static void logForce(String type, String message) {
         System.err.println("logger> " + type + ": " + message);
         if (message == null) {
             message = "";
@@ -57,24 +48,6 @@ public class Logger {
                 logger.panic();
             }
         }
-    }
-
-    public static boolean isLoggingEnabled() {
-        boolean enabled;
-        boolean problemReadingFlag = false;
-        try {
-            String flag = PropertyManager.instance().getSingularProperty(LOGS_ENABLED);
-            enabled = (flag == null || flag.equals(LOGS_ENABLED_YES));
-        } catch (Exception e) {
-            enabled = true;    //default to true if problem
-            problemReadingFlag = true;
-        }
-
-        if (problemReadingFlag) {
-            logForce("log-error", "could not read 'logging enabled' flag");
-        }
-
-        return enabled;
     }
 
     public static void exception(Exception e) {
