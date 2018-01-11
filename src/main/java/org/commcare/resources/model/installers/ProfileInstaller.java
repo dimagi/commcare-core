@@ -154,7 +154,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
     }
 
     @Override
-    public boolean upgrade(Resource r, CommCarePlatform instance) throws UnresolvedResourceException {
+    public boolean upgrade(Resource r, CommCarePlatform platform) throws UnresolvedResourceException {
         //TODO: Hm... how to do this property setting for reverting?
 
         Profile p;
@@ -163,7 +163,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
         } else {
             p = storage().read(cacheLocation);
         }
-        p.initializeProperties(instance, true);
+        p.initializeProperties(platform, true);
         storage().write(p);
         return true;
     }
