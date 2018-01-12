@@ -39,9 +39,7 @@ public abstract class XPathExpression extends InFormCacheableExpr implements Ext
         Object value = evalRaw(model, evalContext);
         evalContext.reportTraceValue(value);
         evalContext.closeTrace();
-        if (isCacheable()) {
-            cache(value);
-        }
+        cache(value);
         return value;
     }
 

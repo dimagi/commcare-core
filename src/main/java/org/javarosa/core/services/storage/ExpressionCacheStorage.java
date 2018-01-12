@@ -1,5 +1,6 @@
 package org.javarosa.core.services.storage;
 
+import org.javarosa.xpath.CachedExpression;
 import org.javarosa.xpath.InFormCacheableExpr;
 
 /**
@@ -8,7 +9,7 @@ import org.javarosa.xpath.InFormCacheableExpr;
 
 public interface ExpressionCacheStorage {
 
-    void cache(InFormCacheableExpr key, Object value);
+    void cache(CachedExpression value);
     Object getCachedValue(InFormCacheableExpr key);
 
 }

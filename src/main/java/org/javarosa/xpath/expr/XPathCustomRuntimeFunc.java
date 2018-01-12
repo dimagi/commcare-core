@@ -145,7 +145,6 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
-
         ExtUtil.writeString(out, name);
     }
 

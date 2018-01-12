@@ -25,7 +25,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
-public class XPathConditional extends InFormCacheableExpr implements IConditionExpr {
+public class XPathConditional implements IConditionExpr {
     private XPathExpression expr;
     public String xpath; //not serialized!
     private boolean hasNow; //indicates whether this XpathConditional contains the now() function (used for timestamping)
@@ -47,24 +47,14 @@ public class XPathConditional extends InFormCacheableExpr implements IConditionE
 
     @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
-        if (isCached()) {
-            return getCachedValue();
-        }
-
         try {
-            Object evaluated = FunctionUtils.unpack(expr.eval(model, evalContext));
-            if (isCacheable()) {
-                cache(evaluated);
-            }
-            return evaluated;
+            return FunctionUtils.unpack(expr.eval(model, evalContext));
         } catch (XPathUnsupportedException e) {
             if (xpath != null) {
                 throw new XPathUnsupportedException(xpath);
             } else {
                 throw e;
             }
-
-
         }
     }
 
@@ -204,16 +194,6 @@ public class XPathConditional extends InFormCacheableExpr implements IConditionE
     @Override
     public Vector<Object> pivot(DataInstance model, EvaluationContext evalContext) throws UnpivotableExpressionException {
         return expr.pivot(model, evalContext);
-    }
-
-
-    @Override
-    public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
-        if (analyzer.shortCircuit()) {
-            return;
-        }
-        analyzer.doAnalysis(XPathConditional.this);
-        expr.applyAndPropagateAnalyzer(analyzer);
     }
 
 }
