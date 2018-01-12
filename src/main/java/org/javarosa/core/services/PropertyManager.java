@@ -22,28 +22,6 @@ import java.util.Vector;
  */
 public class PropertyManager implements IPropertyManager {
 
-    ///// manage global property manager /////
-
-    private static IPropertyManager instance; //a global instance of the property manager
-
-    public static void setPropertyManager(IPropertyManager pm) {
-        instance = pm;
-    }
-
-    public static void initDefaultPropertyManager() {
-        StorageManager.registerStorage(PropertyManager.STORAGE_KEY, Property.class);
-        setPropertyManager(new PropertyManager());
-    }
-
-    public static IPropertyManager instance() {
-        if (instance == null) {
-            initDefaultPropertyManager();
-        }
-        return instance;
-    }
-
-    //////////////////////////////////////////
-
     /**
      * The name for the Persistent storage utility name
      */
@@ -62,8 +40,8 @@ public class PropertyManager implements IPropertyManager {
     /**
      * Constructor for this PropertyManager
      */
-    public PropertyManager() {
-        this.properties = (IStorageUtilityIndexed)StorageManager.getStorage(STORAGE_KEY);
+    public PropertyManager(IStorageUtilityIndexed properties) {
+        this.properties = properties;
         rulesList = new Vector<>();
     }
 
