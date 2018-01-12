@@ -55,10 +55,6 @@ public class CommCarePlatform {
         this.propertyManager = new PropertyManager(storageManager.getStorage(PropertyManager.STORAGE_KEY));
     }
 
-    public CommCarePlatform(int majorVersion, int minorVersion, IStorageIndexedFactory storageFactory) {
-        this(majorVersion, minorVersion, new StorageManager(storageFactory));
-    }
-
     public CommCarePlatform(int majorVersion, int minorVersion) {
         profile = -1;
         this.majorVersion = majorVersion;
