@@ -322,12 +322,12 @@ public class ResourceTable {
     /**
      * Rolls back uncommitted resources from dirty states
      */
-    public void rollbackCommits(CommCarePlatform instance) {
+    public void rollbackCommits(CommCarePlatform platform) {
         Stack<Resource> s = this.getResourceStack();
         while (!s.isEmpty()) {
             Resource r = s.pop();
             if (r.isDirty()) {
-                this.commit(r, r.getInstaller().rollback(r, instance));
+                this.commit(r, r.getInstaller().rollback(r, platform));
             }
         }
     }
@@ -340,7 +340,7 @@ public class ResourceTable {
      * @param invalid  out-of-date locations to be avoided during resource
      *                 installation
      * @param upgrade  Has an older version of the resource been installed?
-     * @param instance The CommCare instance (specific profile and version) to
+     * @param platform The CommCare platform (specific profile and version) to
      *                 prepare against
      * @param master   Backup resource table to look-up resources not found in
      *                 the current table
@@ -351,7 +351,7 @@ public class ResourceTable {
     private void findResourceLocationAndInstall(Resource r,
                                                 Vector<Reference> invalid,
                                                 boolean upgrade,
-                                                CommCarePlatform instance,
+                                                CommCarePlatform platform,
                                                 ResourceTable master)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
@@ -372,7 +372,7 @@ public class ResourceTable {
                     if (!(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL && invalid.contains(ref))) {
                         try {
                             handled = installResource(r, location, ref, this,
-                                    instance, upgrade);
+                                    platform, upgrade);
                         } catch (InvalidResourceException e) {
                             invalidResourceException = e;
                         } catch (UnreliableSourceException use) {
@@ -388,7 +388,7 @@ public class ResourceTable {
                 try {
                     handled = installResource(r, location,
                             ReferenceManager.instance().DeriveReference(location.getLocation()),
-                            this, instance, upgrade);
+                            this, platform, upgrade);
                     if (handled) {
                         recordSuccess(r);
                         break;
@@ -424,14 +424,14 @@ public class ResourceTable {
      *
      * @param master   The global resource to prepare against. Used to
      *                 establish whether resources need to be fetched remotely
-     * @param instance The instance (version and profile) to prepare against
+     * @param platform The platform (version and profile) to prepare against
      * @throws UnresolvedResourceException       If a resource could not be
      *                                           identified and is required
      * @throws UnfullfilledRequirementsException If some resources are
      *                                           incompatible with the current
      *                                           version of CommCare
      */
-    public void prepareResources(ResourceTable master, CommCarePlatform instance)
+    public void prepareResources(ResourceTable master, CommCarePlatform platform)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
         Hashtable<String, Resource> masterResourceMap = null;
@@ -445,7 +445,7 @@ public class ResourceTable {
         // install all unready resources.
         while (!unreadyResources.isEmpty()) {
             for (Resource r : unreadyResources) {
-                prepareResource(master, instance, r, masterResourceMap);
+                prepareResource(master, platform, r, masterResourceMap);
             }
             // Installing resources may have exposed more unready resources
             // that need installing.
@@ -467,7 +467,7 @@ public class ResourceTable {
      *
      * @param master       The global resource to prepare against. Used to
      *                     establish whether resources need to be fetched remotely
-     * @param instance     The instance (version and profile) to prepare against
+     * @param platform     The platform (version and profile) to prepare against
      * @param toInitialize The ID of a single resource after which the table
      *                     preparation can stop.
      * @throws UnresolvedResourceException       Required resource couldn't be
@@ -476,7 +476,7 @@ public class ResourceTable {
      *                                           current CommCare version
      */
     public void prepareResourcesUpTo(ResourceTable master,
-                                     CommCarePlatform instance,
+                                     CommCarePlatform platform,
                                      String toInitialize)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
@@ -485,7 +485,7 @@ public class ResourceTable {
         // install unready resources, until toInitialize has been installed.
         while (isResourceUninitialized(toInitialize) && !unreadyResources.isEmpty()) {
             for (Resource r : unreadyResources) {
-                prepareResource(master, instance, r, null);
+                prepareResource(master, platform, r, null);
             }
             // Installing resources may have exposed more unready resources
             // that need installing.
@@ -501,7 +501,7 @@ public class ResourceTable {
      *                          table. Null when 'master' is, or when
      *                          pre-loading the resource map isn't worth it.
      */
-    private void prepareResource(ResourceTable master, CommCarePlatform instance,
+    private void prepareResource(ResourceTable master, CommCarePlatform platform,
                                  Resource r, Hashtable<String, Resource> masterResourceMap)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         boolean upgrade = false;
@@ -539,7 +539,7 @@ public class ResourceTable {
             }
         }
 
-        findResourceLocationAndInstall(r, invalid, upgrade, instance, master);
+        findResourceLocationAndInstall(r, invalid, upgrade, platform, master);
 
         if (stateListener != null) {
             if (isResourceProgressStale) {
@@ -574,14 +574,14 @@ public class ResourceTable {
      */
     private boolean installResource(Resource r, ResourceLocation location,
                                     Reference ref, ResourceTable table,
-                                    CommCarePlatform instance, boolean upgrade)
+                                    CommCarePlatform platform, boolean upgrade)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         UnreliableSourceException aFailure = null;
 
         for (int i = 0; i < NUMBER_OF_LOSSY_RETRIES + 1; ++i) {
             abortIfInstallCancelled(r);
             try {
-                return r.getInstaller().install(r, location, ref, table, instance, upgrade);
+                return r.getInstaller().install(r, location, ref, table, platform, upgrade);
             } catch (UnreliableSourceException use) {
                 recordFailure(r, use);
                 aFailure = use;
@@ -730,7 +730,7 @@ public class ResourceTable {
      *
      * @param incoming The table which unstaged this table's resources
      */
-    public void repairTable(ResourceTable incoming, CommCarePlatform instance) {
+    public void repairTable(ResourceTable incoming, CommCarePlatform platform) {
         Stack<Resource> s =
                 this.getResourceStackWithStatus(Resource.RESOURCE_STATUS_UNSTAGED);
         while (!s.isEmpty()) {
@@ -744,7 +744,7 @@ public class ResourceTable {
                 if (peer != null && peer.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
                     incoming.commit(peer, Resource.RESOURCE_STATUS_INSTALL_TO_UPGRADE);
                     // TODO: Is there anything we can do about this? Shouldn't it be an exception?
-                    if (!peer.getInstaller().unstage(peer, Resource.RESOURCE_STATUS_UPGRADE, instance)) {
+                    if (!peer.getInstaller().unstage(peer, Resource.RESOURCE_STATUS_UPGRADE, platform)) {
                         // TODO: IF there are errors here, signal that the incoming table
                         // should just be wiped out. It's not in acceptable shape
                     } else {
@@ -755,7 +755,7 @@ public class ResourceTable {
 
             // Way should be clear.
             this.commit(resource, Resource.RESOURCE_STATUS_UNSTAGE_TO_INSTALL);
-            if (resource.getInstaller().revert(resource, this, instance)) {
+            if (resource.getInstaller().revert(resource, this, platform)) {
                 this.commit(resource, Resource.RESOURCE_STATUS_INSTALLED);
             }
         }
@@ -880,9 +880,9 @@ public class ResourceTable {
 
     /**
      * Register the available resources in this table with the provided
-     * CommCare instance.
+     * CommCare platform.
      */
-    public void initializeResources(CommCarePlatform instance, boolean isUpgrade) {
+    public void initializeResources(CommCarePlatform platform, boolean isUpgrade) {
         // HHaaaacckkk. (Some properties cannot be handled until after others
         // TODO: Replace this with some sort of sorted priority queue.
         Vector<ResourceInstaller> lateInit = new Vector<>();
@@ -894,12 +894,12 @@ public class ResourceTable {
                 if (i instanceof ProfileInstaller) {
                     lateInit.addElement(i);
                 } else {
-                    i.initialize(instance, isUpgrade);
+                    i.initialize(platform, isUpgrade);
                 }
             }
         }
         for (ResourceInstaller i : lateInit) {
-            i.initialize(instance, isUpgrade);
+            i.initialize(platform, isUpgrade);
         }
     }
 
@@ -1053,12 +1053,12 @@ public class ResourceTable {
     }
 
 
-    public void verifyInstallation(Vector<MissingMediaException> problems, CommCarePlatform instance) {
+    public void verifyInstallation(Vector<MissingMediaException> problems, CommCarePlatform platform) {
         Vector<Resource> resources = getResources();
         int total = resources.size();
         int count = 0;
         for (Resource r : resources) {
-            r.getInstaller().verifyInstallation(r, problems, instance);
+            r.getInstaller().verifyInstallation(r, problems, platform);
             count++;
             if (stateListener != null) {
                 stateListener.incrementProgress(count, total);
