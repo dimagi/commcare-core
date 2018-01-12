@@ -82,14 +82,6 @@ public class CommCarePlatform {
     }
 
     public Vector<Suite> getInstalledSuites() {
-        Vector<Suite> installedSuites = new Vector<>();
-        IStorageUtilityIndexed utility = storageManager.getStorage(Suite.STORAGE_KEY);
-
-        IStorageIterator iterator = utility.iterate();
-
-        while(iterator.hasMore()){
-            installedSuites.addElement((Suite)utility.read(iterator.nextID()));
-        }
         return installedSuites;
     }
     
