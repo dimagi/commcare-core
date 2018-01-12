@@ -101,7 +101,7 @@ public class MenuLoader {
             if (!idExists) {
                 if (menuIsRelevant(sessionWrapper, m)) {
                     items.add(m);
-                    badges.add(m.getTextForBadge(sessionWrapper.getEvaluationContext(m.getCommandID())));
+                    badges.add(m.getTextForBadge(sessionWrapper.getEvaluationContext(m.getCommandID())).blockingGet());
                 }
             }
         }
@@ -171,7 +171,7 @@ public class MenuLoader {
             }
 
             items.add(e);
-            badges.add(e.getTextForBadge(sessionWrapper.getEvaluationContext(e.getCommandId())));
+            badges.add(e.getTextForBadge(sessionWrapper.getEvaluationContext(e.getCommandId())).blockingGet());
         }
     }
 
