@@ -39,11 +39,11 @@ public class OfflineUserRestoreInstaller extends CacheInstaller<OfflineUserResto
     @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
-                           CommCarePlatform instance, boolean upgrade)
+                           CommCarePlatform platform, boolean upgrade)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
             OfflineUserRestore offlineUserRestore = OfflineUserRestore.buildInMemoryUserRestore(ref.getStream());
-            storage(instance).write(offlineUserRestore);
+            storage(platform).write(offlineUserRestore);
             if (upgrade) {
                 table.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
             } else {

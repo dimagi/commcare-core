@@ -88,13 +88,13 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
     @Override
     public boolean upgrade(Resource r, CommCarePlatform platform) throws UnresolvedResourceException {
         //Basically some content as revert. Merge;
-        FormDef form = storage(instance).read(cacheLocation);
+        FormDef form = storage(platform).read(cacheLocation);
         String tempString = form.getInstance().schema;
 
         //Atomic. Don't re-do this if it was already done.
         if (tempString.contains(UPGRADE_EXT)) {
             form.getInstance().schema = tempString.substring(0, tempString.indexOf(UPGRADE_EXT));
-            storage(instance).write(form);
+            storage(platform).write(form);
         }
         return true;
     }
