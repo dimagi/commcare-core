@@ -26,8 +26,8 @@ public class OfflineUserRestoreInstaller extends CacheInstaller<OfflineUserResto
     }
 
     @Override
-    public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
-        instance.registerDemoUserRestore(storage(instance).read(cacheLocation));
+    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) {
+        platform.registerDemoUserRestore(storage(platform).read(cacheLocation));
         return true;
     }
 
