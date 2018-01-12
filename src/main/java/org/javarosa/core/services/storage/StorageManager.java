@@ -15,18 +15,6 @@ import java.util.Hashtable;
  */
 public class StorageManager {
 
-    private static ThreadLocal<StorageManager> instance = new ThreadLocal<StorageManager>() {
-        @Override
-        protected StorageManager initialValue()
-        {
-            return new StorageManager();
-        }
-    };
-
-    public static StorageManager instance() {
-        return instance.get();
-    }
-
     private final Hashtable<String, IStorageUtilityIndexed> storageRegistry = new Hashtable<>();
     private IStorageIndexedFactory storageFactory;
 
@@ -34,10 +22,14 @@ public class StorageManager {
      * Attempts to set the storage factory for the current environment. Will fail silently
      * if a storage factory has already been set. Should be used by default environment.
      *
-     * @param fact An available storage factory.
+     * @param factory An available storage factory.
      */
-    public void setStorageFactory(IStorageIndexedFactory fact) {
-        setStorageFactory(fact, false);
+    public void setStorageFactory(IStorageIndexedFactory factory) {
+        setStorageFactory(factory, false);
+    }
+
+    public StorageManager(IStorageIndexedFactory factory) {
+        setStorageFactory(factory, false);
     }
 
     /**

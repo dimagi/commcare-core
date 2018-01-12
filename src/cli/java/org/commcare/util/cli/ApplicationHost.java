@@ -373,7 +373,7 @@ public class ApplicationHost {
         //this gets configured earlier when we installed the app, should point it in the
         //right direction!
         sandbox.setAppFixtureStorageLocation((IStorageUtilityIndexed<FormInstance>)
-                StorageManager.instance().getStorage(FormInstance.STORAGE_KEY));
+                mPlatform.getStorageManager().getStorage(FormInstance.STORAGE_KEY));
 
         mSandbox = sandbox;
         if (mLocalUserCredentials != null) {

@@ -12,7 +12,9 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.Property;
 import org.javarosa.core.services.storage.IStorageIndexedFactory;
+import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageManager;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -39,17 +41,22 @@ public class CommCarePlatform {
 
     private OfflineUserRestore offlineUserRestore;
 
+    private StorageManager storageManager;
     private PropertyManager propertyManager;
 
     private final int majorVersion;
     private final int minorVersion;
     private final Vector<Suite> installedSuites;
-    IStorageIndexedFactory storageFactory;
+
+    public CommCarePlatform(int majorVersion, int minorVersion, StorageManager storageManager) {
+        this(majorVersion, minorVersion);
+        this.storageManager = storageManager;
+        storageManager.registerStorage(PropertyManager.STORAGE_KEY, Property.class);
+        this.propertyManager = new PropertyManager(storageManager.getStorage(PropertyManager.STORAGE_KEY));
+    }
 
     public CommCarePlatform(int majorVersion, int minorVersion, IStorageIndexedFactory storageFactory) {
-        this(majorVersion, minorVersion);
-        this.storageFactory = storageFactory;
-        this.propertyManager = new PropertyManager(storageFactory.newStorage(PropertyManager.STORAGE_KEY, Property.class));
+        this(majorVersion, minorVersion, new StorageManager(storageFactory));
     }
 
     public CommCarePlatform(int majorVersion, int minorVersion) {
@@ -71,10 +78,18 @@ public class CommCarePlatform {
         if(cachedProfile != null) {
             return cachedProfile;
         }
-        return (Profile)(storage(Profile.STORAGE_KEY, Profile.class).read(profile));
+        return (Profile)storageManager.getStorage(Profile.STORAGE_KEY).read(profile);
     }
 
     public Vector<Suite> getInstalledSuites() {
+        Vector<Suite> installedSuites = new Vector<>();
+        IStorageUtilityIndexed utility = storageManager.getStorage(Suite.STORAGE_KEY);
+
+        IStorageIterator iterator = utility.iterate();
+
+        while(iterator.hasMore()){
+            installedSuites.addElement((Suite)utility.read(iterator.nextID()));
+        }
         return installedSuites;
     }
     
@@ -185,14 +200,15 @@ public class CommCarePlatform {
     }
 
     public IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
-        return storage("fixture", FormInstance.class);
-    }
-
-    public IStorageUtilityIndexed storage(String name, Class type) {
-        return storageFactory.newStorage(name, type);
+        storageManager.registerStorage("fixture", FormInstance.class);
+        return storageManager.getStorage("fixture");
     }
 
     public PropertyManager getPropertyManager() {
         return propertyManager;
+    }
+
+    public StorageManager getStorageManager() {
+        return storageManager;
     }
 }
