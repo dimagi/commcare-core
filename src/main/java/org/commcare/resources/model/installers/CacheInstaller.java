@@ -35,9 +35,9 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
 
     protected abstract String getCacheKey();
 
-    protected IStorageUtilityIndexed<T> storage(CommCarePlatform instance) {
+    protected IStorageUtilityIndexed<T> storage(CommCarePlatform platform) {
         if (cacheStorage == null) {
-            cacheStorage = instance.getStorageManager().getStorage(getCacheKey());
+            cacheStorage = platform.getStorageManager().getStorage(getCacheKey());
         }
         return cacheStorage;
     }
