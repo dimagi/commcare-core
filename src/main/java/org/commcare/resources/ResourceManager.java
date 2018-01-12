@@ -79,13 +79,13 @@ public class ResourceManager {
      * @param clearProgress Clear the 'incoming' table of any partial update
      *                      info.
      */
-    public void stageUpgradeTable(String profileRef, boolean clearProgress, CommCarePlatform instance) throws
+    public void stageUpgradeTable(String profileRef, boolean clearProgress, CommCarePlatform platform) throws
             UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
-        synchronized (platform) {
+        synchronized (this.platform) {
             ensureMasterTableValid();
 
             if (clearProgress) {
-                upgradeTable.clear(instance);
+                upgradeTable.clear(platform);
             }
 
             loadProfileIntoTable(upgradeTable, profileRef, Resource.RESOURCE_AUTHORITY_REMOTE);
