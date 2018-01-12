@@ -2,17 +2,17 @@ package org.commcare.util;
 
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.properties.Property;
 import org.javarosa.core.services.storage.IStorageIndexedFactory;
-import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageManager;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -39,17 +39,24 @@ public class CommCarePlatform {
 
     private OfflineUserRestore offlineUserRestore;
 
+    private PropertyManager propertyManager;
+
     private final int majorVersion;
     private final int minorVersion;
     private final Vector<Suite> installedSuites;
-    private final IStorageIndexedFactory storageFactory;
+    IStorageIndexedFactory storageFactory;
 
     public CommCarePlatform(int majorVersion, int minorVersion, IStorageIndexedFactory storageFactory) {
+        this(majorVersion, minorVersion);
+        this.storageFactory = storageFactory;
+        this.propertyManager = new PropertyManager(storageFactory.newStorage(PropertyManager.STORAGE_KEY, Property.class));
+    }
+
+    public CommCarePlatform(int majorVersion, int minorVersion) {
         profile = -1;
         this.majorVersion = majorVersion;
         this.minorVersion = minorVersion;
         installedSuites = new Vector<>();
-        this.storageFactory = storageFactory;
     }
 
     public int getMajorVersion() {
@@ -183,5 +190,9 @@ public class CommCarePlatform {
 
     public IStorageUtilityIndexed storage(String name, Class type) {
         return storageFactory.newStorage(name, type);
+    }
+
+    public PropertyManager getPropertyManager() {
+        return propertyManager;
     }
 }

@@ -1276,7 +1276,7 @@ public class XFormParser {
     }
 
     private void parseItem(QuestionDef q, Element e) {
-        final int MAX_VALUE_LEN = 32;
+        final int MAX_VALUE_LEN = 256;
 
         //catalogue of used attributes in this method/element
         Vector<String> usedAtts = new Vector<>();
