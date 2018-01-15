@@ -12,17 +12,23 @@ import org.javarosa.xpath.analysis.XPathAnalyzable;
 public abstract class InFormCacheableExpr implements XPathAnalyzable {
 
     protected int recordIdOfCachedExpression = -1;
+    private Object justRetrieved;
 
     protected boolean isCached() {
-        return getCachedValue() != null;
+        queueUpCachedValue();
+        return justRetrieved != null;
+    }
+
+    private void queueUpCachedValue() {
+        if (environmentValidForCaching() && recordIdOfCachedExpression != -1) {
+            justRetrieved = getExpressionCacher().getCachedValue(recordIdOfCachedExpression);
+        } else {
+            justRetrieved = null;
+        }
     }
 
     protected Object getCachedValue() {
-        if (environmentValidForCaching() && recordIdOfCachedExpression != -1) {
-            return getExpressionCacher().getCachedValue(recordIdOfCachedExpression);
-        } else {
-            return null;
-        }
+        return justRetrieved;
     }
 
     protected void cache(Object value) {
@@ -34,12 +40,16 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     private boolean expressionIsCacheable(Object result) {
         if (environmentValidForCaching() && !(result instanceof XPathNodeset)) {
             try {
-                return (new ContainsMainInstanceRefAnalyzer()).computeResult(this);
+                return !referencesMainFormInstance();
             } catch (AnalysisInvalidException e) {
                 // if the analysis didn't complete then we assume it's not cacheable
             }
         }
         return false;
+    }
+
+    private boolean referencesMainFormInstance() throws AnalysisInvalidException {
+        return (new ContainsMainInstanceRefAnalyzer()).computeResult(this);
     }
 
     private boolean environmentValidForCaching() {
