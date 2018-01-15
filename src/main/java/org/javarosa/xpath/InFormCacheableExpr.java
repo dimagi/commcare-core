@@ -1,8 +1,6 @@
 package org.javarosa.xpath;
 
-import org.commcare.modern.database.DatabaseHelper;
-import org.commcare.modern.database.StorageProvider;
-import org.javarosa.core.services.storage.ExpressionCacheStorage;
+import org.javarosa.core.services.storage.ExpressionCacher;
 import org.javarosa.xpath.analysis.AnalysisInvalidException;
 import org.javarosa.xpath.analysis.ContainsMainInstanceRefAnalyzer;
 import org.javarosa.xpath.analysis.XPathAnalyzable;
@@ -20,8 +18,7 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
 
     protected Object getCachedValue() {
         if (environmentValidForCaching()) {
-            //return getCacheStorage().read(recordIdOfCachedExpression).getEvalResult();
-            return getCacheStorage().getCachedValue(this);
+            return getExpressionCacher().getCachedValue(this);
         } else {
             return null;
         }
@@ -30,7 +27,7 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     protected void cache(Object value) {
         if (expressionIsCacheable(value)) {
             CachedExpression ce = new CachedExpression(this, value);
-            getCacheStorage().cache(ce);
+            getExpressionCacher().cache(ce);
             this.recordIdOfCachedExpression = ce.getID();
         }
     }
@@ -50,8 +47,8 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
         return false;
     }
 
-    private ExpressionCacheStorage getCacheStorage() {
-        return StorageProvider.instance().getExpressionCacheStorage();
+    private ExpressionCacher getExpressionCacher() {
+        return ExpressionCacher.getCacher();
     }
 
 }

@@ -7,7 +7,7 @@ import org.javarosa.xpath.InFormCacheableExpr;
  * Created by amstone326 on 1/11/18.
  */
 
-public class DummyExpressionCacheStorage implements ExpressionCacheStorage {
+public class DummyExpressionCacher extends ExpressionCacher {
 
     @Override
     public void cache(CachedExpression value) {
