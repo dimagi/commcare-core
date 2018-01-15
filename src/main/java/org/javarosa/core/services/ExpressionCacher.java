@@ -1,6 +1,6 @@
 package org.javarosa.core.services;
 
-import org.javarosa.xpath.InFormCacheableExpr;
+import org.javarosa.xpath.expr.InFormCacheableExpr;
 
 /**
  * Created by amstone326 on 1/10/18.

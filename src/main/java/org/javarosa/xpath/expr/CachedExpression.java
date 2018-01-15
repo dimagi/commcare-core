@@ -1,9 +1,10 @@
-package org.javarosa.xpath;
+package org.javarosa.xpath.expr;
 
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

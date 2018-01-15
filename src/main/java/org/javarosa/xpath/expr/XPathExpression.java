@@ -8,7 +8,6 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.model.xform.DataModelSerializer;
-import org.javarosa.xpath.InFormCacheableExpr;
 import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.XPathNodeset;
 import org.kxml2.io.KXmlSerializer;

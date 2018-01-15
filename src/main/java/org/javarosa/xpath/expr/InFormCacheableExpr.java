@@ -1,6 +1,7 @@
-package org.javarosa.xpath;
+package org.javarosa.xpath.expr;
 
 import org.javarosa.core.services.ExpressionCacher;
+import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.analysis.AnalysisInvalidException;
 import org.javarosa.xpath.analysis.ContainsMainInstanceRefAnalyzer;
 import org.javarosa.xpath.analysis.XPathAnalyzable;
