@@ -8,6 +8,7 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
+import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
@@ -35,8 +36,15 @@ public class CommCarePlatform {
     private int profile;
     private OfflineUserRestore offlineUserRestore;
 
+    private PropertyManager propertyManager;
+
     private final int majorVersion;
     private final int minorVersion;
+
+    public CommCarePlatform(int majorVersion, int minorVersion, PropertyManager propertyManager) {
+        this(majorVersion, minorVersion);
+        this.propertyManager = propertyManager;
+    }
 
     public CommCarePlatform(int majorVersion, int minorVersion) {
         profile = -1;
@@ -170,5 +178,9 @@ public class CommCarePlatform {
 
     public void registerDemoUserRestore(OfflineUserRestore offlineUserRestore) {
         this.offlineUserRestore = offlineUserRestore;
+    }
+
+    public PropertyManager getPropertyManager() {
+        return propertyManager;
     }
 }

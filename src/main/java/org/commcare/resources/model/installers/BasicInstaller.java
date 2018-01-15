@@ -66,7 +66,7 @@ public class BasicInstaller implements ResourceInstaller<CommCarePlatform> {
     }
 
     @Override
-    public boolean upgrade(Resource r) throws UnresolvedResourceException {
+    public boolean upgrade(Resource r, CommCarePlatform platform) throws UnresolvedResourceException {
         throw new RuntimeException("Basic Installer resources can't be marked as upgradable");
     }
 

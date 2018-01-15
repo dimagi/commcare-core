@@ -1,5 +1,6 @@
 package org.commcare.suite.model;
 
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.Persistable;
@@ -183,12 +184,13 @@ public class Profile implements Persistable {
      *
      * NOTE: Moving at earliest opportunity to j2me profile installer
      */
-    public void initializeProperties(boolean enableForce) {
+    public void initializeProperties(CommCarePlatform platform, boolean enableForce) {
+        PropertyManager propertyManager = platform.getPropertyManager();
         for (PropertySetter setter : properties) {
-            String property = PropertyManager.instance().getSingularProperty(setter.getKey());
+            String property = propertyManager.getSingularProperty(setter.getKey());
             //We only want to set properties which are undefined or are forced
             if (property == null || (enableForce && setter.force)) {
-                PropertyManager.instance().setProperty(setter.getKey(), setter.getValue());
+                propertyManager.setProperty(setter.getKey(), setter.getValue());
             }
         }
     }

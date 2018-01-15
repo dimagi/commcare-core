@@ -17,6 +17,7 @@ import java.util.Iterator;
  * Created by jschweers on 11/16/2015.
  */
 public class AxisConfiguration extends Configuration {
+
     public AxisConfiguration(GraphData data) throws GraphException, JSONException {
         super(data);
 
@@ -93,7 +94,7 @@ public class AxisConfiguration extends Configuration {
                 JSONArray labels = new JSONArray(labelString);
                 JSONArray values = new JSONArray();
                 for (int i = 0; i < labels.length(); i++) {
-                    String value = labels.getString(i);
+                    String value = String.valueOf(labels.get(i));
                     if (isX && mData.getType().equals(GraphUtil.TYPE_TIME)) {
                         values.put(parseTime(value, key));
                     } else {

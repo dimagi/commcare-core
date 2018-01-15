@@ -31,6 +31,7 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.properties.Property;
 import org.javarosa.core.services.storage.*;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
@@ -78,7 +79,6 @@ public class CommCareConfigEngine {
     public CommCareConfigEngine(IStorageIndexedFactory storageFactory,
                                 InstallerFactory installerFactory) {
         this.print = new PrintStream(System.out);
-        this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION);
         setStorageFactory(storageFactory);
 
         setRoots();
@@ -93,12 +93,15 @@ public class CommCareConfigEngine {
         //per device.
         StorageManager.forceClear();
         StorageManager.setStorageFactory(storageFactory);
-        PropertyManager.initDefaultPropertyManager();
+        StorageManager.registerStorage(PropertyManager.STORAGE_KEY, Property.class);
         StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
         StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
         StorageManager.registerStorage(FormDef.STORAGE_KEY, FormDef.class);
         StorageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
         StorageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
+
+        this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION,
+                new PropertyManager(StorageManager.getStorage(PropertyManager.STORAGE_KEY)));
     }
 
     private static IStorageIndexedFactory setupDummyStorageFactory(final PrototypeFactory prototypeFactory) {
