@@ -90,7 +90,7 @@ public class ApplicationHost {
     public void setRestoreToRemoteUser(String username, String password) {
         this.username = username;
         this.password = password;
-        String domain = PropertyManager.instance().getSingularProperty("cc_user_domain");
+        String domain = mPlatform.getPropertyManager().getSingularProperty("cc_user_domain");
         this.qualifiedUsername = username + "@" + domain;
         mRestoreStrategySet = true;
     }
