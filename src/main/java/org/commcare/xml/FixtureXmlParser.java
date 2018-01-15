@@ -27,10 +27,6 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
     IStorageUtilityIndexed<FormInstance> storage;
     private final boolean overwrite;
 
-    public FixtureXmlParser(KXmlParser parser) {
-        this(parser, true, null);
-    }
-
     public FixtureXmlParser(KXmlParser parser, boolean overwrite,
                             IStorageUtilityIndexed<FormInstance> storage) {
         super(parser);
@@ -109,9 +105,6 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
     }
 
     public IStorageUtilityIndexed<FormInstance> storage() {
-        if (storage == null) {
-            storage = (IStorageUtilityIndexed)StorageManager.getStorage(FormInstance.STORAGE_KEY);
-        }
         return storage;
     }
 }

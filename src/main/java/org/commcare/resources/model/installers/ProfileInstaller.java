@@ -48,13 +48,13 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
     }
 
     @Override
-    public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
+    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) {
         //Certain properties may not have been able to set during install, so we'll make sure they're
         //set here.
-        Profile p = storage().read(cacheLocation);
-        p.initializeProperties(instance, false);
+        Profile p = storage(platform).read(cacheLocation);
+        p.initializeProperties(platform, false);
 
-        instance.setProfile(p);
+        platform.setProfile(p);
         return true;
     }
 
@@ -71,7 +71,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
     @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
-                           CommCarePlatform instance, boolean upgrade)
+                           CommCarePlatform platform, boolean upgrade)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //Install for the profile installer is a two step process. Step one is to parse the file and read the relevant data.
         //Step two is to actually install the resource if it needs to be (whether or not it should will be handled
@@ -82,7 +82,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
         try {
             if (getlocal().containsKey(r.getRecordGuid()) && r.getStatus() == Resource.RESOURCE_STATUS_LOCAL) {
                 Profile local = getlocal().get(r.getRecordGuid());
-                installInternal(local);
+                installInternal(local, platform);
                 table.commitCompoundResource(r, Resource.RESOURCE_STATUS_UPGRADE);
                 localTable.remove(r.getRecordGuid());
 
@@ -101,7 +101,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
                 Profile p;
                 try {
                     incoming = ref.getStream();
-                    ProfileParser parser = new ProfileParser(incoming, instance, table, r.getRecordGuid(),
+                    ProfileParser parser = new ProfileParser(incoming, platform, table, r.getRecordGuid(),
                             Resource.RESOURCE_STATUS_UNINITIALIZED, forceVersion);
                     if (Resource.RESOURCE_AUTHORITY_REMOTE == location.getAuthority()) {
                         parser.setMaximumAuthority(Resource.RESOURCE_AUTHORITY_REMOTE);
@@ -119,8 +119,8 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
                     getlocal().put(r.getRecordGuid(), p);
                     table.commitCompoundResource(r, Resource.RESOURCE_STATUS_LOCAL, p.getVersion());
                 } else {
-                    p.initializeProperties(instance, true);
-                    installInternal(p);
+                    p.initializeProperties(platform, true);
+                    installInternal(p, platform);
                     //TODO: What if this fails? Maybe we should be throwing exceptions...
                     table.commitCompoundResource(r, Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
                 }
@@ -148,8 +148,8 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
         }
     }
 
-    private void installInternal(Profile profile) {
-        storage().write(profile);
+    private void installInternal(Profile profile, CommCarePlatform platform) {
+        storage(platform).write(profile);
         cacheLocation = profile.getID();
     }
 
@@ -161,21 +161,21 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
         if (getlocal().containsKey(r.getRecordGuid())) {
             p = getlocal().get(r.getRecordGuid());
         } else {
-            p = storage().read(cacheLocation);
+            p = storage(platform).read(cacheLocation);
         }
         p.initializeProperties(platform, true);
-        storage().write(p);
+        storage(platform).write(p);
         return true;
     }
 
     @Override
-    public boolean unstage(Resource r, int newStatus) {
+    public boolean unstage(Resource r, int newStatus, CommCarePlatform platform) {
         //Nothing to do. Cache location is clear.
         return true;
     }
 
     @Override
-    public boolean revert(Resource r, ResourceTable table) {
+    public boolean revert(Resource r, ResourceTable table, CommCarePlatform platform) {
         //Possibly re-set this profile's default property setters.
         return true;
     }

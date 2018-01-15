@@ -11,7 +11,7 @@ import org.commcare.util.CommCarePlatform;
 public class LoginImageInstaller extends BasicInstaller {
 
     @Override
-    public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
+    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) {
         //Tell the login screen where to get this?
         return true;
     }

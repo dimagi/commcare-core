@@ -15,17 +15,18 @@ import java.util.Hashtable;
  */
 public class StorageManager {
 
-    private static final Hashtable<String, IStorageUtilityIndexed> storageRegistry = new Hashtable<>();
-    private static IStorageIndexedFactory storageFactory;
+    private final Hashtable<String, IStorageUtilityIndexed> storageRegistry = new Hashtable<>();
+    private IStorageIndexedFactory storageFactory;
 
     /**
      * Attempts to set the storage factory for the current environment. Will fail silently
      * if a storage factory has already been set. Should be used by default environment.
      *
-     * @param fact An available storage factory.
+     * @param factory An available storage factory.
      */
-    public static void setStorageFactory(IStorageIndexedFactory fact) {
-        StorageManager.setStorageFactory(fact, false);
+
+    public StorageManager(IStorageIndexedFactory factory) {
+        setStorageFactory(factory, false);
     }
 
     /**
@@ -36,7 +37,7 @@ public class StorageManager {
      * @param fact     An available storage factory.
      * @param mustWork true if it is intolerable for another storage factory to have been set. False otherwise
      */
-    public static void setStorageFactory(IStorageIndexedFactory fact, boolean mustWork) {
+    public void setStorageFactory(IStorageIndexedFactory fact, boolean mustWork) {
         if (storageFactory == null) {
             storageFactory = fact;
         } else {
@@ -47,7 +48,7 @@ public class StorageManager {
         }
     }
 
-    public static void registerStorage(String key, Class type) {
+    public void registerStorage(String key, Class type) {
         if (storageFactory == null) {
             throw new RuntimeException("No storage factory has been set; I don't know what kind of storage utility to create. Either set a storage factory, or register your StorageUtilitys directly.");
         }
@@ -55,7 +56,7 @@ public class StorageManager {
         storageRegistry.put(key, storageFactory.newStorage(key, type));
     }
 
-    public static IStorageUtilityIndexed getStorage(String key) {
+    public IStorageUtilityIndexed getStorage(String key) {
         if (storageRegistry.containsKey(key)) {
             return storageRegistry.get(key);
         } else {
@@ -63,7 +64,7 @@ public class StorageManager {
         }
     }
 
-    public static void halt() {
+    public void halt() {
         for (Enumeration e = storageRegistry.elements(); e.hasMoreElements(); ) {
             ((IStorageUtilityIndexed)e.nextElement()).close();
         }
@@ -72,7 +73,7 @@ public class StorageManager {
     /**
      * Clear all registered elements of storage, including the factory.
      */
-    public static void forceClear() {
+    public void forceClear() {
         halt();
         storageRegistry.clear();
         storageFactory = null;

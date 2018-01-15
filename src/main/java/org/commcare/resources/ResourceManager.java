@@ -79,13 +79,13 @@ public class ResourceManager {
      * @param clearProgress Clear the 'incoming' table of any partial update
      *                      info.
      */
-    public void stageUpgradeTable(String profileRef, boolean clearProgress) throws
+    public void stageUpgradeTable(String profileRef, boolean clearProgress, CommCarePlatform platform) throws
             UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
-        synchronized (platform) {
+        synchronized (this.platform) {
             ensureMasterTableValid();
 
             if (clearProgress) {
-                upgradeTable.clear();
+                upgradeTable.clear(platform);
             }
 
             loadProfileIntoTable(upgradeTable, profileRef, Resource.RESOURCE_AUTHORITY_REMOTE);
@@ -206,7 +206,7 @@ public class ResourceManager {
                 upgradeTable.destroy();
 
                 Logger.log("Resource", "Clearing out old resources");
-                tempTable.uninstall(masterTable);
+                tempTable.uninstall(masterTable, platform);
             } finally {
                 if (!upgradeSuccess) {
                     repair();
@@ -272,11 +272,11 @@ public class ResourceManager {
         // Global and incoming are now in the right places. Ensure we have no
         // uncommitted resources.
         if (masterTable.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
-            masterTable.rollbackCommits();
+            masterTable.rollbackCommits(platform);
         }
 
         if (upgradeTable.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
-            upgradeTable.rollbackCommits();
+            upgradeTable.rollbackCommits(platform);
         }
 
         // If the global table needed to be recovered from the recovery table,
@@ -287,7 +287,7 @@ public class ResourceManager {
             Logger.log("resource", "Global table in fully installed mode. Repair complete");
         } else if (masterTable.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
             Logger.log("resource", "Global table needs to restage some resources");
-            masterTable.repairTable(upgradeTable);
+            masterTable.repairTable(upgradeTable, platform);
         }
     }
 

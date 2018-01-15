@@ -55,7 +55,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCarePlatform> 
     }
 
     @Override
-    public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
+    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) {
         if (cache == null) {
             Localization.registerLanguageReference(locale, localReference);
         } else {
@@ -71,7 +71,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCarePlatform> 
     }
 
     @Override
-    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException {
+    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCarePlatform platform, boolean upgrade) throws UnresolvedResourceException {
         //If we have local resource authority, and the file exists, things are golden. We can just use that file.
         if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
             try {
@@ -212,23 +212,23 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCarePlatform> 
     }
 
     @Override
-    public boolean unstage(Resource r, int newStatus) {
+    public boolean unstage(Resource r, int newStatus, CommCarePlatform platform) {
         return true;
     }
 
     @Override
-    public boolean revert(Resource r, ResourceTable table) {
+    public boolean revert(Resource r, ResourceTable table, CommCarePlatform platform) {
         return true;
     }
 
     @Override
-    public int rollback(Resource r) {
+    public int rollback(Resource r, CommCarePlatform platform) {
         //This does nothing
         return Resource.getCleanFlag(r.getStatus());
     }
 
     @Override
-    public boolean uninstall(Resource r) throws UnresolvedResourceException {
+    public boolean uninstall(Resource r, CommCarePlatform platform) throws UnresolvedResourceException {
         //If we're not using files, just deal with the cache (this is even likely unnecessary).
         if (cache != null) {
             cache.clear();
@@ -274,7 +274,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCarePlatform> 
     }
 
     @Override
-    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
+    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems, CommCarePlatform platform) {
         try {
             if (locale == null) {
                 problems.addElement(new MissingMediaException(r, "Bad metadata, no locale"));

@@ -10,6 +10,7 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.xml.SuiteParser;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.SizeBoundUniqueVector;
@@ -27,8 +28,8 @@ import java.util.Vector;
 public class SuiteInstaller extends CacheInstaller<Suite> {
 
     @Override
-    public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
-        instance.registerSuite(storage().read(cacheLocation));
+    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) {
+        platform.registerSuite(storage(platform).read(cacheLocation));
         return true;
     }
 
@@ -44,7 +45,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
 
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
-                           ResourceTable table, CommCarePlatform instance,
+                           ResourceTable table, CommCarePlatform platform,
                            boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_CACHE) {
             //If it's in the cache, we should just get it from there
@@ -53,12 +54,12 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
             InputStream incoming = null;
             try {
                 incoming = ref.getStream();
-                SuiteParser parser = new SuiteParser(incoming, table, r.getRecordGuid());
+                SuiteParser parser = new SuiteParser(incoming, table, r.getRecordGuid(), platform.getStorageManager().getStorage(FormInstance.STORAGE_KEY));
                 if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_REMOTE) {
                     parser.setMaximumAuthority(Resource.RESOURCE_AUTHORITY_REMOTE);
                 }
                 Suite s = parser.parse();
-                storage().write(s);
+                storage(platform).write(s);
                 cacheLocation = s.getID();
 
                 table.commitCompoundResource(r, Resource.RESOURCE_STATUS_INSTALLED);
@@ -85,7 +86,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
     }
 
     @Override
-    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
+    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems, CommCarePlatform platform) {
         SizeBoundUniqueVector<MissingMediaException> sizeBoundProblems =
                 (SizeBoundUniqueVector<MissingMediaException>)problems;
 
@@ -95,7 +96,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
         //Check to see whether the formDef exists and reads correctly
         Suite suite;
         try {
-            suite = storage().read(cacheLocation);
+            suite = storage(platform).read(cacheLocation);
         } catch (Exception e) {
             e.printStackTrace();
             sizeBoundProblems.addElement(new MissingMediaException(r, "Suite did not properly save into persistent storage"));

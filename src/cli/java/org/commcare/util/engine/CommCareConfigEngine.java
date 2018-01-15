@@ -62,7 +62,6 @@ public class CommCareConfigEngine {
     protected final PrintStream print;
 
     protected ArchiveFileRoot mArchiveRoot;
-    private IStorageIndexedFactory storageFactory;
 
     public static final int MAJOR_VERSION = 2;
     public static final int MINOR_VERSION = 41;
@@ -78,7 +77,6 @@ public class CommCareConfigEngine {
     public CommCareConfigEngine(IStorageIndexedFactory storageFactory,
                                 InstallerFactory installerFactory) {
         this.print = new PrintStream(System.out);
-        setStorageFactory(storageFactory);
 
         setRoots();
 
@@ -86,21 +84,17 @@ public class CommCareConfigEngine {
         updateTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_UPGRADE_TABLE", Resource.class), installerFactory);
         recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", Resource.class), installerFactory);
 
-
-        //All of the below is on account of the fact that the installers
-        //aren't going through a factory method to handle them differently
-        //per device.
-        StorageManager.forceClear();
-        StorageManager.setStorageFactory(storageFactory);
-        StorageManager.registerStorage(PropertyManager.STORAGE_KEY, Property.class);
-        StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
-        StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
-        StorageManager.registerStorage(FormDef.STORAGE_KEY, FormDef.class);
-        StorageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
-        StorageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
+        StorageManager storageManager = new StorageManager(storageFactory);
+        storageManager.registerStorage(PropertyManager.STORAGE_KEY, Property.class);
+        storageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
+        storageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
+        storageManager.registerStorage(FormDef.STORAGE_KEY, FormDef.class);
+        storageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
+        storageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
 
         this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION,
-                new PropertyManager(StorageManager.getStorage(PropertyManager.STORAGE_KEY)));
+                storageManager,
+                new PropertyManager(storageManager.getStorage(PropertyManager.STORAGE_KEY)));
     }
 
     private static IStorageIndexedFactory setupDummyStorageFactory(final PrototypeFactory prototypeFactory) {
@@ -110,10 +104,6 @@ public class CommCareConfigEngine {
                 return new DummyIndexedStorageUtility(type, prototypeFactory);
             }
         };
-    }
-
-    public void setStorageFactory(IStorageIndexedFactory storageFactory) {
-        this.storageFactory = storageFactory;
     }
 
     protected void setRoots() {
@@ -321,7 +311,7 @@ public class CommCareConfigEngine {
     }
 
     public FormDef loadFormByXmlns(String xmlns) {
-        IStorageUtilityIndexed<FormDef> formStorage = StorageManager.getStorage(FormDef.STORAGE_KEY);
+        IStorageUtilityIndexed<FormDef> formStorage = platform.getStorageManager().getStorage(FormDef.STORAGE_KEY);
         return formStorage.getRecordForValue("XMLNS", xmlns);
     }
 
@@ -439,7 +429,7 @@ public class CommCareConfigEngine {
 
             System.out.println("Checking for updates....");
             ResourceManager resourceManager = new ResourceManager(platform, global, updateTable, recoveryTable);
-            resourceManager.stageUpgradeTable(authRef, true);
+            resourceManager.stageUpgradeTable(authRef, true, platform);
             Resource newProfile = updateTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
             if (!newProfile.isNewer(profileRef)) {
                 System.out.println("Your app is up to date!");
