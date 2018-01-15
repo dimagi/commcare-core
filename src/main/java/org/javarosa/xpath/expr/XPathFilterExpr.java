@@ -83,6 +83,7 @@ public class XPathFilterExpr extends XPathExpression {
         predicates = new XPathExpression[v.size()];
         for (int i = 0; i < predicates.length; i++)
             predicates[i] = (XPathExpression)v.elementAt(i);
+        recordIdOfCachedExpression = ExtUtil.readInt(in);
     }
 
     @Override
@@ -94,6 +95,7 @@ public class XPathFilterExpr extends XPathExpression {
 
         ExtUtil.write(out, new ExtWrapTagged(x));
         ExtUtil.write(out, new ExtWrapListPoly(v));
+        ExtUtil.writeNumeric(out, recordIdOfCachedExpression);
     }
 
     @Override

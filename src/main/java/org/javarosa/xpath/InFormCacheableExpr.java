@@ -10,15 +10,15 @@ import org.javarosa.xpath.analysis.XPathAnalyzable;
  */
 public abstract class InFormCacheableExpr implements XPathAnalyzable {
 
-    protected int recordIdOfCachedExpression;
+    protected int recordIdOfCachedExpression = -1;
 
     protected boolean isCached() {
         return getCachedValue() != null;
     }
 
     protected Object getCachedValue() {
-        if (environmentValidForCaching()) {
-            return getExpressionCacher().getCachedValue(this);
+        if (environmentValidForCaching() && recordIdOfCachedExpression != -1) {
+            return getExpressionCacher().getCachedValue(recordIdOfCachedExpression);
         } else {
             return null;
         }
@@ -26,9 +26,7 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
 
     protected void cache(Object value) {
         if (expressionIsCacheable(value)) {
-            CachedExpression ce = new CachedExpression(this, value);
-            getExpressionCacher().cache(ce);
-            this.recordIdOfCachedExpression = ce.getID();
+            this.recordIdOfCachedExpression = getExpressionCacher().cache(this, value);
         }
     }
 
@@ -44,6 +42,7 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     }
 
     private boolean environmentValidForCaching() {
+        //TODO: figure out how to set this properly
         return false;
     }
 

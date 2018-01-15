@@ -379,8 +379,10 @@ public class XPathPathExpr extends XPathExpression {
 
         Vector v = (Vector)ExtUtil.read(in, new ExtWrapList(XPathStep.class), pf);
         steps = new XPathStep[v.size()];
-        for (int i = 0; i < steps.length; i++)
+        for (int i = 0; i < steps.length; i++) {
             steps[i] = ((XPathStep)v.elementAt(i)).intern();
+        }
+        recordIdOfCachedExpression = ExtUtil.readInt(in);
     }
 
     @Override
@@ -395,6 +397,7 @@ public class XPathPathExpr extends XPathExpression {
             v.addElement(step);
         }
         ExtUtil.write(out, new ExtWrapList(v));
+        ExtUtil.writeNumeric(out, recordIdOfCachedExpression);
     }
 
     public static XPathPathExpr fromRef(TreeReference ref) {

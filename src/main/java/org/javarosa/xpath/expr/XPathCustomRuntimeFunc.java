@@ -138,7 +138,6 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
-
         name = ExtUtil.readString(in);
     }
 

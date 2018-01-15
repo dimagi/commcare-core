@@ -1,6 +1,5 @@
 package org.javarosa.core.services.storage;
 
-import org.javarosa.xpath.CachedExpression;
 import org.javarosa.xpath.InFormCacheableExpr;
 
 /**
@@ -10,12 +9,12 @@ import org.javarosa.xpath.InFormCacheableExpr;
 public class DummyExpressionCacher extends ExpressionCacher {
 
     @Override
-    public void cache(CachedExpression value) {
-
+    public int cache(InFormCacheableExpr expression, Object value) {
+        return -1;
     }
 
     @Override
-    public Object getCachedValue(InFormCacheableExpr key) {
+    public Object getCachedValue(int idOfStoredCache) {
         return null;
     }
 }
