@@ -1,6 +1,6 @@
 package org.javarosa.xpath;
 
-import org.javarosa.core.services.storage.ExpressionCacher;
+import org.javarosa.core.services.ExpressionCacher;
 import org.javarosa.xpath.analysis.AnalysisInvalidException;
 import org.javarosa.xpath.analysis.ContainsMainInstanceRefAnalyzer;
 import org.javarosa.xpath.analysis.XPathAnalyzable;
@@ -42,8 +42,7 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     }
 
     private boolean environmentValidForCaching() {
-        //TODO: figure out how to set this properly
-        return false;
+        return getExpressionCacher().environmentValidForCaching();
     }
 
     private ExpressionCacher getExpressionCacher() {
