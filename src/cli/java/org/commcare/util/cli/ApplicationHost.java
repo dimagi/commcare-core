@@ -390,7 +390,7 @@ public class ApplicationHost {
         //this gets configured earlier when we installed the app, should point it in the
         //right direction!
         sandbox.setAppFixtureStorageLocation((IStorageUtilityIndexed<FormInstance>)
-                StorageManager.getStorage(FormInstance.STORAGE_KEY));
+                mPlatform.getStorageManager().getStorage(FormInstance.STORAGE_KEY));
 
         mSandbox = sandbox;
         if (username != null && password != null) {
@@ -448,13 +448,15 @@ public class ApplicationHost {
                     syncToken, caseStateHash));
         }
 
+        PropertyManager propertyManager = session.getPlatform().getPropertyManager();
+
         //fetch the restore data and set credentials
-        String otaFreshRestoreUrl = PropertyManager.instance().getSingularProperty("ota-restore-url") +
+        String otaFreshRestoreUrl = propertyManager.getSingularProperty("ota-restore-url") +
                 "?version=2.0";
 
         String otaSyncUrl = otaFreshRestoreUrl + urlStateParams;
 
-        String domain = PropertyManager.instance().getSingularProperty("cc_user_domain");
+        String domain = propertyManager.getSingularProperty("cc_user_domain");
         final String qualifiedUsername = username + "@" + domain;
 
         Authenticator.setDefault(new Authenticator() {

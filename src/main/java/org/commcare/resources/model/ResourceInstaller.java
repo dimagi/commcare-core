@@ -39,7 +39,7 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      * @return true if a resource is ready for use. False if
      * a problem occurred.
      */
-    boolean initialize(T instance, boolean isUpgrade);
+    boolean initialize(T platform, boolean isUpgrade);
 
     /**
      * Proceeds with the next step of installing resource r, keeping records at
@@ -56,7 +56,7 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      */
     boolean install(Resource r, ResourceLocation location,
                     Reference ref, ResourceTable table,
-                    T instance, boolean upgrade) throws
+                    T platform, boolean upgrade) throws
             UnresolvedResourceException, UnfullfilledRequirementsException;
 
     /**
@@ -65,7 +65,7 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      *
      * This method _should only_ be called on a resource table that will never be made ready again.
      */
-    boolean uninstall(Resource r) throws UnresolvedResourceException;
+    boolean uninstall(Resource r, T platform) throws UnresolvedResourceException;
 
     /**
      * Called on a resource which is fully installed in the current environment and will be replaced by an incoming
@@ -75,20 +75,20 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      *
      * After being unstaged, a resource's status will be set by the resource table.
      */
-    boolean unstage(Resource r, int newStatus);
+    boolean unstage(Resource r, int newStatus, T platform);
 
     /**
      * Revert is called on a resource in the unstaged state. It re-registers an existing resource in the current environment
      * after an unsuccesful upgrade or other issue.
      */
-    boolean revert(Resource r, ResourceTable table);
+    boolean revert(Resource r, ResourceTable table, CommCarePlatform platform);
 
     /**
      * Rolls back an incomplete action.
      *
      * @return the new status of this resource
      */
-    int rollback(Resource r);
+    int rollback(Resource r, CommCarePlatform platform);
 
     /**
      * Upgrade is called when an incoming resource has had its conflicting peer unstaged.
@@ -102,12 +102,12 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      * @return True if the upgrade step was completed successfully.
      * @throws UnresolvedResourceException If the local resource definition could not be found
      */
-    boolean upgrade(Resource r) throws UnresolvedResourceException;
+    boolean upgrade(Resource r, T platform) throws UnresolvedResourceException;
 
     /**
      * Called to clean up or close any interstitial state that was created by managing this resource.
      */
     void cleanup();
 
-    boolean verifyInstallation(Resource r, Vector<MissingMediaException> problemList);
+    boolean verifyInstallation(Resource r, Vector<MissingMediaException> problemList, CommCarePlatform platform);
 }

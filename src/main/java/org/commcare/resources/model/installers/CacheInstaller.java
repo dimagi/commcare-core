@@ -35,18 +35,18 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
 
     protected abstract String getCacheKey();
 
-    protected IStorageUtilityIndexed<T> storage() {
+    protected IStorageUtilityIndexed<T> storage(CommCarePlatform platform) {
         if (cacheStorage == null) {
-            cacheStorage = StorageManager.getStorage(getCacheKey());
+            cacheStorage = platform.getStorageManager().getStorage(getCacheKey());
         }
         return cacheStorage;
     }
 
     @Override
-    public abstract boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException;
+    public abstract boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCarePlatform platform, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException;
 
     @Override
-    public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
+    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) {
         return false;
     }
 
@@ -56,15 +56,15 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
     }
 
     @Override
-    public boolean upgrade(Resource r) throws UnresolvedResourceException {
+    public boolean upgrade(Resource r, CommCarePlatform platform) throws UnresolvedResourceException {
         //Don't need to do anything, since the resource is in the RMS already.
         throw new UnresolvedResourceException(r, "Attempt to upgrade installed resource suite");
     }
 
     @Override
-    public boolean uninstall(Resource r) {
+    public boolean uninstall(Resource r, CommCarePlatform platform) {
         try {
-            storage().remove(cacheLocation);
+            storage(platform).remove(cacheLocation);
         } catch (IllegalArgumentException e) {
             //Already gone! Shouldn't need to fail.
         }
@@ -72,19 +72,19 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
     }
 
     @Override
-    public boolean unstage(Resource r, int newStatus) {
+    public boolean unstage(Resource r, int newStatus, CommCarePlatform platform) {
         //By default, shouldn't need to move anything.
         return true;
     }
 
     @Override
-    public boolean revert(Resource r, ResourceTable table) {
+    public boolean revert(Resource r, ResourceTable table, CommCarePlatform platform) {
         //By default, shouldn't need to move anything.
         return true;
     }
 
     @Override
-    public int rollback(Resource r) {
+    public int rollback(Resource r, CommCarePlatform platform) {
         //This does nothing, since we don't do any upgrades/unstages
         return Resource.getCleanFlag(r.getStatus());
     }
@@ -107,7 +107,7 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
     }
 
     @Override
-    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> resources) {
+    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> resources, CommCarePlatform platform) {
         return false;
     }
 }

@@ -25,7 +25,7 @@ import java.util.Vector;
 public class BasicInstaller implements ResourceInstaller<CommCarePlatform> {
 
     @Override
-    public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
+    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) {
         return true;
     }
 
@@ -35,7 +35,7 @@ public class BasicInstaller implements ResourceInstaller<CommCarePlatform> {
     }
 
     @Override
-    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException {
+    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCarePlatform platform, boolean upgrade) throws UnresolvedResourceException {
         //If we have local resource authority, and the file exists, things are golden. We can just use that file.
         if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
             try {
@@ -66,27 +66,27 @@ public class BasicInstaller implements ResourceInstaller<CommCarePlatform> {
     }
 
     @Override
-    public boolean upgrade(Resource r) throws UnresolvedResourceException {
+    public boolean upgrade(Resource r, CommCarePlatform platform) throws UnresolvedResourceException {
         throw new RuntimeException("Basic Installer resources can't be marked as upgradable");
     }
 
     @Override
-    public boolean uninstall(Resource r) throws UnresolvedResourceException {
+    public boolean uninstall(Resource r, CommCarePlatform platform) throws UnresolvedResourceException {
         return true;
     }
 
     @Override
-    public boolean unstage(Resource r, int newStatus) {
+    public boolean unstage(Resource r, int newStatus, CommCarePlatform platform) {
         return true;
     }
 
     @Override
-    public boolean revert(Resource r, ResourceTable table) {
+    public boolean revert(Resource r, ResourceTable table, CommCarePlatform platform) {
         return true;
     }
 
     @Override
-    public int rollback(Resource r) {
+    public int rollback(Resource r, CommCarePlatform platform) {
         throw new RuntimeException("Basic Installer resources can't rolled back");
     }
 
@@ -105,7 +105,7 @@ public class BasicInstaller implements ResourceInstaller<CommCarePlatform> {
     }
 
     @Override
-    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
+    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems, CommCarePlatform platform) {
         //Work by default
         return true;
     }
