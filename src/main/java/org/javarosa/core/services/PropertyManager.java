@@ -1,6 +1,5 @@
 package org.javarosa.core.services;
 
-import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.properties.IPropertyRules;
 import org.javarosa.core.services.properties.Property;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -23,26 +22,6 @@ import java.util.Vector;
  */
 public class PropertyManager implements IPropertyManager {
 
-    ///// manage global property manager /////
-
-    private static final ThreadLocal<IPropertyManager> instance = new ThreadLocal<IPropertyManager>(){
-        @Override
-        protected IPropertyManager initialValue()
-        {
-            return new PropertyManager();
-        }
-    };
-
-    public static IPropertyManager instance() {
-        return instance.get();
-    }
-
-    public static void setPropertyManager(IStorageUtilityIndexed storageUtility) {
-        instance.set(new PropertyManager(storageUtility));
-    }
-
-    //////////////////////////////////////////
-
     /**
      * The name for the Persistent storage utility name
      */
@@ -61,13 +40,8 @@ public class PropertyManager implements IPropertyManager {
     /**
      * Constructor for this PropertyManager
      */
-    public PropertyManager() {
-        this.properties = (IStorageUtilityIndexed)StorageManager.instance().getStorage(STORAGE_KEY);
-        rulesList = new Vector<>();
-    }
-
-    public PropertyManager(IStorageUtilityIndexed storageUtilityIndexed) {
-        this.properties = storageUtilityIndexed;
+    public PropertyManager(IStorageUtilityIndexed properties) {
+        this.properties = properties;
         rulesList = new Vector<>();
     }
 

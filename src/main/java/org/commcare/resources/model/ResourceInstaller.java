@@ -102,7 +102,7 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      * @return True if the upgrade step was completed successfully.
      * @throws UnresolvedResourceException If the local resource definition could not be found
      */
-    boolean upgrade(Resource r) throws UnresolvedResourceException;
+    boolean upgrade(Resource r, T platform) throws UnresolvedResourceException;
 
     /**
      * Called to clean up or close any interstitial state that was created by managing this resource.
