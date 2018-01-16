@@ -6,7 +6,7 @@ import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-public class XPathUuidFunc extends XPathFuncExpr {
+public class XPathUuidFunc extends XPathFuncExpr implements UncacheableXPathFuncExpr {
     public static final String NAME = "uuid";
     // 0 or 1 arguments
     private static final int EXPECTED_ARG_COUNT = -1;
@@ -36,6 +36,11 @@ public class XPathUuidFunc extends XPathFuncExpr {
 
         int len = FunctionUtils.toInt(evaluatedArgs[0]).intValue();
         return PropertyUtils.genGUID(len);
+    }
+
+    @Override
+    protected boolean expressionIsCacheable(Object result) {
+        return false;
     }
 
 }

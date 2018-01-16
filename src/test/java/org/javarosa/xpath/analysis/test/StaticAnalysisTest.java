@@ -3,6 +3,7 @@ package org.javarosa.xpath.analysis.test;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.analysis.AnalysisInvalidException;
+import org.javarosa.xpath.analysis.ContainsUncacheableExpressionAnalyzer;
 import org.javarosa.xpath.analysis.ReferencesMainInstanceAnalyzer;
 import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 import org.javarosa.xpath.expr.XPathPathExpr;
@@ -173,6 +174,29 @@ public class StaticAnalysisTest {
 
     private void testContainsInstance(String expressionString, String instanceName, boolean expectedResult) throws XPathSyntaxException {
         ReferencesMainInstanceAnalyzer analyzer = new ReferencesMainInstanceAnalyzer(instanceName);
+        try {
+            assertEquals(expectedResult, analyzer.computeResult(XPathParseTool.parseXPath(expressionString)));
+        } catch (AnalysisInvalidException e) {
+            fail("Encountered Analysis Invalid exception: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testContainsUncacheableExpressionAnalysis() throws XPathSyntaxException {
+        testContainsUncacheable("now()", true);
+        testContainsUncacheable("uuid()", true);
+        testContainsUncacheable("random()", true);
+        testContainsUncacheable("depend(/data/val1, /data/val2)", true);
+        testContainsUncacheable("sleep(1000, -1)", true);
+        testContainsUncacheable("date(/data/refill/next_refill_due_date) <= today()", true);
+        testContainsUncacheable(
+                "concat(format-date(today(), '%e/%n/%y'), ': ', /data/ql_weight_and_height/weight, ' ', jr:itext('localization/kg-label'))",
+                true);
+        testContainsUncacheable("/data/val1", false);
+    }
+
+    private void testContainsUncacheable(String expressionString, boolean expectedResult) throws XPathSyntaxException {
+        ContainsUncacheableExpressionAnalyzer analyzer = new ContainsUncacheableExpressionAnalyzer();
         try {
             assertEquals(expectedResult, analyzer.computeResult(XPathParseTool.parseXPath(expressionString)));
         } catch (AnalysisInvalidException e) {

@@ -17,7 +17,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  *
  * @author ctsims
  */
-public class XPathSleepFunc extends XPathFuncExpr {
+public class XPathSleepFunc extends XPathFuncExpr implements UncacheableXPathFuncExpr {
     public static final String NAME = "sleep";
     private static final int EXPECTED_ARG_COUNT = 2;
 
@@ -40,5 +40,10 @@ public class XPathSleepFunc extends XPathFuncExpr {
             throw new RequestAbandonedException();
         }
         return evaluatedArgs[1];
+    }
+
+    @Override
+    protected boolean expressionIsCacheable(Object result) {
+        return false;
     }
 }

@@ -6,7 +6,7 @@ import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 // non-standard
-public class XPathDependFunc extends XPathFuncExpr {
+public class XPathDependFunc extends XPathFuncExpr implements UncacheableXPathFuncExpr {
     public static final String NAME = "depend";
     // at least one argument
     private static final int EXPECTED_ARG_COUNT = -1;
@@ -30,6 +30,11 @@ public class XPathDependFunc extends XPathFuncExpr {
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return evaluatedArgs[0];
+    }
+
+    @Override
+    protected boolean expressionIsCacheable(Object result) {
+        return false;
     }
 
 }

@@ -2,6 +2,7 @@ package org.javarosa.xpath.analysis;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,10 +98,13 @@ public abstract class XPathAnalyzer {
         doNormalTreeRefAnalysis(expressionWithContextTypeRelative.contextualize(this.getContextRef()));
     }
 
-
     public void doNormalTreeRefAnalysis(TreeReference treeReference)
             throws AnalysisInvalidException {
-        // So that the default behavior is to do nothing
+        // So that we can override in subclasses for which this is relevant
+    }
+
+    public void doAnalysis(XPathFuncExpr expr) {
+        // So that we can override in subclasses for which this is relevant
     }
 
     public XPathAnalyzer spawnSubAnalyzer(TreeReference subContext) {
