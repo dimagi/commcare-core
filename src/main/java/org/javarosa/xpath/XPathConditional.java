@@ -10,8 +10,6 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xpath.analysis.AnalysisInvalidException;
-import org.javarosa.xpath.analysis.XPathAnalyzer;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathBinaryOpExpr;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -55,6 +53,8 @@ public class XPathConditional implements IConditionExpr {
             } else {
                 throw e;
             }
+
+
         }
     }
 
@@ -195,5 +195,4 @@ public class XPathConditional implements IConditionExpr {
     public Vector<Object> pivot(DataInstance model, EvaluationContext evalContext) throws UnpivotableExpressionException {
         return expr.pivot(model, evalContext);
     }
-
 }
