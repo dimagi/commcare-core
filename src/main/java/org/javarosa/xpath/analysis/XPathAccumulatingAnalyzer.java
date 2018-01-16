@@ -31,9 +31,7 @@ public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
         try {
             rootExpression.applyAndPropagateAnalyzer(this);
             Set<T> set = new HashSet<>();
-            for (T item : aggregateResults(new ArrayList<T>())) {
-                set.add(item);
-            }
+            set.addAll(aggregateResults(new ArrayList<T>()));
             return set;
         } catch (AnalysisInvalidException e) {
             return null;
@@ -52,7 +50,7 @@ public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
         return aggregated;
     }
 
-    // FOR TESTING PURPOSES ONLY -- This can NOT be relied upon to not return duplicates in certain scenarios
+    // FOR TESTING PURPOSES ONLY -- This cannot be relied upon to not return duplicates
     @Nullable
     public List<T> accumulateAsList(XPathAnalyzable rootExpression) {
         try {
@@ -61,24 +59,6 @@ public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
         } catch (AnalysisInvalidException e) {
             return null;
         }
-    }
-
-    // This implementation should work for most accumulating analyzers, but some subclasses may want
-    // to override and provide more specific behavior
-    @Override
-    public void doAnalysisForTreeRefWithCurrent(TreeReference expressionWithContextTypeCurrent)
-            throws AnalysisInvalidException {
-        requireOriginalContext(expressionWithContextTypeCurrent);
-        doNormalTreeRefAnalysis(expressionWithContextTypeCurrent.contextualize(getOriginalContextRef()));
-    }
-
-    // This implementation should work for most accumulating analyzers, but some subclasses may want
-    // to override and provide more specific behavior
-    @Override
-    public void doAnalysisForRelativeTreeRef(TreeReference expressionWithContextTypeRelative)
-            throws AnalysisInvalidException {
-        requireContext(expressionWithContextTypeRelative);
-        doNormalTreeRefAnalysis(expressionWithContextTypeRelative.contextualize(this.getContextRef()));
     }
 
 }

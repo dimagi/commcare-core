@@ -18,11 +18,29 @@ public abstract class XPathBooleanAnalyzer extends XPathAnalyzer {
         this.result = getDefaultValue();
     }
 
+    protected abstract boolean getDefaultValue();
+    protected abstract boolean aggregateResults();
+
     public boolean computeResult(XPathAnalyzable rootExpression) throws AnalysisInvalidException {
         rootExpression.applyAndPropagateAnalyzer(this);
-        return result;
+        return aggregateResults();
     }
 
-    protected abstract boolean getDefaultValue();
+    boolean orResults() {
+        for (XPathAnalyzer subAnalyzer : this.subAnalyzers) {
+            if (((XPathBooleanAnalyzer)subAnalyzer).result) {
+                return true;
+            }
+        }
+        return this.result;
+    }
 
+    boolean andResults() {
+        for (XPathAnalyzer subAnalyzer : this.subAnalyzers) {
+            if (!((XPathBooleanAnalyzer)subAnalyzer).result) {
+                return false;
+            }
+        }
+        return this.result;
+    }
 }

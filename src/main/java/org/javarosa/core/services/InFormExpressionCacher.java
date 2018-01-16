@@ -6,7 +6,12 @@ import org.javarosa.xpath.expr.InFormCacheableExpr;
  * Created by amstone326 on 1/10/18.
  */
 
-public class ExpressionCacher {
+public class InFormExpressionCacher {
+
+    public String formInstanceRoot;
+
+    public InFormExpressionCacher() {
+    }
 
     // dummy implementations
 
@@ -32,19 +37,19 @@ public class ExpressionCacher {
 
     //
 
-    private static ExpressionCacher cacher = new ExpressionCacher();
+    private static InFormExpressionCacher cacher = new InFormExpressionCacher();
 
-    public static void setCacher(ExpressionCacher cacherForEnvironment) {
+    public static void setCacher(InFormExpressionCacher cacherForEnvironment) {
         cacher = cacherForEnvironment;
     }
 
-    public static ExpressionCacher getCacher() {
+    public static InFormExpressionCacher getCacher() {
         return cacher;
     }
 
     public static void reset() {
         cacher.wipeCache();
-        cacher = new ExpressionCacher();
+        cacher = new InFormExpressionCacher();
     }
 
 }

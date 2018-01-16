@@ -2,7 +2,6 @@ package org.javarosa.xpath.analysis;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.xpath.expr.XPathStep;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,10 +70,6 @@ public abstract class XPathAnalyzer {
         // So that the default behavior is to do nothing
     }
 
-    public void doAnalysis(XPathStep step) throws AnalysisInvalidException {
-        // So that the default behavior is to do nothing
-    }
-
     // TODO: There should be special handling for references that contain "../" as well
     public void doAnalysis(TreeReference ref) throws AnalysisInvalidException {
         if (ref.getContextType() == TreeReference.CONTEXT_INHERITED) {
@@ -86,17 +81,24 @@ public abstract class XPathAnalyzer {
         }
     }
 
-    public void doNormalTreeRefAnalysis(TreeReference treeReference)
-            throws AnalysisInvalidException {
-        // So that the default behavior is to do nothing
-    }
-
+    // This implementation should work for most analyzers, but some subclasses may want to override
+    // and provide more specific behavior
     public void doAnalysisForTreeRefWithCurrent(TreeReference expressionWithContextTypeCurrent)
             throws AnalysisInvalidException {
-        // So that the default behavior is to do nothing
+        requireOriginalContext(expressionWithContextTypeCurrent);
+        doNormalTreeRefAnalysis(expressionWithContextTypeCurrent.contextualize(getOriginalContextRef()));
     }
 
+    // This implementation should work for most analyzers, but some subclasses may want to override
+    // and provide more specific behavior
     public void doAnalysisForRelativeTreeRef(TreeReference expressionWithContextTypeRelative)
+            throws AnalysisInvalidException {
+        requireContext(expressionWithContextTypeRelative);
+        doNormalTreeRefAnalysis(expressionWithContextTypeRelative.contextualize(this.getContextRef()));
+    }
+
+
+    public void doNormalTreeRefAnalysis(TreeReference treeReference)
             throws AnalysisInvalidException {
         // So that the default behavior is to do nothing
     }
