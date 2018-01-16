@@ -21,7 +21,8 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
 
     private void queueUpCachedValue() {
         if (environmentValidForCaching() && recordIdOfCachedExpression != -1) {
-            justRetrieved = getExpressionCacher().getCachedValue(recordIdOfCachedExpression);
+            //justRetrieved = getExpressionCacher().getCachedValue(recordIdOfCachedExpression);
+            justRetrieved = getExpressionCacher().getCachedValue(this);
         } else {
             justRetrieved = null;
         }

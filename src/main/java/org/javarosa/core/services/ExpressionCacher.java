@@ -18,11 +18,15 @@ public class ExpressionCacher {
         return null;
     }
 
+    public Object getCachedValue(InFormCacheableExpr expression) {
+        return null;
+    }
+
     public boolean environmentValidForCaching() {
         return false;
     }
 
-    public void wipeCacheStorage() {
+    public void wipeCache() {
 
     }
 
@@ -39,7 +43,7 @@ public class ExpressionCacher {
     }
 
     public static void reset() {
-        cacher.wipeCacheStorage();
+        cacher.wipeCache();
         cacher = new ExpressionCacher();
     }
 
