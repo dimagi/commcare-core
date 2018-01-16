@@ -4,7 +4,9 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 
 /**
+ *
  * Accumulates all of the treereferences that are included in a given xpath expression.
+ *
  *
  * TODO: Once we use the fork/join pattern, this analyzer should possibly detect in "no-context"
  * mode that current() was dereferenced to mean "./", which is a huge potential source of issues.
