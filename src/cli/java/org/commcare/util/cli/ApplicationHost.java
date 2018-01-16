@@ -431,13 +431,15 @@ public class ApplicationHost {
                     syncToken, caseStateHash));
         }
 
+        PropertyManager propertyManager = session.getPlatform().getPropertyManager();
+
         //fetch the restore data and set credentials
-        String otaFreshRestoreUrl = PropertyManager.instance().getSingularProperty("ota-restore-url") +
+        String otaFreshRestoreUrl = propertyManager.getSingularProperty("ota-restore-url") +
                 "?version=2.0";
 
         String otaSyncUrl = otaFreshRestoreUrl + urlStateParams;
 
-        String domain = PropertyManager.instance().getSingularProperty("cc_user_domain");
+        String domain = propertyManager.getSingularProperty("cc_user_domain");
         final String qualifiedUsername = username + "@" + domain;
 
         Authenticator.setDefault(new Authenticator() {

@@ -631,7 +631,7 @@ public class ResourceTable {
      *
      * @param incoming Table for which resource upgrades are applied
      */
-    public void upgradeTable(ResourceTable incoming) throws UnresolvedResourceException {
+    public void upgradeTable(ResourceTable incoming, CommCarePlatform platform) throws UnresolvedResourceException {
         if (!incoming.isReady()) {
             throw new RuntimeException("Incoming table is not ready to be upgraded");
         }
@@ -663,7 +663,7 @@ public class ResourceTable {
 
                     if (r.getStatus() == Resource.RESOURCE_STATUS_UPGRADE) {
                         incoming.commit(r, Resource.RESOURCE_STATUS_UPGRADE_TO_INSTALL);
-                        if (r.getInstaller().upgrade(r)) {
+                        if (r.getInstaller().upgrade(r, platform)) {
                             incoming.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
                         } else {
                             Logger.log("Resource",

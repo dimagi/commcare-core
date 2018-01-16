@@ -44,7 +44,6 @@ import org.javarosa.xpath.XPathMissingInstanceException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -77,7 +76,6 @@ public class CommCareConfigEngine {
     }
 
     public CommCareConfigEngine(IStorageIndexedFactory storageFactory, InstallerFactory installerFactory) {
-        this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION, storageFactory);
         this.storageFactory = storageFactory;
         setRoots();
         table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class),
@@ -94,12 +92,13 @@ public class CommCareConfigEngine {
         StorageManager.instance().forceClear();
         StorageManager.instance().setStorageFactory(storageFactory);
         StorageManager.instance().registerStorage(PropertyManager.STORAGE_KEY, Property.class);
-        PropertyManager.setPropertyManager(storageFactory.newStorage(PropertyManager.STORAGE_KEY, Property.class));
         StorageManager.instance().registerStorage(Profile.STORAGE_KEY, Profile.class);
         StorageManager.instance().registerStorage(Suite.STORAGE_KEY, Suite.class);
         StorageManager.instance().registerStorage(FormDef.STORAGE_KEY, FormDef.class);
         StorageManager.instance().registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
         StorageManager.instance().registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
+
+        this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION, storageFactory);
     }
 
     private static IStorageIndexedFactory setupDummyStorageFactory(final PrototypeFactory prototypeFactory) {
@@ -309,7 +308,7 @@ public class CommCareConfigEngine {
     }
 
     public FormDef loadFormByXmlns(String xmlns) {
-        IStorageUtilityIndexed<FormDef> formStorage = StorageManager.getStorage(FormDef.STORAGE_KEY);
+        IStorageUtilityIndexed<FormDef> formStorage = storageFactory.newStorage(FormDef.STORAGE_KEY, FormDef.class);
         return formStorage.getRecordForValue("XMLNS", xmlns);
     }
 

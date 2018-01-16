@@ -206,7 +206,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCarePlatform> 
     }
 
     @Override
-    public boolean upgrade(Resource r) throws UnresolvedResourceException {
+    public boolean upgrade(Resource r, CommCarePlatform platform) throws UnresolvedResourceException {
         //TODO: Rename file to take off ".N"?
         return true;
     }
