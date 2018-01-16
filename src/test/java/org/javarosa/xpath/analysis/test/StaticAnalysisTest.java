@@ -139,16 +139,16 @@ public class StaticAnalysisTest {
     }
 
     @Test
-    public void testContainsInstanceRefAnalysis() throws XPathSyntaxException {
-        testContainsInstance("/unicorn/color[@name='fred']",
+    public void testReferencesMainInstanceAnalysis() throws XPathSyntaxException {
+        testReferencesMainInstance("/unicorn/color[@name='fred']",
                 "unicorn", true);
-        testContainsInstance("date(/data/refill/next_refill_due_date)",
+        testReferencesMainInstance("date(/data/refill/next_refill_due_date)",
                 "data", true);
 
         String longExpressionWithMainInstanceRef =
                 "instance('adherence_schedules')/adherence_schedules_list/adherence_schedules[" +
                         "id = /data/schedule_id][/data/user/user_level = 'dev' or user_level = 'real']/doses_per_week";
-        testContainsInstance(longExpressionWithMainInstanceRef, "data", true);
+        testReferencesMainInstance(longExpressionWithMainInstanceRef, "data", true);
 
         String evenLongerExpressionWithMainInstanceRef =
                 "date(coalesce(instance('casedb')/casedb/case[@case_id = instance('commcaresession')" +
@@ -156,11 +156,11 @@ public class StaticAnalysisTest {
                         "(date(coalesce(instance('casedb')/casedb/case[@case_id = " +
                         "instance('commcaresession')/session/blah/case_id_load_episode_case]/adherence_schedule_date_start, " +
                         "/data/treatment_initiation_date)) + 30)))";
-        testContainsInstance(evenLongerExpressionWithMainInstanceRef, "data", true);
+        testReferencesMainInstance(evenLongerExpressionWithMainInstanceRef, "data", true);
 
-        testContainsInstance("/unicorn/color[@name='fred']",
+        testReferencesMainInstance("/unicorn/color[@name='fred']",
                 "color", false);
-        testContainsInstance("instance('commcaresession')/session/data/case_id_load_test",
+        testReferencesMainInstance("instance('commcaresession')/session/data/case_id_load_test",
                 "data", false);
 
         String longExpressionWithoutMainInstanceRef =
@@ -169,10 +169,10 @@ public class StaticAnalysisTest {
                         "(date(coalesce(instance('casedb')/casedb/case[@case_id = " +
                         "instance('commcaresession')/session/data/case_id_load_episode_case]/adherence_schedule_date_start, " +
                         "/blah/treatment_initiation_date)) + 30)))";
-        testContainsInstance(longExpressionWithoutMainInstanceRef, "data", false);
+        testReferencesMainInstance(longExpressionWithoutMainInstanceRef, "data", false);
     }
 
-    private void testContainsInstance(String expressionString, String instanceName, boolean expectedResult) throws XPathSyntaxException {
+    private void testReferencesMainInstance(String expressionString, String instanceName, boolean expectedResult) throws XPathSyntaxException {
         ReferencesMainInstanceAnalyzer analyzer = new ReferencesMainInstanceAnalyzer(instanceName);
         try {
             assertEquals(expectedResult, analyzer.computeResult(XPathParseTool.parseXPath(expressionString)));
