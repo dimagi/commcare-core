@@ -82,6 +82,11 @@ public abstract class XPathAnalyzer {
         }
     }
 
+    public void doNormalTreeRefAnalysis(TreeReference treeReference)
+            throws AnalysisInvalidException {
+        // So that we can override in subclasses for which this is relevant
+    }
+
     // This implementation should work for most analyzers, but some subclasses may want to override
     // and provide more specific behavior
     public void doAnalysisForTreeRefWithCurrent(TreeReference expressionWithContextTypeCurrent)
@@ -89,18 +94,13 @@ public abstract class XPathAnalyzer {
         requireOriginalContext(expressionWithContextTypeCurrent);
         doNormalTreeRefAnalysis(expressionWithContextTypeCurrent.contextualize(getOriginalContextRef()));
     }
-
+    
     // This implementation should work for most analyzers, but some subclasses may want to override
     // and provide more specific behavior
     public void doAnalysisForRelativeTreeRef(TreeReference expressionWithContextTypeRelative)
             throws AnalysisInvalidException {
         requireContext(expressionWithContextTypeRelative);
         doNormalTreeRefAnalysis(expressionWithContextTypeRelative.contextualize(this.getContextRef()));
-    }
-
-    public void doNormalTreeRefAnalysis(TreeReference treeReference)
-            throws AnalysisInvalidException {
-        // So that we can override in subclasses for which this is relevant
     }
 
     public void doAnalysis(XPathFuncExpr expr) {
