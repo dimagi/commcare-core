@@ -701,13 +701,33 @@ public class FormDef implements IFormElement, IMetaData,
         return roots;
     }
 
+    private ArrayList<TreeReference> getTreeReferenceAndChildren(TreeReference reference) {
+        ArrayList<TreeReference> updatedNodes = new ArrayList<>();
+        updatedNodes.add(reference);
+        updatedNodes = findCascadeReferences(reference, updatedNodes);
+        return updatedNodes;
+    }
+
     private void throwGraphCyclesException(List<Triggerable> vertices) {
         Vector edges = new Vector<TreeReference[]>();
-        for (Triggerable t : vertices) {
-            for (TreeReference r : t.getTargets()) {
-                Vector<Triggerable> triggered = (Vector<Triggerable>)conditionsTriggeredByRef(r);
-                for (Triggerable trig: triggered) {
-                    edges.add(new TreeReference[] {r, trig.contextRef});
+        for (Triggerable outerTriggerables : vertices) {
+            for (TreeReference outerReference : outerTriggerables.getTargets()) {
+                // Get child refs because children are affected by parents
+                ArrayList<TreeReference> updatedNodes = getTreeReferenceAndChildren(outerReference);
+                if (updatedNodes != null) {
+                    for (TreeReference innerReference: updatedNodes) {
+                        Vector<Triggerable> triggered = (Vector<Triggerable>) conditionsTriggeredByRef(innerReference);
+                        if (triggered != null) {
+                            for (Triggerable trig : triggered) {
+                                if (!innerReference.equals(outerReference)) {
+                                    // We are dealing with a child and parent, so add an edge between the parent
+                                    // and child for clarity in the error message.
+                                    edges.add(new TreeReference[]{outerReference, innerReference});
+                                }
+                                edges.add(new TreeReference[]{innerReference, trig.contextRef});
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -759,7 +779,6 @@ public class FormDef implements IFormElement, IMetaData,
             for (TreeReference target : t.getTargets()) {
                 ArrayList<TreeReference> updatedNodes = new ArrayList<>();
                 updatedNodes.add(target);
-
                 // Repeat sub-elements have already been added to 'destination'
                 // when we grabbed all triggerables that target children of the
                 // repeat entry (via initTriggerablesRootedBy). Hence skip them
