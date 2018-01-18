@@ -101,7 +101,7 @@ public class SyncScreen extends Screen {
 
     @Override
     public void prompt(PrintStream printStream) throws CommCareSessionException {
-        printStream.println("Syncing...");
+        printStream.println("Sync complete, press Enter to continue");
     }
 
     @Override
