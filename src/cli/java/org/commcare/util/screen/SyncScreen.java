@@ -28,12 +28,14 @@ public class SyncScreen extends Screen {
     protected SessionWrapper sessionWrapper;
     private String username;
     private String password;
+    private PrintStream printStream;
 
 
-    public SyncScreen(String username, String password) {
+    public SyncScreen(String username, String password, PrintStream printStream) {
         super();
         this.username = username;
         this.password = password;
+        this.printStream = printStream;
     }
 
     @Override
@@ -52,6 +54,8 @@ public class SyncScreen extends Screen {
                         )
                 );
             }
+            printStream.println(String.format("Sync successful with response %s", response));
+            printStream.println("Press 'enter' to continue.");
         } else {
             // expected a sync entry; clear session and show vague 'session error' message to user
             throw new CommCareSessionException("Initialized sync request while not on sync screen");
@@ -77,6 +81,7 @@ public class SyncScreen extends Screen {
     private Response makeSyncRequest(PostRequest syncPost) throws CommCareSessionException {
         Hashtable<String, String> params = syncPost.getEvaluatedParams(sessionWrapper.getEvaluationContext());
         String url = buildUrl(syncPost.getUrl().toString());
+        printStream.println(String.format("Syncing with url %s and parameters %s", url, params));
         MultipartBody postBody = buildPostBody(params);
         String credential = Credentials.basic(username, password);
 
@@ -96,11 +101,15 @@ public class SyncScreen extends Screen {
 
     @Override
     public void prompt(PrintStream printStream) throws CommCareSessionException {
-
+        printStream.println("Syncing...");
     }
 
     @Override
     public boolean handleInputAndUpdateSession(CommCareSession commCareSession, String s) throws CommCareSessionException {
+        commCareSession.syncState();
+        if (commCareSession.finishExecuteAndPop(sessionWrapper.getEvaluationContext())) {
+            sessionWrapper.clearVolatiles();
+        }
         return false;
     }
 
