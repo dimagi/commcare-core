@@ -18,7 +18,9 @@ import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.screen.CommCareSessionException;
 import org.commcare.util.screen.EntityScreen;
 import org.commcare.util.screen.MenuScreen;
+import org.commcare.util.screen.QueryScreen;
 import org.commcare.util.screen.Screen;
+import org.commcare.util.screen.SyncScreen;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
@@ -71,7 +73,9 @@ public class ApplicationHost {
 
     private final BufferedReader reader;
 
-    private String[] mLocalUserCredentials;
+    private String username;
+    private String qualifiedUsername;
+    private String password;
     private String mRestoreFile;
     private boolean mRestoreStrategySet = false;
 
@@ -84,7 +88,10 @@ public class ApplicationHost {
     }
 
     public void setRestoreToRemoteUser(String username, String password) {
-        this.mLocalUserCredentials = new String[]{username, password};
+        this.username = username;
+        this.password = password;
+        String domain = mPlatform.getPropertyManager().getSingularProperty("cc_user_domain");
+        this.qualifiedUsername = username + "@" + domain;
         mRestoreStrategySet = true;
     }
 
@@ -323,7 +330,6 @@ public class ApplicationHost {
 
     private Screen getNextScreen() {
         String next = mSession.getNeededData(mSession.getEvaluationContext());
-
         if (next == null) {
             //XFORM TIME!
             return null;
@@ -331,6 +337,10 @@ public class ApplicationHost {
             return new MenuScreen();
         } else if (next.equals(SessionFrame.STATE_DATUM_VAL)) {
             return new EntityScreen();
+        } else if (next.equals(SessionFrame.STATE_QUERY_REQUEST)) {
+            return new QueryScreen(qualifiedUsername, password, System.out);
+        } else if (next.equals(SessionFrame.STATE_SYNC_REQUEST)) {
+            return new SyncScreen(qualifiedUsername, password, System.out);
         } else if (next.equalsIgnoreCase(SessionFrame.STATE_DATUM_COMPUTED)) {
             computeDatum();
             return getNextScreen();
@@ -376,8 +386,8 @@ public class ApplicationHost {
                 mPlatform.getStorageManager().getStorage(FormInstance.STORAGE_KEY));
 
         mSandbox = sandbox;
-        if (mLocalUserCredentials != null) {
-            restoreUserToSandbox(mSandbox, mSession, mLocalUserCredentials[0], mLocalUserCredentials[1]);
+        if (username != null && password != null) {
+            restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password);
         } else if (mRestoreFile != null) {
             restoreFileToSandbox(mSandbox, mRestoreFile);
         } else {
@@ -411,8 +421,11 @@ public class ApplicationHost {
         System.out.println("Setting logged in user to: " + u.getUsername());
     }
 
-    public static void restoreUserToSandbox(UserSandbox sandbox, CLISessionWrapper session,
-                                            String username, final String password) {
+    public static void restoreUserToSandbox(UserSandbox sandbox,
+                                            CLISessionWrapper session,
+                                            CommCarePlatform platform,
+                                            String username,
+                                            final String password) {
         String urlStateParams = "";
 
         boolean failed = true;
@@ -431,7 +444,7 @@ public class ApplicationHost {
                     syncToken, caseStateHash));
         }
 
-        PropertyManager propertyManager = session.getPlatform().getPropertyManager();
+        PropertyManager propertyManager = platform.getPropertyManager();
 
         //fetch the restore data and set credentials
         String otaFreshRestoreUrl = propertyManager.getSingularProperty("ota-restore-url") +
@@ -532,10 +545,10 @@ public class ApplicationHost {
     private void syncAndReport() {
         performCasePurge(mSandbox);
 
-        if (mLocalUserCredentials != null) {
+        if (username != null && password != null) {
             System.out.println("Requesting sync...");
 
-            restoreUserToSandbox(mSandbox, mSession, mLocalUserCredentials[0], mLocalUserCredentials[1]);
+            restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password);
         } else {
             System.out.println("Syncing is only available when using raw user credentials");
         }
