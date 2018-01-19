@@ -724,7 +724,10 @@ public class FormDef implements IFormElement, IMetaData,
                                     // and child for clarity in the error message.
                                     edges.add(new TreeReference[]{outerReference, innerReference});
                                 }
-                                edges.add(new TreeReference[]{innerReference, trig.contextRef});
+                                // Add all the targets of the of the triggered
+                                for (TreeReference reference: trig.getTargets()) {
+                                    edges.add(new TreeReference[]{innerReference, reference});
+                                }
                             }
                         }
                     }
