@@ -22,7 +22,9 @@ public class CyclicReferenceTests {
             new FormParseInit("/xform_tests/group_cyclic_reference.xml");
         } catch (XFormParseException e) {
             String detailMessage = e.getMessage();
+            // Assert that we're using the shortest cycle algorithm
             assert detailMessage.contains("Shortest Cycle");
+            // There should only be three newlines since only the three core cyclic references were included
             int newlineCount = detailMessage.length() - detailMessage.replace("\n", "").length();
             assert newlineCount == 3;
             return;
