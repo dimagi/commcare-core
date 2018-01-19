@@ -4,6 +4,7 @@ import org.javarosa.core.test.FormParseInit;
 import org.javarosa.xform.parse.XFormParseException;
 import org.junit.Test;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -23,10 +24,10 @@ public class CyclicReferenceTests {
         } catch (XFormParseException e) {
             String detailMessage = e.getMessage();
             // Assert that we're using the shortest cycle algorithm
-            assert detailMessage.contains("Shortest Cycle");
+            assertTrue(detailMessage.contains("Shortest Cycle"));
             // There should only be three newlines since only the three core cyclic references were included
             int newlineCount = detailMessage.length() - detailMessage.replace("\n", "").length();
-            assert newlineCount == 3;
+            assertTrue(newlineCount == 3);
             return;
         }
         fail("Cyclical reference did not throw XFormParseException");
