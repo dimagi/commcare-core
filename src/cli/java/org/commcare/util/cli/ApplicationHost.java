@@ -547,7 +547,6 @@ public class ApplicationHost {
 
         if (username != null && password != null) {
             System.out.println("Requesting sync...");
-
             restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password);
         } else {
             System.out.println("Syncing is only available when using raw user credentials");
