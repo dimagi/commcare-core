@@ -478,6 +478,10 @@ public class XFormPlayer {
                         badInput(input, fep.getConstraintText());
                         return false;
                     }
+                } catch(InvalidInputException e) {
+                    //This is handled by the outer loop processor, so make sure we don't
+                    //absorb it below
+                    throw e;
                 } catch (Exception e) {
                     e.printStackTrace();
                     badInput(input, e.getMessage());

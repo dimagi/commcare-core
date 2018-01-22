@@ -238,6 +238,8 @@ public class EntityScreen extends CompoundScreenHost {
         return "EntityScreen [Detail=" + mShortDetail + ", selection=" + mCurrentSelection + "]";
     }
 
+    // Used by Formplayer
+    @SuppressWarnings("unused")
     public Hashtable<String, TreeReference> getReferenceMap() {
         return referenceMap;
     }
