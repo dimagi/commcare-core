@@ -37,7 +37,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
 
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
-                           ResourceTable table, CommCarePlatform instance,
+                           ResourceTable table, CommCarePlatform platform,
                            boolean upgrade) throws UnresolvedResourceException {
         InputStream incoming = null;
         try {
@@ -58,13 +58,13 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
                     //There's already a record in the cache with this namespace, so we can't ovewrite it.
                     //TODO: If something broke, this record might already exist. Might be worth checking.
                     formDef.getInstance().schema = formDef.getInstance().schema + UPGRADE_EXT;
-                    storage().write(formDef);
+                    storage(platform).write(formDef);
                     cacheLocation = formDef.getID();
 
                     //Resource is installed and ready for upgrade
                     table.commit(r, Resource.RESOURCE_STATUS_UPGRADE);
                 } else {
-                    storage().write(formDef);
+                    storage(platform).write(formDef);
                     cacheLocation = formDef.getID();
                     //Resource is fully installed
                     table.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
@@ -88,19 +88,19 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
     @Override
     public boolean upgrade(Resource r, CommCarePlatform platform) throws UnresolvedResourceException {
         //Basically some content as revert. Merge;
-        FormDef form = storage().read(cacheLocation);
+        FormDef form = storage(platform).read(cacheLocation);
         String tempString = form.getInstance().schema;
 
         //Atomic. Don't re-do this if it was already done.
         if (tempString.contains(UPGRADE_EXT)) {
             form.getInstance().schema = tempString.substring(0, tempString.indexOf(UPGRADE_EXT));
-            storage().write(form);
+            storage(platform).write(form);
         }
         return true;
     }
 
     @Override
-    public boolean unstage(Resource r, int newStatus) {
+    public boolean unstage(Resource r, int newStatus, CommCarePlatform platform) {
         //This either unstages back to upgrade mode or
         //to unstaged mode. Figure out which one
         String destination = UPGRADE_EXT;
@@ -109,7 +109,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
         }
 
         //Make sure that this form's
-        FormDef form = storage().read(cacheLocation);
+        FormDef form = storage(platform).read(cacheLocation);
         String tempString = form.getInstance().schema;
 
         //This method should basically be atomic, so don't re-temp it if it's already
@@ -118,15 +118,15 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
             return true;
         } else {
             form.getInstance().schema = form.getInstance().schema + destination;
-            storage().write(form);
+            storage(platform).write(form);
             return true;
         }
     }
 
     @Override
-    public boolean revert(Resource r, ResourceTable table) {
+    public boolean revert(Resource r, ResourceTable table, CommCarePlatform platform) {
         //Basically some content as upgrade. Merge;
-        FormDef form = storage().read(cacheLocation);
+        FormDef form = storage(platform).read(cacheLocation);
         String tempString = form.getInstance().schema;
 
         //TODO: Aggressively wipe out anything which might conflict with the uniqueness
@@ -136,17 +136,17 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
             //Removing any staging/upgrade placeholders.
             if (tempString.contains(ext)) {
                 form.getInstance().schema = tempString.substring(0, tempString.indexOf(ext));
-                storage().write(form);
+                storage(platform).write(form);
             }
         }
         return true;
     }
 
     @Override
-    public int rollback(Resource r) {
+    public int rollback(Resource r, CommCarePlatform platform) {
         int status = r.getStatus();
 
-        FormDef form = storage().read(cacheLocation);
+        FormDef form = storage(platform).read(cacheLocation);
         String currentSchema = form.getInstance().schema;
 
         //Just figure out whether we finished and return that
@@ -171,14 +171,15 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
     }
 
     @Override
-    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
+    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems,
+                                      CommCarePlatform platform) {
         SizeBoundUniqueVector<MissingMediaException> sizeBoundProblems =
                 (SizeBoundUniqueVector<MissingMediaException>)problems;
 
         //Check to see whether the formDef exists and reads correctly
         FormDef formDef;
         try {
-            formDef = storage().read(cacheLocation);
+            formDef = storage(platform).read(cacheLocation);
         } catch (Exception e) {
             sizeBoundProblems.addElement(new MissingMediaException(r, "Form did not properly save into persistent storage"));
             return true;

@@ -166,19 +166,8 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             @Override
             public TransactionParser getParser(KXmlParser parser) {
                 if (created == null) {
-                    created = new FixtureXmlParser(parser) {
-                        private IStorageUtilityIndexed<FormInstance> fixtureStorage;
-
-                        @Override
-                        public IStorageUtilityIndexed<FormInstance> storage() {
-                            if (fixtureStorage == null) {
-                                fixtureStorage = sandbox.getUserFixtureStorage();
-                            }
-                            return fixtureStorage;
-                        }
-                    };
+                    created = new FixtureXmlParser(parser, true, sandbox.getUserFixtureStorage());
                 }
-
                 return created;
             }
         };
