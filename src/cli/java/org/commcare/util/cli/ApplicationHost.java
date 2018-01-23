@@ -377,7 +377,7 @@ public class ApplicationHost {
 
         mSandbox = sandbox;
         if (mLocalUserCredentials != null) {
-            restoreUserToSandbox(mSandbox, mSession, mLocalUserCredentials[0], mLocalUserCredentials[1]);
+            restoreUserToSandbox(mSandbox, mSession, mPlatform, mLocalUserCredentials[0], mLocalUserCredentials[1]);
         } else if (mRestoreFile != null) {
             restoreFileToSandbox(mSandbox, mRestoreFile);
         } else {
@@ -411,8 +411,11 @@ public class ApplicationHost {
         System.out.println("Setting logged in user to: " + u.getUsername());
     }
 
-    public static void restoreUserToSandbox(UserSandbox sandbox, CLISessionWrapper session,
-                                            String username, final String password) {
+    public static void restoreUserToSandbox(UserSandbox sandbox,
+                                            CLISessionWrapper session,
+                                            CommCarePlatform platform,
+                                            String username,
+                                            final String password) {
         String urlStateParams = "";
 
         boolean failed = true;
@@ -431,7 +434,7 @@ public class ApplicationHost {
                     syncToken, caseStateHash));
         }
 
-        PropertyManager propertyManager = session.getPlatform().getPropertyManager();
+        PropertyManager propertyManager = platform.getPropertyManager();
 
         //fetch the restore data and set credentials
         String otaFreshRestoreUrl = propertyManager.getSingularProperty("ota-restore-url") +
@@ -535,7 +538,7 @@ public class ApplicationHost {
         if (mLocalUserCredentials != null) {
             System.out.println("Requesting sync...");
 
-            restoreUserToSandbox(mSandbox, mSession, mLocalUserCredentials[0], mLocalUserCredentials[1]);
+            restoreUserToSandbox(mSandbox, mSession, mPlatform, mLocalUserCredentials[0], mLocalUserCredentials[1]);
         } else {
             System.out.println("Syncing is only available when using raw user credentials");
         }
