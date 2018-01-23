@@ -65,13 +65,15 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
 
     private static InFormExpressionCacher cacher = new InFormExpressionCacher();
 
-    public static void enableCaching(FormInstance formInstance) {
-        cacher.setFormInstanceRoot(formInstance);
+    public static void enableCaching(FormInstance formInstance, boolean clearCacheFirst) {
+        if (clearCacheFirst) {
+            cacher.wipeCache();
+        }
+        cacher.setFormInstanceRoot(formInstance.getBase().getChildAt(0).getName());
     }
 
     public static void disableCaching() {
         cacher.setFormInstanceRoot(null);
-        cacher.wipeCache();
     }
 
 }

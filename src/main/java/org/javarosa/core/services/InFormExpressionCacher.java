@@ -33,8 +33,8 @@ public class InFormExpressionCacher {
         cache.clear();
     }
 
-    public void setFormInstanceRoot(FormInstance formInstance) {
-        this.formInstanceRoot = formInstance.getBase().getChildAt(0).getName();
+    public void setFormInstanceRoot(String formInstance) {
+        this.formInstanceRoot = formInstance;
     }
 
     public String getFormInstanceRoot() {
