@@ -51,13 +51,11 @@ public class XPathStringLiteral extends XPathExpression {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         s = ExtUtil.readString(in);
-        recordIdOfCachedExpression = ExtUtil.readInt(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, s);
-        ExtUtil.writeNumeric(out, recordIdOfCachedExpression);
     }
 
     @Override

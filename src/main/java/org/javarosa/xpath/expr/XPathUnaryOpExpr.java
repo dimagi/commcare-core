@@ -40,13 +40,11 @@ public abstract class XPathUnaryOpExpr extends XPathOpExpr {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         a = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged(), pf);
-        recordIdOfCachedExpression = ExtUtil.readInt(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapTagged(a));
-        ExtUtil.writeNumeric(out, recordIdOfCachedExpression);
     }
 
     @Override

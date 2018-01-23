@@ -1,5 +1,6 @@
 package org.javarosa.xpath.expr;
 
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.InFormExpressionCacher;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.analysis.AnalysisInvalidException;
@@ -12,7 +13,6 @@ import org.javarosa.xpath.analysis.XPathAnalyzable;
  */
 public abstract class InFormCacheableExpr implements XPathAnalyzable {
 
-    protected int recordIdOfCachedExpression = -1;
     private Object justRetrieved;
 
     protected boolean isCached() {
@@ -21,21 +21,21 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     }
 
     private void queueUpCachedValue() {
-        if (environmentValidForCaching() && recordIdOfCachedExpression != -1) {
-            //justRetrieved = getExpressionCacher().getCachedValue(recordIdOfCachedExpression);
-            justRetrieved = getExpressionCacher().getCachedValue(this);
+        if (environmentValidForCaching()) {
+            justRetrieved = cacher.getCachedValue(this);
         } else {
             justRetrieved = null;
         }
     }
 
-    protected Object getCachedValue() {
+    Object getCachedValue() {
+        System.out.println("Returning cached value for expression " + this);
         return justRetrieved;
     }
 
-    protected void cache(Object value) {
+     void cache(Object value) {
         if (expressionIsCacheable(value)) {
-            this.recordIdOfCachedExpression = getExpressionCacher().cache(this, value);
+            cacher.cache(this, value);
         }
     }
 
@@ -51,7 +51,7 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     }
 
     private boolean referencesMainFormInstance() throws AnalysisInvalidException {
-        return (new ReferencesMainInstanceAnalyzer(getExpressionCacher().formInstanceRoot))
+        return (new ReferencesMainInstanceAnalyzer(cacher.getFormInstanceRoot()))
                 .computeResult(this);
     }
 
@@ -60,11 +60,18 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     }
 
     private boolean environmentValidForCaching() {
-        return getExpressionCacher().environmentValidForCaching();
+        return cacher.getFormInstanceRoot() != null;
     }
 
-    private InFormExpressionCacher getExpressionCacher() {
-        return InFormExpressionCacher.getCacher();
+    private static InFormExpressionCacher cacher = new InFormExpressionCacher();
+
+    public static void enableCaching(FormInstance formInstance) {
+        cacher.setFormInstanceRoot(formInstance);
+    }
+
+    public static void disableCaching() {
+        cacher.setFormInstanceRoot(null);
+        cacher.wipeCache();
     }
 
 }

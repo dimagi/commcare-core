@@ -55,7 +55,6 @@ public class XPathNumericLiteral extends XPathExpression {
         } else {
             d = ExtUtil.readDecimal(in);
         }
-        recordIdOfCachedExpression = ExtUtil.readInt(in);
     }
 
     @Override
@@ -67,7 +66,6 @@ public class XPathNumericLiteral extends XPathExpression {
             out.writeByte(0x01);
             ExtUtil.writeDecimal(out, d);
         }
-        ExtUtil.writeNumeric(out, recordIdOfCachedExpression);
     }
 
     @Override

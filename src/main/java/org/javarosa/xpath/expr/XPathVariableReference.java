@@ -51,13 +51,11 @@ public class XPathVariableReference extends XPathExpression {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         id = (XPathQName)ExtUtil.read(in, XPathQName.class, pf);
-        recordIdOfCachedExpression = ExtUtil.readInt(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, id);
-        ExtUtil.writeNumeric(out, recordIdOfCachedExpression);
     }
 
     @Override

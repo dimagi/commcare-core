@@ -49,14 +49,12 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
         } else {
             op = XPathEqExpr.NEQ;
         }
-        recordIdOfCachedExpression = ExtUtil.readInt(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeBool(out, isEqOp);
         writeExpressions(out);
-        ExtUtil.writeNumeric(out, recordIdOfCachedExpression);
     }
 
     /**

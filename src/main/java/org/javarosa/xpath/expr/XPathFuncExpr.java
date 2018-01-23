@@ -141,7 +141,6 @@ public abstract class XPathFuncExpr extends XPathExpression {
         for (int i = 0; i < args.length; i++) {
             args[i] = (XPathExpression)v.elementAt(i);
         }
-        recordIdOfCachedExpression = ExtUtil.readInt(in);
     }
 
     @Override
@@ -154,7 +153,6 @@ public abstract class XPathFuncExpr extends XPathExpression {
             v.addElement(arg);
         }
         ExtUtil.write(out, new ExtWrapListPoly(v));
-        ExtUtil.writeNumeric(out, recordIdOfCachedExpression);
     }
 
     @Override

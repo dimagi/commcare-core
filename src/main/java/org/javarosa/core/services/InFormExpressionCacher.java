@@ -1,6 +1,10 @@
 package org.javarosa.core.services;
 
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.xpath.expr.InFormCacheableExpr;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by amstone326 on 1/10/18.
@@ -8,48 +12,33 @@ import org.javarosa.xpath.expr.InFormCacheableExpr;
 
 public class InFormExpressionCacher {
 
-    public String formInstanceRoot;
+    private Map<InFormCacheableExpr, Object> cache;
+    private Map<InFormCacheableExpr, Integer> cacheRetrievalCounts;
+    protected String formInstanceRoot;
 
     public InFormExpressionCacher() {
+        cache = new HashMap<>();
     }
 
-    // dummy implementations
-
-    public int cache(InFormCacheableExpr expression, Object value) {
-        return -1;
-    }
-
-    public Object getCachedValue(int idOfStoredCache) {
-        return null;
+    public void cache(InFormCacheableExpr expression, Object value) {
+        cache.put(expression, value);
     }
 
     public Object getCachedValue(InFormCacheableExpr expression) {
-        return null;
-    }
-
-    public boolean environmentValidForCaching() {
-        return false;
+        //cacheRetrievalCounts.put(expression, cacheRetrievalCounts.get(expression) + 1);
+        return cache.get(expression);
     }
 
     public void wipeCache() {
-
+        cache.clear();
     }
 
-    //
-
-    private static InFormExpressionCacher cacher = new InFormExpressionCacher();
-
-    public static void setCacher(InFormExpressionCacher cacherForEnvironment) {
-        cacher = cacherForEnvironment;
+    public void setFormInstanceRoot(FormInstance formInstance) {
+        this.formInstanceRoot = formInstance.getBase().getChildAt(0).getName();
     }
 
-    public static InFormExpressionCacher getCacher() {
-        return cacher;
-    }
-
-    public static void reset() {
-        cacher.wipeCache();
-        cacher = new InFormExpressionCacher();
+    public String getFormInstanceRoot() {
+        return this.formInstanceRoot;
     }
 
 }
