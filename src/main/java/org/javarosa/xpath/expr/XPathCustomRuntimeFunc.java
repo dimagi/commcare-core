@@ -138,12 +138,14 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
+
         name = ExtUtil.readString(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
+
         ExtUtil.writeString(out, name);
     }
 
