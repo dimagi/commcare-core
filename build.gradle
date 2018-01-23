@@ -27,6 +27,7 @@ test {
 sourceSets {
     translate {
         java {
+            srcDir 'src/translate/java'
             compileClasspath += main.output
         }
     }
@@ -84,6 +85,7 @@ dependencies {
       testCompile sourceSets.main.output
       testCompile sourceSets.api.output
       testCompile sourceSets.cli.output
+      testCompile sourceSets.translate.output
       testCompile 'junit:junit:4.12'
       testCompile 'org.json:json:20140107'
       testCompile 'org.xerial:sqlite-jdbc:3.16.1'
