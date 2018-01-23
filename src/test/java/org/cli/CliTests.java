@@ -26,7 +26,7 @@ import static junit.framework.TestCase.assertTrue;
 public class CliTests {
 
     @Test
-    public void testApplicationHost() throws Exception {
+    public void testConstraintsForm() throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
         File appFile = new File(classLoader.getResource("basic_app/basic.ccz").getFile());
         String resourcePath = appFile.getAbsolutePath();
@@ -37,7 +37,6 @@ public class CliTests {
         PrintStream outStream = new PrintStream(baos);
         BufferedReader bufferedReader = new TestReader(new String[] {"1", "0", "\n"}, baos);
 
-
         ApplicationHost host = new ApplicationHost(engine, prototypeFactory, bufferedReader, outStream);
         File restoreFile = new File(classLoader.getResource("case_create_basic.xml").getFile());
         String restorePath = restoreFile.getAbsolutePath();
@@ -45,7 +44,32 @@ public class CliTests {
         boolean passed = false;
         try {
             host.run();
-        } catch (RuntimeException e) {
+        } catch (EarlyExitException e) {
+            passed = true;
+        }
+        assertTrue(passed);
+    }
+
+    @Test
+    public void testCaseSelection() throws Exception {
+        ClassLoader classLoader = getClass().getClassLoader();
+        File appFile = new File(classLoader.getResource("basic_app/basic.ccz").getFile());
+        String resourcePath = appFile.getAbsolutePath();
+        PrototypeFactory prototypeFactory = new LivePrototypeFactory();
+        CommCareConfigEngine engine = CliCommand.configureApp(resourcePath, prototypeFactory);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream outStream = new PrintStream(baos);
+        BufferedReader bufferedReader = new TestReader(new String[] {"2", "1", "5", "\n"}, baos);
+
+        ApplicationHost host = new ApplicationHost(engine, prototypeFactory, bufferedReader, outStream);
+        File restoreFile = new File(classLoader.getResource("basic_app/restore.xml").getFile());
+        String restorePath = restoreFile.getAbsolutePath();
+        host.setRestoreToLocalFile(restorePath);
+        boolean passed = false;
+        try {
+            host.run();
+        } catch (EarlyExitException e) {
             passed = true;
         }
         assertTrue(passed);
@@ -57,8 +81,8 @@ public class CliTests {
         private int index;
         private ByteArrayOutputStream outStream;
 
-        public TestReader(String[] args, ByteArrayOutputStream outStream) {
-            super(new StringReader("dummy"));
+        TestReader(String[] args, ByteArrayOutputStream outStream) {
+            super(new StringReader("Unused dummy reader"));
             this.args = args;
             this.outStream = outStream;
         }
@@ -70,19 +94,24 @@ public class CliTests {
                 Assert.assertTrue(output.contains("Basic Tests"));
                 Assert.assertTrue(output.contains("0)Basic Form Tests"));
             } else if (index == 1) {
-                Assert.assertTrue(output.contains("0)Constraints"));
+                Assert.assertTrue(output.contains("0)Create a Case"));
             } else if (index == 2) {
-                Assert.assertTrue(output.contains("Press Return to proceed"));
+                Assert.assertTrue(output.contains("Case | vl1"));
+                Assert.assertTrue(output.contains("Date Opened"));
+                Assert.assertTrue(output.contains("case one"));
             } else if (index == 3) {
-                Assert.assertTrue(output.contains("This form tests different logic constraints."));
-                throw new IOException("Good crash");
+                Assert.assertTrue(output.contains("Form Start: Press Return to proceed"));
+            } else {
+                Assert.assertTrue(output.contains("This form will allow you to add and update"));
+                throw new EarlyExitException();
             }
             String ret = args[index];
-            System.out.println("Reading line! " + ret);
             index++;
             outStream.reset();
             return ret;
         }
     }
+
+    private class EarlyExitException extends RuntimeException {}
 
 }
