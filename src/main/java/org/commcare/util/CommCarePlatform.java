@@ -51,7 +51,7 @@ public class CommCarePlatform {
     public CommCarePlatform(int majorVersion, int minorVersion, StorageManager storageManager) {
         this(majorVersion, minorVersion);
         this.storageManager = storageManager;
-        storageManager.registerStorage(PropertyManager.STORAGE_KEY, Property.class);
+        storageManager.registerStorage(PropertyManager.STORAGE_KEY, Property.getClass());
         this.propertyManager = new PropertyManager(storageManager.getStorage(PropertyManager.STORAGE_KEY));
     }
 
