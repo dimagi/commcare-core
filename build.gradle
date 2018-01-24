@@ -27,7 +27,6 @@ test {
 sourceSets {
     translate {
         java {
-            srcDir 'src/translate/java'
             compileClasspath += main.output
         }
     }
