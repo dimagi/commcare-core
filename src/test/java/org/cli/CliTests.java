@@ -35,9 +35,9 @@ public class CliTests {
 
         CliTestRun(String applicationPath,
                           String restoreResource,
-                          Class<E> clazz,
+                          Class<E> cliTestReaderClass,
                           String steps) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-            ApplicationHost host = buildApplicationHost(applicationPath, restoreResource, clazz, steps);
+            ApplicationHost host = buildApplicationHost(applicationPath, restoreResource, cliTestReaderClass, steps);
             boolean passed = false;
             try {
                 host.run();
@@ -47,20 +47,19 @@ public class CliTests {
             assertTrue(passed);
         }
 
-        private ApplicationHost buildApplicationHost(String applicationPath,
+        private ApplicationHost buildApplicationHost(String applicationResource,
                                                      String restoreResource,
-                                                     Class<E> clazz,
+                                                     Class<E> cliTestReaderClass,
                                                      String steps) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
             ClassLoader classLoader = getClass().getClassLoader();
-            File appFile = new File(classLoader.getResource(applicationPath).getFile());
-            String resourcePath = appFile.getAbsolutePath();
+            String applicationPath = new File(classLoader.getResource(applicationResource).getFile()).getAbsolutePath();
             PrototypeFactory prototypeFactory = new LivePrototypeFactory();
 
-            CommCareConfigEngine engine = CliCommand.configureApp(resourcePath, prototypeFactory);
+            CommCareConfigEngine engine = CliCommand.configureApp(applicationPath, prototypeFactory);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PrintStream outStream = new PrintStream(baos);
 
-            Constructor<E> ctor = clazz.getConstructor(String.class, ByteArrayOutputStream.class);
+            Constructor<E> ctor = cliTestReaderClass.getConstructor(String.class, ByteArrayOutputStream.class);
             CliTestReader reader = ctor.newInstance(steps, baos);
 
             ApplicationHost host = new ApplicationHost(engine, prototypeFactory, reader, outStream);
