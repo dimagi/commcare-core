@@ -88,28 +88,36 @@ public class CliTests {
                 "2 1 5 \n");
     }
 
+
+    /**
+     * The CliTestReader overrides the Reader (usually System.in) passed into the CLI
+     * and so is able to provide input through the readLine() function that the CLI
+     * reads from. We are also able to get the output at this point and make assertions
+     * about its content.
+     */
     static abstract class CliTestReader extends BufferedReader {
 
-        private String[] args;
-        private int index;
+        private String[] steps;
+        private int stepIndex;
         private ByteArrayOutputStream outStream;
 
-        CliTestReader(String args, ByteArrayOutputStream outStream) {
+        CliTestReader(String steps, ByteArrayOutputStream outStream) {
             super(new StringReader("Unused dummy reader"));
-            this.args = args.split(" ");
+            this.steps = steps.split(" ");
             this.outStream = outStream;
         }
 
         @Override
         public String readLine() throws IOException {
             String output = new String(outStream.toByteArray(), StandardCharsets.UTF_8);
-            processLine(index, output);
-            String ret = args[index++];
+            processLine(stepIndex, output);
+            String ret = steps[stepIndex++];
             outStream.reset();
+            // Return the next input for the CLI to process
             return ret;
         }
 
-        abstract void processLine(int index, String output);
+        abstract void processLine(int stepIndex, String output);
     }
 
     static class BasicTestReader extends CliTestReader {
@@ -118,8 +126,8 @@ public class CliTests {
             super(args, outStream);
         }
 
-        void processLine(int index, String output) {
-            switch(index) {
+        void processLine(int stepIndex, String output) {
+            switch(stepIndex) {
                 case 0:
                     Assert.assertTrue(output.contains("Basic Tests"));
                     Assert.assertTrue(output.contains("0)Basic Form Tests"));
@@ -134,7 +142,7 @@ public class CliTests {
                     Assert.assertTrue(output.contains("This form tests different logic constraints."));
                     throw new TestPassException();
                 default:
-                    throw new RuntimeException(String.format("Did not recognize output %s at index %s", output, index));
+                    throw new RuntimeException(String.format("Did not recognize output %s at stepIndex %s", output, stepIndex));
             }
         }
     }
@@ -145,8 +153,8 @@ public class CliTests {
             super(args, outStream);
         }
 
-        void processLine(int index, String output) {
-            switch(index) {
+        void processLine(int stepIndex, String output) {
+            switch(stepIndex) {
                 case 0:
                     Assert.assertTrue(output.contains("Basic Tests"));
                     Assert.assertTrue(output.contains("0)Basic Form Tests"));
@@ -166,7 +174,7 @@ public class CliTests {
                     Assert.assertTrue(output.contains("This form will allow you to add and update"));
                     throw new TestPassException();
                 default:
-                    throw new RuntimeException(String.format("Did not recognize output %s at index %s", output, index));
+                    throw new RuntimeException(String.format("Did not recognize output %s at stepIndex %s", output, stepIndex));
 
             }
         }
