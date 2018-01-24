@@ -13,6 +13,7 @@ public class ContainsUncacheableExpressionAnalyzer extends XPathBooleanAnalyzer 
     public void doAnalysis(XPathFuncExpr expr) {
         if (expr instanceof UncacheableXPathFuncExpr) {
             this.result = true;
+            this.shortCircuit = true;
         }
     }
 
