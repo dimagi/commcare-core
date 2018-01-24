@@ -29,7 +29,7 @@ public class SyncScreen extends Screen {
     private String username;
     private String password;
     private PrintStream printStream;
-
+    private boolean syncSuccessful;
 
     public SyncScreen(String username, String password, PrintStream printStream) {
         super();
@@ -41,19 +41,21 @@ public class SyncScreen extends Screen {
     @Override
     public void init (SessionWrapper sessionWrapper) throws CommCareSessionException {
         this.sessionWrapper = sessionWrapper;
+        parseMakeRequest();
+    }
+
+    private void parseMakeRequest() throws CommCareSessionException {
         String command = sessionWrapper.getCommand();
         Entry commandEntry = sessionWrapper.getPlatform().getEntry(command);
         if (commandEntry instanceof RemoteRequestEntry) {
             PostRequest syncPost = ((RemoteRequestEntry)commandEntry).getPostRequest();
             Response response = makeSyncRequest(syncPost);
-            if (!response.isSuccessful()) {
-                throw new CommCareSessionException(
-                        String.format("Sync request failed with code %s and message %s.",
-                                response.code(),
-                                response.message()
-                        )
-                );
+            if (response == null || !response.isSuccessful()) {
+                printStream.println(String.format("Sync failed with response %s", response));
+                printStream.println("Press 'enter' to retry.");
+                return;
             }
+            syncSuccessful = true;
             printStream.println(String.format("Sync successful with response %s", response));
             printStream.println("Press 'enter' to continue.");
         } else {
@@ -95,22 +97,31 @@ public class SyncScreen extends Screen {
             OkHttpClient client = new OkHttpClient();
             return client.newCall(request).execute();
         } catch (IOException e) {
-            throw new CommCareSessionException("Exception while making sync request", e);
+            return null;
         }
     }
 
     @Override
     public void prompt(PrintStream printStream) throws CommCareSessionException {
-        printStream.println("Sync complete, press Enter to continue");
+        if (syncSuccessful) {
+            printStream.println("Sync complete, press Enter to continue");
+        } else {
+            printStream.println("Sync failed, press Enter to continue");
+        }
     }
 
     @Override
     public boolean handleInputAndUpdateSession(CommCareSession commCareSession, String s) throws CommCareSessionException {
-        commCareSession.syncState();
-        if (commCareSession.finishExecuteAndPop(sessionWrapper.getEvaluationContext())) {
-            sessionWrapper.clearVolatiles();
+        if (syncSuccessful) {
+            commCareSession.syncState();
+            if (commCareSession.finishExecuteAndPop(sessionWrapper.getEvaluationContext())) {
+                sessionWrapper.clearVolatiles();
+            }
+            return false;
+        } else {
+            parseMakeRequest();
+            return true;
         }
-        return false;
     }
 
     @Override
