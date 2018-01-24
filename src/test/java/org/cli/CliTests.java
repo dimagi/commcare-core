@@ -41,7 +41,7 @@ public class CliTests {
             boolean passed = false;
             try {
                 host.run();
-            } catch (EarlyExitException e) {
+            } catch (TestPassException e) {
                 passed = true;
             }
             assertTrue(passed);
@@ -132,7 +132,7 @@ public class CliTests {
                     break;
                 case 3:
                     Assert.assertTrue(output.contains("This form tests different logic constraints."));
-                    throw new EarlyExitException();
+                    throw new TestPassException();
                 default:
                     throw new RuntimeException(String.format("Did not recognize output %s at index %s", output, index));
             }
@@ -164,7 +164,7 @@ public class CliTests {
                     break;
                 case 4:
                     Assert.assertTrue(output.contains("This form will allow you to add and update"));
-                    throw new EarlyExitException();
+                    throw new TestPassException();
                 default:
                     throw new RuntimeException(String.format("Did not recognize output %s at index %s", output, index));
 
@@ -172,6 +172,9 @@ public class CliTests {
         }
     }
 
-    private static class EarlyExitException extends RuntimeException {}
+    // Because the CLI is a REPL that will loop indefinitely unless certain code paths are
+    // reached we need to provide a way for tests to exit early. This exception will be
+    // caught at the top level of the CliTestRun and set the tests to pass when thrown.
+    private static class TestPassException extends RuntimeException {}
 
 }
