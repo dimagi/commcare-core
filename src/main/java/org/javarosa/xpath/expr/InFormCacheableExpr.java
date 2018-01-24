@@ -29,7 +29,7 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     }
 
     Object getCachedValue() {
-        System.out.println("Returning cached value for expression " + this);
+        System.out.println("Returning cached value for expression: " + ((XPathExpression)this).toPrettyString());
         return justRetrieved;
     }
 
@@ -40,9 +40,11 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     }
 
     protected boolean expressionIsCacheable(Object result) {
-        if (environmentValidForCaching() && !(result instanceof XPathNodeset)) {
+        if (environmentValidForCaching()) {
             try {
-                return !referencesMainFormInstance() && !containsUncacheableSubExpression();
+                boolean b = !referencesMainFormInstance() && !containsUncacheableSubExpression();
+                System.out.println("is cacheable: " + b + " " + ((XPathExpression)this).toPrettyString());
+                return b;
             } catch (AnalysisInvalidException e) {
                 // if the analysis didn't complete then we assume it's not cacheable
             }
