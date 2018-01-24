@@ -5,6 +5,7 @@ import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.PostRequest;
 import org.commcare.suite.model.RemoteRequestEntry;
+import org.commcare.util.cli.ApplicationHost;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -56,6 +57,7 @@ public class SyncScreen extends Screen {
                 return;
             }
             syncSuccessful = true;
+            ApplicationHost.restoreUserToSandbox(sessionWrapper.getSandbox(), sessionWrapper, sessionWrapper.getPlatform(), username, password);
             printStream.println(String.format("Sync successful with response %s", response));
             printStream.println("Press 'enter' to continue.");
         } else {

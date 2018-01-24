@@ -7,6 +7,7 @@ import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.SessionDatum;
@@ -422,7 +423,7 @@ public class ApplicationHost {
     }
 
     public static void restoreUserToSandbox(UserSandbox sandbox,
-                                            CLISessionWrapper session,
+                                            SessionWrapper session,
                                             CommCarePlatform platform,
                                             String username,
                                             final String password) {
