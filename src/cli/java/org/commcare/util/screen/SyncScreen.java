@@ -5,7 +5,6 @@ import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.PostRequest;
 import org.commcare.suite.model.RemoteRequestEntry;
-import org.commcare.util.cli.ApplicationHost;
 
 import java.io.IOException;
 import java.io.PrintStream;
