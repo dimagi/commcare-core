@@ -48,21 +48,33 @@ public class SyncScreen extends Screen {
     private void parseMakeRequest() throws CommCareSessionException {
         String command = sessionWrapper.getCommand();
         Entry commandEntry = sessionWrapper.getPlatform().getEntry(command);
-        if (commandEntry instanceof RemoteRequestEntry) {
-            PostRequest syncPost = ((RemoteRequestEntry)commandEntry).getPostRequest();
+
+        if (!(commandEntry instanceof RemoteRequestEntry)) {
+            // expected a sync entry; clear session and show vague 'session error' message to user
+            throw new CommCareSessionException("Initialized sync request while not on sync screen");
+        }
+
+        PostRequest syncPost = ((RemoteRequestEntry)commandEntry).getPostRequest();
+        try {
             Response response = makeSyncRequest(syncPost);
-            if (response == null || !response.isSuccessful()) {
-                printStream.println(String.format("Sync failed with response %s", response));
+            if (!response.isSuccessful()) {
+                printStream.println(String.format("Sync request failed with response code %s and message %s", response.code(), response.body()));
                 printStream.println("Press 'enter' to retry.");
                 return;
             }
             syncSuccessful = true;
-            ApplicationHost.restoreUserToSandbox(sessionWrapper.getSandbox(), sessionWrapper, sessionWrapper.getPlatform(), username, password);
+            ApplicationHost.restoreUserToSandbox(sessionWrapper.getSandbox(),
+                    sessionWrapper,
+                    sessionWrapper.getPlatform(),
+                    username,
+                    password);
+
             printStream.println(String.format("Sync successful with response %s", response));
             printStream.println("Press 'enter' to continue.");
-        } else {
-            // expected a sync entry; clear session and show vague 'session error' message to user
-            throw new CommCareSessionException("Initialized sync request while not on sync screen");
+        } catch (IOException e) {
+            e.printStackTrace();
+            printStream.println(String.format("Sync failed with exception %s", e.getMessage()));
+            printStream.println("Press 'enter' to retry.");
         }
     }
 
@@ -82,7 +94,7 @@ public class SyncScreen extends Screen {
         return requestBodyBuilder.build();
     }
 
-    private Response makeSyncRequest(PostRequest syncPost) throws CommCareSessionException {
+    private Response makeSyncRequest(PostRequest syncPost) throws CommCareSessionException, IOException {
         Hashtable<String, String> params = syncPost.getEvaluatedParams(sessionWrapper.getEvaluationContext());
         String url = buildUrl(syncPost.getUrl().toString());
         printStream.println(String.format("Syncing with url %s and parameters %s", url, params));
@@ -95,12 +107,8 @@ public class SyncScreen extends Screen {
                 .header("Authorization", credential)
                 .post(postBody)
                 .build();
-        try {
-            OkHttpClient client = new OkHttpClient();
-            return client.newCall(request).execute();
-        } catch (IOException e) {
-            return null;
-        }
+        OkHttpClient client = new OkHttpClient();
+        return client.newCall(request).execute();
     }
 
     @Override
@@ -108,7 +116,7 @@ public class SyncScreen extends Screen {
         if (syncSuccessful) {
             printStream.println("Sync complete, press Enter to continue");
         } else {
-            printStream.println("Sync failed, press Enter to continue");
+            printStream.println("Sync failed, press Enter to retry");
         }
     }
 
