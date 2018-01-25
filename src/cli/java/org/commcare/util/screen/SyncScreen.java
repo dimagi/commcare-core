@@ -63,7 +63,7 @@ public class SyncScreen extends Screen {
                 return;
             }
             syncSuccessful = true;
-            ApplicationHost.restoreUserToSandbox(sessionWrapper.getSandbox(),
+            SessionUtils.restoreUserToSandbox(sessionWrapper.getSandbox(),
                     sessionWrapper,
                     sessionWrapper.getPlatform(),
                     username,

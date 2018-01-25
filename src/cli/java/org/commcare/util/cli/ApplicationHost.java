@@ -21,6 +21,7 @@ import org.commcare.util.screen.EntityScreen;
 import org.commcare.util.screen.MenuScreen;
 import org.commcare.util.screen.QueryScreen;
 import org.commcare.util.screen.Screen;
+import org.commcare.util.screen.SessionUtils;
 import org.commcare.util.screen.SyncScreen;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -388,7 +389,7 @@ public class ApplicationHost {
 
         mSandbox = sandbox;
         if (username != null && password != null) {
-            restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password);
+            SessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password);
         } else if (mRestoreFile != null) {
             restoreFileToSandbox(mSandbox, mRestoreFile);
         } else {
@@ -420,96 +421,6 @@ public class ApplicationHost {
         User u = mSandbox.getUserStorage().read(0);
         mSandbox.setLoggedInUser(u);
         System.out.println("Setting logged in user to: " + u.getUsername());
-    }
-
-    public static void restoreUserToSandbox(UserSandbox sandbox,
-                                            SessionWrapper session,
-                                            CommCarePlatform platform,
-                                            String username,
-                                            final String password) {
-        String urlStateParams = "";
-
-        boolean failed = true;
-
-        boolean incremental = false;
-
-        if (sandbox.getLoggedInUser() != null) {
-            String syncToken = sandbox.getSyncToken();
-            String caseStateHash = CaseDBUtils.computeCaseDbHash(sandbox.getCaseStorage());
-
-            urlStateParams = String.format("&since=%s&state=ccsh:%s", syncToken, caseStateHash);
-            incremental = true;
-
-            System.out.println(String.format(
-                    "\nIncremental sync requested. \nSync Token: %s\nState Hash: %s",
-                    syncToken, caseStateHash));
-        }
-
-        PropertyManager propertyManager = platform.getPropertyManager();
-
-        //fetch the restore data and set credentials
-        String otaFreshRestoreUrl = propertyManager.getSingularProperty("ota-restore-url") +
-                "?version=2.0";
-
-        String otaSyncUrl = otaFreshRestoreUrl + urlStateParams;
-
-        String domain = propertyManager.getSingularProperty("cc_user_domain");
-        final String qualifiedUsername = username + "@" + domain;
-
-        Authenticator.setDefault(new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(qualifiedUsername, password.toCharArray());
-            }
-        });
-
-        //Go get our sandbox!
-        try {
-            System.out.println("GET: " + otaSyncUrl);
-            URL url = new URL(otaSyncUrl);
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-
-            if (conn.getResponseCode() == 412) {
-                System.out.println("Server Response 412 - The user sandbox is not consistent with " +
-                        "the server's data. \n\nThis is expected if you have changed cases locally, " +
-                        "since data is not sent to the server for updates. \n\nServer response cannot be restored," +
-                        " you will need to restart the user's session to get new data.");
-            } else if (conn.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                System.out.println("\nInvalid username or password!");
-            } else if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
-
-                System.out.println("Restoring user " + username + " to domain " + domain);
-
-                ParseUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), sandbox);
-
-                System.out.println("User data processed, new state token: " + sandbox.getSyncToken());
-                failed = false;
-            } else {
-                System.out.println("Unclear/Unexpected server response code: " + conn.getResponseCode());
-            }
-        } catch (InvalidStructureException | IOException
-                | XmlPullParserException | UnfullfilledRequirementsException e) {
-            e.printStackTrace();
-        }
-
-        if (failed) {
-            if (!incremental) {
-                System.exit(-1);
-            }
-        } else {
-            //Initialize our User
-            for (IStorageIterator<User> iterator = sandbox.getUserStorage().iterate(); iterator.hasMore(); ) {
-                User u = iterator.nextRecord();
-                if (username.equalsIgnoreCase(u.getUsername())) {
-                    sandbox.setLoggedInUser(u);
-                }
-            }
-        }
-
-        if (session != null) {
-            // old session data is now no longer valid
-            session.clearVolatiles();
-        }
     }
 
     private void restoreDemoUserToSandbox(UserSandbox sandbox) {
@@ -548,7 +459,7 @@ public class ApplicationHost {
 
         if (username != null && password != null) {
             System.out.println("Requesting sync...");
-            restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password);
+            SessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password);
         } else {
             System.out.println("Syncing is only available when using raw user credentials");
         }
