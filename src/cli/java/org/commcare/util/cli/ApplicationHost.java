@@ -389,7 +389,7 @@ public class ApplicationHost {
 
         mSandbox = sandbox;
         if (username != null && password != null) {
-            SessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password);
+            SessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
         } else if (mRestoreFile != null) {
             restoreFileToSandbox(mSandbox, mRestoreFile);
         } else {
@@ -459,7 +459,7 @@ public class ApplicationHost {
 
         if (username != null && password != null) {
             System.out.println("Requesting sync...");
-            SessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password);
+            SessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
         } else {
             System.out.println("Syncing is only available when using raw user credentials");
         }

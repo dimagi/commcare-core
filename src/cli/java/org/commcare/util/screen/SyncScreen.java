@@ -66,7 +66,8 @@ public class SyncScreen extends Screen {
                     sessionWrapper,
                     sessionWrapper.getPlatform(),
                     username,
-                    password);
+                    password,
+                    printStream);
 
             printStream.println(String.format("Sync successful with response %s", response));
             printStream.println("Press 'enter' to continue.");

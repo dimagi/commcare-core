@@ -14,6 +14,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
@@ -25,7 +26,8 @@ public class SessionUtils {
                                             SessionWrapper session,
                                             CommCarePlatform platform,
                                             String username,
-                                            final String password) {
+                                            final String password,
+                                            PrintStream printStream) {
         String urlStateParams = "";
 
         boolean failed = true;
@@ -39,7 +41,7 @@ public class SessionUtils {
             urlStateParams = String.format("&since=%s&state=ccsh:%s", syncToken, caseStateHash);
             incremental = true;
 
-            System.out.println(String.format(
+            printStream.println(String.format(
                     "\nIncremental sync requested. \nSync Token: %s\nState Hash: %s",
                     syncToken, caseStateHash));
         }
@@ -64,27 +66,27 @@ public class SessionUtils {
 
         //Go get our sandbox!
         try {
-            System.out.println("GET: " + otaSyncUrl);
+            printStream.println("GET: " + otaSyncUrl);
             URL url = new URL(otaSyncUrl);
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 
             if (conn.getResponseCode() == 412) {
-                System.out.println("Server Response 412 - The user sandbox is not consistent with " +
+                printStream.println("Server Response 412 - The user sandbox is not consistent with " +
                         "the server's data. \n\nThis is expected if you have changed cases locally, " +
                         "since data is not sent to the server for updates. \n\nServer response cannot be restored," +
                         " you will need to restart the user's session to get new data.");
             } else if (conn.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                System.out.println("\nInvalid username or password!");
+                printStream.println("\nInvalid username or password!");
             } else if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
 
-                System.out.println("Restoring user " + username + " to domain " + domain);
+                printStream.println("Restoring user " + username + " to domain " + domain);
 
                 ParseUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), sandbox);
 
-                System.out.println("User data processed, new state token: " + sandbox.getSyncToken());
+                printStream.println("User data processed, new state token: " + sandbox.getSyncToken());
                 failed = false;
             } else {
-                System.out.println("Unclear/Unexpected server response code: " + conn.getResponseCode());
+                printStream.println("Unclear/Unexpected server response code: " + conn.getResponseCode());
             }
         } catch (InvalidStructureException | IOException
                 | XmlPullParserException | UnfullfilledRequirementsException e) {
