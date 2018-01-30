@@ -211,7 +211,7 @@ public abstract class XPathFuncExpr extends XPathExpression {
             throw new XPathArityException(name, expectedArgCount, args.length);
         }
     }
-    
+
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
         analyzer.doAnalysis(XPathFuncExpr.this);
