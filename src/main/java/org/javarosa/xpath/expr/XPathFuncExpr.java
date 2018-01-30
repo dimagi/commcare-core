@@ -27,7 +27,6 @@ public abstract class XPathFuncExpr extends XPathExpression {
     public XPathExpression[] args;
     protected int expectedArgCount;
     private boolean evaluateArgsFirst;
-    protected static final String DOC_HEADER = "\n";
 
     @SuppressWarnings("unused")
     public XPathFuncExpr() {
@@ -212,14 +211,7 @@ public abstract class XPathFuncExpr extends XPathExpression {
             throw new XPathArityException(name, expectedArgCount, args.length);
         }
     }
-
-    public int getExpectedArgCount() {
-        return expectedArgCount;
-    }
-
-    public String getName() {
-        return name;
-    }
+    
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
         analyzer.doAnalysis(XPathFuncExpr.this);
