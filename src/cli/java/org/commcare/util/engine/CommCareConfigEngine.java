@@ -44,6 +44,7 @@ import org.javarosa.xpath.XPathMissingInstanceException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -59,6 +60,7 @@ public class CommCareConfigEngine {
     private final ResourceTable updateTable;
     private final ResourceTable recoveryTable;
     private final CommCarePlatform platform;
+    protected final PrintStream print;
 
     protected ArchiveFileRoot mArchiveRoot;
 
@@ -71,17 +73,18 @@ public class CommCareConfigEngine {
     }
 
     public CommCareConfigEngine(PrototypeFactory prototypeFactory) {
-        this(setupDummyStorageFactory(prototypeFactory), new InstallerFactory());
+        this(setupDummyStorageFactory(prototypeFactory), new InstallerFactory(), System.out);
     }
 
-    public CommCareConfigEngine(IStorageIndexedFactory storageFactory, InstallerFactory installerFactory) {
+    public CommCareConfigEngine(IStorageIndexedFactory storageFactory,
+                                InstallerFactory installerFactory,
+                                PrintStream print) {
+        this.print = print;
         setRoots();
-        table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class),
-                installerFactory);
-        updateTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_UPGRADE_TABLE", Resource.class),
-                installerFactory);
-        recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", Resource.class),
-                installerFactory);
+
+        table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class), installerFactory);
+        updateTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_UPGRADE_TABLE", Resource.class), installerFactory);
+        recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", Resource.class), installerFactory);
 
         StorageManager storageManager = new StorageManager(storageFactory);
         storageManager.registerStorage(PropertyManager.STORAGE_KEY, Property.class);
@@ -124,8 +127,8 @@ public class CommCareConfigEngine {
         try {
             zip = new ZipFile(fileName);
         } catch (IOException e) {
-            System.out.println("File at " + archiveURL + ": is not a valid CommCare Package. Downloaded to: " + fileName);
-            e.printStackTrace(System.out);
+            print.println("File at " + archiveURL + ": is not a valid CommCare Package. Downloaded to: " + fileName);
+            e.printStackTrace(print);
             return;
         }
         String archiveGUID = this.mArchiveRoot.addArchiveFile(zip);
@@ -158,11 +161,11 @@ public class CommCareConfigEngine {
                     conn.disconnect();
                 } catch (IOException ex) {
                     // Log error writing file and bail out.
-                    System.out.println("Exception closing file connection: " + ex);
+                    print.println("Exception closing file connection: " + ex);
                 }
             }
         } catch (IOException e) {
-            System.out.println("Issue downloading or create stream for " + resource);
+            print.println("Issue downloading or create stream for " + resource);
             throw new RuntimeException(e);
         }
     }
@@ -214,13 +217,19 @@ public class CommCareConfigEngine {
         try {
             table.initializeResources(platform, false);
         } catch (RuntimeException e) {
-            System.out.println("Error while initializing one of the resolved resources");
-            e.printStackTrace(System.out);
+            print.println("Error while initializing one of the resolved resources");
+            e.printStackTrace(print);
         }
         //Make sure there's a default locale, since the app doesn't necessarily use the
         //localization engine
         Localization.getGlobalLocalizerAdvanced().addAvailableLocale("default");
         Localization.setDefaultLocale("default");
+
+        print.println("Locales defined: ");
+        for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
+            System.out.println("* " + locale);
+        }
+
         setDefaultLocale();
     }
 
@@ -236,9 +245,9 @@ public class CommCareConfigEngine {
     }
 
     public void describeApplication() {
-        System.out.println("Locales defined: ");
+        print.println("Locales defined: ");
         for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
-            System.out.println("* " + locale);
+            print.println("* " + locale);
         }
 
         Localization.setDefaultLocale("default");
@@ -265,11 +274,11 @@ public class CommCareConfigEngine {
         for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
             Localization.setLocale(locale);
 
-            System.out.println("Application details for locale: " + locale);
-            System.out.println("CommCare");
+            print.println("Application details for locale: " + locale);
+            print.println("CommCare");
 
             for (Menu m : mapping.get("root")) {
-                System.out.println("|- " + m.getName().evaluate());
+                print.println("|- " + m.getName().evaluate());
                 for (String command : m.getCommandIds()) {
                     for (Suite s : platform.getInstalledSuites()) {
                         if (s.getEntries().containsKey(command)) {
@@ -309,27 +318,27 @@ public class CommCareConfigEngine {
             emptyhead += "   ";
         }
         if (e.isView()) {
-            System.out.println(head + "View: " + e.getText().evaluate());
+            print.println(head + "View: " + e.getText().evaluate());
         } else {
-            System.out.println(head + "Entry: " + e.getText().evaluate());
+            print.println(head + "Entry: " + e.getText().evaluate());
         }
         for (SessionDatum datum : e.getSessionDataReqs()) {
             if (datum instanceof FormIdDatum) {
-                System.out.println(emptyhead + "Form: " + datum.getValue());
+                print.println(emptyhead + "Form: " + datum.getValue());
             } else if (datum instanceof EntityDatum) {
                 String shortDetailId = ((EntityDatum) datum).getShortDetail();
                 if (shortDetailId != null) {
                     Detail d = s.getDetail(shortDetailId);
                     try {
-                        System.out.println(emptyhead + "|Select: " + d.getTitle().getText().evaluate(new EvaluationContext(null)));
+                        print.println(emptyhead + "|Select: " + d.getTitle().getText().evaluate(new EvaluationContext(null)));
                     } catch (XPathMissingInstanceException ex) {
-                        System.out.println(emptyhead + "|Select: " + "(dynamic title)");
+                        print.println(emptyhead + "|Select: " + "(dynamic title)");
                     }
-                    System.out.print(emptyhead + "| ");
+                    print.print(emptyhead + "| ");
                     for (DetailField f : d.getFields()) {
-                        System.out.print(f.getHeader().evaluate() + " | ");
+                        print.print(f.getHeader().evaluate() + " | ");
                     }
-                    System.out.print("\n");
+                    print.print("\n");
                 }
             }
         }
@@ -403,7 +412,7 @@ public class CommCareConfigEngine {
                 }
             }
         } catch (MalformedURLException e) {
-            System.out.print("Warning: Unrecognized URL format: " + authRef);
+            print.print("Warning: Unrecognized URL format: " + authRef);
         }
 
 
@@ -413,33 +422,33 @@ public class CommCareConfigEngine {
             // profile is not a newer version, statgeUpgradeTable doesn't
             // actually pull in all the new references
 
-            System.out.println("Checking for updates....");
+            print.println("Checking for updates....");
             ResourceManager resourceManager = new ResourceManager(platform, global, updateTable, recoveryTable);
             resourceManager.stageUpgradeTable(authRef, true, platform);
             Resource newProfile = updateTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
             if (!newProfile.isNewer(profileRef)) {
-                System.out.println("Your app is up to date!");
+                print.println("Your app is up to date!");
                 return;
             }
 
-            System.out.println("Update found. New Version: " + newProfile.getVersion());
-            System.out.println("Downloading / Preparing Update");
+            print.println("Update found. New Version: " + newProfile.getVersion());
+            print.println("Downloading / Preparing Update");
             resourceManager.prepareUpgradeResources();
-            System.out.print("Installing update");
+            print.print("Installing update");
 
             // Replaces global table with temporary, or w/ recovery if
             // something goes wrong
             resourceManager.upgrade();
         } catch (UnresolvedResourceException e) {
-            System.out.println("Update Failed! Couldn't find or install one of the remote resources");
+            print.println("Update Failed! Couldn't find or install one of the remote resources");
             e.printStackTrace();
             return;
         } catch (UnfullfilledRequirementsException e) {
-            System.out.println("Update Failed! This CLI host is incompatible with the app");
+            print.println("Update Failed! This CLI host is incompatible with the app");
             e.printStackTrace();
             return;
         } catch (Exception e) {
-            System.out.println("Update Failed! There is a problem with one of the resources");
+            print.println("Update Failed! There is a problem with one of the resources");
             e.printStackTrace();
             return;
         }

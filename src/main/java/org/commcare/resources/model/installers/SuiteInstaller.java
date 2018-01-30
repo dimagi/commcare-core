@@ -27,8 +27,6 @@ import java.util.Vector;
  */
 public class SuiteInstaller extends CacheInstaller<Suite> {
 
-    public SuiteInstaller(){}
-
     @Override
     public boolean initialize(CommCarePlatform platform, boolean isUpgrade) {
         platform.registerSuite(storage(platform).read(cacheLocation));
