@@ -94,7 +94,7 @@ public class QueryScreen extends Screen {
         }
     }
 
-    private boolean processResponse(InputStream responseData) {
+    public boolean processResponse(InputStream responseData) {
         if (responseData == null) {
             currentMessage = "Query result null.";
             return false;
@@ -117,17 +117,17 @@ public class QueryScreen extends Screen {
         return !instance.getRoot().hasChildren();
     }
 
-    private void answerPrompts(Hashtable<String, String> answers) {
+    public void answerPrompts(Hashtable<String, String> answers) {
         for(String key: answers.keySet()){
             remoteQuerySessionManager.answerUserPrompt(key, answers.get(key));
         }
     }
 
-    private URL getBaseUrl(){
+    protected URL getBaseUrl(){
         return remoteQuerySessionManager.getBaseUrl();
     }
 
-    private Hashtable<String, String> getQueryParams(){
+    protected Hashtable<String, String> getQueryParams(){
         return remoteQuerySessionManager.getRawQueryParams();
     }
 
