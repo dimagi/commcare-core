@@ -136,7 +136,7 @@ public class CommCareConfigEngine {
         init("jr://archive/" + archiveGUID + "/profile.ccpr");
     }
 
-    private String downloadToTemp(String resource) {
+    protected String downloadToTemp(String resource) {
         try {
             URL url = new URL(resource);
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();

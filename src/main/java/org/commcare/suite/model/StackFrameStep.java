@@ -228,4 +228,10 @@ public class StackFrameStep implements Externalizable {
     public void setType(String elementType) {
         this.elementType = elementType;
     }
+
+    // Used by Formplayer
+    @SuppressWarnings("unused")
+    public String getElementType() {
+        return elementType;
+    }
 }
