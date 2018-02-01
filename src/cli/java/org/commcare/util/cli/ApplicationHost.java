@@ -50,6 +50,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
@@ -74,6 +75,7 @@ public class ApplicationHost {
     private final PrototypeFactory mPrototypeFactory;
 
     private final BufferedReader reader;
+    private final PrintStream printStream;
 
     private String username;
     private String qualifiedUsername;
@@ -81,12 +83,19 @@ public class ApplicationHost {
     private String mRestoreFile;
     private boolean mRestoreStrategySet = false;
 
-    public ApplicationHost(CommCareConfigEngine engine, PrototypeFactory prototypeFactory) {
+    public ApplicationHost(CommCareConfigEngine engine,
+                           PrototypeFactory prototypeFactory,
+                           BufferedReader reader,
+                           PrintStream out) {
         this.mEngine = engine;
         this.mPlatform = engine.getPlatform();
-
-        reader = new BufferedReader(new InputStreamReader(System.in));
+        this.reader = reader;
         this.mPrototypeFactory = prototypeFactory;
+        this.printStream = out;
+    }
+
+    public ApplicationHost(CommCareConfigEngine engine, PrototypeFactory prototypeFactory) {
+        this(engine, prototypeFactory, new BufferedReader(new InputStreamReader(System.in)), System.out);
     }
 
     public void setRestoreToRemoteUser(String username, String password) {
@@ -163,12 +172,12 @@ public class ApplicationHost {
                         }
                     }
 
-                    System.out.println("\n\n\n\n\n\n");
-                    System.out.println(s.getWrappedDisplaytitle(mSandbox, mPlatform));
+                    printStream.println("\n\n\n\n\n\n");
+                    printStream.println(s.getWrappedDisplaytitle(mSandbox, mPlatform));
 
-                    System.out.println("====================");
-                    s.prompt(System.out);
-                    System.out.print("> ");
+                    printStream.println("====================");
+                    s.prompt(printStream);
+                    printStream.print("> ");
 
                     screenIsRedrawing = false;
                     String input = reader.readLine();
@@ -183,13 +192,13 @@ public class ApplicationHost {
 
                             if (input.contains(("--latest")) || input.contains("-f")) {
                                 mUpdateTarget = "build";
-                                System.out.println("Updating to most recent build");
+                                printStream.println("Updating to most recent build");
                             } else if (input.contains(("--preview")) || input.contains("-p")) {
                                 mUpdateTarget = "save";
-                                System.out.println("Updating to latest app preview");
+                                printStream.println("Updating to latest app preview");
                             } else {
                                 mUpdateTarget = "release";
-                                System.out.println("Updating to newest Release");
+                                printStream.println("Updating to newest Release");
                             }
                             return true;
                         }
@@ -213,7 +222,7 @@ public class ApplicationHost {
                         if (input.startsWith(":lang")) {
                             String[] langArgs = input.split(" ");
                             if (langArgs.length != 2) {
-                                System.out.println("Command format\n:lang [langcode]");
+                                printStream.println("Command format\n:lang [langcode]");
                                 continue;
                             }
 
@@ -247,7 +256,7 @@ public class ApplicationHost {
             }
             //We have a session and are ready to fill out a form!
 
-            System.out.println("Starting form entry with the following stack frame");
+            printStream.println("Starting form entry with the following stack frame");
             printStack(mSession);
             //Get our form object
             String formXmlns = mSession.getForm();
@@ -256,7 +265,7 @@ public class ApplicationHost {
                 finishSession();
                 return true;
             } else {
-                XFormPlayer player = new XFormPlayer(System.in, System.out, null);
+                XFormPlayer player = new XFormPlayer(reader, printStream, null);
                 player.setPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
                 player.setSessionIIF(mSession.getIIF());
                 player.start(mEngine.loadFormByXmlns(formXmlns));
@@ -283,13 +292,13 @@ public class ApplicationHost {
 
     private void printStack(CLISessionWrapper mSession) {
         SessionFrame frame = mSession.getFrame();
-        System.out.println("Live Frame");
-        System.out.println("----------");
+        printStream.println("Live Frame");
+        printStream.println("----------");
         for (StackFrameStep step : frame.getSteps()) {
             if (step.getType().equals(SessionFrame.STATE_COMMAND_ID)) {
-                System.out.println("COMMAND: " + step.getId());
+                printStream.println("COMMAND: " + step.getId());
             } else {
-                System.out.println("DATUM : " + step.getId() + " - " + step.getValue());
+                printStream.println("DATUM : " + step.getId() + " - " + step.getValue());
             }
         }
     }
@@ -320,9 +329,9 @@ public class ApplicationHost {
     }
 
     private void printErrorAndContinue(String error, Exception e) {
-        System.out.println(error);
+        printStream.println(error);
         e.printStackTrace();
-        System.out.println("Press return to restart the session");
+        printStream.println("Press return to restart the session");
         try {
             reader.readLine();
         } catch (IOException ex) {
@@ -400,16 +409,16 @@ public class ApplicationHost {
     private void restoreFileToSandbox(UserSandbox sandbox, String restoreFile) {
         FileInputStream fios = null;
         try {
-            System.out.println("Restoring user data from local file " + restoreFile);
+            printStream.println("Restoring user data from local file " + restoreFile);
             fios = new FileInputStream(restoreFile);
         } catch (FileNotFoundException e) {
-            System.out.println("No restore file found at" + restoreFile);
+            printStream.println("No restore file found at" + restoreFile);
             System.exit(-1);
         }
         try {
             ParseUtils.parseIntoSandbox(new BufferedInputStream(fios), sandbox, false);
         } catch (Exception e) {
-            System.out.println("Error parsing local restore data from " + restoreFile);
+            printStream.println("Error parsing local restore data from " + restoreFile);
             e.printStackTrace();
             System.exit(-1);
         }
@@ -420,14 +429,14 @@ public class ApplicationHost {
     private void initUser() {
         User u = mSandbox.getUserStorage().read(0);
         mSandbox.setLoggedInUser(u);
-        System.out.println("Setting logged in user to: " + u.getUsername());
+        printStream.println("Setting logged in user to: " + u.getUsername());
     }
 
     private void restoreDemoUserToSandbox(UserSandbox sandbox) {
         try {
             ParseUtils.parseIntoSandbox(mPlatform.getDemoUserRestore().getRestoreStream(), sandbox, false);
         } catch (Exception e) {
-            System.out.println("Error parsing demo user restore from app");
+            printStream.println("Error parsing demo user restore from app");
             e.printStackTrace();
             System.exit(-1);
         }
@@ -449,43 +458,42 @@ public class ApplicationHost {
             }
         }
 
-        System.out.println("Locale '" + locale + "' is undefined in this app! Available Locales:");
-        System.out.println("---------------------");
-        System.out.println(availableLocales);
+        printStream.println("Locale '" + locale + "' is undefined in this app! Available Locales:");
+        printStream.println("---------------------");
+        printStream.println(availableLocales);
     }
 
     private void syncAndReport() {
         performCasePurge(mSandbox);
-
         if (username != null && password != null) {
             System.out.println("Requesting sync...");
             SessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
         } else {
-            System.out.println("Syncing is only available when using raw user credentials");
+            printStream.println("Syncing is only available when using raw user credentials");
         }
     }
 
-    public static void performCasePurge(UserSandbox sandbox) {
-        System.out.println("Performing Case Purge");
+    public void performCasePurge(UserSandbox sandbox) {
+        printStream.println("Performing Case Purge");
         CasePurgeFilter purger = new CasePurgeFilter(sandbox.getCaseStorage(),
                 SandboxUtils.extractEntityOwners(sandbox));
 
         int removedCases = sandbox.getCaseStorage().removeAll(purger).size();
 
-        System.out.println("");
-        System.out.println("Purge Report");
-        System.out.println("=========================");
+        printStream.println("");
+        printStream.println("Purge Report");
+        printStream.println("=========================");
         if (removedCases == 0) {
-            System.out.println("0 Cases Purged");
+            printStream.println("0 Cases Purged");
         } else {
-            System.out.println("Cases Removed from device[" + removedCases + "]: " +
+            printStream.println("Cases Removed from device[" + removedCases + "]: " +
                     purger.getRemovedCasesString());
         }
         if (!("".equals(purger.getRemovedCasesString()))) {
-            System.out.println("[Error/Warning] Cases Missing from Device: " + purger.getMissingCasesString());
+            printStream.println("[Error/Warning] Cases Missing from Device: " + purger.getMissingCasesString());
         }
         if (purger.invalidEdgesWereRemoved()) {
-            System.out.println("[Error/Warning] During Purge Invalid Edges were Detected");
+            printStream.println("[Error/Warning] During Purge Invalid Edges were Detected");
         }
     }
 
