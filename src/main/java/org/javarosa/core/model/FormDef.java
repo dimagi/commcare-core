@@ -1455,7 +1455,7 @@ public class FormDef implements IFormElement, IMetaData,
         Set<TreeReference> newReferences = analyzer.accumulate(newRef);
 
         if (newReferences == null) {
-            throw new AnalysisInvalidException("itemset accumulation");
+            throw AnalysisInvalidException.INSTANCE;
         }
         return newReferences;
     }

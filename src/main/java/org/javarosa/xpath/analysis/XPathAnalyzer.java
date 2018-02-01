@@ -53,17 +53,13 @@ public abstract class XPathAnalyzer {
 
     protected void requireOriginalContext(TreeReference forReference) throws AnalysisInvalidException{
         if (getOriginalContextRef() == null) {
-            throw new AnalysisInvalidException("No original context ref was available when " +
-                    "trying to analyze the following expression with context type current: " +
-                    forReference.toString());
+            throw AnalysisInvalidException.INSTANCE;
         }
     }
 
     protected void requireContext(TreeReference forReference) throws AnalysisInvalidException{
         if (getContextRef() == null) {
-            throw new AnalysisInvalidException("No context ref was available when trying to " +
-                    "analyze the following expression with context type relative: " +
-                    forReference.toString());
+            throw AnalysisInvalidException.INSTANCE;
         }
     }
 

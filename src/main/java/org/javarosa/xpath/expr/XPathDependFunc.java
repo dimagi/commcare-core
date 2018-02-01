@@ -33,7 +33,7 @@ public class XPathDependFunc extends XPathFuncExpr implements UncacheableXPathFu
     }
 
     @Override
-    protected boolean expressionIsCacheable(Object result) {
+    protected boolean isCacheable() {
         return false;
     }
 

@@ -39,7 +39,7 @@ public class XPathUuidFunc extends XPathFuncExpr implements UncacheableXPathFunc
     }
 
     @Override
-    protected boolean expressionIsCacheable(Object result) {
+    protected boolean isCacheable() {
         return false;
     }
 

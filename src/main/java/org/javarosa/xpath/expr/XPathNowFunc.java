@@ -25,7 +25,7 @@ public class XPathNowFunc extends XPathFuncExpr implements UncacheableXPathFuncE
     }
 
     @Override
-    protected boolean expressionIsCacheable(Object result) {
+    protected boolean isCacheable() {
         return false;
     }
 

@@ -43,7 +43,7 @@ public class XPathSleepFunc extends XPathFuncExpr implements UncacheableXPathFun
     }
 
     @Override
-    protected boolean expressionIsCacheable(Object result) {
+    protected boolean isCacheable() {
         return false;
     }
 }

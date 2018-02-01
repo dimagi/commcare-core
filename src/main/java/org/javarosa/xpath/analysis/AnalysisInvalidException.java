@@ -6,7 +6,14 @@ package org.javarosa.xpath.analysis;
  */
 public class AnalysisInvalidException extends Exception {
 
+    public static AnalysisInvalidException INSTANCE = new AnalysisInvalidException();
+
+    private AnalysisInvalidException() {
+        super();
+    }
+
     public AnalysisInvalidException(String msg) {
         super(msg);
     }
+
 }

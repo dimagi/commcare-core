@@ -2,7 +2,6 @@ package org.javarosa.xpath.expr;
 
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.InFormExpressionCacher;
-import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.analysis.AnalysisInvalidException;
 import org.javarosa.xpath.analysis.ContainsUncacheableExpressionAnalyzer;
 import org.javarosa.xpath.analysis.ReferencesMainInstanceAnalyzer;
@@ -14,6 +13,8 @@ import org.javarosa.xpath.analysis.XPathAnalyzable;
 public abstract class InFormCacheableExpr implements XPathAnalyzable {
 
     private Object justRetrieved;
+    private boolean computedCacheability;
+    private boolean isCacheable;
 
     protected boolean isCached() {
         queueUpCachedValue();
@@ -29,27 +30,35 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     }
 
     Object getCachedValue() {
-        System.out.println("Returning cached value for expression: " + ((XPathExpression)this).toPrettyString());
+        //System.out.println("Returning cached value for expression: " + ((XPathExpression)this).toPrettyString());
         return justRetrieved;
     }
 
      void cache(Object value) {
-        if (expressionIsCacheable(value)) {
+        if (isCacheable()) {
             cacher.cache(this, value);
         }
     }
 
-    protected boolean expressionIsCacheable(Object result) {
+    protected boolean isCacheable() {
+        if (!computedCacheability) {
+            computeCacheability();
+        }
+        return isCacheable;
+    }
+
+    private void computeCacheability() {
         if (environmentValidForCaching()) {
             try {
-                boolean b = !referencesMainFormInstance() && !containsUncacheableSubExpression();
-                System.out.println("is cacheable: " + b + " " + ((XPathExpression)this).toPrettyString());
-                return b;
+                isCacheable = !referencesMainFormInstance() && !containsUncacheableSubExpression();
             } catch (AnalysisInvalidException e) {
                 // if the analysis didn't complete then we assume it's not cacheable
+                isCacheable = false;
             }
+        } else {
+            isCacheable = false;
         }
-        return false;
+        computedCacheability = true;
     }
 
     private boolean referencesMainFormInstance() throws AnalysisInvalidException {
