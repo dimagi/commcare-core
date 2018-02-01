@@ -2,13 +2,16 @@ package org.commcare.util;
 
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.properties.Property;
+import org.javarosa.core.services.storage.IStorageIndexedFactory;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
@@ -34,6 +37,8 @@ public class CommCarePlatform {
     // TODO: We should make this unique using the parser to invalidate this ID or something
     public static final String APP_PROFILE_RESOURCE_ID = "commcare-application-profile";
     private int profile;
+    private Profile cachedProfile;
+
     private OfflineUserRestore offlineUserRestore;
 
     private StorageManager storageManager;
@@ -41,19 +46,20 @@ public class CommCarePlatform {
 
     private final int majorVersion;
     private final int minorVersion;
+    private final Vector<Suite> installedSuites;
 
-    public CommCarePlatform(int majorVersion, int minorVersion,
-                            StorageManager storageManager,
-                            PropertyManager propertyManager) {
+    public CommCarePlatform(int majorVersion, int minorVersion, StorageManager storageManager) {
         this(majorVersion, minorVersion);
-        this.propertyManager = propertyManager;
         this.storageManager = storageManager;
+        storageManager.registerStorage(PropertyManager.STORAGE_KEY, Property.class);
+        this.propertyManager = new PropertyManager(storageManager.getStorage(PropertyManager.STORAGE_KEY));
     }
 
     public CommCarePlatform(int majorVersion, int minorVersion) {
         profile = -1;
         this.majorVersion = majorVersion;
         this.minorVersion = minorVersion;
+        installedSuites = new Vector<>();
     }
 
     public int getMajorVersion() {
@@ -65,27 +71,30 @@ public class CommCarePlatform {
     }
 
     public Profile getCurrentProfile() {
+        if(cachedProfile != null) {
+            return cachedProfile;
+        }
         return (Profile)storageManager.getStorage(Profile.STORAGE_KEY).read(profile);
     }
 
     public Vector<Suite> getInstalledSuites() {
-        Vector<Suite> installedSuites = new Vector<>();
+        if (!installedSuites.isEmpty()) {
+            return installedSuites;
+        }
         IStorageUtilityIndexed utility = storageManager.getStorage(Suite.STORAGE_KEY);
-
         IStorageIterator iterator = utility.iterate();
-
         while(iterator.hasMore()){
             installedSuites.addElement((Suite)utility.read(iterator.nextID()));
         }
         return installedSuites;
     }
-    
+
     public Detail getDetail(String detailId) {
         for(Suite s : getInstalledSuites()) {
-           Detail d = s.getDetail(detailId);
-           if(d != null) {
-               return d;
-           }
+            Detail d = s.getDetail(detailId);
+            if(d != null) {
+                return d;
+            }
         }
         return null;
     }
@@ -102,9 +111,11 @@ public class CommCarePlatform {
 
     public void setProfile(Profile p) {
         this.profile = p.getID();
+        this.cachedProfile = p;
     }
 
     public void registerSuite(Suite s) {
+        installedSuites.add(s);
     }
 
     /**
@@ -182,6 +193,11 @@ public class CommCarePlatform {
 
     public void registerDemoUserRestore(OfflineUserRestore offlineUserRestore) {
         this.offlineUserRestore = offlineUserRestore;
+    }
+
+    public IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
+        storageManager.registerStorage("fixture", FormInstance.class);
+        return storageManager.getStorage("fixture");
     }
 
     public PropertyManager getPropertyManager() {
