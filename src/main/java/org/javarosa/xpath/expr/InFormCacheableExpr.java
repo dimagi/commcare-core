@@ -30,7 +30,6 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     }
 
     Object getCachedValue() {
-        //System.out.println("Returning cached value for expression: " + ((XPathExpression)this).toPrettyString());
         return justRetrieved;
     }
 
@@ -55,10 +54,8 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
                 // if the analysis didn't complete then we assume it's not cacheable
                 isCacheable = false;
             }
-        } else {
-            isCacheable = false;
+            computedCacheability = true;
         }
-        computedCacheability = true;
     }
 
     private boolean referencesMainFormInstance() throws AnalysisInvalidException {
