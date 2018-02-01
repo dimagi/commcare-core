@@ -140,6 +140,8 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
         super.readExternal(in, pf);
 
         name = ExtUtil.readString(in);
+        computedCacheability = ExtUtil.readBool(in);
+        isCacheable = ExtUtil.readBool(in);
     }
 
     @Override
@@ -147,6 +149,8 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
         super.writeExternal(out);
 
         ExtUtil.writeString(out, name);
+        ExtUtil.writeBool(out, computedCacheability);
+        ExtUtil.writeBool(out, isCacheable);
     }
 
 }

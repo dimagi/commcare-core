@@ -49,12 +49,16 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
         } else {
             op = XPathEqExpr.NEQ;
         }
+        computedCacheability = ExtUtil.readBool(in);
+        isCacheable = ExtUtil.readBool(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeBool(out, isEqOp);
         writeExpressions(out);
+        ExtUtil.writeBool(out, computedCacheability);
+        ExtUtil.writeBool(out, isCacheable);
     }
 
     /**

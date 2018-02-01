@@ -51,11 +51,15 @@ public class XPathVariableReference extends XPathExpression {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         id = (XPathQName)ExtUtil.read(in, XPathQName.class, pf);
+        computedCacheability = ExtUtil.readBool(in);
+        isCacheable = ExtUtil.readBool(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, id);
+        ExtUtil.writeBool(out, computedCacheability);
+        ExtUtil.writeBool(out, isCacheable);
     }
 
     @Override

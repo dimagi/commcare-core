@@ -81,8 +81,11 @@ public class XPathFilterExpr extends XPathExpression {
         Vector v = (Vector)ExtUtil.read(in, new ExtWrapListPoly(), pf);
 
         predicates = new XPathExpression[v.size()];
-        for (int i = 0; i < predicates.length; i++)
+        for (int i = 0; i < predicates.length; i++) {
             predicates[i] = (XPathExpression)v.elementAt(i);
+        }
+        computedCacheability = ExtUtil.readBool(in);
+        isCacheable = ExtUtil.readBool(in);
     }
 
     @Override
@@ -94,6 +97,8 @@ public class XPathFilterExpr extends XPathExpression {
 
         ExtUtil.write(out, new ExtWrapTagged(x));
         ExtUtil.write(out, new ExtWrapListPoly(v));
+        ExtUtil.writeBool(out, computedCacheability);
+        ExtUtil.writeBool(out, isCacheable);
     }
 
     @Override

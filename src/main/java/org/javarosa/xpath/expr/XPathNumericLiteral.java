@@ -55,6 +55,8 @@ public class XPathNumericLiteral extends XPathExpression {
         } else {
             d = ExtUtil.readDecimal(in);
         }
+        computedCacheability = ExtUtil.readBool(in);
+        isCacheable = ExtUtil.readBool(in);
     }
 
     @Override
@@ -66,6 +68,8 @@ public class XPathNumericLiteral extends XPathExpression {
             out.writeByte(0x01);
             ExtUtil.writeDecimal(out, d);
         }
+        ExtUtil.writeBool(out, computedCacheability);
+        ExtUtil.writeBool(out, isCacheable);
     }
 
     @Override

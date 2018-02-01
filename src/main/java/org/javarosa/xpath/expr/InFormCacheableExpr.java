@@ -13,8 +13,8 @@ import org.javarosa.xpath.analysis.XPathAnalyzable;
 public abstract class InFormCacheableExpr implements XPathAnalyzable {
 
     private Object justRetrieved;
-    private boolean computedCacheability;
-    private boolean isCacheable;
+    protected boolean computedCacheability;
+    protected boolean isCacheable;
 
     protected boolean isCached() {
         queueUpCachedValue();

@@ -382,6 +382,8 @@ public class XPathPathExpr extends XPathExpression {
         for (int i = 0; i < steps.length; i++) {
             steps[i] = ((XPathStep)v.elementAt(i)).intern();
         }
+        computedCacheability = ExtUtil.readBool(in);
+        isCacheable = ExtUtil.readBool(in);
     }
 
     @Override
@@ -396,6 +398,8 @@ public class XPathPathExpr extends XPathExpression {
             v.addElement(step);
         }
         ExtUtil.write(out, new ExtWrapList(v));
+        ExtUtil.writeBool(out, computedCacheability);
+        ExtUtil.writeBool(out, isCacheable);
     }
 
     public static XPathPathExpr fromRef(TreeReference ref) {
