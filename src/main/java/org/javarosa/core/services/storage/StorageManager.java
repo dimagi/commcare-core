@@ -18,16 +18,6 @@ public class StorageManager {
     private final Hashtable<String, IStorageUtilityIndexed> storageRegistry = new Hashtable<>();
     private IStorageIndexedFactory storageFactory;
 
-    /**
-     * Attempts to set the storage factory for the current environment. Will fail silently
-     * if a storage factory has already been set. Should be used by default environment.
-     *
-     * @param factory An available storage factory.
-     */
-    public void setStorageFactory(IStorageIndexedFactory factory) {
-        setStorageFactory(factory, false);
-    }
-
     public StorageManager(IStorageIndexedFactory factory) {
         setStorageFactory(factory, false);
     }
