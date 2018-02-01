@@ -48,13 +48,13 @@ public abstract class XPathBinaryOpExpr extends XPathOpExpr {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         op = ExtUtil.readInt(in);
         readExpressions(in, pf);
+        computedCacheability = ExtUtil.readBool(in);
+        isCacheable = ExtUtil.readBool(in);
     }
 
     protected void readExpressions(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         a = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged(), pf);
         b = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged(), pf);
-        computedCacheability = ExtUtil.readBool(in);
-        isCacheable = ExtUtil.readBool(in);
     }
 
     @Override
