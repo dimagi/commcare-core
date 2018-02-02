@@ -65,7 +65,7 @@ public abstract class CliCommand {
         formatter.printHelp(usage, header, options, "", true);
     }
 
-    protected static CommCareConfigEngine configureApp(String resourcePath, PrototypeFactory factory) {
+    public static CommCareConfigEngine configureApp(String resourcePath, PrototypeFactory factory) {
         CommCareConfigEngine engine = new CommCareConfigEngine(factory);
 
         //TODO: check arg for whether it's a local or global file resource and
