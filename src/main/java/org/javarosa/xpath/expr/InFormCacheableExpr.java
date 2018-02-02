@@ -3,7 +3,8 @@ package org.javarosa.xpath.expr;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.InFormExpressionCacher;
 import org.javarosa.xpath.analysis.AnalysisInvalidException;
-import org.javarosa.xpath.analysis.CacheableInFormAnalyzer;
+import org.javarosa.xpath.analysis.ContainsUncacheableExpressionAnalyzer;
+import org.javarosa.xpath.analysis.ReferencesMainInstanceAnalyzer;
 import org.javarosa.xpath.analysis.XPathAnalyzable;
 
 /**
@@ -48,14 +49,22 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     private void computeCacheability() {
         if (environmentValidForCaching()) {
             try {
-                isCacheable = (new CacheableInFormAnalyzer(cacher.getFormInstanceRoot()))
-                        .computeResult(this);
+                isCacheable = !referencesMainFormInstance() && !containsUncacheableSubExpression();
             } catch (AnalysisInvalidException e) {
                 // if the analysis didn't complete then we assume it's not cacheable
                 isCacheable = false;
             }
             computedCacheability = true;
         }
+    }
+
+    private boolean referencesMainFormInstance() throws AnalysisInvalidException {
+        return (new ReferencesMainInstanceAnalyzer(cacher.getFormInstanceRoot()))
+                .computeResult(this);
+    }
+
+    private boolean containsUncacheableSubExpression() throws AnalysisInvalidException {
+        return (new ContainsUncacheableExpressionAnalyzer()).computeResult(this);
     }
 
     private boolean environmentValidForCaching() {
