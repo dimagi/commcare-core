@@ -8,13 +8,18 @@ import org.javarosa.xpath.analysis.ReferencesMainInstanceAnalyzer;
 import org.javarosa.xpath.analysis.XPathAnalyzable;
 
 /**
- * Created by amstone326 on 1/4/18.
+ * Superclass for an XPathExpression that keeps track of all information related to if it can be
+ * cached, and contains wrapper functions for all caching operations.
+ *
+ * @author Aliza Stone
  */
 public abstract class InFormCacheableExpr implements XPathAnalyzable {
 
     private Object justRetrieved;
     protected boolean computedCacheability;
     protected boolean isCacheable;
+
+    private static InFormExpressionCacher cacher = new InFormExpressionCacher();
 
     protected boolean isCached() {
         queueUpCachedValue();
@@ -70,8 +75,6 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     private boolean environmentValidForCaching() {
         return cacher.getFormInstanceRoot() != null;
     }
-
-    private static InFormExpressionCacher cacher = new InFormExpressionCacher();
 
     public static void enableCaching(FormInstance formInstance, boolean clearCacheFirst) {
         if (clearCacheFirst) {

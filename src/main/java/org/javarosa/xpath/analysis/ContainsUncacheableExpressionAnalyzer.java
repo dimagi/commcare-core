@@ -4,9 +4,11 @@ import org.javarosa.xpath.expr.UncacheableXPathFuncExpr;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
 /**
- * Created by amstone326 on 1/16/18.
+ * Analyzes an XPath expression to determine whether it is or contains an XPathFuncExpr that is
+ * un-cacheable by its nature (such as now() or random()).
+ *
+ * @author Aliza Stone
  */
-
 public class ContainsUncacheableExpressionAnalyzer extends XPathBooleanAnalyzer {
 
     @Override

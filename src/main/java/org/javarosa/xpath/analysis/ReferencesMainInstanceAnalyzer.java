@@ -1,9 +1,10 @@
 package org.javarosa.xpath.analysis;
 
 import org.javarosa.core.model.instance.TreeReference;
+
 /**
  * Analyzes an XPath expression to determine whether it contains a reference to the main data
- * instance
+ * instance.
  *
  * @author Aliza Stone
  */
