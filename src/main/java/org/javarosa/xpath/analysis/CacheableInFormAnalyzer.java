@@ -46,7 +46,7 @@ public class CacheableInFormAnalyzer extends XPathBooleanAnalyzer {
 
     @Override
     protected boolean aggregateResults() {
-        return orResults();
+        return andResults();
     }
 
     @Override

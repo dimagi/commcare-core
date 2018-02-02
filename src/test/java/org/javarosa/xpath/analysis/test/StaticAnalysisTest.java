@@ -3,8 +3,7 @@ package org.javarosa.xpath.analysis.test;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.analysis.AnalysisInvalidException;
-import org.javarosa.xpath.analysis.ContainsUncacheableExpressionAnalyzer;
-import org.javarosa.xpath.analysis.ReferencesMainInstanceAnalyzer;
+import org.javarosa.xpath.analysis.CacheableInFormAnalyzer;
 import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -140,15 +139,15 @@ public class StaticAnalysisTest {
 
     @Test
     public void testReferencesMainInstanceAnalysis() throws XPathSyntaxException {
-        testReferencesMainInstance("/unicorn/color[@name='fred']",
-                "unicorn", true);
-        testReferencesMainInstance("date(/data/refill/next_refill_due_date)",
-                "data", true);
+        testCacheableInForm("/unicorn/color[@name='fred']",
+                "unicorn", false);
+        testCacheableInForm("date(/data/refill/next_refill_due_date)",
+                "data", false);
 
         String longExpressionWithMainInstanceRef =
                 "instance('adherence_schedules')/adherence_schedules_list/adherence_schedules[" +
                         "id = /data/schedule_id][/data/user/user_level = 'dev' or user_level = 'real']/doses_per_week";
-        testReferencesMainInstance(longExpressionWithMainInstanceRef, "data", true);
+        testCacheableInForm(longExpressionWithMainInstanceRef, "data", false);
 
         String evenLongerExpressionWithMainInstanceRef =
                 "date(coalesce(instance('casedb')/casedb/case[@case_id = instance('commcaresession')" +
@@ -156,12 +155,12 @@ public class StaticAnalysisTest {
                         "(date(coalesce(instance('casedb')/casedb/case[@case_id = " +
                         "instance('commcaresession')/session/blah/case_id_load_episode_case]/adherence_schedule_date_start, " +
                         "/data/treatment_initiation_date)) + 30)))";
-        testReferencesMainInstance(evenLongerExpressionWithMainInstanceRef, "data", true);
+        testCacheableInForm(evenLongerExpressionWithMainInstanceRef, "data", false);
 
-        testReferencesMainInstance("/unicorn/color[@name='fred']",
-                "color", false);
-        testReferencesMainInstance("instance('commcaresession')/session/data/case_id_load_test",
-                "data", false);
+        testCacheableInForm("/unicorn/color[@name='fred']",
+                "color", true);
+        testCacheableInForm("instance('commcaresession')/session/data/case_id_load_test",
+                "data", true);
 
         String longExpressionWithoutMainInstanceRef =
                 "date(coalesce(instance('casedb')/casedb/case[@case_id = instance('commcaresession')" +
@@ -169,38 +168,31 @@ public class StaticAnalysisTest {
                         "(date(coalesce(instance('casedb')/casedb/case[@case_id = " +
                         "instance('commcaresession')/session/data/case_id_load_episode_case]/adherence_schedule_date_start, " +
                         "/blah/treatment_initiation_date)) + 30)))";
-        testReferencesMainInstance(longExpressionWithoutMainInstanceRef, "data", false);
-    }
-
-    private void testReferencesMainInstance(String expressionString, String instanceName, boolean expectedResult) throws XPathSyntaxException {
-        ReferencesMainInstanceAnalyzer analyzer = new ReferencesMainInstanceAnalyzer(instanceName);
-        try {
-            assertEquals(expectedResult, analyzer.computeResult(XPathParseTool.parseXPath(expressionString)));
-        } catch (AnalysisInvalidException e) {
-            fail("Encountered Analysis Invalid exception: " + e.getMessage());
-        }
+        testCacheableInForm(longExpressionWithoutMainInstanceRef, "data", true);
     }
 
     @Test
     public void testContainsUncacheableExpressionAnalysis() throws XPathSyntaxException {
-        testContainsUncacheable("now()", true);
-        testContainsUncacheable("uuid()", true);
-        testContainsUncacheable("random()", true);
-        testContainsUncacheable("depend(/data/val1, /data/val2)", true);
-        testContainsUncacheable("sleep(1000, -1)", true);
-        testContainsUncacheable("date(/data/refill/next_refill_due_date) <= today()", true);
-        testContainsUncacheable(
+        testCacheableInForm("now()", "", false);
+        testCacheableInForm("uuid()", "", false);
+        testCacheableInForm("random()", "", false);
+        testCacheableInForm("depend(/data/val1, /data/val2)", "", false);
+        testCacheableInForm("sleep(1000, -1)", "", false);
+        testCacheableInForm("date(/data/refill/next_refill_due_date) <= today()", "", false);
+        testCacheableInForm(
                 "concat(format-date(today(), '%e/%n/%y'), ': ', /data/ql_weight_and_height/weight, ' ', jr:itext('localization/kg-label'))",
-                true);
-        testContainsUncacheable("/data/val1", false);
+                "",
+                false);
+        testCacheableInForm("/data/val1", "", true);
     }
 
-    private void testContainsUncacheable(String expressionString, boolean expectedResult) throws XPathSyntaxException {
-        ContainsUncacheableExpressionAnalyzer analyzer = new ContainsUncacheableExpressionAnalyzer();
+    private void testCacheableInForm(String expressionString, String instanceName, boolean expectedResult) throws XPathSyntaxException {
+        CacheableInFormAnalyzer analyzer = new CacheableInFormAnalyzer(instanceName);
         try {
             assertEquals(expectedResult, analyzer.computeResult(XPathParseTool.parseXPath(expressionString)));
         } catch (AnalysisInvalidException e) {
             fail("Encountered Analysis Invalid exception: " + e.getMessage());
         }
     }
+
 }
