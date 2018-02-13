@@ -13,7 +13,7 @@ public class ExtWrapList extends ExternalizableWrapper {
     private boolean sealed;
     private Class<? extends List> listImplementation;
 
-    /* serialization */
+    /* Constructors for serialization */
 
     public ExtWrapList(List val) {
         this(val, null);
@@ -29,12 +29,13 @@ public class ExtWrapList extends ExternalizableWrapper {
         this.listImplementation = val.getClass();
     }
 
-    /* deserialization */
+    /* Constructors for deserialization */
 
     public ExtWrapList() {
 
     }
 
+    // Assumes that the list implementation is a Vector, since that is most common
     public ExtWrapList(Class listElementType) {
         this(listElementType, Vector.class);
     }
@@ -45,12 +46,17 @@ public class ExtWrapList extends ExternalizableWrapper {
         this.sealed = false;
     }
 
+    // Assumes that the list implementation is a Vector, since that is most common
     public ExtWrapList(ExternalizableWrapper type) {
+        this(type, Vector.class);
+    }
+
+    public ExtWrapList(ExternalizableWrapper type, Class listImplementation) {
         if (type == null) {
             throw new NullPointerException();
         }
 
-        this.listImplementation = Vector.class;
+        this.listImplementation = listImplementation;
         this.type = type;
     }
 
@@ -70,9 +76,9 @@ public class ExtWrapList extends ExternalizableWrapper {
                 }
                 val = l;
             } catch (InstantiationException e) {
-                throw new DeserializationException("caused by: " + e.getClass().getCanonicalName());
+                throw new DeserializationException(e.getMessage());
             } catch (IllegalAccessException e) {
-                throw new DeserializationException("caused by: " + e.getClass().getCanonicalName());
+                throw new DeserializationException(e.getMessage());
             }
         } else {
             int size = (int)ExtUtil.readNumeric(in);
@@ -99,7 +105,7 @@ public class ExtWrapList extends ExternalizableWrapper {
         try {
             listImplementation = (Class<? extends List>)Class.forName(ExtUtil.readString(in));
         } catch (ClassNotFoundException e) {
-            throw new DeserializationException("caused by: " + e);
+            throw new DeserializationException(e.getMessage());
         }
     }
 
