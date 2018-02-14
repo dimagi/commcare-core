@@ -101,6 +101,12 @@ public class GraphData implements ConfigurableData {
             // For debugging purposes, note that most minified files have un-minified equivalents in the same directory.
             // To use them, switch affix to "max" and get rid of the ignoreAssetsPattern in build.gradle that
             // filters them out of the APK.
+
+            /**
+             * We use these tools to update minified equivalents for max files -
+             * CSS Minifer - https://www.cleancss.com/css-minify/
+             * JS Minifier - https://www.danstools.com/javascript-minify/
+             */
             String affix = "min";
             html.append(
                     "<html>" +
