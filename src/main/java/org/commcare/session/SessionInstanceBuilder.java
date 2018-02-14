@@ -4,6 +4,7 @@ import org.commcare.suite.model.StackFrameStep;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.OrderedHashtable;
 
 import java.util.Enumeration;
@@ -21,7 +22,7 @@ public class SessionInstanceBuilder {
         TreeElement sessionRoot = new TreeElement("session", 0);
 
         addSessionNavData(sessionRoot, frame);
-        addMetadata(sessionRoot, deviceId, appversion, username, userId);
+        addMetadata(sessionRoot, deviceId, appversion, username, userId, Localization.getCurrentLocale());
         addUserProperties(sessionRoot, userFields);
 
         return new FormInstance(sessionRoot, "session");
@@ -88,13 +89,14 @@ public class SessionInstanceBuilder {
 
     private static void addMetadata(TreeElement sessionRoot, String deviceId,
                                     String appversion, String username,
-                                    String userId) {
+                                    String userId, String languageCode) {
         TreeElement sessionMeta = new TreeElement("context", 0);
 
         addData(sessionMeta, "deviceid", deviceId);
         addData(sessionMeta, "appversion", appversion);
         addData(sessionMeta, "username", username);
         addData(sessionMeta, "userid", userId);
+        addData(sessionMeta, "current-langcode", languageCode);
 
         sessionRoot.addChild(sessionMeta);
     }
