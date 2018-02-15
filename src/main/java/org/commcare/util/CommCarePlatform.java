@@ -71,10 +71,10 @@ public class CommCarePlatform {
     }
 
     public Profile getCurrentProfile() {
-        if(cachedProfile != null) {
-            return cachedProfile;
+        if (cachedProfile == null) {
+            this.cachedProfile = (Profile)storageManager.getStorage(Profile.STORAGE_KEY).read(profile);
         }
-        return (Profile)storageManager.getStorage(Profile.STORAGE_KEY).read(profile);
+        return cachedProfile;
     }
 
     public Vector<Suite> getInstalledSuites() {
@@ -115,7 +115,7 @@ public class CommCarePlatform {
     }
 
     public void registerSuite(Suite s) {
-        installedSuites.add(s);
+        installedSuites.addElement(s);
     }
 
     /**
