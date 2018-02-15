@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenRosaResponse xmlns="http://openrosa.org/http/response">
+    <message nature="ota_restore_success">Successfully restored account vl1!</message>
+    <Sync xmlns="http://commcarehq.org/sync">
+        <restore_id>9f7c4e0a3a8ca4e2ecf54444fb7e70cf</restore_id>
+    </Sync>
+    <Registration xmlns="http://openrosa.org/user/registration">
+        <username>vl1</username>
+        <password>sha1$KOXD0OGyqKTP$139e6226da49dd500336dcd189b519da06aeb087</password>
+        <uuid>7afceb0259b2866be17b3632392f8a4b</uuid>
+        <date>2014-12-30</date>
+        <user_data>
+            <data key="commcare_project">ccqa</data>
+            <data key="commcare_last_name" />
+            <data key="commcare_phone_number" />
+            <data key="commcare_first_name" />
+        </user_data>
+    </Registration>
+    <schema id="locations">
+        <indices>
+            <index>@block_id</index>
+            <index>@district_id</index>
+            <index>@id</index>
+            <index>@outlet_id</index>
+            <index>@state_id</index>
+            <index>@type</index>
+            <index>name</index>
+        </indices>
+    </schema>
+    <fixture id="locations" indexed="true" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <locations />
+    </fixture>
+    <fixture id="user-groups" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <groups>
+            <group id="06545890ff6536cf29136510f265cc7e">
+                <name>Test Case Sharing 2</name>
+            </group>
+        </groups>
+    </fixture>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="519cdd66-3d83-4cbd-a4e5-c24252b72e76" date_modified="2015-10-29T17:47:03.201000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>parent</case_type>
+            <case_name>P</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2015-10-29</date_opened>
+            <parent_age>1</parent_age>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="79ac977d-48bb-4af7-ace2-98b8a9b31ea7" date_modified="2016-09-01T06:53:13.537000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>commcare-users</case_type>
+            <case_name>asd</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2016-09-01</date_opened>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="124938b2-c228-4107-b7e6-31a905c3f4ff" date_modified="2017-07-14T14:26:20.559000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>coverage_basic</case_type>
+            <case_name>c3</case_name>
+            <owner_id>06545890ff6536cf29136510f265cc7e</owner_id>
+        </create>
+        <update>
+            <date_opened>2016-07-14</date_opened>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="96676704-7938-45e2-adb1-623a467f6c32" date_modified="2017-07-14T14:38:44.310000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>coverage_basic</case_type>
+            <case_name>K asmi create case</case_name>
+            <owner_id>06545890ff6536cf29136510f265cc7e</owner_id>
+        </create>
+        <update>
+            <date_opened>2017-07-14</date_opened>
+            <data_node>55</data_node>
+            <dateval>2017-07-14</dateval>
+            <geodata>17.4470323 78.3719456 543.9 23.9</geodata>
+            <intval>5</intval>
+            <multiselect>a c</multiselect>
+            <phone_number>2</phone_number>
+            <singleselect>a</singleselect>
+            <text>hj</text>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="8a9c12d7-bcfe-48e2-844a-591e6f54b66a" date_modified="2016-03-09T18:45:50.823000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>pri</case_type>
+            <case_name>green</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2016-03-09</date_opened>
+            <Choice_question>choice1</Choice_question>
+            <Color>Green</Color>
+            <Integer_question />
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="eafc7ed0-379c-4a37-80b8-5a75e631a878" date_modified="2017-11-07T14:44:45.362000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>Child</case_type>
+            <case_name>child</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2017-11-07</date_opened>
+            <occupation>Farmer</occupation>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="ba3d7b7b-4148-4798-bece-08956eb5387d" date_modified="2016-03-08T09:21:50.000000Z" user_id="fdf5a7337b005fb674ec0c346e2b6bdd">
+        <create>
+            <case_type>cases</case_type>
+            <case_name>T</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2016-02-11</date_opened>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="525adfe0-9b83-4a44-9577-0bdc77b85512" date_modified="2017-07-07T16:28:26.670000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>case</case_type>
+            <case_name>dhc</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2017-07-07</date_opened>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="09481db5-d555-4e3a-b12c-b37688edb4b3" date_modified="2017-08-19T13:53:15.526000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>new_test</case_type>
+            <case_name>Test Two</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2017-08-19</date_opened>
+            <appointment_date>2017-08-18</appointment_date>
+            <case_age>21</case_age>
+            <did_case_show_up>no</did_case_show_up>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="a60c952f-81b0-431d-b1a7-b18dcedc45cf" date_modified="2017-10-31T16:18:26.713000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>coverage_basic</case_type>
+            <case_name>s7</case_name>
+            <owner_id>06545890ff6536cf29136510f265cc7e</owner_id>
+        </create>
+        <update>
+            <date_opened>2017-10-31</date_opened>
+            <data_node>935</data_node>
+            <dateval>2017-10-31</dateval>
+            <geodata>17.4477532 78.3729317 0.0 782.0</geodata>
+            <intval>885</intval>
+            <multiselect>a b c</multiselect>
+            <phone_number>8885</phone_number>
+            <singleselect>b</singleselect>
+            <text>vv</text>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="d055a511-bd0a-4ab7-ac39-a7ae2af8ff4e" date_modified="2017-07-14T13:54:41.572000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>geo_case</case_type>
+            <case_name>register case</case_name>
+            <owner_id>06545890ff6536cf29136510f265cc7e</owner_id>
+        </create>
+        <update>
+            <date_opened>2017-07-14</date_opened>
+            <comment />
+            <last_inspection>2017-07-14</last_inspection>
+            <rate_site>four</rate_site>
+            <site_location>17.4470109 78.3719678 543.9 23.94</site_location>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="fdc4d046-c780-4e27-a700-844e0e207fea" date_modified="2016-03-10T13:58:32.118000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>pri</case_type>
+            <case_name>i</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2016-03-09</date_opened>
+            <Choice_question>choice1</Choice_question>
+            <Color>Red</Color>
+            <Eye_Color>Green</Eye_Color>
+            <Integer_question>3</Integer_question>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="bd9472df-a9a8-4e51-a27f-3da3df4d3478" date_modified="2017-08-21T16:15:53.856000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>geo_case</case_type>
+            <case_name>srt</case_name>
+            <owner_id>06545890ff6536cf29136510f265cc7e</owner_id>
+        </create>
+        <update>
+            <date_opened>2017-08-21</date_opened>
+            <comment>trd</comment>
+            <last_inspection>2017-08-21</last_inspection>
+            <rate_site>five</rate_site>
+            <site_location>17.4469761 78.3719567 0.0 24.32</site_location>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="6bb998fd-1977-417f-80a3-71217e13ccb9" date_modified="2017-03-24T18:58:28.888000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>cases</case_type>
+            <case_name>chfyf</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2017-03-24</date_opened>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="dfb9fcd5-52bb-4edc-8b38-f2b124c03069" date_modified="2017-07-03T12:12:08.987000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>graphing_test_cases</case_type>
+            <case_name>@</case_name>
+            <owner_id>06545890ff6536cf29136510f265cc7e</owner_id>
+        </create>
+        <update>
+            <date_opened>2017-07-03</date_opened>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="76610313-7e01-45be-87f8-551551de397a" date_modified="2017-08-18T10:26:46.134000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>graphing_test_cases</case_type>
+            <case_name>2.38</case_name>
+            <owner_id>06545890ff6536cf29136510f265cc7e</owner_id>
+        </create>
+        <update>
+            <date_opened>2017-08-18</date_opened>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="db076818-fad0-4ed7-a3e8-4498b33b9370" date_modified="2017-10-23T12:37:30.865000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>graphing_test_cases</case_type>
+            <case_name>24mall</case_name>
+            <owner_id>06545890ff6536cf29136510f265cc7e</owner_id>
+        </create>
+        <update>
+            <date_opened>2017-10-23</date_opened>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="ce508374-bafa-4476-a5a6-79599a0f5696" date_modified="2015-10-26T16:00:31.213000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>cases</case_type>
+            <case_name>Fyuj</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2015-10-26</date_opened>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="865258ce-91b1-4d7e-b85b-1993e39bfcaf" date_modified="2017-09-26T10:04:53.215000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>new_test</case_type>
+            <case_name>test one</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2017-09-26</date_opened>
+            <appointment_date>2017-09-26</appointment_date>
+            <case_age>16</case_age>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="c2363c56-0b4b-45c3-830f-e903b54e2abc" date_modified="2015-10-29T17:40:13.769000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>parent</case_type>
+            <case_name>Priya</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2015-10-29</date_opened>
+            <parent_age>2</parent_age>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="d205e967-60bc-41e1-bef5-b45f23b6ab22" date_modified="2017-01-24T17:47:26.181000Z" user_id="40a873063e6bf9a60d28ba7826b5efd6">
+        <create>
+            <case_type>graphing_test_point</case_type>
+            <case_name>5</case_name>
+            <owner_id>06545890ff6536cf29136510f265cc7e</owner_id>
+        </create>
+        <update>
+            <date_opened>2017-01-24</date_opened>
+            <datetime>2017-01-24</datetime>
+            <radius>3</radius>
+            <x>5</x>
+            <y>5</y>
+        </update>
+        <index>
+            <parent case_type="graphing_test_cases">ad3739bb-d645-455e-9c60-1d385b9d6ba3</parent>
+        </index>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="8fdc521b-3c8a-4de5-b5f9-28934add310f" date_modified="2015-11-24T15:17:26.105000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>parent</case_type>
+            <case_name>huu</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2015-11-24</date_opened>
+            <parent_age>25</parent_age>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="bb6c7418-cd2b-4a6b-941c-4913e308ac75" date_modified="2015-10-29T17:30:03.498000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>child</case_type>
+            <case_name>Aadhya</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2015-10-29</date_opened>
+            <child_age>2</child_age>
+            <color>yellow</color>
+        </update>
+        <index>
+            <parent case_type="parent">9d7ad332-c28c-4ba3-a02d-eaf297ce23a1</parent>
+        </index>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="3a7d3d0d7dd74512b57d91d40586e8e9" date_modified="2016-06-15T09:26:43.162000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>pri</case_type>
+            <case_name>checkedesd</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2016-06-15</date_opened>
+            <Choice_question>choice1</Choice_question>
+            <Color>Red</Color>
+            <Integer_question>12</Integer_question>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="525ca9a1-1e80-4b8e-845c-d1346f502db3" date_modified="2015-05-06T19:21:36.189000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>commtrack-requisition</case_type>
+            <case_name>Cabin 1</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2015-05-06</date_opened>
+            <approved_by>None</approved_by>
+            <approved_on>None</approved_on>
+            <fulfilled_by>None</fulfilled_by>
+            <fulfilled_on>None</fulfilled_on>
+            <received_by>None</received_by>
+            <received_on>None</received_on>
+            <requested_by>7afceb0259b2866be17b3632392f8a4b</requested_by>
+            <requested_on>2015-05-06T19:20:27.000000Z</requested_on>
+            <requisition_status>fulfilled</requisition_status>
+        </update>
+        <index>
+            <parent case_type="supply-point">3044e2362ec8469aaf4c2ccc617f1a29</parent>
+        </index>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="793ea549324b42e1a102f17933e91327" date_modified="2016-06-15T04:14:21.108000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>pri</case_type>
+            <case_name>check</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2016-06-15</date_opened>
+            <Choice_question>choice1</Choice_question>
+            <Color>Green</Color>
+            <Integer_question />
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="f10cdf33-d58f-48be-a351-e0a68722a7cc" date_modified="2016-08-18T10:43:03.662000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>commcare-users</case_type>
+            <case_name>Retest</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2016-08-18</date_opened>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="07ec0a58-6549-4fd8-9e88-42af31257542" date_modified="2017-08-22T15:20:54.219000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>coverage_basic</case_type>
+            <case_name>case one</case_name>
+            <owner_id>06545890ff6536cf29136510f265cc7e</owner_id>
+        </create>
+        <update>
+            <date_opened>2017-05-17</date_opened>
+            <data_node>52</data_node>
+            <dateval>2017-07-14</dateval>
+            <geodata>17.4469641 78.3719456 543.4 24.36</geodata>
+            <intval>2</intval>
+            <multiselect>a b c</multiselect>
+            <phone_number>9632580741</phone_number>
+            <singleselect>a</singleselect>
+            <text>kjkj</text>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="4bd9b579-9561-45a4-834b-a09b32ea9f76" date_modified="2017-09-24T16:28:26.875000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>graphing_test_point</case_type>
+            <case_name>3</case_name>
+            <owner_id>06545890ff6536cf29136510f265cc7e</owner_id>
+        </create>
+        <update>
+            <date_opened>2017-09-24</date_opened>
+            <datetime>2014-09-24</datetime>
+            <radius>2</radius>
+            <x>3</x>
+            <y>5</y>
+        </update>
+        <index>
+            <parent case_type="graphing_test_cases">e5292035-9d82-4b4c-9093-db4cdbd45818</parent>
+        </index>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="df1f9d0c-a861-4e0e-a145-207d38575d92" date_modified="2015-11-25T13:40:14.695000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>child</case_type>
+            <case_name>th</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2015-11-24</date_opened>
+            <child_age>25</child_age>
+            <color>blue</color>
+        </update>
+        <index>
+            <parent case_type="parent">8fdc521b-3c8a-4de5-b5f9-28934add310f</parent>
+        </index>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="2be4b999-2f3c-4d73-9907-3d2ef91b120b" date_modified="2016-08-19T06:09:33.554000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>commcare-users</case_type>
+            <case_name>Sleep with one eye open</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2016-08-18</date_opened>
+            <fav_color>Red</fav_color>
+            <in_closet>yes</in_closet>
+            <in_head>yes</in_head>
+            <under_bed>yes</under_bed>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="5ec24cd5-93f0-4eba-bc80-96798019752b" date_modified="2016-10-10T17:08:40.207000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>case2</case_type>
+            <case_name>pri navig</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2016-10-10</date_opened>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="6f4c5d19-24a8-415f-b576-e41ae1441c91" date_modified="2017-06-29T15:12:34.271000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>coverage_basic</case_type>
+            <case_name>t
+                237</case_name>
+            <owner_id>06545890ff6536cf29136510f265cc7e</owner_id>
+        </create>
+        <update>
+            <date_opened>2017-06-29</date_opened>
+            <data_node>2613</data_node>
+            <dateval>2017-06-29</dateval>
+            <geodata>17.4470323 78.3719456 541.9 23.9</geodata>
+            <intval>2563</intval>
+            <multiselect>a b</multiselect>
+            <phone_number>9866156216</phone_number>
+            <singleselect>a</singleselect>
+            <text>test34</text>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="ad3739bb-d645-455e-9c60-1d385b9d6ba3" date_modified="2017-01-24T17:59:28.815000Z" user_id="40a873063e6bf9a60d28ba7826b5efd6">
+        <create>
+            <case_type>graphing_test_cases</case_type>
+            <case_name>clark 2.33</case_name>
+            <owner_id>06545890ff6536cf29136510f265cc7e</owner_id>
+        </create>
+        <update>
+            <date_opened>2017-01-24</date_opened>
+        </update>
+        <close />
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="f0174b60-5cea-4cad-af63-1a7faded0881" date_modified="2017-06-29T13:15:16.945000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>coverage_basic</case_type>
+            <case_name>case create</case_name>
+            <owner_id>06545890ff6536cf29136510f265cc7e</owner_id>
+        </create>
+        <update>
+            <date_opened>2017-06-29</date_opened>
+        </update>
+    </case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="bd50a348e4a349f7aea53e528d86ff5f" date_modified="2017-11-29T09:03:53.996000Z" user_id="7afceb0259b2866be17b3632392f8a4b">
+        <create>
+            <case_type>commcare-user</case_type>
+            <case_name>vl1</case_name>
+            <owner_id>7afceb0259b2866be17b3632392f8a4b</owner_id>
+        </create>
+        <update>
+            <date_opened>2016-08-31</date_opened>
+            <casename>s7</casename>
+            <commcare_location_id>a8e13fbcea74cf03663ef86753ceba2a</commcare_location_id>
+            <commcare_primary_case_sharing_id>a8e13fbcea74cf03663ef86753ceba2a</commcare_primary_case_sharing_id>
+            <commcare_project>ccqa</commcare_project>
+            <commtrack-supply-point>3044e2362ec8469aaf4c2ccc617f1a29</commtrack-supply-point>
+            <confirm>confirm</confirm>
+            <email />
+            <experience>21</experience>
+            <hq_user_id>7afceb0259b2866be17b3632392f8a4b</hq_user_id>
+            <language>en</language>
+            <last_device_id_used>351558070078524</last_device_id_used>
+            <phone_number />
+            <show_intro>no</show_intro>
+            <user_role>abnormal</user_role>
+            <username>vl1</username>
+        </update>
+    </case>
+</OpenRosaResponse>
