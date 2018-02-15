@@ -347,7 +347,7 @@ public class ApplicationHost {
         } else if (next.equals(SessionFrame.STATE_COMMAND_ID)) {
             return new MenuScreen();
         } else if (next.equals(SessionFrame.STATE_DATUM_VAL)) {
-            return new EntityScreen();
+            return new EntityScreen(true);
         } else if (next.equals(SessionFrame.STATE_QUERY_REQUEST)) {
             return new QueryScreen(qualifiedUsername, password, System.out);
         } else if (next.equals(SessionFrame.STATE_SYNC_REQUEST)) {
