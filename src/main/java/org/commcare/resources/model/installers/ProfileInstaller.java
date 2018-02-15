@@ -35,6 +35,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
     public ProfileInstaller() {
         forceVersion = false;
     }
+
     public ProfileInstaller(boolean forceVersion) {
         this.forceVersion = forceVersion;
     }
