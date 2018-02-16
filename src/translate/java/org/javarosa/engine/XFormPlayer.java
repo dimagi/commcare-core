@@ -57,7 +57,6 @@ public class XFormPlayer {
     //FormIndex current;
 
     private final PrintStream out;
-    private final InputStream in;
 
     public enum FormResult {
         Cancelled,
@@ -90,7 +89,13 @@ public class XFormPlayer {
     private final Mockup mockup;
 
     public XFormPlayer(InputStream in, PrintStream out, Mockup mockup) {
-        this.in = in;
+        this.reader = new BufferedReader(new InputStreamReader(in));
+        this.out = out;
+        this.mockup = mockup;
+    }
+
+    public XFormPlayer(BufferedReader in, PrintStream out, Mockup mockup) {
+        this.reader = in;
         this.out = out;
         this.mockup = mockup;
     }
@@ -103,24 +108,12 @@ public class XFormPlayer {
         this.start(XFormUtils.getFormFromInputStream(new FileInputStream(formPath)));
     }
 
-    public void start(String formPath, Session session) throws FileNotFoundException {
-        this.start(XFormUtils.getFormFromInputStream(new FileInputStream(formPath)), session);
-    }
-
-    private void start(FormDef form, Session session) {
-        this.environment = new XFormEnvironment(form, session);
-        fec = environment.setup();
-        reader = new BufferedReader(new InputStreamReader(in));
-        processLoop();
-    }
-
     public void start(FormDef form) {
         this.environment = new XFormEnvironment(form, mockup);
         if (mPreferredLocale != null) {
             this.environment.setLocale(mPreferredLocale);
         }
         fec = environment.setup(this.mIIF);
-        reader = new BufferedReader(new InputStreamReader(in));
         processLoop();
     }
 
@@ -478,6 +471,10 @@ public class XFormPlayer {
                         badInput(input, fep.getConstraintText());
                         return false;
                     }
+                } catch(InvalidInputException e) {
+                    //This is handled by the outer loop processor, so make sure we don't
+                    //absorb it below
+                    throw e;
                 } catch (Exception e) {
                     e.printStackTrace();
                     badInput(input, e.getMessage());
@@ -543,8 +540,7 @@ public class XFormPlayer {
             return reader.readLine().trim();
         } catch (IOException e) {
             out.println("Bad input! Gotta quit...");
-            System.exit(-1);
-            return null;
+            throw new RuntimeException(e);
         }
     }
 

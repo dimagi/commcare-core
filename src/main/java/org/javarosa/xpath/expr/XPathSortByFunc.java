@@ -5,6 +5,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.xpath.XPathArityException;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
@@ -51,6 +52,9 @@ public class XPathSortByFunc extends XPathFuncExpr {
                     sortListByOtherList(FunctionUtils.toString(evaluatedArgs[0]),
                             FunctionUtils.toString(evaluatedArgs[1]),
                             FunctionUtils.toBoolean(evaluatedArgs[2]));
+        }
+        if (sortedList.size() == 0) {
+            throw new XPathException(String.format("Called sort-by() on empty list with args %s", evaluatedArgs));
         }
         return DataUtil.listToString(sortedList);
     }

@@ -7,6 +7,7 @@ import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.SessionDatum;
@@ -18,7 +19,10 @@ import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.screen.CommCareSessionException;
 import org.commcare.util.screen.EntityScreen;
 import org.commcare.util.screen.MenuScreen;
+import org.commcare.util.screen.QueryScreen;
 import org.commcare.util.screen.Screen;
+import org.commcare.util.screen.SessionUtils;
+import org.commcare.util.screen.SyncScreen;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
@@ -46,6 +50,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
@@ -70,21 +75,34 @@ public class ApplicationHost {
     private final PrototypeFactory mPrototypeFactory;
 
     private final BufferedReader reader;
+    private final PrintStream printStream;
 
-    private String[] mLocalUserCredentials;
+    private String username;
+    private String qualifiedUsername;
+    private String password;
     private String mRestoreFile;
     private boolean mRestoreStrategySet = false;
 
-    public ApplicationHost(CommCareConfigEngine engine, PrototypeFactory prototypeFactory) {
+    public ApplicationHost(CommCareConfigEngine engine,
+                           PrototypeFactory prototypeFactory,
+                           BufferedReader reader,
+                           PrintStream out) {
         this.mEngine = engine;
         this.mPlatform = engine.getPlatform();
-
-        reader = new BufferedReader(new InputStreamReader(System.in));
+        this.reader = reader;
         this.mPrototypeFactory = prototypeFactory;
+        this.printStream = out;
+    }
+
+    public ApplicationHost(CommCareConfigEngine engine, PrototypeFactory prototypeFactory) {
+        this(engine, prototypeFactory, new BufferedReader(new InputStreamReader(System.in)), System.out);
     }
 
     public void setRestoreToRemoteUser(String username, String password) {
-        this.mLocalUserCredentials = new String[]{username, password};
+        this.username = username;
+        this.password = password;
+        String domain = mPlatform.getPropertyManager().getSingularProperty("cc_user_domain");
+        this.qualifiedUsername = username + "@" + domain;
         mRestoreStrategySet = true;
     }
 
@@ -154,12 +172,12 @@ public class ApplicationHost {
                         }
                     }
 
-                    System.out.println("\n\n\n\n\n\n");
-                    System.out.println(s.getWrappedDisplaytitle(mSandbox, mPlatform));
+                    printStream.println("\n\n\n\n\n\n");
+                    printStream.println(s.getWrappedDisplaytitle(mSandbox, mPlatform));
 
-                    System.out.println("====================");
-                    s.prompt(System.out);
-                    System.out.print("> ");
+                    printStream.println("====================");
+                    s.prompt(printStream);
+                    printStream.print("> ");
 
                     screenIsRedrawing = false;
                     String input = reader.readLine();
@@ -174,13 +192,13 @@ public class ApplicationHost {
 
                             if (input.contains(("--latest")) || input.contains("-f")) {
                                 mUpdateTarget = "build";
-                                System.out.println("Updating to most recent build");
+                                printStream.println("Updating to most recent build");
                             } else if (input.contains(("--preview")) || input.contains("-p")) {
                                 mUpdateTarget = "save";
-                                System.out.println("Updating to latest app preview");
+                                printStream.println("Updating to latest app preview");
                             } else {
                                 mUpdateTarget = "release";
-                                System.out.println("Updating to newest Release");
+                                printStream.println("Updating to newest Release");
                             }
                             return true;
                         }
@@ -204,7 +222,7 @@ public class ApplicationHost {
                         if (input.startsWith(":lang")) {
                             String[] langArgs = input.split(" ");
                             if (langArgs.length != 2) {
-                                System.out.println("Command format\n:lang [langcode]");
+                                printStream.println("Command format\n:lang [langcode]");
                                 continue;
                             }
 
@@ -238,7 +256,7 @@ public class ApplicationHost {
             }
             //We have a session and are ready to fill out a form!
 
-            System.out.println("Starting form entry with the following stack frame");
+            printStream.println("Starting form entry with the following stack frame");
             printStack(mSession);
             //Get our form object
             String formXmlns = mSession.getForm();
@@ -247,7 +265,7 @@ public class ApplicationHost {
                 finishSession();
                 return true;
             } else {
-                XFormPlayer player = new XFormPlayer(System.in, System.out, null);
+                XFormPlayer player = new XFormPlayer(reader, printStream, null);
                 player.setPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
                 player.setSessionIIF(mSession.getIIF());
                 player.start(mEngine.loadFormByXmlns(formXmlns));
@@ -274,13 +292,13 @@ public class ApplicationHost {
 
     private void printStack(CLISessionWrapper mSession) {
         SessionFrame frame = mSession.getFrame();
-        System.out.println("Live Frame");
-        System.out.println("----------");
+        printStream.println("Live Frame");
+        printStream.println("----------");
         for (StackFrameStep step : frame.getSteps()) {
             if (step.getType().equals(SessionFrame.STATE_COMMAND_ID)) {
-                System.out.println("COMMAND: " + step.getId());
+                printStream.println("COMMAND: " + step.getId());
             } else {
-                System.out.println("DATUM : " + step.getId() + " - " + step.getValue());
+                printStream.println("DATUM : " + step.getId() + " - " + step.getValue());
             }
         }
     }
@@ -311,9 +329,9 @@ public class ApplicationHost {
     }
 
     private void printErrorAndContinue(String error, Exception e) {
-        System.out.println(error);
+        printStream.println(error);
         e.printStackTrace();
-        System.out.println("Press return to restart the session");
+        printStream.println("Press return to restart the session");
         try {
             reader.readLine();
         } catch (IOException ex) {
@@ -323,14 +341,17 @@ public class ApplicationHost {
 
     private Screen getNextScreen() {
         String next = mSession.getNeededData(mSession.getEvaluationContext());
-
         if (next == null) {
             //XFORM TIME!
             return null;
         } else if (next.equals(SessionFrame.STATE_COMMAND_ID)) {
             return new MenuScreen();
         } else if (next.equals(SessionFrame.STATE_DATUM_VAL)) {
-            return new EntityScreen();
+            return new EntityScreen(true);
+        } else if (next.equals(SessionFrame.STATE_QUERY_REQUEST)) {
+            return new QueryScreen(qualifiedUsername, password, System.out);
+        } else if (next.equals(SessionFrame.STATE_SYNC_REQUEST)) {
+            return new SyncScreen(qualifiedUsername, password, System.out);
         } else if (next.equalsIgnoreCase(SessionFrame.STATE_DATUM_COMPUTED)) {
             computeDatum();
             return getNextScreen();
@@ -376,8 +397,8 @@ public class ApplicationHost {
                 mPlatform.getStorageManager().getStorage(FormInstance.STORAGE_KEY));
 
         mSandbox = sandbox;
-        if (mLocalUserCredentials != null) {
-            restoreUserToSandbox(mSandbox, mSession, mLocalUserCredentials[0], mLocalUserCredentials[1]);
+        if (username != null && password != null) {
+            SessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
         } else if (mRestoreFile != null) {
             restoreFileToSandbox(mSandbox, mRestoreFile);
         } else {
@@ -388,16 +409,16 @@ public class ApplicationHost {
     private void restoreFileToSandbox(UserSandbox sandbox, String restoreFile) {
         FileInputStream fios = null;
         try {
-            System.out.println("Restoring user data from local file " + restoreFile);
+            printStream.println("Restoring user data from local file " + restoreFile);
             fios = new FileInputStream(restoreFile);
         } catch (FileNotFoundException e) {
-            System.out.println("No restore file found at" + restoreFile);
+            printStream.println("No restore file found at" + restoreFile);
             System.exit(-1);
         }
         try {
             ParseUtils.parseIntoSandbox(new BufferedInputStream(fios), sandbox, false);
         } catch (Exception e) {
-            System.out.println("Error parsing local restore data from " + restoreFile);
+            printStream.println("Error parsing local restore data from " + restoreFile);
             e.printStackTrace();
             System.exit(-1);
         }
@@ -408,101 +429,14 @@ public class ApplicationHost {
     private void initUser() {
         User u = mSandbox.getUserStorage().read(0);
         mSandbox.setLoggedInUser(u);
-        System.out.println("Setting logged in user to: " + u.getUsername());
-    }
-
-    public static void restoreUserToSandbox(UserSandbox sandbox, CLISessionWrapper session,
-                                            String username, final String password) {
-        String urlStateParams = "";
-
-        boolean failed = true;
-
-        boolean incremental = false;
-
-        if (sandbox.getLoggedInUser() != null) {
-            String syncToken = sandbox.getSyncToken();
-            String caseStateHash = CaseDBUtils.computeCaseDbHash(sandbox.getCaseStorage());
-
-            urlStateParams = String.format("&since=%s&state=ccsh:%s", syncToken, caseStateHash);
-            incremental = true;
-
-            System.out.println(String.format(
-                    "\nIncremental sync requested. \nSync Token: %s\nState Hash: %s",
-                    syncToken, caseStateHash));
-        }
-
-        PropertyManager propertyManager = session.getPlatform().getPropertyManager();
-
-        //fetch the restore data and set credentials
-        String otaFreshRestoreUrl = propertyManager.getSingularProperty("ota-restore-url") +
-                "?version=2.0";
-
-        String otaSyncUrl = otaFreshRestoreUrl + urlStateParams;
-
-        String domain = propertyManager.getSingularProperty("cc_user_domain");
-        final String qualifiedUsername = username + "@" + domain;
-
-        Authenticator.setDefault(new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(qualifiedUsername, password.toCharArray());
-            }
-        });
-
-        //Go get our sandbox!
-        try {
-            System.out.println("GET: " + otaSyncUrl);
-            URL url = new URL(otaSyncUrl);
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-
-            if (conn.getResponseCode() == 412) {
-                System.out.println("Server Response 412 - The user sandbox is not consistent with " +
-                        "the server's data. \n\nThis is expected if you have changed cases locally, " +
-                        "since data is not sent to the server for updates. \n\nServer response cannot be restored," +
-                        " you will need to restart the user's session to get new data.");
-            } else if (conn.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                System.out.println("\nInvalid username or password!");
-            } else if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
-
-                System.out.println("Restoring user " + username + " to domain " + domain);
-
-                ParseUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), sandbox);
-
-                System.out.println("User data processed, new state token: " + sandbox.getSyncToken());
-                failed = false;
-            } else {
-                System.out.println("Unclear/Unexpected server response code: " + conn.getResponseCode());
-            }
-        } catch (InvalidStructureException | IOException
-                | XmlPullParserException | UnfullfilledRequirementsException e) {
-            e.printStackTrace();
-        }
-
-        if (failed) {
-            if (!incremental) {
-                System.exit(-1);
-            }
-        } else {
-            //Initialize our User
-            for (IStorageIterator<User> iterator = sandbox.getUserStorage().iterate(); iterator.hasMore(); ) {
-                User u = iterator.nextRecord();
-                if (username.equalsIgnoreCase(u.getUsername())) {
-                    sandbox.setLoggedInUser(u);
-                }
-            }
-        }
-
-        if (session != null) {
-            // old session data is now no longer valid
-            session.clearVolatiles();
-        }
+        printStream.println("Setting logged in user to: " + u.getUsername());
     }
 
     private void restoreDemoUserToSandbox(UserSandbox sandbox) {
         try {
             ParseUtils.parseIntoSandbox(mPlatform.getDemoUserRestore().getRestoreStream(), sandbox, false);
         } catch (Exception e) {
-            System.out.println("Error parsing demo user restore from app");
+            printStream.println("Error parsing demo user restore from app");
             e.printStackTrace();
             System.exit(-1);
         }
@@ -524,44 +458,42 @@ public class ApplicationHost {
             }
         }
 
-        System.out.println("Locale '" + locale + "' is undefined in this app! Available Locales:");
-        System.out.println("---------------------");
-        System.out.println(availableLocales);
+        printStream.println("Locale '" + locale + "' is undefined in this app! Available Locales:");
+        printStream.println("---------------------");
+        printStream.println(availableLocales);
     }
 
     private void syncAndReport() {
         performCasePurge(mSandbox);
-
-        if (mLocalUserCredentials != null) {
+        if (username != null && password != null) {
             System.out.println("Requesting sync...");
-
-            restoreUserToSandbox(mSandbox, mSession, mLocalUserCredentials[0], mLocalUserCredentials[1]);
+            SessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
         } else {
-            System.out.println("Syncing is only available when using raw user credentials");
+            printStream.println("Syncing is only available when using raw user credentials");
         }
     }
 
-    public static void performCasePurge(UserSandbox sandbox) {
-        System.out.println("Performing Case Purge");
+    public void performCasePurge(UserSandbox sandbox) {
+        printStream.println("Performing Case Purge");
         CasePurgeFilter purger = new CasePurgeFilter(sandbox.getCaseStorage(),
                 SandboxUtils.extractEntityOwners(sandbox));
 
         int removedCases = sandbox.getCaseStorage().removeAll(purger).size();
 
-        System.out.println("");
-        System.out.println("Purge Report");
-        System.out.println("=========================");
+        printStream.println("");
+        printStream.println("Purge Report");
+        printStream.println("=========================");
         if (removedCases == 0) {
-            System.out.println("0 Cases Purged");
+            printStream.println("0 Cases Purged");
         } else {
-            System.out.println("Cases Removed from device[" + removedCases + "]: " +
+            printStream.println("Cases Removed from device[" + removedCases + "]: " +
                     purger.getRemovedCasesString());
         }
         if (!("".equals(purger.getRemovedCasesString()))) {
-            System.out.println("[Error/Warning] Cases Missing from Device: " + purger.getMissingCasesString());
+            printStream.println("[Error/Warning] Cases Missing from Device: " + purger.getMissingCasesString());
         }
         if (purger.invalidEdgesWereRemoved()) {
-            System.out.println("[Error/Warning] During Purge Invalid Edges were Detected");
+            printStream.println("[Error/Warning] During Purge Invalid Edges were Detected");
         }
     }
 

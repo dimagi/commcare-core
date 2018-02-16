@@ -71,22 +71,30 @@ public class CommCarePlatform {
     }
 
     public Profile getCurrentProfile() {
-        if(cachedProfile != null) {
-            return cachedProfile;
+        if (cachedProfile == null) {
+            this.cachedProfile = (Profile)storageManager.getStorage(Profile.STORAGE_KEY).read(profile);
         }
-        return (Profile)storageManager.getStorage(Profile.STORAGE_KEY).read(profile);
+        return cachedProfile;
     }
 
     public Vector<Suite> getInstalledSuites() {
+        if (!installedSuites.isEmpty()) {
+            return installedSuites;
+        }
+        IStorageUtilityIndexed utility = storageManager.getStorage(Suite.STORAGE_KEY);
+        IStorageIterator iterator = utility.iterate();
+        while(iterator.hasMore()){
+            installedSuites.addElement((Suite)utility.read(iterator.nextID()));
+        }
         return installedSuites;
     }
-    
+
     public Detail getDetail(String detailId) {
         for(Suite s : getInstalledSuites()) {
-           Detail d = s.getDetail(detailId);
-           if(d != null) {
-               return d;
-           }
+            Detail d = s.getDetail(detailId);
+            if(d != null) {
+                return d;
+            }
         }
         return null;
     }
@@ -107,7 +115,7 @@ public class CommCarePlatform {
     }
 
     public void registerSuite(Suite s) {
-        installedSuites.add(s);
+        installedSuites.addElement(s);
     }
 
     /**

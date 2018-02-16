@@ -35,11 +35,14 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     private final Detail shortDetail;
     private final EvaluationContext rootContext;
 
-    public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context) throws CommCareSessionException {
+    private boolean handleCaseIndex;
+
+    public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context, boolean handleCaseIndex) throws CommCareSessionException {
         mHeader = createHeader(shortDetail, context);
         this.shortDetail = shortDetail;
         this.rootContext = context;
         this.mChoices = new TreeReference[references.size()];
+        this.handleCaseIndex = handleCaseIndex;
         references.copyInto(mChoices);
         actions = shortDetail.getCustomActions(context);
         rows = getRows(mChoices, context, shortDetail);
@@ -231,12 +234,17 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             host.printNodesetExpansionTrace(new ReducingTraceReporter());
         }
 
-
-        try {
+        if (handleCaseIndex) {
+            try {
+                int index = Integer.parseInt(input);
+                host.setHighlightedEntity(mChoices[index]);
+                return true;
+            } catch (NumberFormatException e) {
+                //This will result in things just executing again, which is fine.
+            }
+        } else {
             host.setHighlightedEntity(input);
             return true;
-        } catch (NumberFormatException e) {
-            //This will result in things just executing again, which is fine.
         }
         return false;
     }

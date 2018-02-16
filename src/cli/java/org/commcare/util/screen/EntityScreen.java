@@ -46,6 +46,12 @@ public class EntityScreen extends CompoundScreenHost {
 
     private Hashtable<String, TreeReference> referenceMap;
 
+    private boolean handleCaseIndex;
+
+    public EntityScreen(boolean handleCaseIndex) {
+        this.handleCaseIndex = handleCaseIndex;
+    }
+
     public void init(SessionWrapper session) throws CommCareSessionException {
         SessionDatum datum = session.getNeededDatum();
         if (!(datum instanceof EntityDatum)) {
@@ -85,7 +91,7 @@ public class EntityScreen extends CompoundScreenHost {
                 readyToSkip = true;
             }
         } else {
-            mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext);
+            mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext, handleCaseIndex);
         }
     }
 
@@ -168,7 +174,7 @@ public class EntityScreen extends CompoundScreenHost {
         TreeReference detailNodeset = longDetailList[index].getNodeset();
         if (detailNodeset != null) {
             TreeReference contextualizedNodeset = detailNodeset.contextualize(this.mCurrentSelection);
-            this.mCurrentScreen = new EntityListSubscreen(longDetailList[index], subContext.expandReference(contextualizedNodeset), subContext);
+            this.mCurrentScreen = new EntityListSubscreen(longDetailList[index], subContext.expandReference(contextualizedNodeset), subContext, handleCaseIndex);
         } else {
             this.mCurrentScreen = new EntityDetailSubscreen(index, longDetailList[index], subContext, getDetailListTitles(subContext, this.mCurrentSelection));
         }
@@ -238,6 +244,8 @@ public class EntityScreen extends CompoundScreenHost {
         return "EntityScreen [Detail=" + mShortDetail + ", selection=" + mCurrentSelection + "]";
     }
 
+    // Used by Formplayer
+    @SuppressWarnings("unused")
     public Hashtable<String, TreeReference> getReferenceMap() {
         return referenceMap;
     }

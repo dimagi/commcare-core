@@ -201,7 +201,7 @@ public class Menu implements Externalizable, MenuDisplayable {
 
         return display.getBadgeText().getDisposableSingleForEvaluation(ec);
     }
-    
+
     @Override
     public Text getRawBadgeTextObject() {
         return display.getBadgeText();

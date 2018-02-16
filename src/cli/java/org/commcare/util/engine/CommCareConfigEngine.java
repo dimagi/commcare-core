@@ -65,7 +65,7 @@ public class CommCareConfigEngine {
     protected ArchiveFileRoot mArchiveRoot;
 
     public static final int MAJOR_VERSION = 2;
-    public static final int MINOR_VERSION = 41;
+    public static final int MINOR_VERSION = 42;
 
 
     public CommCareConfigEngine() {
@@ -219,6 +219,7 @@ public class CommCareConfigEngine {
         } catch (RuntimeException e) {
             print.println("Error while initializing one of the resolved resources");
             e.printStackTrace(print);
+            throw e;
         }
         //Make sure there's a default locale, since the app doesn't necessarily use the
         //localization engine
