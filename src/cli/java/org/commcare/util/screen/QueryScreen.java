@@ -7,14 +7,6 @@ import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.DisplayUnit;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 
-import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.xml.ElementParser;
-import org.javarosa.xml.TreeElementParser;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.kxml2.io.KXmlParser;
-import org.xmlpull.v1.XmlPullParserException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -60,6 +52,7 @@ public class QueryScreen extends Screen {
         remoteQuerySessionManager =
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper,
                         sessionWrapper.getEvaluationContext());
+
         if (remoteQuerySessionManager == null) {
             throw new CommCareSessionException(String.format("QueryManager for case " +
                     "claim screen with id %s cannot be null.", sessionWrapper.getNeededData()));
