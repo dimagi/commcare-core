@@ -5,7 +5,11 @@ package org.commcare.util;
  */
 public class LogTypes {
 
-    //Log Types:
+    /**
+     * CommCare encountered and caught an exception during program running
+     */
+    public static final String TYPE_ERROR_EXCEPTION = "error-exception";
+
     /**
      * Fatal problem with one of CommCare's cryptography libraries
      */
@@ -17,7 +21,7 @@ public class LogTypes {
     public static final String TYPE_ERROR_ASSERTION = "error-state";
 
     /**
-     * Some invariant application assumption has been violated
+     * Something bad/unexpected occurred in a user's workflow
      */
     public static final String TYPE_ERROR_WORKFLOW = "error-workflow";
 
