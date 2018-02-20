@@ -11,7 +11,7 @@ import org.commcare.util.GridStyle;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManagerHandler;
+import org.javarosa.core.reference.ReferenceHandler;
 import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -499,7 +499,7 @@ public class Detail implements Externalizable {
             return true;
         } else if (templatePathProvided != null) {
             try {
-                ReferenceManagerHandler.instance().DeriveReference(templatePathProvided).getLocalURI();
+                ReferenceHandler.instance().DeriveReference(templatePathProvided).getLocalURI();
                 this.printTemplatePath = templatePathProvided;
                 return true;
             } catch (InvalidReferenceException e) {

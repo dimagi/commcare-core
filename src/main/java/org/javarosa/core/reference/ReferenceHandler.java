@@ -4,7 +4,7 @@ package org.javarosa.core.reference;
 /**
  * Created by willpride on 2/20/18.
  */
-public class ReferenceManagerHandler {
+public class ReferenceHandler {
 
     private static ReferenceManager staticManager;
 
@@ -31,7 +31,7 @@ public class ReferenceManagerHandler {
     }
 
     public static void setUseThreadLocalStrategy(boolean useThreadLocal) {
-        ReferenceManagerHandler.useThreadLocal = useThreadLocal;
+        ReferenceHandler.useThreadLocal = useThreadLocal;
     }
 
     /**
