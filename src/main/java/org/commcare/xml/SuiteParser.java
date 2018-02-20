@@ -35,7 +35,7 @@ public class SuiteParser extends ElementParser<Suite> {
 
     private ResourceTable table;
     private String resourceGuid;
-    private int maximumResourceAuthority = -1;
+    protected int maximumResourceAuthority = -1;
 
     /**
      * If set to true, the parser won't process adding incoming resources to the resource table.
@@ -136,6 +136,13 @@ public class SuiteParser extends ElementParser<Suite> {
                             break;
                         case "user-restore":
                             parser.nextTag();
+                            Resource userRestoreResource =
+                                    new ResourceParser(parser, maximumResourceAuthority).parse();
+                            if (!skipResources) {
+                                table.addResource(userRestoreResource,
+                                        table.getInstallers().getUserRestoreInstaller(),
+                                        resourceGuid);
+                            }
                             break;
                         case "detail":
                             Detail d = getDetailParser().parse();
