@@ -73,6 +73,81 @@ public class SuiteParser extends ElementParser<Suite> {
         this.isUpgrade = isUpgrade;
     }
 
+    protected void handleTag(String tagName,
+                          Hashtable<String, Entry> entries,
+                          Vector<Menu> menus,
+                          Hashtable<String, Detail> details) throws IOException, XmlPullParserException, InvalidStructureException, UnfullfilledRequirementsException {
+        switch (tagName) {
+            case "entry":
+                Entry entry = EntryParser.buildEntryParser(parser).parse();
+                entries.put(entry.getCommandId(), entry);
+                break;
+            case "view":
+                Entry viewEntry = EntryParser.buildViewParser(parser).parse();
+                entries.put(viewEntry.getCommandId(), viewEntry);
+                break;
+            case EntryParser.REMOTE_REQUEST_TAG:
+                Entry remoteRequestEntry = EntryParser.buildRemoteSyncParser(parser).parse();
+                entries.put(remoteRequestEntry.getCommandId(), remoteRequestEntry);
+                break;
+            case "locale":
+                String localeKey = parser.getAttributeValue(null, "language");
+                //resource def
+                parser.nextTag();
+                Resource localeResource = new ResourceParser(parser, maximumResourceAuthority).parse();
+                if (!skipResources) {
+                    table.addResource(localeResource, table.getInstallers().getLocaleFileInstaller(localeKey), resourceGuid);
+                }
+                break;
+            case "media":
+                String path = parser.getAttributeValue(null, "path");
+                //Can be an arbitrary number of resources inside of a media block.
+                while (this.nextTagInBlock("media")) {
+                    Resource mediaResource = new ResourceParser(parser, maximumResourceAuthority).parse();
+                    if (!skipResources) {
+                        table.addResource(mediaResource, table.getInstallers().getMediaInstaller(path), resourceGuid);
+                    }
+                }
+                break;
+            case "xform":
+                //skip xform stuff for now
+                parser.nextTag();
+                Resource xformResource = new ResourceParser(parser, maximumResourceAuthority).parse();
+                if (!skipResources) {
+                    table.addResource(xformResource, table.getInstallers().getXFormInstaller(), resourceGuid);
+                }
+                break;
+            case "user-restore":
+                parser.nextTag();
+                Resource userRestoreResource =
+                        new ResourceParser(parser, maximumResourceAuthority).parse();
+                if (!skipResources) {
+                    table.addResource(userRestoreResource,
+                            table.getInstallers().getUserRestoreInstaller(),
+                            resourceGuid);
+                }
+                break;
+            case "detail":
+                Detail d = getDetailParser().parse();
+                details.put(d.getId(), d);
+                break;
+            case "menu":
+                Menu m = new MenuParser(parser).parse();
+                menus.addElement(m);
+                break;
+            case "fixture":
+                if (!isValidationPass) {
+                    // commit fixture to the memory, overwriting existing
+                    // fixture only during first init after app upgrade
+                    new FixtureXmlParser(parser, isUpgrade, fixtureStorage).parse();
+                }
+                break;
+            default:
+                System.out.println("Unrecognized Tag: " + parser.getName());
+                break;
+        }
+    }
+
     @Override
     public Suite parse() throws InvalidStructureException, IOException,
             XmlPullParserException, UnfullfilledRequirementsException {
@@ -94,81 +169,7 @@ public class SuiteParser extends ElementParser<Suite> {
             do {
                 if (eventType == KXmlParser.START_TAG) {
                     String tagName = parser.getName().toLowerCase();
-                    switch (tagName) {
-                        case "entry":
-                            Entry entry = EntryParser.buildEntryParser(parser).parse();
-                            entries.put(entry.getCommandId(), entry);
-                            break;
-                        case "view":
-                            Entry viewEntry = EntryParser.buildViewParser(parser).parse();
-                            entries.put(viewEntry.getCommandId(), viewEntry);
-                            break;
-                        case EntryParser.REMOTE_REQUEST_TAG:
-                            Entry remoteRequestEntry = EntryParser.buildRemoteSyncParser(parser).parse();
-                            entries.put(remoteRequestEntry.getCommandId(), remoteRequestEntry);
-                            break;
-                        case "locale":
-                            String localeKey = parser.getAttributeValue(null, "language");
-                            //resource def
-                            parser.nextTag();
-                            Resource localeResource = new ResourceParser(parser, maximumResourceAuthority).parse();
-                            if (!skipResources) {
-                                table.addResource(localeResource, table.getInstallers().getLocaleFileInstaller(localeKey), resourceGuid);
-                            }
-                            break;
-                        case "media":
-                            String path = parser.getAttributeValue(null, "path");
-                            //Can be an arbitrary number of resources inside of a media block.
-                            while (this.nextTagInBlock("media")) {
-                                Resource mediaResource = new ResourceParser(parser, maximumResourceAuthority).parse();
-                                if (!skipResources) {
-                                    table.addResource(mediaResource, table.getInstallers().getMediaInstaller(path), resourceGuid);
-                                }
-                            }
-                            break;
-                        case "xform":
-                            //skip xform stuff for now
-                            parser.nextTag();
-                            Resource xformResource = new ResourceParser(parser, maximumResourceAuthority).parse();
-                            if (!skipResources) {
-                                table.addResource(xformResource, table.getInstallers().getXFormInstaller(), resourceGuid);
-                            }
-                            break;
-                        case "user-restore":
-                            parser.nextTag();
-                            /*
-                                Currently, we have to skip offline (demo) restores for Formplayer because these restore
-                                payloads are usually too large to store in SQLite and we don't have a file system
-                                storage abstraction setup.
-                                
-                            Resource userRestoreResource =
-                                    new ResourceParser(parser, maximumResourceAuthority).parse();
-                            if (!skipResources) {
-                                table.addResource(userRestoreResource,
-                                        table.getInstallers().getUserRestoreInstaller(),
-                                        resourceGuid);
-                            }
-                            */
-                            break;
-                        case "detail":
-                            Detail d = getDetailParser().parse();
-                            details.put(d.getId(), d);
-                            break;
-                        case "menu":
-                            Menu m = new MenuParser(parser).parse();
-                            menus.addElement(m);
-                            break;
-                        case "fixture":
-                            if (!isValidationPass) {
-                                // commit fixture to the memory, overwriting existing
-                                // fixture only during first init after app upgrade
-                                new FixtureXmlParser(parser, isUpgrade, fixtureStorage).parse();
-                            }
-                            break;
-                        default:
-                            System.out.println("Unrecognized Tag: " + parser.getName());
-                            break;
-                    }
+                    handleTag(tagName, entries, menus, details);
                 }
                 eventType = parser.next();
             } while (eventType != KXmlParser.END_DOCUMENT);
