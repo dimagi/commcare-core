@@ -35,7 +35,7 @@ public class SuiteParser extends ElementParser<Suite> {
 
     private ResourceTable table;
     private String resourceGuid;
-    protected int maximumResourceAuthority = -1;
+    private int maximumResourceAuthority = -1;
 
     /**
      * If set to true, the parser won't process adding incoming resources to the resource table.
@@ -58,7 +58,7 @@ public class SuiteParser extends ElementParser<Suite> {
         this.isUpgrade = false;
     }
 
-    public SuiteParser(InputStream suiteStream,
+    protected SuiteParser(InputStream suiteStream,
                           ResourceTable table, String resourceGuid,
                           IStorageUtilityIndexed<FormInstance> fixtureStorage,
                           boolean skipResources, boolean isValidationPass,
