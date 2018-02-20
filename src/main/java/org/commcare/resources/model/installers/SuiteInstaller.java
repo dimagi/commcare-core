@@ -13,6 +13,7 @@ import org.commcare.xml.SuiteParser;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -43,6 +44,10 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
         return Suite.STORAGE_KEY;
     }
 
+    protected SuiteParser getSuiteParser(InputStream incoming, ResourceTable table, String guid, IStorageUtilityIndexed formInstanceStorage) throws IOException {
+        return new SuiteParser(incoming, table, guid, formInstanceStorage);
+    }
+
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
                            ResourceTable table, CommCarePlatform platform,
@@ -54,7 +59,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
             InputStream incoming = null;
             try {
                 incoming = ref.getStream();
-                SuiteParser parser = new SuiteParser(incoming, table, r.getRecordGuid(), platform.getStorageManager().getStorage(FormInstance.STORAGE_KEY));
+                SuiteParser parser = getSuiteParser(incoming, table, r.getRecordGuid(), platform.getStorageManager().getStorage(FormInstance.STORAGE_KEY));
                 if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_REMOTE) {
                     parser.setMaximumAuthority(Resource.RESOURCE_AUTHORITY_REMOTE);
                 }
