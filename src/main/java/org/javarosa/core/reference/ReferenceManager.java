@@ -41,14 +41,6 @@ public class ReferenceManager {
     }
 
     /**
-     * @return Singleton accessor to the global
-     * ReferenceManager.
-     */
-    public static ReferenceManager instance() {
-        return ReferenceManagerHandler.getGlobalReferenceManager();
-    }
-
-    /**
      * @return The available reference factories
      */
     public ReferenceFactory[] getFactories() {

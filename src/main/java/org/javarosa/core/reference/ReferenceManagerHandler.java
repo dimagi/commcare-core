@@ -18,14 +18,6 @@ public class ReferenceManagerHandler {
 
     private static boolean useThreadLocal = false;
 
-    public static ReferenceManager getGlobalReferenceManager() {
-        if (useThreadLocal) {
-            return threadLocalManager.get();
-        } else {
-            return staticManager;
-        }
-    }
-
     public static void init(boolean force) {
         if (useThreadLocal) {
             if (threadLocalManager.get() == null || force) {
@@ -40,5 +32,17 @@ public class ReferenceManagerHandler {
 
     public static void setUseThreadLocalStrategy(boolean useThreadLocal) {
         ReferenceManagerHandler.useThreadLocal = useThreadLocal;
+    }
+
+    /**
+     * @return Singleton accessor to the global
+     * ReferenceManager.
+     */
+    public static ReferenceManager instance() {
+        if (useThreadLocal) {
+            return threadLocalManager.get();
+        } else {
+            return staticManager;
+        }
     }
 }

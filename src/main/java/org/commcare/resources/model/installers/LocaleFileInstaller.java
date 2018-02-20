@@ -12,7 +12,7 @@ import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
-import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.reference.ReferenceManagerHandler;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.LocalizationUtils;
 import org.javarosa.core.services.locale.TableLocaleSource;
@@ -128,12 +128,12 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCarePlatform> 
                 int copy = 0;
 
                 try {
-                    Reference destination = ReferenceManager.instance().DeriveReference("jr://file/" + uri);
+                    Reference destination = ReferenceManagerHandler.instance().DeriveReference("jr://file/" + uri);
                     while (destination.doesBinaryExist()) {
                         //Need a different location.
                         copy++;
                         String newUri = uri + "." + copy;
-                        destination = ReferenceManager.instance().DeriveReference("jr://file/" + newUri);
+                        destination = ReferenceManagerHandler.instance().DeriveReference("jr://file/" + newUri);
                     }
 
                     if (destination.isReadOnly()) {
@@ -237,7 +237,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCarePlatform> 
         }
         Reference reference;
         try {
-            reference = ReferenceManager.instance().DeriveReference(localReference);
+            reference = ReferenceManagerHandler.instance().DeriveReference(localReference);
             if (!reference.isReadOnly()) {
                 reference.remove();
             }
@@ -284,7 +284,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCarePlatform> 
                 //If we've gotten the cache into memory, we're fine
             } else {
                 try {
-                    if (!ReferenceManager.instance().DeriveReference(localReference).doesBinaryExist()) {
+                    if (!ReferenceManagerHandler.instance().DeriveReference(localReference).doesBinaryExist()) {
                         throw new MissingMediaException(r, "Locale data does note exist at: " + localReference);
                     }
                 } catch (IOException e) {
