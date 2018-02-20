@@ -34,7 +34,7 @@ public class ReferenceManager {
     private final Vector<ReferenceFactory> factories;
     private final Vector<RootTranslator> sessionTranslators;
 
-    private ReferenceManager() {
+    public ReferenceManager() {
         translators = new Vector<>();
         factories = new Vector<>();
         sessionTranslators = new Vector<>();
@@ -45,10 +45,7 @@ public class ReferenceManager {
      * ReferenceManager.
      */
     public static ReferenceManager instance() {
-        if (instance == null) {
-            instance = new ReferenceManager();
-        }
-        return instance;
+        return ReferenceManagerHandler.getGlobalReferenceManager();
     }
 
     /**
