@@ -4,7 +4,7 @@ import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
-import org.javarosa.core.reference.ReferenceManagerHandler;
+import org.javarosa.core.reference.ReferenceHandler;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 
 import java.io.IOException;
@@ -17,7 +17,7 @@ public class InstallerUtil {
 
     public static void checkMedia(Resource r, String filePath, SizeBoundUniqueVector<MissingMediaException> problems, MediaType mt) {
         try {
-            Reference ref = ReferenceManagerHandler.instance().DeriveReference(filePath);
+            Reference ref = ReferenceHandler.instance().DeriveReference(filePath);
             String localName = ref.getLocalURI();
             boolean successfulAdd;
             try {

@@ -3,7 +3,7 @@ package org.commcare.modern.reference;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceFactory;
-import org.javarosa.core.reference.ReferenceManagerHandler;
+import org.javarosa.core.reference.ReferenceHandler;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.util.HashMap;
@@ -34,7 +34,7 @@ public class ArchiveFileRoot implements ReferenceFactory {
         if (context.lastIndexOf('/') != -1) {
             context = context.substring(0, context.lastIndexOf('/') + 1);
         }
-        return ReferenceManagerHandler.instance().DeriveReference(context + URI);
+        return ReferenceHandler.instance().DeriveReference(context + URI);
     }
 
     @Override

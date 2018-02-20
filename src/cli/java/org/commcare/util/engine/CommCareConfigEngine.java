@@ -27,7 +27,7 @@ import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.reference.ReferenceManagerHandler;
+import org.javarosa.core.reference.ReferenceHandler;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
@@ -107,12 +107,12 @@ public class CommCareConfigEngine {
     }
 
     protected void setRoots() {
-        ReferenceManagerHandler.instance().addReferenceFactory(new JavaHttpRoot());
+        ReferenceHandler.instance().addReferenceFactory(new JavaHttpRoot());
 
         this.mArchiveRoot = new ArchiveFileRoot();
 
-        ReferenceManagerHandler.instance().addReferenceFactory(mArchiveRoot);
-        ReferenceManagerHandler.instance().addReferenceFactory(new ResourceReferenceFactory());
+        ReferenceHandler.instance().addReferenceFactory(mArchiveRoot);
+        ReferenceHandler.instance().addReferenceFactory(new ResourceReferenceFactory());
     }
 
     public void initFromArchive(String archiveURL) throws InstallCancelledException,
@@ -194,7 +194,7 @@ public class CommCareConfigEngine {
         }
 
         //(That root now reads as jr://file/)
-        ReferenceManagerHandler.instance().addReferenceFactory(new JavaFileRoot(rootPath));
+        ReferenceHandler.instance().addReferenceFactory(new JavaFileRoot(rootPath));
 
         //Now build the testing reference we'll use
         return "jr://file/" + filePart;
