@@ -28,19 +28,11 @@ import java.util.Vector;
  */
 public class ReferenceManager {
 
-    private static ThreadLocal<ReferenceManager> instance = new ThreadLocal<ReferenceManager>() {
-        @Override
-        protected ReferenceManager initialValue()
-        {
-            return new ReferenceManager();
-        }
-    };
-
     private final Vector<RootTranslator> translators;
     private final Vector<ReferenceFactory> factories;
     private final Vector<RootTranslator> sessionTranslators;
 
-    private ReferenceManager() {
+    public ReferenceManager() {
         translators = new Vector<>();
         factories = new Vector<>();
         sessionTranslators = new Vector<>();
@@ -51,7 +43,7 @@ public class ReferenceManager {
      * ReferenceManager.
      */
     public static ReferenceManager instance() {
-        return instance.get();
+        return ReferenceManagerHandler.getGlobalReferenceManager();
     }
 
     /**
