@@ -3,7 +3,6 @@ package org.commcare.modern.reference;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceFactory;
-import org.javarosa.core.reference.ReferenceHandler;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.util.PropertyUtils;
 

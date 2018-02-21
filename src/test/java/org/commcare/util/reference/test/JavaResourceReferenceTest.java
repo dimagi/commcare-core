@@ -2,7 +2,6 @@ package org.commcare.util.reference.test;
 
 import org.commcare.test.utilities.TestHelpers;
 import org.javarosa.core.reference.Reference;
-import org.javarosa.core.reference.ReferenceHandler;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReference;
 import org.javarosa.core.reference.ResourceReferenceFactory;
