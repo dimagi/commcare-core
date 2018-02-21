@@ -103,7 +103,7 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
 
     protected String[] getElementMetadata(int recordId, String[] metaFields, QueryContext context) {
         if (context == null || this.parent.getStorageCacheName() == null) {
-            return readSingleRecordMetadataFromStorage(recordId, metaFields);
+            return readSingleRecordMetadataFromStorage(recordId, metaFields, context);
         }
 
         RecordObjectCache<String[]> recordObjectCache = StorageInstanceTreeElement.getRecordObjectCacheIfRelevant(
@@ -113,7 +113,7 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
 
         //If no object cache is available, perform the read naively
         if (recordObjectCache == null) {
-            return readSingleRecordMetadataFromStorage(recordId, metaFields);
+            return readSingleRecordMetadataFromStorage(recordId, metaFields, context);
         }
 
         //If the object is already cached, return it from there.
@@ -128,7 +128,7 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
         String recordSetKey = parent.getStorageCacheName();
 
         if (!StorageInstanceTreeElement.canLoadRecordFromGroup(recordSetCache, recordSetKey, recordId)) {
-            return readSingleRecordMetadataFromStorage(recordId, metaFields);
+            return readSingleRecordMetadataFromStorage(recordId, metaFields, context);
         }
 
         return populateMetaDataCacheAndReadForRecord(recordSetCache, recordSetKey, recordObjectCache, recordObjectKey, metaFields, context);
@@ -156,8 +156,18 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
         return recordObjectCache.getLoadedRecordObject(recordObjectKey, recordId);
     }
 
-    private String[] readSingleRecordMetadataFromStorage(int recordId, String[] metaFields) {
-        return parent.storage.getMetaDataForRecord(recordId, metaFields);
+    private String[] readSingleRecordMetadataFromStorage(int recordId, String[] metaFields, QueryContext context) {
+        EvaluationTrace trace = new EvaluationTrace(String.format("Model [%s]: Single Metadata Load", this.parent.getStorageCacheName()));
+
+        String[] result =  parent.storage.getMetaDataForRecord(recordId, metaFields);
+
+        trace.setOutcome(String.valueOf(recordId));
+
+        if(context!= null) {
+            context.reportTrace(trace);
+        }
+
+        return result;
     }
 
 
