@@ -1,12 +1,11 @@
 package org.commcare.util.reference.test;
 
 import org.commcare.test.utilities.TestHelpers;
-import org.javarosa.core.reference.ReferenceHandler;
+import org.javarosa.core.reference.Reference;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReference;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.junit.Assert;
-
-import org.javarosa.core.reference.Reference;
 import org.junit.Test;
 
 import java.io.InputStream;
@@ -17,11 +16,11 @@ import java.io.InputStream;
 public class JavaResourceReferenceTest {
     @Test
     public void testReferences() throws Exception {
-        ReferenceHandler.instance().addReferenceFactory(new ResourceReferenceFactory());
+        ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
 
         String referenceName = "jr://resource/reference/resource_reference_test.txt";
 
-        Reference r = ReferenceHandler.instance().DeriveReference(referenceName);
+        Reference r = ReferenceManager.instance().DeriveReference(referenceName);
 
         if (!(r instanceof ResourceReference)) {
             Assert.fail("Incorrect reference type: " + r);

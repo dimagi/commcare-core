@@ -4,7 +4,7 @@ import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
-import org.javarosa.core.reference.ReferenceHandler;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.PrototypeManager;
@@ -131,10 +131,10 @@ public class QuestionDefTest {
         String audioURI = fep.getAudioText();
         String ref;
 
-        ReferenceHandler.instance().addReferenceFactory(new ResourceReferenceFactory());
-        ReferenceHandler.instance().addRootTranslator(new RootTranslator("jr://audio/", "jr://resource/"));
+        ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
+        ReferenceManager.instance().addRootTranslator(new RootTranslator("jr://audio/", "jr://resource/"));
         try {
-            Reference r = ReferenceHandler.instance().DeriveReference(audioURI);
+            Reference r = ReferenceManager.instance().DeriveReference(audioURI);
             ref = r.getURI();
             if (!ref.equals("jr://resource/hah.mp3")) {
                 fail("Root translation failed.");
@@ -145,12 +145,12 @@ public class QuestionDefTest {
         }
 
 
-        ReferenceHandler.instance().addRootTranslator(new RootTranslator("jr://images/", "jr://resource/"));
+        ReferenceManager.instance().addRootTranslator(new RootTranslator("jr://images/", "jr://resource/"));
         q = fpi.getNextQuestion();
         fep = fpi.getFormEntryModel().getQuestionPrompt();
         String imURI = fep.getImageText();
         try {
-            Reference r = ReferenceHandler.instance().DeriveReference(imURI);
+            Reference r = ReferenceManager.instance().DeriveReference(imURI);
             ref = r.getURI();
             if (!ref.equals("jr://resource/four.gif")) {
                 fail("Root translation failed.");
