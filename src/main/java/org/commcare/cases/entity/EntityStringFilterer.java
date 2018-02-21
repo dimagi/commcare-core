@@ -2,6 +2,7 @@ package org.commcare.cases.entity;
 
 import org.commcare.cases.util.StringUtils;
 import org.commcare.modern.util.Pair;
+import org.commcare.util.EntitySortUtil;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.*;
@@ -50,53 +51,18 @@ public class EntityStringFilterer {
         }
 
         Locale currentLocale = Locale.getDefault();
-        //It's a bit sketchy here, because this DB lock will prevent
-        //anything else from processing
-        for (int index = 0; index < fullEntityList.size(); ++index) {
-            Entity<TreeReference> e = fullEntityList.get(index);
-            boolean add = false;
-            int score = 0;
-            filter:
-            for (String filter : searchTerms) {
-                add = false;
-                for (int i = 0; i < e.getNumFields(); ++i) {
-                    String field = e.getNormalizedField(i).toLowerCase();
-                    if (!"".equals(field) && field.toLowerCase(currentLocale).contains(filter.toLowerCase())) {
-                        add = true;
-                        continue filter;
-                    } else if (isFuzzySearchEnabled) {
-                        // We possibly now want to test for edit distance for
-                        // fuzzy matching
-                        for (String fieldChunk : e.getSortFieldPieces(i)) {
-                            Pair<Boolean, Integer> match = StringUtils.fuzzyMatch(filter, fieldChunk);
-                            if (match.first) {
-                                add = true;
-                                score += match.second;
-                                continue filter;
-                            }
-                        }
+        EntitySortUtil.sortEntities(fullEntityList,
+                searchTerms,
+                currentLocale,
+                isFuzzySearchEnabled,
+                matchScores,
+                matchList,
+                new EntitySortUtil.EntitySortCallbackListener() {
+                    @Override
+                    protected Entity<TreeReference> getEntity(int index) {
+                        return fullEntityList.get(index);
                     }
-                }
-                if (!add) {
-                    break;
-                }
-            }
-            if (add) {
-                matchScores.add(Pair.create(index, score));
-            }
-        }
-        if (isAsyncMode) {
-            Collections.sort(matchScores, new Comparator<Pair<Integer, Integer>>() {
-                @Override
-                public int compare(Pair<Integer, Integer> lhs, Pair<Integer, Integer> rhs) {
-                    return lhs.second - rhs.second;
-                }
-            });
-        }
-
-        for (Pair<Integer, Integer> match : matchScores) {
-            matchList.add(fullEntityList.get(match.first));
-        }
+                });
         return matchList;
     }
 }
