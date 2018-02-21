@@ -1,17 +1,17 @@
 package org.commcare.suite.model;
 
-import org.commcare.modern.util.Pair;
 import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.EntityUtil;
 import org.commcare.cases.entity.NodeEntityFactory;
+import org.commcare.modern.util.Pair;
 import org.commcare.util.CollectionUtils;
 import org.commcare.util.DetailFieldPrintInfo;
-import org.commcare.cases.entity.EntityUtil;
 import org.commcare.util.GridCoordinate;
 import org.commcare.util.GridStyle;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceHandler;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -499,7 +499,7 @@ public class Detail implements Externalizable {
             return true;
         } else if (templatePathProvided != null) {
             try {
-                ReferenceHandler.instance().DeriveReference(templatePathProvided).getLocalURI();
+                ReferenceManager.instance().DeriveReference(templatePathProvided).getLocalURI();
                 this.printTemplatePath = templatePathProvided;
                 return true;
             } catch (InvalidReferenceException e) {

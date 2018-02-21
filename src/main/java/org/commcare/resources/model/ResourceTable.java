@@ -4,7 +4,7 @@ import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
-import org.javarosa.core.reference.ReferenceHandler;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -387,7 +387,7 @@ public class ResourceTable {
             } else {
                 try {
                     handled = installResource(r, location,
-                            ReferenceHandler.instance().DeriveReference(location.getLocation()),
+                            ReferenceManager.instance().DeriveReference(location.getLocation()),
                             this, platform, upgrade);
                     if (handled) {
                         recordSuccess(r);
@@ -1038,12 +1038,12 @@ public class ResourceTable {
             final Reference derivedRef;
             if (context == null) {
                 derivedRef =
-                        ReferenceHandler.instance().DeriveReference(location.getLocation());
+                        ReferenceManager.instance().DeriveReference(location.getLocation());
             } else {
                 // contextualize the location ref in terms of the multiple refs
                 // pointing to different locations for the parent resource
                 derivedRef =
-                        ReferenceHandler.instance().DeriveReference(location.getLocation(),
+                        ReferenceManager.instance().DeriveReference(location.getLocation(),
                                 context);
             }
             ret.addElement(derivedRef);
