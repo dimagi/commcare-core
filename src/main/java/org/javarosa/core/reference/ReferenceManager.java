@@ -28,8 +28,6 @@ import java.util.Vector;
  */
 public class ReferenceManager {
 
-    private static ReferenceManager instance;
-
     private final Vector<RootTranslator> translators;
     private final Vector<ReferenceFactory> factories;
     private final Vector<RootTranslator> sessionTranslators;
