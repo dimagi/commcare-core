@@ -40,6 +40,10 @@ public class ReferenceManager {
         sessionTranslators = new Vector<>();
     }
 
+    public static ReferenceManager instance() {
+        return ReferenceHandler.instance();
+    }
+
     /**
      * @return The available reference factories
      */
