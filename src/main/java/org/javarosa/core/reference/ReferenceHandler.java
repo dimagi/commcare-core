@@ -18,18 +18,6 @@ public class ReferenceHandler {
 
     private static boolean useThreadLocal = false;
 
-    public static void init(boolean force) {
-        if (useThreadLocal) {
-            if (threadLocalManager.get() == null || force) {
-                threadLocalManager.set(new ReferenceManager());
-            }
-        } else {
-            if (staticManager == null || force) {
-                staticManager = new ReferenceManager();
-            }
-        }
-    }
-
     public static void setUseThreadLocalStrategy(boolean useThreadLocal) {
         ReferenceHandler.useThreadLocal = useThreadLocal;
     }
@@ -40,8 +28,14 @@ public class ReferenceHandler {
      */
     public static ReferenceManager instance() {
         if (useThreadLocal) {
+            if (threadLocalManager.get() == null) {
+                threadLocalManager.set(new ReferenceManager());
+            }
             return threadLocalManager.get();
         } else {
+            if (staticManager == null) {
+                staticManager = new ReferenceManager();
+            }
             return staticManager;
         }
     }
