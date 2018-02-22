@@ -32,7 +32,9 @@ import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.properties.Property;
-import org.javarosa.core.services.storage.*;
+import org.javarosa.core.services.storage.IStorageIndexedFactory;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -42,7 +44,6 @@ import org.javarosa.xpath.XPathMissingInstanceException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -64,7 +65,7 @@ public class CommCareConfigEngine {
     protected ArchiveFileRoot mArchiveRoot;
 
     public static final int MAJOR_VERSION = 2;
-    public static final int MINOR_VERSION = 41;
+    public static final int MINOR_VERSION = 42;
 
 
     public CommCareConfigEngine() {
@@ -72,13 +73,13 @@ public class CommCareConfigEngine {
     }
 
     public CommCareConfigEngine(PrototypeFactory prototypeFactory) {
-        this(setupDummyStorageFactory(prototypeFactory), new InstallerFactory());
+        this(setupDummyStorageFactory(prototypeFactory), new InstallerFactory(), System.out);
     }
 
     public CommCareConfigEngine(IStorageIndexedFactory storageFactory,
-                                InstallerFactory installerFactory) {
-        this.print = new PrintStream(System.out);
-
+                                InstallerFactory installerFactory,
+                                PrintStream print) {
+        this.print = print;
         setRoots();
 
         table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class), installerFactory);
@@ -93,9 +94,7 @@ public class CommCareConfigEngine {
         storageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
         storageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
 
-        this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION,
-                storageManager,
-                new PropertyManager(storageManager.getStorage(PropertyManager.STORAGE_KEY)));
+        this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION, storageManager);
     }
 
     private static IStorageIndexedFactory setupDummyStorageFactory(final PrototypeFactory prototypeFactory) {
@@ -140,7 +139,7 @@ public class CommCareConfigEngine {
     protected String downloadToTemp(String resource) {
         try {
             URL url = new URL(resource);
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setInstanceFollowRedirects(true);  //you still need to handle redirect manully.
             HttpURLConnection.setFollowRedirects(true);
             File file = File.createTempFile("commcare_", ".ccz");
@@ -161,14 +160,13 @@ public class CommCareConfigEngine {
                     }
                     conn.disconnect();
                 } catch (IOException ex) {
+                    // Log error writing file and bail out.
                     print.println("Exception closing file connection: " + ex);
                 }
             }
         } catch (IOException e) {
             print.println("Issue downloading or create stream for " + resource);
-            e.printStackTrace(print);
-            System.exit(-1);
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -202,8 +200,7 @@ public class CommCareConfigEngine {
         return "jr://file/" + filePart;
     }
 
-
-    private void init(String profileRef) throws InstallCancelledException,
+    protected void init(String profileRef) throws InstallCancelledException,
             UnresolvedResourceException, UnfullfilledRequirementsException {
         installAppFromReference(profileRef);
     }
@@ -222,12 +219,11 @@ public class CommCareConfigEngine {
         } catch (RuntimeException e) {
             print.println("Error while initializing one of the resolved resources");
             e.printStackTrace(print);
-            System.exit(-1);
+            throw e;
         }
         //Make sure there's a default locale, since the app doesn't necessarily use the
         //localization engine
         Localization.getGlobalLocalizerAdvanced().addAvailableLocale("default");
-
         Localization.setDefaultLocale("default");
 
         print.println("Locales defined: ");
@@ -246,14 +242,13 @@ public class CommCareConfigEngine {
                 break;
             }
         }
-        print.println("Setting locale to: " + defaultLocale);
         Localization.setLocale(defaultLocale);
     }
 
     public void describeApplication() {
         print.println("Locales defined: ");
         for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
-            System.out.println("* " + locale);
+            print.println("* " + locale);
         }
 
         Localization.setDefaultLocale("default");
@@ -332,7 +327,7 @@ public class CommCareConfigEngine {
             if (datum instanceof FormIdDatum) {
                 print.println(emptyhead + "Form: " + datum.getValue());
             } else if (datum instanceof EntityDatum) {
-                String shortDetailId = ((EntityDatum)datum).getShortDetail();
+                String shortDetailId = ((EntityDatum) datum).getShortDetail();
                 if (shortDetailId != null) {
                     Detail d = s.getDetail(shortDetailId);
                     try {
@@ -418,7 +413,7 @@ public class CommCareConfigEngine {
                 }
             }
         } catch (MalformedURLException e) {
-            System.out.print("Warning: Unrecognized URL format: " + authRef);
+            print.print("Warning: Unrecognized URL format: " + authRef);
         }
 
 
@@ -428,33 +423,33 @@ public class CommCareConfigEngine {
             // profile is not a newer version, statgeUpgradeTable doesn't
             // actually pull in all the new references
 
-            System.out.println("Checking for updates....");
+            print.println("Checking for updates....");
             ResourceManager resourceManager = new ResourceManager(platform, global, updateTable, recoveryTable);
             resourceManager.stageUpgradeTable(authRef, true, platform);
             Resource newProfile = updateTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
             if (!newProfile.isNewer(profileRef)) {
-                System.out.println("Your app is up to date!");
+                print.println("Your app is up to date!");
                 return;
             }
 
-            System.out.println("Update found. New Version: " + newProfile.getVersion());
-            System.out.println("Downloading / Preparing Update");
+            print.println("Update found. New Version: " + newProfile.getVersion());
+            print.println("Downloading / Preparing Update");
             resourceManager.prepareUpgradeResources();
-            System.out.print("Installing update");
+            print.print("Installing update");
 
             // Replaces global table with temporary, or w/ recovery if
             // something goes wrong
             resourceManager.upgrade();
         } catch (UnresolvedResourceException e) {
-            System.out.println("Update Failed! Couldn't find or install one of the remote resources");
+            print.println("Update Failed! Couldn't find or install one of the remote resources");
             e.printStackTrace();
             return;
         } catch (UnfullfilledRequirementsException e) {
-            System.out.println("Update Failed! This CLI host is incompatible with the app");
+            print.println("Update Failed! This CLI host is incompatible with the app");
             e.printStackTrace();
             return;
         } catch (Exception e) {
-            System.out.println("Update Failed! There is a problem with one of the resources");
+            print.println("Update Failed! There is a problem with one of the resources");
             e.printStackTrace();
             return;
         }
