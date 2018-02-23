@@ -70,7 +70,13 @@ public class ExtWrapList extends ExternalizableWrapper {
         if (!sealed) {
             int size = (int)ExtUtil.readNumeric(in);
             try {
-                List<Object> l = listImplementation.newInstance();
+                List<Object> l;
+                if (listImplementation.equals(Vector.class)) {
+                    // to preserve performance gains of instantiating a Vector with its size
+                    l = new Vector<>(size);
+                } else {
+                    l = listImplementation.newInstance();
+                }
                 for (int i = 0; i < size; i++) {
                     l.add(ExtUtil.read(in, type, pf));
                 }
