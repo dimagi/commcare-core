@@ -30,7 +30,7 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     }
 
     private void queueUpCachedValue(EvaluationContext ec) {
-        justRetrieved = ec.expressionCacher().getCachedValue(this);
+        justRetrieved = ec.expressionCacher().getCachedValue(getCacheKey(ec));
     }
 
     Object getCachedValue() {
@@ -39,8 +39,12 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
 
      void cache(Object value, EvaluationContext ec) {
         if (ec.cachingEnabled() && isCacheable(ec)) {
-            ec.expressionCacher().cache(this, value);
+            ec.expressionCacher().cache(getCacheKey(ec), value);
         }
+    }
+
+    private ExpressionCacheKey getCacheKey(EvaluationContext ec) {
+        return new ExpressionCacheKey(this, ec);
     }
 
     protected boolean isCacheable(EvaluationContext ec) {
