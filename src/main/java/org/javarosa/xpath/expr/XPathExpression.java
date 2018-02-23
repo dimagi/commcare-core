@@ -30,7 +30,7 @@ public abstract class XPathExpression extends InFormCacheableExpr implements Ext
      * @return The result of this expression evaluated against the provided context
      */
     public Object eval(DataInstance model, EvaluationContext evalContext) {
-        if (isCached()) {
+        if (isCached(evalContext)) {
             return getCachedValue();
         }
 
@@ -38,7 +38,7 @@ public abstract class XPathExpression extends InFormCacheableExpr implements Ext
         Object value = evalRaw(model, evalContext);
         evalContext.reportTraceValue(value);
         evalContext.closeTrace();
-        cache(value);
+        cache(value, evalContext);
         return value;
     }
 

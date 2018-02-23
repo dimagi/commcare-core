@@ -11,7 +11,6 @@ import java.util.Map;
 public class InFormExpressionCacher {
 
     private Map<InFormCacheableExpr, Object> cache;
-    protected String formInstanceRoot;
 
     public InFormExpressionCacher() {
         cache = new HashMap<>();
@@ -25,16 +24,12 @@ public class InFormExpressionCacher {
         return cache.get(expression);
     }
 
-    public void wipeCache() {
+    public void clearCache() {
         cache.clear();
     }
 
-    public void setFormInstanceRoot(String formInstance) {
-        this.formInstanceRoot = formInstance;
-    }
-
-    public String getFormInstanceRoot() {
-        return this.formInstanceRoot;
+    public boolean hasCachedValues() {
+        return !cache.isEmpty();
     }
 
 }

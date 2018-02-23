@@ -1,5 +1,6 @@
 package org.javarosa.xpath.analysis;
 
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.expr.UncacheableXPathFuncExpr;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
@@ -10,6 +11,15 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
  * @author Aliza Stone
  */
 public class ContainsUncacheableExpressionAnalyzer extends XPathBooleanAnalyzer {
+
+    public ContainsUncacheableExpressionAnalyzer(EvaluationContext ec) {
+        super();
+        setContext(ec);
+    }
+
+    public ContainsUncacheableExpressionAnalyzer() {
+        super();
+    }
 
     @Override
     public void doAnalysis(XPathFuncExpr expr) {

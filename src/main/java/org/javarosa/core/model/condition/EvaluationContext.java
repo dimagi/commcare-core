@@ -29,8 +29,6 @@ import java.util.*;
  */
 public class EvaluationContext {
 
-    private boolean isIrrelevant = false;
-
     /**
      * Whether XPath expressions being evaluated should be traced during
      * execution for debugging.
@@ -86,6 +84,8 @@ public class EvaluationContext {
      * Used for calculating the position() xpath function.
      */
     private int currentContextPosition = -1;
+
+    protected boolean environmentValidForCaching = false;
 
     private final DataInstance instance;
 
@@ -155,6 +155,10 @@ public class EvaluationContext {
             this.mDebugCore = base.mDebugCore;
         }
 
+        if (base.environmentValidForCaching) {
+            setCachingAllowed();
+        }
+
         setQueryContext(base.queryContext);
     }
 
@@ -176,6 +180,14 @@ public class EvaluationContext {
         } else {
             return this.original;
         }
+    }
+
+    public void setCachingAllowed() {
+        this.environmentValidForCaching = true;
+    }
+
+    public boolean cachingIsAllowed() {
+        return environmentValidForCaching;
     }
 
     public void addFunctionHandler(IFunctionHandler fh) {

@@ -1,5 +1,6 @@
 package org.javarosa.xpath.analysis;
 
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 
 /**
@@ -10,9 +11,15 @@ import org.javarosa.core.model.instance.TreeReference;
  */
 public class ReferencesMainInstanceAnalyzer extends XPathBooleanAnalyzer {
 
-    private final String mainInstanceRoot;
+    private String mainInstanceRoot;
+
+    public ReferencesMainInstanceAnalyzer(String instanceName, EvaluationContext ec) {
+        this(instanceName);
+        setContext(ec);
+    }
 
     public ReferencesMainInstanceAnalyzer(String instanceName) {
+        super();
         this.mainInstanceRoot = instanceName;
     }
 

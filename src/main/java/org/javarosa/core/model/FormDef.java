@@ -1129,6 +1129,7 @@ public class FormDef implements IFormElement, IMetaData,
     public void setEvaluationContext(EvaluationContext ec) {
         ec = new EvaluationContext(mainInstance, formInstances, ec);
         initEvalContext(ec);
+        ec.setCachingAllowed();
         this.exprEvalContext = ec;
     }
 

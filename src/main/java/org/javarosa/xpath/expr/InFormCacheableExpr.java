@@ -1,7 +1,11 @@
 package org.javarosa.xpath.expr;
 
+import org.commcare.util.LogTypes;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.InFormExpressionCacher;
+import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.analysis.AnalysisInvalidException;
 import org.javarosa.xpath.analysis.ContainsUncacheableExpressionAnalyzer;
 import org.javarosa.xpath.analysis.ReferencesMainInstanceAnalyzer;
@@ -21,70 +25,65 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
 
     private static InFormExpressionCacher cacher = new InFormExpressionCacher();
 
-    protected boolean isCached() {
-        queueUpCachedValue();
-        return justRetrieved != null;
+    protected boolean isCached(EvaluationContext ec) {
+        if (ec.cachingIsAllowed()) {
+            queueUpCachedValue();
+            return justRetrieved != null;
+        } else {
+            // this is the best signal we have for knowing to clear
+            if (cacher.hasCachedValues()) {
+                cacher.clearCache();
+            }
+            return false;
+        }
     }
 
     private void queueUpCachedValue() {
-        if (environmentValidForCaching()) {
-            justRetrieved = cacher.getCachedValue(this);
-        } else {
-            justRetrieved = null;
-        }
+        justRetrieved = cacher.getCachedValue(this);
     }
 
     Object getCachedValue() {
         return justRetrieved;
     }
 
-     void cache(Object value) {
-        if (isCacheable()) {
+     void cache(Object value, EvaluationContext ec) {
+        if (ec.cachingIsAllowed() && isCacheable(ec)) {
             cacher.cache(this, value);
         }
     }
 
-    protected boolean isCacheable() {
+    protected boolean isCacheable(EvaluationContext ec) {
         if (!computedCacheability) {
-            computeCacheability();
+            computeCacheability(ec);
         }
         return isCacheable;
     }
 
-    private void computeCacheability() {
-        if (environmentValidForCaching()) {
+    private void computeCacheability(EvaluationContext ec) {
+        if (ec.getMainInstance() instanceof FormInstance) {
             try {
-                isCacheable = !referencesMainFormInstance() && !containsUncacheableSubExpression();
+                isCacheable = !referencesMainFormInstance((FormInstance)ec.getMainInstance(), ec) &&
+                        !containsUncacheableSubExpression(ec);
             } catch (AnalysisInvalidException e) {
                 // if the analysis didn't complete then we assume it's not cacheable
                 isCacheable = false;
             }
             computedCacheability = true;
+        } else {
+            Logger.log(LogTypes.SOFT_ASSERT,
+                    "Caching was enabled in the ec, but the main instance provided " +
+                            "to InFormCacheableExpr by the ec was not of type FormInstance");
+            isCacheable = false;
         }
     }
 
-    private boolean referencesMainFormInstance() throws AnalysisInvalidException {
-        return (new ReferencesMainInstanceAnalyzer(cacher.getFormInstanceRoot()))
-                .computeResult(this);
+    private boolean referencesMainFormInstance(FormInstance formInstance, EvaluationContext ec) throws AnalysisInvalidException {
+        String formInstanceRoot = formInstance.getBase().getChildAt(0).getName();
+        return (new ReferencesMainInstanceAnalyzer(formInstanceRoot, ec)).computeResult(this);
     }
 
-    private boolean containsUncacheableSubExpression() throws AnalysisInvalidException {
-        return (new ContainsUncacheableExpressionAnalyzer()).computeResult(this);
-    }
-
-    private boolean environmentValidForCaching() {
-        return cacher.getFormInstanceRoot() != null;
-    }
-
-    public static void enableCaching(FormInstance formInstance, boolean clearCacheFirst) {
-        if (clearCacheFirst) {
-            cacher.wipeCache();
-        }
-        cacher.setFormInstanceRoot(formInstance.getBase().getChildAt(0).getName());
-    }
-
-    public static void disableCaching() {
-        cacher.setFormInstanceRoot(null);
+    private boolean containsUncacheableSubExpression(EvaluationContext ec) throws AnalysisInvalidException {
+        return (new ContainsUncacheableExpressionAnalyzer(ec)).computeResult(this);
     }
 
 }

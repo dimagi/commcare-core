@@ -26,7 +26,7 @@ public class XPathRandomFunc extends XPathFuncExpr implements UncacheableXPathFu
     }
 
     @Override
-    protected boolean isCacheable() {
+    protected boolean isCacheable(EvaluationContext ec) {
         return false;
     }
 
