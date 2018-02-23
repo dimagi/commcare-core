@@ -13,6 +13,7 @@ import org.javarosa.core.model.trace.BulkEvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.CacheHost;
+import org.javarosa.core.services.InFormExpressionCacher;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathLazyNodeset;
@@ -85,7 +86,7 @@ public class EvaluationContext {
      */
     private int currentContextPosition = -1;
 
-    protected boolean environmentValidForCaching = false;
+    private InFormExpressionCacher expressionCacher;
 
     private final DataInstance instance;
 
@@ -155,10 +156,7 @@ public class EvaluationContext {
             this.mDebugCore = base.mDebugCore;
         }
 
-        if (base.environmentValidForCaching) {
-            setCachingAllowed();
-        }
-
+        this.expressionCacher = base.expressionCacher;
         setQueryContext(base.queryContext);
     }
 
@@ -182,12 +180,16 @@ public class EvaluationContext {
         }
     }
 
-    public void setCachingAllowed() {
-        this.environmentValidForCaching = true;
+    public void enableCaching() {
+        this.expressionCacher = new InFormExpressionCacher();
     }
 
-    public boolean cachingIsAllowed() {
-        return environmentValidForCaching;
+    public boolean cachingEnabled() {
+        return expressionCacher != null;
+    }
+
+    public InFormExpressionCacher expressionCacher() {
+        return expressionCacher;
     }
 
     public void addFunctionHandler(IFunctionHandler fh) {

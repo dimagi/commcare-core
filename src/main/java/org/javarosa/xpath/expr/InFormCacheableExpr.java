@@ -2,9 +2,7 @@ package org.javarosa.xpath.expr;
 
 import org.commcare.util.LogTypes;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.services.InFormExpressionCacher;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.analysis.AnalysisInvalidException;
 import org.javarosa.xpath.analysis.ContainsUncacheableExpressionAnalyzer;
@@ -23,23 +21,16 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     protected boolean computedCacheability;
     protected boolean isCacheable;
 
-    private static InFormExpressionCacher cacher = new InFormExpressionCacher();
-
-    protected boolean isCached(EvaluationContext ec) {
-        if (ec.cachingIsAllowed()) {
-            queueUpCachedValue();
+    boolean isCached(EvaluationContext ec) {
+        if (ec.cachingEnabled()) {
+            queueUpCachedValue(ec);
             return justRetrieved != null;
-        } else {
-            // this is the best signal we have for knowing to clear
-            if (cacher.hasCachedValues()) {
-                cacher.clearCache();
-            }
-            return false;
         }
+        return false;
     }
 
-    private void queueUpCachedValue() {
-        justRetrieved = cacher.getCachedValue(this);
+    private void queueUpCachedValue(EvaluationContext ec) {
+        justRetrieved = ec.expressionCacher().getCachedValue(this);
     }
 
     Object getCachedValue() {
@@ -47,8 +38,8 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     }
 
      void cache(Object value, EvaluationContext ec) {
-        if (ec.cachingIsAllowed() && isCacheable(ec)) {
-            cacher.cache(this, value);
+        if (ec.cachingEnabled() && isCacheable(ec)) {
+            ec.expressionCacher().cache(this, value);
         }
     }
 
@@ -62,7 +53,8 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     private void computeCacheability(EvaluationContext ec) {
         if (ec.getMainInstance() instanceof FormInstance) {
             try {
-                isCacheable = !referencesMainFormInstance((FormInstance)ec.getMainInstance(), ec) &&
+                isCacheable =
+                        !referencesMainFormInstance((FormInstance)ec.getMainInstance(), ec) &&
                         !containsUncacheableSubExpression(ec);
             } catch (AnalysisInvalidException e) {
                 // if the analysis didn't complete then we assume it's not cacheable

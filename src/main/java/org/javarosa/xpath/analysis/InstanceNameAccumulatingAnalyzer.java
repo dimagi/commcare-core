@@ -2,8 +2,6 @@ package org.javarosa.xpath.analysis;
 
 import org.javarosa.core.model.instance.TreeReference;
 
-import java.util.ArrayList;
-
 /**
  * An XPathAccumulatingAnalyzer that collects all of the instance names that are referenced
  * in an expression
