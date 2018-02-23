@@ -110,9 +110,9 @@ public class ProfileParser extends ElementParser<Profile> {
                 throw new UnfullfilledRequirementsException(
                         "Major Version Mismatch (Required: " + major + " | Available: " +
                                 this.instance.getMajorVersion() + ")",
-                        CommCareElementParser.SEVERITY_PROMPT,
                         CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION, major,
-                        minor, this.instance.getMajorVersion(), this.instance.getMinorVersion());
+                        minor, this.instance.getMajorVersion(), this.instance.getMinorVersion(),
+                        UnfullfilledRequirementsException.RequirementType.VERSION_MISMATCH);
             }
 
             //For the minor version, anything greater than the profile's version is valid
@@ -121,9 +121,9 @@ public class ProfileParser extends ElementParser<Profile> {
                 throw new UnfullfilledRequirementsException(
                         "Minor Version Mismatch (Required: " + minor + " | Available: " +
                                 this.instance.getMinorVersion() + ")",
-                        CommCareElementParser.SEVERITY_PROMPT,
                         CommCareElementParser.REQUIREMENT_MINOR_APP_VERSION, major,
-                        minor, this.instance.getMajorVersion(), this.instance.getMinorVersion());
+                        minor, this.instance.getMajorVersion(), this.instance.getMinorVersion(),
+                        UnfullfilledRequirementsException.RequirementType.VERSION_MISMATCH);
             }
         }
 
@@ -166,7 +166,7 @@ public class ProfileParser extends ElementParser<Profile> {
         }
     }
 
-    private void parseLogin() throws InvalidStructureException, IOException, XmlPullParserException{
+    private void parseLogin() throws InvalidStructureException, IOException, XmlPullParserException {
         // Get the resource block or fail out
         getNextTagInBlock("login");
         Resource resource = new ResourceParser(parser, maximumResourceAuthority).parse();
