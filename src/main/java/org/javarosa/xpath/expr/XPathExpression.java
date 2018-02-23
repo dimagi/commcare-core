@@ -41,15 +41,18 @@ public abstract class XPathExpression implements Externalizable, XPathAnalyzable
     }
 
     public static void serializeResult(Object value, OutputStream output) throws IOException {
-        if (value instanceof XPathNodeset && !isLeafNode((XPathNodeset) value)) {
+        if (!isLeafNode(value)) {
             serializeElements((XPathNodeset) value, output);
         } else {
             output.write(FunctionUtils.toString(value).getBytes(StandardCharsets.UTF_8));
         }
     }
 
-    private static boolean isLeafNode(XPathNodeset value) {
-        XPathNodeset nodeset = value;
+    private static boolean isLeafNode(Object value) {
+        if (!(value instanceof XPathNodeset)) {
+            return false;
+        }
+        XPathNodeset nodeset = (XPathNodeset) value;
         Vector<TreeReference> refs = nodeset.getReferences();
         if (refs == null || refs.size() != 1) {
             return false;
@@ -73,11 +76,6 @@ public abstract class XPathExpression implements Externalizable, XPathAnalyzable
 
         DataInstance instance = nodeset.getInstance();
         Vector<TreeReference> refs = nodeset.getReferences();
-
-        if (refs == null) {
-            return;
-        }
-
         for (TreeReference ref : refs) {
             AbstractTreeElement treeElement = instance.resolveReference(ref);
             s.serialize(treeElement);
