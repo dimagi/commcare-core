@@ -32,15 +32,14 @@ public class MenuLoader {
 
     private ReducingTraceReporter traceReporter;
 
-    public MenuLoader(CommCarePlatform platform,
-                      SessionWrapperInterface sessionWrapper,
-                      String menuId,
-                      LoggerInterface loggerInterface, boolean shouldOutputEvalTrace) {
+    public MenuLoader(CommCarePlatform platform, SessionWrapperInterface sessionWrapper,
+                      String menuId, LoggerInterface loggerInterface,
+                      boolean shouldOutputEvalTrace, boolean hideTrainingRoot) {
         this.loggerInterface = loggerInterface;
         if (shouldOutputEvalTrace) {
             this.traceReporter = new ReducingTraceReporter();
         }
-        this.getMenuDisplayables(platform, sessionWrapper, menuId);
+        this.getMenuDisplayables(platform, sessionWrapper, menuId, hideTrainingRoot);
     }
 
     public String getErrorMessage() {
@@ -54,8 +53,7 @@ public class MenuLoader {
 
     private void getMenuDisplayables(CommCarePlatform platform,
                                      SessionWrapperInterface sessionWrapper,
-                                     String menuID) {
-
+                                     String menuID, boolean hideTrainingRoot) {
         Vector<MenuDisplayable> items = new Vector<>();
         Vector<String> badges = new Vector<>();
         Hashtable<String, Entry> map = platform.getMenuMap();
@@ -67,7 +65,7 @@ public class MenuLoader {
                             addRelevantCommandEntries(sessionWrapper, m, items, badges, map);
                         }
                     } else {
-                        addUnaddedMenu(sessionWrapper, menuID, m, items, badges);
+                        addUnaddedMenu(sessionWrapper, menuID, m, items, badges, hideTrainingRoot);
                     }
                 } catch (CommCareInstanceInitializer.FixtureInitializationException
                         | XPathSyntaxException | XPathException xpe) {
@@ -83,25 +81,27 @@ public class MenuLoader {
         badges.copyInto(this.badges);
     }
 
-    private void addUnaddedMenu(SessionWrapperInterface sessionWrapper,
-                                String menuID, Menu m,
-                                Vector<MenuDisplayable> items,
-                                Vector<String> badges) throws XPathSyntaxException {
-        if (menuID.equals(m.getRoot())) {
+    private void addUnaddedMenu(SessionWrapperInterface sessionWrapper, String currentMenuId,
+                                Menu toAdd, Vector<MenuDisplayable> items, Vector<String> badges,
+                                boolean hideTrainingRoot) throws XPathSyntaxException {
+        if (hideTrainingRoot && toAdd.getId().equals(Menu.TRAINING_MENU_ROOT)) {
+            return;
+        }
+        if (currentMenuId.equals(toAdd.getRoot())) {
             //make sure we didn't already add this ID
             boolean idExists = false;
             for (Object o : items) {
                 if (o instanceof Menu) {
-                    if (((Menu)o).getId().equals(m.getId())) {
+                    if (((Menu)o).getId().equals(toAdd.getId())) {
                         idExists = true;
                         break;
                     }
                 }
             }
             if (!idExists) {
-                if (menuIsRelevant(sessionWrapper, m)) {
-                    items.add(m);
-                    badges.add(m.getTextForBadge(sessionWrapper.getEvaluationContext(m.getCommandID())).blockingGet());
+                if (menuIsRelevant(sessionWrapper, toAdd)) {
+                    items.add(toAdd);
+                    badges.add(toAdd.getTextForBadge(sessionWrapper.getEvaluationContext(toAdd.getCommandID())).blockingGet());
                 }
             }
         }
