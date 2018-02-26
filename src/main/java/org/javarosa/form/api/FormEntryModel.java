@@ -131,7 +131,7 @@ public class FormEntryModel {
             return new FormEntryPrompt(form, index);
         } else {
             throw new RuntimeException(
-                    "Invalid query for Question prompt. Non-Question object at the form index");
+                    "Invalid query for Question prompt. Non-Question object at the form index " + index + " in Form " + form.getName());
         }
     }
 
