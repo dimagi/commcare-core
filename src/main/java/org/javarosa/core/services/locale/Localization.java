@@ -6,7 +6,6 @@ import org.javarosa.core.util.NoLocalizedTextException;
 import java.util.Hashtable;
 
 public class Localization {
-    private static Localizer globalLocalizer;
 
     public static String get(String key) {
         return get(key, new String[]{});
@@ -14,17 +13,17 @@ public class Localization {
 
     public static String get(String key, String arg) {
         checkRep();
-        return globalLocalizer.getText(key, new String[]{arg});
+        return LocalizerManager.getGlobalLocalizer().getText(key, new String[]{arg});
     }
 
     public static String get(String key, String[] args) {
         checkRep();
-        return globalLocalizer.getText(key, args);
+        return LocalizerManager.getGlobalLocalizer().getText(key, args);
     }
 
     public static String get(String key, Hashtable args) {
         checkRep();
-        return globalLocalizer.getText(key, args);
+        return LocalizerManager.getGlobalLocalizer().getText(key, args);
     }
 
     public static String getWithDefault(String key, String valueIfKeyMissing) {
@@ -41,44 +40,42 @@ public class Localization {
 
     public static void registerLanguageReference(String localeName, String referenceUri) {
         init(false);
-        if (!globalLocalizer.hasLocale(localeName)) {
-            globalLocalizer.addAvailableLocale(localeName);
+        if (!LocalizerManager.getGlobalLocalizer().hasLocale(localeName)) {
+            LocalizerManager.getGlobalLocalizer().addAvailableLocale(localeName);
         }
-        globalLocalizer.registerLocaleResource(localeName, new ReferenceDataSource(referenceUri));
-        if (globalLocalizer.getDefaultLocale() == null) {
-            globalLocalizer.setDefaultLocale(localeName);
+        LocalizerManager.getGlobalLocalizer().registerLocaleResource(localeName, new ReferenceDataSource(referenceUri));
+        if (LocalizerManager.getGlobalLocalizer().getDefaultLocale() == null) {
+            LocalizerManager.getGlobalLocalizer().setDefaultLocale(localeName);
         }
     }
 
     public static Localizer getGlobalLocalizerAdvanced() {
         init(false);
-        return globalLocalizer;
+        return LocalizerManager.getGlobalLocalizer();
     }
 
     public static void setLocale(String locale) {
         checkRep();
-        globalLocalizer.setLocale(locale);
+        LocalizerManager.getGlobalLocalizer().setLocale(locale);
     }
 
     public static String getCurrentLocale() {
         checkRep();
-        return globalLocalizer.getLocale();
+        return LocalizerManager.getGlobalLocalizer().getLocale();
     }
 
     public static void setDefaultLocale(String defaultLocale) {
         checkRep();
-        globalLocalizer.setDefaultLocale(defaultLocale);
+        LocalizerManager.getGlobalLocalizer().setDefaultLocale(defaultLocale);
     }
 
     public static void init(boolean force) {
-        if (globalLocalizer == null || force) {
-            globalLocalizer = new Localizer(true, false);
-        }
+        LocalizerManager.init(force);
     }
 
     private static void checkRep() {
         init(false);
-        if (globalLocalizer.getAvailableLocales().length == 0) {
+        if (LocalizerManager.getGlobalLocalizer().getAvailableLocales().length == 0) {
             throw new LocaleTextException("There are no locales defined for the application. Please make sure to register locale text using the Locale.register() method");
         }
     }
