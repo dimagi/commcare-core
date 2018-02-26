@@ -28,11 +28,6 @@ public class PropertyManager implements IPropertyManager {
     public static final String STORAGE_KEY = "PROPERTY";
 
     /**
-     * The list of rules
-     */
-    private final Vector<IPropertyRules> rulesList;
-
-    /**
      * The persistent storage utility
      */
     private final IStorageUtilityIndexed properties;
@@ -42,7 +37,6 @@ public class PropertyManager implements IPropertyManager {
      */
     public PropertyManager(IStorageUtilityIndexed properties) {
         this.properties = properties;
-        rulesList = new Vector<>();
     }
 
     /**
@@ -55,11 +49,9 @@ public class PropertyManager implements IPropertyManager {
     @Override
     public String getSingularProperty(String propertyName) {
         String retVal = null;
-        if ((rulesList.size() == 0 || checkPropertyAllowed(propertyName))) {
-            Vector value = getValue(propertyName);
-            if (value != null && value.size() == 1) {
-                retVal = (String)value.elementAt(0);
-            }
+        Vector value = getValue(propertyName);
+        if (value != null && value.size() == 1) {
+            retVal = (String)value.elementAt(0);
         }
         return retVal;
     }
@@ -74,15 +66,7 @@ public class PropertyManager implements IPropertyManager {
      */
     @Override
     public Vector getProperty(String propertyName) {
-        if (rulesList.size() == 0) {
-            return getValue(propertyName);
-        } else {
-            if (checkPropertyAllowed(propertyName)) {
-                return getValue(propertyName);
-            } else {
-                return null;
-            }
-        }
+        return getValue(propertyName);
     }
 
     /**
@@ -111,27 +95,7 @@ public class PropertyManager implements IPropertyManager {
             //No point in redundantly setting values!
             return;
         }
-        if (rulesList.size() == 0) {
-            writeValue(propertyName, propertyValue);
-        } else {
-            boolean valid = true;
-            Enumeration en = propertyValue.elements();
-            while (en.hasMoreElements()) {
-                // RL - checkPropertyAllowed is implicit in checkValueAllowed
-                if (!checkValueAllowed(propertyName, (String)en.nextElement())) {
-                    valid = false;
-                }
-            }
-            if (valid) {
-                writeValue(propertyName, propertyValue);
-                notifyChanges(propertyName);
-            }
-            //#if debug.output==verbose
-            else {
-                System.out.println("Property Manager: Unable to write value (" + propertyValue + ") to " + propertyName);
-            }
-            //#endif
-        }
+        writeValue(propertyName, propertyValue);
 
     }
 
@@ -155,7 +119,7 @@ public class PropertyManager implements IPropertyManager {
      */
     @Override
     public Vector getRules() {
-        return rulesList;
+        throw new RuntimeException("PropertyManager rules not implemented");
     }
 
     /**
@@ -167,81 +131,9 @@ public class PropertyManager implements IPropertyManager {
      */
     @Override
     public void addRules(IPropertyRules rules) {
-        if (rules != null) {
-            this.rulesList.addElement(rules);
-        }
+        throw new RuntimeException("PropertyManager rules not implemented");
     }
 
-    /**
-     * Checks that a property is permitted to exist by any of the existing rules sets
-     *
-     * @param propertyName The name of the property to be set
-     * @return true if the property is permitted to store values. false otherwise
-     */
-    private boolean checkPropertyAllowed(String propertyName) {
-        if (rulesList.size() == 0) {
-            return true;
-        } else {
-            boolean allowed = false;
-            Enumeration en = rulesList.elements();
-            //We're fine if we return true, inclusive rules sets
-            while (en.hasMoreElements() && !allowed) {
-                IPropertyRules rules = (IPropertyRules)en.nextElement();
-                if (rules.checkPropertyAllowed(propertyName)) {
-                    allowed = true;
-                }
-            }
-            return allowed;
-        }
-    }
-
-    /**
-     * Checks that a property is allowed to store a certain value.
-     *
-     * @param propertyName  The name of the property to be set
-     * @param propertyValue The value to be stored in the given property
-     * @return true if the property given is allowed to be stored. false otherwise.
-     */
-    private boolean checkValueAllowed(String propertyName,
-                                     String propertyValue) {
-        if (rulesList.size() == 0) {
-            return true;
-        } else {
-            boolean allowed = false;
-            Enumeration en = rulesList.elements();
-            while (en.hasMoreElements() && !allowed) {
-                IPropertyRules rules = (IPropertyRules)en.nextElement();
-                if (rules.checkPropertyAllowed(propertyName)) {
-                    if (rules.checkValueAllowed(propertyName, propertyValue)) {
-                        allowed = true;
-                    }
-                }
-            }
-            return allowed;
-        }
-    }
-
-    /**
-     * Identifies the property rules set that the property belongs to, and notifies
-     * it about the property change.
-     *
-     * @param property The property that has been changed
-     */
-    private void notifyChanges(String property) {
-        if (rulesList.size() == 0) {
-            return;
-        }
-
-        boolean notified = false;
-        Enumeration rules = rulesList.elements();
-        while (rules.hasMoreElements() && !notified) {
-            IPropertyRules therules = (IPropertyRules)rules.nextElement();
-            if (therules.checkPropertyAllowed(property)) {
-                therules.handlePropertyChanges(property);
-            }
-        }
-
-    }
 
     public Vector getValue(String name) {
         try {
