@@ -17,21 +17,17 @@ import java.util.Locale;
 
 public class EntitySortUtil {
 
-    public abstract static class EntitySortCallbackListener {
-        protected abstract Entity<TreeReference> getEntity(int index);
-    }
-
     public static void sortEntities(List<Entity<TreeReference>> fullEntityList,
                                     String[] searchTerms,
                                     Locale currentLocale,
                                     boolean isFuzzySearchEnabled,
                                     ArrayList<Pair<Integer, Integer>> matchScores,
                                     List<Entity<TreeReference>> matchList,
-                                    EntitySortCallbackListener listener) {
+                                    EntityProvider entityProvider) {
         for (int index = 0; index < fullEntityList.size(); ++index) {
 
             //Every once and a while we should make sure we're not blocking anything with the database
-            Entity<TreeReference> e = listener.getEntity(index);
+            Entity<TreeReference> e = entityProvider.getEntity(index);
             if (e == null) {
                 return;
             }
