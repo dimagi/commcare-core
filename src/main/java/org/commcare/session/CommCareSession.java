@@ -366,7 +366,8 @@ public class CommCareSession {
                 }
                 Vector<SessionDatum> data = entry.getSessionDataReqs();
                 for (SessionDatum datum : data) {
-                    if (datum.getDataId().equals(poppedId)) {
+                    if (datum instanceof EntityDatum &&
+                            datum.getDataId().equals(poppedId)) {
                         return SessionFrame.STATE_DATUM_VAL;
                     }
                 }
