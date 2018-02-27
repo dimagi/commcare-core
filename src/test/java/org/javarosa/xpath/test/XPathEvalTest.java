@@ -118,6 +118,21 @@ public class XPathEvalTest {
     }
 
     @Test
+    public void testRegex() {
+        EvaluationContext ec = getFunctionHandlers();
+        testEval("regex('12345','[0-9]+')", null, ec, Boolean.TRUE);
+        testEval("regex('12345','[')", null, ec, new XPathException());
+        testEval("regex('aaaabfooaaabgarplyaaabwackyb', 'a*b')", null, null, Boolean.TRUE);
+        testEval("regex('photo', 'a*b')", null, null, Boolean.FALSE);
+        testEval("regex('Is this right?', 'is')", null, null, Boolean.TRUE);
+        testEval("regex('Is this right?', '^is')", null, null, Boolean.FALSE);
+        testEval("regex('Is this right?', '^Is this right?$')", null, null, Boolean.FALSE);
+        testEval("regex('Is this right?', '^Is this right\\?$')", null, null, Boolean.TRUE);
+        testEval("regex('Dollar sign\ndoes not match newlines', 'sign$')", null, null, Boolean.FALSE);
+        testEval("regex('Dollar sign\ndoes not match newlines', 'newlines$')", null, null, Boolean.TRUE);
+    }
+
+    @Test
     public void doTests() {
         System.setProperty("user.timezone", "UTC");
         EvaluationContext ec = getFunctionHandlers();
@@ -519,8 +534,6 @@ public class XPathEvalTest {
         testEval("concat('ab','cde','','fgh',1,false(),'ijklmnop')", null, ec, "abcdefgh1falseijklmnop");
         testEval("check-types(55, '55', false(), '1999-09-09', get-custom(false()))", null, ec, Boolean.TRUE);
         testEval("check-types(55, '55', false(), '1999-09-09', get-custom(true()))", null, ec, Boolean.TRUE);
-        testEval("regex('12345','[0-9]+')", null, ec, Boolean.TRUE);
-        testEval("regex('12345','[')", null, ec, new XPathException());
         testEval("upper-case('SimpLY')", null, null, "SIMPLY");
         testEval("lower-case('rEd')", null, null, "red");
         testEval("contains('', 'stuff')", null, null, Boolean.FALSE);
@@ -538,8 +551,6 @@ public class XPathEvalTest {
         testEval("translate('yellow', 'low', 'or')", null, null, "yeoor");
         testEval("translate('bora bora', 'a', 'bc')", null, null, "borb borb");
         testEval("translate('squash me', 'aeiou ', '')", null, null, "sqshm");
-        testEval("regex('aaaabfooaaabgarplyaaabwackyb', 'a*b')", null, null, Boolean.TRUE);
-        testEval("regex('photo', 'a*b')", null, null, Boolean.FALSE);
         testEval("replace('aaaabfooaaabgarplyaaabwackyb', 'a*b', '-')", null, null, "-foo-garply-wacky-");
         testEval("replace('abbc', 'a(.*)c', '$1')", null, null, "$1");
         testEval("replace('aaabb', '[ab][ab][ab]', '')", null, null, "bb");
