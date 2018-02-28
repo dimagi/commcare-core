@@ -106,7 +106,6 @@ public class QueryScreen extends Screen {
             return false;
         } else if (isResponseEmpty(instanceOrError.first)) {
             currentMessage = "Query successful but returned no results.";
-
             return false;
         } else {
             sessionWrapper.setQueryDatum(instanceOrError.first);
