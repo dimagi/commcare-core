@@ -32,6 +32,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
@@ -135,13 +136,15 @@ public class CommCareSession {
             return entries;
         }
         for (Suite s : platform.getInstalledSuites()) {
-            List<Menu> menusToExamine = s.getMenusWithId(commandId);
-            if (menusToExamine != null) {
+            List<Menu> menusWithId = s.getMenusWithId(commandId);
+            if (menusWithId != null) {
+                // make a copy so that we can use this as a queue
+                List<Menu> menusToExamine = new ArrayList<>(menusWithId);
                 while (!menusToExamine.isEmpty()) {
                     Menu menu = menusToExamine.remove(0);
                     entries.addAll(getStillValidEntriesFromMenu(menu, currentSessionData));
                     if (includeNested) {
-                        menusToExamine.addAll(s.getMenusWithRoot(menu.getRoot()));
+                        menusToExamine.addAll(s.getMenusWithRoot(menu.getId()));
                     }
                 }
             }
