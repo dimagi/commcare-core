@@ -56,7 +56,7 @@ public class MenuLoader {
                                      String menuID, boolean hideTrainingRoot) {
         Vector<MenuDisplayable> items = new Vector<>();
         Vector<String> badges = new Vector<>();
-        Hashtable<String, Entry> map = platform.getMenuMap();
+        Hashtable<String, Entry> map = platform.getCommandToEntryMap();
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
                 try {

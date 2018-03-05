@@ -32,6 +32,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
@@ -117,17 +118,19 @@ public class CommCareSession {
     }
 
     private Vector<Entry> getEntriesForCommand(String commandId) {
-        return getEntriesForCommand(commandId, new OrderedHashtable<String, String>());
+        return getEntriesForCommand(commandId, new OrderedHashtable<String, String>(), false);
     }
 
     /**
      * @param commandId          the current command id
      * @param currentSessionData all of the datums already on the stack
+     * @param includeNested     whether to include entries from child modules
      * @return A list of all of the form entry actions that are possible with the given commandId
      * and the given list of already-collected datums
      */
     private Vector<Entry> getEntriesForCommand(String commandId,
-                                               OrderedHashtable<String, String> currentSessionData) {
+                                               OrderedHashtable<String, String> currentSessionData,
+                                               boolean includeNested) {
         Vector<Entry> entries = new Vector<>();
         if (commandId == null) {
             return entries;
@@ -135,8 +138,14 @@ public class CommCareSession {
         for (Suite s : platform.getInstalledSuites()) {
             List<Menu> menusWithId = s.getMenusWithId(commandId);
             if (menusWithId != null) {
-                for (Menu menu : menusWithId) {
-                    entries.addAll(getEntriesFromMenu(menu, currentSessionData));
+                // make a copy so that we can use this as a queue
+                List<Menu> menusToExamine = new ArrayList<>(menusWithId);
+                while (!menusToExamine.isEmpty()) {
+                    Menu menu = menusToExamine.remove(0);
+                    entries.addAll(getStillValidEntriesFromMenu(menu, currentSessionData));
+                    if (includeNested) {
+                        menusToExamine.addAll(s.getMenusWithRoot(menu.getId()));
+                    }
                 }
             }
 
@@ -144,46 +153,52 @@ public class CommCareSession {
                 entries.addElement(s.getEntries().get(commandId));
             }
         }
-
         return entries;
     }
 
-    /**
-     * Get all entries that correspond to commands listed in the menu provided.
-     * Excludes entries whose data requirements aren't met by the 'currentSessionData'
-     */
-    private Vector<Entry> getEntriesFromMenu(Menu menu,
-                                             OrderedHashtable<String, String> currentSessionData) {
-        Vector<Entry> entries = new Vector<>();
-        Hashtable<String, Entry> map = platform.getMenuMap();
-        //We're in a menu we have a set of requirements which
-        //need to be fulfilled
+    private Vector<Entry> getStillValidEntriesFromMenu(Menu menu,
+                                                       OrderedHashtable<String, String> currentSessionData) {
+        Hashtable<String, Entry> globalEntryMap = platform.getCommandToEntryMap();
+        Vector<Entry> stillValid = new Vector<>();
         for (String cmd : menu.getCommandIds()) {
-            Entry e = map.get(cmd);
+            Entry e = globalEntryMap.get(cmd);
             if (e == null) {
                 throw new RuntimeException("No entry found for menu command [" + cmd + "]");
             }
-            if (entryRequirementsSatsified(e, currentSessionData)) {
-                entries.addElement(e);
+            if (entryRequiresAllDataInSession(e, currentSessionData)) {
+                stillValid.addElement(e);
             }
         }
-        return entries;
+        return stillValid;
     }
 
     public OrderedHashtable<String, String> getData() {
         return collectedDatums;
     }
 
-    private static boolean entryRequirementsSatsified(Entry entry,
-                                                      OrderedHashtable<String, String> currentSessionData) {
-        Vector<SessionDatum> requirements = entry.getSessionDataReqs();
-        if (requirements.size() >= currentSessionData.size()) {
-            for (int i = 0; i < currentSessionData.size(); ++i) {
-                if (!requirements.elementAt(i).getDataId().equals(currentSessionData.keyAt(i))) {
-                    return false;
-                }
+    /**
+     *
+     * @param entry
+     * @param currentSessionData
+     * @return true if @entry needs all of the datums that are already added to the current session
+     */
+    private static boolean entryRequiresAllDataInSession(Entry entry,
+                                                         OrderedHashtable<String, String> currentSessionData) {
+        Vector<SessionDatum> entryRequirements = entry.getSessionDataReqs();
+
+        if (currentSessionData.size() > entryRequirements.size()) {
+            // currentSessionData needs to be a subset of entryRequirements, so we can short-circuit if this is the case
+            return false;
+        }
+
+        // Both currentSessionData and entryRequirements are guaranteed to be in order of how
+        // they're collected, so it's ok to check for the subset condition like this
+        for (int i = 0; i < currentSessionData.size(); ++i) {
+            if (!currentSessionData.keyAt(i).equals(entryRequirements.elementAt(i).getDataId())) {
+                return false;
             }
         }
+
         return true;
     }
 
@@ -203,18 +218,19 @@ public class CommCareSession {
             return SessionFrame.STATE_COMMAND_ID;
         }
 
-        Vector<Entry> entries = getEntriesForCommand(currentCmd, collectedDatums);
-        String needDatum = getDataNeededByAllEntries(entries);
+        Vector<Entry> remainingValidEntries =
+                getEntriesForCommand(currentCmd, collectedDatums, true);
+        String needDatum = getDataNeededByAllEntries(remainingValidEntries);
 
         if (needDatum != null) {
             return needDatum;
-        } else if (entries.isEmpty()) {
+        } else if (remainingValidEntries.isEmpty()) {
             throw new RuntimeException("Collected datums don't match required datums for entries at command " + currentCmd);
-        } else if (entries.size() == 1
-                && entries.elementAt(0) instanceof RemoteRequestEntry
-                && ((RemoteRequestEntry)entries.elementAt(0)).getPostRequest().isRelevant(evalContext)) {
+        } else if (remainingValidEntries.size() == 1
+                && remainingValidEntries.elementAt(0) instanceof RemoteRequestEntry
+                && ((RemoteRequestEntry)remainingValidEntries.elementAt(0)).getPostRequest().isRelevant(evalContext)) {
             return SessionFrame.STATE_SYNC_REQUEST;
-        } else if (entries.size() > 1 || !entries.elementAt(0).getCommandId().equals(currentCmd)) {
+        } else if (remainingValidEntries.size() > 1 || !remainingValidEntries.elementAt(0).getCommandId().equals(currentCmd)) {
             //the only other thing we can need is a form command. If there's
             //still more than one applicable entry, we need to keep going
             return SessionFrame.STATE_COMMAND_ID;
@@ -271,7 +287,7 @@ public class CommCareSession {
         Vector<StackFrameStep> steps = frame.getSteps();
         String[] returnVal = new String[steps.size()];
 
-        Hashtable<String, Entry> entries = platform.getMenuMap();
+        Hashtable<String, Entry> entries = platform.getCommandToEntryMap();
         int i = 0;
         for (StackFrameStep step : steps) {
             if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
@@ -537,7 +553,7 @@ public class CommCareSession {
             return null;
         }
 
-        Entry e = platform.getMenuMap().get(command);
+        Entry e = platform.getCommandToEntryMap().get(command);
         if (e.isView() || e.isRemoteRequest()) {
             return null;
         } else {
