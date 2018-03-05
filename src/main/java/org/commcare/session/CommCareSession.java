@@ -117,8 +117,12 @@ public class CommCareSession {
         }
     }
 
-    private Vector<Entry> getEntriesForCommand(String commandId) {
-        return getEntriesForCommand(commandId, new OrderedHashtable<String, String>(), false);
+    public Vector<Entry> getEntriesForCommand(String commandId) {
+        return getEntriesForCommand(commandId, false);
+    }
+
+    public Vector<Entry> getEntriesForCommand(String commandId, boolean includeNested) {
+        return getEntriesForCommand(commandId, new OrderedHashtable<String, String>(), includeNested);
     }
 
     /**
@@ -320,7 +324,7 @@ public class CommCareSession {
      * an entry on the stack
      */
     public SessionDatum getNeededDatum() {
-        Vector<Entry> entries = getEntriesForCommand(getCommand());
+        Vector<Entry> entries = getEntriesForCommand(getCommand(), true);
         if (entries.isEmpty()) {
             throw new IllegalStateException("The current session has no valid entry");
         }
@@ -601,7 +605,7 @@ public class CommCareSession {
         }
         Vector<Entry> entries = getEntriesForCommand(command);
 
-        if(entries.size() == 0) {
+        if (entries.size() == 0) {
             return new EvaluationContext(null);
         }
 
@@ -991,7 +995,7 @@ public class CommCareSession {
         ExtUtil.write(outputStream, new ExtWrapList(frameStack));
     }
 
-    public void setFrameStack(Stack<SessionFrame> frameStack) {
+    protected void setFrameStack(Stack<SessionFrame> frameStack) {
         this.frameStack = frameStack;
     }
 
