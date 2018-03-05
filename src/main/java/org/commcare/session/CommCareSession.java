@@ -120,7 +120,7 @@ public class CommCareSession {
     public Vector<Entry> getEntriesForCommand(String commandId) {
         return getEntriesForCommand(commandId, false);
     }
-    
+
     public Vector<Entry> getEntriesForCommand(String commandId, boolean includeNested) {
         return getEntriesForCommand(commandId, new OrderedHashtable<String, String>(), includeNested);
     }
