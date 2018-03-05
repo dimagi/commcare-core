@@ -180,13 +180,14 @@ public class CommCareSession {
      *
      * @param entry
      * @param currentSessionData
-     * @return true if the datum IDs in currentSessionData are a subset of @entry's datum requirements
+     * @return true if @entry needs all of the datums that are already added to the current session
      */
     private static boolean entryRequiresAllDataInSession(Entry entry,
                                                          OrderedHashtable<String, String> currentSessionData) {
         Vector<SessionDatum> entryRequirements = entry.getSessionDataReqs();
 
         if (currentSessionData.size() > entryRequirements.size()) {
+            // currentSessionData needs to be a subset of entryRequirements, so we can short-circuit if this is the case
             return false;
         }
 
