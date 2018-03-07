@@ -5,7 +5,6 @@ package org.javarosa.xml.util;
  */
 public class UnfullfilledRequirementsException extends Exception {
 
-    private final int requirement;
     private final RequirementType requirementType;
 
     public enum RequirementType {
@@ -15,9 +14,19 @@ public class UnfullfilledRequirementsException extends Exception {
         NONE,
 
         /**
-         * unfulfilled version requirements
+         * local system can't provide an expected location to store data
          */
-        VERSION_MISMATCH,
+        WRITEABLE_REFERENCE,
+
+        /**
+         * The profile is incompatible with the major version of the current CommCare installation *
+         */
+        MAJOR_APP_VERSION,
+
+        /**
+         * The profile is incompatible with the minor version of the current CommCare installation *
+         */
+        MINOR_APP_VERSION,
 
         /**
          * Indicates that this exception was thrown due to an attempt to install an app that was
@@ -44,30 +53,18 @@ public class UnfullfilledRequirementsException extends Exception {
     }
 
     public UnfullfilledRequirementsException(String message, RequirementType requirementType) {
-        this(message, -1, requirementType);
-    }
-
-    public UnfullfilledRequirementsException(String message, int requirement) {
-        this(message, requirement, RequirementType.NONE);
-    }
-
-    public UnfullfilledRequirementsException(String message, int requirement, RequirementType requirementType) {
-        this(message, requirement, -1, -1, -1, -1, requirementType);
+        this(message, -1, -1, -1, -1, requirementType);
     }
 
     /**
      * Constructor for unfulfilled version requirements.
      */
     public UnfullfilledRequirementsException(String message,
-                                             int requirement,
                                              int requiredMajor, int requiredMinor, int availableMajor, int availableMinor,
                                              RequirementType requirementType) {
         super(message);
-        this.requirement = requirement;
-
         this.maR = requiredMajor;
         this.miR = requiredMinor;
-
         this.maA = availableMajor;
         this.miA = availableMinor;
         this.requirementType = requirementType;
@@ -87,8 +84,8 @@ public class UnfullfilledRequirementsException extends Exception {
         return maA + "." + miA;
     }
 
-    public int getRequirementCode() {
-        return requirement;
+    public RequirementType getRequirementType() {
+        return requirementType;
     }
 
     /**

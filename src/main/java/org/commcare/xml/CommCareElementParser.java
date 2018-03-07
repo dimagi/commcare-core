@@ -19,15 +19,6 @@ import java.io.IOException;
  */
 public abstract class CommCareElementParser<T> extends ElementParser<T> {
 
-    /**
-     * The profile is incompatible with the major version of the current CommCare installation *
-     */
-    public static final int REQUIREMENT_MAJOR_APP_VERSION = 1;
-    /**
-     * The profile is incompatible with the minor version of the current CommCare installation *
-     */
-    public static final int REQUIREMENT_MINOR_APP_VERSION = 2;
-
     public CommCareElementParser(KXmlParser parser) {
         super(parser);
     }
