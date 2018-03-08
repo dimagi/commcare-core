@@ -32,10 +32,11 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
@@ -143,9 +144,9 @@ public class CommCareSession {
             List<Menu> menusWithId = s.getMenusWithId(commandId);
             if (menusWithId != null) {
                 // make a copy so that we can use this as a queue
-                List<Menu> menusToExamine = new ArrayList<>(menusWithId);
+                Queue<Menu> menusToExamine = new LinkedList<>(menusWithId);
                 while (!menusToExamine.isEmpty()) {
-                    Menu menu = menusToExamine.remove(0);
+                    Menu menu = menusToExamine.poll();
                     entries.addAll(getStillValidEntriesFromMenu(menu, currentSessionData));
                     if (includeNested) {
                         menusToExamine.addAll(s.getMenusWithRoot(menu.getId()));
