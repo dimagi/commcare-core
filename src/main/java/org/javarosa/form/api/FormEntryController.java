@@ -117,6 +117,12 @@ public class FormEntryController {
                 return ANSWER_CONSTRAINT_VIOLATED;
             }
             commitAnswer(element, index, data);
+
+            if (!model.getForm().evaluateConstraint(index.getReference(), data)) {
+                commitAnswer(element, index, null);
+                return ANSWER_CONSTRAINT_VIOLATED;
+            }
+
             q.getActionController().triggerActionsFromEvent(Action.EVENT_QUESTION_VALUE_CHANGED, model.getForm());
             return ANSWER_OK;
         }
