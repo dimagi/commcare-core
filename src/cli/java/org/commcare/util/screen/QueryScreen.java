@@ -109,7 +109,7 @@ public class QueryScreen extends Screen {
             return false;
         } else {
             sessionWrapper.setQueryDatum(instanceOrError.first);
-            return false;
+            return true;
         }
     }
 

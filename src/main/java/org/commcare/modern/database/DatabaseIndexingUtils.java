@@ -19,7 +19,7 @@ public class DatabaseIndexingUtils {
     public static String indexOnTableCommand(String indexName,
                                              String tableName,
                                              String columnListString) {
-        return "CREATE INDEX " + indexName + " ON " +
+        return "CREATE INDEX IF NOT EXISTS " + indexName + " ON " +
                 tableName + "( " + columnListString + " )";
     }
 
