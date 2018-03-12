@@ -96,19 +96,19 @@ public class EvaluationContext {
 
     // *** This is the only EC constructor where a NEW context is actually passed in
     public EvaluationContext(EvaluationContext base, TreeReference context) {
-        this(base, base.instance, context, base.formInstances);
+        this(base, base.instance, context, base.formInstances, false);
     }
 
     public EvaluationContext(EvaluationContext base,
                              Hashtable<String, DataInstance> formInstances,
                              TreeReference context) {
-        this(base, base.instance, context, formInstances);
+        this(base, base.instance, context, formInstances, true);
     }
 
     public EvaluationContext(FormInstance instance,
                              Hashtable<String, DataInstance> formInstances,
                              EvaluationContext base) {
-        this(base, instance, base.contextNode, formInstances);
+        this(base, instance, base.contextNode, formInstances, true);
     }
 
     public EvaluationContext(DataInstance instance,
@@ -124,9 +124,8 @@ public class EvaluationContext {
     /**
      * Copy Constructor
      */
-    private EvaluationContext(EvaluationContext base, DataInstance instance,
-                              TreeReference contextNode,
-                              Hashtable<String, DataInstance> formInstances) {
+    private EvaluationContext(EvaluationContext base, DataInstance instance, TreeReference contextNode,
+                              Hashtable<String, DataInstance> formInstances, boolean inheritCaching) {
         //TODO: These should be deep, not shallow
         this.functionHandlers = base.functionHandlers;
         this.formInstances = formInstances;
@@ -156,7 +155,9 @@ public class EvaluationContext {
             this.mDebugCore = base.mDebugCore;
         }
 
-        this.expressionCacher = base.expressionCacher;
+        if (inheritCaching) {
+            this.expressionCacher = base.expressionCacher;
+        }
         setQueryContext(base.queryContext);
     }
 
