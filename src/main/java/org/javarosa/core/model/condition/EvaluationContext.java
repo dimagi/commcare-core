@@ -94,21 +94,21 @@ public class EvaluationContext {
         this(instance, new Hashtable<String, DataInstance>());
     }
 
-    // *** This is the only EC constructor where a NEW context is actually passed in
+    // *** This is the only EC constructor where a NEW context is passed in
     public EvaluationContext(EvaluationContext base, TreeReference context) {
-        this(base, base.instance, context, base.formInstances, false);
+        this(base, base.instance, context, base.formInstances);
     }
 
     public EvaluationContext(EvaluationContext base,
                              Hashtable<String, DataInstance> formInstances,
                              TreeReference context) {
-        this(base, base.instance, context, formInstances, true);
+        this(base, base.instance, context, formInstances);
     }
 
     public EvaluationContext(FormInstance instance,
                              Hashtable<String, DataInstance> formInstances,
                              EvaluationContext base) {
-        this(base, instance, base.contextNode, formInstances, true);
+        this(base, instance, base.contextNode, formInstances);
     }
 
     public EvaluationContext(DataInstance instance,
@@ -125,7 +125,7 @@ public class EvaluationContext {
      * Copy Constructor
      */
     private EvaluationContext(EvaluationContext base, DataInstance instance, TreeReference contextNode,
-                              Hashtable<String, DataInstance> formInstances, boolean inheritCaching) {
+                              Hashtable<String, DataInstance> formInstances) {
         //TODO: These should be deep, not shallow
         this.functionHandlers = base.functionHandlers;
         this.formInstances = formInstances;
@@ -155,9 +155,7 @@ public class EvaluationContext {
             this.mDebugCore = base.mDebugCore;
         }
 
-        if (inheritCaching) {
-            this.expressionCacher = base.expressionCacher;
-        }
+        this.expressionCacher = base.expressionCacher;
         setQueryContext(base.queryContext);
     }
 

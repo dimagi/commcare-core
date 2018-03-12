@@ -18,20 +18,7 @@ public class ExpressionCacheKey {
 
     public ExpressionCacheKey(InFormCacheableExpr expr, EvaluationContext ec) {
         this.originalExpression = expr;
-        generateContextualizedRefs(ec);
-    }
-
-    private void generateContextualizedRefs(EvaluationContext ec) {
-        contextualizedRefs = new HashSet<>();
-        Set<TreeReference> allRefsInExpression =
-                new TreeReferenceAccumulatingAnalyzer(ec).accumulate(originalExpression);
-        for (TreeReference ref : allRefsInExpression) {
-            if (ref.getContextType() == TreeReference.CONTEXT_INHERITED) {
-                contextualizedRefs.add(ref.contextualize(ec.getContextRef()));
-            } else if (ref.getContextType() == TreeReference.CONTEXT_ORIGINAL) {
-                contextualizedRefs.add(ref.contextualize(ec.getOriginalContext()));
-            }
-        }
+        contextualizedRefs = new TreeReferenceAccumulatingAnalyzer(ec).accumulate(originalExpression);
     }
 
     @Override
