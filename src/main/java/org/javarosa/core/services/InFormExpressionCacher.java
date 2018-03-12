@@ -1,6 +1,5 @@
 package org.javarosa.core.services;
 
-import org.javarosa.xpath.expr.ExpressionCacheKey;
 import org.javarosa.xpath.expr.InFormCacheableExpr;
 
 import java.util.HashMap;
@@ -11,17 +10,17 @@ import java.util.Map;
  */
 public class InFormExpressionCacher {
 
-    private Map<ExpressionCacheKey, Object> cache;
+    private Map<InFormCacheableExpr, Object> cache;
 
     public InFormExpressionCacher() {
         cache = new HashMap<>();
     }
 
-    public void cache(ExpressionCacheKey cacheKey, Object value) {
+    public void cache(InFormCacheableExpr cacheKey, Object value) {
         cache.put(cacheKey, value);
     }
 
-    public Object getCachedValue(ExpressionCacheKey cacheKey) {
+    public Object getCachedValue(InFormCacheableExpr cacheKey) {
         return cache.get(cacheKey);
     }
 
