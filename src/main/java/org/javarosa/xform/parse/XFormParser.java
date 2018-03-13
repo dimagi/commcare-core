@@ -639,7 +639,9 @@ public class XFormParser {
                 "doneEmptyCaption",
                 "mainHeader",
                 "entryHeader",
-                "delHeader"
+                "delHeader",
+                "hashtags",
+                "hashtagTransforms"
         };
         Vector<String> suppressWarning = new Vector<>();
         for (String aSuppressWarningArr : suppressWarningArr) {
