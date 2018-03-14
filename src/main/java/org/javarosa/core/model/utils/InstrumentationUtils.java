@@ -2,7 +2,7 @@ package org.javarosa.core.model.utils;
 
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
-import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
+import org.javarosa.core.model.trace.EvaluationTraceSerializer;
 
 /**
  * Utility functions for instrumentation in the engine
@@ -12,20 +12,26 @@ import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
 
 public class InstrumentationUtils {
 
+
+    public static void printAndClearTraces(EvaluationTraceReporter reporter, String description) {
+        printAndClearTraces(reporter, description, EvaluationTraceSerializer.TraceInfoType.FULL_PROFILE);
+    }
+
     /**
      * Prints out traces (if any exist) from the provided reporter with a description into sysout
      */
-    public static void printAndClearTraces(EvaluationTraceReporter reporter, String description) {
+    public static void printAndClearTraces(EvaluationTraceReporter reporter, String description,
+                                           EvaluationTraceSerializer.TraceInfoType requestedInfo) {
         if (reporter != null) {
             if (reporter.wereTracesReported()) {
                 System.out.println(description);
             }
 
-            StringEvaluationTraceSerializer serializer = new StringEvaluationTraceSerializer();
+            EvaluationTraceSerializer serializer = new EvaluationTraceSerializer();
 
             for (EvaluationTrace trace : reporter.getCollectedTraces()) {
                 System.out.println(trace.getExpression() + ": " + trace.getValue());
-                System.out.print(serializer.serializeEvaluationLevels(trace));
+                System.out.print(serializer.serializeEvaluationLevels(trace, requestedInfo));
             }
 
             reporter.reset();
@@ -35,18 +41,19 @@ public class InstrumentationUtils {
     /**
      * Prints out traces (if any exist) from the provided reporter with a description into sysout
      */
-    public static String collectAndClearTraces(EvaluationTraceReporter reporter, String description) {
+    public static String collectAndClearTraces(EvaluationTraceReporter reporter, String description,
+                                               EvaluationTraceSerializer.TraceInfoType requestedInfo) {
         String returnValue = "";
         if (reporter != null) {
             if (reporter.wereTracesReported()) {
                 returnValue += description + "\n";
             }
 
-            StringEvaluationTraceSerializer serializer = new StringEvaluationTraceSerializer();
+            EvaluationTraceSerializer serializer = new EvaluationTraceSerializer();
 
             for (EvaluationTrace trace : reporter.getCollectedTraces()) {
                 returnValue += trace.getExpression() + ": " + trace.getValue()  + "\n";
-                returnValue += serializer.serializeEvaluationLevels(trace);
+                returnValue += serializer.serializeEvaluationLevels(trace, requestedInfo);
             }
 
             reporter.reset();

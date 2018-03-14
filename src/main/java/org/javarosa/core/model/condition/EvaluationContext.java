@@ -668,7 +668,7 @@ public class EvaluationContext {
      * Records the outcome of the current trace by value.
      * @param value The result of the currently open Trace Expression
      */
-    public void reportTraceValue(Object value) {
+    public void reportTraceValue(Object value, boolean fromCache) {
         if (mAccumulateExprs) {
             // Lazy nodeset evaluation makes it impossible for the trace to
             // record predicate subexpressions properly, so trigger that
@@ -676,7 +676,7 @@ public class EvaluationContext {
             if (value instanceof XPathLazyNodeset) {
                 ((XPathLazyNodeset)value).size();
             }
-            mDebugCore.mCurrentTraceLevel.setOutcome(value);
+            mDebugCore.mCurrentTraceLevel.setOutcome(value, fromCache);
         }
     }
 

@@ -18,6 +18,7 @@ public class EvaluationTrace {
 
     private EvaluationTrace parent;
     private Object value;
+    private boolean usedExpressionCache;
     private final String expression;
 
     private final Vector<EvaluationTrace> children = new Vector<>();
@@ -55,7 +56,11 @@ public class EvaluationTrace {
      * @param value set the outcome of evaluating this expression
      */
     public void setOutcome(Object value) {
+        setOutcome(value, false);
+    }
+    public void setOutcome(Object value, boolean fromCache) {
         this.value = value;
+        this.usedExpressionCache = fromCache;
         triggerExprComplete();
     }
 
@@ -93,7 +98,15 @@ public class EvaluationTrace {
         return FunctionUtils.toString(value);
     }
 
+    public boolean valueCameFromCache() {
+        return usedExpressionCache;
+    }
+
     public String getProfileReport() {
         return null;
+    }
+
+    public String getCacheReport() {
+        return ""+usedExpressionCache;
     }
 }

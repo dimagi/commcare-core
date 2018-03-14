@@ -614,8 +614,8 @@ public class FormEntryModel {
      * @param serializer A serializer for the EvaluationTrace
      * @return the output of the provided serializer
      */
-    public <T> T getDebugInfo(FormIndex index, String category,
-                              EvaluationTraceSerializer<T> serializer) {
+    public String getDebugInfo(FormIndex index, String category,
+                              EvaluationTraceSerializer serializer) {
         this.getForm().enableDebugTraces();
 
         Hashtable<String, EvaluationTrace> indexDebug =
@@ -623,6 +623,7 @@ public class FormEntryModel {
         if (indexDebug == null || indexDebug.get(category) == null) {
             return null;
         }
-        return serializer.serializeEvaluationLevels(indexDebug.get(category));
+        return serializer.serializeEvaluationLevels(indexDebug.get(category),
+                EvaluationTraceSerializer.TraceInfoType.FULL_PROFILE);
     }
 }

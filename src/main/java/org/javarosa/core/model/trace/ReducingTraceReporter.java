@@ -23,7 +23,7 @@ public class ReducingTraceReporter implements EvaluationTraceReporter {
     @Override
     public void reportTrace(EvaluationTrace trace) {
         String key = trace.getExpression();
-        if(traceMap.containsKey(key)) {
+        if (traceMap.containsKey(key)) {
             traceMap.get(trace.getExpression()).foldIn(trace);
         } else {
             traceMap.put(key, new EvaluationTraceReduction(trace));

@@ -13,12 +13,11 @@ import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
-import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
+import org.javarosa.core.model.trace.EvaluationTraceSerializer;
 import org.javarosa.engine.models.Action;
 import org.javarosa.engine.models.ActionResponse;
 import org.javarosa.engine.models.Command;
 import org.javarosa.engine.models.Mockup;
-import org.javarosa.engine.models.Session;
 import org.javarosa.engine.models.Step;
 import org.javarosa.engine.playback.BadPlaybackException;
 import org.javarosa.engine.xml.XmlUtil;
@@ -329,7 +328,7 @@ public class XFormPlayer {
 
     private void displayRelevant() {
         FormIndex current = this.fec.getModel().getFormIndex();
-        String output = this.fec.getModel().getDebugInfo(current, "relevant", new StringEvaluationTraceSerializer());
+        String output = this.fec.getModel().getDebugInfo(current, "relevant", new EvaluationTraceSerializer());
         if (output == null) {
             out.println("No display logic defined");
         } else {
@@ -367,7 +366,8 @@ public class XFormPlayer {
         }
 
         if (mIsDebugOn && ec.getEvaluationTrace() != null) {
-            out.println(new StringEvaluationTraceSerializer().serializeEvaluationLevels(ec.getEvaluationTrace()));
+            out.println(new EvaluationTraceSerializer().serializeEvaluationLevels(ec.getEvaluationTrace(),
+                    EvaluationTraceSerializer.TraceInfoType.FULL_PROFILE));
         }
     }
 

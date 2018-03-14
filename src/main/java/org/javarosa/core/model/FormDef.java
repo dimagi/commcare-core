@@ -1355,8 +1355,8 @@ public class FormDef implements IFormElement, IMetaData,
         EvaluationContext ec =
                 new EvaluationContext(exprEvalContext, itemset.contextRef.contextualize(curQRef));
 
-        ReducingTraceReporter reporter= null;
-        if(mProfilingEnabled) {
+        ReducingTraceReporter reporter = null;
+        if (mProfilingEnabled) {
             reporter = new ReducingTraceReporter();
             ec.setDebugModeOn(reporter);
         }
@@ -1392,7 +1392,7 @@ public class FormDef implements IFormElement, IMetaData,
             choices.addElement(buildSelectChoice(matches.elementAt(i), itemset, formInstance,
                     ec, reporter, i));
         }
-        if(reporter != null) {
+        if (reporter != null) {
             InstrumentationUtils.printAndClearTraces(reporter, "ItemSet Field Population");
         }
 

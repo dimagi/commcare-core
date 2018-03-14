@@ -30,15 +30,22 @@ public abstract class XPathExpression extends InFormCacheableExpr implements Ext
      * @return The result of this expression evaluated against the provided context
      */
     public Object eval(DataInstance model, EvaluationContext evalContext) {
+        evalContext.openTrace(this);
+
+        Object value;
+        boolean fromCache;
         if (isCached(evalContext)) {
-            return getCachedValue();
+            value = getCachedValue();
+            fromCache = true;
+        } else {
+            value = evalRaw(model, evalContext);
+            fromCache = false;
+            cache(value, evalContext);
         }
 
-        evalContext.openTrace(this);
-        Object value = evalRaw(model, evalContext);
-        evalContext.reportTraceValue(value);
+        evalContext.reportTraceValue(value, fromCache);
         evalContext.closeTrace();
-        cache(value, evalContext);
+
         return value;
     }
 
