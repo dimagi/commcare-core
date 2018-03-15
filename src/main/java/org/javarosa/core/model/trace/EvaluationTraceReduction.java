@@ -41,7 +41,7 @@ public class EvaluationTraceReduction extends EvaluationTrace {
      */
     public void foldIn(EvaluationTrace trace) {
         countExecuted++;
-        if (trace.valueCameFromCache()) {
+        if (trace.evaluationUsedExpressionCache()) {
             countRetrievedFromCache++;
         }
         nanoTime += trace.getRuntimeInNanoseconds();
@@ -109,6 +109,11 @@ public class EvaluationTraceReduction extends EvaluationTrace {
         }
         response += "}";
         return response;
+    }
+
+    @Override
+    public boolean evaluationUsedExpressionCache() {
+        return countRetrievedFromCache > 0;
     }
 
     @Override

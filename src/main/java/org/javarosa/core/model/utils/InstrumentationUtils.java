@@ -60,4 +60,19 @@ public class InstrumentationUtils {
         return returnValue;
     }
 
+    public static void printExpressionsThatUsedCaching(EvaluationTraceReporter reporter, String description) {
+        if (reporter != null) {
+            if (reporter.wereTracesReported()) {
+                System.out.println(description);
+            }
+
+            for (EvaluationTrace trace : reporter.getCollectedTraces()) {
+                if (trace.evaluationUsedExpressionCache()) {
+                    System.out.println(trace.getExpression() + ": " + trace.getValue());
+                    System.out.println("    " + trace.getCacheReport());
+                }
+            }
+        }
+    }
+
 }

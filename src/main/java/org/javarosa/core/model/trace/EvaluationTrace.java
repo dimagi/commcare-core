@@ -98,7 +98,7 @@ public class EvaluationTrace {
         return FunctionUtils.toString(value);
     }
 
-    public boolean valueCameFromCache() {
+    public boolean evaluationUsedExpressionCache() {
         return usedExpressionCache;
     }
 

@@ -23,7 +23,7 @@ public class ReducingTraceReporter implements EvaluationTraceReporter {
 
     @Override
     public boolean wereTracesReported() {
-        return false;
+        return !traceMap.isEmpty();
     }
 
     @Override
