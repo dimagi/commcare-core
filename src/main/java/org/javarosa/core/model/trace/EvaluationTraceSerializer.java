@@ -14,18 +14,27 @@ public class EvaluationTraceSerializer {
     }
 
     public String serializeEvaluationLevels(EvaluationTrace input, TraceInfoType requestedInfo) {
-        return dumpExprOutput(input, 1, requestedInfo);
+        return serializeEvaluationTrace(input, requestedInfo, true);
     }
 
-    private String dumpExprOutput(EvaluationTrace level, int refLevel, TraceInfoType requestedInfo) {
+    public String serializeEvaluationTrace(EvaluationTrace input, TraceInfoType requestedInfo,
+                                           boolean includeSubLevels) {
+        return dumpExprOutput(input, 1, requestedInfo, includeSubLevels);
+    }
+
+    private String dumpExprOutput(EvaluationTrace level, int refLevel, TraceInfoType requestedInfo,
+                                  boolean includeSubLevels) {
         String output = indentExprAndValue(level, refLevel, requestedInfo);
-        for (EvaluationTrace child : level.getSubTraces()) {
-            output += dumpExprOutput(child, refLevel + 1, requestedInfo) + "\n";
+        if (includeSubLevels) {
+            for (EvaluationTrace child : level.getSubTraces()) {
+                output += dumpExprOutput(child, refLevel + 1, requestedInfo, true) + "\n";
+            }
         }
         return output;
     }
 
-    private String indentExprAndValue(EvaluationTrace level, int indentLevel, TraceInfoType requestedInfo) {
+    private String indentExprAndValue(EvaluationTrace level, int indentLevel,
+                                      TraceInfoType requestedInfo) {
         String expr = level.getExpression();
         String value = level.getValue();
 
@@ -37,7 +46,8 @@ public class EvaluationTraceSerializer {
         return addDesiredData(level, requestedInfo, indent + expr + ": " + value + "\n", indent);
     }
 
-    private String addDesiredData(EvaluationTrace level, TraceInfoType requestedInfo, String coreString, String indent) {
+    private String addDesiredData(EvaluationTrace level, TraceInfoType requestedInfo,
+                                  String coreString, String indent) {
         String newResult = coreString;
         switch (requestedInfo) {
             case FULL_PROFILE:

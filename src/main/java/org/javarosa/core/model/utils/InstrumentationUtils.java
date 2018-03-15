@@ -12,7 +12,6 @@ import org.javarosa.core.model.trace.EvaluationTraceSerializer;
 
 public class InstrumentationUtils {
 
-
     public static void printAndClearTraces(EvaluationTraceReporter reporter, String description) {
         printAndClearTraces(reporter, description, EvaluationTraceSerializer.TraceInfoType.FULL_PROFILE);
     }
@@ -31,7 +30,7 @@ public class InstrumentationUtils {
 
             for (EvaluationTrace trace : reporter.getCollectedTraces()) {
                 System.out.println(trace.getExpression() + ": " + trace.getValue());
-                System.out.print(serializer.serializeEvaluationLevels(trace, requestedInfo));
+                System.out.print(serializer.serializeEvaluationTrace(trace, requestedInfo, !reporter.reportAsFlat()));
             }
 
             reporter.reset();
@@ -53,7 +52,7 @@ public class InstrumentationUtils {
 
             for (EvaluationTrace trace : reporter.getCollectedTraces()) {
                 returnValue += trace.getExpression() + ": " + trace.getValue()  + "\n";
-                returnValue += serializer.serializeEvaluationLevels(trace, requestedInfo);
+                returnValue += serializer.serializeEvaluationTrace(trace, requestedInfo, !reporter.reportAsFlat());
             }
 
             reporter.reset();

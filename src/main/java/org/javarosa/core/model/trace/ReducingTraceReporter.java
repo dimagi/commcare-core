@@ -13,7 +13,13 @@ import java.util.Vector;
  * Created by ctsims on 1/27/2017.
  */
 public class ReducingTraceReporter implements EvaluationTraceReporter {
+
     OrderedHashtable<String, EvaluationTraceReduction> traceMap = new OrderedHashtable<>();
+    private boolean flat;
+
+    public ReducingTraceReporter(boolean flat) {
+        this.flat = flat;
+    }
 
     @Override
     public boolean wereTracesReported() {
@@ -23,6 +29,9 @@ public class ReducingTraceReporter implements EvaluationTraceReporter {
     @Override
     public void reportTrace(EvaluationTrace trace) {
         String key = trace.getExpression();
+        if (key == null) {
+            return;
+        }
         if (traceMap.containsKey(key)) {
             traceMap.get(trace.getExpression()).foldIn(trace);
         } else {
@@ -37,6 +46,11 @@ public class ReducingTraceReporter implements EvaluationTraceReporter {
 
     public Vector<EvaluationTrace> getCollectedTraces() {
         return new Vector<EvaluationTrace>(traceMap.values());
+    }
+
+    @Override
+    public boolean reportAsFlat() {
+        return this.flat;
     }
 
 }

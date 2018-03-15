@@ -231,7 +231,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         }
 
         if (input.startsWith("profile list")) {
-            host.printNodesetExpansionTrace(new ReducingTraceReporter());
+            host.printNodesetExpansionTrace(new ReducingTraceReporter(false));
         }
 
         if (handleCaseIndex) {

@@ -1357,7 +1357,7 @@ public class FormDef implements IFormElement, IMetaData,
 
         ReducingTraceReporter reporter = null;
         if (mProfilingEnabled) {
-            reporter = new ReducingTraceReporter();
+            reporter = new ReducingTraceReporter(false);
             ec.setDebugModeOn(reporter);
         }
 

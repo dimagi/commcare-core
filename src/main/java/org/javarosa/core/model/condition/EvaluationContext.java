@@ -40,22 +40,22 @@ public class EvaluationContext {
      * During debugging this context is the base that holds the trace root and
      * aggregates ongoing execution.
      */
-    private EvaluationContext mDebugCore;
+    private EvaluationContext debugContext;
 
     /**
      * The current execution trace being evaluated in debug mode
      */
-    private EvaluationTrace mCurrentTraceLevel = null;
+    private EvaluationTrace currentTraceLevel = null;
 
     /**
      * The root of the current execution trace
      */
-    private EvaluationTrace mTraceRoot = null;
+    private EvaluationTrace traceRoot = null;
 
     /**
      * An optional reporter for traced evaluations
      */
-    private EvaluationTraceReporter mTraceReporter = null;
+    private EvaluationTraceReporter traceReporter = null;
 
     // Unambiguous anchor reference for relative paths
     private final TreeReference contextNode;
@@ -152,7 +152,7 @@ public class EvaluationContext {
 
         if (base.mAccumulateExprs) {
             this.mAccumulateExprs = true;
-            this.mDebugCore = base.mDebugCore;
+            this.debugContext = base.debugContext;
         }
 
         if (inheritCache) {
@@ -609,12 +609,12 @@ public class EvaluationContext {
      */
     public void openTrace(EvaluationTrace newLevel) {
         if (mAccumulateExprs) {
-            newLevel.setParent(mDebugCore.mCurrentTraceLevel);
-            if (mDebugCore.mCurrentTraceLevel != null) {
-                mDebugCore.mCurrentTraceLevel.addSubTrace(newLevel);
+            newLevel.setParent(debugContext.currentTraceLevel);
+            if (debugContext.currentTraceLevel != null) {
+                debugContext.currentTraceLevel.addSubTrace(newLevel);
             }
 
-            mDebugCore.mCurrentTraceLevel = newLevel;
+            debugContext.currentTraceLevel = newLevel;
         }
     }
 
@@ -625,7 +625,7 @@ public class EvaluationContext {
     private void openBulkTrace() {
         if (mAccumulateExprs) {
             BulkEvaluationTrace newLevel = new BulkEvaluationTrace();
-            //We can't really track bulk traces from root contexts
+            // We can't really track bulk traces from root contexts
             openTrace(newLevel);
         }
     }
@@ -637,10 +637,10 @@ public class EvaluationContext {
                                         Vector<XPathExpression> finalSet,
                                         Collection<TreeReference> childSet) {
         if (mAccumulateExprs) {
-            if (!(mDebugCore.mCurrentTraceLevel instanceof BulkEvaluationTrace)) {
+            if (!(debugContext.currentTraceLevel instanceof BulkEvaluationTrace)) {
                 throw new RuntimeException("Predicate tree mismatch");
             }
-            BulkEvaluationTrace trace = (BulkEvaluationTrace)mDebugCore.mCurrentTraceLevel;
+            BulkEvaluationTrace trace = (BulkEvaluationTrace)debugContext.currentTraceLevel;
             trace.setEvaluatedPredicates(startingSet, finalSet, childSet);
             if (!(trace.isBulkEvaluationSucceeded())) {
                 EvaluationTrace parentTrace = trace.getParent();
@@ -658,8 +658,8 @@ public class EvaluationContext {
     }
 
     public void reportSubtrace(EvaluationTrace trace) {
-        if (mAccumulateExprs && mDebugCore.mCurrentTraceLevel != null) {
-            mDebugCore.mCurrentTraceLevel.addSubTrace(trace);
+        if (mAccumulateExprs && debugContext.currentTraceLevel != null) {
+            debugContext.currentTraceLevel.addSubTrace(trace);
         }
     }
 
@@ -676,7 +676,7 @@ public class EvaluationContext {
             if (value instanceof XPathLazyNodeset) {
                 ((XPathLazyNodeset)value).size();
             }
-            mDebugCore.mCurrentTraceLevel.setOutcome(value, fromCache);
+            debugContext.currentTraceLevel.setOutcome(value, fromCache);
         }
     }
 
@@ -688,13 +688,16 @@ public class EvaluationContext {
      */
     public void closeTrace() {
         if (mAccumulateExprs) {
-            if (mDebugCore.mCurrentTraceLevel.getParent() == null) {
-                mDebugCore.mTraceRoot = mDebugCore.mCurrentTraceLevel;
-                if (mDebugCore.mTraceReporter != null) {
-                    mDebugCore.mTraceReporter.reportTrace(mDebugCore.mTraceRoot);
-                }
+            if (debugContext.traceReporter != null &&
+                    (debugContext.currentTraceLevel.getParent() == null || debugContext.traceReporter.reportAsFlat())) {
+                debugContext.traceReporter.reportTrace(debugContext.currentTraceLevel);
             }
-            mDebugCore.mCurrentTraceLevel = mDebugCore.mCurrentTraceLevel.getParent();
+
+            if (debugContext.currentTraceLevel.getParent() == null) {
+                debugContext.traceRoot = debugContext.currentTraceLevel;
+            }
+
+            debugContext.currentTraceLevel = debugContext.currentTraceLevel.getParent();
         }
     }
 
@@ -710,8 +713,8 @@ public class EvaluationContext {
      */
     public void setDebugModeOn(EvaluationTraceReporter reporter) {
         this.mAccumulateExprs = true;
-        this.mDebugCore = this;
-        this.mTraceReporter = reporter;
+        this.debugContext = this;
+        this.traceReporter = reporter;
     }
 
 
@@ -720,7 +723,7 @@ public class EvaluationContext {
      * against this context.
      */
     public EvaluationTrace getEvaluationTrace() {
-        return mTraceRoot;
+        return traceRoot;
     }
 
     /**
