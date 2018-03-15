@@ -8,39 +8,45 @@ package org.javarosa.core.model.trace;
  */
 public class EvaluationTraceSerializer {
 
+    private static final String ONE_INDENT = "    ";
+
     public enum TraceInfoType {
         FULL_PROFILE,
         CACHE_INFO_ONLY
     }
 
     public String serializeEvaluationLevels(EvaluationTrace input, TraceInfoType requestedInfo) {
-        return serializeEvaluationTrace(input, requestedInfo, true);
+        return serializeEvaluationTrace(input, requestedInfo, false);
     }
 
     public String serializeEvaluationTrace(EvaluationTrace input, TraceInfoType requestedInfo,
-                                           boolean includeSubLevels) {
-        return dumpExprOutput(input, 1, requestedInfo, includeSubLevels);
+                                           boolean serializeFlat) {
+        return dumpExprOutput(input, 1, requestedInfo, serializeFlat);
     }
 
     private String dumpExprOutput(EvaluationTrace level, int refLevel, TraceInfoType requestedInfo,
-                                  boolean includeSubLevels) {
-        String output = indentExprAndValue(level, refLevel, requestedInfo);
-        if (includeSubLevels) {
+                                  boolean serializeFlat) {
+        String output = serializeFlat ?
+                addDesiredData(level, requestedInfo, "", ONE_INDENT) :
+                indentExprAndAddData(level, refLevel, requestedInfo);
+
+        if (!serializeFlat) {
             for (EvaluationTrace child : level.getSubTraces()) {
-                output += dumpExprOutput(child, refLevel + 1, requestedInfo, true) + "\n";
+                output += dumpExprOutput(child, refLevel + 1, requestedInfo, false) + "\n";
             }
         }
+
         return output;
     }
 
-    private String indentExprAndValue(EvaluationTrace level, int indentLevel,
-                                      TraceInfoType requestedInfo) {
+    private String indentExprAndAddData(EvaluationTrace level, int indentLevel,
+                                        TraceInfoType requestedInfo) {
         String expr = level.getExpression();
         String value = level.getValue();
 
         String indent = "";
         for (int i = 0; i < indentLevel; ++i) {
-            indent += "    ";
+            indent += ONE_INDENT;
         }
 
         return addDesiredData(level, requestedInfo, indent + expr + ": " + value + "\n", indent);

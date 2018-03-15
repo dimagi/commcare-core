@@ -30,7 +30,7 @@ public class InstrumentationUtils {
 
             for (EvaluationTrace trace : reporter.getCollectedTraces()) {
                 System.out.println(trace.getExpression() + ": " + trace.getValue());
-                System.out.print(serializer.serializeEvaluationTrace(trace, requestedInfo, !reporter.reportAsFlat()));
+                System.out.print(serializer.serializeEvaluationTrace(trace, requestedInfo, reporter.reportAsFlat()));
             }
 
             reporter.reset();
@@ -52,7 +52,7 @@ public class InstrumentationUtils {
 
             for (EvaluationTrace trace : reporter.getCollectedTraces()) {
                 returnValue += trace.getExpression() + ": " + trace.getValue()  + "\n";
-                returnValue += serializer.serializeEvaluationTrace(trace, requestedInfo, !reporter.reportAsFlat());
+                returnValue += serializer.serializeEvaluationTrace(trace, requestedInfo, reporter.reportAsFlat());
             }
 
             reporter.reset();

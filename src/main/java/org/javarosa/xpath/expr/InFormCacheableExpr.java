@@ -33,11 +33,14 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
         justRetrieved = ec.expressionCacher().getCachedValue(this);
     }
 
+    /**
+     * queueUpCachedValue must always be called first!
+     */
     Object getCachedValue() {
         return justRetrieved;
     }
 
-     void cache(Object value, EvaluationContext ec) {
+    void cache(Object value, EvaluationContext ec) {
         if (ec.cachingEnabled() && isCacheable(ec)) {
             ec.expressionCacher().cache(this, value);
         }
