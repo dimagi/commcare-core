@@ -43,6 +43,8 @@ public class Suite implements Persistable {
      */
     private Hashtable<String, Entry> entries;
     private final HashMap<String, List<Menu>> idToMenus = new HashMap<>();
+    private final HashMap<String, List<Menu>> rootToMenus = new HashMap<>();
+
     private Vector<Menu> menus;
 
     @SuppressWarnings("unused")
@@ -61,12 +63,20 @@ public class Suite implements Persistable {
 
     private void buildIdToMenus() {
         for (Menu menu : menus) {
-            List<Menu> idMenus = idToMenus.get(menu.getId());
-            if (idMenus == null) {
-                idMenus = new ArrayList<>();
-                idToMenus.put(menu.getId(), idMenus);
+
+            List<Menu> menusWithId = idToMenus.get(menu.getId());
+            if (menusWithId == null) {
+                menusWithId = new ArrayList<>();
+                idToMenus.put(menu.getId(), menusWithId);
             }
-            idMenus.add(menu);
+            menusWithId.add(menu);
+
+            List<Menu> menusWithRoot = rootToMenus.get(menu.getRoot());
+            if (menusWithRoot == null) {
+                menusWithRoot = new ArrayList<>();
+                rootToMenus.put(menu.getRoot(), menusWithRoot);
+            }
+            menusWithRoot.add(menu);
         }
     }
 
@@ -90,6 +100,10 @@ public class Suite implements Persistable {
 
     public List<Menu> getMenusWithId(String id) {
         return idToMenus.get(id);
+    }
+
+    public List<Menu> getMenusWithRoot(String root) {
+        return rootToMenus.containsKey(root) ? rootToMenus.get(root) : new ArrayList<Menu>();
     }
 
     /**
