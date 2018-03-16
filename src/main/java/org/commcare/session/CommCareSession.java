@@ -170,41 +170,13 @@ public class CommCareSession {
             if (e == null) {
                 throw new RuntimeException("No entry found for menu command [" + cmd + "]");
             }
-            if (entryRequiresAllDataInSession(e, currentSessionData)) {
-                stillValid.addElement(e);
-            }
+            stillValid.addElement(e);
         }
         return stillValid;
     }
 
     public OrderedHashtable<String, String> getData() {
         return collectedDatums;
-    }
-
-    /**
-     *
-     * @param entry
-     * @param currentSessionData
-     * @return true if @entry needs all of the datums that are already added to the current session
-     */
-    private static boolean entryRequiresAllDataInSession(Entry entry,
-                                                         OrderedHashtable<String, String> currentSessionData) {
-        Vector<SessionDatum> entryRequirements = entry.getSessionDataReqs();
-
-        if (currentSessionData.size() > entryRequirements.size()) {
-            // currentSessionData needs to be a subset of entryRequirements, so we can short-circuit if this is the case
-            return false;
-        }
-
-        // Both currentSessionData and entryRequirements are guaranteed to be in order of how
-        // they're collected, so it's ok to check for the subset condition like this
-        for (int i = 0; i < currentSessionData.size(); ++i) {
-            if (!currentSessionData.keyAt(i).equals(entryRequirements.elementAt(i).getDataId())) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     public CommCarePlatform getPlatform() {
