@@ -32,10 +32,11 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
@@ -143,9 +144,9 @@ public class CommCareSession {
             List<Menu> menusWithId = s.getMenusWithId(commandId);
             if (menusWithId != null) {
                 // make a copy so that we can use this as a queue
-                List<Menu> menusToExamine = new ArrayList<>(menusWithId);
+                Queue<Menu> menusToExamine = new LinkedList<>(menusWithId);
                 while (!menusToExamine.isEmpty()) {
-                    Menu menu = menusToExamine.remove(0);
+                    Menu menu = menusToExamine.poll();
                     entries.addAll(getStillValidEntriesFromMenu(menu, currentSessionData));
                     if (includeNested) {
                         menusToExamine.addAll(s.getMenusWithRoot(menu.getId()));
@@ -169,41 +170,13 @@ public class CommCareSession {
             if (e == null) {
                 throw new RuntimeException("No entry found for menu command [" + cmd + "]");
             }
-            if (entryRequiresAllDataInSession(e, currentSessionData)) {
-                stillValid.addElement(e);
-            }
+            stillValid.addElement(e);
         }
         return stillValid;
     }
 
     public OrderedHashtable<String, String> getData() {
         return collectedDatums;
-    }
-
-    /**
-     *
-     * @param entry
-     * @param currentSessionData
-     * @return true if @entry needs all of the datums that are already added to the current session
-     */
-    private static boolean entryRequiresAllDataInSession(Entry entry,
-                                                         OrderedHashtable<String, String> currentSessionData) {
-        Vector<SessionDatum> entryRequirements = entry.getSessionDataReqs();
-
-        if (currentSessionData.size() > entryRequirements.size()) {
-            // currentSessionData needs to be a subset of entryRequirements, so we can short-circuit if this is the case
-            return false;
-        }
-
-        // Both currentSessionData and entryRequirements are guaranteed to be in order of how
-        // they're collected, so it's ok to check for the subset condition like this
-        for (int i = 0; i < currentSessionData.size(); ++i) {
-            if (!currentSessionData.keyAt(i).equals(entryRequirements.elementAt(i).getDataId())) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     public CommCarePlatform getPlatform() {
