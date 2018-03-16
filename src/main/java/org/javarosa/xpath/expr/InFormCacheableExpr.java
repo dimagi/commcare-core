@@ -60,14 +60,14 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
                         !referencesMainFormInstance((FormInstance)ec.getMainInstance(), ec) &&
                         !containsUncacheableSubExpression(ec);
             } catch (AnalysisInvalidException e) {
-                // if the analysis didn't complete then we assume it's not cacheable
+                // If the analysis didn't complete then we assume it's not cacheable
                 isCacheable = false;
             }
             computedCacheability = true;
         } else {
             Logger.log(LogTypes.SOFT_ASSERT,
                     "Caching was enabled in the ec, but the main instance provided " +
-                            "to InFormCacheableExpr by the ec was not of type FormInstance");
+                            "to InFormCacheableExpr by the ec was not of type FormInstance: " + ec.getMainInstance());
             isCacheable = false;
         }
     }

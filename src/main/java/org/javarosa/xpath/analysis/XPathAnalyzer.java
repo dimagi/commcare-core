@@ -96,7 +96,7 @@ public abstract class XPathAnalyzer {
     public void doAnalysisForRelativeTreeRef(TreeReference expressionWithContextTypeRelative)
             throws AnalysisInvalidException {
         requireContext(expressionWithContextTypeRelative);
-        doNormalTreeRefAnalysis(expressionWithContextTypeRelative.contextualize(this.getContextRef()));
+        doNormalTreeRefAnalysis(expressionWithContextTypeRelative.contextualize(getContextRef()));
     }
 
     public void doAnalysis(XPathFuncExpr expr) {

@@ -33,13 +33,12 @@ public abstract class XPathExpression extends InFormCacheableExpr implements Ext
         evalContext.openTrace(this);
 
         Object value;
-        boolean fromCache;
+        boolean fromCache = false;
         if (isCached(evalContext)) {
             value = getCachedValue();
             fromCache = true;
         } else {
             value = evalRaw(model, evalContext);
-            fromCache = false;
             cache(value, evalContext);
         }
 

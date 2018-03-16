@@ -30,6 +30,7 @@ public class ReducingTraceReporter implements EvaluationTraceReporter {
     public void reportTrace(EvaluationTrace trace) {
         String key = trace.getExpression();
         if (key == null) {
+            // This will only be true if `trace` is a BulkEvaluationTrace
             return;
         }
         if (traceMap.containsKey(key)) {

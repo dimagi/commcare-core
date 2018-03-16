@@ -24,12 +24,4 @@ public class InFormExpressionCacher {
         return cache.get(cacheKey);
     }
 
-    public void clearCache() {
-        cache.clear();
-    }
-
-    public boolean hasCachedValues() {
-        return !cache.isEmpty();
-    }
-
 }

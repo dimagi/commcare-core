@@ -19,6 +19,7 @@ public abstract class XPathBooleanAnalyzer extends XPathAnalyzer {
     }
 
     protected abstract boolean getDefaultValue();
+
     protected abstract boolean aggregateResults();
 
     public boolean computeResult(XPathAnalyzable rootExpression) throws AnalysisInvalidException {
