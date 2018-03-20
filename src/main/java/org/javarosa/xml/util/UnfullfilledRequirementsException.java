@@ -5,13 +5,40 @@ package org.javarosa.xml.util;
  */
 public class UnfullfilledRequirementsException extends Exception {
 
-    private final int severity;
-    private final int requirement;
-    /**
-     * Indicates that this exception was thrown due to an attempt to install an app that was
-     * already installed
-     */
-    private boolean isDuplicateException;
+    private final RequirementType requirementType;
+
+    public enum RequirementType {
+        /**
+         * Default case, nothing special about this
+         */
+        NONE,
+
+        /**
+         * local system can't provide an expected location to store data
+         */
+        WRITEABLE_REFERENCE,
+
+        /**
+         * The profile is incompatible with the major version of the current CommCare installation *
+         */
+        MAJOR_APP_VERSION,
+
+        /**
+         * The profile is incompatible with the minor version of the current CommCare installation *
+         */
+        MINOR_APP_VERSION,
+
+        /**
+         * Indicates that this exception was thrown due to an attempt to install an app that was
+         * already installed
+         */
+        DUPLICATE_APP,
+
+        /**
+         * app is targetting another flavour of Commcare than the one running currently
+         */
+        INCORRECT_TARGET_PACKAGE
+    }
 
     /**
      * Version Numbers if version is incompatible *
@@ -21,34 +48,26 @@ public class UnfullfilledRequirementsException extends Exception {
     private final int maA;
     private final int miA;
 
-    public UnfullfilledRequirementsException(String message, int severity) {
-        this(message, severity, -1, -1, -1, -1, -1);
+    public UnfullfilledRequirementsException(String message) {
+        this(message, RequirementType.NONE);
     }
 
-    public UnfullfilledRequirementsException(String message, int severity, boolean isDuplicate) {
-        this(message, severity, -1, -1, -1, -1, -1);
-        this.isDuplicateException = isDuplicate;
-    }
-
-    public UnfullfilledRequirementsException(String message, int severity, int requirement) {
-        this(message, severity, requirement, -1, -1, -1, -1);
+    public UnfullfilledRequirementsException(String message, RequirementType requirementType) {
+        this(message, -1, -1, -1, -1, requirementType);
     }
 
     /**
      * Constructor for unfulfilled version requirements.
      */
-    public UnfullfilledRequirementsException(String message, int severity,
-                                             int requirement,
-                                             int requiredMajor, int requiredMinor, int availableMajor, int availableMinor) {
+    public UnfullfilledRequirementsException(String message,
+                                             int requiredMajor, int requiredMinor, int availableMajor, int availableMinor,
+                                             RequirementType requirementType) {
         super(message);
-        this.severity = severity;
-        this.requirement = requirement;
-
         this.maR = requiredMajor;
         this.miR = requiredMinor;
-
         this.maA = availableMajor;
         this.miA = availableMinor;
+        this.requirementType = requirementType;
     }
 
     /**
@@ -65,18 +84,21 @@ public class UnfullfilledRequirementsException extends Exception {
         return maA + "." + miA;
     }
 
-    public int getSeverity() {
-        return severity;
-    }
-
-    public int getRequirementCode() {
-        return requirement;
+    public RequirementType getRequirementType() {
+        return requirementType;
     }
 
     /**
      * @return true if this exception was thrown due to an attempt at installing a duplicate app
      */
     public boolean isDuplicateException() {
-        return this.isDuplicateException;
+        return requirementType == RequirementType.DUPLICATE_APP;
+    }
+
+    /**
+     * @return true if this exception was thrown due to an attempt at installing an app targetting a different Commcare package id
+     */
+    public boolean isIncorrectTargetException() {
+        return requirementType == RequirementType.INCORRECT_TARGET_PACKAGE;
     }
 }

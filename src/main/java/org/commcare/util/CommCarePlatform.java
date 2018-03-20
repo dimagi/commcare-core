@@ -132,15 +132,15 @@ public class CommCarePlatform {
         profile = -1;
     }
 
-    public Hashtable<String, Entry> getMenuMap() {
+    public Hashtable<String, Entry> getCommandToEntryMap() {
         Vector<Suite> installed = getInstalledSuites();
         Hashtable<String, Entry> merged = new Hashtable<>();
 
         for (Suite s : installed) {
-            Hashtable<String, Entry> table = s.getEntries();
-            for (Enumeration en = table.keys(); en.hasMoreElements(); ) {
-                String key = (String)en.nextElement();
-                merged.put(key, table.get(key));
+            Hashtable<String, Entry> entriesInSuite = s.getEntries();
+            for (Enumeration en = entriesInSuite.keys(); en.hasMoreElements(); ) {
+                String commandId = (String)en.nextElement();
+                merged.put(commandId, entriesInSuite.get(commandId));
             }
         }
         return merged;
