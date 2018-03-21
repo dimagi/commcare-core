@@ -317,8 +317,8 @@ public class FormDefTest {
         long currentInMillis = Calendar.getInstance().getTimeInMillis();
         long birthdayInMillis = birthday.getTimeInMillis();
         long diff = currentInMillis - birthdayInMillis;
-        long MILLISECONDS_IN_A_YEAR = 31536000000L;
-        double expectedAge = (double) (diff / MILLISECONDS_IN_A_YEAR);
+        long MILLISECONDS_IN_A_YEAR = (long)(365.25 * 24 * 60 * 60 * 1000);
+        double expectedAge = (double)(diff / MILLISECONDS_IN_A_YEAR);
 
         ExprEvalUtils.assertEqualsXpathEval("Check that a default value for the age question was " +
                         "set correctly based upon provided answer to birthday question",
