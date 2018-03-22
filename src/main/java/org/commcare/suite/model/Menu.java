@@ -27,6 +27,7 @@ import io.reactivex.Single;
  */
 public class Menu implements Externalizable, MenuDisplayable {
     public static final String ROOT_MENU_ID = "root";
+    public static final String TRAINING_MENU_ROOT = "training-root";
 
     private DisplayUnit display;
     private Vector<String> commandIds;
