@@ -83,6 +83,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         DetailField[] fields = detail.getFields();
 
         StringBuilder row = new StringBuilder();
+        XPathException detailFieldException = null;
         int i = 0;
         for (DetailField field : fields) {
             Object o;
@@ -90,7 +91,9 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                 o = field.getTemplate().evaluate(context);
             } catch (XPathException e) {
                 o = "error (see output)";
-                e.printStackTrace();
+                if (detailFieldException == null) {
+                    detailFieldException = e;
+                }
             }
             String s;
             if (!(o instanceof String)) {
@@ -98,8 +101,11 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             } else {
                 s = (String)o;
             }
-
             row.append(s);
+        }
+
+        if (detailFieldException != null) {
+            detailFieldException.printStackTrace();
         }
 
         if (collectDebug) {
