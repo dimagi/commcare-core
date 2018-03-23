@@ -4,6 +4,10 @@ import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.trace.EvaluationTraceSerializer;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
+
 /**
  * Utility functions for instrumentation in the engine
  *
@@ -71,6 +75,35 @@ public class InstrumentationUtils {
                     System.out.println(trace.getExpression() + ": " + trace.getValue());
                     System.out.println("    " + trace.getCacheReport());
                 }
+            }
+        }
+    }
+
+    public static void printCachedAndNotCachedExpressions(EvaluationTraceReporter reporter, String description) {
+        if (reporter != null) {
+            if (reporter.wereTracesReported()) {
+                System.out.println(description);
+            }
+
+            List<EvaluationTrace> withCaching = new ArrayList<>();
+            List<EvaluationTrace> withoutCaching = new ArrayList<>();
+            for (EvaluationTrace trace : reporter.getCollectedTraces()) {
+                if (trace.evaluationUsedExpressionCache()) {
+                    withCaching.add(trace);
+                } else {
+                    withoutCaching.add(trace);
+                }
+            }
+
+            System.out.println("EXPRESSIONS NEVER CACHED: " + withoutCaching.size());
+            for (EvaluationTrace trace : withoutCaching) {
+                System.out.println(trace.getExpression() + ": " + trace.getValue());
+            }
+
+            System.out.println("EXPRESSIONS CACHED: " + withoutCaching.size());
+            for (EvaluationTrace trace : withCaching) {
+                System.out.println(trace.getExpression() + ": " + trace.getValue());
+                System.out.println("    " + trace.getCacheReport());
             }
         }
     }
