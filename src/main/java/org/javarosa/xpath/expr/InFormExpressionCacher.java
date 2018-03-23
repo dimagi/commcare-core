@@ -1,4 +1,4 @@
-package org.javarosa.core.services;
+package org.javarosa.xpath.expr;
 
 import org.javarosa.xpath.expr.InFormCacheableExpr;
 
