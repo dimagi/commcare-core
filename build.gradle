@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 // Needed even though it looks unused
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -21,7 +21,7 @@ buildscript {
 apply plugin: 'me.champeau.gradle.jmh'
 
 test {
-  reports.junitXml.destination = file('build/reports/tests')
+    reports.junitXml.destination = file('build/reports/tests')
 }
 
 sourceSets {
@@ -31,12 +31,12 @@ sourceSets {
         }
     }
 
-  cli {
-      java {
-          compileClasspath += main.output
-          compileClasspath += translate.output
-      }
-  }
+    cli {
+        java {
+            compileClasspath += main.output
+            compileClasspath += translate.output
+        }
+    }
     api {
         java {
             compileClasspath += main.output
@@ -132,11 +132,11 @@ jar {
 jar.dependsOn test
 
 configurations {
-  api
-  cliOutput.extendsFrom (cliCompile)
-  harness
-  translate
-  testsAsJar
+    api
+    cliOutput.extendsFrom (cliCompile)
+    harness
+    translate
+    testsAsJar
 }
 
 task cliJar(type: Jar, dependsOn: cliClasses) {
@@ -216,11 +216,11 @@ task formTranslateJar(type: Jar, dependsOn: translateClasses) {
 }
 
 artifacts {
-  cliOutput cliJar
-  api apiJar
-  harness harnessJar
-  translate formTranslateJar
-  testsAsJar testsrcJar
+    cliOutput cliJar
+    api apiJar
+    harness harnessJar
+    translate formTranslateJar
+    testsAsJar testsrcJar
 }
 
 task copyTestResources(type: Copy) {
