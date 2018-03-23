@@ -96,19 +96,19 @@ public class EvaluationContext {
 
     // *** This is the only EC constructor where a NEW context is passed in
     public EvaluationContext(EvaluationContext base, TreeReference context) {
-        this(base, base.instance, context, base.formInstances, true);
+        this(base, base.instance, context, base.formInstances);
     }
 
     public EvaluationContext(EvaluationContext base,
                              Hashtable<String, DataInstance> formInstances,
                              TreeReference context) {
-        this(base, base.instance, context, formInstances, true);
+        this(base, base.instance, context, formInstances);
     }
 
     public EvaluationContext(FormInstance instance,
                              Hashtable<String, DataInstance> formInstances,
                              EvaluationContext base) {
-        this(base, instance, base.contextNode, formInstances, true);
+        this(base, instance, base.contextNode, formInstances);
     }
 
     public EvaluationContext(DataInstance instance,
@@ -125,7 +125,7 @@ public class EvaluationContext {
      * Copy Constructor
      */
     private EvaluationContext(EvaluationContext base, DataInstance instance, TreeReference contextNode,
-                              Hashtable<String, DataInstance> formInstances, boolean inheritCache) {
+                              Hashtable<String, DataInstance> formInstances) {
         //TODO: These should be deep, not shallow
         this.functionHandlers = base.functionHandlers;
         this.formInstances = formInstances;
@@ -155,9 +155,7 @@ public class EvaluationContext {
             this.debugContext = base.debugContext;
         }
 
-        if (inheritCache) {
-            this.expressionCacher = base.expressionCacher;
-        }
+        this.expressionCacher = base.expressionCacher;
         setQueryContext(base.queryContext);
     }
 
@@ -487,8 +485,7 @@ public class EvaluationContext {
      */
     private EvaluationContext rescope(TreeReference newContextRef, int newContextPosition,
                                       QueryContext subContext) {
-        EvaluationContext ec = new EvaluationContext(this, this.instance, newContextRef,
-                this.formInstances, false);
+        EvaluationContext ec = new EvaluationContext(this, this.instance, newContextRef, this.formInstances);
         ec.setQueryContext(subContext);
         ec.currentContextPosition = newContextPosition;
 
