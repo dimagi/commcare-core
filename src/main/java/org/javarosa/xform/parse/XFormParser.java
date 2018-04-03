@@ -1873,7 +1873,6 @@ public class XFormParser {
         usedAtts.addElement("type");
         usedAtts.addElement("relevant");
         usedAtts.addElement("required");
-        usedAtts.addElement("readonly");
         usedAtts.addElement("constraint");
         usedAtts.addElement("constraintMsg");
         usedAtts.addElement("calculate");
@@ -1930,23 +1929,6 @@ public class XFormParser {
                     binding.requiredCondition = c;
                 } catch (XPathUnsupportedException xue) {
                     throw buildParseException(nodeset, xue.getMessage(), xpathReq, "required condition");
-                }
-            }
-        }
-
-        String xpathRO = e.getAttributeValue(null, "readonly");
-        if (xpathRO != null) {
-            if ("true()".equals(xpathRO)) {
-                binding.readonlyAbsolute = true;
-            } else if ("false()".equals(xpathRO)) {
-                binding.readonlyAbsolute = false;
-            } else {
-                try {
-                    Condition c = buildCondition(xpathRO, "readonly", ref);
-                    c = (Condition)_f.addTriggerable(c);
-                    binding.readonlyCondition = c;
-                } catch (XPathUnsupportedException xue) {
-                    throw buildParseException(nodeset, xue.getMessage(), xpathRO, "read-only condition");
                 }
             }
         }
@@ -2014,10 +1996,6 @@ public class XFormParser {
             prettyType = "require condition";
             trueAction = Condition.ACTION_REQUIRE;
             falseAction = Condition.ACTION_DONT_REQUIRE;
-        } else if ("readonly".equals(type)) {
-            prettyType = "readonly condition";
-            trueAction = Condition.ACTION_DISABLE;
-            falseAction = Condition.ACTION_ENABLE;
         } else {
             prettyType = "unknown condition";
         }
@@ -2720,9 +2698,6 @@ public class XFormParser {
         if (bind.requiredCondition != null) {
             bind.requiredCondition.addTarget(ref);
         }
-        if (bind.readonlyCondition != null) {
-            bind.readonlyCondition.addTarget(ref);
-        }
         if (bind.calculate != null) {
             bind.calculate.addTarget(ref);
         }
@@ -2736,9 +2711,6 @@ public class XFormParser {
         }
         if (bind.requiredCondition == null) {
             node.setRequired(bind.requiredAbsolute);
-        }
-        if (bind.readonlyCondition == null) {
-            node.setEnabled(!bind.readonlyAbsolute);
         }
         if (bind.constraint != null) {
             node.setConstraint(new Constraint(bind.constraint, bind.constraintMessage));

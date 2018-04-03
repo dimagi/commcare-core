@@ -139,8 +139,6 @@ public class FormOverview {
 
         printProperty("required", f, instanceNode, indent + 1, sb);
 
-        printProperty("readonly", f, instanceNode, indent + 1, sb);
-
         String defaultValue = printDefault(instanceNode);
         if (defaultValue != null) {
             println(sb, indent + 1, "Default: " + defaultValue);
@@ -189,12 +187,6 @@ public class FormOverview {
             absolute = instanceNode.isRequired();
             absoluteReportable = true;
             absoluteHeader = "Required";
-        } else if (property.equals("readonly")) {
-            action = Condition.ACTION_DISABLE;
-            conditionHeader = "Conditionally Read-only";
-            absolute = instanceNode.isEnabled();
-            absoluteReportable = false;
-            absoluteHeader = "Read-only";
         }
 
         IConditionExpr expr = null;
@@ -292,17 +284,12 @@ public class FormOverview {
         TreeElement instanceNode = getInstanceNode(f.getInstance(), g.getBind());
 
         String relevant = printConditionalProperty("relevant", f, instanceNode);
-        String readonly = printConditionalProperty("readonly", f, instanceNode);
 
-        if (repeat || caption != null || (relevant != null || readonly != null)) {
+        if (repeat || caption != null || (relevant != null)) {
             println(sb, indent, (repeat ? "Repeat" : "Group") + ":" + (caption != null ? " \"" + caption + "\"" : ""));
 
             if (relevant != null) {
                 println(sb, indent + 1, relevant);
-            }
-
-            if (readonly != null) {
-                println(sb, indent + 1, readonly);
             }
 
             println(sb);

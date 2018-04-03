@@ -22,7 +22,6 @@ public class RootParser extends ElementParser<RootTranslator> {
         this.checkNode("root");
 
         String id = parser.getAttributeValue(null, "prefix");
-        String readonly = parser.getAttributeValue(null, "readonly");
 
         //Get the child or error out if none exists
         getNextTagInBlock("root");
