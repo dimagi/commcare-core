@@ -105,6 +105,8 @@ public class InstrumentationUtils {
                 System.out.println(trace.getExpression() + ": " + trace.getValue());
                 System.out.println("    " + trace.getCacheReport());
             }
+
+            reporter.reset();
         }
     }
 
