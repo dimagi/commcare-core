@@ -100,7 +100,7 @@ public class InstrumentationUtils {
                 System.out.println(trace.getExpression() + ": " + trace.getValue());
             }
 
-            System.out.println("EXPRESSIONS CACHED: " + withoutCaching.size());
+            System.out.println("EXPRESSIONS CACHED: " + withCaching.size());
             for (EvaluationTrace trace : withCaching) {
                 System.out.println(trace.getExpression() + ": " + trace.getValue());
                 System.out.println("    " + trace.getCacheReport());
