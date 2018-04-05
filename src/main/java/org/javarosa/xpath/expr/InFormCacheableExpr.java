@@ -61,8 +61,8 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
         if (ec.getMainInstance() instanceof FormInstance) {
             try {
                 isCacheable =
-                        !referencesMainFormInstance((FormInstance)ec.getMainInstance(), ec) &&
-                        !containsUncacheableSubExpression(ec);
+                        !referencesMainFormInstance(this, (FormInstance)ec.getMainInstance(), ec) &&
+                        !containsUncacheableSubExpression(this, ec);
             } catch (AnalysisInvalidException e) {
                 // If the analysis didn't complete then we assume it's not cacheable
                 isCacheable = false;
@@ -76,13 +76,13 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
         }
     }
 
-    private boolean referencesMainFormInstance(FormInstance formInstance, EvaluationContext ec) throws AnalysisInvalidException {
+    public static boolean referencesMainFormInstance(XPathAnalyzable expr, FormInstance formInstance, EvaluationContext ec) throws AnalysisInvalidException {
         String formInstanceRoot = formInstance.getBase().getChildAt(0).getName();
-        return (new ReferencesMainInstanceAnalyzer(formInstanceRoot, ec)).computeResult(this);
+        return (new ReferencesMainInstanceAnalyzer(formInstanceRoot, ec)).computeResult(expr);
     }
 
-    private boolean containsUncacheableSubExpression(EvaluationContext ec) throws AnalysisInvalidException {
-        return (new ContainsUncacheableExpressionAnalyzer(ec)).computeResult(this);
+    public static boolean containsUncacheableSubExpression(XPathAnalyzable expr, EvaluationContext ec) throws AnalysisInvalidException {
+        return (new ContainsUncacheableExpressionAnalyzer(ec)).computeResult(expr);
     }
 
 }
