@@ -34,3 +34,4 @@ build/
 .gradle/
 .idea/
 clean_annotations.sh
+*.class
