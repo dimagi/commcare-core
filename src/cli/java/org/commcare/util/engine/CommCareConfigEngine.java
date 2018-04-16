@@ -376,7 +376,7 @@ public class CommCareConfigEngine {
      *                     'build' - Latest completed build (released or not)
      *                     'save' - Latest functional saved version of the app
      */
-    public void attemptAppUpdate(String updateTarget) {
+    public boolean attemptAppUpdate(String updateTarget) throws InstallCancelledException, UnfullfilledRequirementsException, UnresolvedResourceException {
         ResourceTable global = table;
 
         // Ok, should figure out what the state of this bad boy is.
@@ -416,46 +416,32 @@ public class CommCareConfigEngine {
             print.print("Warning: Unrecognized URL format: " + authRef);
         }
 
+        // This populates the upgrade table with resources based on
+        // binary files, starting with the profile file. If the new
+        // profile is not a newer version, statgeUpgradeTable doesn't
+        // actually pull in all the new references
 
-        try {
-            // This populates the upgrade table with resources based on
-            // binary files, starting with the profile file. If the new
-            // profile is not a newer version, statgeUpgradeTable doesn't
-            // actually pull in all the new references
-
-            print.println("Checking for updates....");
-            ResourceManager resourceManager = new ResourceManager(platform, global, updateTable, recoveryTable);
-            resourceManager.stageUpgradeTable(authRef, true, platform);
-            Resource newProfile = updateTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
-            if (!newProfile.isNewer(profileRef)) {
-                print.println("Your app is up to date!");
-                return;
-            }
-
-            print.println("Update found. New Version: " + newProfile.getVersion());
-            print.println("Downloading / Preparing Update");
-            resourceManager.prepareUpgradeResources();
-            print.print("Installing update");
-
-            // Replaces global table with temporary, or w/ recovery if
-            // something goes wrong
-            resourceManager.upgrade();
-        } catch (UnresolvedResourceException e) {
-            print.println("Update Failed! Couldn't find or install one of the remote resources");
-            e.printStackTrace();
-            return;
-        } catch (UnfullfilledRequirementsException e) {
-            print.println("Update Failed! This CLI host is incompatible with the app");
-            e.printStackTrace();
-            return;
-        } catch (Exception e) {
-            print.println("Update Failed! There is a problem with one of the resources");
-            e.printStackTrace();
-            return;
+        print.println("Checking for updates....");
+        ResourceManager resourceManager = new ResourceManager(platform, global, updateTable, recoveryTable);
+        resourceManager.stageUpgradeTable(authRef, true, platform);
+        Resource newProfile = updateTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+        if (!newProfile.isNewer(profileRef)) {
+            print.println("Your app is up to date!");
+            return false;
         }
+
+        print.println("Update found. New Version: " + newProfile.getVersion());
+        print.println("Downloading / Preparing Update");
+        resourceManager.prepareUpgradeResources();
+        print.print("Installing update");
+
+        // Replaces global table with temporary, or w/ recovery if
+        // something goes wrong
+        resourceManager.upgrade();
 
         // Initializes app resources and the app itself, including doing a check to see if this
         // app record was converted by the db upgrader
         initEnvironment();
+        return true;
     }
 }
