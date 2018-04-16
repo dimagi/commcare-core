@@ -168,7 +168,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         if (this.mPlatform == null) {
             throw new RuntimeException("Cannot generate session instance with undeclared platform!");
         }
-        User u = mSandbox.getLoggedInUser();
+        User u = mSandbox.getLoggedInUserUnsafe();
         TreeElement root =
                 SessionInstanceBuilder.getSessionInstance(session.getFrame(), getDeviceId(),
                         getVersionString(), u.getUsername(), u.getUniqueId(),
