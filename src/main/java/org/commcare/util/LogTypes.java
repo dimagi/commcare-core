@@ -6,11 +6,6 @@ package org.commcare.util;
 public class LogTypes {
 
     /**
-     * CommCare encountered and caught an exception during program running
-     */
-    public static final String TYPE_ERROR_CAUGHT_EXCEPTION = "error-caught-exception";
-
-    /**
      * Fatal problem with one of CommCare's cryptography libraries
      */
     public static final String TYPE_ERROR_CRYPTO = "error-crypto";

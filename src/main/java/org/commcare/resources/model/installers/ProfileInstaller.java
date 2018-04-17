@@ -7,6 +7,7 @@ import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.LogTypes;
 import org.commcare.xml.ProfileParser;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.Logger;
@@ -109,7 +110,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
                     p = parser.parse();
                 } catch (IOException e) {
                     if (e.getMessage() != null) {
-                        Logger.log("resource", "IO Exception fetching profile: " + e.getMessage());
+                        Logger.log(LogTypes.TYPE_RESOURCES, "IO Exception fetching profile: " + e.getMessage());
                     }
                     throw new UnreliableSourceException(r, e.getMessage());
                 }
@@ -129,13 +130,13 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
             }
         } catch (InvalidStructureException e) {
             if (e.getMessage() != null) {
-                Logger.log("resource", "Invalid profile structure: " + e.getMessage());
+                Logger.log(LogTypes.TYPE_RESOURCES, "Invalid profile structure: " + e.getMessage());
             }
             e.printStackTrace();
             return false;
         } catch (XmlPullParserException e) {
             if (e.getMessage() != null) {
-                Logger.log("resource", "XML Parse exception fetching profile: " + e.getMessage());
+                Logger.log(LogTypes.TYPE_RESOURCES, "XML Parse exception fetching profile: " + e.getMessage());
             }
             return false;
         } finally {

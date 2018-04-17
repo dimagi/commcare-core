@@ -2,6 +2,7 @@ package org.commcare.resources.model;
 
 import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -294,7 +295,7 @@ public class ResourceTable {
             r.setVersion(version);
         } else {
             // Otherwise, someone screwed up
-            Logger.log("Resource", "committing a resource with a known version.");
+            Logger.log(LogTypes.TYPE_RESOURCES, "committing a resource with a known version.");
         }
         commitCompoundResource(r, status);
     }
@@ -585,7 +586,7 @@ public class ResourceTable {
             } catch (UnreliableSourceException use) {
                 recordFailure(r, use);
                 aFailure = use;
-                Logger.log("install", "Potentially lossy install attempt # " +
+                Logger.log(LogTypes.TYPE_RESOURCES, "Potentially lossy install attempt # " +
                         (i + 1) + " of " + (NUMBER_OF_LOSSY_RETRIES + 1) +
                         " unsuccessful from: " + ref.getURI() + "|" +
                         use.getMessage());
@@ -666,7 +667,7 @@ public class ResourceTable {
                         if (r.getInstaller().upgrade(r, platform)) {
                             incoming.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
                         } else {
-                            Logger.log("Resource",
+                            Logger.log(LogTypes.TYPE_RESOURCES,
                                     "Failed to upgrade resource: " + r.getDescriptor());
                             // REVERT!
                             throw new RuntimeException("Failed to upgrade resource " + r.getDescriptor());
@@ -707,7 +708,7 @@ public class ResourceTable {
                 try {
                     r.getInstaller().uninstall(r, platform);
                 } catch (Exception e) {
-                    Logger.log("Resource", "Error uninstalling resource " +
+                    Logger.log(LogTypes.TYPE_RESOURCES, "Error uninstalling resource " +
                             r.getRecordGuid() + ". " + e.getMessage());
                 }
             } else if (r.getStatus() == Resource.RESOURCE_STATUS_DELETE) {
@@ -715,7 +716,7 @@ public class ResourceTable {
                 try {
                     r.getInstaller().uninstall(r, platform);
                 } catch (Exception e) {
-                    Logger.log("Resource", "Error uninstalling resource " +
+                    Logger.log(LogTypes.TYPE_RESOURCES, "Error uninstalling resource " +
                             r.getRecordGuid() + ". " + e.getMessage());
                 }
             }
@@ -864,7 +865,7 @@ public class ResourceTable {
             }
         }
         if (count > 0) {
-            Logger.log("Resource", "Cleaned up " + count + " records from table");
+            Logger.log(LogTypes.TYPE_RESOURCES, "Cleaned up " + count + " records from table");
         }
 
         storage.removeAll();
