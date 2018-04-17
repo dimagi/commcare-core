@@ -8,6 +8,7 @@ import org.commcare.core.parse.ParseUtils;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.modern.session.SessionWrapper;
+import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.FormIdDatum;
@@ -161,8 +162,8 @@ public class ApplicationHost {
         } catch (UnfullfilledRequirementsException e) {
             printStream.println("Update Failed! This CLI host is incompatible with the app");
             e.printStackTrace();
-        } catch (Exception e) {
-            printStream.println("Update Failed! There is a problem with one of the resources");
+        } catch (InstallCancelledException e) {
+            printStream.println("Update Failed! Update was cancelled";
             e.printStackTrace();
         }
     }
