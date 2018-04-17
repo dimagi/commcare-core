@@ -8,7 +8,7 @@ public class LogTypes {
     /**
      * CommCare encountered and caught an exception during program running
      */
-    public static final String TYPE_ERROR_EXCEPTION = "error-exception";
+    public static final String TYPE_ERROR_CAUGHT_EXCEPTION = "error-caught-exception";
 
     /**
      * Fatal problem with one of CommCare's cryptography libraries
