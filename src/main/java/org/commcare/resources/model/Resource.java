@@ -215,7 +215,7 @@ public class Resource implements Persistable, IMetaData {
      * @param initializer Associates a ResourceInstaller with this resource record. This method
      *                    should only be called by a resource table committing this resource record definition.
      */
-    protected void setInstaller(ResourceInstaller initializer) {
+    public void setInstaller(ResourceInstaller initializer) {
         this.initializer = initializer;
     }
 

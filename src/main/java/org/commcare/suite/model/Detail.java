@@ -1,11 +1,11 @@
 package org.commcare.suite.model;
 
-import org.commcare.modern.util.Pair;
 import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.EntityUtil;
 import org.commcare.cases.entity.NodeEntityFactory;
+import org.commcare.modern.util.Pair;
 import org.commcare.util.CollectionUtils;
 import org.commcare.util.DetailFieldPrintInfo;
-import org.commcare.cases.entity.EntityUtil;
 import org.commcare.util.GridCoordinate;
 import org.commcare.util.GridStyle;
 import org.javarosa.core.model.condition.EvaluationContext;
