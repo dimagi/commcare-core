@@ -102,4 +102,7 @@ public class LogTypes {
     public static final String TYPE_GRAPHING = "graphing";
 
     public static final String TYPE_PRINTING = "printing";
+
+    public static final String TYPE_WIFI_DIRECT = "wifi-direct";
+
 }
