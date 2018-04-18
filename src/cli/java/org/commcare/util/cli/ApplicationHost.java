@@ -163,7 +163,7 @@ public class ApplicationHost {
             printStream.println("Update Failed! This CLI host is incompatible with the app");
             e.printStackTrace();
         } catch (InstallCancelledException e) {
-            printStream.println("Update Failed! Update was cancelled";
+            printStream.println("Update Failed! Update was cancelled");
             e.printStackTrace();
         }
     }
