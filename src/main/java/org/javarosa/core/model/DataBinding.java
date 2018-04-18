@@ -28,8 +28,6 @@ public class DataBinding {
     public boolean relevantAbsolute;
     public Condition requiredCondition;
     public boolean requiredAbsolute;
-    public Condition readonlyCondition;
-    public boolean readonlyAbsolute;
     public IConditionExpr constraint;
     public Recalculate calculate;
 
@@ -40,7 +38,6 @@ public class DataBinding {
     public DataBinding() {
         relevantAbsolute = true;
         requiredAbsolute = false;
-        readonlyAbsolute = false;
     }
 
     public XPathReference getReference() {
