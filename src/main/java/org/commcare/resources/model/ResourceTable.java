@@ -586,18 +586,12 @@ public class ResourceTable {
             } catch (UnreliableSourceException use) {
                 recordFailure(r, use);
                 aFailure = use;
-                Logger.log(LogTypes.TYPE_RESOURCES, "Potentially lossy install attempt # " +
-                        (i + 1) + " of " + (NUMBER_OF_LOSSY_RETRIES + 1) +
-                        " unsuccessful from: " + ref.getURI() + "|" +
-                        use.getMessage());
             }
         }
 
-        if (aFailure != null) {
-            throw aFailure;
-        }
-
-        return false;
+        Logger.log(LogTypes.TYPE_RESOURCES, "Install attempt unsuccessful from: " +
+                ref.getURI() + "|" + aFailure.getMessage());
+        throw aFailure;
     }
 
     private void abortIfInstallCancelled(Resource r) throws InstallCancelledException {
