@@ -41,12 +41,11 @@ public class TreeElementParser extends ElementParser<TreeElement> {
                     String name = parser.getName();
                     int val;
                     if (multiplicities.containsKey(name)) {
-                        val = multiplicities.get(name) +1;
+                        val = multiplicities.get(name) + 1;
                     } else {
                         val = 0;
                     }
                     multiplicities.put(name,  val);
-
                     TreeElement kid = new TreeElementParser(parser, val, instanceId).parse();
                     element.addChild(kid);
                     break;
