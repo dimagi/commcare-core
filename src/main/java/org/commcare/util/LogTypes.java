@@ -16,6 +16,11 @@ public class LogTypes {
     public static final String TYPE_ERROR_ASSERTION = "error-state";
 
     /**
+     * Used for internal checking of whether or not certain sections of code ever get called
+     */
+    public static final String SOFT_ASSERT = "soft-assert";
+
+    /**
      * Something bad/unexpected occurred in a user's workflow
      */
     public static final String TYPE_ERROR_WORKFLOW = "error-workflow";
@@ -81,11 +86,6 @@ public class LogTypes {
      * Problem reported via report activity at home screen *
      */
     public static final String USER_REPORTED_PROBLEM = "user-report";
-
-    /**
-     * Used for internal checking of whether or not certain sections of code ever get called
-     */
-    public static final String SOFT_ASSERT = "soft-assert";
 
     /**
      * Used for tracking the behavior of the form dump activity
