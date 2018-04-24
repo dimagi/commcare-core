@@ -369,6 +369,10 @@ public class CommCareConfigEngine {
         }
     }
 
+    public boolean attemptAppUpdate(String updateTarget) throws InstallCancelledException, UnfullfilledRequirementsException, UnresolvedResourceException {
+        return attemptAppUpdate(updateTarget, null);
+    }
+
     /**
      * @param updateTarget Null to request the default latest build. Otherwise a string identifying
      *                     the target of the update:
@@ -376,7 +380,7 @@ public class CommCareConfigEngine {
      *                     'build' - Latest completed build (released or not)
      *                     'save' - Latest functional saved version of the app
      */
-    public boolean attemptAppUpdate(String updateTarget) throws InstallCancelledException, UnfullfilledRequirementsException, UnresolvedResourceException {
+    public boolean attemptAppUpdate(String updateTarget, String username) throws InstallCancelledException, UnfullfilledRequirementsException, UnresolvedResourceException {
         ResourceTable global = table;
 
         // Ok, should figure out what the state of this bad boy is.
@@ -414,6 +418,10 @@ public class CommCareConfigEngine {
             }
         } catch (MalformedURLException e) {
             print.print("Warning: Unrecognized URL format: " + authRef);
+        }
+
+        if (username != null) {
+            authRef += "&username=" + username;
         }
 
         // This populates the upgrade table with resources based on

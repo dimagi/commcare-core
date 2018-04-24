@@ -155,7 +155,7 @@ public class ApplicationHost {
         String updateTarget = mUpdateTarget;
         this.mUpdateTarget = null;
         try {
-            mEngine.attemptAppUpdate(updateTarget);
+            mEngine.attemptAppUpdate(updateTarget, username);
         } catch (UnresolvedResourceException e) {
             printStream.println("Update Failed! Couldn't find or install one of the remote resources");
             e.printStackTrace();
