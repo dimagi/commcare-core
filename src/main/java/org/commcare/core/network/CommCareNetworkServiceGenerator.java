@@ -59,6 +59,10 @@ public class CommCareNetworkServiceGenerator {
         return retrofit.create(CommCareNetworkService.class);
     }
 
+    public static CommCareNetworkService createNoAuthCommCareNetworkService(){
+       return createCommCareNetworkService(null, false);
+    }
+
     private static boolean isValidRedirect(HttpUrl url, HttpUrl newUrl) {
         //unless it's https, don't worry about it
         if (!url.scheme().equals("https")) {
