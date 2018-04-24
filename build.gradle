@@ -193,8 +193,8 @@ task harnessJar(type: Jar, dependsOn: translateClasses) {
 // which might want to import classes
 task testsrcJar(type: Jar, dependsOn: testClasses) {
     classifier = 'tests'
-    from files(sourceSets.test.output.classesDir)
-    from files(sourceSets.cli.output.classesDir)
+    from files(sourceSets.test.output)
+    from files(sourceSets.cli.output)
 }
 
 
