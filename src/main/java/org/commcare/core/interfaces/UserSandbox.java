@@ -60,6 +60,8 @@ public abstract class UserSandbox {
 
     public abstract User getLoggedInUser();
 
+    public abstract User getLoggedInUserUnsafe() throws RuntimeException;
+
     public abstract void setLoggedInUser(User user);
 
     public void setSyncToken(String syncToken){

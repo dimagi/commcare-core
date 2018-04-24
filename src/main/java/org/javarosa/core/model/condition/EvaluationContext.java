@@ -435,7 +435,7 @@ public class EvaluationContext {
                     if (child != null) {
                         childSet.addElement(child.getRef());
                     } else {
-                        throw new IllegalStateException("Missing or non-sequential nodes expanding a reference");
+                        throw new IllegalStateException("Missing or non-sequential nodes expanding a reference: " + node.getRef());
                     }
                 }
                 if (includeTemplates) {

@@ -123,6 +123,11 @@ public class MockUserDataSandbox extends UserSandbox {
         return mUser;
     }
 
+    @Override
+    public User getLoggedInUserUnsafe() {
+        return mUser;
+    }
+
     public void setAppFixtureStorageLocation(IStorageUtilityIndexed<FormInstance>
                                                      appFixtureStorageLocation) {
         this.appFixtureStorage = appFixtureStorageLocation;
