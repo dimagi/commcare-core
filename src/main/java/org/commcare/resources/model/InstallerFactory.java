@@ -17,7 +17,7 @@ public class InstallerFactory {
         return new ProfileInstaller(forceInstall);
     }
 
-    public ResourceInstaller getXFormInstaller() {
+    public ResourceInstaller getXFormInstaller(boolean isUpdateInfoForm) {
         return new XFormInstaller();
     }
 

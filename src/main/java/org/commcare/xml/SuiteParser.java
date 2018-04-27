@@ -126,12 +126,12 @@ public class SuiteParser extends ElementParser<Suite> {
                                 }
                             }
                             break;
+                        case "xform-update-info":
                         case "xform":
-                            //skip xform stuff for now
                             parser.nextTag();
                             Resource xformResource = new ResourceParser(parser, maximumResourceAuthority).parse();
                             if (!skipResources) {
-                                table.addResource(xformResource, table.getInstallers().getXFormInstaller(), resourceGuid);
+                                table.addResource(xformResource, table.getInstallers().getXFormInstaller(tagName.contentEquals("xform-update-info")), resourceGuid);
                             }
                             break;
                         case "user-restore":
