@@ -17,7 +17,7 @@ public class InstallerFactory {
         return new ProfileInstaller(forceInstall);
     }
 
-    public ResourceInstaller getXFormInstaller(boolean isUpdateInfoForm) {
+    public ResourceInstaller getXFormInstaller() {
         return new XFormInstaller();
     }
 
@@ -39,5 +39,9 @@ public class InstallerFactory {
 
     public ResourceInstaller getMediaInstaller(String path) {
         return new MediaInstaller();
+    }
+
+    public ResourceInstaller getXFormUpdateInfoInstaller() {
+        return getXFormInstaller();
     }
 }
