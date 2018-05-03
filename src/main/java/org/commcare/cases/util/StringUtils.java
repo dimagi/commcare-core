@@ -70,13 +70,17 @@ public class StringUtils {
      * distance that was matched, in order to be able to rank or otherwise interpret results.
      */
     public static Pair<Boolean, Integer> fuzzyMatch(String source, String target) {
+        return fuzzyMatch(source, target, 2);
+    }
+
+    public static Pair<Boolean, Integer> fuzzyMatch(String source, String target, int distanceThreshold) {
         //tweakable parameter: Minimum length before edit distance
         //starts being used (this is probably not necessary, and
         //basically only makes sure that "at" doesn't match "or" or similar
         if (source.length() > 3) {
             int distance = LevenshteinDistance(source, target);
             //tweakable parameter: edit distance past string length disparity
-            if (distance <= 2) {
+            if (distance <= distanceThreshold) {
                 return Pair.create(true, distance);
             }
         }
