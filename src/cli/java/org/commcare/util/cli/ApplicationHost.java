@@ -8,6 +8,8 @@ import org.commcare.core.parse.ParseUtils;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.modern.session.SessionWrapper;
+import org.commcare.resources.model.InstallCancelledException;
+import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.SessionDatum;
@@ -152,7 +154,18 @@ public class ApplicationHost {
         this.mUpdatePending = false;
         String updateTarget = mUpdateTarget;
         this.mUpdateTarget = null;
-        mEngine.attemptAppUpdate(updateTarget);
+        try {
+            mEngine.attemptAppUpdate(updateTarget);
+        } catch (UnresolvedResourceException e) {
+            printStream.println("Update Failed! Couldn't find or install one of the remote resources");
+            e.printStackTrace();
+        } catch (UnfullfilledRequirementsException e) {
+            printStream.println("Update Failed! This CLI host is incompatible with the app");
+            e.printStackTrace();
+        } catch (InstallCancelledException e) {
+            printStream.println("Update Failed! Update was cancelled");
+            e.printStackTrace();
+        }
     }
 
     private boolean loopSession() throws IOException {
