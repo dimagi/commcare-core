@@ -53,7 +53,7 @@
             <label>Birthday</label>
             <setvalue event="xforms-value-changed" ref="/data/birthday/@time" value="now()"/>
             <setvalue event="xforms-value-changed" ref="/data/age"
-                value="if(/data/age = '', int((today() - date(/data/birthday)) div 365), /data/age)"/>
+                value="if(/data/age = '', int((today() - date(/data/birthday)) div 365.25), /data/age)"/>
         </input>
 
     </h:body>

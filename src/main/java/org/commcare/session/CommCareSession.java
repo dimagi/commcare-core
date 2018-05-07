@@ -116,18 +116,12 @@ public class CommCareSession {
         }
     }
 
-    private Vector<Entry> getEntriesForCommand(String commandId) {
-        return getEntriesForCommand(commandId, new OrderedHashtable<String, String>());
-    }
-
     /**
      * @param commandId          the current command id
-     * @param currentSessionData all of the datums already on the stack
      * @return A list of all of the form entry actions that are possible with the given commandId
      * and the given list of already-collected datums
      */
-    private Vector<Entry> getEntriesForCommand(String commandId,
-                                               OrderedHashtable<String, String> currentSessionData) {
+    private Vector<Entry> getEntriesForCommand(String commandId) {
         Vector<Entry> entries = new Vector<>();
         if (commandId == null) {
             return entries;
@@ -136,7 +130,7 @@ public class CommCareSession {
             List<Menu> menusWithId = s.getMenusWithId(commandId);
             if (menusWithId != null) {
                 for (Menu menu : menusWithId) {
-                    entries.addAll(getEntriesFromMenu(menu, currentSessionData));
+                    entries.addAll(getStillValidEntriesFromMenu(menu));
                 }
             }
 
@@ -144,47 +138,24 @@ public class CommCareSession {
                 entries.addElement(s.getEntries().get(commandId));
             }
         }
-
         return entries;
     }
 
-    /**
-     * Get all entries that correspond to commands listed in the menu provided.
-     * Excludes entries whose data requirements aren't met by the 'currentSessionData'
-     */
-    private Vector<Entry> getEntriesFromMenu(Menu menu,
-                                             OrderedHashtable<String, String> currentSessionData) {
-        Vector<Entry> entries = new Vector<>();
-        Hashtable<String, Entry> map = platform.getMenuMap();
-        //We're in a menu we have a set of requirements which
-        //need to be fulfilled
+    private Vector<Entry> getStillValidEntriesFromMenu(Menu menu) {
+        Hashtable<String, Entry> globalEntryMap = platform.getCommandToEntryMap();
+        Vector<Entry> stillValid = new Vector<>();
         for (String cmd : menu.getCommandIds()) {
-            Entry e = map.get(cmd);
+            Entry e = globalEntryMap.get(cmd);
             if (e == null) {
                 throw new RuntimeException("No entry found for menu command [" + cmd + "]");
             }
-            if (entryRequirementsSatsified(e, currentSessionData)) {
-                entries.addElement(e);
-            }
+            stillValid.addElement(e);
         }
-        return entries;
+        return stillValid;
     }
 
     public OrderedHashtable<String, String> getData() {
         return collectedDatums;
-    }
-
-    private static boolean entryRequirementsSatsified(Entry entry,
-                                                      OrderedHashtable<String, String> currentSessionData) {
-        Vector<SessionDatum> requirements = entry.getSessionDataReqs();
-        if (requirements.size() >= currentSessionData.size()) {
-            for (int i = 0; i < currentSessionData.size(); ++i) {
-                if (!requirements.elementAt(i).getDataId().equals(currentSessionData.keyAt(i))) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     public CommCarePlatform getPlatform() {
@@ -203,18 +174,19 @@ public class CommCareSession {
             return SessionFrame.STATE_COMMAND_ID;
         }
 
-        Vector<Entry> entries = getEntriesForCommand(currentCmd, collectedDatums);
-        String needDatum = getDataNeededByAllEntries(entries);
+        Vector<Entry> entriesForCurrentCommand = getEntriesForCommand(currentCmd);
+        String needDatum = getDataNeededByAllEntries(entriesForCurrentCommand);
 
         if (needDatum != null) {
             return needDatum;
-        } else if (entries.isEmpty()) {
-            throw new RuntimeException("Collected datums don't match required datums for entries at command " + currentCmd);
-        } else if (entries.size() == 1
-                && entries.elementAt(0) instanceof RemoteRequestEntry
-                && ((RemoteRequestEntry)entries.elementAt(0)).getPostRequest().isRelevant(evalContext)) {
+        } else if (entriesForCurrentCommand.isEmpty()) {
+            // No entries available directly within the current command, so we must need to select another menu
+            return SessionFrame.STATE_COMMAND_ID;
+        } else if (entriesForCurrentCommand.size() == 1
+                && entriesForCurrentCommand.elementAt(0) instanceof RemoteRequestEntry
+                && ((RemoteRequestEntry)entriesForCurrentCommand.elementAt(0)).getPostRequest().isRelevant(evalContext)) {
             return SessionFrame.STATE_SYNC_REQUEST;
-        } else if (entries.size() > 1 || !entries.elementAt(0).getCommandId().equals(currentCmd)) {
+        } else if (entriesForCurrentCommand.size() > 1 || !entriesForCurrentCommand.elementAt(0).getCommandId().equals(currentCmd)) {
             //the only other thing we can need is a form command. If there's
             //still more than one applicable entry, we need to keep going
             return SessionFrame.STATE_COMMAND_ID;
@@ -271,7 +243,7 @@ public class CommCareSession {
         Vector<StackFrameStep> steps = frame.getSteps();
         String[] returnVal = new String[steps.size()];
 
-        Hashtable<String, Entry> entries = platform.getMenuMap();
+        Hashtable<String, Entry> entries = platform.getCommandToEntryMap();
         int i = 0;
         for (StackFrameStep step : steps) {
             if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
@@ -537,7 +509,7 @@ public class CommCareSession {
             return null;
         }
 
-        Entry e = platform.getMenuMap().get(command);
+        Entry e = platform.getCommandToEntryMap().get(command);
         if (e.isView() || e.isRemoteRequest()) {
             return null;
         } else {
@@ -585,7 +557,7 @@ public class CommCareSession {
         }
         Vector<Entry> entries = getEntriesForCommand(command);
 
-        if(entries.size() == 0) {
+        if (entries.size() == 0) {
             return new EvaluationContext(null);
         }
 
@@ -975,7 +947,7 @@ public class CommCareSession {
         ExtUtil.write(outputStream, new ExtWrapList(frameStack));
     }
 
-    public void setFrameStack(Stack<SessionFrame> frameStack) {
+    protected void setFrameStack(Stack<SessionFrame> frameStack) {
         this.frameStack = frameStack;
     }
 
