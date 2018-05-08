@@ -53,18 +53,19 @@ public class CommCareNetworkServiceGenerator {
 
     private static Retrofit retrofit = builder.client(httpClient.build()).build();
 
-    public static CommCareNetworkService createCommCareNetworkService(final String credential, boolean enforceSecureEndpoint) {
+    public static CommCareNetworkService createCommCareNetworkService(String credential,
+                                                                      boolean enforceSecureEndpoint) {
         authenticationInterceptor.setCredential(credential);
         authenticationInterceptor.setEnforceSecureEndpoint(enforceSecureEndpoint);
         return retrofit.create(CommCareNetworkService.class);
     }
 
-    public static CommCareNetworkService createNoAuthCommCareNetworkService(){
-       return createCommCareNetworkService(null, false);
+    public static CommCareNetworkService createNoAuthCommCareNetworkService() {
+        return createCommCareNetworkService(null, false);
     }
 
     private static boolean isValidRedirect(HttpUrl url, HttpUrl newUrl) {
-        //unless it's https, don't worry about it
+        // unless it's https, don't worry about it
         if (!url.scheme().equals("https")) {
             return true;
         }
@@ -74,4 +75,5 @@ public class CommCareNetworkServiceGenerator {
         // different link, which isn't acceptable for now.
         return url.host().equals(newUrl.host());
     }
+
 }
