@@ -39,6 +39,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
+import javax.annotation.Nullable;
+
 /**
  * Before arriving at the Form Entry phase, CommCare applications
  * need to determine what form to enter, and with what pre-requisites.
@@ -140,6 +142,7 @@ public class CommCareSession {
         }
         return entries;
     }
+
 
     private Vector<Entry> getStillValidEntriesFromMenu(Menu menu) {
         Hashtable<String, Entry> globalEntryMap = platform.getCommandToEntryMap();
@@ -480,7 +483,7 @@ public class CommCareSession {
                     SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType()) ||
                     SessionFrame.STATE_UNKNOWN.equals(step.getType()) &&
                             (guessUnknownType(step).equals(SessionFrame.STATE_DATUM_COMPUTED)
-                            || guessUnknownType(step).equals(SessionFrame.STATE_DATUM_VAL))) {
+                                    || guessUnknownType(step).equals(SessionFrame.STATE_DATUM_VAL))) {
                 String key = step.getId();
                 String value = step.getValue();
                 if (key != null && value != null) {
@@ -588,7 +591,7 @@ public class CommCareSession {
      */
     public SessionFrame getFrame() {
         SessionFrame copyFrame = new SessionFrame(frame);
-        for (StackFrameStep step: copyFrame.getSteps()) {
+        for (StackFrameStep step : copyFrame.getSteps()) {
             if (step.getType().equals(SessionFrame.STATE_UNKNOWN)) {
                 step.setType(guessUnknownType(step));
             }
@@ -784,7 +787,6 @@ public class CommCareSession {
      *
      * @param didRewind True if rewind occurred during stack pop.
      *                  Helps determine post-pop stack cleanup logic
-     *
      * @return True if there was a pending frame and it has been
      * popped into the current session. False if the stack was empty
      * and the session is over.
@@ -879,7 +881,6 @@ public class CommCareSession {
     }
 
     /**
-     *
      * @param step
      * @param desiredType
      * @return true if the given step is either explicitly of the given type, or if it is of
@@ -929,9 +930,9 @@ public class CommCareSession {
 
         CommCareSession restoredSession = new CommCareSession(ccPlatform);
         restoredSession.frame = restoredFrame;
-        Vector<SessionFrame> frames = (Vector<SessionFrame>) ExtUtil.read(inputStream, new ExtWrapList(SessionFrame.class), null);
+        Vector<SessionFrame> frames = (Vector<SessionFrame>)ExtUtil.read(inputStream, new ExtWrapList(SessionFrame.class), null);
         Stack<SessionFrame> stackFrames = new Stack<>();
-        while(!frames.isEmpty()){
+        while (!frames.isEmpty()) {
             SessionFrame lastElement = frames.lastElement();
             frames.remove(lastElement);
             stackFrames.push(lastElement);
@@ -951,7 +952,7 @@ public class CommCareSession {
         this.frameStack = frameStack;
     }
 
-    public Stack<SessionFrame> getFrameStack(){
+    public Stack<SessionFrame> getFrameStack() {
         return this.frameStack;
     }
 }
