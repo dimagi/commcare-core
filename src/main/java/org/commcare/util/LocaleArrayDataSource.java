@@ -2,6 +2,7 @@ package org.commcare.util;
 
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
+import org.javarosa.core.util.UnregisteredLocaleException;
 
 /**
  * Get localized arrays from the Localization file system (stored as comma separated lists)
@@ -23,7 +24,7 @@ public class LocaleArrayDataSource implements ArrayDataSource{
     public String[] getArray(String key) {
         try {
             return Localization.getArray(key);
-        } catch (NoLocalizedTextException e) {
+        } catch (NoLocalizedTextException | UnregisteredLocaleException e) {
             if (fallback != null) {
                 return fallback.getArray(key);
             } else {
