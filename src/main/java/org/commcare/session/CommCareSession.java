@@ -34,9 +34,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
@@ -120,24 +118,12 @@ public class CommCareSession {
         }
     }
 
-    public Vector<Entry> getEntriesForCommand(String commandId) {
-        return getEntriesForCommand(commandId, false);
-    }
-
-    public Vector<Entry> getEntriesForCommand(String commandId, boolean includeNested) {
-        return getEntriesForCommand(commandId, new OrderedHashtable<String, String>(), includeNested);
-    }
-
     /**
      * @param commandId          the current command id
-     * @param currentSessionData all of the datums already on the stack
-     * @param includeNested      whether to include entries from child modules
      * @return A list of all of the form entry actions that are possible with the given commandId
      * and the given list of already-collected datums
      */
-    private Vector<Entry> getEntriesForCommand(String commandId,
-                                               OrderedHashtable<String, String> currentSessionData,
-                                               boolean includeNested) {
+    private Vector<Entry> getEntriesForCommand(String commandId) {
         Vector<Entry> entries = new Vector<>();
         if (commandId == null) {
             return entries;
@@ -145,14 +131,8 @@ public class CommCareSession {
         for (Suite s : platform.getInstalledSuites()) {
             List<Menu> menusWithId = s.getMenusWithId(commandId);
             if (menusWithId != null) {
-                // make a copy so that we can use this as a queue
-                Queue<Menu> menusToExamine = new LinkedList<>(menusWithId);
-                while (!menusToExamine.isEmpty()) {
-                    Menu menu = menusToExamine.poll();
-                    entries.addAll(getStillValidEntriesFromMenu(menu, currentSessionData));
-                    if (includeNested) {
-                        menusToExamine.addAll(s.getMenusWithRoot(menu.getId()));
-                    }
+                for (Menu menu : menusWithId) {
+                    entries.addAll(getStillValidEntriesFromMenu(menu));
                 }
             }
 
@@ -164,21 +144,7 @@ public class CommCareSession {
     }
 
 
-    @Nullable
-    public FormEntry getEntryForNameSpace(String xmlns) {
-        for (Suite suite : platform.getInstalledSuites()) {
-            for (Enumeration e = suite.getEntries().elements(); e.hasMoreElements(); ) {
-                FormEntry suiteEntry = (FormEntry)e.nextElement();
-                if (suiteEntry.getXFormNamespace().equals(xmlns)) {
-                    return suiteEntry;
-                }
-            }
-        }
-        return null;
-    }
-
-    private Vector<Entry> getStillValidEntriesFromMenu(Menu menu,
-                                                       OrderedHashtable<String, String> currentSessionData) {
+    private Vector<Entry> getStillValidEntriesFromMenu(Menu menu) {
         Hashtable<String, Entry> globalEntryMap = platform.getCommandToEntryMap();
         Vector<Entry> stillValid = new Vector<>();
         for (String cmd : menu.getCommandIds()) {
@@ -211,19 +177,19 @@ public class CommCareSession {
             return SessionFrame.STATE_COMMAND_ID;
         }
 
-        Vector<Entry> remainingValidEntries =
-                getEntriesForCommand(currentCmd, collectedDatums, true);
-        String needDatum = getDataNeededByAllEntries(remainingValidEntries);
+        Vector<Entry> entriesForCurrentCommand = getEntriesForCommand(currentCmd);
+        String needDatum = getDataNeededByAllEntries(entriesForCurrentCommand);
 
         if (needDatum != null) {
             return needDatum;
-        } else if (remainingValidEntries.isEmpty()) {
-            throw new RuntimeException("Collected datums don't match required datums for entries at command " + currentCmd);
-        } else if (remainingValidEntries.size() == 1
-                && remainingValidEntries.elementAt(0) instanceof RemoteRequestEntry
-                && ((RemoteRequestEntry)remainingValidEntries.elementAt(0)).getPostRequest().isRelevant(evalContext)) {
+        } else if (entriesForCurrentCommand.isEmpty()) {
+            // No entries available directly within the current command, so we must need to select another menu
+            return SessionFrame.STATE_COMMAND_ID;
+        } else if (entriesForCurrentCommand.size() == 1
+                && entriesForCurrentCommand.elementAt(0) instanceof RemoteRequestEntry
+                && ((RemoteRequestEntry)entriesForCurrentCommand.elementAt(0)).getPostRequest().isRelevant(evalContext)) {
             return SessionFrame.STATE_SYNC_REQUEST;
-        } else if (remainingValidEntries.size() > 1 || !remainingValidEntries.elementAt(0).getCommandId().equals(currentCmd)) {
+        } else if (entriesForCurrentCommand.size() > 1 || !entriesForCurrentCommand.elementAt(0).getCommandId().equals(currentCmd)) {
             //the only other thing we can need is a form command. If there's
             //still more than one applicable entry, we need to keep going
             return SessionFrame.STATE_COMMAND_ID;
@@ -313,7 +279,7 @@ public class CommCareSession {
      * an entry on the stack
      */
     public SessionDatum getNeededDatum() {
-        Vector<Entry> entries = getEntriesForCommand(getCommand(), true);
+        Vector<Entry> entries = getEntriesForCommand(getCommand());
         if (entries.isEmpty()) {
             throw new IllegalStateException("The current session has no valid entry");
         }
