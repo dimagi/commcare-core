@@ -143,6 +143,18 @@ public class CommCareSession {
         return entries;
     }
 
+    @Nullable
+    public FormEntry getEntryForNameSpace(String xmlns) {
+        for (Suite suite : platform.getInstalledSuites()) {
+            for (Enumeration e = suite.getEntries().elements(); e.hasMoreElements(); ) {
+                FormEntry suiteEntry = (FormEntry)e.nextElement();
+                if (suiteEntry.getXFormNamespace().equals(xmlns)) {
+                    return suiteEntry;
+                }
+            }
+        }
+        return null;
+    }
 
     private Vector<Entry> getStillValidEntriesFromMenu(Menu menu) {
         Hashtable<String, Entry> globalEntryMap = platform.getCommandToEntryMap();
