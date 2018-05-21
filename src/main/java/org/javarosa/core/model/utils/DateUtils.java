@@ -61,8 +61,6 @@ public class DateUtils {
         }
     }
 
-    ;
-
     public static class DateFields {
         public DateFields() {
             year = 1970;
