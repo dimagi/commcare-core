@@ -45,12 +45,7 @@ public class QueryPlanner {
 
     public void addQueryHandler(QueryHandler handler) {
         handlers.add(handler);
-        Collections.sort(handlers, new Comparator<QueryHandler>() {
-            @Override
-            public int compare(QueryHandler first, QueryHandler second) {
-                return first.getExpectedRuntime() - second.getExpectedRuntime();
-            }
-        });
+        Collections.sort(handlers, (first, second) -> first.getExpectedRuntime() - second.getExpectedRuntime());
     }
 
 

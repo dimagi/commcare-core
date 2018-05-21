@@ -182,12 +182,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     }
 
     public void initStockParser() {
-        stockParser = new TransactionParserFactory() {
-            @Override
-            public TransactionParser<Ledger[]> getParser(KXmlParser parser) {
-                return new LedgerXmlParsers(parser, sandbox.getLedgerStorage());
-            }
-        };
+        stockParser = parser -> new LedgerXmlParsers(parser, sandbox.getLedgerStorage());
     }
 
     public String getSyncToken() {

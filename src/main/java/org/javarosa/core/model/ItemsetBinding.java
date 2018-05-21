@@ -66,12 +66,7 @@ public class ItemsetBinding implements Externalizable {
         if (this.sortRef != null) {
 
             // Perform sort
-            Collections.sort(choices, new Comparator<SelectChoice>() {
-                @Override
-                public int compare(SelectChoice choice1, SelectChoice choice2) {
-                    return choice1.evaluatedSortProperty.compareTo(choice2.evaluatedSortProperty);
-                }
-            });
+            Collections.sort(choices, (choice1, choice2) -> choice1.evaluatedSortProperty.compareTo(choice2.evaluatedSortProperty));
 
             // Re-set indices after sorting
             for (int i = 0; i < choices.size(); i++) {
