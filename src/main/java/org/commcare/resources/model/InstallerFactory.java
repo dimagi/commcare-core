@@ -40,4 +40,8 @@ public class InstallerFactory {
     public ResourceInstaller getMediaInstaller(String path) {
         return new MediaInstaller();
     }
+
+    public ResourceInstaller getXFormUpdateInfoInstaller() {
+        return getXFormInstaller();
+    }
 }
