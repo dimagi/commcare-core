@@ -105,9 +105,8 @@ public abstract class XPathExpression extends InFormCacheableExpr implements Ext
             //Rethrow unpivotable (expected)
             throw uee;
         } catch (Exception e) {
-            //Pivots aren't critical, if there was a problem getting one, log the exception
-            //so we can fix it, and then just report that.
-            Logger.exception(e);
+            // Pivots aren't critical, if there was a problem getting one, log the exception so we can fix it, and then just report that.
+            Logger.exception("Error during expression pivot", e);
             throw new UnpivotableExpressionException(e.getMessage());
         }
     }

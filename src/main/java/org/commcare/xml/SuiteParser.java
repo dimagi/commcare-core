@@ -1,6 +1,7 @@
 package org.commcare.xml;
 
 import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceInstaller;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
@@ -126,12 +127,15 @@ public class SuiteParser extends ElementParser<Suite> {
                                 }
                             }
                             break;
+                        case "xform-update-info":
                         case "xform":
-                            //skip xform stuff for now
                             parser.nextTag();
                             Resource xformResource = new ResourceParser(parser, maximumResourceAuthority).parse();
                             if (!skipResources) {
-                                table.addResource(xformResource, table.getInstallers().getXFormInstaller(), resourceGuid);
+                                ResourceInstaller resourceInstaller = tagName.contentEquals("xform-update-info") ?
+                                        table.getInstallers().getXFormUpdateInfoInstaller() :
+                                        table.getInstallers().getXFormInstaller();
+                                table.addResource(xformResource, resourceInstaller, resourceGuid);
                             }
                             break;
                         case "user-restore":

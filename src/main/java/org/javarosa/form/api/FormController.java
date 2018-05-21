@@ -424,21 +424,6 @@ public class FormController {
     }
 
     /**
-     * Once a submission is marked as complete, it is saved in the
-     * submission format, which might be a fragment of the original
-     * form or might be a SMS text string, etc.
-     *
-     * @return true if the submission is the entire form.  If it is,
-     * then the submission can be re-opened for editing
-     * after it was marked-as-complete (provided it has
-     * not been encrypted).
-     */
-    public boolean isSubmissionEntireForm() {
-        XPathReference sub = getSubmissionDataReference();
-        return (getInstance().resolveReference(sub) == null);
-    }
-
-    /**
      * Extract the portion of the form that should be uploaded to the server.
      */
     public ByteArrayPayload getSubmissionXml() throws IOException {

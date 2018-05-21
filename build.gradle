@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 // Needed even though it looks unused
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
