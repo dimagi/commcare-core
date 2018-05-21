@@ -26,20 +26,17 @@ public class CommCareNetworkServiceGenerator {
 
     private static Retrofit.Builder builder = new Retrofit.Builder().baseUrl(BASE_URL);
 
-    private static Interceptor redirectionInterceptor = new Interceptor() {
-        @Override
-        public Response intercept(Chain chain) throws IOException {
-            Request request = chain.request();
-            Response response = chain.proceed(request);
-            if (response.code() == 301) {
-                String newUrl = response.header("Location");
-                if (!isValidRedirect(request.url(), HttpUrl.parse(newUrl))) {
-                    Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Invalid redirect from " + request.url().toString() + " to " + response.request().url().toString());
-                    throw new IOException("Invalid redirect from secure server to insecure server");
-                }
+    private static Interceptor redirectionInterceptor = chain -> {
+        Request request = chain.request();
+        Response response = chain.proceed(request);
+        if (response.code() == 301) {
+            String newUrl = response.header("Location");
+            if (!isValidRedirect(request.url(), HttpUrl.parse(newUrl))) {
+                Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Invalid redirect from " + request.url().toString() + " to " + response.request().url().toString());
+                throw new IOException("Invalid redirect from secure server to insecure server");
             }
-            return response;
         }
+        return response;
     };
 
     private static AuthenticationInterceptor authenticationInterceptor = new AuthenticationInterceptor();
