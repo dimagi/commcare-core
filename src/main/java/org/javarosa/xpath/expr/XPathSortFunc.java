@@ -66,12 +66,7 @@ public class XPathSortFunc extends XPathFuncExpr {
     }
 
     protected static void sortSingleList(List<String> items, final boolean ascending) {
-        Collections.sort(items, new Comparator<String>() {
-            @Override
-            public int compare(String s1, String s2) {
-                return (ascending ? 1 : -1) * s1.compareTo(s2);
-            }
-        });
+        Collections.sort(items, (s1, s2) -> (ascending ? 1 : -1) * s1.compareTo(s2));
     }
 
 }
