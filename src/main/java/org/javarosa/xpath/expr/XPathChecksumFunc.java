@@ -4,12 +4,10 @@ package org.javarosa.xpath.expr;
 import org.commcare.cases.util.StringUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.xpath.XPathUnsupportedException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 public class XPathChecksumFunc extends XPathFuncExpr {
@@ -92,7 +90,13 @@ public class XPathChecksumFunc extends XPathFuncExpr {
 
         int check = 0;
         for (int i = 0; i < inputList.size(); i++) {
-            check = op[check][p[((i + 1) % 8)][Character.getNumericValue(inputList.get(i))]];
+            int charAsNum;
+            try {
+                charAsNum = Integer.parseInt(String.valueOf(inputList.get(i)));
+            } catch (NumberFormatException e) {
+                throw new XPathUnsupportedException("Illegal character '" + inputList.get(i) + "' in input for Xpath function checksum()");
+            }
+            check = op[check][p[((i + 1) % 8)][charAsNum]];
         }
 
         return Integer.toString(inv[check]);
