@@ -55,10 +55,13 @@ public class ShortestCycleAlgorithm {
             return null;
         }
         visited.add(currentNode);
-        for (String child: childrenMap.get(currentNode)) {
-            ArrayList<String> shortestPath = depthFirstSearch(startNode, child, visited);
-            if (shortestPath != null) {
-                return shortestPath;
+        ArrayList<String> children = childrenMap.get(currentNode);
+        if (children != null) {
+            for (String child : children) {
+                ArrayList<String> shortestPath = depthFirstSearch(startNode, child, visited);
+                if (shortestPath != null) {
+                    return shortestPath;
+                }
             }
         }
         visited.remove(currentNode);
