@@ -119,7 +119,7 @@ public class CommCareSession {
     }
 
     /**
-     * @param commandId          the current command id
+     * @param commandId the current command id
      * @return A list of all of the form entry actions that are possible with the given commandId
      * and the given list of already-collected datums
      */
@@ -147,9 +147,12 @@ public class CommCareSession {
     public FormEntry getEntryForNameSpace(String xmlns) {
         for (Suite suite : platform.getInstalledSuites()) {
             for (Enumeration e = suite.getEntries().elements(); e.hasMoreElements(); ) {
-                FormEntry suiteEntry = (FormEntry)e.nextElement();
-                if (suiteEntry.getXFormNamespace().equals(xmlns)) {
-                    return suiteEntry;
+                Object suiteEntry = e.nextElement();
+                if (suiteEntry instanceof FormEntry) {
+                    FormEntry formEntry = ((FormEntry)suiteEntry);
+                    if (formEntry.getXFormNamespace().equals(xmlns)) {
+                        return formEntry;
+                    }
                 }
             }
         }
@@ -364,8 +367,6 @@ public class CommCareSession {
     }
 
     /**
-     *
-     * @param evalContext
      * @return true if the current state of the session is such that we are NOT waiting for
      * user-provided input, and false otherwise
      */
@@ -893,8 +894,6 @@ public class CommCareSession {
     }
 
     /**
-     * @param step
-     * @param desiredType
      * @return true if the given step is either explicitly of the given type, or if it is of
      * unknown type and guessUnknownType() returns the given type
      */
