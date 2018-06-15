@@ -2,7 +2,7 @@ package org.javarosa.core.model.utils;
 
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
-import org.javarosa.core.model.trace.EvaluationTraceSerializer;
+import org.javarosa.core.model.trace.TraceSerialization;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,24 +16,23 @@ import java.util.List;
 public class InstrumentationUtils {
 
     public static void printAndClearTraces(EvaluationTraceReporter reporter, String description) {
-        printAndClearTraces(reporter, description, EvaluationTraceSerializer.TraceInfoType.FULL_PROFILE);
+        printAndClearTraces(reporter, description, TraceSerialization.TraceInfoType.FULL_PROFILE);
     }
 
     /**
      * Prints out traces (if any exist) from the provided reporter with a description into sysout
      */
     public static void printAndClearTraces(EvaluationTraceReporter reporter, String description,
-                                           EvaluationTraceSerializer.TraceInfoType requestedInfo) {
+                                           TraceSerialization.TraceInfoType requestedInfo) {
         if (reporter != null) {
             if (reporter.wereTracesReported()) {
                 System.out.println(description);
             }
 
-            EvaluationTraceSerializer serializer = new EvaluationTraceSerializer();
-
             for (EvaluationTrace trace : reporter.getCollectedTraces()) {
                 System.out.println(trace.getExpression() + ": " + trace.getValue());
-                System.out.print(serializer.serializeEvaluationTrace(trace, requestedInfo, reporter.reportAsFlat()));
+                System.out.print(TraceSerialization.serializeEvaluationTrace(trace, requestedInfo,
+                        reporter.reportAsFlat()));
             }
 
             reporter.reset();
@@ -44,18 +43,17 @@ public class InstrumentationUtils {
      * Prints out traces (if any exist) from the provided reporter with a description into sysout
      */
     public static String collectAndClearTraces(EvaluationTraceReporter reporter, String description,
-                                               EvaluationTraceSerializer.TraceInfoType requestedInfo) {
+                                               TraceSerialization.TraceInfoType requestedInfo) {
         String returnValue = "";
         if (reporter != null) {
             if (reporter.wereTracesReported()) {
                 returnValue += description + "\n";
             }
 
-            EvaluationTraceSerializer serializer = new EvaluationTraceSerializer();
-
             for (EvaluationTrace trace : reporter.getCollectedTraces()) {
                 returnValue += trace.getExpression() + ": " + trace.getValue()  + "\n";
-                returnValue += serializer.serializeEvaluationTrace(trace, requestedInfo, reporter.reportAsFlat());
+                returnValue += TraceSerialization.serializeEvaluationTrace(trace, requestedInfo,
+                        reporter.reportAsFlat());
             }
 
             reporter.reset();

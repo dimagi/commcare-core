@@ -11,7 +11,7 @@ import org.javarosa.core.model.instance.InvalidReferenceException;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
-import org.javarosa.core.model.trace.EvaluationTraceSerializer;
+import org.javarosa.core.model.trace.TraceSerialization;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.util.Enumeration;
@@ -611,11 +611,9 @@ public class FormEntryModel {
      * @param index      The form index to be evaluated
      * @param category   The category of trigger/debug info being requested, like
      *                   calculate, relevant, etc.
-     * @param serializer A serializer for the EvaluationTrace
      * @return the output of the provided serializer
      */
-    public String getDebugInfo(FormIndex index, String category,
-                              EvaluationTraceSerializer serializer) {
+    public String getDebugInfo(FormIndex index, String category) {
         this.getForm().enableDebugTraces();
 
         Hashtable<String, EvaluationTrace> indexDebug =
@@ -623,7 +621,7 @@ public class FormEntryModel {
         if (indexDebug == null || indexDebug.get(category) == null) {
             return null;
         }
-        return serializer.serializeEvaluationTrace(indexDebug.get(category),
-                EvaluationTraceSerializer.TraceInfoType.FULL_PROFILE, false);
+        return TraceSerialization.serializeEvaluationTrace(indexDebug.get(category),
+                TraceSerialization.TraceInfoType.FULL_PROFILE, false);
     }
 }

@@ -6,7 +6,7 @@ package org.javarosa.core.model.trace;
  *
  * @author ctsims
  */
-public class EvaluationTraceSerializer {
+public class TraceSerialization {
 
     private static final String ONE_INDENT = "    ";
 
@@ -15,12 +15,12 @@ public class EvaluationTraceSerializer {
         CACHE_INFO_ONLY
     }
 
-    public String serializeEvaluationTrace(EvaluationTrace input, TraceInfoType requestedInfo,
+    public static String serializeEvaluationTrace(EvaluationTrace input, TraceInfoType requestedInfo,
                                            boolean serializeFlat) {
         return dumpExprOutput(input, 1, requestedInfo, serializeFlat);
     }
 
-    private String dumpExprOutput(EvaluationTrace level, int refLevel, TraceInfoType requestedInfo,
+    private static String dumpExprOutput(EvaluationTrace level, int refLevel, TraceInfoType requestedInfo,
                                   boolean serializeFlat) {
         String output = serializeFlat ?
                 addDesiredData(level, requestedInfo, "", ONE_INDENT) :
@@ -35,7 +35,7 @@ public class EvaluationTraceSerializer {
         return output;
     }
 
-    private String indentExprAndAddData(EvaluationTrace level, int indentLevel,
+    private static String indentExprAndAddData(EvaluationTrace level, int indentLevel,
                                         TraceInfoType requestedInfo) {
         String expr = level.getExpression();
         String value = level.getValue();
@@ -48,7 +48,7 @@ public class EvaluationTraceSerializer {
         return addDesiredData(level, requestedInfo, indent + expr + ": " + value + "\n", indent);
     }
 
-    private String addDesiredData(EvaluationTrace level, TraceInfoType requestedInfo,
+    private static String addDesiredData(EvaluationTrace level, TraceInfoType requestedInfo,
                                   String coreString, String indent) {
         String newResult = coreString;
         switch (requestedInfo) {
