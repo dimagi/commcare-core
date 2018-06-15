@@ -623,7 +623,7 @@ public class FormEntryModel {
         if (indexDebug == null || indexDebug.get(category) == null) {
             return null;
         }
-        return serializer.serializeEvaluationLevels(indexDebug.get(category),
-                EvaluationTraceSerializer.TraceInfoType.FULL_PROFILE);
+        return serializer.serializeEvaluationTrace(indexDebug.get(category),
+                EvaluationTraceSerializer.TraceInfoType.FULL_PROFILE, false);
     }
 }

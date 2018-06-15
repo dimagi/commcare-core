@@ -366,8 +366,11 @@ public class XFormPlayer {
         }
 
         if (mIsDebugOn && ec.getEvaluationTrace() != null) {
-            out.println(new EvaluationTraceSerializer().serializeEvaluationLevels(ec.getEvaluationTrace(),
-                    EvaluationTraceSerializer.TraceInfoType.FULL_PROFILE));
+            out.println(new EvaluationTraceSerializer().serializeEvaluationTrace(
+                    ec.getEvaluationTrace(),
+                    EvaluationTraceSerializer.TraceInfoType.FULL_PROFILE,
+                    false)
+            );
         }
     }
 

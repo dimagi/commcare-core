@@ -6,7 +6,6 @@ import org.javarosa.core.model.trace.EvaluationTraceSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * Utility functions for instrumentation in the engine

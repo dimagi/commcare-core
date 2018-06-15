@@ -15,10 +15,6 @@ public class EvaluationTraceSerializer {
         CACHE_INFO_ONLY
     }
 
-    public String serializeEvaluationLevels(EvaluationTrace input, TraceInfoType requestedInfo) {
-        return serializeEvaluationTrace(input, requestedInfo, false);
-    }
-
     public String serializeEvaluationTrace(EvaluationTrace input, TraceInfoType requestedInfo,
                                            boolean serializeFlat) {
         return dumpExprOutput(input, 1, requestedInfo, serializeFlat);

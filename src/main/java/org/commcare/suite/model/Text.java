@@ -328,7 +328,7 @@ public class Text implements Externalizable, DetailTemplate, XPathAnalyzable {
         if (this.type == Text.TEXT_TYPE_XPATH) {
             try {
                 ensureCacheIsParsed();
-            } catch(XPathSyntaxException e) {
+            } catch (XPathSyntaxException e) {
                 throw AnalysisInvalidException.INSTANCE;
             }
             cacheParse.applyAndPropagateAnalyzer(analyzer);
