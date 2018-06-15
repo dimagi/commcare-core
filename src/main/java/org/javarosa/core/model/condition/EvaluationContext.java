@@ -94,7 +94,6 @@ public class EvaluationContext {
         this(instance, new Hashtable<String, DataInstance>());
     }
 
-    // *** This is the only EC constructor where a NEW context is passed in
     public EvaluationContext(EvaluationContext base, TreeReference context) {
         this(base, base.instance, context, base.formInstances);
     }
@@ -179,11 +178,11 @@ public class EvaluationContext {
         }
     }
 
-    public void enableCaching() {
+    public void enableExpressionCaching() {
         this.expressionCacher = new InFormExpressionCacher();
     }
 
-    public boolean cachingEnabled() {
+    public boolean expressionCachingEnabled() {
         return expressionCacher != null;
     }
 
@@ -485,7 +484,7 @@ public class EvaluationContext {
      */
     private EvaluationContext rescope(TreeReference newContextRef, int newContextPosition,
                                       QueryContext subContext) {
-        EvaluationContext ec = new EvaluationContext(this, this.instance, newContextRef, this.formInstances);
+        EvaluationContext ec = new EvaluationContext(this, newContextRef);
         ec.setQueryContext(subContext);
         ec.currentContextPosition = newContextPosition;
 

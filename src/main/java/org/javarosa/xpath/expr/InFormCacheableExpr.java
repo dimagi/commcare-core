@@ -22,7 +22,7 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     protected boolean isCacheable;
 
     boolean isCached(EvaluationContext ec) {
-        if (ec.cachingEnabled()) {
+        if (ec.expressionCachingEnabled()) {
             queueUpCachedValue(ec);
             return justRetrieved != null;
         }
@@ -41,7 +41,7 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     }
 
     void cache(Object value, EvaluationContext ec) {
-        if (ec.cachingEnabled() && isCacheable(ec)) {
+        if (ec.expressionCachingEnabled() && isCacheable(ec)) {
             ec.expressionCacher().cache(cacheKey(ec), value);
         }
     }
