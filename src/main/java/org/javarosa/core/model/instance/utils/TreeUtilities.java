@@ -46,12 +46,11 @@ public class TreeUtilities {
      * is provided
      */
     public static Collection<TreeReference> tryBatchChildFetch(AbstractTreeElement parent,
-                                                           Hashtable<XPathPathExpr,
-                                                                   Hashtable<String, TreeElement[]>> childAttributeHintMap,
-                                                           String name,
-                                                           int mult,
-                                                           Vector<XPathExpression> predicates,
-                                                           EvaluationContext evalContext) {
+                                                               Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> childAttributeHintMap,
+                                                               String name,
+                                                               int mult,
+                                                               Vector<XPathExpression> predicates,
+                                                               EvaluationContext evalContext) {
         // This method builds a predictive model for quick queries that
         // prevents the need to fully flesh out full walks of the tree.
 
