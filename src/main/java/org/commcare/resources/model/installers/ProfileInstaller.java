@@ -9,6 +9,7 @@ import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.xml.ProfileParser;
+import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -49,7 +50,9 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
     }
 
     @Override
-    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) {
+    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) throws
+            IOException, InvalidReferenceException, InvalidStructureException,
+            XmlPullParserException, UnfullfilledRequirementsException {
         //Certain properties may not have been able to set during install, so we'll make sure they're
         //set here.
         Profile p = storage(platform).read(cacheLocation);
