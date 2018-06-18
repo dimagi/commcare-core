@@ -45,7 +45,7 @@ public abstract class XPathFuncExpr extends XPathExpression {
     }
 
     @Override
-    public final Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+    protected final Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         Object[] evaluatedArgs = evaluateArguments(model, evalContext);
 
         IFunctionHandler handler = evalContext.getFunctionHandlers().get(name);

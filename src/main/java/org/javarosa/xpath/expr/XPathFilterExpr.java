@@ -34,7 +34,7 @@ public class XPathFilterExpr extends XPathExpression {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+    protected Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         throw new XPathUnsupportedException("filter expression");
     }
 

@@ -24,7 +24,7 @@ public class XPathNumericLiteral extends XPathExpression {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+    protected Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         return new Double(d);
     }
 

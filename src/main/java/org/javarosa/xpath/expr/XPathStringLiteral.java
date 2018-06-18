@@ -24,7 +24,7 @@ public class XPathStringLiteral extends XPathExpression {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+    protected Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         return s;
     }
 

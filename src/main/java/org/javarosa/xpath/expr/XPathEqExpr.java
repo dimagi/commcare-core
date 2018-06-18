@@ -26,7 +26,7 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+    protected Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         Object aval = FunctionUtils.unpack(a.eval(model, evalContext));
         Object bval = FunctionUtils.unpack(b.eval(model, evalContext));
         boolean eq = testEquality(aval, bval);

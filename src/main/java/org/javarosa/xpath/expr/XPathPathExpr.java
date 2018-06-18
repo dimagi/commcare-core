@@ -172,7 +172,7 @@ public class XPathPathExpr extends XPathExpression {
     }
 
     @Override
-    public XPathNodeset evalRaw(DataInstance m, EvaluationContext ec) {
+    protected XPathNodeset evalRaw(DataInstance m, EvaluationContext ec) {
         TreeReference genericRef = getReference();
         TreeReference ref;
 

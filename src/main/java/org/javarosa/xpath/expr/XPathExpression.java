@@ -94,7 +94,7 @@ public abstract class XPathExpression extends InFormCacheableExpr implements Ext
      *
      * @return The result of this expression evaluated against the provided context
      */
-    public abstract Object evalRaw(DataInstance model, EvaluationContext evalContext);
+    protected abstract Object evalRaw(DataInstance model, EvaluationContext evalContext);
 
     public final Vector<Object> pivot(DataInstance model, EvaluationContext evalContext) throws UnpivotableExpressionException {
         try {

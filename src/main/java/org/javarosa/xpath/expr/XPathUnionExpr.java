@@ -21,7 +21,7 @@ public class XPathUnionExpr extends XPathBinaryOpExpr {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+    protected Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         throw new XPathUnsupportedException("nodeset union operation");
     }
 

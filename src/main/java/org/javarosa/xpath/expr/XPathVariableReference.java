@@ -24,7 +24,7 @@ public class XPathVariableReference extends XPathExpression {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+    protected Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         return evalContext.getVariable(id.toString());
     }
 
