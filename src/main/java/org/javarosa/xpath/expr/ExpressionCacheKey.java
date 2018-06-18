@@ -9,25 +9,23 @@ import org.javarosa.core.model.instance.TreeReference;
 public class ExpressionCacheKey {
 
     private InFormCacheableExpr expr;
-    private TreeReference context;
 
-    public ExpressionCacheKey(InFormCacheableExpr expr, TreeReference contextNode) {
+    public ExpressionCacheKey(InFormCacheableExpr expr) {
         this.expr = expr;
-        this.context = contextNode;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o instanceof ExpressionCacheKey) {
             ExpressionCacheKey other = (ExpressionCacheKey)o;
-            return expr.equals(other.expr) && context.equals(other.context);
+            return expr.equals(other.expr);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return expr.hashCode() ^ context.hashCode();
+        return expr.hashCode();
     }
 
 }

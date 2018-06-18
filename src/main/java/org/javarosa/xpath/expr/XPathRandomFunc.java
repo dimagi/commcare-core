@@ -6,7 +6,7 @@ import org.javarosa.core.util.MathUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 // non-standard
-public class XPathRandomFunc extends XPathFuncExpr implements UncacheableXPathFuncExpr {
+public class XPathRandomFunc extends XPathFuncExpr implements VolatileXPathFuncExpr {
     public static final String NAME = "random";
     private static final int EXPECTED_ARG_COUNT = 0;
 
@@ -26,7 +26,7 @@ public class XPathRandomFunc extends XPathFuncExpr implements UncacheableXPathFu
     }
 
     @Override
-    protected boolean isCacheable(EvaluationContext ec) {
+    protected boolean expressionTypeIsCacheable() {
         return false;
     }
 

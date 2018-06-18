@@ -6,7 +6,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.Date;
 
-public class XPathNowFunc extends XPathFuncExpr implements UncacheableXPathFuncExpr {
+public class XPathNowFunc extends XPathFuncExpr implements VolatileXPathFuncExpr {
     public static final String NAME = "now";
     private static final int EXPECTED_ARG_COUNT = 0;
 
@@ -25,7 +25,7 @@ public class XPathNowFunc extends XPathFuncExpr implements UncacheableXPathFuncE
     }
 
     @Override
-    protected boolean isCacheable(EvaluationContext ec) {
+    protected boolean expressionTypeIsCacheable() {
         return false;
     }
 

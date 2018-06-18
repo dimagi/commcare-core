@@ -1,7 +1,7 @@
 package org.javarosa.xpath.analysis;
 
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.xpath.expr.UncacheableXPathFuncExpr;
+import org.javarosa.xpath.expr.VolatileXPathFuncExpr;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
 /**
@@ -23,7 +23,7 @@ public class ContainsUncacheableExpressionAnalyzer extends XPathBooleanAnalyzer 
 
     @Override
     public void doAnalysis(XPathFuncExpr expr) {
-        if (expr instanceof UncacheableXPathFuncExpr) {
+        if (expr instanceof VolatileXPathFuncExpr) {
             this.result = true;
             this.shortCircuit = true;
         }

@@ -30,7 +30,7 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     }
 
     private void queueUpCachedValue(EvaluationContext ec) {
-        justRetrieved = ec.expressionCacher().getCachedValue(cacheKey(ec));
+        justRetrieved = ec.expressionCacher().getCachedValue(cacheKey());
     }
 
     /**
@@ -42,37 +42,40 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
 
     void cache(Object value, EvaluationContext ec) {
         if (ec.expressionCachingEnabled() && isCacheable(ec)) {
-            ec.expressionCacher().cache(cacheKey(ec), value);
+            ec.expressionCacher().cache(cacheKey(), value);
         }
     }
 
-    private ExpressionCacheKey cacheKey(EvaluationContext ec) {
-        return new ExpressionCacheKey(this, ec.getContextRef());
+    private ExpressionCacheKey cacheKey() {
+        return new ExpressionCacheKey(this);
     }
 
     protected boolean isCacheable(EvaluationContext ec) {
         if (!computedCacheability) {
-            computeCacheability(ec);
+            isCacheable = expressionTypeIsCacheable() && fullExpressionIsCacheable(ec);
+            computedCacheability = true;
         }
         return isCacheable;
     }
 
-    private void computeCacheability(EvaluationContext ec) {
+    protected boolean expressionTypeIsCacheable() {
+        return true;
+    }
+
+    private boolean fullExpressionIsCacheable(EvaluationContext ec) {
         if (ec.getMainInstance() instanceof FormInstance) {
             try {
-                isCacheable =
-                        !referencesMainFormInstance(this, (FormInstance)ec.getMainInstance(), ec) &&
+                return !referencesMainFormInstance(this, (FormInstance)ec.getMainInstance(), ec) &&
                         !containsUncacheableSubExpression(this, ec);
             } catch (AnalysisInvalidException e) {
                 // If the analysis didn't complete then we assume it's not cacheable
-                isCacheable = false;
+                return false;
             }
-            computedCacheability = true;
         } else {
             Logger.log(LogTypes.SOFT_ASSERT,
                     "Caching was enabled in the ec, but the main instance provided " +
                             "to InFormCacheableExpr by the ec was not of type FormInstance: " + ec.getMainInstance());
-            isCacheable = false;
+            return false;
         }
     }
 
