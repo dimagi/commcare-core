@@ -33,7 +33,7 @@ public class XPathDependFunc extends XPathFuncExpr implements VolatileXPathFuncE
     }
 
     @Override
-    protected boolean expressionTypeIsCacheable() {
+    protected boolean rootExpressionTypeIsCacheable() {
         return false;
     }
 

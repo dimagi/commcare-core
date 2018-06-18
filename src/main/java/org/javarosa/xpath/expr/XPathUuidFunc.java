@@ -39,7 +39,7 @@ public class XPathUuidFunc extends XPathFuncExpr implements VolatileXPathFuncExp
     }
 
     @Override
-    protected boolean expressionTypeIsCacheable() {
+    protected boolean rootExpressionTypeIsCacheable() {
         return false;
     }
 

@@ -440,7 +440,7 @@ public class XPathPathExpr extends XPathExpression {
     }
 
     @Override
-    protected boolean expressionTypeIsCacheable() {
+    protected boolean rootExpressionTypeIsCacheable() {
         return getReference().getContextType() == TreeReference.CONTEXT_ABSOLUTE;
     }
 

@@ -52,13 +52,13 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
 
     protected boolean isCacheable(EvaluationContext ec) {
         if (!computedCacheability) {
-            isCacheable = expressionTypeIsCacheable() && fullExpressionIsCacheable(ec);
+            isCacheable = rootExpressionTypeIsCacheable() && fullExpressionIsCacheable(ec);
             computedCacheability = true;
         }
         return isCacheable;
     }
 
-    protected boolean expressionTypeIsCacheable() {
+    protected boolean rootExpressionTypeIsCacheable() {
         return true;
     }
 

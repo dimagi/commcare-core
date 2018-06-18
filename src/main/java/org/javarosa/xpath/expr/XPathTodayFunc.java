@@ -26,7 +26,7 @@ public class XPathTodayFunc extends XPathFuncExpr implements VolatileXPathFuncEx
     }
 
     @Override
-    protected boolean expressionTypeIsCacheable() {
+    protected boolean rootExpressionTypeIsCacheable() {
         return false;
     }
 
