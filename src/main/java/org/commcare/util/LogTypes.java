@@ -100,4 +100,9 @@ public class LogTypes {
 
     public static final String TYPE_WIFI_DIRECT = "wifi-direct";
 
+    /**
+     * Important events like app installation, updates, DB updates etc.
+     */
+    public static final String TYPE_DATA_CHANGE = "data-change";
+
 }

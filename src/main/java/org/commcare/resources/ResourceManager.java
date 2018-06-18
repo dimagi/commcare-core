@@ -3,6 +3,7 @@ package org.commcare.resources;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -164,7 +165,7 @@ public class ResourceManager {
      * Install staged upgrade table into the global table.
      */
     public void upgrade()
-            throws UnresolvedResourceException, IllegalArgumentException {
+            throws UnresolvedResourceException, IllegalArgumentException, ResourceInitializationException {
         synchronized (platform) {
             boolean upgradeSuccess = false;
             try {

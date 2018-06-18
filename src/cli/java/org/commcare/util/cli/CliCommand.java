@@ -9,6 +9,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.util.engine.CommCareConfigEngine;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -76,20 +77,27 @@ public abstract class CliCommand {
             } else {
                 engine.initFromLocalFileResource(resourcePath);
             }
+            engine.initEnvironment();
         } catch (InstallCancelledException e) {
             System.out.println("Install was cancelled by the user or system");
             e.printStackTrace(System.out);
             System.exit(-1);
         } catch (UnresolvedResourceException e) {
-            System.out.println("While attempting to resolve the necessary resources, one couldn't be found: " + e.getResource().getResourceId());
+            System.out.println("While attempting to resolve the necessary resources, " +
+                    "one couldn't be found: " + e.getResource().getResourceId());
             e.printStackTrace(System.out);
             System.exit(-1);
         } catch (UnfullfilledRequirementsException e) {
-            System.out.println("While attempting to resolve the necessary resources, a requirement wasn't met");
+            System.out.println("While attempting to resolve the necessary resources, " +
+                    "a requirement wasn't met");
+            e.printStackTrace(System.out);
+            System.exit(-1);
+        } catch (ResourceInitializationException e) {
+            System.out.println("While attempting to resolve the necessary resources, " +
+                    "one couldn't be initialized: " + e.getResource().getResourceId());
             e.printStackTrace(System.out);
             System.exit(-1);
         }
-        engine.initEnvironment();
         return engine;
     }
 }
