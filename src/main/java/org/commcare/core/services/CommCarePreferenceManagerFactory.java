@@ -9,8 +9,8 @@ public class CommCarePreferenceManagerFactory {
 
     private static ICommCarePreferenceManager sCommCarePreferenceManager;
 
-    public static void init(ICommCarePreferenceManager mCommCarePreferenceManager) {
-        sCommCarePreferenceManager = mCommCarePreferenceManager;
+    public static void init(ICommCarePreferenceManager commCarePreferenceManager) {
+        sCommCarePreferenceManager = commCarePreferenceManager;
     }
 
     @Nullable

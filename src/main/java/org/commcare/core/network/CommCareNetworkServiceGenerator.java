@@ -29,7 +29,7 @@ import static org.javarosa.core.model.utils.DateUtils.HOUR_IN_MS;
 public class CommCareNetworkServiceGenerator {
 
     public static final String CURRENT_DRIFT = "current_drift";
-    public static final String MAX_DRIFT_SINCE_LAST_HEARTBEAT = "max_drfit_since_last_heartbeat";
+    public static final String MAX_DRIFT_SINCE_LAST_HEARTBEAT = "max_drift_since_last_heartbeat";
 
     // Retrofit needs a base url to generate an instance but since our apis are fully dynamic it's not getting used.
     private static final String BASE_URL = "http://example.url/";
@@ -60,12 +60,12 @@ public class CommCareNetworkServiceGenerator {
                 try {
                     long serverTimeInMillis = new SimpleDateFormat("EEE, dd MMM yyyy hh:mm:ss zzz").parse(serverDate).getTime();
                     long now = new Date().getTime();
-                    long currentDrfit = (now - serverTimeInMillis) / HOUR_IN_MS;
-                    commCarePreferenceManager.putLong(CURRENT_DRIFT, currentDrfit);
-                    long maxDrfitSinceLastHeartbeat = commCarePreferenceManager.getLong(MAX_DRIFT_SINCE_LAST_HEARTBEAT, 0);
-                    currentDrfit *= currentDrfit < 0 ? -1 : 1; // make it positive to calculate max drift
-                    if (currentDrfit > maxDrfitSinceLastHeartbeat) {
-                        commCarePreferenceManager.putLong(MAX_DRIFT_SINCE_LAST_HEARTBEAT, currentDrfit);
+                    long currentDrift = (now - serverTimeInMillis) / HOUR_IN_MS;
+                    commCarePreferenceManager.putLong(CURRENT_DRIFT, currentDrift);
+                    long maxDriftSinceLastHeartbeat = commCarePreferenceManager.getLong(MAX_DRIFT_SINCE_LAST_HEARTBEAT, 0);
+                    currentDrift *= currentDrift < 0 ? -1 : 1; // make it positive to calculate max drift
+                    if (currentDrift > maxDriftSinceLastHeartbeat) {
+                        commCarePreferenceManager.putLong(MAX_DRIFT_SINCE_LAST_HEARTBEAT, currentDrift);
                     }
                 } catch (ParseException e) {
                     e.printStackTrace();
