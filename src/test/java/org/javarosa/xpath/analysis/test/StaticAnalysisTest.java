@@ -6,6 +6,7 @@ import org.javarosa.xpath.analysis.AnalysisInvalidException;
 import org.javarosa.xpath.analysis.ContainsUncacheableExpressionAnalyzer;
 import org.javarosa.xpath.analysis.ReferencesMainInstanceAnalyzer;
 import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
+import org.javarosa.xpath.analysis.TopLevelContextTypesAnalyzer;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Test;
@@ -203,4 +204,41 @@ public class StaticAnalysisTest {
             fail("Encountered Analysis Invalid exception: " + e.getMessage());
         }
     }
+
+    @Test
+    public void testContextTypesAnalyzer() throws XPathSyntaxException {
+        testContextTypesAccumulate("true()",
+                new int[]{});
+        testContextTypesAccumulate("/data/q1",
+                new int[]{TreeReference.CONTEXT_ABSOLUTE});
+        testContextTypesAccumulate("true() and ./case_name = 'Aliza'",
+                new int[]{TreeReference.CONTEXT_INHERITED});
+        testContextTypesAccumulate("instance('commcaresession')/session/data/case_id_load_test",
+                new int[]{TreeReference.CONTEXT_INSTANCE});
+        testContextTypesAccumulate("instance('casedb')/casedb/case[@case_type='case'][@status='open']",
+                new int[]{TreeReference.CONTEXT_INSTANCE});
+        testContextTypesAccumulate("@case_type='case'",
+                new int[]{TreeReference.CONTEXT_INHERITED});
+        testContextTypesAccumulate("@case_id=current()/index/parent",
+                new int[]{TreeReference.CONTEXT_INHERITED, TreeReference.CONTEXT_ORIGINAL});
+    }
+
+    private void testContextTypesAccumulate(String expressionString, int[] expectedTypes)
+            throws XPathSyntaxException {
+
+        TopLevelContextTypesAnalyzer analyzer = new TopLevelContextTypesAnalyzer();
+
+        Set<Integer> expectedTypesSet = null;
+        if (expectedTypes != null) {
+            expectedTypesSet = new HashSet<>();
+            for (Integer type : expectedTypes) {
+                expectedTypesSet.add(type);
+            }
+        }
+
+        Set<Integer> parsedTypesSet =
+                analyzer.accumulate(XPathParseTool.parseXPath(expressionString));
+        assertEquals(expectedTypesSet, parsedTypesSet);
+    }
+
 }

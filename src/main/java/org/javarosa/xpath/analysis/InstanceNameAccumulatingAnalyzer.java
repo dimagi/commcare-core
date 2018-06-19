@@ -23,7 +23,7 @@ public class InstanceNameAccumulatingAnalyzer extends XPathAccumulatingAnalyzer<
     @Override
     public void doNormalTreeRefAnalysis(TreeReference treeRef) throws AnalysisInvalidException {
         if (treeRef.getContextType() == TreeReference.CONTEXT_INSTANCE) {
-            addResultToList(treeRef.getInstanceName());
+            addToResult(treeRef.getInstanceName());
         }
     }
 

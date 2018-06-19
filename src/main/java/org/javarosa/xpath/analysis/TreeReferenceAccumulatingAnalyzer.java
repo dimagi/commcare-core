@@ -26,7 +26,7 @@ public class TreeReferenceAccumulatingAnalyzer extends XPathAccumulatingAnalyzer
 
     @Override
     public void doNormalTreeRefAnalysis(TreeReference treeRef) throws AnalysisInvalidException {
-        addResultToList(treeRef.removePredicates());
+        addToResult(treeRef.removePredicates());
     }
 
     @Override

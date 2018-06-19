@@ -103,6 +103,10 @@ public abstract class XPathAnalyzer {
         // So that we can override in subclasses for which this is relevant
     }
 
+    public boolean shouldIncludePredicates() {
+        return true;
+    }
+
     public XPathAnalyzer spawnSubAnalyzer(TreeReference subContext) {
         XPathAnalyzer subAnalyzer = initSameTypeAnalyzer();
         subAnalyzer.isSubAnalyzer = true;

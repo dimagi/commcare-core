@@ -842,7 +842,8 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
             return;
         }
         analyzer.doAnalysis(TreeReference.this);
-        if (this.hasPredicates()) {
+
+        if (analyzer.shouldIncludePredicates() && this.hasPredicates()) {
 
             TreeReference contextForPredicates = this;
             if (this.contextType == CONTEXT_ORIGINAL) {

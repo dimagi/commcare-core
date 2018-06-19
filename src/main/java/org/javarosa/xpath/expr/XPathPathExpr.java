@@ -440,11 +440,6 @@ public class XPathPathExpr extends XPathExpression {
     }
 
     @Override
-    protected boolean rootExpressionTypeIsCacheable() {
-        return getReference().getContextType() == TreeReference.CONTEXT_ABSOLUTE;
-    }
-
-    @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
         if (analyzer.shortCircuit()) {
             return;
