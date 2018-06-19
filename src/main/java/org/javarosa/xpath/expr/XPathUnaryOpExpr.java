@@ -41,14 +41,20 @@ public abstract class XPathUnaryOpExpr extends XPathOpExpr {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         a = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged(), pf);
         computedCacheability = ExtUtil.readBool(in);
-        isCacheable = ExtUtil.readBool(in);
+        exprIsCacheable = ExtUtil.readBool(in);
+        computedContextTypes = ExtUtil.readBool(in);
+        contextRefIsRelevant = ExtUtil.readBool(in);
+        originalContextRefIsRelevant = ExtUtil.readBool(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapTagged(a));
         ExtUtil.writeBool(out, computedCacheability);
-        ExtUtil.writeBool(out, isCacheable);
+        ExtUtil.writeBool(out, exprIsCacheable);
+        ExtUtil.writeBool(out, computedContextTypes);
+        ExtUtil.writeBool(out, contextRefIsRelevant);
+        ExtUtil.writeBool(out, originalContextRefIsRelevant);
     }
 
     @Override

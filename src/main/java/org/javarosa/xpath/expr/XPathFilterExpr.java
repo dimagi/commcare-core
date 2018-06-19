@@ -85,7 +85,10 @@ public class XPathFilterExpr extends XPathExpression {
             predicates[i] = (XPathExpression)v.elementAt(i);
         }
         computedCacheability = ExtUtil.readBool(in);
-        isCacheable = ExtUtil.readBool(in);
+        exprIsCacheable = ExtUtil.readBool(in);
+        computedContextTypes = ExtUtil.readBool(in);
+        contextRefIsRelevant = ExtUtil.readBool(in);
+        originalContextRefIsRelevant = ExtUtil.readBool(in);
     }
 
     @Override
@@ -98,7 +101,10 @@ public class XPathFilterExpr extends XPathExpression {
         ExtUtil.write(out, new ExtWrapTagged(x));
         ExtUtil.write(out, new ExtWrapListPoly(v));
         ExtUtil.writeBool(out, computedCacheability);
-        ExtUtil.writeBool(out, isCacheable);
+        ExtUtil.writeBool(out, exprIsCacheable);
+        ExtUtil.writeBool(out, computedContextTypes);
+        ExtUtil.writeBool(out, contextRefIsRelevant);
+        ExtUtil.writeBool(out, originalContextRefIsRelevant);
     }
 
     @Override

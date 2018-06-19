@@ -52,14 +52,20 @@ public class XPathStringLiteral extends XPathExpression {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         s = ExtUtil.readString(in);
         computedCacheability = ExtUtil.readBool(in);
-        isCacheable = ExtUtil.readBool(in);
+        exprIsCacheable = ExtUtil.readBool(in);
+        computedContextTypes = ExtUtil.readBool(in);
+        contextRefIsRelevant = ExtUtil.readBool(in);
+        originalContextRefIsRelevant = ExtUtil.readBool(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, s);
         ExtUtil.writeBool(out, computedCacheability);
-        ExtUtil.writeBool(out, isCacheable);
+        ExtUtil.writeBool(out, exprIsCacheable);
+        ExtUtil.writeBool(out, computedContextTypes);
+        ExtUtil.writeBool(out, contextRefIsRelevant);
+        ExtUtil.writeBool(out, originalContextRefIsRelevant);
     }
 
     @Override

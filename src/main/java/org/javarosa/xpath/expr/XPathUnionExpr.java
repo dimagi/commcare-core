@@ -34,7 +34,10 @@ public class XPathUnionExpr extends XPathBinaryOpExpr {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         readExpressions(in, pf);
         computedCacheability = ExtUtil.readBool(in);
-        isCacheable = ExtUtil.readBool(in);
+        exprIsCacheable = ExtUtil.readBool(in);
+        computedContextTypes = ExtUtil.readBool(in);
+        contextRefIsRelevant = ExtUtil.readBool(in);
+        originalContextRefIsRelevant = ExtUtil.readBool(in);
         op = -1;
     }
 
@@ -42,7 +45,11 @@ public class XPathUnionExpr extends XPathBinaryOpExpr {
     public void writeExternal(DataOutputStream out) throws IOException {
         writeExpressions(out);
         ExtUtil.writeBool(out, computedCacheability);
-        ExtUtil.writeBool(out, isCacheable);
+        ExtUtil.writeBool(out, exprIsCacheable);
+        ExtUtil.writeBool(out, computedContextTypes);
+        ExtUtil.writeBool(out, contextRefIsRelevant);
+        ExtUtil.writeBool(out, originalContextRefIsRelevant);
+
     }
 
     @Override

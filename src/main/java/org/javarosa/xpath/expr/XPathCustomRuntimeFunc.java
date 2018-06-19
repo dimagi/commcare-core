@@ -7,7 +7,6 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathArityException;
-import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnhandledException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -141,7 +140,10 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
 
         name = ExtUtil.readString(in);
         computedCacheability = ExtUtil.readBool(in);
-        isCacheable = ExtUtil.readBool(in);
+        exprIsCacheable = ExtUtil.readBool(in);
+        computedContextTypes = ExtUtil.readBool(in);
+        contextRefIsRelevant = ExtUtil.readBool(in);
+        originalContextRefIsRelevant = ExtUtil.readBool(in);
     }
 
     @Override
@@ -150,7 +152,10 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
 
         ExtUtil.writeString(out, name);
         ExtUtil.writeBool(out, computedCacheability);
-        ExtUtil.writeBool(out, isCacheable);
+        ExtUtil.writeBool(out, exprIsCacheable);
+        ExtUtil.writeBool(out, computedContextTypes);
+        ExtUtil.writeBool(out, contextRefIsRelevant);
+        ExtUtil.writeBool(out, originalContextRefIsRelevant);
     }
 
 }

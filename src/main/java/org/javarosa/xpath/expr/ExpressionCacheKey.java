@@ -2,7 +2,6 @@ package org.javarosa.xpath.expr;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.xpath.analysis.TopLevelContextTypesAnalyzer;
 
 import java.util.Set;
 
@@ -23,19 +22,10 @@ public class ExpressionCacheKey {
     @Nullable
     private TreeReference originalContextRef;
 
-    public ExpressionCacheKey(InFormCacheableExpr expr, EvaluationContext ec) {
+    ExpressionCacheKey(InFormCacheableExpr expr, TreeReference contextRef, TreeReference originalContextRef) {
         this.expr = expr;
-        for (int contextType : getRelevantContextTypes(expr)) {
-            if (contextType == TreeReference.CONTEXT_INHERITED) {
-                contextRef = ec.getContextRef();
-            } else if (contextType == TreeReference.CONTEXT_ORIGINAL) {
-                originalContextRef = ec.getOriginalContext();
-            }
-        }
-    }
-
-    private static Set<Integer> getRelevantContextTypes(InFormCacheableExpr expr) {
-        return new TopLevelContextTypesAnalyzer().accumulate(expr);
+        this.contextRef = contextRef;
+        this.originalContextRef = originalContextRef;
     }
 
     @Override
