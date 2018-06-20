@@ -112,10 +112,14 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
                 !(originalContextRefIsRelevant && contextRefIsUncacheable(ec.getOriginalContext()));
     }
 
+    /**
+     * Why this is true: Since a context ref in an EvaluationContext will always be fully-qualified,
+     * its context type will always be either CONTEXT_INSTANCE or CONTEXT_ABSOLUTE. Within a form,
+     * CONTEXT_ABSOLUTE always means the context ref is in the main form instance, and is therefore
+     * uncacheable, while CONTEXT_INSTANCE always means it is in an external instance, and is
+     * therefore cacheable
+     */
     private static boolean contextRefIsUncacheable(TreeReference contextRef) {
-        // Since a context ref in an EvaluationContext will always be fully-qualified, its context
-        // type will always be either CONTEXT_INSTANCE or CONTEXT_ABSOLUTE. Within a form,
-        // CONTEXT_ABSOLUTE means it depends on the main form instance, and is therefore uncacheable
         return contextRef.getContextType() == TreeReference.CONTEXT_ABSOLUTE;
     }
 
