@@ -113,7 +113,10 @@ public class CaseChildElement extends StorageBackedChildElement<Case> implements
 
         //Don't set anything to null
         cacheBuilder.setAttribute(null, "owner_id", c.getUserId() == null ? "" : c.getUserId());
-        cacheBuilder.setAttribute(null, "external_id", c.getExternalId() == null ? "" : c.getExternalId());
+
+        if (c.getExternalId() != null) {
+            cacheBuilder.setAttribute(null, "external_id", c.getExternalId());
+        }
 
         final boolean[] done = new boolean[]{false};
 
