@@ -14,17 +14,16 @@ import org.junit.runners.Parameterized;
 import java.util.Collection;
 
 /**
- * Test suite to verify end-to-end parsing of inbound case XML
- * and reading values back from the casedb model
+ * Tests verifying that the @external_id index performs correctly
  *
- * @author ctsims
+ * @author wpride
  */
 @RunWith(value = Parameterized.class)
 public class CaseExternalIdTest {
 
     private MockUserDataSandbox sandbox;
 
-    TestProfileConfiguration config;
+    private TestProfileConfiguration config;
     @Parameterized.Parameters(name = "{0}")
     public static Collection data() {
         return TestProfileConfiguration.BulkOffOn();
@@ -45,6 +44,7 @@ public class CaseExternalIdTest {
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@external_id = '123']/case_name", "Two"));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@external_id = '123' and true()]/case_name", "Two"));
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_two']/@external_id", "123"));
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_two'][@external_id = '123']/case_name", "Two"));
     }
