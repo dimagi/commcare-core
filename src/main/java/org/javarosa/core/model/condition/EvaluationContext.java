@@ -91,7 +91,7 @@ public class EvaluationContext {
     private final DataInstance instance;
 
     public EvaluationContext(DataInstance instance) {
-        this(instance, new Hashtable<String, DataInstance>());
+        this(instance, new Hashtable<>());
     }
 
     public EvaluationContext(EvaluationContext base, TreeReference context) {
@@ -482,7 +482,7 @@ public class EvaluationContext {
      * @return a copy of this evaluation context, with a new context reference
      * set and the original context reference correspondingly updated.
      */
-    private EvaluationContext rescope(TreeReference newContextRef, int newContextPosition,
+    public EvaluationContext rescope(TreeReference newContextRef, int newContextPosition,
                                       QueryContext subContext) {
         EvaluationContext ec = new EvaluationContext(this, newContextRef);
         ec.setQueryContext(subContext);

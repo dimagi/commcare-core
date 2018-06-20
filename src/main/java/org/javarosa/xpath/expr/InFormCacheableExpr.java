@@ -62,7 +62,7 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
                 originalContextRefIsRelevant ? ec.getOriginalContext() : null);
     }
 
-    protected boolean expressionIsCacheable(EvaluationContext ec) {
+    private boolean expressionIsCacheable(EvaluationContext ec) {
         if (!computedCacheability) {
             exprIsCacheable = rootExpressionTypeIsCacheable() && fullExpressionIsCacheable(ec);
             computedCacheability = true;
@@ -100,7 +100,7 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
         return (new ContainsUncacheableExpressionAnalyzer(ec)).computeResult(expr);
     }
 
-    private boolean relevantContextNodesAreCacheable(EvaluationContext ec) {
+    public boolean relevantContextNodesAreCacheable(EvaluationContext ec) {
         if (!computedContextTypes) {
             Set<Integer> relevantContextTypes = new TopLevelContextTypesAnalyzer().accumulate(this);
             contextRefIsRelevant = relevantContextTypes.contains(TreeReference.CONTEXT_INHERITED);
