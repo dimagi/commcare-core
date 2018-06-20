@@ -40,20 +40,13 @@ public class CaseExternalIdTest {
     }
 
     @Test
-    public void testReadExternalIdOne() throws Exception {
-        config.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_external_id.xml"), sandbox, false);
-        EvaluationContext ec =
-                MockDataUtils.buildContextWithInstance(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
-        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@external_id = '123']/case_name", "Two"));
-    }
-
-    @Test
-    public void testReadExternalIdTwo() throws Exception {
+    public void testReadExternalId() throws Exception {
         config.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_external_id.xml"), sandbox, false);
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@external_id = '123']/case_name", "Two"));
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_two']/@external_id", "123"));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_two'][@external_id = '123']/case_name", "Two"));
     }
 
     @Test
@@ -62,5 +55,14 @@ public class CaseExternalIdTest {
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@external_id = '123']/case_name", ""));
+    }
+
+    @Test
+    public void testEmptyDbWorks() throws Exception {
+        config.parseIntoSandbox(this.getClass().getResourceAsStream("/empty_restore.xml"), sandbox, false);
+        EvaluationContext ec =
+                MockDataUtils.buildContextWithInstance(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "instance('casedb')/casedb/case[@case_id = '123']/@external_id", ""));
     }
 }
