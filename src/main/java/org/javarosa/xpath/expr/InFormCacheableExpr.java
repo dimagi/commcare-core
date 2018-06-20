@@ -75,7 +75,7 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     }
 
     private boolean fullExpressionIsCacheable(EvaluationContext ec) {
-        if (ec.getMainInstance() instanceof FormInstance) {
+        if (ec.getMainInstance() != null && ec.getMainInstance() instanceof FormInstance) {
             try {
                 return !referencesMainFormInstance(this, (FormInstance)ec.getMainInstance(), ec) &&
                         !containsUncacheableSubExpression(this, ec);
