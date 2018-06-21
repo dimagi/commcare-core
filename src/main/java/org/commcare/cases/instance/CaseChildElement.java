@@ -14,8 +14,6 @@ import org.javarosa.core.model.utils.PreloadUtils;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import javax.management.Query;
-
 /**
  * @author ctsims
  */
@@ -45,6 +43,7 @@ public class CaseChildElement extends StorageBackedChildElement<Case> implements
         empty.setAttribute(null, nameId, "");
         empty.setAttribute(null, "case_type", "");
         empty.setAttribute(null, "status", "");
+        empty.setAttribute(null, "external_id", "");
 
         TreeElement scratch = new TreeElement("case_name");
         scratch.setAnswer(null);
@@ -114,6 +113,10 @@ public class CaseChildElement extends StorageBackedChildElement<Case> implements
 
         //Don't set anything to null
         cacheBuilder.setAttribute(null, "owner_id", c.getUserId() == null ? "" : c.getUserId());
+
+        if (c.getExternalId() != null) {
+            cacheBuilder.setAttribute(null, "external_id", c.getExternalId());
+        }
 
         final boolean[] done = new boolean[]{false};
 
