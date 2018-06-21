@@ -54,7 +54,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
             InputStream incoming = null;
             try {
                 incoming = ref.getStream();
-                SuiteParser parser = new SuiteParser(incoming, table, r.getRecordGuid(), platform.getStorageManager().getStorage(FormInstance.STORAGE_KEY));
+                SuiteParser parser = new SuiteParser(incoming, table, r.getRecordGuid(), platform.getStorageManager().getStorage("fixture"));
                 if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_REMOTE) {
                     parser.setMaximumAuthority(Resource.RESOURCE_AUTHORITY_REMOTE);
                 }
