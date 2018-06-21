@@ -13,7 +13,7 @@ import org.javarosa.core.model.trace.BulkEvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.CacheHost;
-import org.javarosa.xpath.expr.InFormExpressionCacher;
+import org.javarosa.xpath.expr.ExpressionCacher;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathLazyNodeset;
@@ -86,7 +86,7 @@ public class EvaluationContext {
      */
     private int currentContextPosition = -1;
 
-    private InFormExpressionCacher expressionCacher;
+    private ExpressionCacher expressionCacher;
 
     private final DataInstance instance;
 
@@ -179,14 +179,14 @@ public class EvaluationContext {
     }
 
     public void enableExpressionCaching() {
-        this.expressionCacher = new InFormExpressionCacher();
+        this.expressionCacher = new ExpressionCacher();
     }
 
     public boolean expressionCachingEnabled() {
         return expressionCacher != null;
     }
 
-    public InFormExpressionCacher expressionCacher() {
+    public ExpressionCacher expressionCacher() {
         return expressionCacher;
     }
 

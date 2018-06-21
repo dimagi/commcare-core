@@ -1,18 +1,16 @@
 package org.javarosa.xpath.expr;
 
-import org.javarosa.xpath.expr.InFormCacheableExpr;
-
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author Aliza Stone
  */
-public class InFormExpressionCacher {
+public class ExpressionCacher {
 
     private Map<ExpressionCacheKey, Object> cache;
 
-    public InFormExpressionCacher() {
+    public ExpressionCacher() {
         cache = new HashMap<>();
     }
 
