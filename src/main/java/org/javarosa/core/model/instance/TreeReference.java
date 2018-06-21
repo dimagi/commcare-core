@@ -848,12 +848,12 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
             TreeReference contextForPredicates = this;
             if (this.contextType == CONTEXT_ORIGINAL) {
                 if (analyzer.getOriginalContextRef() == null) {
-                    throw AnalysisInvalidException.INSTANCE;
+                    throw AnalysisInvalidException.INSTANCE_NO_ORIGINAL_CONTEXT_REF;
                 }
                 contextForPredicates = this.contextualize(analyzer.getOriginalContextRef());
             } else if (!this.isAbsolute()) {
                 if (analyzer.getContextRef() == null) {
-                    throw AnalysisInvalidException.INSTANCE;
+                    throw AnalysisInvalidException.INSTANCE_NO_CONTEXT_REF;
                 }
                 contextForPredicates = this.contextualize(analyzer.getContextRef());
             }

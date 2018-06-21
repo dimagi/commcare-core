@@ -329,7 +329,7 @@ public class Text implements Externalizable, DetailTemplate, XPathAnalyzable {
             try {
                 ensureCacheIsParsed();
             } catch (XPathSyntaxException e) {
-                throw AnalysisInvalidException.INSTANCE;
+                throw AnalysisInvalidException.INSTANCE_TEXT_PARSE_FAILURE;
             }
             cacheParse.applyAndPropagateAnalyzer(analyzer);
         } else if (arguments != null) {

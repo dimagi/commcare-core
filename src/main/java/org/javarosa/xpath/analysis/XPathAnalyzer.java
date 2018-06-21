@@ -53,13 +53,13 @@ public abstract class XPathAnalyzer {
 
     protected void requireOriginalContext(TreeReference forReference) throws AnalysisInvalidException{
         if (getOriginalContextRef() == null) {
-            throw AnalysisInvalidException.INSTANCE;
+            throw AnalysisInvalidException.INSTANCE_NO_ORIGINAL_CONTEXT_REF;
         }
     }
 
     protected void requireContext(TreeReference forReference) throws AnalysisInvalidException{
         if (getContextRef() == null) {
-            throw AnalysisInvalidException.INSTANCE;
+            throw AnalysisInvalidException.INSTANCE_NO_CONTEXT_REF;
         }
     }
 

@@ -6,11 +6,15 @@ package org.javarosa.xpath.analysis;
  */
 public class AnalysisInvalidException extends Exception {
 
-    public static AnalysisInvalidException INSTANCE = new AnalysisInvalidException();
-
-    private AnalysisInvalidException() {
-        super();
-    }
+    // Static exception instances b/c generating them dynamically costs valuable time during analysis
+    public static AnalysisInvalidException INSTANCE_NO_CONTEXT_REF =
+            new AnalysisInvalidException("No context ref available when needed");
+    public static AnalysisInvalidException INSTANCE_NO_ORIGINAL_CONTEXT_REF =
+            new AnalysisInvalidException("No original context ref available when needed");
+    public static AnalysisInvalidException INSTANCE_ITEMSET_ACCUM_FAILURE =
+            new AnalysisInvalidException("Itemset accumulation failed");
+    public static AnalysisInvalidException INSTANCE_TEXT_PARSE_FAILURE =
+            new AnalysisInvalidException("Couldn't parse Text XPath Expression");
 
     public AnalysisInvalidException(String msg) {
         super(msg);
