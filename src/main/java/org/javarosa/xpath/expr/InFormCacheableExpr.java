@@ -2,7 +2,6 @@ package org.javarosa.xpath.expr;
 
 import org.commcare.util.LogTypes;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.analysis.AnalysisInvalidException;
@@ -75,25 +74,17 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     }
 
     private boolean fullExpressionIsCacheable(EvaluationContext ec) {
-        if (ec.getMainInstance() != null && ec.getMainInstance() instanceof FormInstance) {
-            try {
-                return !referencesMainFormInstance(this, (FormInstance)ec.getMainInstance(), ec) &&
-                        !containsUncacheableSubExpression(this, ec);
-            } catch (AnalysisInvalidException e) {
-                // If the analysis didn't complete then we assume it's not cacheable
-                return false;
-            }
-        } else {
-            Logger.log(LogTypes.SOFT_ASSERT,
-                    "Caching was enabled in the ec, but the main instance provided " +
-                            "to InFormCacheableExpr by the ec was not of type FormInstance: " + ec.getMainInstance());
+        try {
+            return !referencesMainFormInstance(this, ec) &&
+                    !containsUncacheableSubExpression(this, ec);
+        } catch (AnalysisInvalidException e) {
+            // If the analysis didn't complete then we assume it's not cacheable
             return false;
         }
     }
 
-    public static boolean referencesMainFormInstance(XPathAnalyzable expr, FormInstance formInstance, EvaluationContext ec) throws AnalysisInvalidException {
-        String formInstanceRoot = formInstance.getBase().getChildAt(0).getName();
-        return (new ReferencesMainInstanceAnalyzer(formInstanceRoot, ec)).computeResult(expr);
+    public static boolean referencesMainFormInstance(XPathAnalyzable expr, EvaluationContext ec) throws AnalysisInvalidException {
+        return (new ReferencesMainInstanceAnalyzer(ec)).computeResult(expr);
     }
 
     public static boolean containsUncacheableSubExpression(XPathAnalyzable expr, EvaluationContext ec) throws AnalysisInvalidException {
@@ -107,9 +98,9 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
             originalContextRefIsRelevant = relevantContextTypes.contains(TreeReference.CONTEXT_ORIGINAL);
             computedContextTypes = true;
         }
-        return !(contextRefIsRelevant && contextRefIsUncacheable(ec.getContextRef()))
+        return !(contextRefIsRelevant && contextRefIsUncacheableInForm(ec.getContextRef()))
                 &&
-                !(originalContextRefIsRelevant && contextRefIsUncacheable(ec.getOriginalContext()));
+                !(originalContextRefIsRelevant && contextRefIsUncacheableInForm(ec.getOriginalContext()));
     }
 
     /**
@@ -119,7 +110,7 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
      * uncacheable, while CONTEXT_INSTANCE always means it is in an external instance, and is
      * therefore cacheable
      */
-    private static boolean contextRefIsUncacheable(TreeReference contextRef) {
+    private static boolean contextRefIsUncacheableInForm(TreeReference contextRef) {
         return contextRef.getContextType() == TreeReference.CONTEXT_ABSOLUTE;
     }
 

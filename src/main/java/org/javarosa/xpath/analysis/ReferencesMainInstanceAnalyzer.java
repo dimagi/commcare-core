@@ -11,21 +11,19 @@ import org.javarosa.core.model.instance.TreeReference;
  */
 public class ReferencesMainInstanceAnalyzer extends XPathBooleanAnalyzer {
 
-    private String mainInstanceRoot;
-
-    public ReferencesMainInstanceAnalyzer(String instanceName, EvaluationContext ec) {
-        this(instanceName);
+    public ReferencesMainInstanceAnalyzer(EvaluationContext ec) {
+        this();
         setContext(ec);
     }
 
-    public ReferencesMainInstanceAnalyzer(String instanceName) {
+    public ReferencesMainInstanceAnalyzer() {
         super();
-        this.mainInstanceRoot = instanceName;
     }
 
     @Override
     public void doNormalTreeRefAnalysis(TreeReference treeRef) throws AnalysisInvalidException {
-        if (treeRef.getName(0).equals(mainInstanceRoot)) {
+        if (treeRef.getContextType() == TreeReference.CONTEXT_ABSOLUTE &&
+                treeRef.getInstanceName() == null) {
             this.result = true;
             this.shortCircuit = true;
         }
@@ -42,6 +40,6 @@ public class ReferencesMainInstanceAnalyzer extends XPathBooleanAnalyzer {
     }
 
     XPathAnalyzer initSameTypeAnalyzer() {
-        return new ReferencesMainInstanceAnalyzer(mainInstanceRoot);
+        return new ReferencesMainInstanceAnalyzer();
     }
 }
