@@ -145,6 +145,7 @@ public class FormDef implements IFormElement, IMetaData,
     private boolean isCompletedInstance;
 
     private boolean mProfilingEnabled = false;
+    private boolean useExpressionCaching;
 
     FormSendCalloutHandler sendCalloutHandler;
 
@@ -157,6 +158,10 @@ public class FormDef implements IFormElement, IMetaData,
             new CacheTable<>();
 
     public FormDef() {
+        this(false);
+    }
+
+    public FormDef(boolean useExpressionCaching) {
         setID(-1);
         setChildren(null);
         triggerables = new ArrayList<>();
@@ -168,6 +173,7 @@ public class FormDef implements IFormElement, IMetaData,
         formInstances = new Hashtable<>();
         extensions = new Vector<>();
         actionController = new ActionController();
+        this.useExpressionCaching = useExpressionCaching;
     }
 
     /**
@@ -1129,7 +1135,9 @@ public class FormDef implements IFormElement, IMetaData,
     public void setEvaluationContext(EvaluationContext ec) {
         ec = new EvaluationContext(mainInstance, formInstances, ec);
         initEvalContext(ec);
-        ec.enableExpressionCaching();
+        if (useExpressionCaching) {
+            ec.enableExpressionCaching();
+        }
         this.exprEvalContext = ec;
     }
 
@@ -1252,6 +1260,10 @@ public class FormDef implements IFormElement, IMetaData,
                 }
             });
         }
+    }
+
+    public void enableExpressionCaching() {
+        useExpressionCaching = true;
     }
 
     public String fillTemplateString(String template, TreeReference contextRef) {
