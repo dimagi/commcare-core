@@ -22,11 +22,15 @@ public class ReferencesMainInstanceAnalyzer extends XPathBooleanAnalyzer {
 
     @Override
     public void doNormalTreeRefAnalysis(TreeReference treeRef) throws AnalysisInvalidException {
-        if (treeRef.getContextType() == TreeReference.CONTEXT_ABSOLUTE &&
-                treeRef.getInstanceName() == null) {
+        if (referenceRefersToMainInstance(treeRef)) {
             this.result = true;
             this.shortCircuit = true;
         }
+    }
+
+    private boolean referenceRefersToMainInstance(TreeReference treeRef) {
+        return treeRef.getContextType() == TreeReference.CONTEXT_ABSOLUTE &&
+                treeRef.getInstanceName() == null;
     }
 
     @Override
