@@ -27,8 +27,8 @@ public class TopLevelContextTypesAnalyzer extends XPathAccumulatingAnalyzer<Inte
 
     @Override
     public boolean shortCircuit() {
-        // there are only 4 possibilities, so if we've gotten them all then no need to keep going
-        return size() == 4;
+        // If we've gotten them all then no need to keep going
+        return size() == TreeReference.CONTEXT_TYPES.length;
     }
 
 }
