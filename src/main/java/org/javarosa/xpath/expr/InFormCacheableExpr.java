@@ -1,9 +1,7 @@
 package org.javarosa.xpath.expr;
 
-import org.commcare.util.LogTypes;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.analysis.AnalysisInvalidException;
 import org.javarosa.xpath.analysis.ContainsUncacheableExpressionAnalyzer;
 import org.javarosa.xpath.analysis.ReferencesMainInstanceAnalyzer;
@@ -21,11 +19,7 @@ import java.util.Set;
 public abstract class InFormCacheableExpr implements XPathAnalyzable {
 
     private Object justRetrieved;
-    protected boolean computedCacheability;
-    protected boolean exprIsCacheable;
-    protected boolean computedContextTypes;
-    protected boolean contextRefIsRelevant;
-    protected boolean originalContextRefIsRelevant;
+    CacheableExprState cacheState = new CacheableExprState();
 
     boolean isCached(EvaluationContext ec) {
         if (ec.expressionCachingEnabled()) {
@@ -57,16 +51,16 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
     private ExpressionCacheKey cacheKey(EvaluationContext ec) {
         return new ExpressionCacheKey(
                 this,
-                contextRefIsRelevant ? ec.getContextRef() : null,
-                originalContextRefIsRelevant ? ec.getOriginalContext() : null);
+                cacheState.contextRefIsRelevant ? ec.getContextRef() : null,
+                cacheState.originalContextRefIsRelevant ? ec.getOriginalContext() : null);
     }
 
     private boolean expressionIsCacheable(EvaluationContext ec) {
-        if (!computedCacheability) {
-            exprIsCacheable = rootExpressionTypeIsCacheable() && fullExpressionIsCacheable(ec);
-            computedCacheability = true;
+        if (!cacheState.computedCacheability) {
+            cacheState.exprIsCacheable = rootExpressionTypeIsCacheable() && fullExpressionIsCacheable(ec);
+            cacheState.computedCacheability = true;
         }
-        return exprIsCacheable;
+        return cacheState.exprIsCacheable;
     }
 
     protected boolean rootExpressionTypeIsCacheable() {
@@ -83,24 +77,31 @@ public abstract class InFormCacheableExpr implements XPathAnalyzable {
         }
     }
 
-    public static boolean referencesMainFormInstance(XPathAnalyzable expr, EvaluationContext ec) throws AnalysisInvalidException {
+    public static boolean referencesMainFormInstance(XPathAnalyzable expr, EvaluationContext ec)
+            throws AnalysisInvalidException {
         return (new ReferencesMainInstanceAnalyzer(ec)).computeResult(expr);
     }
 
-    public static boolean containsUncacheableSubExpression(XPathAnalyzable expr, EvaluationContext ec) throws AnalysisInvalidException {
+    public static boolean containsUncacheableSubExpression(XPathAnalyzable expr, EvaluationContext ec)
+            throws AnalysisInvalidException {
         return (new ContainsUncacheableExpressionAnalyzer(ec)).computeResult(expr);
     }
 
     public boolean relevantContextNodesAreCacheable(EvaluationContext ec) {
-        if (!computedContextTypes) {
-            Set<Integer> relevantContextTypes = new TopLevelContextTypesAnalyzer().accumulate(this);
-            contextRefIsRelevant = relevantContextTypes.contains(TreeReference.CONTEXT_INHERITED);
-            originalContextRefIsRelevant = relevantContextTypes.contains(TreeReference.CONTEXT_ORIGINAL);
-            computedContextTypes = true;
+        if (!cacheState.computedContextTypes) {
+            Set<Integer> relevantContextTypes =
+                    new TopLevelContextTypesAnalyzer().accumulate(this);
+            cacheState.contextRefIsRelevant =
+                    relevantContextTypes.contains(TreeReference.CONTEXT_INHERITED);
+            cacheState.originalContextRefIsRelevant =
+                    relevantContextTypes.contains(TreeReference.CONTEXT_ORIGINAL);
+            cacheState.computedContextTypes = true;
         }
-        return !(contextRefIsRelevant && contextRefIsUncacheableInForm(ec.getContextRef()))
+        return !(cacheState.contextRefIsRelevant &&
+                contextRefIsUncacheableInForm(ec.getContextRef()))
                 &&
-                !(originalContextRefIsRelevant && contextRefIsUncacheableInForm(ec.getOriginalContext()));
+                !(cacheState.originalContextRefIsRelevant &&
+                        contextRefIsUncacheableInForm(ec.getOriginalContext()));
     }
 
     /**

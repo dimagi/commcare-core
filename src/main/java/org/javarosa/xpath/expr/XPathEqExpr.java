@@ -49,22 +49,14 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
         } else {
             op = XPathEqExpr.NEQ;
         }
-        computedCacheability = ExtUtil.readBool(in);
-        exprIsCacheable = ExtUtil.readBool(in);
-        computedContextTypes = ExtUtil.readBool(in);
-        contextRefIsRelevant = ExtUtil.readBool(in);
-        originalContextRefIsRelevant = ExtUtil.readBool(in);
+        cacheState = (CacheableExprState)ExtUtil.read(in, CacheableExprState.class, pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeBool(out, isEqOp);
         writeExpressions(out);
-        ExtUtil.writeBool(out, computedCacheability);
-        ExtUtil.writeBool(out, exprIsCacheable);
-        ExtUtil.writeBool(out, computedContextTypes);
-        ExtUtil.writeBool(out, contextRefIsRelevant);
-        ExtUtil.writeBool(out, originalContextRefIsRelevant);
+        ExtUtil.write(out, cacheState);
     }
 
     /**

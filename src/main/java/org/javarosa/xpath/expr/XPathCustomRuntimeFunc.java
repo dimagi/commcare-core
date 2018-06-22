@@ -137,25 +137,15 @@ public class XPathCustomRuntimeFunc extends XPathFuncExpr {
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
-
         name = ExtUtil.readString(in);
-        computedCacheability = ExtUtil.readBool(in);
-        exprIsCacheable = ExtUtil.readBool(in);
-        computedContextTypes = ExtUtil.readBool(in);
-        contextRefIsRelevant = ExtUtil.readBool(in);
-        originalContextRefIsRelevant = ExtUtil.readBool(in);
+        cacheState = (CacheableExprState)ExtUtil.read(in, CacheableExprState.class, pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
-
         ExtUtil.writeString(out, name);
-        ExtUtil.writeBool(out, computedCacheability);
-        ExtUtil.writeBool(out, exprIsCacheable);
-        ExtUtil.writeBool(out, computedContextTypes);
-        ExtUtil.writeBool(out, contextRefIsRelevant);
-        ExtUtil.writeBool(out, originalContextRefIsRelevant);
+        ExtUtil.write(out, cacheState);
     }
 
 }

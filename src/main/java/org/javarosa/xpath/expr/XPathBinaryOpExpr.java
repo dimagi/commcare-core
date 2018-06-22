@@ -48,11 +48,7 @@ public abstract class XPathBinaryOpExpr extends XPathOpExpr {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         op = ExtUtil.readInt(in);
         readExpressions(in, pf);
-        computedCacheability = ExtUtil.readBool(in);
-        exprIsCacheable = ExtUtil.readBool(in);
-        computedContextTypes = ExtUtil.readBool(in);
-        contextRefIsRelevant = ExtUtil.readBool(in);
-        originalContextRefIsRelevant = ExtUtil.readBool(in);
+        cacheState = (CacheableExprState)ExtUtil.read(in, CacheableExprState.class, pf);
     }
 
     protected void readExpressions(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
@@ -64,11 +60,7 @@ public abstract class XPathBinaryOpExpr extends XPathOpExpr {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, op);
         writeExpressions(out);
-        ExtUtil.writeBool(out, computedCacheability);
-        ExtUtil.writeBool(out, exprIsCacheable);
-        ExtUtil.writeBool(out, computedContextTypes);
-        ExtUtil.writeBool(out, contextRefIsRelevant);
-        ExtUtil.writeBool(out, originalContextRefIsRelevant);
+        ExtUtil.write(out, cacheState);
     }
 
     protected void writeExpressions(DataOutputStream out) throws IOException {

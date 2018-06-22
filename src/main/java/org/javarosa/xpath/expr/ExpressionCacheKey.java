@@ -1,9 +1,6 @@
 package org.javarosa.xpath.expr;
 
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
-
-import java.util.Set;
 
 import javax.annotation.Nullable;
 

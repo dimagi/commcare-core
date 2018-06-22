@@ -141,11 +141,7 @@ public abstract class XPathFuncExpr extends XPathExpression {
         for (int i = 0; i < args.length; i++) {
             args[i] = (XPathExpression)v.elementAt(i);
         }
-        computedCacheability = ExtUtil.readBool(in);
-        exprIsCacheable = ExtUtil.readBool(in);
-        computedContextTypes = ExtUtil.readBool(in);
-        contextRefIsRelevant = ExtUtil.readBool(in);
-        originalContextRefIsRelevant = ExtUtil.readBool(in);
+        cacheState = (CacheableExprState)ExtUtil.read(in, CacheableExprState.class, pf);
     }
 
     @Override
@@ -158,11 +154,7 @@ public abstract class XPathFuncExpr extends XPathExpression {
             v.addElement(arg);
         }
         ExtUtil.write(out, new ExtWrapListPoly(v));
-        ExtUtil.writeBool(out, computedCacheability);
-        ExtUtil.writeBool(out, exprIsCacheable);
-        ExtUtil.writeBool(out, computedContextTypes);
-        ExtUtil.writeBool(out, contextRefIsRelevant);
-        ExtUtil.writeBool(out, originalContextRefIsRelevant);
+        ExtUtil.write(out, cacheState);
     }
 
     @Override
