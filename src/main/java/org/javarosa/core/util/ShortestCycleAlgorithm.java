@@ -86,7 +86,6 @@ public class ShortestCycleAlgorithm {
         ArrayList<String> children = childrenMap.get(currentNode);
         if (children != null) {
             for (String child : children) {
-
                 // If we have already walked this node, get the set of reachable nodes from that walk
                 // If that set does not contain any of the visited nodes in the current walk
                 // Then this child cannot contain a cycle
@@ -96,7 +95,6 @@ public class ShortestCycleAlgorithm {
                         continue;
                     }
                 }
-
                 ArrayList<String> shortestPath = depthFirstSearch(startNode, child, visited);
                 if (shortestPath != null) {
                     return shortestPath;

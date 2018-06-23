@@ -64,12 +64,7 @@ public class EntitySortUtil {
         }
         // If fuzzy search is enabled need to re-sort based on edit distance
         if (isFuzzySearchEnabled) {
-            Collections.sort(matchScores, new Comparator<Pair<Integer, Integer>>() {
-                @Override
-                public int compare(Pair<Integer, Integer> lhs, Pair<Integer, Integer> rhs) {
-                    return lhs.second - rhs.second;
-                }
-            });
+            Collections.sort(matchScores, (lhs, rhs) -> lhs.second - rhs.second);
         }
 
         for (Pair<Integer, Integer> match : matchScores) {

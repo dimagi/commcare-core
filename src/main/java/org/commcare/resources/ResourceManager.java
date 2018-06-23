@@ -3,11 +3,13 @@ package org.commcare.resources;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
@@ -163,11 +165,11 @@ public class ResourceManager {
      * Install staged upgrade table into the global table.
      */
     public void upgrade()
-            throws UnresolvedResourceException, IllegalArgumentException {
+            throws UnresolvedResourceException, IllegalArgumentException, ResourceInitializationException {
         synchronized (platform) {
             boolean upgradeSuccess = false;
             try {
-                Logger.log("Resource", "Upgrade table fetched, beginning upgrade");
+                Logger.log(LogTypes.TYPE_RESOURCES, "Upgrade table fetched, beginning upgrade");
 
                 // Try to stage the upgrade table to replace the incoming table
                 masterTable.upgradeTable(upgradeTable, platform);
@@ -175,12 +177,12 @@ public class ResourceManager {
                 if (upgradeTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
                     throw new RuntimeException("not all incoming resources were installed!!");
                 } else {
-                    Logger.log("Resource", "Global table unstaged, upgrade table ready");
+                    Logger.log(LogTypes.TYPE_RESOURCES, "Global table unstaged, upgrade table ready");
                 }
 
                 // We now replace the global resource table with the upgrade table
 
-                Logger.log("Resource", "Copying global resources to recovery area");
+                Logger.log(LogTypes.TYPE_RESOURCES, "Copying global resources to recovery area");
                 try {
                     masterTable.copyToTable(tempTable);
                 } catch (RuntimeException e) {
@@ -192,20 +194,20 @@ public class ResourceManager {
                     throw e;
                 }
 
-                Logger.log("Resource", "Wiping global");
+                Logger.log(LogTypes.TYPE_RESOURCES, "Wiping global");
                 // clear the global table to make room (but not the data, just the records)
                 masterTable.destroy();
 
-                Logger.log("Resource", "Moving update resources");
+                Logger.log(LogTypes.TYPE_RESOURCES, "Moving update resources");
                 upgradeTable.copyToTable(masterTable);
 
-                Logger.log("Resource", "Upgrade Succesful!");
+                Logger.log(LogTypes.TYPE_RESOURCES, "Upgrade Succesful!");
                 upgradeSuccess = true;
 
-                Logger.log("Resource", "Wiping redundant update table");
+                Logger.log(LogTypes.TYPE_RESOURCES, "Wiping redundant update table");
                 upgradeTable.destroy();
 
-                Logger.log("Resource", "Clearing out old resources");
+                Logger.log(LogTypes.TYPE_RESOURCES, "Clearing out old resources");
                 tempTable.uninstall(masterTable, platform);
             } finally {
                 if (!upgradeSuccess) {
@@ -253,18 +255,18 @@ public class ResourceManager {
                     masterTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
             if (tempProfile == null ||
                     (masterProfile.getVersion() == tempProfile.getVersion())) {
-                Logger.log("resource", "Invalid recovery table detected. Wiping recovery table");
+                Logger.log(LogTypes.TYPE_RESOURCES, "Invalid recovery table detected. Wiping recovery table");
                 // This means the recovery table should be empty. Invalid copy.
                 tempTable.destroy();
             } else {
                 // We need to recover the global resources from the recovery
                 // table.
-                Logger.log("resource", "Recovering global resources from recovery table");
+                Logger.log(LogTypes.TYPE_RESOURCES, "Recovering global resources from recovery table");
 
                 masterTable.destroy();
                 tempTable.copyToTable(masterTable);
 
-                Logger.log("resource", "Global resources recovered. Wiping recovery table");
+                Logger.log(LogTypes.TYPE_RESOURCES, "Global resources recovered. Wiping recovery table");
                 tempTable.destroy();
             }
         }
@@ -284,9 +286,9 @@ public class ResourceManager {
         // installed (no conflicts with the upgrade table) or it has unstaged
         // resources to restage
         if (masterTable.getTableReadiness() == ResourceTable.RESOURCE_TABLE_INSTALLED) {
-            Logger.log("resource", "Global table in fully installed mode. Repair complete");
+            Logger.log(LogTypes.TYPE_RESOURCES, "Global table in fully installed mode. Repair complete");
         } else if (masterTable.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
-            Logger.log("resource", "Global table needs to restage some resources");
+            Logger.log(LogTypes.TYPE_RESOURCES, "Global table needs to restage some resources");
             masterTable.repairTable(upgradeTable, platform);
         }
     }

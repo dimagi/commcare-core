@@ -638,40 +638,20 @@ public class LocalizerTest {
 
         final String[] holder = new String[1];
 
-        runAsync(new Runnable() {
-            @Override
-            public void run() {
-                holder[0] = Localizer.processArguments("${0}", new String[]{C});
-            }
-        }, "Argument processing: " + C);
+        runAsync(() -> holder[0] = Localizer.processArguments("${0}", new String[]{C}), "Argument processing: " + C);
 
         assertEquals(holder[0], C);
 
 
-        runAsync(new Runnable() {
-            @Override
-            public void run() {
-                holder[0] = Localizer.processArguments("${0}", new String[]{D});
-            }
-        }, "Argument processing: " + D);
+        runAsync(() -> holder[0] = Localizer.processArguments("${0}", new String[]{D}), "Argument processing: " + D);
 
         assertEquals(holder[0], D);
 
-        runAsync(new Runnable() {
-            @Override
-            public void run() {
-                holder[0] = Localizer.processArguments(holder[0], res);
-            }
-        }, "Argument processing: " + res[1] + res[0]);
+        runAsync(() -> holder[0] = Localizer.processArguments(holder[0], res), "Argument processing: " + res[1] + res[0]);
 
         assertEquals(holder[0], res[1] + res[0]);
 
-        runAsync(new Runnable() {
-            @Override
-            public void run() {
-                holder[0] = Localizer.processArguments("$ {0} ${1}", res);
-            }
-        }, "Argument processing: " + "$ {0} " + res[1]);
+        runAsync(() -> holder[0] = Localizer.processArguments("$ {0} ${1}", res), "Argument processing: " + "$ {0} " + res[1]);
 
         assertEquals(holder[0], "$ {0} " + res[1]);
 

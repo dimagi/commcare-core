@@ -10,6 +10,7 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.EntityDatum;
@@ -98,12 +99,7 @@ public class CommCareConfigEngine {
     }
 
     private static IStorageIndexedFactory setupDummyStorageFactory(final PrototypeFactory prototypeFactory) {
-        return new IStorageIndexedFactory() {
-            @Override
-            public IStorageUtilityIndexed newStorage(String name, Class type) {
-                return new DummyIndexedStorageUtility(type, prototypeFactory);
-            }
-        };
+        return (name, type) -> new DummyIndexedStorageUtility(type, prototypeFactory);
     }
 
     protected void setRoots() {
@@ -212,11 +208,11 @@ public class CommCareConfigEngine {
                 Resource.RESOURCE_AUTHORITY_LOCAL);
     }
 
-    public void initEnvironment() {
+    public void initEnvironment() throws ResourceInitializationException {
         Localization.init(true);
         try {
             table.initializeResources(platform, false);
-        } catch (RuntimeException e) {
+        } catch (ResourceInitializationException e) {
             print.println("Error while initializing one of the resolved resources");
             e.printStackTrace(print);
             throw e;
@@ -376,7 +372,8 @@ public class CommCareConfigEngine {
      *                     'build' - Latest completed build (released or not)
      *                     'save' - Latest functional saved version of the app
      */
-    public boolean attemptAppUpdate(String updateTarget) throws InstallCancelledException, UnfullfilledRequirementsException, UnresolvedResourceException {
+    public boolean attemptAppUpdate(String updateTarget) throws InstallCancelledException,
+            UnfullfilledRequirementsException, UnresolvedResourceException, ResourceInitializationException {
         ResourceTable global = table;
 
         // Ok, should figure out what the state of this bad boy is.

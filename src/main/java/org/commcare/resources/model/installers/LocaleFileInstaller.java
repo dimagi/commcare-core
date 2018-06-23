@@ -20,6 +20,9 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -55,7 +58,9 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCarePlatform> 
     }
 
     @Override
-    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) {
+    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) throws
+            IOException, InvalidReferenceException, InvalidStructureException,
+            XmlPullParserException, UnfullfilledRequirementsException {
         if (cache == null) {
             Localization.registerLanguageReference(locale, localReference);
         } else {
