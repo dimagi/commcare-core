@@ -23,7 +23,7 @@ public class ShortestCycleAlgorithm {
     Vector<TreeReference[]> edges;
     ArrayList<String> nodes = new ArrayList<String>();
     Hashtable<String, ArrayList<String>> childrenMap = new OrderedHashtable<String, ArrayList<String>>();
-    ArrayList<String> shortestCycle = null;
+    List<String> shortestCycle = null;
     Hashtable<String, ArrayList<String>> reachableMap = new OrderedHashtable<String, ArrayList<String>>();
     ArrayList<String> walked = new ArrayList<String>();
 
@@ -39,7 +39,7 @@ public class ShortestCycleAlgorithm {
         }
 
         for (String node: nodes) {
-            ArrayList<String> shortestPath = depthFirstSearch(node, node, new ArrayList<String>());
+            List<String> shortestPath = depthFirstSearch(node, node, new ArrayList<String>());
             if (shortestPath != null && (shortestCycle == null || shortestPath.size() < shortestCycle.size())) {
                 shortestCycle = shortestPath;
             }
@@ -73,13 +73,14 @@ public class ShortestCycleAlgorithm {
         }
     }
 
-    private ArrayList<String> depthFirstSearch(String startNode, String currentNode, ArrayList<String> visited) {
+    private List<String> depthFirstSearch(String startNode, String currentNode, ArrayList<String> visited) {
         addReachbleToVisited(visited, currentNode);
         if (visited.contains(currentNode)) {
             if (startNode.equals(currentNode)) {
                 return visited;
             }
-            return null;
+            int index = visited.indexOf(currentNode);
+            return visited.subList(index, visited.size());
         }
 
         visited.add(currentNode);
@@ -97,7 +98,7 @@ public class ShortestCycleAlgorithm {
                     }
                 }
 
-                ArrayList<String> shortestPath = depthFirstSearch(startNode, child, visited);
+                List<String> shortestPath = depthFirstSearch(startNode, child, visited);
                 if (shortestPath != null) {
                     return shortestPath;
                 }
