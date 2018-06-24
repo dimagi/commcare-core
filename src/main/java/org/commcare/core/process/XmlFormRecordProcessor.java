@@ -28,17 +28,13 @@ public class XmlFormRecordProcessor {
     public static void process(final UserSandbox sandbox, InputStream stream)
             throws InvalidStructureException, IOException, XmlPullParserException,
             UnfullfilledRequirementsException {
-        process(stream, new TransactionParserFactory() {
-            @Override
-            public TransactionParser getParser(KXmlParser parser) {
-                if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(parser.getNamespace())) {
-                    return new LedgerXmlParsers(parser, sandbox.getLedgerStorage());
-                } else if ("case".equalsIgnoreCase(parser.getName())) {
-                    return new CaseXmlParser(parser, sandbox.getCaseStorage());
-                }
-                return null;
+        process(stream, parser -> {
+            if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(parser.getNamespace())) {
+                return new LedgerXmlParsers(parser, sandbox.getLedgerStorage());
+            } else if ("case".equalsIgnoreCase(parser.getName())) {
+                return new CaseXmlParser(parser, sandbox.getCaseStorage());
             }
-
+            return null;
         });
 
     }

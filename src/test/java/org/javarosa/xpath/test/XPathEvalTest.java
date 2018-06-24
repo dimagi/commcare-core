@@ -274,7 +274,6 @@ public class XPathEvalTest {
         testEval("format-date-for-calendar('2017-07-15', 'nepali', '%Y-%m-%d')", null, null, "2074-03-31");
 
 
-
         //note: there are lots of time and timezone-like issues with dates that should be tested (particularly DST changes),
         //    but it's just too hard and client-dependent, so not doing it now
         //  basically:
@@ -566,6 +565,7 @@ public class XPathEvalTest {
 
         testEval("checksum('verhoeff','41310785898')", null, null, "4");
         testEval("checksum('verhoeff','66671496237')", null, null, "3");
+        testEval("checksum('verhoeff','*1310785898')", null, null, new XPathUnsupportedException());
         testEval("checksum('verhoefffff','41310785898')", null, null, new XPathUnsupportedException());
 
         //Variables

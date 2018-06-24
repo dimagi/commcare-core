@@ -77,7 +77,7 @@ public class IntegerData implements IAnswerData {
         try {
             return new IntegerData(Integer.parseInt(data.value));
         } catch (NumberFormatException nfe) {
-            throw new IllegalArgumentException("Invalid cast of data [" + data.value + "] to type Decimal");
+            throw new IllegalArgumentException("Invalid cast of data [" + data.value + "] to type Integer");
         }
     }
 }

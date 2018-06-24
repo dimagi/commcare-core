@@ -26,7 +26,7 @@ public class FuzzyMatchFilterRule implements ComboboxFilterRule {
         String choiceLowerCase = choice.toLowerCase();
 
         // Try the easy cases first
-        if (isSubstringOrFuzzyMatch(choiceLowerCase, textEnteredLowerCase)) {
+        if (isSubstringOrFuzzyMatch(choiceLowerCase, textEnteredLowerCase, 2)) {
             return true;
         }
 
@@ -40,7 +40,7 @@ public class FuzzyMatchFilterRule implements ComboboxFilterRule {
         for (String enteredWord : enteredWords) {
             boolean foundMatchForWord = false;
             for (String wordFromChoice : wordsFromChoice) {
-                if (isSubstringOrFuzzyMatch(wordFromChoice, enteredWord)) {
+                if (isSubstringOrFuzzyMatch(wordFromChoice, enteredWord, 1)) {
                     foundMatchForWord = true;
                     break;
                 }
@@ -54,8 +54,9 @@ public class FuzzyMatchFilterRule implements ComboboxFilterRule {
     }
 
     private static boolean isSubstringOrFuzzyMatch(String choiceLowerCase,
-                                                   String textEnteredLowerCase) {
+                                                   String textEnteredLowerCase,
+                                                   int distanceThreshold) {
         return choiceLowerCase.contains(textEnteredLowerCase) ||
-                StringUtils.fuzzyMatch(textEnteredLowerCase, choiceLowerCase).first;
+                StringUtils.fuzzyMatch(textEnteredLowerCase, choiceLowerCase, distanceThreshold).first;
     }
 }

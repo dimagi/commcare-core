@@ -128,15 +128,12 @@ public class OfflineUserRestore implements Persistable {
             throws UnfullfilledRequirementsException, IOException, InvalidStructureException,
             XmlPullParserException {
 
-        TransactionParserFactory factory = new TransactionParserFactory() {
-            @Override
-            public TransactionParser getParser(KXmlParser parser) {
-                String name = parser.getName();
-                if ("registration".equals(name.toLowerCase())) {
-                    return buildUserParser(parser);
-                }
-                return null;
+        TransactionParserFactory factory = parser -> {
+            String name = parser.getName();
+            if ("registration".equals(name.toLowerCase())) {
+                return buildUserParser(parser);
             }
+            return null;
         };
 
         DataModelPullParser parser = new DataModelPullParser(getRestoreStream(), factory, true, false);
