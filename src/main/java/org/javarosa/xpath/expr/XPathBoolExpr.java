@@ -16,7 +16,7 @@ public class XPathBoolExpr extends XPathBinaryOpExpr {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+    protected Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         boolean aval = FunctionUtils.toBoolean(a.eval(model, evalContext));
 
         //short-circuiting

@@ -31,7 +31,7 @@ public class NodeEntityFactory {
     }
 
     public void activateDebugTraceOutput() {
-        this.traceReporter = new ReducingTraceReporter();
+        this.traceReporter = new ReducingTraceReporter(false);
     }
 
     public Detail getDetail() {

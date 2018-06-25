@@ -44,7 +44,6 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
 
     public static final int INDEX_REPEAT_JUNCTURE = -10;
 
-
     //TODO: Roll these into RefLevel? Or more likely, take absolute ref out of refLevel
     public static final int CONTEXT_ABSOLUTE = 0;
     // context is inherited since the path is relative
@@ -53,6 +52,8 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
     // current() command.
     public static final int CONTEXT_ORIGINAL = 2;
     public static final int CONTEXT_INSTANCE = 4;
+    public static final int[] CONTEXT_TYPES =
+            new int[]{CONTEXT_ABSOLUTE, CONTEXT_INHERITED, CONTEXT_ORIGINAL, CONTEXT_INSTANCE};
 
     public static final int REF_ABSOLUTE = -1;
 
@@ -838,20 +839,22 @@ public class TreeReference implements Externalizable, XPathAnalyzable {
 
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        if (analyzer.shortCircuit()) {
+            return;
+        }
         analyzer.doAnalysis(TreeReference.this);
-        if (this.hasPredicates()) {
+
+        if (analyzer.shouldIncludePredicates() && this.hasPredicates()) {
 
             TreeReference contextForPredicates = this;
             if (this.contextType == CONTEXT_ORIGINAL) {
                 if (analyzer.getOriginalContextRef() == null) {
-                    throw new AnalysisInvalidException(
-                            "No original context available when needed to evaluate: " + this);
+                    throw AnalysisInvalidException.INSTANCE_NO_ORIGINAL_CONTEXT_REF;
                 }
                 contextForPredicates = this.contextualize(analyzer.getOriginalContextRef());
             } else if (!this.isAbsolute()) {
                 if (analyzer.getContextRef() == null) {
-                    throw new AnalysisInvalidException(
-                            "No context available when needed to evaluate: " + this);
+                    throw AnalysisInvalidException.INSTANCE_NO_CONTEXT_REF;
                 }
                 contextForPredicates = this.contextualize(analyzer.getContextRef());
             }

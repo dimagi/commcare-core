@@ -34,7 +34,7 @@ public class XPathFilterExpr extends XPathExpression {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+    protected Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         throw new XPathUnsupportedException("filter expression");
     }
 
@@ -81,8 +81,10 @@ public class XPathFilterExpr extends XPathExpression {
         Vector v = (Vector)ExtUtil.read(in, new ExtWrapListPoly(), pf);
 
         predicates = new XPathExpression[v.size()];
-        for (int i = 0; i < predicates.length; i++)
+        for (int i = 0; i < predicates.length; i++) {
             predicates[i] = (XPathExpression)v.elementAt(i);
+        }
+        cacheState = (CacheableExprState)ExtUtil.read(in, CacheableExprState.class, pf);
     }
 
     @Override
@@ -94,6 +96,7 @@ public class XPathFilterExpr extends XPathExpression {
 
         ExtUtil.write(out, new ExtWrapTagged(x));
         ExtUtil.write(out, new ExtWrapListPoly(v));
+        ExtUtil.write(out, cacheState);
     }
 
     @Override
@@ -108,6 +111,9 @@ public class XPathFilterExpr extends XPathExpression {
 
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        if (analyzer.shortCircuit()) {
+            return;
+        }
         analyzer.doAnalysis(XPathFilterExpr.this);
         this.x.applyAndPropagateAnalyzer(analyzer);
         for (XPathExpression expr : this.predicates) {

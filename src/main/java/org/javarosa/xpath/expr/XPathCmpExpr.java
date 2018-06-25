@@ -25,7 +25,7 @@ public class XPathCmpExpr extends XPathBinaryOpExpr {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+    protected Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         Object aval = a.eval(model, evalContext);
         Object bval = b.eval(model, evalContext);
         boolean result = false;

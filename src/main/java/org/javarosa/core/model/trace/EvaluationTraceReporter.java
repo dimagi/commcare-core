@@ -19,4 +19,9 @@ public interface EvaluationTraceReporter {
 
     Vector<EvaluationTrace> getCollectedTraces();
 
+    /**
+     * If true, all traces are collected at a single flat level, rather than creating subtraces
+     */
+    boolean reportAsFlat();
+
 }
