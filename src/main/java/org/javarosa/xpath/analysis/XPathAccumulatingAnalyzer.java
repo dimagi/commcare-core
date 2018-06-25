@@ -3,6 +3,7 @@ package org.javarosa.xpath.analysis;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,61 +25,58 @@ import io.reactivex.annotations.Nullable;
  */
 public abstract class XPathAccumulatingAnalyzer<T> extends XPathAnalyzer {
 
-    private List<T> accumulatedList = new ArrayList<>();
+    private Collection<T> accumulated;
+
+    void addToResult(T t) {
+        accumulated.add(t);
+    }
+
+    int size() {
+        return accumulated.size();
+    }
+
+    @Override
+    public XPathAnalyzer spawnSubAnalyzer(TreeReference subContext) {
+        XPathAccumulatingAnalyzer subAnalyzer =
+                (XPathAccumulatingAnalyzer)super.spawnSubAnalyzer(subContext);
+        subAnalyzer.accumulated = this.accumulated instanceof Set ? new HashSet<>() : new ArrayList<>();
+        return subAnalyzer;
+
+
+    }
 
     @Nullable
     public Set<T> accumulate(XPathAnalyzable rootExpression) {
         try {
+            accumulated = new HashSet<>();
             rootExpression.applyAndPropagateAnalyzer(this);
-            Set<T> set = new HashSet<>();
-            for (T item : aggregateResults(new ArrayList<T>())) {
-                set.add(item);
-            }
-            return set;
+            Set<T> resultSet = new HashSet<>();
+            aggregateResults(resultSet);
+            return resultSet;
         } catch (AnalysisInvalidException e) {
             return null;
         }
     }
 
-    protected void addResultToList(T t) {
-        accumulatedList.add(t);
-    }
-
-    private List<T> aggregateResults(List<T> aggregated) {
-        aggregated.addAll(this.accumulatedList);
-        for (XPathAnalyzer subAnalyzer : this.subAnalyzers) {
-            ((XPathAccumulatingAnalyzer)subAnalyzer).aggregateResults(aggregated);
-        }
-        return aggregated;
-    }
-
-    // FOR TESTING PURPOSES ONLY -- This can NOT be relied upon to not return duplicates in certain scenarios
+    // FOR TESTING PURPOSES ONLY -- This cannot be relied upon to not return duplicates
     @Nullable
     public List<T> accumulateAsList(XPathAnalyzable rootExpression) {
         try {
+            accumulated = new ArrayList<>();
             rootExpression.applyAndPropagateAnalyzer(this);
-            return aggregateResults(new ArrayList<T>());
+            List<T> resultList = new ArrayList<>();
+            aggregateResults(resultList);
+            return resultList;
         } catch (AnalysisInvalidException e) {
             return null;
         }
     }
 
-    // This implementation should work for most accumulating analyzers, but some subclasses may want
-    // to override and provide more specific behavior
-    @Override
-    public void doAnalysisForTreeRefWithCurrent(TreeReference expressionWithContextTypeCurrent)
-            throws AnalysisInvalidException {
-        requireOriginalContext(expressionWithContextTypeCurrent);
-        doNormalTreeRefAnalysis(expressionWithContextTypeCurrent.contextualize(getOriginalContextRef()));
-    }
-
-    // This implementation should work for most accumulating analyzers, but some subclasses may want
-    // to override and provide more specific behavior
-    @Override
-    public void doAnalysisForRelativeTreeRef(TreeReference expressionWithContextTypeRelative)
-            throws AnalysisInvalidException {
-        requireContext(expressionWithContextTypeRelative);
-        doNormalTreeRefAnalysis(expressionWithContextTypeRelative.contextualize(this.getContextRef()));
+    private void aggregateResults(Collection<T> resultCollection) {
+        resultCollection.addAll(this.accumulated);
+        for (XPathAnalyzer subAnalyzer : this.subAnalyzers) {
+            ((XPathAccumulatingAnalyzer)subAnalyzer).aggregateResults(resultCollection);
+        }
     }
 
 }

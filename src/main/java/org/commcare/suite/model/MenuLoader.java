@@ -37,7 +37,7 @@ public class MenuLoader {
                       boolean shouldOutputEvalTrace, boolean hideTrainingRoot) {
         this.loggerInterface = loggerInterface;
         if (shouldOutputEvalTrace) {
-            this.traceReporter = new ReducingTraceReporter();
+            this.traceReporter = new ReducingTraceReporter(false);
         }
         this.getMenuDisplayables(platform, sessionWrapper, menuId, hideTrainingRoot);
     }

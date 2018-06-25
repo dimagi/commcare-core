@@ -13,6 +13,7 @@ import org.javarosa.core.model.trace.BulkEvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.CacheHost;
+import org.javarosa.xpath.expr.ExpressionCacher;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathLazyNodeset;
@@ -29,8 +30,6 @@ import java.util.*;
  */
 public class EvaluationContext {
 
-    private boolean isIrrelevant = false;
-
     /**
      * Whether XPath expressions being evaluated should be traced during
      * execution for debugging.
@@ -41,22 +40,22 @@ public class EvaluationContext {
      * During debugging this context is the base that holds the trace root and
      * aggregates ongoing execution.
      */
-    private EvaluationContext mDebugCore;
+    private EvaluationContext debugContext;
 
     /**
      * The current execution trace being evaluated in debug mode
      */
-    private EvaluationTrace mCurrentTraceLevel = null;
+    private EvaluationTrace currentTraceLevel = null;
 
     /**
      * The root of the current execution trace
      */
-    private EvaluationTrace mTraceRoot = null;
+    private EvaluationTrace traceRoot = null;
 
     /**
      * An optional reporter for traced evaluations
      */
-    private EvaluationTraceReporter mTraceReporter = null;
+    private EvaluationTraceReporter traceReporter = null;
 
     // Unambiguous anchor reference for relative paths
     private final TreeReference contextNode;
@@ -87,13 +86,14 @@ public class EvaluationContext {
      */
     private int currentContextPosition = -1;
 
+    private ExpressionCacher expressionCacher;
+
     private final DataInstance instance;
 
     public EvaluationContext(DataInstance instance) {
-        this(instance, new Hashtable<String, DataInstance>());
+        this(instance, new Hashtable<>());
     }
 
-    // *** This is the only EC constructor where a NEW context is actually passed in
     public EvaluationContext(EvaluationContext base, TreeReference context) {
         this(base, base.instance, context, base.formInstances);
     }
@@ -123,8 +123,7 @@ public class EvaluationContext {
     /**
      * Copy Constructor
      */
-    private EvaluationContext(EvaluationContext base, DataInstance instance,
-                              TreeReference contextNode,
+    private EvaluationContext(EvaluationContext base, DataInstance instance, TreeReference contextNode,
                               Hashtable<String, DataInstance> formInstances) {
         //TODO: These should be deep, not shallow
         this.functionHandlers = base.functionHandlers;
@@ -152,9 +151,10 @@ public class EvaluationContext {
 
         if (base.mAccumulateExprs) {
             this.mAccumulateExprs = true;
-            this.mDebugCore = base.mDebugCore;
+            this.debugContext = base.debugContext;
         }
 
+        this.expressionCacher = base.expressionCacher;
         setQueryContext(base.queryContext);
     }
 
@@ -176,6 +176,18 @@ public class EvaluationContext {
         } else {
             return this.original;
         }
+    }
+
+    public void enableExpressionCaching() {
+        this.expressionCacher = new ExpressionCacher();
+    }
+
+    public boolean expressionCachingEnabled() {
+        return expressionCacher != null;
+    }
+
+    public ExpressionCacher expressionCacher() {
+        return expressionCacher;
     }
 
     public void addFunctionHandler(IFunctionHandler fh) {
@@ -470,7 +482,7 @@ public class EvaluationContext {
      * @return a copy of this evaluation context, with a new context reference
      * set and the original context reference correspondingly updated.
      */
-    private EvaluationContext rescope(TreeReference newContextRef, int newContextPosition,
+    public EvaluationContext rescope(TreeReference newContextRef, int newContextPosition,
                                       QueryContext subContext) {
         EvaluationContext ec = new EvaluationContext(this, newContextRef);
         ec.setQueryContext(subContext);
@@ -593,12 +605,12 @@ public class EvaluationContext {
      */
     public void openTrace(EvaluationTrace newLevel) {
         if (mAccumulateExprs) {
-            newLevel.setParent(mDebugCore.mCurrentTraceLevel);
-            if (mDebugCore.mCurrentTraceLevel != null) {
-                mDebugCore.mCurrentTraceLevel.addSubTrace(newLevel);
+            newLevel.setParent(debugContext.currentTraceLevel);
+            if (debugContext.currentTraceLevel != null) {
+                debugContext.currentTraceLevel.addSubTrace(newLevel);
             }
 
-            mDebugCore.mCurrentTraceLevel = newLevel;
+            debugContext.currentTraceLevel = newLevel;
         }
     }
 
@@ -609,7 +621,7 @@ public class EvaluationContext {
     private void openBulkTrace() {
         if (mAccumulateExprs) {
             BulkEvaluationTrace newLevel = new BulkEvaluationTrace();
-            //We can't really track bulk traces from root contexts
+            // We can't really track bulk traces from root contexts
             openTrace(newLevel);
         }
     }
@@ -621,10 +633,10 @@ public class EvaluationContext {
                                         Vector<XPathExpression> finalSet,
                                         Collection<TreeReference> childSet) {
         if (mAccumulateExprs) {
-            if (!(mDebugCore.mCurrentTraceLevel instanceof BulkEvaluationTrace)) {
+            if (!(debugContext.currentTraceLevel instanceof BulkEvaluationTrace)) {
                 throw new RuntimeException("Predicate tree mismatch");
             }
-            BulkEvaluationTrace trace = (BulkEvaluationTrace)mDebugCore.mCurrentTraceLevel;
+            BulkEvaluationTrace trace = (BulkEvaluationTrace)debugContext.currentTraceLevel;
             trace.setEvaluatedPredicates(startingSet, finalSet, childSet);
             if (!(trace.isBulkEvaluationSucceeded())) {
                 EvaluationTrace parentTrace = trace.getParent();
@@ -642,8 +654,8 @@ public class EvaluationContext {
     }
 
     public void reportSubtrace(EvaluationTrace trace) {
-        if (mAccumulateExprs && mDebugCore.mCurrentTraceLevel != null) {
-            mDebugCore.mCurrentTraceLevel.addSubTrace(trace);
+        if (mAccumulateExprs && debugContext.currentTraceLevel != null) {
+            debugContext.currentTraceLevel.addSubTrace(trace);
         }
     }
 
@@ -652,7 +664,7 @@ public class EvaluationContext {
      * Records the outcome of the current trace by value.
      * @param value The result of the currently open Trace Expression
      */
-    public void reportTraceValue(Object value) {
+    public void reportTraceValue(Object value, boolean fromCache) {
         if (mAccumulateExprs) {
             // Lazy nodeset evaluation makes it impossible for the trace to
             // record predicate subexpressions properly, so trigger that
@@ -660,7 +672,7 @@ public class EvaluationContext {
             if (value instanceof XPathLazyNodeset) {
                 ((XPathLazyNodeset)value).size();
             }
-            mDebugCore.mCurrentTraceLevel.setOutcome(value);
+            debugContext.currentTraceLevel.setOutcome(value, fromCache);
         }
     }
 
@@ -672,13 +684,16 @@ public class EvaluationContext {
      */
     public void closeTrace() {
         if (mAccumulateExprs) {
-            if (mDebugCore.mCurrentTraceLevel.getParent() == null) {
-                mDebugCore.mTraceRoot = mDebugCore.mCurrentTraceLevel;
-                if (mDebugCore.mTraceReporter != null) {
-                    mDebugCore.mTraceReporter.reportTrace(mDebugCore.mTraceRoot);
-                }
+            if (debugContext.traceReporter != null &&
+                    (debugContext.currentTraceLevel.getParent() == null || debugContext.traceReporter.reportAsFlat())) {
+                debugContext.traceReporter.reportTrace(debugContext.currentTraceLevel);
             }
-            mDebugCore.mCurrentTraceLevel = mDebugCore.mCurrentTraceLevel.getParent();
+
+            if (debugContext.currentTraceLevel.getParent() == null) {
+                debugContext.traceRoot = debugContext.currentTraceLevel;
+            }
+
+            debugContext.currentTraceLevel = debugContext.currentTraceLevel.getParent();
         }
     }
 
@@ -694,8 +709,8 @@ public class EvaluationContext {
      */
     public void setDebugModeOn(EvaluationTraceReporter reporter) {
         this.mAccumulateExprs = true;
-        this.mDebugCore = this;
-        this.mTraceReporter = reporter;
+        this.debugContext = this;
+        this.traceReporter = reporter;
     }
 
 
@@ -704,7 +719,7 @@ public class EvaluationContext {
      * against this context.
      */
     public EvaluationTrace getEvaluationTrace() {
-        return mTraceRoot;
+        return traceRoot;
     }
 
     /**

@@ -145,6 +145,7 @@ public class FormDef implements IFormElement, IMetaData,
     private boolean isCompletedInstance;
 
     private boolean mProfilingEnabled = false;
+    private boolean useExpressionCaching;
 
     FormSendCalloutHandler sendCalloutHandler;
 
@@ -157,6 +158,10 @@ public class FormDef implements IFormElement, IMetaData,
             new CacheTable<>();
 
     public FormDef() {
+        this(false);
+    }
+
+    public FormDef(boolean useExpressionCaching) {
         setID(-1);
         setChildren(null);
         triggerables = new ArrayList<>();
@@ -168,6 +173,7 @@ public class FormDef implements IFormElement, IMetaData,
         formInstances = new Hashtable<>();
         extensions = new Vector<>();
         actionController = new ActionController();
+        this.useExpressionCaching = useExpressionCaching;
     }
 
     /**
@@ -1129,6 +1135,9 @@ public class FormDef implements IFormElement, IMetaData,
     public void setEvaluationContext(EvaluationContext ec) {
         ec = new EvaluationContext(mainInstance, formInstances, ec);
         initEvalContext(ec);
+        if (useExpressionCaching) {
+            ec.enableExpressionCaching();
+        }
         this.exprEvalContext = ec;
     }
 
@@ -1253,6 +1262,10 @@ public class FormDef implements IFormElement, IMetaData,
         }
     }
 
+    public void enableExpressionCaching() {
+        useExpressionCaching = true;
+    }
+
     public String fillTemplateString(String template, TreeReference contextRef) {
         return fillTemplateString(template, contextRef, new Hashtable());
     }
@@ -1354,9 +1367,9 @@ public class FormDef implements IFormElement, IMetaData,
         EvaluationContext ec =
                 new EvaluationContext(exprEvalContext, itemset.contextRef.contextualize(curQRef));
 
-        ReducingTraceReporter reporter= null;
-        if(mProfilingEnabled) {
-            reporter = new ReducingTraceReporter();
+        ReducingTraceReporter reporter = null;
+        if (mProfilingEnabled) {
+            reporter = new ReducingTraceReporter(false);
             ec.setDebugModeOn(reporter);
         }
 
@@ -1391,7 +1404,7 @@ public class FormDef implements IFormElement, IMetaData,
             choices.addElement(buildSelectChoice(matches.elementAt(i), itemset, formInstance,
                     ec, reporter, i));
         }
-        if(reporter != null) {
+        if (reporter != null) {
             InstrumentationUtils.printAndClearTraces(reporter, "ItemSet Field Population");
         }
 
@@ -1455,7 +1468,7 @@ public class FormDef implements IFormElement, IMetaData,
         Set<TreeReference> newReferences = analyzer.accumulate(newRef);
 
         if (newReferences == null) {
-            throw new AnalysisInvalidException("itemset accumulation");
+            throw AnalysisInvalidException.INSTANCE_ITEMSET_ACCUM_FAILURE;
         }
         return newReferences;
     }

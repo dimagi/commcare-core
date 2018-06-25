@@ -192,6 +192,9 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     }
                     caseForBlock.setUserId(value);
                     break;
+                case "external_id":
+                    caseForBlock.setExternalId(value);
+                    break;
                 default:
                     caseForBlock.setProperty(key, value);
                     break;

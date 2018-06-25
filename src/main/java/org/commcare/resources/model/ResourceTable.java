@@ -9,8 +9,11 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
@@ -877,24 +880,32 @@ public class ResourceTable {
      * Register the available resources in this table with the provided
      * CommCare platform.
      */
-    public void initializeResources(CommCarePlatform platform, boolean isUpgrade) {
-        // HHaaaacckkk. (Some properties cannot be handled until after others
-        // TODO: Replace this with some sort of sorted priority queue.
-        Vector<ResourceInstaller> lateInit = new Vector<>();
-
+    public void initializeResources(CommCarePlatform platform, boolean isUpgrade) throws
+            ResourceInitializationException {
+        Vector<Resource> lateInit = new Vector<>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
             ResourceInstaller i = r.getInstaller();
             if (i.requiresRuntimeInitialization()) {
                 if (i instanceof ProfileInstaller) {
-                    lateInit.addElement(i);
+                    lateInit.addElement(r);
                 } else {
-                    i.initialize(platform, isUpgrade);
+                    attemptResourceInitialization(platform, isUpgrade, r);
                 }
             }
         }
-        for (ResourceInstaller i : lateInit) {
-            i.initialize(platform, isUpgrade);
+        for (Resource r : lateInit) {
+            attemptResourceInitialization(platform, isUpgrade, r);
+        }
+    }
+
+    private void attemptResourceInitialization(CommCarePlatform platform, boolean isUpgrade,
+                                               Resource r) throws ResourceInitializationException {
+        try {
+            r.getInstaller().initialize(platform, isUpgrade);
+        } catch (IOException | InvalidStructureException | InvalidReferenceException
+                | XmlPullParserException | UnfullfilledRequirementsException e) {
+            throw new ResourceInitializationException(r, e);
         }
     }
 

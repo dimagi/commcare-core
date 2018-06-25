@@ -71,7 +71,8 @@ public class XPathConditional implements IConditionExpr {
     @Override
     public Vector<TreeReference> evalNodeset(DataInstance model, EvaluationContext evalContext) {
         if (expr instanceof XPathPathExpr) {
-            return ((XPathPathExpr)expr).evalRaw(model, evalContext).getReferences();
+            XPathNodeset evaluated = (XPathNodeset)expr.eval(model, evalContext);
+            return evaluated.getReferences();
         } else {
             throw new FatalException("evalNodeset: must be path expression");
         }

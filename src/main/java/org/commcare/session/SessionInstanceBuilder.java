@@ -15,13 +15,13 @@ public class SessionInstanceBuilder {
     public static final String KEY_ENTITY_LIST_EXTRA_DATA = "entity-list-data";
 
     public static FormInstance getSessionInstance(SessionFrame frame, String deviceId,
-                                                  String appversion, String username,
-                                                  String userId,
+                                                  String appversion, long drift,
+                                                  String username, String userId,
                                                   Hashtable<String, String> userFields) {
         TreeElement sessionRoot = new TreeElement("session", 0);
 
         addSessionNavData(sessionRoot, frame);
-        addMetadata(sessionRoot, deviceId, appversion, username, userId);
+        addMetadata(sessionRoot, deviceId, appversion, username, userId, drift);
         addUserProperties(sessionRoot, userFields);
 
         return new FormInstance(sessionRoot, "session");
@@ -72,7 +72,7 @@ public class SessionInstanceBuilder {
     private static String getStringQuery(StackFrameStep step) {
         Object extra = step.getExtra(KEY_LAST_QUERY_STRING);
         if (extra != null && extra instanceof String && !"".equals(extra)) {
-            return (String) extra;
+            return (String)extra;
         }
         return null;
     }
@@ -88,13 +88,14 @@ public class SessionInstanceBuilder {
 
     private static void addMetadata(TreeElement sessionRoot, String deviceId,
                                     String appversion, String username,
-                                    String userId) {
+                                    String userId, long drift) {
         TreeElement sessionMeta = new TreeElement("context", 0);
 
         addData(sessionMeta, "deviceid", deviceId);
         addData(sessionMeta, "appversion", appversion);
         addData(sessionMeta, "username", username);
         addData(sessionMeta, "userid", userId);
+        addData(sessionMeta, "drift", String.valueOf(drift));
 
         sessionRoot.addChild(sessionMeta);
     }

@@ -6,6 +6,7 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.util.CommCarePlatform;
+import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -26,7 +27,9 @@ public class OfflineUserRestoreInstaller extends CacheInstaller<OfflineUserResto
     }
 
     @Override
-    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) {
+    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) throws
+            IOException, InvalidReferenceException, InvalidStructureException,
+            XmlPullParserException, UnfullfilledRequirementsException {
         platform.registerDemoUserRestore(storage(platform).read(cacheLocation));
         return true;
     }

@@ -40,15 +40,20 @@ public abstract class XPathUnaryOpExpr extends XPathOpExpr {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         a = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged(), pf);
+        cacheState = (CacheableExprState)ExtUtil.read(in, CacheableExprState.class, pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapTagged(a));
+        ExtUtil.write(out, cacheState);
     }
 
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        if (analyzer.shortCircuit()) {
+            return;
+        }
         analyzer.doAnalysis(XPathUnaryOpExpr.this);
         this.a.applyAndPropagateAnalyzer(analyzer);
     }

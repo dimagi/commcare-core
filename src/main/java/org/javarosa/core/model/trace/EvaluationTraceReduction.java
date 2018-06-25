@@ -1,14 +1,9 @@
 package org.javarosa.core.model.trace;
 
-import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.core.util.OrderedHashtable;
-import org.javarosa.xpath.XPathNodeset;
-import org.javarosa.xpath.expr.FunctionUtils;
 
 import java.util.ConcurrentModificationException;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Vector;
 
 /**
@@ -22,10 +17,14 @@ public class EvaluationTraceReduction extends EvaluationTrace {
     private String expression;
 
     private int countExecuted = 0;
+    private int countRetrievedFromCache = 0;
     private long nanoTime = 0;
 
+    // Maps how many times a given value was computed as the result for the expression that this
+    // trace represents
     private final HashMap<String, Integer> valueMap = new HashMap<>();
 
+    // Trace reductions for all of the subtraces of this expression's trace
     private final OrderedHashtable<String, EvaluationTraceReduction> subTraces
             = new OrderedHashtable<>();
 
@@ -42,6 +41,9 @@ public class EvaluationTraceReduction extends EvaluationTrace {
      */
     public void foldIn(EvaluationTrace trace) {
         countExecuted++;
+        if (trace.evaluationUsedExpressionCache()) {
+            countRetrievedFromCache++;
+        }
         nanoTime += trace.getRuntimeInNanoseconds();
         int valueCount = 1;
         if (valueMap.containsKey(trace.getValue())) {
@@ -107,6 +109,16 @@ public class EvaluationTraceReduction extends EvaluationTrace {
         }
         response += "}";
         return response;
+    }
+
+    @Override
+    public boolean evaluationUsedExpressionCache() {
+        return countRetrievedFromCache > 0;
+    }
+
+    @Override
+    public String getCacheReport() {
+        return "{ num times retrieved from cache: " + countRetrievedFromCache + " }";
     }
 
     public String getRuntimeCount(long l) {
