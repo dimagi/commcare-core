@@ -99,7 +99,13 @@ public class CommCareConfigEngine {
     }
 
     private static IStorageIndexedFactory setupDummyStorageFactory(final PrototypeFactory prototypeFactory) {
-        return (name, type) -> new DummyIndexedStorageUtility(type, prototypeFactory);
+        return new IStorageIndexedFactory() {
+            @Override
+            public IStorageUtilityIndexed newStorage(String name, Class type) {
+                return new DummyIndexedStorageUtility(type, prototypeFactory);
+            }
+
+        };
     }
 
     protected void setRoots() {
