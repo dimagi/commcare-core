@@ -63,7 +63,7 @@ public abstract class XPathExpression extends InFormCacheableExpr implements Ext
             return false;
         }
 
-        DataInstance instance = ((XPathLazyNodeset) value).getInstance();
+        DataInstance instance = value.getInstance();
         AbstractTreeElement treeElement = instance.resolveReference(refs.get(0));
         return treeElement.getNumChildren() == 0;
     }
