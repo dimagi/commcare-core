@@ -53,6 +53,7 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      *
      * @param r        The resource to be stepped
      * @param table    the table where the resource is being managed
+     * @param recovery Whether we are trying to install missing resources
      * @return Whether the resource was able to complete an installation
      * step in the current circumstances.
      * @throws UnresolvedResourceException       If the local resource
@@ -62,7 +63,7 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      */
     boolean install(Resource r, ResourceLocation location,
                     Reference ref, ResourceTable table,
-                    T platform, boolean upgrade) throws
+                    T platform, boolean upgrade, boolean recovery) throws
             UnresolvedResourceException, UnfullfilledRequirementsException;
 
     /**
@@ -116,5 +117,4 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
     void cleanup();
 
     boolean verifyInstallation(Resource r, Vector<MissingMediaException> problemList, CommCarePlatform platform);
-
 }
