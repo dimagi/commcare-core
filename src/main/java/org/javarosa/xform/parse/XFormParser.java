@@ -1596,7 +1596,7 @@ public class XFormParser {
 
             if (group != null) {
                 if (!group.isRepeat() && group.getChildren().size() == 1) {
-                    IFormElement grandchild = (IFormElement)group.getChildren().elementAt(0);
+                    IFormElement grandchild = group.getChildren().elementAt(0);
                     GroupDef repeat = null;
                     if (grandchild instanceof GroupDef)
                         repeat = (GroupDef)grandchild;
