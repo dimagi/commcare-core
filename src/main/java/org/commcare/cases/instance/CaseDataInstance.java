@@ -49,7 +49,33 @@ public class CaseDataInstance extends ExternalDataInstance {
         if (caseDbSpecTemplate == null) {
             try {
                 caseDbSpecTemplate =
-                        FormLoadingUtils.xmlToTreeElement("/casedb_instance_structure.xml");
+                        FormLoadingUtils.stringToTreeElement("" +
+                            "<wrapper>\n" +
+                            "    <case case_id=\"\" case_type=\"\" owner_id=\"\" status=\"\" external_id=\"\">\n" +
+                            "        <!-- case_id: The unique GUID of this case -->\n" +
+                            "        <!-- case_type: The id of this case's type -->\n" +
+                            "        <!-- owner_id: The GUID of the case or group which owns this case -->\n" +
+                            "        <!-- status: 'open' if the case has not been closed. 'closed' if the case has -->\n" +
+                            "        <case_name/>\n" +
+                            "        <!-- The name of the case-->\n" +
+                            "        <date_opened/>\n" +
+                            "        <!-- The date this case was opened -->\n" +
+                            "        <last_modified/>\n" +
+                            "        <!-- The date of the case's last transaction -->\n" +
+                            "        <CASEDB_WILD_CARD/>\n" +
+                            "        <!-- An arbitrary data value set in this case -->\n" +
+                            "        <index>\n" +
+                            "            <CASEDB_WILD_CARD case_type=\"\" relationship=\"\"/>\n" +
+                            "            <!-- An index to another case of the given type -->\n" +
+                            "            <!-- @case_type: Exactly one - the type of the indexed case -->\n" +
+                            "            <!-- @relationship: Exactly one - the relationship of this case to the indexed case. See the casexml spec for details -->\n" +
+                            "        </index>\n" +
+                            "        <attachment>\n" +
+                            "            <CASEDB_WILD_CARD/>\n" +
+                            "            <!-- A named element which provides a reference to an attachment in the local environment. This attachment may or may not be currently available (if it is being processed asynchronously, for instance, but should have a valid JR reference URI either way whose existence can be checked.-->\n" +
+                            "        </attachment>\n" +
+                            "    </case>\n" +
+                            "</wrapper>");
             } catch (InvalidStructureException | IOException e) {
                 throw new RuntimeException(errorMsg);
             }

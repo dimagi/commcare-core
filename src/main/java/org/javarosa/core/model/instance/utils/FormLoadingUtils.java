@@ -8,6 +8,7 @@ import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -28,6 +29,18 @@ public class FormLoadingUtils {
     public static TreeElement xmlToTreeElement(String xmlFilepath)
             throws InvalidStructureException, IOException {
         InputStream is = FormLoadingUtils.class.getResourceAsStream(xmlFilepath);
+        TreeElementParser parser = new TreeElementParser(ElementParser.instantiateParser(is), 0, "instance");
+
+        try {
+            return parser.parse();
+        } catch (UnfullfilledRequirementsException | XmlPullParserException e) {
+            throw new IOException(e.getMessage());
+        }
+    }
+
+    public static TreeElement stringToTreeElement(String structure)
+            throws InvalidStructureException, IOException {
+        InputStream is = new ByteArrayInputStream(structure.getBytes("UTF-8"));
         TreeElementParser parser = new TreeElementParser(ElementParser.instantiateParser(is), 0, "instance");
 
         try {
