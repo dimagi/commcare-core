@@ -94,7 +94,7 @@ public class SelectMultiDataTests {
         firstTwo.setElementAt(two, 0);
         firstTwo.removeElementAt(1);
 
-        Vector internal = (Vector)data.getValue();
+        Vector internal = data.getValue();
 
         assertVectorIdentity("External Reference: ", internal, copy);
 
@@ -107,7 +107,7 @@ public class SelectMultiDataTests {
         start.removeElementAt(1);
         start.setElementAt(one, 0);
 
-        assertVectorIdentity("Internal Reference: ", (Vector)data.getValue(), external);
+        assertVectorIdentity("Internal Reference: ", data.getValue(), external);
     }
 
     private void assertVectorIdentity(String messageHeader, Vector v, Selection[] a) {
@@ -135,6 +135,6 @@ public class SelectMultiDataTests {
 
         Selection[] values = new Selection[firstTwo.size()];
         firstTwo.copyInto(values);
-        assertVectorIdentity("Ensure not overwritten: ", (Vector)data.getValue(), values);
+        assertVectorIdentity("Ensure not overwritten: ", data.getValue(), values);
     }
 }
