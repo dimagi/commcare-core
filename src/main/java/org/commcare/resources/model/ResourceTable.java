@@ -374,6 +374,11 @@ public class ResourceTable {
             if (handled) {
                 break;
             }
+
+            if (recovery && location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
+                continue;
+            }
+
             if (location.isRelative()) {
                 for (Reference ref : gatherLocationsRefs(location, r, this, master)) {
                     if (!(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL && invalid.contains(ref))) {
@@ -1093,10 +1098,15 @@ public class ResourceTable {
         this.installStatsLogger = logger;
     }
 
-    public boolean recoverResources(CommCarePlatform platform) throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
+    public boolean recoverResources(CommCarePlatform platform, String profileRef) throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
         int count = 0;
         int total = mMissingResources.size();
         for (Resource missingResource : mMissingResources) {
+
+            if (missingResource.id.contentEquals(CommCarePlatform.APP_PROFILE_RESOURCE_ID)) {
+                addRemoteLocationIfMissing(missingResource, profileRef);
+            }
+
             findResourceLocationAndInstall(missingResource, new Vector<>(), false, platform, null, true);
             count++;
 
@@ -1109,6 +1119,19 @@ public class ResourceTable {
             }
         }
         return true;
+    }
+
+    private void addRemoteLocationIfMissing(Resource resource, String remoteLocation) {
+        Vector<ResourceLocation> locations = resource.getLocations();
+        boolean remoteLocationPresent = false;
+        for (ResourceLocation location : locations) {
+            if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_REMOTE) {
+                remoteLocationPresent = true;
+            }
+        }
+        if (!remoteLocationPresent) {
+            locations.add(new ResourceLocation(Resource.RESOURCE_AUTHORITY_REMOTE, remoteLocation));
+        }
     }
 
 
