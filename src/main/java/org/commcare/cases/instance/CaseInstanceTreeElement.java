@@ -26,6 +26,7 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<Case, Ca
     private final static XPathPathExpr CASE_STATUS_EXPR = XPathReference.getPathExpr("@status");
     private final static XPathPathExpr CASE_INDEX_EXPR = XPathReference.getPathExpr("index/*");
     private final static XPathPathExpr OWNER_ID_EXPR = XPathReference.getPathExpr("@owner_id");
+    private final static XPathPathExpr EXTERNAL_ID_EXPR = XPathReference.getPathExpr("@external_id");
 
     public CaseInstanceTreeElement(AbstractTreeElement instanceRoot,
                                    IStorageUtilityIndexed<Case> storage) {
@@ -68,6 +69,7 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<Case, Ca
         indices.put(CASE_STATUS_EXPR, Case.INDEX_CASE_STATUS);
         indices.put(CASE_INDEX_EXPR, Case.INDEX_CASE_INDEX_PRE);
         indices.put(OWNER_ID_EXPR, Case.INDEX_OWNER_ID);
+        indices.put(EXTERNAL_ID_EXPR, Case.INDEX_EXTERNAL_ID);
 
         return indices;
     }

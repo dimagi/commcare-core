@@ -24,7 +24,7 @@ public class XPathVariableReference extends XPathExpression {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+    protected Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         return evalContext.getVariable(id.toString());
     }
 
@@ -51,11 +51,13 @@ public class XPathVariableReference extends XPathExpression {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         id = (XPathQName)ExtUtil.read(in, XPathQName.class, pf);
+        cacheState = (CacheableExprState)ExtUtil.read(in, CacheableExprState.class, pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, id);
+        ExtUtil.write(out, cacheState);
     }
 
     @Override
@@ -65,6 +67,9 @@ public class XPathVariableReference extends XPathExpression {
 
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        if (analyzer.shortCircuit()) {
+            return;
+        }
         analyzer.doAnalysis(XPathVariableReference.this);
     }
 }

@@ -14,7 +14,7 @@ public class XPathNumNegExpr extends XPathUnaryOpExpr {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+    protected Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         double aval = FunctionUtils.toNumeric(a.eval(model, evalContext));
         return -aval;
     }

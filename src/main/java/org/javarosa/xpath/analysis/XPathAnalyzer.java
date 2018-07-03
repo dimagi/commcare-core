@@ -2,6 +2,7 @@ package org.javarosa.xpath.analysis;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ public abstract class XPathAnalyzer {
     private TreeReference contextRef;
     protected List<XPathAnalyzer> subAnalyzers;
     protected boolean isSubAnalyzer;
+    protected boolean shortCircuit = false;
 
     public XPathAnalyzer() {
         this.subAnalyzers = new ArrayList<>();
@@ -51,17 +53,13 @@ public abstract class XPathAnalyzer {
 
     protected void requireOriginalContext(TreeReference forReference) throws AnalysisInvalidException{
         if (getOriginalContextRef() == null) {
-            throw new AnalysisInvalidException("No original context ref was available when " +
-                    "trying to analyze the following expression with context type current: " +
-                    forReference.toString());
+            throw AnalysisInvalidException.INSTANCE_NO_ORIGINAL_CONTEXT_REF;
         }
     }
 
     protected void requireContext(TreeReference forReference) throws AnalysisInvalidException{
         if (getContextRef() == null) {
-            throw new AnalysisInvalidException("No context ref was available when trying to " +
-                    "analyze the following expression with context type relative: " +
-                    forReference.toString());
+            throw AnalysisInvalidException.INSTANCE_NO_CONTEXT_REF;
         }
     }
 
@@ -82,17 +80,31 @@ public abstract class XPathAnalyzer {
 
     public void doNormalTreeRefAnalysis(TreeReference treeReference)
             throws AnalysisInvalidException {
-        // So that the default behavior is to do nothing
+        // So that we can override in subclasses for which this is relevant
     }
 
+    // This implementation should work for most analyzers, but some subclasses may want to override
+    // and provide more specific behavior
     public void doAnalysisForTreeRefWithCurrent(TreeReference expressionWithContextTypeCurrent)
             throws AnalysisInvalidException {
-        // So that the default behavior is to do nothing
+        requireOriginalContext(expressionWithContextTypeCurrent);
+        doNormalTreeRefAnalysis(expressionWithContextTypeCurrent.contextualize(getOriginalContextRef()));
     }
-
+    
+    // This implementation should work for most analyzers, but some subclasses may want to override
+    // and provide more specific behavior
     public void doAnalysisForRelativeTreeRef(TreeReference expressionWithContextTypeRelative)
             throws AnalysisInvalidException {
-        // So that the default behavior is to do nothing
+        requireContext(expressionWithContextTypeRelative);
+        doNormalTreeRefAnalysis(expressionWithContextTypeRelative.contextualize(getContextRef()));
+    }
+
+    public void doAnalysis(XPathFuncExpr expr) {
+        // So that we can override in subclasses for which this is relevant
+    }
+
+    public boolean shouldIncludePredicates() {
+        return true;
     }
 
     public XPathAnalyzer spawnSubAnalyzer(TreeReference subContext) {
@@ -105,5 +117,9 @@ public abstract class XPathAnalyzer {
     }
 
     abstract XPathAnalyzer initSameTypeAnalyzer();
+
+    public boolean shortCircuit() {
+        return shortCircuit;
+    }
 
 }
