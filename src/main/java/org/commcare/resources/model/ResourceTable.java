@@ -1093,24 +1093,19 @@ public class ResourceTable {
         this.installStatsLogger = logger;
     }
 
-    public boolean recoverResources(CommCarePlatform platform) {
+    public boolean recoverResources(CommCarePlatform platform) throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
         int count = 0;
         int total = mMissingResources.size();
         for (Resource missingResource : mMissingResources) {
-            try {
-                findResourceLocationAndInstall(missingResource, new Vector<>(), false, platform, null, true);
-                count++;
+            findResourceLocationAndInstall(missingResource, new Vector<>(), false, platform, null, true);
+            count++;
 
-                if (stateListener != null) {
-                    stateListener.incrementProgress(count, total);
-                }
+            if (stateListener != null) {
+                stateListener.incrementProgress(count, total);
+            }
 
-                if (cancellationChecker != null && cancellationChecker.wasInstallCancelled()) {
-                    break;
-                }
-            } catch (UnresolvedResourceException | UnfullfilledRequirementsException | InstallCancelledException e) {
-                e.printStackTrace();
-                return false;
+            if (cancellationChecker != null && cancellationChecker.wasInstallCancelled()) {
+                break;
             }
         }
         return true;
