@@ -53,7 +53,7 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      *
      * @param r        The resource to be stepped
      * @param table    the table where the resource is being managed
-     * @param recovery Whether we are trying to install missing resources
+     * @param recovery Whether we are in app recovery mode
      * @return Whether the resource was able to complete an installation
      * step in the current circumstances.
      * @throws UnresolvedResourceException       If the local resource

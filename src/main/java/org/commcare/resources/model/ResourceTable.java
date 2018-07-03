@@ -375,6 +375,7 @@ public class ResourceTable {
                 break;
             }
 
+            // We only want to deal with remote locations while trying to recover missing resources
             if (recovery && location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
                 continue;
             }
