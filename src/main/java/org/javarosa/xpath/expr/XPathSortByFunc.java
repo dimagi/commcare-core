@@ -71,15 +71,12 @@ public class XPathSortByFunc extends XPathFuncExpr {
         List<Pair<String, String>> pairsList =
                 createComparisonToTargetPairings(comparisonListItems, targetListItems);
 
-        Collections.sort(pairsList, new Comparator<Pair<String, String>>() {
-            @Override
-            public int compare(Pair<String, String> pair1, Pair<String, String> pair2) {
-                int comparisonStringDifferential = pair1.first.compareTo(pair2.first);
-                if (comparisonStringDifferential != 0) {
-                    return (ascending ? 1 : -1) * comparisonStringDifferential;
-                } else {
-                    return (ascending ? 1 : -1) * pair1.second.compareTo(pair2.second);
-                }
+        Collections.sort(pairsList, (pair1, pair2) -> {
+            int comparisonStringDifferential = pair1.first.compareTo(pair2.first);
+            if (comparisonStringDifferential != 0) {
+                return (ascending ? 1 : -1) * comparisonStringDifferential;
+            } else {
+                return (ascending ? 1 : -1) * pair1.second.compareTo(pair2.second);
             }
         });
 

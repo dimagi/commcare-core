@@ -5,7 +5,6 @@ package org.commcare.util;
  */
 public class LogTypes {
 
-    //Log Types:
     /**
      * Fatal problem with one of CommCare's cryptography libraries
      */
@@ -17,7 +16,12 @@ public class LogTypes {
     public static final String TYPE_ERROR_ASSERTION = "error-state";
 
     /**
-     * Some invariant application assumption has been violated
+     * Used for internal checking of whether or not certain sections of code ever get called
+     */
+    public static final String SOFT_ASSERT = "soft-assert";
+
+    /**
+     * Something bad/unexpected occurred in a user's workflow
      */
     public static final String TYPE_ERROR_WORKFLOW = "error-workflow";
 
@@ -84,11 +88,6 @@ public class LogTypes {
     public static final String USER_REPORTED_PROBLEM = "user-report";
 
     /**
-     * Used for internal checking of whether or not certain sections of code ever get called
-     */
-    public static final String SOFT_ASSERT = "soft-assert";
-
-    /**
      * Used for tracking the behavior of the form dump activity
      */
     public static final String TYPE_FORM_DUMP = "form-dump";
@@ -98,4 +97,12 @@ public class LogTypes {
     public static final String TYPE_GRAPHING = "graphing";
 
     public static final String TYPE_PRINTING = "printing";
+
+    public static final String TYPE_WIFI_DIRECT = "wifi-direct";
+
+    /**
+     * Important events like app installation, updates, DB updates etc.
+     */
+    public static final String TYPE_DATA_CHANGE = "data-change";
+
 }

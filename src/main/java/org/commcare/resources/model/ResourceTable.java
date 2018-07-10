@@ -2,14 +2,18 @@ package org.commcare.resources.model;
 
 import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
@@ -294,7 +298,7 @@ public class ResourceTable {
             r.setVersion(version);
         } else {
             // Otherwise, someone screwed up
-            Logger.log("Resource", "committing a resource with a known version.");
+            Logger.log(LogTypes.TYPE_RESOURCES, "committing a resource with a known version.");
         }
         commitCompoundResource(r, status);
     }
@@ -585,18 +589,12 @@ public class ResourceTable {
             } catch (UnreliableSourceException use) {
                 recordFailure(r, use);
                 aFailure = use;
-                Logger.log("install", "Potentially lossy install attempt # " +
-                        (i + 1) + " of " + (NUMBER_OF_LOSSY_RETRIES + 1) +
-                        " unsuccessful from: " + ref.getURI() + "|" +
-                        use.getMessage());
             }
         }
 
-        if (aFailure != null) {
-            throw aFailure;
-        }
-
-        return false;
+        Logger.log(LogTypes.TYPE_RESOURCES, "Install attempt unsuccessful from: " +
+                ref.getURI() + "|" + aFailure.getMessage());
+        throw aFailure;
     }
 
     private void abortIfInstallCancelled(Resource r) throws InstallCancelledException {
@@ -666,7 +664,7 @@ public class ResourceTable {
                         if (r.getInstaller().upgrade(r, platform)) {
                             incoming.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
                         } else {
-                            Logger.log("Resource",
+                            Logger.log(LogTypes.TYPE_RESOURCES,
                                     "Failed to upgrade resource: " + r.getDescriptor());
                             // REVERT!
                             throw new RuntimeException("Failed to upgrade resource " + r.getDescriptor());
@@ -707,7 +705,7 @@ public class ResourceTable {
                 try {
                     r.getInstaller().uninstall(r, platform);
                 } catch (Exception e) {
-                    Logger.log("Resource", "Error uninstalling resource " +
+                    Logger.log(LogTypes.TYPE_RESOURCES, "Error uninstalling resource " +
                             r.getRecordGuid() + ". " + e.getMessage());
                 }
             } else if (r.getStatus() == Resource.RESOURCE_STATUS_DELETE) {
@@ -715,7 +713,7 @@ public class ResourceTable {
                 try {
                     r.getInstaller().uninstall(r, platform);
                 } catch (Exception e) {
-                    Logger.log("Resource", "Error uninstalling resource " +
+                    Logger.log(LogTypes.TYPE_RESOURCES, "Error uninstalling resource " +
                             r.getRecordGuid() + ". " + e.getMessage());
                 }
             }
@@ -864,7 +862,7 @@ public class ResourceTable {
             }
         }
         if (count > 0) {
-            Logger.log("Resource", "Cleaned up " + count + " records from table");
+            Logger.log(LogTypes.TYPE_RESOURCES, "Cleaned up " + count + " records from table");
         }
 
         storage.removeAll();
@@ -882,24 +880,32 @@ public class ResourceTable {
      * Register the available resources in this table with the provided
      * CommCare platform.
      */
-    public void initializeResources(CommCarePlatform platform, boolean isUpgrade) {
-        // HHaaaacckkk. (Some properties cannot be handled until after others
-        // TODO: Replace this with some sort of sorted priority queue.
-        Vector<ResourceInstaller> lateInit = new Vector<>();
-
+    public void initializeResources(CommCarePlatform platform, boolean isUpgrade) throws
+            ResourceInitializationException {
+        Vector<Resource> lateInit = new Vector<>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
             ResourceInstaller i = r.getInstaller();
             if (i.requiresRuntimeInitialization()) {
                 if (i instanceof ProfileInstaller) {
-                    lateInit.addElement(i);
+                    lateInit.addElement(r);
                 } else {
-                    i.initialize(platform, isUpgrade);
+                    attemptResourceInitialization(platform, isUpgrade, r);
                 }
             }
         }
-        for (ResourceInstaller i : lateInit) {
-            i.initialize(platform, isUpgrade);
+        for (Resource r : lateInit) {
+            attemptResourceInitialization(platform, isUpgrade, r);
+        }
+    }
+
+    private void attemptResourceInitialization(CommCarePlatform platform, boolean isUpgrade,
+                                               Resource r) throws ResourceInitializationException {
+        try {
+            r.getInstaller().initialize(platform, isUpgrade);
+        } catch (IOException | InvalidStructureException | InvalidReferenceException
+                | XmlPullParserException | UnfullfilledRequirementsException e) {
+            throw new ResourceInitializationException(r, e);
         }
     }
 

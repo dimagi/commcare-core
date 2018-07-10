@@ -57,13 +57,10 @@ public class SetValueAction extends Action {
     }
 
     public static IElementHandler getHandler() {
-        return new IElementHandler() {
-            @Override
-            public void handle(XFormParser p, Element e, Object parent) {
-                // the generic parseAction() method in XFormParser already checks to make sure
-                // that parent is an IFormElement, and throws an exception if it is not
-                p.parseSetValueAction(((IFormElement) parent).getActionController(), e);
-            }
+        return (p, e, parent) -> {
+            // the generic parseAction() method in XFormParser already checks to make sure
+            // that parent is an IFormElement, and throws an exception if it is not
+            p.parseSetValueAction(((IFormElement) parent).getActionController(), e);
         };
     }
 

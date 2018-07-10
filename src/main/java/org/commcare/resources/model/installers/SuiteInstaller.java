@@ -11,6 +11,7 @@ import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.xml.SuiteParser;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.SizeBoundUniqueVector;
@@ -28,7 +29,9 @@ import java.util.Vector;
 public class SuiteInstaller extends CacheInstaller<Suite> {
 
     @Override
-    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) {
+    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) throws
+            IOException, InvalidReferenceException, InvalidStructureException,
+            XmlPullParserException, UnfullfilledRequirementsException {
         platform.registerSuite(storage(platform).read(cacheLocation));
         return true;
     }

@@ -171,10 +171,14 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         User u = mSandbox.getLoggedInUserUnsafe();
         TreeElement root =
                 SessionInstanceBuilder.getSessionInstance(session.getFrame(), getDeviceId(),
-                        getVersionString(), u.getUsername(), u.getUniqueId(),
+                        getVersionString(), getCurrentDrift(), u.getUsername(), u.getUniqueId(),
                         u.getProperties()).getRoot();
         root.setParent(instance.getBase());
         return root;
+    }
+
+    protected long getCurrentDrift() {
+        return 0;
     }
 
     protected AbstractTreeElement setupRemoteData(ExternalDataInstance instance) {
