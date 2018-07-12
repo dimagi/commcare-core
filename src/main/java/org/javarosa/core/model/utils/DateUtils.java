@@ -223,6 +223,10 @@ public class DateUtils {
         cd.set(Calendar.SECOND, df.second);
         cd.set(Calendar.MILLISECOND, df.secTicks);
 
+        if (df.hour == 0 && df.minute == 0 && df.second == 0 && df.secTicks == 0) {
+            cd.set(Calendar.HOUR_OF_DAY, 11);
+        }
+
         cd.add(Calendar.MILLISECOND, -1 * timezoneOffset);
 
         return cd.getTime();
