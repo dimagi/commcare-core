@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Static utility methods for Dates in j2me
@@ -30,7 +31,8 @@ public class DateUtils {
     private static CalendarStrings defaultCalendarStrings = new CalendarStrings();
     private static TimezoneProvider tzProvider = new TimezoneProvider();
 
-    public static final long DAY_IN_MS = 86400000L;
+    public static final long HOUR_IN_MS = TimeUnit.HOURS.toMillis(1);
+    public static final long DAY_IN_MS = TimeUnit.DAYS.toMillis(1);;
     private static final Date EPOCH_DATE = getDate(1970, 1, 1);
     private final static long EPOCH_TIME = roundDate(EPOCH_DATE).getTime();
 
@@ -57,7 +59,7 @@ public class DateUtils {
                     new String[]{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}
             );
         }
-    };
+    }
 
     public static class DateFields {
         public DateFields() {
@@ -484,7 +486,7 @@ public class DateUtils {
     }
 
     public static Date parseTime(String str) {
-        if (timezoneOffset() != -1  && !str.contains("+") && !str.contains("-") && !str.contains("Z")) {
+        if (timezoneOffset() != -1 && !str.contains("+") && !str.contains("-") && !str.contains("Z")) {
             str = str + getOffsetInStandardFormat(timezoneOffset());
         }
 
@@ -509,7 +511,7 @@ public class DateUtils {
         int totalMinutes = offsetInMillis / 1000 / 60;
         int remainderMinutes = Math.abs(totalMinutes) % 60;
         if (remainderMinutes != 0) {
-             offsetStr += (":" + intPad(remainderMinutes, 2));
+            offsetStr += (":" + intPad(remainderMinutes, 2));
         }
 
         return offsetStr;

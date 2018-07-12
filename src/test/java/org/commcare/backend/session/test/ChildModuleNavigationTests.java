@@ -2,11 +2,8 @@ package org.commcare.backend.session.test;
 
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.SessionFrame;
-import org.commcare.suite.model.Entry;
 import org.commcare.test.utilities.MockApp;
 import org.junit.Test;
-
-import java.util.Vector;
 
 import static org.junit.Assert.assertEquals;
 
@@ -36,11 +33,4 @@ public class ChildModuleNavigationTests {
         session.setDatum("adolescent_case_id", "Al");
     }
 
-    @Test
-    public void testNestedGetEntriesBehavior() throws Exception {
-        MockApp app = new MockApp("/app_with_child_modules/");
-        SessionWrapper session = app.getSession();
-        Vector<Entry> entries = session.getEntriesForCommand("m1", true);
-        assertEquals(2, entries.size());
-    }
 }

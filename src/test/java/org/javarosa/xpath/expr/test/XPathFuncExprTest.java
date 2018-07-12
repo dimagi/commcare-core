@@ -92,13 +92,7 @@ public class XPathFuncExprTest {
 
         //Make sure that interrupts respond correctly
         long time = System.currentTimeMillis();
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                ExprEvalUtils.testEval("sleep(50000, 'test')", null, null, "test");
-
-            }
-        };
+        Runnable r = () -> ExprEvalUtils.testEval("sleep(50000, 'test')", null, null, "test");
         Thread t = new Thread(r);
         t.start();
         t.interrupt();

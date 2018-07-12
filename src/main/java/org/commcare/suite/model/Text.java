@@ -322,15 +322,18 @@ public class Text implements Externalizable, DetailTemplate, XPathAnalyzable {
 
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
-        if(this.type == Text.TEXT_TYPE_XPATH) {
+        if (analyzer.shortCircuit()) {
+            return;
+        }
+        if (this.type == Text.TEXT_TYPE_XPATH) {
             try {
                 ensureCacheIsParsed();
-            } catch(XPathSyntaxException e) {
-                throw new AnalysisInvalidException("Couldn't parse Text XPath Expression");
+            } catch (XPathSyntaxException e) {
+                throw AnalysisInvalidException.INSTANCE_TEXT_PARSE_FAILURE;
             }
             cacheParse.applyAndPropagateAnalyzer(analyzer);
-        } else if(arguments != null) {
-            for(Text t : arguments.values()) {
+        } else if (arguments != null) {
+            for (Text t : arguments.values()) {
                 t.applyAndPropagateAnalyzer(analyzer);
             }
         }
@@ -352,19 +355,13 @@ public class Text implements Externalizable, DetailTemplate, XPathAnalyzable {
         final EvaluationContext abandonableContext = ec.spawnWithCleanLifecycle();
 
         final Thread[] toCancel = new Thread[1];
-        return Single.fromCallable(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                toCancel[0] = Thread.currentThread();
-                return evaluate(abandonableContext);
-            }
-        }).doOnDispose(new io.reactivex.functions.Action() {
-            @Override
-            public void run() throws Exception {
-                if(toCancel[0] != null) {
-                    toCancel[0].interrupt();
-                    toCancel[0] = null;
-                }
+        return Single.fromCallable(() -> {
+            toCancel[0] = Thread.currentThread();
+            return evaluate(abandonableContext);
+        }).doOnDispose(() -> {
+            if(toCancel[0] != null) {
+                toCancel[0].interrupt();
+                toCancel[0] = null;
             }
         });
     }

@@ -45,7 +45,7 @@ public abstract class XPathFuncExpr extends XPathExpression {
     }
 
     @Override
-    public final Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+    protected final Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         Object[] evaluatedArgs = evaluateArguments(model, evalContext);
 
         IFunctionHandler handler = evalContext.getFunctionHandlers().get(name);
@@ -141,6 +141,7 @@ public abstract class XPathFuncExpr extends XPathExpression {
         for (int i = 0; i < args.length; i++) {
             args[i] = (XPathExpression)v.elementAt(i);
         }
+        cacheState = (CacheableExprState)ExtUtil.read(in, CacheableExprState.class, pf);
     }
 
     @Override
@@ -153,6 +154,7 @@ public abstract class XPathFuncExpr extends XPathExpression {
             v.addElement(arg);
         }
         ExtUtil.write(out, new ExtWrapListPoly(v));
+        ExtUtil.write(out, cacheState);
     }
 
     @Override
@@ -214,6 +216,9 @@ public abstract class XPathFuncExpr extends XPathExpression {
 
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        if (analyzer.shortCircuit()) {
+            return;
+        }
         analyzer.doAnalysis(XPathFuncExpr.this);
         for (XPathExpression expr : this.args) {
             expr.applyAndPropagateAnalyzer(analyzer);

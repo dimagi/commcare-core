@@ -13,7 +13,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 
 /**
  * A parser which is capable of processing CaseXML transactions in a bulk format.
@@ -202,6 +201,9 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
                         onIndexDisrupted(caseId);
                     }
                     caseForBlock.setUserId(value);
+                    break;
+                case "external_id":
+                    caseForBlock.setExternalId(value);
                     break;
                 default:
                     caseForBlock.setProperty(key, value);

@@ -1,10 +1,14 @@
 package org.commcare.resources.model;
 
 import org.commcare.util.CommCarePlatform;
+import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
 import java.util.Vector;
 
 /**
@@ -39,7 +43,9 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      * @return true if a resource is ready for use. False if
      * a problem occurred.
      */
-    boolean initialize(T platform, boolean isUpgrade);
+    boolean initialize(T platform, boolean isUpgrade) throws
+            IOException, InvalidReferenceException, InvalidStructureException,
+            XmlPullParserException, UnfullfilledRequirementsException;
 
     /**
      * Proceeds with the next step of installing resource r, keeping records at
@@ -47,6 +53,7 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      *
      * @param r        The resource to be stepped
      * @param table    the table where the resource is being managed
+     * @param recovery Whether we are in app recovery mode
      * @return Whether the resource was able to complete an installation
      * step in the current circumstances.
      * @throws UnresolvedResourceException       If the local resource
@@ -56,7 +63,7 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      */
     boolean install(Resource r, ResourceLocation location,
                     Reference ref, ResourceTable table,
-                    T platform, boolean upgrade) throws
+                    T platform, boolean upgrade, boolean recovery) throws
             UnresolvedResourceException, UnfullfilledRequirementsException;
 
     /**

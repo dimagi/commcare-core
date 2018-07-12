@@ -3,10 +3,6 @@ package org.commcare.util.screen;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.data.GeoPointData;
-import org.javarosa.core.model.trace.AccumulatingReporter;
-import org.javarosa.core.model.trace.EvaluationTrace;
-import org.javarosa.core.model.trace.EvaluationTraceReporter;
-import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
 
 import java.util.Vector;
 

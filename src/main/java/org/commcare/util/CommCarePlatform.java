@@ -1,5 +1,6 @@
 package org.commcare.util;
 
+import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
@@ -9,13 +10,18 @@ import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.Property;
 import org.javarosa.core.services.storage.IStorageIndexedFactory;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
@@ -123,7 +129,7 @@ public class CommCarePlatform {
      *
      * @param global Table with fully-installed resources
      */
-    public void initialize(ResourceTable global, boolean isUpgrade) {
+    public void initialize(ResourceTable global, boolean isUpgrade) throws ResourceInitializationException {
         global.initializeResources(this, isUpgrade);
     }
 

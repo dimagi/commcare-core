@@ -34,6 +34,7 @@ public class BulkEvaluationTrace extends EvaluationTrace {
      *
      * @param value set the outcome of evaluating this expression
      */
+    @Override
     public void setOutcome(Object value) {
         throw new RuntimeException("Bulk evaluation shouldn't have set outcome called on it");
     }
@@ -66,10 +67,12 @@ public class BulkEvaluationTrace extends EvaluationTrace {
         this.outputValue = "Results: " + childSet.size();
     }
 
+    @Override
     public String getExpression() {
         return predicatesCovered;
     }
 
+    @Override
     public String getValue() {
         return outputValue;
     }

@@ -7,7 +7,9 @@ import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.LogTypes;
 import org.commcare.xml.ProfileParser;
+import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -48,7 +50,9 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
     }
 
     @Override
-    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) {
+    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) throws
+            IOException, InvalidReferenceException, InvalidStructureException,
+            XmlPullParserException, UnfullfilledRequirementsException {
         //Certain properties may not have been able to set during install, so we'll make sure they're
         //set here.
         Profile p = storage(platform).read(cacheLocation);
@@ -71,7 +75,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
     @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
-                           CommCarePlatform platform, boolean upgrade)
+                           CommCarePlatform platform, boolean upgrade, boolean recovery)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //Install for the profile installer is a two step process. Step one is to parse the file and read the relevant data.
         //Step two is to actually install the resource if it needs to be (whether or not it should will be handled
@@ -109,7 +113,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
                     p = parser.parse();
                 } catch (IOException e) {
                     if (e.getMessage() != null) {
-                        Logger.log("resource", "IO Exception fetching profile: " + e.getMessage());
+                        Logger.log(LogTypes.TYPE_RESOURCES, "IO Exception fetching profile: " + e.getMessage());
                     }
                     throw new UnreliableSourceException(r, e.getMessage());
                 }
@@ -129,13 +133,13 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
             }
         } catch (InvalidStructureException e) {
             if (e.getMessage() != null) {
-                Logger.log("resource", "Invalid profile structure: " + e.getMessage());
+                Logger.log(LogTypes.TYPE_RESOURCES, "Invalid profile structure: " + e.getMessage());
             }
             e.printStackTrace();
             return false;
         } catch (XmlPullParserException e) {
             if (e.getMessage() != null) {
-                Logger.log("resource", "XML Parse exception fetching profile: " + e.getMessage());
+                Logger.log(LogTypes.TYPE_RESOURCES, "XML Parse exception fetching profile: " + e.getMessage());
             }
             return false;
         } finally {

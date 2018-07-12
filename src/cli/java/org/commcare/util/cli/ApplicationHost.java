@@ -10,6 +10,7 @@ import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.SessionDatum;
@@ -164,6 +165,9 @@ public class ApplicationHost {
             e.printStackTrace();
         } catch (InstallCancelledException e) {
             printStream.println("Update Failed! Update was cancelled");
+            e.printStackTrace();
+        } catch (ResourceInitializationException e) {
+            printStream.println("Update Failed! Couldn't initialize one of the resources");
             e.printStackTrace();
         }
     }
