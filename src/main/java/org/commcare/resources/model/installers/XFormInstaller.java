@@ -38,7 +38,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
                            ResourceTable table, CommCarePlatform platform,
-                           boolean upgrade) throws UnresolvedResourceException {
+                           boolean upgrade, boolean recovery) throws UnresolvedResourceException {
         InputStream incoming = null;
         try {
             if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_CACHE) {
