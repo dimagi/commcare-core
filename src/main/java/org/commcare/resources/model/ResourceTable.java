@@ -3,6 +3,7 @@ package org.commcare.resources.model;
 import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -21,6 +22,10 @@ import java.util.Hashtable;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 import java.util.Vector;
+
+import javax.annotation.Nullable;
+
+import sun.security.util.Resources_it;
 
 /**
  * A Resource Table maintains a set of Resource Records,
@@ -375,11 +380,6 @@ public class ResourceTable {
                 break;
             }
 
-            // We only want to deal with remote locations while trying to recover missing resources
-            if (recovery && location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
-                continue;
-            }
-
             if (location.isRelative()) {
                 for (Reference ref : gatherLocationsRefs(location, r, this, master)) {
                     if (!(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL && invalid.contains(ref))) {
@@ -432,6 +432,11 @@ public class ResourceTable {
         }
     }
 
+    public void prepareResources(@Nullable ResourceTable master, CommCarePlatform platform)
+            throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
+        prepareResources(master, platform, false);
+    }
+
     /**
      * Makes all of this table's resources available.
      *
@@ -444,7 +449,7 @@ public class ResourceTable {
      *                                           incompatible with the current
      *                                           version of CommCare
      */
-    public void prepareResources(ResourceTable master, CommCarePlatform platform)
+    public void prepareResources(@Nullable ResourceTable master, CommCarePlatform platform, boolean installOver)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
         Hashtable<String, Resource> masterResourceMap = null;
@@ -458,7 +463,7 @@ public class ResourceTable {
         // install all unready resources.
         while (!unreadyResources.isEmpty()) {
             for (Resource r : unreadyResources) {
-                prepareResource(master, platform, r, masterResourceMap);
+                prepareResource(master, platform, r, masterResourceMap, installOver);
             }
             // Installing resources may have exposed more unready resources
             // that need installing.
@@ -498,7 +503,7 @@ public class ResourceTable {
         // install unready resources, until toInitialize has been installed.
         while (isResourceUninitialized(toInitialize) && !unreadyResources.isEmpty()) {
             for (Resource r : unreadyResources) {
-                prepareResource(master, platform, r, null);
+                prepareResource(master, platform, r, null, false);
             }
             // Installing resources may have exposed more unready resources
             // that need installing.
@@ -515,7 +520,7 @@ public class ResourceTable {
      *                          pre-loading the resource map isn't worth it.
      */
     private void prepareResource(ResourceTable master, CommCarePlatform platform,
-                                 Resource r, Hashtable<String, Resource> masterResourceMap)
+                                 Resource r, Hashtable<String, Resource> masterResourceMap, boolean installOver)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         boolean upgrade = false;
 
@@ -552,7 +557,7 @@ public class ResourceTable {
             }
         }
 
-        findResourceLocationAndInstall(r, invalid, upgrade, platform, master, false);
+        findResourceLocationAndInstall(r, invalid, upgrade, platform, master, installOver);
 
         if (stateListener != null) {
             if (isResourceProgressStale) {
