@@ -147,7 +147,9 @@ public class StreamsUtil {
 
     public static void closeStream(Closeable stream) {
         try {
-            stream.close();
+            if (stream != null) {
+                stream.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
