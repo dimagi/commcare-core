@@ -919,6 +919,12 @@ public class ResourceTable {
                 | XmlPullParserException | UnfullfilledRequirementsException e) {
             throw new ResourceInitializationException(r, e);
         }
+
+        // If resource is still completely unitialized, treat this as a missing resource
+        // so that recovery process can try to recover it
+        if (r.getStatus() == Resource.RESOURCE_STATUS_UNINITIALIZED) {
+            missingResources.add(r);
+        }
     }
 
     /**
@@ -1136,7 +1142,7 @@ public class ResourceTable {
     }
 
 
-    private void setMissingResources(SizeBoundUniqueVector<Resource> missingResources) {
+    public void setMissingResources(SizeBoundUniqueVector<Resource> missingResources) {
         mMissingResources = missingResources;
     }
 
