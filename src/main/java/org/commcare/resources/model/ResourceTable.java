@@ -877,7 +877,28 @@ public class ResourceTable {
         if (count > 0) {
             Logger.log(LogTypes.TYPE_RESOURCES, "Cleaned up " + count + " records from table");
         }
+        storage.removeAll();
+    }
 
+    /**
+     * Destroy this table, and remove any files installed by it.
+     */
+    public void clearAll(CommCarePlatform platform) {
+        cleanup();
+        Stack<Resource> s = this.getResourceStack();
+        int count = 0;
+        while (!s.isEmpty()) {
+            Resource r = s.pop();
+            try {
+                r.getInstaller().uninstall(r, platform);
+                count++;
+            } catch (UnresolvedResourceException e) {
+                // already gone!
+            }
+        }
+        if (count > 0) {
+            Logger.log(LogTypes.TYPE_RESOURCES, "Cleaned up " + count + " records from table");
+        }
         storage.removeAll();
     }
 
