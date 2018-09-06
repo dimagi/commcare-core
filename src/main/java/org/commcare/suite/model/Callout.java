@@ -72,8 +72,8 @@ public class Callout implements Externalizable, DetailTemplate {
         while (keys.hasMoreElements()) {
             String key = (String)keys.nextElement();
             boolean overridePlainTextAssumption = key.startsWith(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX);
-            key = key.replace(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX, "");
             String rawValue = extras.get(key);
+            key = key.replace(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX, "");
 
             if (assumePlainTextValues && !overridePlainTextAssumption) {
                 evaluatedExtras.put(key, rawValue);
