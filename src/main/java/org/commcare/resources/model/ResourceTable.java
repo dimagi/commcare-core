@@ -920,10 +920,9 @@ public class ResourceTable {
             throw new ResourceInitializationException(r, e);
         }
 
-        // If resource is still completely unitialized, treat this as a missing resource
-        // so that recovery process can try to recover it
         if (r.getStatus() == Resource.RESOURCE_STATUS_UNINITIALIZED) {
-            missingResources.add(r);
+            Logger.log(LogTypes.SOFT_ASSERT, "Failed to initialize resource with descriptor " + r.getDescriptor()
+                    + " and id " + r.getResourceId());
         }
     }
 
