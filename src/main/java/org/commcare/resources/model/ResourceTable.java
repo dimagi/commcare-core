@@ -3,7 +3,6 @@ package org.commcare.resources.model;
 import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
-import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -24,8 +23,6 @@ import java.util.Stack;
 import java.util.Vector;
 
 import javax.annotation.Nullable;
-
-import sun.security.util.Resources_it;
 
 /**
  * A Resource Table maintains a set of Resource Records,

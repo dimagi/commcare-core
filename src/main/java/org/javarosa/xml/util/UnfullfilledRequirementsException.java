@@ -42,7 +42,7 @@ public class UnfullfilledRequirementsException extends Exception {
         /**
          * Trying to reinstall a CommCare App using a ccz that belongs to a different CommCare App
          */
-        INCORRECT_APP_CCZ
+        REINSTALL_FROM_INVALID_CCZ
     }
 
     /**
@@ -110,7 +110,7 @@ public class UnfullfilledRequirementsException extends Exception {
     /**
      * @return true if this exception was thrown due to an attempt at recovering a CommCare App using ccz belonging to a different CommCare App
      */
-    public boolean isIncorrectCCZException() {
-        return requirementType == RequirementType.INCORRECT_APP_CCZ;
+    public boolean isReinstallFromInvalidCCZException() {
+        return requirementType == RequirementType.REINSTALL_FROM_INVALID_CCZ;
     }
 }
