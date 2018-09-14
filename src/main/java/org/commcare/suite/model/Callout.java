@@ -8,6 +8,7 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -35,7 +36,7 @@ public class Callout implements Externalizable, DetailTemplate {
     private boolean isAutoLaunching;
     private boolean assumePlainTextValues;
 
-    private static final String OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX = "cc:xpath_key:";
+    private static final String OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX = "cc:xpath_prefix:";
 
     /**
      * Allows case list intent callouts to map result data to cases. 'header'
@@ -69,12 +70,11 @@ public class Callout implements Externalizable, DetailTemplate {
     public CalloutData evaluate(EvaluationContext context) {
         Hashtable<String, String> evaluatedExtras = new Hashtable<>();
         Enumeration keys = extras.keys();
+        boolean overridePlainTextAssumption = checkForPlainTextPrefix(keys);
         while (keys.hasMoreElements()) {
             String key = (String)keys.nextElement();
-            boolean overridePlainTextAssumption = key.startsWith(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX);
             key = key.replace(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX, "");
             String rawValue = extras.get(key);
-
             if (assumePlainTextValues && !overridePlainTextAssumption) {
                 evaluatedExtras.put(key, rawValue);
             } else {
@@ -90,6 +90,17 @@ public class Callout implements Externalizable, DetailTemplate {
 
         // emit a CalloutData with the extras evaluated. used for the detail screen.
         return new CalloutData(actionName, image, displayName, evaluatedExtras, responses, type);
+    }
+
+    // Returns true if any of the keys has OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX
+    private boolean checkForPlainTextPrefix(Enumeration keys) {
+        while (keys.hasMoreElements()) {
+            String key = (String)keys.nextElement();
+            if (key.startsWith(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
