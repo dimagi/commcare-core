@@ -919,6 +919,11 @@ public class ResourceTable {
                 | XmlPullParserException | UnfullfilledRequirementsException e) {
             throw new ResourceInitializationException(r, e);
         }
+
+        if (r.getStatus() == Resource.RESOURCE_STATUS_UNINITIALIZED) {
+            Logger.log(LogTypes.SOFT_ASSERT, "Failed to initialize resource with descriptor " + r.getDescriptor()
+                    + " and id " + r.getResourceId());
+        }
     }
 
     /**
@@ -1136,7 +1141,7 @@ public class ResourceTable {
     }
 
 
-    private void setMissingResources(SizeBoundUniqueVector<Resource> missingResources) {
+    public void setMissingResources(SizeBoundUniqueVector<Resource> missingResources) {
         mMissingResources = missingResources;
     }
 
