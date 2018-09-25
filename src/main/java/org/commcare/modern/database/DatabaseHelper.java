@@ -65,6 +65,10 @@ public class DatabaseHelper {
                 }
             }
 
+            if (values[i] == null) {
+                continue;
+            }
+
             if (set) {
                 stringBuilder.append(" AND ");
             }
