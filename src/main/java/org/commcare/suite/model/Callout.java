@@ -8,7 +8,6 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -36,7 +35,8 @@ public class Callout implements Externalizable, DetailTemplate {
     private boolean isAutoLaunching;
     private boolean assumePlainTextValues;
 
-    private static final String OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX = "cc:xpath_prefix:";
+    private static final String KEY_FORCE_XPATH_PARSING = "force_xpath_parsing";
+    private static final String KEY_FORCE_XPATH_PARSING_VALUE_TRUE = "yes";
 
     /**
      * Allows case list intent callouts to map result data to cases. 'header'
@@ -69,13 +69,12 @@ public class Callout implements Externalizable, DetailTemplate {
     @Override
     public CalloutData evaluate(EvaluationContext context) {
         Hashtable<String, String> evaluatedExtras = new Hashtable<>();
+        boolean forceXpathParsing = forceXpathParsing();
         Enumeration keys = extras.keys();
-        boolean overridePlainTextAssumption = checkForPlainTextPrefix(keys);
         while (keys.hasMoreElements()) {
             String key = (String)keys.nextElement();
-            key = key.replace(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX, "");
             String rawValue = extras.get(key);
-            if (assumePlainTextValues && !overridePlainTextAssumption) {
+            if (assumePlainTextValues && !forceXpathParsing) {
                 evaluatedExtras.put(key, rawValue);
             } else {
                 try {
@@ -92,12 +91,15 @@ public class Callout implements Externalizable, DetailTemplate {
         return new CalloutData(actionName, image, displayName, evaluatedExtras, responses, type);
     }
 
-    // Returns true if any of the keys has OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX
-    private boolean checkForPlainTextPrefix(Enumeration keys) {
+    // Returns true if force_xpath_parsing is yes
+    private boolean forceXpathParsing() {
+        Enumeration keys = extras.keys();
         while (keys.hasMoreElements()) {
             String key = (String)keys.nextElement();
-            if (key.startsWith(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX)) {
-                return true;
+            if (key.contentEquals(KEY_FORCE_XPATH_PARSING)) {
+                String forceXpathVal = extras.get(key);
+                extras.remove(key);
+                return forceXpathVal.contentEquals(KEY_FORCE_XPATH_PARSING_VALUE_TRUE);
             }
         }
         return false;
