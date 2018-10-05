@@ -73,16 +73,18 @@ public class Callout implements Externalizable, DetailTemplate {
         Enumeration keys = extras.keys();
         while (keys.hasMoreElements()) {
             String key = (String)keys.nextElement();
-            String rawValue = extras.get(key);
-            if (assumePlainTextValues && !forceXpathParsing) {
-                evaluatedExtras.put(key, rawValue);
-            } else {
-                try {
-                    String evaluatedValue =
-                            FunctionUtils.toString(XPathParseTool.parseXPath(rawValue).eval(context));
-                    evaluatedExtras.put(key, evaluatedValue);
-                } catch (XPathSyntaxException e) {
-                    // do nothing
+            if (!key.contentEquals(KEY_FORCE_XPATH_PARSING)) {
+                String rawValue = extras.get(key);
+                if (assumePlainTextValues && !forceXpathParsing) {
+                    evaluatedExtras.put(key, rawValue);
+                } else {
+                    try {
+                        String evaluatedValue =
+                                FunctionUtils.toString(XPathParseTool.parseXPath(rawValue).eval(context));
+                        evaluatedExtras.put(key, evaluatedValue);
+                    } catch (XPathSyntaxException e) {
+                        // do nothing
+                    }
                 }
             }
         }
@@ -98,7 +100,6 @@ public class Callout implements Externalizable, DetailTemplate {
             String key = (String)keys.nextElement();
             if (key.contentEquals(KEY_FORCE_XPATH_PARSING)) {
                 String forceXpathVal = extras.get(key);
-                extras.remove(key);
                 return forceXpathVal.contentEquals(KEY_FORCE_XPATH_PARSING_VALUE_TRUE);
             }
         }
