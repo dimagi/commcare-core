@@ -144,7 +144,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
      * Only gets called if response processor is supplied
      *
      * @return Input Stream from cache
-     * @throws IOException if a io error happens while reading or writing to cache
+     * @throws IOException if an io error happens while reading or writing to cache
      */
     @Override
     public InputStream getResponseStream() throws IOException {
