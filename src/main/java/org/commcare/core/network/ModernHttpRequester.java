@@ -96,6 +96,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
      * Executes the HTTP Request. Can be called directly to bypass response processor.
      *
      * @return Response from the HTTP call
+     * @throws IOException if a problem occurred talking to the server.
      */
     public Response<ResponseBody> makeRequest() throws IOException {
         switch (method) {
@@ -143,6 +144,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
      * Only gets called if response processor is supplied
      *
      * @return Input Stream from cache
+     * @throws IOException if a io error happens while reading or writing to cache
      */
     @Override
     public InputStream getResponseStream() throws IOException {
