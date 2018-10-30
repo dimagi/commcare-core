@@ -96,7 +96,6 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
      * Executes the HTTP Request. Can be called directly to bypass response processor.
      *
      * @return Response from the HTTP call
-     * @throws IOException
      */
     public Response<ResponseBody> makeRequest() throws IOException {
         switch (method) {
@@ -119,14 +118,18 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
                                        int responseCode,
                                        ResponseStreamAccessor streamAccessor) {
         if (responseCode >= 200 && responseCode < 300) {
-            InputStream responseStream;
+            InputStream responseStream = null;
             try {
-                responseStream = streamAccessor.getResponseStream();
-            } catch (IOException e) {
-                responseProcessor.handleIOException(e);
-                return;
+                try {
+                    responseStream = streamAccessor.getResponseStream();
+                } catch (IOException e) {
+                    responseProcessor.handleIOException(e);
+                    return;
+                }
+                responseProcessor.processSuccess(responseCode, responseStream);
+            } finally {
+                StreamsUtil.closeStream(responseStream);
             }
-            responseProcessor.processSuccess(responseCode, responseStream);
         } else if (responseCode >= 400 && responseCode < 500) {
             responseProcessor.processClientError(responseCode);
         } else if (responseCode >= 500 && responseCode < 600) {
@@ -140,7 +143,6 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
      * Only gets called if response processor is supplied
      *
      * @return Input Stream from cache
-     * @throws IOException
      */
     @Override
     public InputStream getResponseStream() throws IOException {
