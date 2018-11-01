@@ -141,19 +141,28 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     }
 
     /**
-     * Only gets called if response processor is supplied
-     *
+     * Writes responseStream to cache and returns it
      * @return Input Stream from cache
      * @throws IOException if an io error happens while reading or writing to cache
      */
-    @Override
-    public InputStream getResponseStream() throws IOException {
+
+    public InputStream getResponseStream(Response<ResponseBody> response) throws IOException {
         InputStream inputStream = response.body().byteStream();
         BitCache cache = BitCacheFactory.getCache(cacheDirSetup, getContentLength(response));
         cache.initializeCache();
         OutputStream cacheOut = cache.getCacheStream();
         StreamsUtil.writeFromInputToOutputNew(inputStream, cacheOut);
         return cache.retrieveCache();
+    }
+
+    /**
+     * Only gets called if response processor is supplied
+     * @return Input Stream from cache
+     * @throws IOException if an io error happens while reading or writing to cache
+     */
+    @Override
+    public InputStream getResponseStream() throws IOException {
+        return getResponseStream(response);
     }
 
     public static RequestBody getPostBody(HashMap<String, String> inputs) {
