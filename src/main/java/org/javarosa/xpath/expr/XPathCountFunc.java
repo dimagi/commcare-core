@@ -24,7 +24,7 @@ public class XPathCountFunc extends XPathFuncExpr {
         if (evaluatedArgs[0] instanceof XPathNodeset) {
             return new Double(((XPathNodeset)evaluatedArgs[0]).size());
         } else {
-            throw new XPathTypeMismatchException("not a nodeset");
+            throw new XPathTypeMismatchException("uses an invalid reference inside a count function");
         }
     }
 
