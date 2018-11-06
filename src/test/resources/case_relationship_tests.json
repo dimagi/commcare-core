@@ -849,5 +849,29 @@
         "outcome": [
             "a", "b"
         ]
+    },
+    {
+        "name": "reach_tests",
+        "owned": [
+            "claim"
+        ],
+        "closed": [
+            "p_mother"
+        ],
+        "subcases": [
+
+            ["p_child", "p_mother"]
+        ],
+        "extensions": [
+            ["claim", "house"],
+            ["p_mother", "house"],
+            ["p_child", "house"],
+
+            ["child_health", "p_child"],
+            ["measurement", "child_health"]
+        ],
+        "outcome": [
+            "claim", "house", "p_mother", "p_child", "child_health", "measurement"
+        ]
     }
 ]
