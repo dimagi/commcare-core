@@ -24,7 +24,7 @@ public class XPathSumFunc extends XPathFuncExpr {
         if (evaluatedArgs[0] instanceof XPathNodeset) {
             return sum(((XPathNodeset)evaluatedArgs[0]).toArgList());
         } else {
-            throw new XPathTypeMismatchException("not a nodeset");
+            throw new XPathTypeMismatchException("uses an invalid reference inside a sum function");
         }
     }
 
