@@ -101,4 +101,13 @@ public class UnfullfilledRequirementsException extends Exception {
     public boolean isIncorrectTargetException() {
         return requirementType == RequirementType.INCORRECT_TARGET_PACKAGE;
     }
+
+    /**
+     * @return true if this exception was thrown due to an attempt at installing/updating an app targetting a
+     * commcare version larger than the currently installed version
+     */
+    public boolean isVersionMismatchException() {
+        return requirementType == RequirementType.MINOR_APP_VERSION ||
+                requirementType == RequirementType.MAJOR_APP_VERSION;
+    }
 }
