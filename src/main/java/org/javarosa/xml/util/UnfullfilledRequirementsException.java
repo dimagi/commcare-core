@@ -113,4 +113,13 @@ public class UnfullfilledRequirementsException extends Exception {
     public boolean isReinstallFromInvalidCCZException() {
         return requirementType == RequirementType.REINSTALL_FROM_INVALID_CCZ;
     }
+
+    /**
+     * @return true if this exception was thrown due to an attempt at installing/updating an app targetting a
+     * commcare version larger than the currently installed version
+     */
+    public boolean isVersionMismatchException() {
+        return requirementType == RequirementType.MINOR_APP_VERSION ||
+                requirementType == RequirementType.MAJOR_APP_VERSION;
+    }
 }
