@@ -49,30 +49,27 @@ public class CommCareNetworkServiceGenerator {
         return response;
     };
 
-    private static Interceptor driftInterceptor = new Interceptor() {
-        @Override
-        public Response intercept(Chain chain) throws IOException {
-            Request request = chain.request();
-            Response response = chain.proceed(request);
-            ICommCarePreferenceManager commCarePreferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
-            if (commCarePreferenceManager != null) {
-                String serverDate = response.header("date");
-                try {
-                    long serverTimeInMillis = new SimpleDateFormat("EEE, dd MMM yyyy hh:mm:ss zzz").parse(serverDate).getTime();
-                    long now = new Date().getTime();
-                    long currentDrift = (now - serverTimeInMillis) / HOUR_IN_MS;
-                    commCarePreferenceManager.putLong(CURRENT_DRIFT, currentDrift);
-                    long maxDriftSinceLastHeartbeat = commCarePreferenceManager.getLong(MAX_DRIFT_SINCE_LAST_HEARTBEAT, 0);
-                    currentDrift *= currentDrift < 0 ? -1 : 1; // make it positive to calculate max drift
-                    if (currentDrift > maxDriftSinceLastHeartbeat) {
-                        commCarePreferenceManager.putLong(MAX_DRIFT_SINCE_LAST_HEARTBEAT, currentDrift);
-                    }
-                } catch (ParseException e) {
-                    e.printStackTrace();
+    private static Interceptor driftInterceptor = chain -> {
+        Request request = chain.request();
+        Response response = chain.proceed(request);
+        ICommCarePreferenceManager commCarePreferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
+        if (commCarePreferenceManager != null) {
+            String serverDate = response.header("date");
+            try {
+                long serverTimeInMillis = new SimpleDateFormat("EEE, dd MMM yyyy hh:mm:ss zzz").parse(serverDate).getTime();
+                long now = new Date().getTime();
+                long currentDrift = (now - serverTimeInMillis) / HOUR_IN_MS;
+                commCarePreferenceManager.putLong(CURRENT_DRIFT, currentDrift);
+                long maxDriftSinceLastHeartbeat = commCarePreferenceManager.getLong(MAX_DRIFT_SINCE_LAST_HEARTBEAT, 0);
+                currentDrift *= currentDrift < 0 ? -1 : 1; // make it positive to calculate max drift
+                if (currentDrift > maxDriftSinceLastHeartbeat) {
+                    commCarePreferenceManager.putLong(MAX_DRIFT_SINCE_LAST_HEARTBEAT, currentDrift);
                 }
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
-            return response;
         }
+        return response;
     };
 
     private static AuthenticationInterceptor authenticationInterceptor = new AuthenticationInterceptor();
@@ -85,16 +82,29 @@ public class CommCareNetworkServiceGenerator {
             .addInterceptor(driftInterceptor)
             .followRedirects(true);
 
-    private static Retrofit retrofit = builder.client(httpClient.build()).build();
 
-    public static CommCareNetworkService createCommCareNetworkService(final String credential, boolean enforceSecureEndpoint) {
+    private static Retrofit retrofit = builder.client(
+            httpClient.retryOnConnectionFailure(true).build())
+            .build();
+
+
+    private static Retrofit noRetryRetrofit = builder.client(
+            httpClient.retryOnConnectionFailure(false).build())
+            .build();
+
+    public static CommCareNetworkService createCommCareNetworkService(final String credential, boolean enforceSecureEndpoint, boolean retry) {
         authenticationInterceptor.setCredential(credential);
         authenticationInterceptor.setEnforceSecureEndpoint(enforceSecureEndpoint);
-        return retrofit.create(CommCareNetworkService.class);
+        if (retry) {
+            return retrofit.create(CommCareNetworkService.class);
+        } else {
+            return noRetryRetrofit.create(CommCareNetworkService.class);
+        }
+
     }
 
     public static CommCareNetworkService createNoAuthCommCareNetworkService() {
-        return createCommCareNetworkService(null, false);
+        return createCommCareNetworkService(null, false, true);
     }
 
     private static boolean isValidRedirect(HttpUrl url, HttpUrl newUrl) {
