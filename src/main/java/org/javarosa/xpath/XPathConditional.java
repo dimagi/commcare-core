@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.Vector;
 
 public class XPathConditional implements IConditionExpr {
-    private XPathExpression expr;
+    public XPathExpression expr;
     public String xpath; //not serialized!
     private boolean hasNow; //indicates whether this XpathConditional contains the now() function (used for timestamping)
 

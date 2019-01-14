@@ -172,4 +172,8 @@ public class SetValueAction extends Action {
             ExtUtil.write(out, new ExtWrapTagged(value));
         }
     }
+
+    public XPathExpression getValue() {
+        return value;
+    }
 }

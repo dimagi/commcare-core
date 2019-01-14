@@ -9,6 +9,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.utils.InstrumentationUtils;
+import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
@@ -52,6 +53,7 @@ public class NodeEntityFactory {
         String[] sortData = new String[length];
         boolean[] relevancyData = new boolean[length];
         int count = 0;
+        long t = System.currentTimeMillis();
         for (DetailField f : detail.getFields()) {
             try {
                 fieldData[count] = f.getTemplate().evaluate(nodeContext);
@@ -73,9 +75,11 @@ public class NodeEntityFactory {
             }
             count++;
         }
-
-        return new Entity<>(fieldData, sortData, relevancyData, data, extraKey,
-                detail.evaluateFocusFunction(nodeContext));
+        long t1 = System.currentTimeMillis();
+        boolean focus = detail.evaluateFocusFunction(nodeContext);
+        Entity entity =  new Entity<>(fieldData, sortData, relevancyData, data, extraKey,
+                focus);
+        return entity;
     }
 
     /**

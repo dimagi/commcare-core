@@ -3,6 +3,7 @@ package org.javarosa.core.model.actions;
 
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
@@ -15,6 +16,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Registers actions that should be triggered by certain events, and handles the triggering
@@ -56,7 +58,10 @@ public class ActionController implements Externalizable {
     public void triggerActionsFromEvent(String event, FormDef model, TreeReference contextForAction,
                                         ActionResultProcessor resultProcessor) {
         for (Action action : getListenersForEvent(event)) {
+            long start = System.currentTimeMillis();
             TreeReference refSetByAction = action.processAction(model, contextForAction);
+
+            Logger.log("profiling", "Time for action " +  (action instanceof SetValueAction ? ((SetValueAction)action).getValue().toPrettyString() : "") + " " + (System.currentTimeMillis() - start));
             if (resultProcessor != null && refSetByAction != null) {
                 resultProcessor.processResultOfAction(refSetByAction, event);
             }

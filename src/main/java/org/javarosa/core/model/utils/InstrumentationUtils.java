@@ -3,6 +3,7 @@ package org.javarosa.core.model.utils;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.trace.TraceSerialization;
+import org.javarosa.core.services.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,12 +27,12 @@ public class InstrumentationUtils {
                                            TraceSerialization.TraceInfoType requestedInfo) {
         if (reporter != null) {
             if (reporter.wereTracesReported()) {
-                System.out.println(description);
+                Logger.log("profiling",description);
             }
 
             for (EvaluationTrace trace : reporter.getCollectedTraces()) {
-                System.out.println(trace.getExpression() + ": " + trace.getValue());
-                System.out.print(TraceSerialization.serializeEvaluationTrace(trace, requestedInfo,
+                Logger.log("profiling",trace.getExpression() + ": " + trace.getValue());
+                Logger.log("profiling",TraceSerialization.serializeEvaluationTrace(trace, requestedInfo,
                         reporter.reportAsFlat()));
             }
 

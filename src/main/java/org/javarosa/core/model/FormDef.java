@@ -31,6 +31,7 @@ import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
 import org.javarosa.core.model.utils.InstrumentationUtils;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.util.CacheTable;
@@ -45,6 +46,7 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.XPathConditional;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.analysis.AnalysisInvalidException;
@@ -993,6 +995,7 @@ public class FormDef implements IFormElement, IMetaData,
     }
 
     private void initAllTriggerables() {
+        long start = System.currentTimeMillis();
         // Use all triggerables because we can assume they are rooted by rootRef
         TreeReference rootRef = TreeReference.rootRef();
 
@@ -1002,6 +1005,7 @@ public class FormDef implements IFormElement, IMetaData,
         }
 
         evaluateTriggerables(applicable, rootRef, false);
+        Logger.log("profiling", "initAllTriggerables " + (System.currentTimeMillis() - start));
     }
 
     /**
@@ -1084,7 +1088,13 @@ public class FormDef implements IFormElement, IMetaData,
         // the triggerables in 'tv' in the order they appear in 'triggerables'
         for (Triggerable triggerable : triggerables) {
             if (tv.contains(triggerable)) {
+                long start = System.currentTimeMillis();
                 evaluateTriggerable(triggerable, anchorRef);
+                String exp = ((XPathConditional)triggerable.expr).expr.toPrettyString();
+                if(exp.length() > 3000){
+                    exp = exp.substring(3000) + ".....";
+                }
+                Logger.log("profiling", "Time for triggerable " + exp + " " + (System.currentTimeMillis() - start));
             }
         }
     }
@@ -1588,6 +1598,7 @@ public class FormDef implements IFormElement, IMetaData,
      */
     public void initialize(boolean newInstance, boolean isCompletedInstance,
                            InstanceInitializationFactory factory, String locale, boolean isReadOnly) {
+        long start = System.currentTimeMillis();
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
@@ -1596,16 +1607,19 @@ public class FormDef implements IFormElement, IMetaData,
 
         initLocale(locale);
 
+        long t = System.currentTimeMillis();
         if (newInstance) {
             // only dispatch on a form's first opening, not subsequent loadings
             // of saved instances. Ensures setvalues triggered by xform-ready,
             // useful for recording form start dates.
             actionController.triggerActionsFromEvent(Action.EVENT_XFORMS_READY, this);
         }
+        Logger.log("profiling", "triggerActionsFromEvent " + (System.currentTimeMillis() - start));
         this.isCompletedInstance = isCompletedInstance;
         if (!isReadOnly) {
             initAllTriggerables();
         }
+        Logger.log("profiling", "initialize " + (System.currentTimeMillis() - start));
     }
 
     private void initLocale(String locale) {
