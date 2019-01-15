@@ -36,7 +36,8 @@ public class Style {
         Image,
         Audio,
         Text,
-        Graph
+        Graph,
+        Phone,
     }
 
     public DisplayFormat getDisplayFormat() {
@@ -76,6 +77,9 @@ public class Style {
                 break;
             case "graph":
                 setDisplayFormat(DisplayFormat.Graph);
+                break;
+            case "phone":
+                setDisplayFormat(DisplayFormat.Phone);
                 break;
         }
     }
