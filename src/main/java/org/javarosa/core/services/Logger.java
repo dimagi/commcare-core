@@ -81,5 +81,9 @@ public class Logger {
         }
         throw crashException;
     }
+
+    public static void clear() {
+        logger = null;
+    }
 }
 
