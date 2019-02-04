@@ -82,7 +82,7 @@ public class Logger {
         throw crashException;
     }
 
-    public static void clear() {
+    public static void detachLogger() {
         logger = null;
     }
 }
