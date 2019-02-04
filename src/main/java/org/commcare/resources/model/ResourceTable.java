@@ -391,6 +391,8 @@ public class ResourceTable {
                             invalidResourceException = e;
                         } catch (UnreliableSourceException use) {
                             unreliableSourceException = use;
+                        } catch (UnresolvedResourceException ure) {
+                            unresolvedResourceException = ure;
                         }
                         if (handled) {
                             recordSuccess(r);
@@ -428,8 +430,8 @@ public class ResourceTable {
             } else if (unreliableSourceException == null) {
                 // no particular failure to point our finger at.
                 throw new UnresolvedResourceException(r,
-                        "No external or local definition could be found for resource " +
-                                r.getResourceId());
+                        "No external or local definition could be found for resource " + r.getDescriptor()
+                                + " with id " + r.getResourceId());
             } else {
                 // Expose the lossy failure rather than the generic one
                 throw unreliableSourceException;
