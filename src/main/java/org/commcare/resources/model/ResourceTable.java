@@ -367,6 +367,7 @@ public class ResourceTable {
 
         UnreliableSourceException unreliableSourceException = null;
         InvalidResourceException invalidResourceException = null;
+        UnresolvedResourceException unresolvedResourceException = null;
 
         boolean handled = false;
 
@@ -390,6 +391,8 @@ public class ResourceTable {
                             invalidResourceException = e;
                         } catch (UnreliableSourceException use) {
                             unreliableSourceException = use;
+                        } catch (UnresolvedResourceException ure) {
+                            unresolvedResourceException = ure;
                         }
                         if (handled) {
                             recordSuccess(r);
@@ -413,6 +416,8 @@ public class ResourceTable {
                     // Continue until no resources can be found.
                 } catch (UnreliableSourceException use) {
                     unreliableSourceException = use;
+                } catch (UnresolvedResourceException ure) {
+                    unresolvedResourceException = ure;
                 }
             }
         }
@@ -420,11 +425,13 @@ public class ResourceTable {
         if (!handled) {
             if (invalidResourceException != null) {
                 throw invalidResourceException;
+            } else if (unresolvedResourceException != null) {
+                throw unresolvedResourceException;
             } else if (unreliableSourceException == null) {
                 // no particular failure to point our finger at.
                 throw new UnresolvedResourceException(r,
-                        "No external or local definition could be found for resource " +
-                                r.getResourceId());
+                        "No external or local definition could be found for resource " + r.getDescriptor()
+                                + " with id " + r.getResourceId());
             } else {
                 // Expose the lossy failure rather than the generic one
                 throw unreliableSourceException;
