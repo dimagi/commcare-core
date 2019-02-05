@@ -106,7 +106,7 @@ public class FormEntryController {
                     model.getForm().copyItemsetAnswer(q, element, data);
                 } catch (InvalidReferenceException ire) {
                     ire.printStackTrace();
-                    throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
+                    throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage() + " Reference: " + ire.getInvalidReference().toString());
                 }
                 q.getActionController().triggerActionsFromEvent(Action.EVENT_QUESTION_VALUE_CHANGED, model.getForm());
                 return ANSWER_OK;
@@ -338,7 +338,7 @@ public class FormEntryController {
             model.getForm().createNewRepeat(questionIndex);
             formEntrySession.addNewRepeat(questionIndex);
         } catch (InvalidReferenceException ire) {
-            throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
+            throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage() + " Reference: " + ire.getInvalidReference().toString());
         }
     }
 
