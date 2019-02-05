@@ -268,6 +268,7 @@ public class Resource implements Persistable, IMetaData {
         this.id = source.id;
         this.recordId = source.recordId;
         this.descriptor = source.descriptor;
+        this.parent = source.parent;
     }
 
     public String getDescriptor() {
