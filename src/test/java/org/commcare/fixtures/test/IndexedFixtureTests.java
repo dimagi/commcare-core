@@ -109,5 +109,13 @@ public class IndexedFixtureTests {
 
     }
 
+    @Test
+    public void queryInSetLookup() throws XPathSyntaxException, UnfullfilledRequirementsException,
+            XmlPullParserException, IOException, InvalidStructureException {
+        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/indexed-fixture-with-keys.xml"), sandbox);
 
+        EvaluationContext ec =
+                MockDataUtils.buildContextWithInstance(sandbox, "products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);
+        CaseTestUtils.xpathEvalAndAssert(ec, "sort(join(' ', instance('products')/products/product[selected('a6d16035b98f6f962a6538bd927cefb3 31ab899368d38c2d0207fe80c00fb8c1', @id)]/name))", "CU DIU");
+    }
 }

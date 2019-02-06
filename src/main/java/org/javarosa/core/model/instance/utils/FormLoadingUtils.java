@@ -27,13 +27,20 @@ public class FormLoadingUtils {
 
     public static TreeElement xmlToTreeElement(String xmlFilepath)
             throws InvalidStructureException, IOException {
-        InputStream is = FormLoadingUtils.class.getResourceAsStream(xmlFilepath);
-        TreeElementParser parser = new TreeElementParser(ElementParser.instantiateParser(is), 0, "instance");
-
+        InputStream is = null;
         try {
-            return parser.parse();
-        } catch (UnfullfilledRequirementsException | XmlPullParserException e) {
-            throw new IOException(e.getMessage());
+            is = FormLoadingUtils.class.getResourceAsStream(xmlFilepath);
+            TreeElementParser parser = new TreeElementParser(ElementParser.instantiateParser(is), 0, "instance");
+
+            try {
+                return parser.parse();
+            } catch (UnfullfilledRequirementsException | XmlPullParserException e) {
+                throw new IOException(e.getMessage());
+            }
+        } finally {
+            if (is != null) {
+                is.close();
+            }
         }
     }
 }
