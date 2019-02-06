@@ -339,7 +339,8 @@ public class FormEntryController {
             model.getForm().createNewRepeat(questionIndex);
             formEntrySession.addNewRepeat(questionIndex);
         } catch (InvalidReferenceException ire) {
-            throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage() + " Reference: " + ire.getInvalidReference().toString());
+            String referenceMessage = ire.getInvalidReference() != null ? " Reference: " + ire.getInvalidReference() : "";
+            throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage() + referenceMessage);
         }
     }
 
