@@ -106,7 +106,8 @@ public class FormEntryController {
                     model.getForm().copyItemsetAnswer(q, element, data);
                 } catch (InvalidReferenceException ire) {
                     ire.printStackTrace();
-                    throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
+                    String referenceMessage = ire.getInvalidReference() != null ? " Reference: " + ire.getInvalidReference() : "";
+                    throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage() + referenceMessage);
                 }
                 q.getActionController().triggerActionsFromEvent(Action.EVENT_QUESTION_VALUE_CHANGED, model.getForm());
                 return ANSWER_OK;
@@ -338,7 +339,8 @@ public class FormEntryController {
             model.getForm().createNewRepeat(questionIndex);
             formEntrySession.addNewRepeat(questionIndex);
         } catch (InvalidReferenceException ire) {
-            throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
+            String referenceMessage = ire.getInvalidReference() != null ? " Reference: " + ire.getInvalidReference() : "";
+            throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage() + referenceMessage);
         }
     }
 
@@ -376,7 +378,7 @@ public class FormEntryController {
     public String getFormEntrySessionString() {
         return formEntrySession.toString();
     }
-    
+
     /**
      * getQuestionPrompts for the current index
      */
@@ -450,7 +452,7 @@ public class FormEntryController {
         GroupDef gd = (GroupDef)this.getModel().getForm().getChild(index); // exceptions?
         return (appearanceTag.equalsIgnoreCase(gd.getAppearanceAttr()));
     }
-    
+
     // Used by Formplayer
     @SuppressWarnings("unused")
     public boolean isFieldListHost(FormIndex index) {
