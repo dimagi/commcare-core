@@ -83,6 +83,7 @@ public class CommCareNetworkServiceGenerator {
             .followRedirects(true);
 
 
+
     private static Retrofit retrofit = builder.client(
             httpClient.retryOnConnectionFailure(true).build())
             .build();
@@ -108,7 +109,7 @@ public class CommCareNetworkServiceGenerator {
     }
 
     private static boolean isValidRedirect(HttpUrl url, HttpUrl newUrl) {
-        //unless it's https, don't worry about it
+        // unless it's https, don't worry about it
         if (!url.scheme().equals("https")) {
             return true;
         }
@@ -118,4 +119,5 @@ public class CommCareNetworkServiceGenerator {
         // different link, which isn't acceptable for now.
         return url.host().equals(newUrl.host());
     }
+
 }

@@ -22,6 +22,9 @@ import java.util.NoSuchElementException;
 import java.util.Stack;
 import java.util.Vector;
 
+import javax.annotation.Nullable;
+
+
 /**
  * A Resource Table maintains a set of Resource Records,
  * resolves dependencies between records, and provides hooks
@@ -62,6 +65,10 @@ public class ResourceTable {
     private boolean isResourceProgressStale = false;
     // Cache for profile and suite 'parent' resources which are used in
     // references resolution
+
+    // Constant to denote all resources with any kind of status
+    public static final int RESOURCE_STATUS_ALL_RESOURCES = 10001;
+
     private final Hashtable<String, Resource> compoundResourceCache = new Hashtable<>();
     private SizeBoundUniqueVector<Resource> mMissingResources = new SizeBoundUniqueVector<>(0);
 
@@ -376,11 +383,6 @@ public class ResourceTable {
                 break;
             }
 
-            // We only want to deal with remote locations while trying to recover missing resources
-            if (recovery && location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
-                continue;
-            }
-
             if (location.isRelative()) {
                 for (Reference ref : gatherLocationsRefs(location, r, this, master)) {
                     if (!(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL && invalid.contains(ref))) {
@@ -439,6 +441,11 @@ public class ResourceTable {
         }
     }
 
+    public void prepareResources(@Nullable ResourceTable master, CommCarePlatform platform)
+            throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
+        prepareResources(master, platform, false);
+    }
+
     /**
      * Makes all of this table's resources available.
      *
@@ -451,7 +458,7 @@ public class ResourceTable {
      *                                           incompatible with the current
      *                                           version of CommCare
      */
-    public void prepareResources(ResourceTable master, CommCarePlatform platform)
+    public void prepareResources(@Nullable ResourceTable master, CommCarePlatform platform, boolean installOver)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
         Hashtable<String, Resource> masterResourceMap = null;
@@ -465,7 +472,7 @@ public class ResourceTable {
         // install all unready resources.
         while (!unreadyResources.isEmpty()) {
             for (Resource r : unreadyResources) {
-                prepareResource(master, platform, r, masterResourceMap);
+                prepareResource(master, platform, r, masterResourceMap, installOver);
             }
             // Installing resources may have exposed more unready resources
             // that need installing.
@@ -505,7 +512,7 @@ public class ResourceTable {
         // install unready resources, until toInitialize has been installed.
         while (isResourceUninitialized(toInitialize) && !unreadyResources.isEmpty()) {
             for (Resource r : unreadyResources) {
-                prepareResource(master, platform, r, null);
+                prepareResource(master, platform, r, null, false);
             }
             // Installing resources may have exposed more unready resources
             // that need installing.
@@ -522,7 +529,7 @@ public class ResourceTable {
      *                          pre-loading the resource map isn't worth it.
      */
     private void prepareResource(ResourceTable master, CommCarePlatform platform,
-                                 Resource r, Hashtable<String, Resource> masterResourceMap)
+                                 Resource r, Hashtable<String, Resource> masterResourceMap, boolean installOver)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         boolean upgrade = false;
 
@@ -559,7 +566,7 @@ public class ResourceTable {
             }
         }
 
-        findResourceLocationAndInstall(r, invalid, upgrade, platform, master, false);
+        findResourceLocationAndInstall(r, invalid, upgrade, platform, master, installOver);
 
         if (stateListener != null) {
             if (isResourceProgressStale) {
@@ -856,18 +863,32 @@ public class ResourceTable {
         storage.removeAll();
     }
 
+
+    // Clears resources with status RESOURCE_STATUS_UPGRADE in the table
+    public void clearUpgrade(CommCarePlatform platform) {
+        clearByStatus(platform, Resource.RESOURCE_STATUS_UPGRADE);
+    }
+
+    // Clears all resources in the table
+    public void clearAll(CommCarePlatform platform) {
+        clearByStatus(platform, RESOURCE_STATUS_ALL_RESOURCES);
+        storage.removeAll();
+    }
+
     /**
-     * Destroy this table, and also try very hard to remove any files installed
-     * by it. This is important for rolling back botched upgrades without
-     * leaving their files around.
+     * Clears any resources with a given resource status and also try very hard to remove any files installed
+     * by it. This is important for rolling back botched upgrades without leaving their files around.
+     *
+     * @param platform CommCare platform
+     * @param resourceStatus Only resources with this status will get cleared
      */
-    public void clear(CommCarePlatform platform) {
+    private void clearByStatus(CommCarePlatform platform, int resourceStatus) {
         cleanup();
         Stack<Resource> s = this.getResourceStack();
         int count = 0;
         while (!s.isEmpty()) {
             Resource r = s.pop();
-            if (r.getStatus() == Resource.RESOURCE_STATUS_UPGRADE) {
+            if (r.getStatus() == resourceStatus || resourceStatus == RESOURCE_STATUS_ALL_RESOURCES) {
                 try {
                     r.getInstaller().uninstall(r, platform);
                     count++;
@@ -879,8 +900,6 @@ public class ResourceTable {
         if (count > 0) {
             Logger.log(LogTypes.TYPE_RESOURCES, "Cleaned up " + count + " records from table");
         }
-
-        storage.removeAll();
     }
 
     protected void cleanup() {
