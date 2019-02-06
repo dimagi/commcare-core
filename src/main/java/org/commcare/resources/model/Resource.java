@@ -98,9 +98,6 @@ public class Resource implements Persistable, IMetaData {
     // Resource is transitioning from being installed to being upgraded
     public static final int RESOURCE_STATUS_INSTALL_TO_UPGRADE = 21;
 
-    // Constant to deenote all resources in a table
-    public static final int RESOURCE_STATUS_ALL_RESOURCES = 10001;
-
     public static final int RESOURCE_VERSION_UNKNOWN = -2;
 
     protected int recordId = -1;

@@ -24,7 +24,6 @@ import java.util.Vector;
 
 import javax.annotation.Nullable;
 
-import static org.commcare.resources.model.Resource.RESOURCE_STATUS_ALL_RESOURCES;
 
 /**
  * A Resource Table maintains a set of Resource Records,
@@ -66,6 +65,10 @@ public class ResourceTable {
     private boolean isResourceProgressStale = false;
     // Cache for profile and suite 'parent' resources which are used in
     // references resolution
+
+    // Constant to denote all resources with any kind of status
+    public static final int RESOURCE_STATUS_ALL_RESOURCES = 10001;
+
     private final Hashtable<String, Resource> compoundResourceCache = new Hashtable<>();
     private SizeBoundUniqueVector<Resource> mMissingResources = new SizeBoundUniqueVector<>(0);
 
