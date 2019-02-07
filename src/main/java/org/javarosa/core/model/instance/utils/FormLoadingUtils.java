@@ -1,5 +1,6 @@
 package org.javarosa.core.model.instance.utils;
 
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.xml.ElementParser;
@@ -38,9 +39,7 @@ public class FormLoadingUtils {
                 throw new IOException(e.getMessage());
             }
         } finally {
-            if (is != null) {
-                is.close();
-            }
+            StreamsUtil.closeStream(is);
         }
     }
 }
