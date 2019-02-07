@@ -286,7 +286,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                                                     QueryContext currentQueryContext) throws IllegalArgumentException {
         int numKeysToProcess = this.getNumberOfBatchableKeysInProfileSet(profiles);
 
-        if(numKeysToProcess == -1) {
+        if(numKeysToProcess  < 1) {
             throw new IllegalArgumentException("No optimization path found for optimization type");
         }
 
