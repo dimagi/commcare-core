@@ -663,39 +663,34 @@ public class ResourceTable {
         for (IStorageIterator it = incoming.storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
             Resource peer = resourceMap.get(r.getResourceId());
-            if (peer == null) {
-                // no corresponding resource in this table; use incoming
-                addResource(r, Resource.RESOURCE_STATUS_INSTALLED);
-            } else {
-                if (r.isNewer(peer)) {
-                    // Mark as being ready to transition
-                    commit(peer, Resource.RESOURCE_STATUS_INSTALL_TO_UNSTAGE);
 
-                    if (!peer.getInstaller().unstage(peer, Resource.RESOURCE_STATUS_UNSTAGED, platform)) {
-                        // TODO: revert this resource table!
-                        throw new UnresolvedResourceException(peer,
-                                "Couldn't make room for new resource " +
-                                        r.getResourceId() + ", upgrade aborted");
+            if (peer != null && r.isNewer(peer)) {
+                // Mark as being ready to transition
+                commit(peer, Resource.RESOURCE_STATUS_INSTALL_TO_UNSTAGE);
+
+                if (!peer.getInstaller().unstage(peer, Resource.RESOURCE_STATUS_UNSTAGED, platform)) {
+                    // TODO: revert this resource table!
+                    throw new UnresolvedResourceException(peer,
+                            "Couldn't make room for new resource " +
+                                    r.getResourceId() + ", upgrade aborted");
+                } else {
+                    // done
+                    commit(peer, Resource.RESOURCE_STATUS_UNSTAGED);
+                }
+            }
+
+            if (peer == null || r.isNewer(peer)) {
+                if (r.getStatus() == Resource.RESOURCE_STATUS_UPGRADE) {
+                    incoming.commit(r, Resource.RESOURCE_STATUS_UPGRADE_TO_INSTALL);
+                    if (r.getInstaller().upgrade(r, platform)) {
+                        incoming.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
                     } else {
-                        // done
-                        commit(peer, Resource.RESOURCE_STATUS_UNSTAGED);
-                    }
-
-                    if (r.getStatus() == Resource.RESOURCE_STATUS_UPGRADE) {
-                        incoming.commit(r, Resource.RESOURCE_STATUS_UPGRADE_TO_INSTALL);
-                        if (r.getInstaller().upgrade(r, platform)) {
-                            incoming.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
-                        } else {
-                            Logger.log(LogTypes.TYPE_RESOURCES,
-                                    "Failed to upgrade resource: " + r.getDescriptor());
-                            // REVERT!
-                            throw new RuntimeException("Failed to upgrade resource " + r.getDescriptor());
-                        }
+                        Logger.log(LogTypes.TYPE_RESOURCES,
+                                "Failed to upgrade resource: " + r.getDescriptor());
+                        // REVERT!
+                        throw new RuntimeException("Failed to upgrade resource " + r.getDescriptor());
                     }
                 }
-                // TODO Should anything happen if peer.getVersion() ==
-                // r.getVersion()?  Consider children, IDs and the fact
-                // resource locations could change
             }
         }
     }
@@ -879,7 +874,7 @@ public class ResourceTable {
      * Clears any resources with a given resource status and also try very hard to remove any files installed
      * by it. This is important for rolling back botched upgrades without leaving their files around.
      *
-     * @param platform CommCare platform
+     * @param platform       CommCare platform
      * @param resourceStatus Only resources with this status will get cleared
      */
     private void clearByStatus(CommCarePlatform platform, int resourceStatus) {
