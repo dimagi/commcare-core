@@ -161,6 +161,10 @@ public class ExtUtil {
         return toInt(readNumeric(in));
     }
 
+    public static long readLong(DataInputStream in) throws IOException {
+        return readNumeric(in);
+    }
+
     public static short readShort(DataInputStream in) throws IOException {
         return toShort(readNumeric(in));
     }

@@ -37,7 +37,12 @@ public class UnfullfilledRequirementsException extends Exception {
         /**
          * app is targetting another flavour of Commcare than the one running currently
          */
-        INCORRECT_TARGET_PACKAGE
+        INCORRECT_TARGET_PACKAGE,
+
+        /**
+         * Trying to reinstall a CommCare App using a ccz that belongs to a different CommCare App
+         */
+        REINSTALL_FROM_INVALID_CCZ
     }
 
     /**
@@ -100,6 +105,13 @@ public class UnfullfilledRequirementsException extends Exception {
      */
     public boolean isIncorrectTargetException() {
         return requirementType == RequirementType.INCORRECT_TARGET_PACKAGE;
+    }
+
+    /**
+     * @return true if this exception was thrown due to an attempt at recovering a CommCare App using ccz belonging to a different CommCare App
+     */
+    public boolean isReinstallFromInvalidCCZException() {
+        return requirementType == RequirementType.REINSTALL_FROM_INVALID_CCZ;
     }
 
     /**
