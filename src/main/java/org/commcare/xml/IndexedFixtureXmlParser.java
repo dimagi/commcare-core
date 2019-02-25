@@ -84,7 +84,7 @@ public class IndexedFixtureXmlParser extends TransactionParser<StorageIndexedTre
     private void processRoot(TreeElement root) throws IOException {
         if (root.hasChildren()) {
             String entryName = root.getChildAt(0).getName();
-            writeFixtureIndex(root.getName(), entryName);
+            writeFixtureIndex(root.getName(), entryName, root.getAttributeValue(null, "last_sync"));
 
             for (TreeElement entry : root.getChildrenWithName(entryName)) {
                 processEntry(entry, indices);
@@ -128,7 +128,7 @@ public class IndexedFixtureXmlParser extends TransactionParser<StorageIndexedTre
      * Store base and child node names associated with a fixture.
      * Used for reconstructing fixture instance
      */
-    private void writeFixtureIndex(String baseName, String childName) {
-        sandbox.setIndexedFixturePathBases(fixtureName, baseName, childName);
+    private void writeFixtureIndex(String baseName, String childName, String lastSync) {
+        sandbox.setIndexedFixturePathBases(fixtureName, baseName, childName, lastSync);
     }
 }

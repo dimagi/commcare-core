@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'kotlin'
 
 // Needed even though it looks unused
 sourceCompatibility = 1.8
@@ -8,13 +9,16 @@ repositories {
 }
 
 buildscript {
+    ext.kotlin_version = '1.3.21'
     repositories {
         maven {
             url "https://plugins.gradle.org/m2/"
         }
+        mavenCentral()
     }
     dependencies {
         classpath "me.champeau.gradle:jmh-gradle-plugin:0.3.1"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -114,6 +118,7 @@ dependencies {
     translateCompile 'io.reactivex.rxjava2:rxjava:2.1.1'
     translateCompile "com.squareup.retrofit2:retrofit:2.3.0"
     translateCompile 'com.squareup.okhttp3:okhttp:3.9.1'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     // 'compile' dependency is also needed to run 'gradle jmh' for some reason,
     // but leaving it in conflicts with apk builds, so only uncomment the
     // following lines when jmh needed:
@@ -262,4 +267,14 @@ jmh {
     warmupIterations = 20
     includeTests = true
     // default mode is 'throughput'; where a larger score is better
+}
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
