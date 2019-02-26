@@ -42,7 +42,7 @@ public class IndexedFixtureTests {
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(sandbox, "products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);
         CaseTestUtils.xpathEvalAndAssert(ec, "instance('products')/products/product[@id = 'a6d16035b98f6f962a6538bd927cefb3']/name", "CU");
-//        CaseTestUtils.xpathEvalAndAssert(ec, "instance('products')/products/@last_sync", "2018-07-27T12:56:10.835570+00:00");
+        CaseTestUtils.xpathEvalAndAssert(ec, "instance('products')/products/@last_sync", "2018-07-27T12:56:10.835570+00:00");
 
         // ensure that the entire fixture is stored in the normal storage.
         // This is to ensure if we ever change the indexed data model, we can

@@ -117,7 +117,7 @@ public class QuerySensitiveTreeElementWrapper<T extends AbstractTreeElement> imp
     }
 
     @Override
-    public T getAttribute(String namespace, String name) {
+    public AbstractTreeElement getAttribute(String namespace, String name) {
         return wrapped.getAttribute(context, namespace, name);
     }
 

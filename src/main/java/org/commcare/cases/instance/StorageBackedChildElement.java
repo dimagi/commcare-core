@@ -228,7 +228,7 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
     }
 
     @Override
-    public TreeElement getAttribute(String namespace, String name) {
+    public AbstractTreeElement getAttribute(String namespace, String name) {
         return this.getAttribute(null, namespace, name);
     }
 
