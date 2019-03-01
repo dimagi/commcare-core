@@ -146,11 +146,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     @Override
-    public boolean exists() {
-        return data != null;
-    }
-
-    @Override
     public Object getAccessLock() {
         return null;
     }
