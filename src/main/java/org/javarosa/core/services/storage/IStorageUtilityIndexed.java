@@ -119,6 +119,9 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      */
     boolean exists(int id);
 
+    // Returns whether the container holding the records exists
+    boolean exists();
+
     /**
      * Return an iterator to iterate through all records in this store
      *

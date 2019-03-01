@@ -93,7 +93,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     @Override
     public List<Integer> getIDsForValues(String[] fieldNames, Object[] values, LinkedHashSet<Integer> returnSet) {
         List<Integer> accumulator = null;
-        for(int i = 0; i < fieldNames.length; ++i) {
+        for (int i = 0; i < fieldNames.length; ++i) {
             Vector<Integer> matches = getIDsForValue(fieldNames[i], values[i]);
             if (accumulator == null) {
                 accumulator = new Vector<>(matches);
@@ -146,6 +146,11 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     @Override
+    public boolean exists() {
+        return data != null;
+    }
+
+    @Override
     public Object getAccessLock() {
         return null;
     }
@@ -188,8 +193,13 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     public byte[] readBytes(int id) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         try {
-            data.get(DataUtil.integer(id)).writeExternal(new DataOutputStream(stream));
-            return stream.toByteArray();
+            T item = data.get(DataUtil.integer(id));
+            if (item != null) {
+                item.writeExternal(new DataOutputStream(stream));
+                return stream.toByteArray();
+            } else {
+                throw new NoSuchElementException("No record for ID " + id);
+            }
         } catch (IOException e) {
             throw new RuntimeException("Couldn't serialize data to return to readBytes");
         }
@@ -305,7 +315,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 
     @Override
     public void bulkReadMetadata(LinkedHashSet cuedCases, String[] metaDataIds, HashMap metadataMap) {
-        for(int i : ((LinkedHashSet<Integer>)cuedCases)) {
+        for (int i : ((LinkedHashSet<Integer>)cuedCases)) {
             metadataMap.put(i, getMetaDataForRecord(i, metaDataIds));
         }
     }
