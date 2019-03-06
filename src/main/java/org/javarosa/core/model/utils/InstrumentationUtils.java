@@ -26,16 +26,21 @@ public class InstrumentationUtils {
     public static void printAndClearTraces(EvaluationTraceReporter reporter, String description,
                                            TraceSerialization.TraceInfoType requestedInfo) {
         if (reporter != null) {
+            StringBuilder sb = new StringBuilder();
             if (reporter.wereTracesReported()) {
-                Logger.log("profiling",description);
+                Logger.log("profiling", description);
+                sb.append("profiling " + description);
             }
 
             for (EvaluationTrace trace : reporter.getCollectedTraces()) {
-                Logger.log("profiling",trace.getExpression() + ": " + trace.getValue());
-                Logger.log("profiling",TraceSerialization.serializeEvaluationTrace(trace, requestedInfo,
+                Logger.log("profiling", trace.getExpression() + ": " + trace.getValue());
+                sb.append("profiling: " + trace.getExpression() + ": " + trace.getValue());
+                Logger.log("profiling", TraceSerialization.serializeEvaluationTrace(trace, requestedInfo,
+                        reporter.reportAsFlat()));
+                sb.append(TraceSerialization.serializeEvaluationTrace(trace, requestedInfo,
                         reporter.reportAsFlat()));
             }
-
+            sb.toString();
             reporter.reset();
         }
     }
@@ -52,7 +57,7 @@ public class InstrumentationUtils {
             }
 
             for (EvaluationTrace trace : reporter.getCollectedTraces()) {
-                returnValue += trace.getExpression() + ": " + trace.getValue()  + "\n";
+                returnValue += trace.getExpression() + ": " + trace.getValue() + "\n";
                 returnValue += TraceSerialization.serializeEvaluationTrace(trace, requestedInfo,
                         reporter.reportAsFlat());
             }
