@@ -35,7 +35,8 @@ public class Callout implements Externalizable, DetailTemplate {
     private boolean isAutoLaunching;
     private boolean assumePlainTextValues;
 
-    private static final String OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX = "cc:xpath_key:";
+    private static final String KEY_FORCE_XPATH_PARSING = "force_xpath_parsing";
+    private static final String KEY_FORCE_XPATH_PARSING_VALUE_TRUE = "yes";
 
     /**
      * Allows case list intent callouts to map result data to cases. 'header'
@@ -68,28 +69,41 @@ public class Callout implements Externalizable, DetailTemplate {
     @Override
     public CalloutData evaluate(EvaluationContext context) {
         Hashtable<String, String> evaluatedExtras = new Hashtable<>();
+        boolean forceXpathParsing = forceXpathParsing();
         Enumeration keys = extras.keys();
         while (keys.hasMoreElements()) {
             String key = (String)keys.nextElement();
-            boolean overridePlainTextAssumption = key.startsWith(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX);
-            key = key.replace(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX, "");
-            String rawValue = extras.get(key);
-
-            if (assumePlainTextValues && !overridePlainTextAssumption) {
-                evaluatedExtras.put(key, rawValue);
-            } else {
-                try {
-                    String evaluatedValue =
-                            FunctionUtils.toString(XPathParseTool.parseXPath(rawValue).eval(context));
-                    evaluatedExtras.put(key, evaluatedValue);
-                } catch (XPathSyntaxException e) {
-                    // do nothing
+            if (!key.contentEquals(KEY_FORCE_XPATH_PARSING)) {
+                String rawValue = extras.get(key);
+                if (assumePlainTextValues && !forceXpathParsing) {
+                    evaluatedExtras.put(key, rawValue);
+                } else {
+                    try {
+                        String evaluatedValue =
+                                FunctionUtils.toString(XPathParseTool.parseXPath(rawValue).eval(context));
+                        evaluatedExtras.put(key, evaluatedValue);
+                    } catch (XPathSyntaxException e) {
+                        // do nothing
+                    }
                 }
             }
         }
 
         // emit a CalloutData with the extras evaluated. used for the detail screen.
         return new CalloutData(actionName, image, displayName, evaluatedExtras, responses, type);
+    }
+
+    // Returns true if force_xpath_parsing is yes
+    private boolean forceXpathParsing() {
+        Enumeration keys = extras.keys();
+        while (keys.hasMoreElements()) {
+            String key = (String)keys.nextElement();
+            if (key.contentEquals(KEY_FORCE_XPATH_PARSING)) {
+                String forceXpathVal = extras.get(key);
+                return forceXpathVal.contentEquals(KEY_FORCE_XPATH_PARSING_VALUE_TRUE);
+            }
+        }
+        return false;
     }
 
     @Override

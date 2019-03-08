@@ -3,6 +3,7 @@ package org.javarosa.xpath.expr;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathUnsupportedException;
 
@@ -20,7 +21,7 @@ public class XPathUnionExpr extends XPathBinaryOpExpr {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+    protected Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         throw new XPathUnsupportedException("nodeset union operation");
     }
 
@@ -32,12 +33,14 @@ public class XPathUnionExpr extends XPathBinaryOpExpr {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         readExpressions(in, pf);
+        cacheState = (CacheableExprState)ExtUtil.read(in, CacheableExprState.class, pf);
         op = -1;
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         writeExpressions(out);
+        ExtUtil.write(out, cacheState);
     }
 
     @Override

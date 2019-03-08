@@ -24,7 +24,7 @@ public class XPathNumericLiteral extends XPathExpression {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+    protected Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         return new Double(d);
     }
 
@@ -55,6 +55,7 @@ public class XPathNumericLiteral extends XPathExpression {
         } else {
             d = ExtUtil.readDecimal(in);
         }
+        cacheState = (CacheableExprState)ExtUtil.read(in, CacheableExprState.class, pf);
     }
 
     @Override
@@ -66,6 +67,7 @@ public class XPathNumericLiteral extends XPathExpression {
             out.writeByte(0x01);
             ExtUtil.writeDecimal(out, d);
         }
+        ExtUtil.write(out, cacheState);
     }
 
     @Override
@@ -75,6 +77,9 @@ public class XPathNumericLiteral extends XPathExpression {
 
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        if (analyzer.shortCircuit()) {
+            return;
+        }
         analyzer.doAnalysis(XPathNumericLiteral.this);
     }
 }

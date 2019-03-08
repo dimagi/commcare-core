@@ -2,8 +2,6 @@ package org.javarosa.xpath.analysis;
 
 import org.javarosa.core.model.instance.TreeReference;
 
-import java.util.ArrayList;
-
 /**
  * An XPathAccumulatingAnalyzer that collects all of the instance names that are referenced
  * in an expression
@@ -25,7 +23,7 @@ public class InstanceNameAccumulatingAnalyzer extends XPathAccumulatingAnalyzer<
     @Override
     public void doNormalTreeRefAnalysis(TreeReference treeRef) throws AnalysisInvalidException {
         if (treeRef.getContextType() == TreeReference.CONTEXT_INSTANCE) {
-            addResultToList(treeRef.getInstanceName());
+            addToResult(treeRef.getInstanceName());
         }
     }
 

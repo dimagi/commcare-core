@@ -26,7 +26,7 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
     }
 
     @Override
-    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+    protected Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         Object aval = FunctionUtils.unpack(a.eval(model, evalContext));
         Object bval = FunctionUtils.unpack(b.eval(model, evalContext));
         boolean eq = testEquality(aval, bval);
@@ -49,12 +49,14 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
         } else {
             op = XPathEqExpr.NEQ;
         }
+        cacheState = (CacheableExprState)ExtUtil.read(in, CacheableExprState.class, pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeBool(out, isEqOp);
         writeExpressions(out);
+        ExtUtil.write(out, cacheState);
     }
 
     /**

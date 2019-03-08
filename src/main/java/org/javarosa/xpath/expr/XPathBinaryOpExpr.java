@@ -48,6 +48,7 @@ public abstract class XPathBinaryOpExpr extends XPathOpExpr {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         op = ExtUtil.readInt(in);
         readExpressions(in, pf);
+        cacheState = (CacheableExprState)ExtUtil.read(in, CacheableExprState.class, pf);
     }
 
     protected void readExpressions(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
@@ -59,6 +60,7 @@ public abstract class XPathBinaryOpExpr extends XPathOpExpr {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, op);
         writeExpressions(out);
+        ExtUtil.write(out, cacheState);
     }
 
     protected void writeExpressions(DataOutputStream out) throws IOException {
@@ -88,6 +90,9 @@ public abstract class XPathBinaryOpExpr extends XPathOpExpr {
 
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        if (analyzer.shortCircuit()) {
+            return;
+        }
         analyzer.doAnalysis(XPathBinaryOpExpr.this);
         this.a.applyAndPropagateAnalyzer(analyzer);
         this.b.applyAndPropagateAnalyzer(analyzer);

@@ -27,6 +27,11 @@ public class AccumulatingReporter implements EvaluationTraceReporter {
     }
 
     @Override
+    public boolean reportAsFlat() {
+        return false;
+    }
+
+    @Override
     public void reset() {
         this.traces.clear();
     }

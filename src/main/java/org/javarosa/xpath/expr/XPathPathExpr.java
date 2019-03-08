@@ -172,7 +172,7 @@ public class XPathPathExpr extends XPathExpression {
     }
 
     @Override
-    public XPathNodeset evalRaw(DataInstance m, EvaluationContext ec) {
+    protected XPathNodeset evalRaw(DataInstance m, EvaluationContext ec) {
         TreeReference genericRef = getReference();
         TreeReference ref;
 
@@ -379,8 +379,10 @@ public class XPathPathExpr extends XPathExpression {
 
         Vector v = (Vector)ExtUtil.read(in, new ExtWrapList(XPathStep.class), pf);
         steps = new XPathStep[v.size()];
-        for (int i = 0; i < steps.length; i++)
+        for (int i = 0; i < steps.length; i++) {
             steps[i] = ((XPathStep)v.elementAt(i)).intern();
+        }
+        cacheState = (CacheableExprState)ExtUtil.read(in, CacheableExprState.class, pf);
     }
 
     @Override
@@ -395,6 +397,7 @@ public class XPathPathExpr extends XPathExpression {
             v.addElement(step);
         }
         ExtUtil.write(out, new ExtWrapList(v));
+        ExtUtil.write(out, cacheState);
     }
 
     public static XPathPathExpr fromRef(TreeReference ref) {
@@ -436,6 +439,9 @@ public class XPathPathExpr extends XPathExpression {
 
     @Override
     public void applyAndPropagateAnalyzer(XPathAnalyzer analyzer) throws AnalysisInvalidException {
+        if (analyzer.shortCircuit()) {
+            return;
+        }
         analyzer.doAnalysis(XPathPathExpr.this);
         getReference().applyAndPropagateAnalyzer(analyzer);
     }

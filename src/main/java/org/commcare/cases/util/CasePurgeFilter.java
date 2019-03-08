@@ -214,6 +214,11 @@ public class CasePurgeFilter extends EntityFilter<Case> {
             }
         }
 
+        //NOTE: There is no currently 'safe' number of times to execute these two propagations that
+        //will properly cover the graph, this is a short-term fix for covering the most common
+        //cases.
+        propagateMarkToDAG(g, true, STATUS_ALIVE, STATUS_ALIVE);
+        propagateMarkToDAG(g, false, STATUS_ALIVE, STATUS_ALIVE, CaseIndex.RELATIONSHIP_EXTENSION, true);
         propagateMarkToDAG(g, true, STATUS_ALIVE, STATUS_ALIVE);
         propagateMarkToDAG(g, false, STATUS_ALIVE, STATUS_ALIVE, CaseIndex.RELATIONSHIP_EXTENSION, true);
     }
