@@ -128,7 +128,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
      * separated by space characters.
      */
     public Object serializeAnswerData(SelectMultiData data) {
-        Vector selections = (Vector)data.getValue();
+        Vector selections = data.getValue();
         Enumeration en = selections.elements();
         StringBuffer selectString = new StringBuffer();
 

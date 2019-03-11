@@ -10,17 +10,14 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.XPathNodeset;
-import org.javarosa.xpath.analysis.XPathAnalyzable;
 import org.kxml2.io.KXmlSerializer;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Vector;
 
-public abstract class XPathExpression implements Externalizable, XPathAnalyzable {
+public abstract class XPathExpression extends InFormCacheableExpr implements Externalizable {
 
     public Object eval(EvaluationContext evalContext) {
         return eval(evalContext.getMainInstance(), evalContext);
@@ -34,9 +31,20 @@ public abstract class XPathExpression implements Externalizable, XPathAnalyzable
      */
     public Object eval(DataInstance model, EvaluationContext evalContext) {
         evalContext.openTrace(this);
-        Object value = evalRaw(model, evalContext);
-        evalContext.reportTraceValue(value);
+
+        Object value;
+        boolean fromCache = false;
+        if (isCached(evalContext)) {
+            value = getCachedValue();
+            fromCache = true;
+        } else {
+            value = evalRaw(model, evalContext);
+            cache(value, evalContext);
+        }
+
+        evalContext.reportTraceValue(value, fromCache);
         evalContext.closeTrace();
+
         return value;
     }
 
@@ -55,7 +63,7 @@ public abstract class XPathExpression implements Externalizable, XPathAnalyzable
             return false;
         }
 
-        DataInstance instance = ((XPathLazyNodeset) value).getInstance();
+        DataInstance instance = value.getInstance();
         AbstractTreeElement treeElement = instance.resolveReference(refs.get(0));
         return treeElement.getNumChildren() == 0;
     }
@@ -90,7 +98,7 @@ public abstract class XPathExpression implements Externalizable, XPathAnalyzable
      *
      * @return The result of this expression evaluated against the provided context
      */
-    public abstract Object evalRaw(DataInstance model, EvaluationContext evalContext);
+    protected abstract Object evalRaw(DataInstance model, EvaluationContext evalContext);
 
     public final Vector<Object> pivot(DataInstance model, EvaluationContext evalContext) throws UnpivotableExpressionException {
         try {

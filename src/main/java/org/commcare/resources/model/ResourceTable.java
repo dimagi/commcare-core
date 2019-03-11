@@ -9,16 +9,21 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 import java.util.Vector;
+
+import javax.annotation.Nullable;
+
 
 /**
  * A Resource Table maintains a set of Resource Records,
@@ -60,8 +65,12 @@ public class ResourceTable {
     private boolean isResourceProgressStale = false;
     // Cache for profile and suite 'parent' resources which are used in
     // references resolution
-    private final Hashtable<String, Resource> compoundResourceCache =
-            new Hashtable<>();
+
+    // Constant to denote all resources with any kind of status
+    public static final int RESOURCE_STATUS_ALL_RESOURCES = 10001;
+
+    private final Hashtable<String, Resource> compoundResourceCache = new Hashtable<>();
+    private SizeBoundUniqueVector<Resource> mMissingResources = new SizeBoundUniqueVector<>(0);
 
     public ResourceTable() {
     }
@@ -153,7 +162,7 @@ public class ResourceTable {
     public void addResource(Resource resource, int status) {
         if (resourceDoesntExist(resource)) {
             addResourceInner(resource, status);
-        } 
+        }
     }
 
     protected boolean resourceDoesntExist(Resource resource) {
@@ -348,15 +357,16 @@ public class ResourceTable {
      *                 prepare against
      * @param master   Backup resource table to look-up resources not found in
      *                 the current table
-     * @throws UnresolvedResourceException       Raised when no definitions for
-     *                                           resource 'r' can't be found
-     * @throws UnfullfilledRequirementsException
+     * @param recovery true if we are undergoing missing resources recovery
+     * @throws UnresolvedResourceException Raised when no definitions for
+     *                                     resource 'r' can't be found
      */
     private void findResourceLocationAndInstall(Resource r,
                                                 Vector<Reference> invalid,
                                                 boolean upgrade,
                                                 CommCarePlatform platform,
-                                                ResourceTable master)
+                                                ResourceTable master,
+                                                boolean recovery)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
         // TODO: Possibly check if resource status is local and proceeding to
@@ -364,6 +374,7 @@ public class ResourceTable {
 
         UnreliableSourceException unreliableSourceException = null;
         InvalidResourceException invalidResourceException = null;
+        UnresolvedResourceException unresolvedResourceException = null;
 
         boolean handled = false;
 
@@ -371,16 +382,19 @@ public class ResourceTable {
             if (handled) {
                 break;
             }
+
             if (location.isRelative()) {
                 for (Reference ref : gatherLocationsRefs(location, r, this, master)) {
                     if (!(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL && invalid.contains(ref))) {
                         try {
                             handled = installResource(r, location, ref, this,
-                                    platform, upgrade);
+                                    platform, upgrade, recovery);
                         } catch (InvalidResourceException e) {
                             invalidResourceException = e;
                         } catch (UnreliableSourceException use) {
                             unreliableSourceException = use;
+                        } catch (UnresolvedResourceException ure) {
+                            unresolvedResourceException = ure;
                         }
                         if (handled) {
                             recordSuccess(r);
@@ -392,7 +406,7 @@ public class ResourceTable {
                 try {
                     handled = installResource(r, location,
                             ReferenceManager.instance().DeriveReference(location.getLocation()),
-                            this, platform, upgrade);
+                            this, platform, upgrade, recovery);
                     if (handled) {
                         recordSuccess(r);
                         break;
@@ -404,6 +418,8 @@ public class ResourceTable {
                     // Continue until no resources can be found.
                 } catch (UnreliableSourceException use) {
                     unreliableSourceException = use;
+                } catch (UnresolvedResourceException ure) {
+                    unresolvedResourceException = ure;
                 }
             }
         }
@@ -411,16 +427,23 @@ public class ResourceTable {
         if (!handled) {
             if (invalidResourceException != null) {
                 throw invalidResourceException;
+            } else if (unresolvedResourceException != null) {
+                throw unresolvedResourceException;
             } else if (unreliableSourceException == null) {
                 // no particular failure to point our finger at.
                 throw new UnresolvedResourceException(r,
-                        "No external or local definition could be found for resource " +
-                                r.getResourceId());
+                        "No external or local definition could be found for resource " + r.getDescriptor()
+                                + " with id " + r.getResourceId());
             } else {
                 // Expose the lossy failure rather than the generic one
                 throw unreliableSourceException;
             }
         }
+    }
+
+    public void prepareResources(@Nullable ResourceTable master, CommCarePlatform platform)
+            throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
+        prepareResources(master, platform, false);
     }
 
     /**
@@ -435,7 +458,7 @@ public class ResourceTable {
      *                                           incompatible with the current
      *                                           version of CommCare
      */
-    public void prepareResources(ResourceTable master, CommCarePlatform platform)
+    public void prepareResources(@Nullable ResourceTable master, CommCarePlatform platform, boolean installOver)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
         Hashtable<String, Resource> masterResourceMap = null;
@@ -449,7 +472,7 @@ public class ResourceTable {
         // install all unready resources.
         while (!unreadyResources.isEmpty()) {
             for (Resource r : unreadyResources) {
-                prepareResource(master, platform, r, masterResourceMap);
+                prepareResource(master, platform, r, masterResourceMap, installOver);
             }
             // Installing resources may have exposed more unready resources
             // that need installing.
@@ -489,7 +512,7 @@ public class ResourceTable {
         // install unready resources, until toInitialize has been installed.
         while (isResourceUninitialized(toInitialize) && !unreadyResources.isEmpty()) {
             for (Resource r : unreadyResources) {
-                prepareResource(master, platform, r, null);
+                prepareResource(master, platform, r, null, false);
             }
             // Installing resources may have exposed more unready resources
             // that need installing.
@@ -506,7 +529,7 @@ public class ResourceTable {
      *                          pre-loading the resource map isn't worth it.
      */
     private void prepareResource(ResourceTable master, CommCarePlatform platform,
-                                 Resource r, Hashtable<String, Resource> masterResourceMap)
+                                 Resource r, Hashtable<String, Resource> masterResourceMap, boolean installOver)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         boolean upgrade = false;
 
@@ -543,7 +566,7 @@ public class ResourceTable {
             }
         }
 
-        findResourceLocationAndInstall(r, invalid, upgrade, platform, master);
+        findResourceLocationAndInstall(r, invalid, upgrade, platform, master, installOver);
 
         if (stateListener != null) {
             if (isResourceProgressStale) {
@@ -574,18 +597,17 @@ public class ResourceTable {
      * retries.
      *
      * @return Did the resource install successfully?
-     * @throws UnfullfilledRequirementsException
      */
     private boolean installResource(Resource r, ResourceLocation location,
                                     Reference ref, ResourceTable table,
-                                    CommCarePlatform platform, boolean upgrade)
+                                    CommCarePlatform platform, boolean upgrade, boolean recovery)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         UnreliableSourceException aFailure = null;
 
         for (int i = 0; i < NUMBER_OF_LOSSY_RETRIES + 1; ++i) {
             abortIfInstallCancelled(r);
             try {
-                return r.getInstaller().install(r, location, ref, table, platform, upgrade);
+                return r.getInstaller().install(r, location, ref, table, platform, upgrade, recovery);
             } catch (UnreliableSourceException use) {
                 recordFailure(r, use);
                 aFailure = use;
@@ -600,7 +622,7 @@ public class ResourceTable {
     private void abortIfInstallCancelled(Resource r) throws InstallCancelledException {
         if (cancellationChecker != null && cancellationChecker.wasInstallCancelled()) {
             InstallCancelledException installException =
-                new InstallCancelledException("Installation/upgrade was cancelled while processing " + r.getResourceId());
+                    new InstallCancelledException("Installation/upgrade was cancelled while processing " + r.getResourceId());
             recordFailure(r, installException);
             throw installException;
         }
@@ -841,18 +863,32 @@ public class ResourceTable {
         storage.removeAll();
     }
 
+
+    // Clears resources with status RESOURCE_STATUS_UPGRADE in the table
+    public void clearUpgrade(CommCarePlatform platform) {
+        clearByStatus(platform, Resource.RESOURCE_STATUS_UPGRADE);
+    }
+
+    // Clears all resources in the table
+    public void clearAll(CommCarePlatform platform) {
+        clearByStatus(platform, RESOURCE_STATUS_ALL_RESOURCES);
+        storage.removeAll();
+    }
+
     /**
-     * Destroy this table, and also try very hard to remove any files installed
-     * by it. This is important for rolling back botched upgrades without
-     * leaving their files around.
+     * Clears any resources with a given resource status and also try very hard to remove any files installed
+     * by it. This is important for rolling back botched upgrades without leaving their files around.
+     *
+     * @param platform CommCare platform
+     * @param resourceStatus Only resources with this status will get cleared
      */
-    public void clear(CommCarePlatform platform) {
+    private void clearByStatus(CommCarePlatform platform, int resourceStatus) {
         cleanup();
         Stack<Resource> s = this.getResourceStack();
         int count = 0;
         while (!s.isEmpty()) {
             Resource r = s.pop();
-            if (r.getStatus() == Resource.RESOURCE_STATUS_UPGRADE) {
+            if (r.getStatus() == resourceStatus || resourceStatus == RESOURCE_STATUS_ALL_RESOURCES) {
                 try {
                     r.getInstaller().uninstall(r, platform);
                     count++;
@@ -864,8 +900,6 @@ public class ResourceTable {
         if (count > 0) {
             Logger.log(LogTypes.TYPE_RESOURCES, "Cleaned up " + count + " records from table");
         }
-
-        storage.removeAll();
     }
 
     protected void cleanup() {
@@ -882,6 +916,7 @@ public class ResourceTable {
      */
     public void initializeResources(CommCarePlatform platform, boolean isUpgrade) throws
             ResourceInitializationException {
+        SizeBoundUniqueVector<Resource> missingResources = new SizeBoundUniqueVector<>(storage.getNumRecords());
         Vector<Resource> lateInit = new Vector<>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
@@ -890,22 +925,30 @@ public class ResourceTable {
                 if (i instanceof ProfileInstaller) {
                     lateInit.addElement(r);
                 } else {
-                    attemptResourceInitialization(platform, isUpgrade, r);
+                    attemptResourceInitialization(platform, isUpgrade, r, missingResources);
                 }
             }
         }
         for (Resource r : lateInit) {
-            attemptResourceInitialization(platform, isUpgrade, r);
+            attemptResourceInitialization(platform, isUpgrade, r, missingResources);
         }
+        setMissingResources(missingResources);
     }
 
     private void attemptResourceInitialization(CommCarePlatform platform, boolean isUpgrade,
-                                               Resource r) throws ResourceInitializationException {
+                                               Resource r, Vector<Resource> missingResources) throws ResourceInitializationException {
         try {
             r.getInstaller().initialize(platform, isUpgrade);
+        } catch (FileNotFoundException e) {
+            missingResources.add(r);
         } catch (IOException | InvalidStructureException | InvalidReferenceException
                 | XmlPullParserException | UnfullfilledRequirementsException e) {
             throw new ResourceInitializationException(r, e);
+        }
+
+        if (r.getStatus() == Resource.RESOURCE_STATUS_UNINITIALIZED) {
+            Logger.log(LogTypes.SOFT_ASSERT, "Failed to initialize resource with descriptor " + r.getDescriptor()
+                    + " and id " + r.getResourceId());
         }
     }
 
@@ -1085,5 +1128,50 @@ public class ResourceTable {
 
     public void setInstallStatsLogger(InstallStatsLogger logger) {
         this.installStatsLogger = logger;
+    }
+
+    public boolean recoverResources(CommCarePlatform platform, String profileRef) throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
+        int count = 0;
+        int total = mMissingResources.size();
+        for (Resource missingResource : mMissingResources) {
+
+            if (missingResource.id.contentEquals(CommCarePlatform.APP_PROFILE_RESOURCE_ID)) {
+                addRemoteLocationIfMissing(missingResource, profileRef);
+            }
+
+            findResourceLocationAndInstall(missingResource, new Vector<>(), false, platform, null, true);
+            count++;
+
+            if (stateListener != null) {
+                stateListener.incrementProgress(count, total);
+            }
+
+            if (cancellationChecker != null && cancellationChecker.wasInstallCancelled()) {
+                break;
+            }
+        }
+        return true;
+    }
+
+    private void addRemoteLocationIfMissing(Resource resource, String remoteLocation) {
+        Vector<ResourceLocation> locations = resource.getLocations();
+        boolean remoteLocationPresent = false;
+        for (ResourceLocation location : locations) {
+            if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_REMOTE) {
+                remoteLocationPresent = true;
+            }
+        }
+        if (!remoteLocationPresent) {
+            locations.add(new ResourceLocation(Resource.RESOURCE_AUTHORITY_REMOTE, remoteLocation));
+        }
+    }
+
+
+    public void setMissingResources(SizeBoundUniqueVector<Resource> missingResources) {
+        mMissingResources = missingResources;
+    }
+
+    public SizeBoundUniqueVector<Resource> getMissingResources() {
+        return mMissingResources;
     }
 }

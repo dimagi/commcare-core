@@ -2,15 +2,21 @@ package org.javarosa.xpath.analysis.test;
 
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.analysis.AnalysisInvalidException;
+import org.javarosa.xpath.analysis.ContainsUncacheableExpressionAnalyzer;
+import org.javarosa.xpath.analysis.ReferencesMainInstanceAnalyzer;
 import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
+import org.javarosa.xpath.analysis.TopLevelContextTypesAnalyzer;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Tests for the XPath static analysis infrastructure
@@ -61,52 +67,52 @@ public class StaticAnalysisTest {
 
     @Test
     public void testInstanceAccumulatingAnalyzer() throws XPathSyntaxException {
-        testInstanceAnalysis(NO_INSTANCES_EXPR,
+        testInstanceAccumulate(NO_INSTANCES_EXPR,
                 new String[]{});
-        testInstanceAnalysis(ONE_INSTANCE_EXPR,
+        testInstanceAccumulate(ONE_INSTANCE_EXPR,
                 new String[]{"casedb"});
-        testInstanceAnalysis(DUPLICATED_INSTANCE_EXPR,
+        testInstanceAccumulate(DUPLICATED_INSTANCE_EXPR,
                 new String[]{"commcaresession"});
-        testInstanceAnalysis(EXPR_WITH_INSTANCE_IN_PREDICATE,
+        testInstanceAccumulate(EXPR_WITH_INSTANCE_IN_PREDICATE,
                 new String[]{"casedb", "commcaresession"});
-        testInstanceAnalysis(RIDICULOUS_RELEVANCY_CONDITION_FROM_REAL_APP,
+        testInstanceAccumulate(RIDICULOUS_RELEVANCY_CONDITION_FROM_REAL_APP,
                 new String[]{"casedb", "commcaresession", "schedule:m5:p2:f2"});
 
         // Test the length of the result with list accumulation, just to ensure it gets them all
         List<String> parsedInstancesList =
                 (new InstanceNameAccumulatingAnalyzer()).accumulateAsList(
                         XPathParseTool.parseXPath(RIDICULOUS_RELEVANCY_CONDITION_FROM_REAL_APP));
-        Assert.assertEquals(27, parsedInstancesList.size());
+        assertEquals(27, parsedInstancesList.size());
     }
 
     @Test
     public void testCurrentAndRelativeRefs() throws XPathSyntaxException {
-        testInstanceAnalysis(BASIC_RELATIVE_EXPR, new String[]{"casedb"},
+        testInstanceAccumulate(BASIC_RELATIVE_EXPR, new String[]{"casedb"},
                 BASE_CONTEXT_REF_aCase);
-        testInstanceAnalysis(EXPR_WITH_CURRENT_AT_TOP_LEVEL, new String[]{"adherence:calendar", "casedb"},
+        testInstanceAccumulate(EXPR_WITH_CURRENT_AT_TOP_LEVEL, new String[]{"adherence:calendar", "casedb"},
                 BASE_CONTEXT_REF_aCase);
 
         // expect null because no context ref was provided when it was needed
-        testInstanceAnalysis(BASIC_RELATIVE_EXPR, null);
-        testInstanceAnalysis(EXPR_WITH_CURRENT_AT_TOP_LEVEL, null);
+        testInstanceAccumulate(BASIC_RELATIVE_EXPR, null);
+        testInstanceAccumulate(EXPR_WITH_CURRENT_AT_TOP_LEVEL, null);
 
         // should be OK not to provide a base context ref here because current() is only being
         // used within a predicate, so it should use the sub-context
-        testInstanceAnalysis(EXPR_WITH_CURRENT_IN_PREDICATE, new String[]{"casedb"});
+        testInstanceAccumulate(EXPR_WITH_CURRENT_IN_PREDICATE, new String[]{"casedb"});
 
         // This analysis should fail because no context ref was provided
-        testInstanceAnalysis(RELATIVE_EXPR_WITH_PREDICATE, null);
+        testInstanceAccumulate(RELATIVE_EXPR_WITH_PREDICATE, null);
 
-        testInstanceAnalysis(RELATIVE_EXPR_WITH_PREDICATE,
+        testInstanceAccumulate(RELATIVE_EXPR_WITH_PREDICATE,
                 new String[]{"commcaresession", "baseinstance"}, BASE_CONTEXT_REF_aNode);
     }
 
-    private void testInstanceAnalysis(String expressionString, String[] expectedInstances)
+    private void testInstanceAccumulate(String expressionString, String[] expectedInstances)
             throws XPathSyntaxException {
-        testInstanceAnalysis(expressionString, expectedInstances, null);
+        testInstanceAccumulate(expressionString, expectedInstances, null);
     }
 
-    private void testInstanceAnalysis(String expressionString, String[] expectedInstances,
+    private void testInstanceAccumulate(String expressionString, String[] expectedInstances,
                                       String baseContextString)
             throws XPathSyntaxException {
 
@@ -130,6 +136,98 @@ public class StaticAnalysisTest {
 
         Set<String> parsedInstancesSet =
                 analyzer.accumulate(XPathParseTool.parseXPath(expressionString));
-        Assert.assertEquals(expectedInstancesSet, parsedInstancesSet);
+        assertEquals(expectedInstancesSet, parsedInstancesSet);
     }
+
+    @Test
+    public void testReferencesMainInstanceAnalysis() throws XPathSyntaxException {
+        testReferencesMainInstance("/unicorn/color[@name='fred']", true);
+        testReferencesMainInstance("date(/data/refill/next_refill_due_date)", true);
+
+        String longExpressionWithMainInstanceRef =
+                "instance('adherence_schedules')/adherence_schedules_list/adherence_schedules[" +
+                        "id = /data/schedule_id][/data/user/user_level = 'dev' or user_level = 'real']/doses_per_week";
+        testReferencesMainInstance(longExpressionWithMainInstanceRef, true);
+
+        String evenLongerExpressionWithMainInstanceRef =
+                "date(coalesce(instance('casedb')/casedb/case[@case_id = instance('commcaresession')" +
+                        "/session/blah/case_id_load_episode_case]/refill_next_date, " +
+                        "(date(coalesce(instance('casedb')/casedb/case[@case_id = " +
+                        "instance('commcaresession')/session/blah/case_id_load_episode_case]/adherence_schedule_date_start, " +
+                        "/data/treatment_initiation_date)) + 30)))";
+        testReferencesMainInstance(evenLongerExpressionWithMainInstanceRef, true);
+
+        testReferencesMainInstance("instance('commcaresession')/session/data/case_id_load_test", false);
+        testReferencesMainInstance("date('1996-02-29')", false);
+        testReferencesMainInstance("selected('apple baby crimson', '  baby  ')", false);
+    }
+
+    private void testReferencesMainInstance(String expressionString, boolean expectedResult) throws XPathSyntaxException {
+        ReferencesMainInstanceAnalyzer analyzer = new ReferencesMainInstanceAnalyzer();
+        try {
+            assertEquals(expectedResult, analyzer.computeResult(XPathParseTool.parseXPath(expressionString)));
+        } catch (AnalysisInvalidException e) {
+            fail("Encountered Analysis Invalid exception: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testContainsUncacheableExpressionAnalysis() throws XPathSyntaxException {
+        testContainsUncacheable("now()", true);
+        testContainsUncacheable("uuid()", true);
+        testContainsUncacheable("random()", true);
+        testContainsUncacheable("depend(/data/val1, /data/val2)", true);
+        testContainsUncacheable("sleep(1000, -1)", true);
+        testContainsUncacheable("date(/data/refill/next_refill_due_date) <= today()", true);
+        testContainsUncacheable(
+                "concat(format-date(today(), '%e/%n/%y'), ': ', /data/ql_weight_and_height/weight, ' ', jr:itext('localization/kg-label'))",
+                true);
+        testContainsUncacheable("/data/val1", false);
+    }
+
+    private void testContainsUncacheable(String expressionString, boolean expectedResult) throws XPathSyntaxException {
+        ContainsUncacheableExpressionAnalyzer analyzer = new ContainsUncacheableExpressionAnalyzer();
+        try {
+            assertEquals(expectedResult, analyzer.computeResult(XPathParseTool.parseXPath(expressionString)));
+        } catch (AnalysisInvalidException e) {
+            fail("Encountered Analysis Invalid exception: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testContextTypesAnalyzer() throws XPathSyntaxException {
+        testContextTypesAccumulate("true()",
+                new int[]{});
+        testContextTypesAccumulate("/data/q1",
+                new int[]{TreeReference.CONTEXT_ABSOLUTE});
+        testContextTypesAccumulate("true() and ./case_name = 'Aliza'",
+                new int[]{TreeReference.CONTEXT_INHERITED});
+        testContextTypesAccumulate("instance('commcaresession')/session/data/case_id_load_test",
+                new int[]{TreeReference.CONTEXT_INSTANCE});
+        testContextTypesAccumulate("instance('casedb')/casedb/case[@case_type='case'][@status='open']",
+                new int[]{TreeReference.CONTEXT_INSTANCE});
+        testContextTypesAccumulate("@case_type='case'",
+                new int[]{TreeReference.CONTEXT_INHERITED});
+        testContextTypesAccumulate("@case_id=current()/index/parent",
+                new int[]{TreeReference.CONTEXT_INHERITED, TreeReference.CONTEXT_ORIGINAL});
+    }
+
+    private void testContextTypesAccumulate(String expressionString, int[] expectedTypes)
+            throws XPathSyntaxException {
+
+        TopLevelContextTypesAnalyzer analyzer = new TopLevelContextTypesAnalyzer();
+
+        Set<Integer> expectedTypesSet = null;
+        if (expectedTypes != null) {
+            expectedTypesSet = new HashSet<>();
+            for (Integer type : expectedTypes) {
+                expectedTypesSet.add(type);
+            }
+        }
+
+        Set<Integer> parsedTypesSet =
+                analyzer.accumulate(XPathParseTool.parseXPath(expressionString));
+        assertEquals(expectedTypesSet, parsedTypesSet);
+    }
+
 }
