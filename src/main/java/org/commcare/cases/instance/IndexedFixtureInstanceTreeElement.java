@@ -23,17 +23,15 @@ import java.util.Hashtable;
 public class IndexedFixtureInstanceTreeElement
         extends StorageInstanceTreeElement<StorageIndexedTreeElementModel, IndexedFixtureChildElement> {
 
-    private static final String ATTRIBUTE_NAME_LAST_SYNC = "last_sync";
-
     private Hashtable<XPathPathExpr, String> storageIndexMap = null;
     private String cacheKey;
-    private String lastSync;
+    private TreeElement attrHolder;
 
     private IndexedFixtureInstanceTreeElement(AbstractTreeElement instanceRoot,
                                               IStorageUtilityIndexed<StorageIndexedTreeElementModel> storage,
                                               IndexedFixtureIndex indexedFixtureIndex) {
         super(instanceRoot, storage, indexedFixtureIndex.getBase(), indexedFixtureIndex.getChild());
-        lastSync = indexedFixtureIndex.getLastSync();
+        attrHolder = indexedFixtureIndex.getAttrs();
         cacheKey = indexedFixtureIndex.getBase() + "|" + indexedFixtureIndex.getChild();
     }
 
@@ -83,47 +81,34 @@ public class IndexedFixtureInstanceTreeElement
 
     @Override
     public int getAttributeCount() {
-        return 1;
+        return attrHolder.getAttributeCount();
     }
 
     @Override
     public String getAttributeNamespace(int index) {
-        return null;
+        return attrHolder.getAttributeNamespace(index);
     }
 
     @Override
     public String getAttributeName(int index) {
-        if (index == 0) {
-            return ATTRIBUTE_NAME_LAST_SYNC;
-        }
-        return null;
+        return attrHolder.getAttributeName(index);
     }
 
     @Override
     public String getAttributeValue(int index) {
-        if (index == 0) {
-            return lastSync;
-        }
-        return null;
+        return attrHolder.getAttributeValue(index);
     }
 
     @Override
     public AbstractTreeElement getAttribute(String namespace, String name) {
-        if (name.contentEquals(ATTRIBUTE_NAME_LAST_SYNC)) {
-            TreeElement attrElement = TreeElement.constructAttributeElement(namespace, name);
-            attrElement.setValue(new StringData(lastSync));
-            attrElement.setParent(this);
-            return attrElement;
-        }
-        return null;
+        TreeElement attr = attrHolder.getAttribute(namespace, name);
+        attr.setParent(this);
+        return attr;
     }
 
     @Override
     public String getAttributeValue(String namespace, String name) {
-        if (name.contentEquals(ATTRIBUTE_NAME_LAST_SYNC)) {
-            return lastSync;
-        }
-        return null;
+        return attrHolder.getAttributeValue(namespace, name);
     }
 
 }

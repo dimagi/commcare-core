@@ -4,10 +4,10 @@ import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.core.interfaces.UserSandbox;
-import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.IndexedFixtureIndex;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -90,8 +90,8 @@ public class MockUserDataSandbox extends UserSandbox {
     }
 
     @Override
-    public void setIndexedFixturePathBases(String fixtureName, String baseName, String childName, String lastSync) {
-        indexedFixtureBaseMap.put(fixtureName, new IndexedFixtureIndex(fixtureName, baseName, childName, lastSync));
+    public void setIndexedFixturePathBases(String fixtureName, String baseName, String childName, TreeElement attrs) {
+        indexedFixtureBaseMap.put(fixtureName, new IndexedFixtureIndex(fixtureName, baseName, childName, attrs));
     }
 
     @Override

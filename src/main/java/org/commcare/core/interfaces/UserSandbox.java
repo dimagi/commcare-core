@@ -6,6 +6,7 @@ import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.javarosa.core.model.IndexedFixtureIndex;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
 import java.util.Set;
@@ -52,7 +53,7 @@ public abstract class UserSandbox {
      * For example, to instantiate a data instance like "instance('commtrack:products')/products/product/..."
      * we must associate 'commtrack:products' with the 'products' base name and the 'product' child name.
      */
-    public abstract void setIndexedFixturePathBases(String fixtureName, String baseName, String childName, String lastSync);
+    public abstract void setIndexedFixturePathBases(String fixtureName, String baseName, String childName, TreeElement attrs);
 
     public abstract IStorageUtilityIndexed<FormInstance> getUserFixtureStorage();
 
