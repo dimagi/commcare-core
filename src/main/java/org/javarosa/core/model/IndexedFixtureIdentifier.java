@@ -4,7 +4,13 @@ import org.javarosa.core.model.instance.TreeElement;
 
 import javax.annotation.Nullable;
 
-// Data class to represent a IndexedFixture semantics
+/**
+ * Model representation for a row of "IndexedFixtureIndex" table
+ *
+ * Represents a IndexedFixture root level properties like the fixture's
+ * base name and child name along with the root level attributes.
+ */
+
 public class IndexedFixtureIdentifier {
     private String fixtureName;
     private String fixtureBase;
