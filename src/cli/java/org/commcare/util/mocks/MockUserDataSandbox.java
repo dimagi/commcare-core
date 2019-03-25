@@ -4,7 +4,7 @@ import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.core.interfaces.UserSandbox;
-import org.javarosa.core.model.IndexedFixtureIndex;
+import org.javarosa.core.model.IndexedFixtureIdentifier;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
@@ -31,7 +31,7 @@ public class MockUserDataSandbox extends UserSandbox {
     private final IStorageUtilityIndexed<Ledger> ledgerStorage;
     private final IStorageUtilityIndexed<User> userStorage;
     private final HashMap<String, IStorageUtilityIndexed<StorageIndexedTreeElementModel>> indexedFixtureStorages;
-    private final HashMap<String, IndexedFixtureIndex> indexedFixtureBaseMap;
+    private final HashMap<String, IndexedFixtureIdentifier> indexedFixtureBaseMap;
     private final IStorageUtilityIndexed<FormInstance> userFixtureStorage;
     private IStorageUtilityIndexed<FormInstance> appFixtureStorage;
 
@@ -85,13 +85,13 @@ public class MockUserDataSandbox extends UserSandbox {
     }
 
     @Override
-    public IndexedFixtureIndex getIndexedFixturePathBases(String fixtureName) {
+    public IndexedFixtureIdentifier getIndexedFixtureIdentifier(String fixtureName) {
         return indexedFixtureBaseMap.get(fixtureName);
     }
 
     @Override
     public void setIndexedFixturePathBases(String fixtureName, String baseName, String childName, TreeElement attrs) {
-        indexedFixtureBaseMap.put(fixtureName, new IndexedFixtureIndex(fixtureName, baseName, childName, attrs));
+        indexedFixtureBaseMap.put(fixtureName, new IndexedFixtureIdentifier(fixtureName, baseName, childName, attrs));
     }
 
     @Override

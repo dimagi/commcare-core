@@ -3,7 +3,7 @@ package org.commcare.core.interfaces;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
-import org.javarosa.core.model.IndexedFixtureIndex;
+import org.javarosa.core.model.IndexedFixtureIdentifier;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
@@ -45,7 +45,7 @@ public abstract class UserSandbox {
      * For example, gets 'products' and 'products' for the data instance
      * "instance('commtrack:products')/products/product/..."
      */
-    public abstract IndexedFixtureIndex getIndexedFixturePathBases(String fixtureName);
+    public abstract IndexedFixtureIdentifier getIndexedFixtureIdentifier(String fixtureName);
 
     /**
      * Associates a fixture with a base name and child name.
