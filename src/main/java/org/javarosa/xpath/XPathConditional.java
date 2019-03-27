@@ -51,11 +51,10 @@ public class XPathConditional implements IConditionExpr {
             if (xpath != null) {
                 throw new XPathUnsupportedException(xpath);
             } else {
-                if (evalContext.isConstraint) {
-                    String contextMessage = String.format(" Question with id: \'%s\' has issue with condition expression: \'%s\'",
-                            evalContext.getContextRef().getNameLast(), expr);
-                    e.setMessagePrefix(contextMessage);
-                }
+                String contextMessage = String.format(" Question with id: \'%s\' has issue with condition expression: \'%s\'",
+                        evalContext.getContextRef().getNameLast(), expr);
+                e.setMessagePrefix(contextMessage);
+
                 throw e;
             }
 
