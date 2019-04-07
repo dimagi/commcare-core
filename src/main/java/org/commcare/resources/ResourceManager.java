@@ -52,25 +52,31 @@ public class ResourceManager {
             UnresolvedResourceException,
             InstallCancelledException {
         synchronized (platform) {
-            if (!global.isReady()) {
-                global.prepareResources(null, platform, forceInstall);
-            }
+            try {
+                if (!global.isReady()) {
+                    global.prepareResources(null, platform, forceInstall);
+                }
 
-            // First, see if the appropriate profile exists
-            Resource profile =
-                    global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+                // First, see if the appropriate profile exists
+                Resource profile =
+                        global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
-            if (profile == null) {
-                // Create a stub for the profile resource that points to the authority and location
-                // from which we will install it
-                Vector<ResourceLocation> locations = new Vector<>();
-                locations.addElement(new ResourceLocation(authorityForProfile, profileReference));
-                Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
-                        CommCarePlatform.APP_PROFILE_RESOURCE_ID,
-                        locations, "Application Descriptor");
+                if (profile == null) {
+                    // Create a stub for the profile resource that points to the authority and location
+                    // from which we will install it
+                    Vector<ResourceLocation> locations = new Vector<>();
+                    locations.addElement(new ResourceLocation(authorityForProfile, profileReference));
+                    Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
+                            CommCarePlatform.APP_PROFILE_RESOURCE_ID,
+                            locations, "Application Descriptor");
 
-                global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
-                global.prepareResources(null, platform, forceInstall);
+                    global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
+                    global.prepareResources(null, platform, forceInstall);
+                }
+            } catch (Exception e) {
+                // Clear all resources in case of a failure
+                global.clearAll(platform);
+                throw e;
             }
         }
     }
