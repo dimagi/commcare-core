@@ -126,10 +126,6 @@ public class XPathStep implements Externalizable {
             intermediate ="";
             axisPrint ="";
             test = "..";
-        } else if(this.equals(ABBR_SELF())) {
-            intermediate ="";
-            axisPrint ="";
-            test = ".";
         } else if(axis == AXIS_DESCENDANT_OR_SELF) {
             intermediate = "";
             axisPrint ="";
