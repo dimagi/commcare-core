@@ -51,11 +51,9 @@ public class XPathConditional implements IConditionExpr {
             if (xpath != null) {
                 throw new XPathUnsupportedException(xpath);
             } else {
-                String contextMessage = String.format(" Question with id: \'%s\' has issue with condition expression: \'%s\'",
-                        evalContext.getContextRef().getNameLast(), expr);
-                e.setMessagePrefix(contextMessage);
-
-                throw e;
+                String contextMessage = String.format("Error calculating expression: \"%s\", being calculated for \"%s\"",
+                        expr, evalContext.getContextRef());
+                throw new XPathUnsupportedException(contextMessage);
             }
 
 
