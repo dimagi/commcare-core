@@ -109,6 +109,48 @@ public class XPathStep implements Externalizable {
         return sb.toString();
     }
 
+    public String toPrettyString() {
+        StringBuffer sb = new StringBuffer();
+        String axisPrint = axisStr(axis);
+        String intermediate = "::";
+        String test = testStr();
+        if (axis == XPathStep.AXIS_CHILD) {
+            intermediate = "";
+            axisPrint = "";
+        }
+        else if(axis == XPathStep.AXIS_ATTRIBUTE) {
+            intermediate = "";
+            axisPrint = "@";
+        }
+        else if(this.equals(ABBR_PARENT())) {
+            intermediate ="";
+            axisPrint ="";
+            test = "..";
+        } else if(this.equals(ABBR_SELF())) {
+            intermediate ="";
+            axisPrint ="";
+            test = ".";
+        } else if(axis == AXIS_DESCENDANT_OR_SELF) {
+            intermediate = "";
+            axisPrint ="";
+            test= "";
+        }
+
+        sb.append(axisPrint);
+        sb.append(intermediate);
+        sb.append(test);
+
+        if (predicates.length > 0) {
+            Vector<XPathExpression> v = new Vector<>();
+            for (XPathExpression predicate : predicates) {
+                sb.append("[");
+                sb.append(predicate.toPrettyString());
+                sb.append("]");
+            }
+        }
+        return sb.toString();
+    }
+
     public static String axisStr(int axis) {
         switch (axis) {
             case AXIS_CHILD:
