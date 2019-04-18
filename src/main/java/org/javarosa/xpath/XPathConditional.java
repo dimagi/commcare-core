@@ -52,7 +52,7 @@ public class XPathConditional implements IConditionExpr {
                 throw new XPathUnsupportedException(xpath);
             } else {
                 String contextMessage = String.format("Error calculating expression: \"%s\", being calculated for \"%s\"",
-                        expr, evalContext.getContextRef());
+                        expr.toPrettyString(), evalContext.getContextRef());
                 throw new XPathUnsupportedException(contextMessage);
             }
 
