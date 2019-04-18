@@ -129,11 +129,14 @@ public class ShortestCycleAlgorithm {
         return stringBuilder.toString();
     }
 
+    /**
+     * @return a GraphViz Digraph (DOT engine) which will visualize the dependencies between the
+     * edges. Helpful for debugging
+     */
     private String toDOTDigraph() {
         String graph ="";
         for(TreeReference[] edge : edges){
-            //graph += clean(edge[0].toString(false)) + " -> " + clean(edge[1].toString(false)) + ";\n";
-            graph += clean(edge[1].toString(false)) + " -> " + clean(edge[0].toString(false)) + ";\n";
+            graph += clean(edge[0].toString(false)) + " -> " + clean(edge[1].toString(false)) + ";\n";
         }
 
         return "digraph G{\n" + graph + "\n}";
