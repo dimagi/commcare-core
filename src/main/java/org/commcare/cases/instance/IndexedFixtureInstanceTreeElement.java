@@ -24,9 +24,9 @@ public class IndexedFixtureInstanceTreeElement
 
     private Hashtable<XPathPathExpr, String> storageIndexMap = null;
     private String cacheKey;
-    private TreeElement attrHolder;
+    protected byte[] attrHolder;
 
-    private IndexedFixtureInstanceTreeElement(AbstractTreeElement instanceRoot,
+    public IndexedFixtureInstanceTreeElement(AbstractTreeElement instanceRoot,
                                               IStorageUtilityIndexed<StorageIndexedTreeElementModel> storage,
                                               IndexedFixtureIdentifier indexedFixtureIdentifier) {
         super(instanceRoot, storage, indexedFixtureIdentifier.getFixtureBase(), indexedFixtureIdentifier.getFixtureChild());
@@ -75,38 +75,6 @@ public class IndexedFixtureInstanceTreeElement
 
     public String getStorageCacheName() {
         return cacheKey;
-    }
-
-    @Override
-    public int getAttributeCount() {
-        return attrHolder.getAttributeCount();
-    }
-
-    @Override
-    public String getAttributeNamespace(int index) {
-        return attrHolder.getAttributeNamespace(index);
-    }
-
-    @Override
-    public String getAttributeName(int index) {
-        return attrHolder.getAttributeName(index);
-    }
-
-    @Override
-    public String getAttributeValue(int index) {
-        return attrHolder.getAttributeValue(index);
-    }
-
-    @Override
-    public AbstractTreeElement getAttribute(String namespace, String name) {
-        TreeElement attr = attrHolder.getAttribute(namespace, name);
-        attr.setParent(this);
-        return attr;
-    }
-
-    @Override
-    public String getAttributeValue(String namespace, String name) {
-        return attrHolder.getAttributeValue(namespace, name);
     }
 
 }

@@ -91,7 +91,7 @@ public class MockUserDataSandbox extends UserSandbox {
 
     @Override
     public void setIndexedFixturePathBases(String fixtureName, String baseName, String childName, TreeElement attrs) {
-        indexedFixtureBaseMap.put(fixtureName, new IndexedFixtureIdentifier(baseName, childName, attrs));
+        indexedFixtureBaseMap.put(fixtureName, new IndexedFixtureIdentifier(baseName, childName, null));
     }
 
     @Override

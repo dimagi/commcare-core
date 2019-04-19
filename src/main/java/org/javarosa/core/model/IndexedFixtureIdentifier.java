@@ -16,9 +16,9 @@ public class IndexedFixtureIdentifier {
     private String fixtureChild;
 
     @Nullable
-    private TreeElement rootAttributes;
+    private byte[] rootAttributes;
 
-    public IndexedFixtureIdentifier(String fixtureBase, String fixtureChild, @Nullable TreeElement rootAttributes) {
+    public IndexedFixtureIdentifier(String fixtureBase, String fixtureChild, @Nullable byte[] rootAttributes) {
         this.fixtureBase = fixtureBase;
         this.fixtureChild = fixtureChild;
         this.rootAttributes = rootAttributes;
@@ -33,7 +33,7 @@ public class IndexedFixtureIdentifier {
     }
 
     @Nullable
-    public TreeElement getRootAttributes() {
+    public byte[] getRootAttributes() {
         return rootAttributes;
     }
 }

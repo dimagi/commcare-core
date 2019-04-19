@@ -126,9 +126,10 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         }
     }
 
-    private static String getRefId(String reference) {
+    protected static String getRefId(String reference) {
         return reference.substring(reference.lastIndexOf('/') + 1, reference.length());
     }
+
     protected TreeElement loadFixtureRoot(ExternalDataInstance instance,
                                           String reference, String userId) {
         String refId = getRefId(reference);
