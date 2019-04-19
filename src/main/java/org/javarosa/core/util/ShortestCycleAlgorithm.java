@@ -30,8 +30,10 @@ public class ShortestCycleAlgorithm {
     public ShortestCycleAlgorithm(Vector<TreeReference[]> edges) {
         this.edges = edges;
         for (TreeReference[] references: edges) {
-            String parentKey = references[0].toString();
-            String childKey = references[1].toString();
+
+            String parentKey = references[1].toString();
+            String childKey = references[0].toString();
+
             addChild(parentKey, childKey);
             if (!nodes.contains(parentKey)) {
                 nodes.add(parentKey);
@@ -115,15 +117,36 @@ public class ShortestCycleAlgorithm {
         for (int i = 0; i < shortestCycle.size(); i++) {
             stringBuilder.append(shortestCycle.get(i));
             if (i == shortestCycle.size() - 1) {
-                stringBuilder.append(" is referenced by ");
+                stringBuilder.append(" references ");
                 stringBuilder.append(shortestCycle.get(0));
                 stringBuilder.append(".");
             } else {
-                stringBuilder.append( " is referenced by " );
+                stringBuilder.append( " references " );
                 stringBuilder.append(shortestCycle.get(i + 1));
                 stringBuilder.append( ", \n" );
             }
         }
         return stringBuilder.toString();
+    }
+
+    /**
+     * @return a GraphViz Digraph (DOT engine) which will visualize the dependencies between the
+     * edges. Helpful for debugging
+     */
+    private String toDOTDigraph() {
+        String graph ="";
+        for(TreeReference[] edge : edges){
+            graph += clean(edge[0].toString(false)) + " -> " + clean(edge[1].toString(false)) + ";\n";
+        }
+
+        return "digraph G{\n" + graph + "\n}";
+    }
+
+    private String clean(String input) {
+        return input.replaceAll("/", "").
+                replaceAll("-", "_").
+                replaceAll("\\(", "").
+                replaceAll("\\)", "").
+                replaceAll("@", "");
     }
 }
