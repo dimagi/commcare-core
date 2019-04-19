@@ -31,7 +31,7 @@ public class CaseDBUtils {
         return MD5.toHex(data);
     }
 
-    private static byte[] xordata(byte[] one, byte[] two) {
+    public static byte[] xordata(byte[] one, byte[] two) {
         if (one.length != two.length) {
             //Pad?
             throw new RuntimeException("Invalid XOR operation between byte arrays of unequal length");
