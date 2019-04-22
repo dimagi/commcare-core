@@ -109,7 +109,7 @@ public class ShortestCycleAlgorithm {
     }
 
     public String getCycleErrorMessage() {
-        return "Logic is cyclical, referencing itself. \n The following questions are involved: \n"
+        return "Logic is cyclical, referencing itself. The following questions are involved: \n"
                 + getCycleString();
     }
 
