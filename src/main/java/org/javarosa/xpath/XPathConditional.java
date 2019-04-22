@@ -51,7 +51,9 @@ public class XPathConditional implements IConditionExpr {
             if (xpath != null) {
                 throw new XPathUnsupportedException(xpath);
             } else {
-                throw e;
+                String contextMessage = String.format("Error calculating expression: \"%s\", being calculated for \"%s\"",
+                        expr.toPrettyString(), evalContext.getContextRef());
+                throw new XPathUnsupportedException(contextMessage);
             }
 
 
