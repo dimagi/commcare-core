@@ -24,7 +24,7 @@ public class CyclicReferenceTests {
         } catch (XFormParseException e) {
             String detailMessage = e.getMessage();
             // Assert that we're using the shortest cycle algorithm
-            assertTrue(detailMessage.contains("Shortest Cycle"));
+            assertTrue(detailMessage.contains("Logic is cyclical"));
             // There should only be three newlines since only the three core cyclic references were included
             int newlineCount = detailMessage.length() - detailMessage.replace("\n", "").length();
             assertTrue(newlineCount == 3);
@@ -43,7 +43,7 @@ public class CyclicReferenceTests {
         } catch (XFormParseException e) {
             String detailMessage = e.getMessage();
             // Assert that we're using the shortest cycle algorithm
-            assertTrue(detailMessage.contains("Shortest Cycle"));
+            assertTrue(detailMessage.contains("Logic is cyclical"));
             // There should only be three newlines since only the three core cyclic references were included
             int newlineCount = detailMessage.length() - detailMessage.replace("\n", "").length();
             assertTrue(newlineCount == 4);
