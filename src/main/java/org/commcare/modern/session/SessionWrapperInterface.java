@@ -3,7 +3,9 @@ package org.commcare.modern.session;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.xpath.analysis.XPathAnalyzable;
 
 import java.util.Set;
 
@@ -18,5 +20,5 @@ public interface SessionWrapperInterface {
     EvaluationContext getEvaluationContext(String commandId);
     EvaluationContext getEvaluationContext();
     EvaluationContext getRestrictedEvaluationContext(String commandId, Set<String> instancesToInclude);
-
+    EvaluationContext getEvaluationContextWithAccumulatedInstances(String commandID, XPathAnalyzable xPathAnalyzable);
 }

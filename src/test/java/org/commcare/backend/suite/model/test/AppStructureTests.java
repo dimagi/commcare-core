@@ -151,7 +151,7 @@ public class AppStructureTests {
         MockApp appWithGoodUserRestore = new MockApp("/app_with_good_numeric_badge/");
         Suite s = appWithGoodUserRestore.getSession().getPlatform().getInstalledSuites().get(0);
         Menu menuWithDisplayBlock = s.getMenusWithId("m1").get(0);
-        assertEquals("Menu 1 Text", menuWithDisplayBlock.getDisplayText());
+        assertEquals("Menu 1 Text", menuWithDisplayBlock.getDisplayText(null));
         EvaluationContext ec =
                 appWithGoodUserRestore.getSession().getEvaluationContext(menuWithDisplayBlock.getId());
         TestObserver<String> testObserver = menuWithDisplayBlock.getTextForBadge(ec).test();

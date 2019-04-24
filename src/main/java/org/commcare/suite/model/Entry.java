@@ -20,10 +20,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
-import java.util.concurrent.Callable;
 
 import io.reactivex.Single;
-import io.reactivex.functions.Action;
 
 /**
  * Describes a user-initiated action, what information needs to be collected
@@ -150,11 +148,11 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
     }
 
     @Override
-    public String getDisplayText() {
+    public String getDisplayText(EvaluationContext ec) {
         if (display.getText() == null) {
             return null;
         }
-        return display.getText().evaluate();
+        return display.getText().evaluate(ec);
     }
 
     @Override
@@ -168,6 +166,11 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
     @Override
     public Text getRawBadgeTextObject() {
         return display.getBadgeText();
+    }
+
+    @Override
+    public Text getRawText() {
+        return display.getText();
     }
 
 
@@ -200,6 +203,6 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
 
     @Override
     public String toString() {
-        return "Entry with id " + this.getCommandId() + " display text " + this.getDisplayText();
+        return "Entry with id " + this.getCommandId();
     }
 }
