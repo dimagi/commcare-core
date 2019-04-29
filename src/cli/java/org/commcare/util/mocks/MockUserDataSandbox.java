@@ -4,9 +4,10 @@ import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.core.interfaces.UserSandbox;
-import org.commcare.modern.util.Pair;
+import org.javarosa.core.model.IndexedFixtureIdentifier;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -30,10 +31,10 @@ public class MockUserDataSandbox extends UserSandbox {
     private final IStorageUtilityIndexed<Ledger> ledgerStorage;
     private final IStorageUtilityIndexed<User> userStorage;
     private final HashMap<String, IStorageUtilityIndexed<StorageIndexedTreeElementModel>> indexedFixtureStorages;
-    private final HashMap<String, Pair<String, String>> indexedFixtureBaseMap;
+    private final HashMap<String, IndexedFixtureIdentifier> indexedFixtureBaseMap;
     private final IStorageUtilityIndexed<FormInstance> userFixtureStorage;
     private IStorageUtilityIndexed<FormInstance> appFixtureStorage;
-    
+
     private User mUser;
     private String mSyncToken;
     private final PrototypeFactory factory;
@@ -84,13 +85,13 @@ public class MockUserDataSandbox extends UserSandbox {
     }
 
     @Override
-    public Pair<String, String> getIndexedFixturePathBases(String fixtureName) {
+    public IndexedFixtureIdentifier getIndexedFixtureIdentifier(String fixtureName) {
         return indexedFixtureBaseMap.get(fixtureName);
     }
 
     @Override
-    public void setIndexedFixturePathBases(String fixtureName, String baseName, String childName) {
-        indexedFixtureBaseMap.put(fixtureName, Pair.create(baseName, childName));
+    public void setIndexedFixturePathBases(String fixtureName, String baseName, String childName, TreeElement attrs) {
+        indexedFixtureBaseMap.put(fixtureName, new IndexedFixtureIdentifier(baseName, childName, null));
     }
 
     @Override
@@ -102,22 +103,22 @@ public class MockUserDataSandbox extends UserSandbox {
     public IStorageUtilityIndexed<FormInstance> getAppFixtureStorage() {
         return appFixtureStorage;
     }
-    
+
     @Override
     public void setSyncToken(String syncToken) {
         this.mSyncToken = syncToken;
     }
-    
+
     @Override
     public String getSyncToken() {
         return mSyncToken;
     }
-    
+
     @Override
     public void setLoggedInUser(User user) {
         this.mUser = user;
     }
-    
+
     @Override
     public User getLoggedInUser() {
         return mUser;

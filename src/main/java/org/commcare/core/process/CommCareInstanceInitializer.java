@@ -109,30 +109,33 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
 
     protected AbstractTreeElement setupFixtureData(ExternalDataInstance instance) {
-        String ref = instance.getReference();
+        AbstractTreeElement indexedFixture = IndexedFixtureInstanceTreeElement.get(
+                mSandbox,
+                getRefId(instance.getReference()),
+                instance.getBase());
+
+        if (indexedFixture != null) {
+            return indexedFixture;
+        } else {
+            return loadFixtureRoot(instance, instance.getReference());
+        }
+    }
+
+    protected static String getRefId(String reference) {
+        return reference.substring(reference.lastIndexOf('/') + 1, reference.length());
+    }
+
+    protected TreeElement loadFixtureRoot(ExternalDataInstance instance,
+                                          String reference) {
+        String refId = getRefId(reference);
+        String instanceBase = instance.getBase().getInstanceName();
+
         String userId = "";
         User u = mSandbox.getLoggedInUser();
 
         if (u != null) {
             userId = u.getUniqueId();
         }
-
-        AbstractTreeElement indexedFixture =
-                IndexedFixtureInstanceTreeElement.get(mSandbox, getRefId(ref), instance.getBase());
-        if (indexedFixture != null) {
-            return indexedFixture;
-        } else {
-            return loadFixtureRoot(instance, ref, userId);
-        }
-    }
-
-    private static String getRefId(String reference) {
-        return reference.substring(reference.lastIndexOf('/') + 1, reference.length());
-    }
-    protected TreeElement loadFixtureRoot(ExternalDataInstance instance,
-                                          String reference, String userId) {
-        String refId = getRefId(reference);
-        String instanceBase = instance.getBase().getInstanceName();
 
         try {
             String key = refId + userId + instanceBase;
@@ -189,7 +192,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         return "----";
     }
 
-    public String getVersionString(){
+    public String getVersionString() {
         return "CommCare Version: " + mPlatform.getMajorVersion() + "." + mPlatform.getMinorVersion();
     }
 

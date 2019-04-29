@@ -34,5 +34,6 @@ public class FixtureQueryTest {
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);
         CaseTestUtils.xpathEvalAndAssert(ec, "count(instance('commtrack:products')/products/product[@heterogenous_attribute = 'present'])", 2.0);
+        CaseTestUtils.xpathEvalAndAssert(ec, "instance('commtrack:products')/products/@last_sync", "2018-07-27T12:54:11.987997+00:00");
     }
 }

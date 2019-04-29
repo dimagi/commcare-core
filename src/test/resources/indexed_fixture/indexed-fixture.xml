@@ -1,7 +1,7 @@
 <OpenRosaResponse>
     <message nature="ota_restore_success">Successfully restored account test!</message>
     <fixture id="commtrack:products" indexed="true">
-        <products>
+        <products last_sync="2018-07-27T12:56:10.835570+00:00">
             <product id="f895be4959f9a8a66f57c340aac461b4">
                 <name>Collier</name>
                 <code>col</code>
