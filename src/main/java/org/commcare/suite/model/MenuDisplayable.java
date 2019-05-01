@@ -2,7 +2,6 @@ package org.commcare.suite.model;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 
-import io.reactivex.Observable;
 import io.reactivex.Single;
 
 /**
@@ -17,11 +16,13 @@ public interface MenuDisplayable {
 
     String getImageURI();
 
-    String getDisplayText();
+    String getDisplayText(EvaluationContext ec);
 
     Single<String> getTextForBadge(EvaluationContext ec);
 
     String getCommandID();
 
     Text getRawBadgeTextObject();
+
+    Text getRawText();
 }
