@@ -872,14 +872,13 @@ public class ResourceTable {
     // Clears all resources in the table
     public void clearAll(CommCarePlatform platform) {
         clearByStatus(platform, RESOURCE_STATUS_ALL_RESOURCES);
-        storage.removeAll();
     }
 
     /**
      * Clears any resources with a given resource status and also try very hard to remove any files installed
      * by it. This is important for rolling back botched upgrades without leaving their files around.
      *
-     * @param platform CommCare platform
+     * @param platform       CommCare platform
      * @param resourceStatus Only resources with this status will get cleared
      */
     private void clearByStatus(CommCarePlatform platform, int resourceStatus) {
@@ -900,6 +899,8 @@ public class ResourceTable {
         if (count > 0) {
             Logger.log(LogTypes.TYPE_RESOURCES, "Cleaned up " + count + " records from table");
         }
+
+        storage.removeAll();
     }
 
     protected void cleanup() {
