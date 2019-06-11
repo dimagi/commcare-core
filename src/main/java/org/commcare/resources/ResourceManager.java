@@ -87,7 +87,7 @@ public class ResourceManager {
             ensureMasterTableValid();
 
             if (clearProgress) {
-                upgradeTable.clearUpgrade(platform);
+                clearUpgrade();
             }
 
             loadProfileIntoTable(upgradeTable, profileRef, Resource.RESOURCE_AUTHORITY_REMOTE);
