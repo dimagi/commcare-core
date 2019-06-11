@@ -357,4 +357,8 @@ public class ResourceManager {
         }
         return resolved;
     }
+
+    public void clearUpgrade() {
+        upgradeTable.clearUpgrade(platform);
+    }
 }
