@@ -864,24 +864,26 @@ public class ResourceTable {
     }
 
 
-    // Clears resources with status RESOURCE_STATUS_UPGRADE in the table
+    // Uninstalls resources with status RESOURCE_STATUS_UPGRADE in the table and wipe the complete table
     public void clearUpgrade(CommCarePlatform platform) {
-        clearByStatus(platform, Resource.RESOURCE_STATUS_UPGRADE);
+        uninstallResourcesForStatus(platform, Resource.RESOURCE_STATUS_UPGRADE);
+        storage.removeAll();
     }
 
-    // Clears all resources in the table
+    // Clears all resources in the table and wipe the complete table
     public void clearAll(CommCarePlatform platform) {
-        clearByStatus(platform, RESOURCE_STATUS_ALL_RESOURCES);
+        uninstallResourcesForStatus(platform, RESOURCE_STATUS_ALL_RESOURCES);
+        storage.removeAll();
     }
 
     /**
-     * Clears any resources with a given resource status and also try very hard to remove any files installed
+     * Uninstalls any resources with a given resource status and also try very hard to remove any files installed
      * by it. This is important for rolling back botched upgrades without leaving their files around.
      *
      * @param platform       CommCare platform
      * @param resourceStatus Only resources with this status will get cleared
      */
-    private void clearByStatus(CommCarePlatform platform, int resourceStatus) {
+    private void uninstallResourcesForStatus(CommCarePlatform platform, int resourceStatus) {
         cleanup();
         Stack<Resource> s = this.getResourceStack();
         int count = 0;
@@ -897,10 +899,8 @@ public class ResourceTable {
             }
         }
         if (count > 0) {
-            Logger.log(LogTypes.TYPE_RESOURCES, "Cleaned up " + count + " records from table");
+            Logger.log(LogTypes.TYPE_RESOURCES, "Uninstalled " + count + " records from table");
         }
-
-        storage.removeAll();
     }
 
     protected void cleanup() {
