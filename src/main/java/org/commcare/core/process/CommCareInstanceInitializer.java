@@ -109,16 +109,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
 
     protected AbstractTreeElement setupFixtureData(ExternalDataInstance instance) {
-        AbstractTreeElement indexedFixture = IndexedFixtureInstanceTreeElement.get(
-                mSandbox,
-                getRefId(instance.getReference()),
-                instance.getBase());
-
-        if (indexedFixture != null) {
-            return indexedFixture;
-        } else {
-            return loadFixtureRoot(instance, instance.getReference());
-        }
+        return loadFixtureRoot(instance, instance.getReference());
     }
 
     protected static String getRefId(String reference) {
