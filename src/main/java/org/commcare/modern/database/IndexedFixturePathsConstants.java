@@ -29,4 +29,12 @@ public class IndexedFixturePathsConstants {
                     " (" + INDEXED_FIXTURE_PATHS_COL_NAME + " UNIQUE" +
                     ", " + INDEXED_FIXTURE_PATHS_COL_BASE +
                     ", " + INDEXED_FIXTURE_PATHS_COL_CHILD + ");";
+
+    public final static String INDEXED_FIXTURE_PATHS_TABLE_SELECT_STMT =
+            "SELECT " +
+                    IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_BASE + ", " +
+                    IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_CHILD  + ", " +
+                    IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES  +
+                    " FROM " + IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE +
+                    " WHERE " + IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_NAME + " = ?;";
 }

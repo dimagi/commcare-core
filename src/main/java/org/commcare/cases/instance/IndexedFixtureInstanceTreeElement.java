@@ -19,7 +19,7 @@ import java.util.Hashtable;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class IndexedFixtureInstanceTreeElement
+public abstract class IndexedFixtureInstanceTreeElement
         extends StorageInstanceTreeElement<StorageIndexedTreeElementModel, IndexedFixtureChildElement> {
 
     private Hashtable<XPathPathExpr, String> storageIndexMap = null;
@@ -32,19 +32,6 @@ public class IndexedFixtureInstanceTreeElement
         super(instanceRoot, storage, indexedFixtureIdentifier.getFixtureBase(), indexedFixtureIdentifier.getFixtureChild());
         attrHolder = indexedFixtureIdentifier.getRootAttributes();
         cacheKey = indexedFixtureIdentifier.getFixtureBase() + "|" + indexedFixtureIdentifier.getFixtureChild();
-    }
-
-    public static IndexedFixtureInstanceTreeElement get(UserSandbox sandbox,
-                                                        String instanceName,
-                                                        InstanceBase instanceBase) {
-        IndexedFixtureIdentifier indexedFixtureIdentifier = sandbox.getIndexedFixtureIdentifier(instanceName);
-        if (indexedFixtureIdentifier == null) {
-            return null;
-        } else {
-            IStorageUtilityIndexed<StorageIndexedTreeElementModel> storage =
-                    sandbox.getIndexedFixtureStorage(instanceName);
-            return new IndexedFixtureInstanceTreeElement(instanceBase, storage, indexedFixtureIdentifier);
-        }
     }
 
     @Override
@@ -73,8 +60,38 @@ public class IndexedFixtureInstanceTreeElement
         return storageIndexMap;
     }
 
+    @Override
+    public int getAttributeCount() {
+        return loadAttributes().getAttributeCount();
+    }
+
+
+    @Override
+    public String getAttributeNamespace(int index) {
+        return loadAttributes().getAttributeNamespace(index);
+    }
+
+    @Override
+    public String getAttributeName(int index) {
+        return loadAttributes().getAttributeName(index);
+    }
+
+    @Override
+    public String getAttributeValue(int index) {
+        return loadAttributes().getAttributeValue(index);
+    }
+
+    @Override
+    public AbstractTreeElement getAttribute(String namespace, String name) {
+        TreeElement attr = loadAttributes().getAttribute(namespace, name);
+        attr.setParent(this);
+        return attr;
+    }
+
     public String getStorageCacheName() {
         return cacheKey;
     }
+
+    protected abstract TreeElement loadAttributes();
 
 }
