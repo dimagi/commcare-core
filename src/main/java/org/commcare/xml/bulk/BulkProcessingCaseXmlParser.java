@@ -91,6 +91,7 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
 
             try {
                 writeLog.put(caseForBlock.getCaseId(), caseForBlock);
+                currentOperatingSet.put(caseForBlock.getCaseId(), caseForBlock);
             } catch (SerializationLimitationException e) {
                 throw new InvalidStructureException("One of the property values for the case named '" +
                         caseForBlock.getName() + "' is too large (by " + e.percentOversized +
