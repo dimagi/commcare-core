@@ -2,9 +2,10 @@ package org.commcare.cases.instance;
 
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.core.interfaces.UserSandbox;
-import org.commcare.modern.util.Pair;
+import org.javarosa.core.model.IndexedFixtureIdentifier;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.InstanceBase;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.expr.XPathPathExpr;
@@ -18,31 +19,19 @@ import java.util.Hashtable;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class IndexedFixtureInstanceTreeElement
+public abstract class IndexedFixtureInstanceTreeElement
         extends StorageInstanceTreeElement<StorageIndexedTreeElementModel, IndexedFixtureChildElement> {
+
     private Hashtable<XPathPathExpr, String> storageIndexMap = null;
     private String cacheKey;
+    protected byte[] attrHolder;
 
-    private IndexedFixtureInstanceTreeElement(AbstractTreeElement instanceRoot,
+    public IndexedFixtureInstanceTreeElement(AbstractTreeElement instanceRoot,
                                               IStorageUtilityIndexed<StorageIndexedTreeElementModel> storage,
-                                              String modelName, String childName) {
-        super(instanceRoot, storage, modelName, childName);
-        cacheKey = modelName + "|" + childName;
-    }
-
-    public static IndexedFixtureInstanceTreeElement get(UserSandbox sandbox,
-                                                        String instanceName,
-                                                        InstanceBase instanceBase) {
-        Pair<String, String> modelAndChild =
-                sandbox.getIndexedFixturePathBases(instanceName);
-        if (modelAndChild == null) {
-            return null;
-        } else {
-            IStorageUtilityIndexed<StorageIndexedTreeElementModel> storage =
-                    sandbox.getIndexedFixtureStorage(instanceName);
-            return new IndexedFixtureInstanceTreeElement(instanceBase, storage,
-                    modelAndChild.first, modelAndChild.second);
-        }
+                                              IndexedFixtureIdentifier indexedFixtureIdentifier) {
+        super(instanceRoot, storage, indexedFixtureIdentifier.getFixtureBase(), indexedFixtureIdentifier.getFixtureChild());
+        attrHolder = indexedFixtureIdentifier.getRootAttributes();
+        cacheKey = indexedFixtureIdentifier.getFixtureBase() + "|" + indexedFixtureIdentifier.getFixtureChild();
     }
 
     @Override
@@ -71,7 +60,38 @@ public class IndexedFixtureInstanceTreeElement
         return storageIndexMap;
     }
 
+    @Override
+    public int getAttributeCount() {
+        return loadAttributes().getAttributeCount();
+    }
+
+
+    @Override
+    public String getAttributeNamespace(int index) {
+        return loadAttributes().getAttributeNamespace(index);
+    }
+
+    @Override
+    public String getAttributeName(int index) {
+        return loadAttributes().getAttributeName(index);
+    }
+
+    @Override
+    public String getAttributeValue(int index) {
+        return loadAttributes().getAttributeValue(index);
+    }
+
+    @Override
+    public AbstractTreeElement getAttribute(String namespace, String name) {
+        TreeElement attr = loadAttributes().getAttribute(namespace, name);
+        attr.setParent(this);
+        return attr;
+    }
+
     public String getStorageCacheName() {
         return cacheKey;
     }
+
+    protected abstract TreeElement loadAttributes();
+
 }

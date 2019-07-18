@@ -177,7 +177,7 @@ public class TableBuilder {
 
         stringBuilder.append(");");
 
-        return new Pair<String, List<Object>>(stringBuilder.toString(), params);
+        return new Pair<>(stringBuilder.toString(), params);
     }
 
     public static String scrubName(String input) {

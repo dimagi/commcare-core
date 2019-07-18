@@ -1,7 +1,6 @@
 package org.commcare.cases.instance;
 
 import org.commcare.cases.query.QueryContext;
-import org.commcare.cases.query.ScopeLimitedReferenceRequestCache;
 import org.commcare.cases.util.StorageBackedTreeRoot;
 import org.commcare.modern.engine.cases.RecordObjectCache;
 import org.commcare.modern.engine.cases.RecordSetResultCache;
@@ -17,8 +16,6 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.Interner;
 import org.javarosa.core.util.externalizable.Externalizable;
-import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.FunctionUtils;
 
 import java.util.LinkedHashSet;
 import java.util.Vector;
@@ -194,7 +191,7 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
     }
 
     @Override
-    public T getAttribute(String namespace, String name) {
+    public AbstractTreeElement getAttribute(String namespace, String name) {
         return null;
     }
 
