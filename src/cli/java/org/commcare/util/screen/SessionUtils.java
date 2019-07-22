@@ -2,6 +2,7 @@ package org.commcare.util.screen;
 
 import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.util.CommCarePlatform;
@@ -69,6 +70,8 @@ public class SessionUtils {
             printStream.println("GET: " + otaSyncUrl);
             URL url = new URL(otaSyncUrl);
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            conn.setReadTimeout(CommCareNetworkServiceGenerator.CONNECTION_SO_TIMEOUT);
+            conn.setConnectTimeout(CommCareNetworkServiceGenerator.CONNECTION_TIMEOUT);
 
             if (conn.getResponseCode() == 412) {
                 printStream.println("Server Response 412 - The user sandbox is not consistent with " +

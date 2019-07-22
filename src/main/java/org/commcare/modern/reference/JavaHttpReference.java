@@ -1,5 +1,6 @@
 package org.commcare.modern.reference;
 
+import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.javarosa.core.reference.Reference;
 
 import java.io.IOException;
@@ -36,7 +37,8 @@ public class JavaHttpReference implements Reference {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setInstanceFollowRedirects(true);  //you still need to handle redirect manully.
         HttpURLConnection.setFollowRedirects(true);
-        
+        conn.setReadTimeout(CommCareNetworkServiceGenerator.CONNECTION_SO_TIMEOUT);
+        conn.setConnectTimeout(CommCareNetworkServiceGenerator.CONNECTION_TIMEOUT);
         return conn.getInputStream();
     }
 

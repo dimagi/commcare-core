@@ -1,5 +1,6 @@
 package org.commcare.util.engine;
 
+import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.modern.reference.ArchiveFileRoot;
 import org.commcare.modern.reference.JavaFileRoot;
 import org.commcare.modern.reference.JavaHttpRoot;
@@ -139,6 +140,9 @@ public class CommCareConfigEngine {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setInstanceFollowRedirects(true);  //you still need to handle redirect manully.
             HttpURLConnection.setFollowRedirects(true);
+            conn.setReadTimeout(CommCareNetworkServiceGenerator.CONNECTION_SO_TIMEOUT);
+            conn.setConnectTimeout(CommCareNetworkServiceGenerator.CONNECTION_TIMEOUT);
+
             File file = File.createTempFile("commcare_", ".ccz");
             FileOutputStream fos = null;
             BufferedInputStream bis = null;
