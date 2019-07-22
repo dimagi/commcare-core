@@ -31,6 +31,16 @@ public class CommCareNetworkServiceGenerator {
     public static final String CURRENT_DRIFT = "current_drift";
     public static final String MAX_DRIFT_SINCE_LAST_HEARTBEAT = "max_drift_since_last_heartbeat";
 
+    /**
+     * How long to wait when opening network connection in milliseconds
+     */
+    public static final int CONNECTION_TIMEOUT = (int)TimeUnit.MINUTES.toMillis(2);
+
+    /**
+     * How long to wait when receiving data (in milliseconds)
+     */
+    public static final int CONNECTION_SO_TIMEOUT = (int)TimeUnit.MINUTES.toMillis(1);
+
     // Retrofit needs a base url to generate an instance but since our apis are fully dynamic it's not getting used.
     private static final String BASE_URL = "http://example.url/";
 
@@ -75,13 +85,12 @@ public class CommCareNetworkServiceGenerator {
     private static AuthenticationInterceptor authenticationInterceptor = new AuthenticationInterceptor();
 
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder()
-            .connectTimeout(ModernHttpRequester.CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)
-            .readTimeout(ModernHttpRequester.CONNECTION_SO_TIMEOUT, TimeUnit.MILLISECONDS)
+            .connectTimeout(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)
+            .readTimeout(CONNECTION_SO_TIMEOUT, TimeUnit.MILLISECONDS)
             .addNetworkInterceptor(redirectionInterceptor)
             .addInterceptor(authenticationInterceptor)
             .addInterceptor(driftInterceptor)
             .followRedirects(true);
-
 
 
     private static Retrofit retrofit = builder.client(
