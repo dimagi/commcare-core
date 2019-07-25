@@ -36,6 +36,7 @@ public class CaseParseAndReadTest {
     private MockUserDataSandbox sandbox;
 
     TestProfileConfiguration config;
+
     @Parameterized.Parameters(name = "{0}")
     public static Collection data() {
         return TestProfileConfiguration.BulkOffOn();
@@ -60,11 +61,9 @@ public class CaseParseAndReadTest {
     }
 
     @Test
-    public void testDoubleCreateCase() throws Exception {
+    public void testDoubleCreateCaseWithUpdate() throws Exception {
         compareCaseDbState("/case_create_overwrite.xml", "/case_create_overwrite_output.xml");
-
-        EvaluationContext ec =
-                MockDataUtils.buildContextWithInstance(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
+        EvaluationContext ec = MockDataUtils.buildContextWithInstance(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", "case_overwrite"));
     }
 
