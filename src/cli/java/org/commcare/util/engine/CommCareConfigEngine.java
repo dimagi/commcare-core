@@ -66,7 +66,7 @@ public class CommCareConfigEngine {
     protected ArchiveFileRoot mArchiveRoot;
 
     public static final int MAJOR_VERSION = 2;
-    public static final int MINOR_VERSION = 43;
+    public static final int MINOR_VERSION = 47;
 
 
     public CommCareConfigEngine() {
@@ -94,6 +94,7 @@ public class CommCareConfigEngine {
         storageManager.registerStorage(FormDef.STORAGE_KEY, FormDef.class);
         storageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
         storageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
+        storageManager.registerStorage("fixture", FormInstance.class);
 
         this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION, storageManager);
     }

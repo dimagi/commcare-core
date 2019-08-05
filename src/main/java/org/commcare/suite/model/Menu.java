@@ -14,7 +14,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
-import java.util.concurrent.Callable;
 
 import io.reactivex.Single;
 
@@ -187,11 +186,11 @@ public class Menu implements Externalizable, MenuDisplayable {
     }
 
     @Override
-    public String getDisplayText() {
+    public String getDisplayText(EvaluationContext ec) {
         if (display.getText() == null) {
             return null;
         }
-        return display.getText().evaluate();
+        return display.getText().evaluate(ec);
     }
 
     @Override
@@ -209,6 +208,11 @@ public class Menu implements Externalizable, MenuDisplayable {
     }
 
     @Override
+    public Text getRawText() {
+        return display.getText();
+    }
+
+    @Override
     public String getCommandID() {
         return id;
     }
@@ -220,7 +224,7 @@ public class Menu implements Externalizable, MenuDisplayable {
 
     @Override
     public String toString() {
-        return "Menu with id " + this.getId() + " display text " + this.getDisplayText();
+        return "Menu with id " + this.getId();
     }
 
 }

@@ -664,6 +664,24 @@ public class XPathEvalTest {
         testEval("min(/data/rangetest/@num)", instance, null, new Double("-2"));
     }
 
+    /**
+     * Test the ability of the engine to rebuild expressions which are common sources
+     * of confusion or user errors
+     */
+    @Test
+    public void testStringOutputs() throws XPathSyntaxException {
+        testStringOutput("/data//something");
+        testStringOutput("invalidfunction('something')/somestep");
+        testStringOutput("/data/../relative");
+        testStringOutput("/data/@attr/@secondattr");
+    }
+
+    public void testStringOutput(String xPathInput) throws XPathSyntaxException {
+        XPathExpression expr = XPathParseTool.parseXPath(xPathInput);
+        Assert.assertEquals(xPathInput,expr.toPrettyString());
+    }
+
+
     @Test
     public void testDoNotInferScientificNotationAsDouble() {
         Object dbl = FunctionUtils.InferType("100E5");

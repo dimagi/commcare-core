@@ -113,7 +113,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
             if (mult == TreeReference.INDEX_ATTRIBUTE) {
                 //Should we possibly just return here? 
                 //I guess technically we could step back...
-                node = result = node.getAttribute(null, name);
+                node = result = (T)node.getAttribute(null, name);
                 continue;
             }
             if (mult == TreeReference.INDEX_UNBOUND) {
@@ -157,7 +157,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
             String name = ref.getName(i);
 
             if (ref.getMultiplicity(i) == TreeReference.INDEX_ATTRIBUTE) {
-                node = walker = node.getAttribute(null, name);
+                node = walker = (T)node.getAttribute(null, name);
             } else {
 
                 T newNode = node.getChild(name, TreeReference.INDEX_TEMPLATE);

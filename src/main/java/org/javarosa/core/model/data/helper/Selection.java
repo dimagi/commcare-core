@@ -22,6 +22,7 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.io.DataInputStream;
@@ -121,7 +122,7 @@ public class Selection implements Externalizable {
         if (xmlValue != null && xmlValue.length() > 0) {
             return xmlValue;
         } else {
-            throw new IllegalArgumentException("Invalid XML Value for Select Option");
+            throw new XPathException("Invalid XML Value for Select Option");
         }
     }
 

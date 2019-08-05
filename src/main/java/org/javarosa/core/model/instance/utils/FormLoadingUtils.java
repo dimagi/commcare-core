@@ -1,5 +1,6 @@
 package org.javarosa.core.model.instance.utils;
 
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.xml.ElementParser;
@@ -27,13 +28,18 @@ public class FormLoadingUtils {
 
     public static TreeElement xmlToTreeElement(String xmlFilepath)
             throws InvalidStructureException, IOException {
-        InputStream is = FormLoadingUtils.class.getResourceAsStream(xmlFilepath);
-        TreeElementParser parser = new TreeElementParser(ElementParser.instantiateParser(is), 0, "instance");
-
+        InputStream is = null;
         try {
-            return parser.parse();
-        } catch (UnfullfilledRequirementsException | XmlPullParserException e) {
-            throw new IOException(e.getMessage());
+            is = FormLoadingUtils.class.getResourceAsStream(xmlFilepath);
+            TreeElementParser parser = new TreeElementParser(ElementParser.instantiateParser(is), 0, "instance");
+
+            try {
+                return parser.parse();
+            } catch (UnfullfilledRequirementsException | XmlPullParserException e) {
+                throw new IOException(e.getMessage());
+            }
+        } finally {
+            StreamsUtil.closeStream(is);
         }
     }
 }

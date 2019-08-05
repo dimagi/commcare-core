@@ -2839,7 +2839,7 @@ public class XFormParser {
         if (!acyclic) {
             String errorMessage = new ShortestCycleAlgorithm(edges).getCycleErrorMessage();
             reporter.error(errorMessage);
-            throw new RuntimeException(errorMessage);
+            throw new XFormParseException(errorMessage);
         }
     }
 

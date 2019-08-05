@@ -8,12 +8,15 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.MenuLoader;
 import org.commcare.util.LoggerInterface;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
+import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.Set;
 
 
 /**
@@ -22,6 +25,8 @@ import java.util.Arrays;
  * @author ctsims
  */
 public class MenuScreen extends Screen {
+
+    private SessionWrapper mSession;
 
     private MenuDisplayable[] mChoices;
     private String[] badges;
@@ -51,6 +56,7 @@ public class MenuScreen extends Screen {
 
     @Override
     public void init(SessionWrapper session) throws CommCareSessionException {
+        mSession = session;
         String root = deriveMenuRoot(session);
         MenuLoader menuLoader = new MenuLoader(session.getPlatform(), session, root, new ScreenLogger(), false, false);
         this.mChoices = menuLoader.getMenus();
@@ -79,7 +85,7 @@ public class MenuScreen extends Screen {
     public void prompt(PrintStream out) {
         for (int i = 0; i < mChoices.length; ++i) {
             MenuDisplayable d = mChoices[i];
-            out.println(i + ")" + d.getDisplayText());
+            out.println(i + ")" + d.getDisplayText(mSession.getEvaluationContextWithAccumulatedInstances(d.getCommandID(), d.getRawText())));
         }
     }
 
@@ -88,7 +94,7 @@ public class MenuScreen extends Screen {
         String[] ret = new String[mChoices.length];
         for (int i = 0; i < mChoices.length; ++i) {
             MenuDisplayable d = mChoices[i];
-            ret[i] = d.getDisplayText();
+            ret[i] = d.getDisplayText(mSession.getEvaluationContextWithAccumulatedInstances(d.getCommandID(), d.getRawText()));
         }
         return ret;
     }
@@ -112,11 +118,11 @@ public class MenuScreen extends Screen {
         return true;
     }
 
-    public MenuDisplayable[] getMenuDisplayables(){
+    public MenuDisplayable[] getMenuDisplayables() {
         return mChoices;
     }
 
-    private String getBestTitle(){
+    private String getBestTitle() {
         try {
             return Localization.get("app.display.name");
         } catch (NoLocalizedTextException nlte) {

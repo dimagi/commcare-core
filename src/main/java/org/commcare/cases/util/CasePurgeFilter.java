@@ -111,10 +111,10 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      *
      * The Index of each node is its case id guid
      * The Node element for the guide consists of an integer array [STATUS_FLAGS, storageid]
-     *         storageid is the id of the row of the case in the provided storage
-     *         STATUS_FLAGS is a bitmasked integer. It should be initialized with any of STATUS_OWNED,
-     *              STATUS_OPEN, and/or STATUS_RELEVANT as applies to the node (A node starts as relevant
-     *              if it is OWNED and it is OPEN)
+     * storageid is the id of the row of the case in the provided storage
+     * STATUS_FLAGS is a bitmasked integer. It should be initialized with any of STATUS_OWNED,
+     * STATUS_OPEN, and/or STATUS_RELEVANT as applies to the node (A node starts as relevant
+     * if it is OWNED and it is OPEN)
      *
      * The Edge string is the 'type' of index from the originating case to the target case(ie: parent, or extension)
      */
@@ -242,8 +242,8 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      *                             meets this criteria.
      */
     private static void propagateMarkToDAG(DAG<String, int[], String> dag, boolean walkFromSourceToSink,
-                                    int maskCondition, int markToApply, String relationship,
-                                    boolean requireOpenDestination) {
+                                           int maskCondition, int markToApply, String relationship,
+                                           boolean requireOpenDestination) {
         Stack<String> toProcess = walkFromSourceToSink ? dag.getSources() : dag.getSinks();
         while (!toProcess.isEmpty()) {
             // current node
@@ -255,7 +255,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
 
             for (Edge<String, String> edge : edgeSet) {
                 if (caseStatusIs(node[0], maskCondition) && (relationship == null || edge.e.equals(relationship))) {
-                    if(!requireOpenDestination || caseStatusIs(dag.getNode(edge.i)[0], STATUS_OPEN)) {
+                    if (!requireOpenDestination || caseStatusIs(dag.getNode(edge.i)[0], STATUS_OPEN)) {
                         dag.getNode(edge.i)[0] |= markToApply;
                     }
                 }
@@ -331,9 +331,11 @@ public class CasePurgeFilter extends EntityFilter<Case> {
 
         // Once all edges to/from this node have been removed, delete the node itself from the
         // DAG, and add it to the list of cases to be purged
-        int storageIdOfRemovedNode = internalCaseDAG.removeNode(indexOfRemovedNode)[1];
-        idsToRemove.addElement(new Integer(storageIdOfRemovedNode));
-        casesRemovedDueToMissingCases.addElement(indexOfRemovedNode);
+        if (casesRemovedDueToMissingCases.indexOf(indexOfRemovedNode) == -1) {
+            int storageIdOfRemovedNode = internalCaseDAG.removeNode(indexOfRemovedNode)[1];
+            idsToRemove.addElement(new Integer(storageIdOfRemovedNode));
+            casesRemovedDueToMissingCases.addElement(indexOfRemovedNode);
+        }
     }
 
     // For use in tests

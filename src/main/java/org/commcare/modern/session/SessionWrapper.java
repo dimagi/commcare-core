@@ -5,6 +5,8 @@ import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.session.CommCareSession;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
+import org.javarosa.xpath.analysis.XPathAnalyzable;
 
 import java.util.Set;
 
@@ -43,6 +45,13 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
     public EvaluationContext getRestrictedEvaluationContext(String commandId,
                                                             Set<String> instancesToInclude) {
         return getEvaluationContext(getIIF(), commandId, instancesToInclude);
+    }
+
+    @Override
+    public EvaluationContext getEvaluationContextWithAccumulatedInstances(String commandID, XPathAnalyzable xPathAnalyzable) {
+        Set<String> instancesNeededForTextCalculation =
+                (new InstanceNameAccumulatingAnalyzer()).accumulate(xPathAnalyzable);
+        return getRestrictedEvaluationContext(commandID, instancesNeededForTextCalculation);
     }
 
     /**

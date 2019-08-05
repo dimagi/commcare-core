@@ -53,7 +53,7 @@ public class ResourceManager {
             InstallCancelledException {
         synchronized (platform) {
             if (!global.isReady()) {
-                global.prepareResources(null, platform);
+                global.prepareResources(null, platform, forceInstall);
             }
 
             // First, see if the appropriate profile exists
@@ -70,7 +70,7 @@ public class ResourceManager {
                         locations, "Application Descriptor");
 
                 global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
-                global.prepareResources(null, platform);
+                global.prepareResources(null, platform, forceInstall);
             }
         }
     }
@@ -87,7 +87,7 @@ public class ResourceManager {
             ensureMasterTableValid();
 
             if (clearProgress) {
-                upgradeTable.clear(platform);
+                clearUpgrade();
             }
 
             loadProfileIntoTable(upgradeTable, profileRef, Resource.RESOURCE_AUTHORITY_REMOTE);
@@ -356,5 +356,9 @@ public class ResourceManager {
             }
         }
         return resolved;
+    }
+
+    public void clearUpgrade() {
+        upgradeTable.clearUpgrade(platform);
     }
 }

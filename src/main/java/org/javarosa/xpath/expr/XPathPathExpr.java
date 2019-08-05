@@ -434,7 +434,48 @@ public class XPathPathExpr extends XPathExpression {
 
     @Override
     public String toPrettyString() {
-        return getReference().toString(true);
+        try {
+            return getReference().toString(true);
+        } catch(Exception e) {
+            return toDebugString();
+        }
+    }
+
+    public String toDebugString() {
+        try {
+            StringBuffer sb = new StringBuffer();
+
+            switch (initContext) {
+                case INIT_CONTEXT_ROOT:
+                    sb.append("/");
+                    break;
+                case INIT_CONTEXT_RELATIVE:
+                    sb.append("./");
+                    break;
+                case INIT_CONTEXT_EXPR:
+                    try {
+                        sb.append((filtExpr.x).toPrettyString());
+                        sb.append("/");
+                    } catch (Exception e) {
+                        sb.append(filtExpr.toString());
+                    }
+                    break;
+            }
+            for (int i = 0; i < steps.length; i++) {
+                XPathStep step = steps[i];
+                sb.append(step.toPrettyString());
+                sb.append("/");
+            }
+
+            String output = sb.toString();
+            if(output.endsWith("/")) {
+                output = output.substring(0, output.length() - 1);
+            }
+
+            return output;
+        } catch(Exception e) {
+            return toString();
+        }
     }
 
     @Override

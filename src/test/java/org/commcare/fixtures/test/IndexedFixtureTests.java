@@ -7,10 +7,8 @@ import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.analysis.TreeReferenceAccumulatingAnalyzer;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -37,7 +35,7 @@ public class IndexedFixtureTests {
     @Test
     public void queryIndexedLookup() throws XPathSyntaxException, UnfullfilledRequirementsException,
             XmlPullParserException, IOException, InvalidStructureException {
-        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/indexed-fixture.xml"), sandbox);
+        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/indexed_fixture/indexed-fixture.xml"), sandbox);
 
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(sandbox, "products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);
@@ -50,6 +48,28 @@ public class IndexedFixtureTests {
 
         // make sure the fixture is stored in the indexed fixture storage
         assertEquals(4, sandbox.getIndexedFixtureStorage("commtrack:products").getNumRecords());
+    }
+
+    @Test
+    public void entriesShouldGetDeleted() throws UnfullfilledRequirementsException, XmlPullParserException,
+            IOException, InvalidStructureException, XPathSyntaxException {
+        // Parse a fixture and check if all fixture ops are workign as expected
+        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/indexed_fixture/indexed-fixture.xml"), sandbox);
+        assertEquals(4, sandbox.getIndexedFixtureStorage("commtrack:products").getNumRecords());
+        EvaluationContext ec = MockDataUtils.buildContextWithInstance(sandbox, "products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);
+        CaseTestUtils.xpathEvalAndAssert(ec, "instance('products')/products/product[@id = 'f895be4959f9a8a66f57c340aac461b4']/name", "Collier");
+
+        // Update the fixture with the new fixture with one less entry
+        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/indexed_fixture/indexed-fixture-delete.xml"), sandbox);
+        assertEquals(3, sandbox.getIndexedFixtureStorage("commtrack:products").getNumRecords());
+
+        // validate that the deleted entry is no longer there
+        ec = MockDataUtils.buildContextWithInstance(sandbox, "products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);
+        CaseTestUtils.xpathEvalAndAssert(ec, "instance('products')/products/product[@id = 'f895be4959f9a8a66f57c340aac461b4']/name", "");
+
+        // Update the fixture with the new fixture with no entries and validate that the records got deleted.
+        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/indexed_fixture/indexed-fixture-empty.xml"), sandbox);
+        assertEquals(0, sandbox.getIndexedFixtureStorage("commtrack:products").getNumRecords());
     }
 
     @Test
@@ -109,5 +129,13 @@ public class IndexedFixtureTests {
 
     }
 
+    @Test
+    public void queryInSetLookup() throws XPathSyntaxException, UnfullfilledRequirementsException,
+            XmlPullParserException, IOException, InvalidStructureException {
+        ParseUtils.parseIntoSandbox(getClass().getResourceAsStream("/indexed-fixture-with-keys.xml"), sandbox);
 
+        EvaluationContext ec =
+                MockDataUtils.buildContextWithInstance(sandbox, "products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);
+        CaseTestUtils.xpathEvalAndAssert(ec, "sort(join(' ', instance('products')/products/product[selected('a6d16035b98f6f962a6538bd927cefb3 31ab899368d38c2d0207fe80c00fb8c1', @id)]/name))", "CU DIU");
+    }
 }

@@ -75,7 +75,7 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
      * If 'null' is provided for the namespace, it will match the first
      * attribute with the matching name.
      */
-    T getAttribute(String namespace, String name);
+    AbstractTreeElement getAttribute(String namespace, String name);
 
     /**
      * get value of attribute with namespace:name' in the vector
