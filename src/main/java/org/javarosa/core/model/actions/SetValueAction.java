@@ -8,6 +8,7 @@ import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
@@ -66,6 +67,7 @@ public class SetValueAction extends Action {
 
     @Override
     public TreeReference processAction(FormDef model, TreeReference contextRef) {
+
 
         // Qualify the reference if necessary
         TreeReference targetReference =
@@ -131,15 +133,21 @@ public class SetValueAction extends Action {
             result = FunctionUtils.unpack(value.eval(model.getMainInstance(), context));
         }
 
+
+
         int dataType = node.getDataType();
         IAnswerData val = Recalculate.wrapData(result, dataType);
 
         if (val == null) {
+            long start = System.currentTimeMillis();
             model.setValue(null, targetReference);
+            long t1 = System.currentTimeMillis();
+            Logger.log("profiling-action", "Checkpoint1 " + (t1 - start));
         } else {
             IAnswerData targetData;
             try {
                 targetData = AnswerDataFactory.templateByDataType(dataType).cast(val.uncast());
+
             } catch(IllegalArgumentException e) {
                 XPathTypeMismatchException ne = new XPathTypeMismatchException("Invalid data type in " +
                         "setvalue event targetting |" +
@@ -147,9 +155,11 @@ public class SetValueAction extends Action {
                 ne.initCause(e);
                 throw ne;
             }
+
             model.setValue(targetData,
                     targetReference);
         }
+
         return targetReference;
     }
 

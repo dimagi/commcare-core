@@ -61,7 +61,7 @@ public class ActionController implements Externalizable {
             long start = System.currentTimeMillis();
             TreeReference refSetByAction = action.processAction(model, contextForAction);
 
-            Logger.log("profiling", "Time for action " +  (action instanceof SetValueAction ? ((SetValueAction)action).getValue().toPrettyString() : "") + " " + (System.currentTimeMillis() - start));
+            Logger.log("profiling-action", "Time for action " +  (action instanceof SetValueAction ? ((SetValueAction)action).getValue().toPrettyString() : "") + " " + (System.currentTimeMillis() - start));
             if (resultProcessor != null && refSetByAction != null) {
                 resultProcessor.processResultOfAction(refSetByAction, event);
             }
