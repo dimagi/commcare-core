@@ -84,7 +84,9 @@ public abstract class IndexedFixtureInstanceTreeElement
     @Override
     public AbstractTreeElement getAttribute(String namespace, String name) {
         TreeElement attr = loadAttributes().getAttribute(namespace, name);
-        attr.setParent(this);
+        if (attr != null) {
+            attr.setParent(this);
+        }
         return attr;
     }
 
