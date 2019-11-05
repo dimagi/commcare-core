@@ -15,7 +15,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "me.champeau.gradle:jmh-gradle-plugin:0.3.1"
+        classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.8"
     }
 }
 
