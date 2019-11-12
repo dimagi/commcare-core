@@ -145,6 +145,11 @@ public class ProfileParser extends ElementParser<Profile> {
             displayName = "";
         }
 
+        // defaults to empty string instead of null
+        if(buildProfileId == null){
+            buildProfileId = "";
+        }
+
         return new Profile(version, authRef, uniqueId, displayName, fromOld, buildProfileId);
     }
 
