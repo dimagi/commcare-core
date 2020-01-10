@@ -29,10 +29,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.Callable;
 
 import io.reactivex.Single;
-import io.reactivex.functions.*;
 
 /**
  * <p>Text objects are a model for holding strings which
@@ -342,24 +340,11 @@ public class Text implements Externalizable, DetailTemplate, XPathAnalyzable {
             return new String[0];
         }
 
-        List<String> keys = new ArrayList<>();
-        for(String key : arguments.keySet()) {
-            if(key.equals("id")) {
-                continue;
-            }
-            keys.add(key);
-        }
+        List<String> keys = getOrderedKeys(arguments);
 
         if(keys.size() == 0) {
             return new String[0];
         }
-
-
-        if(keys.size() > 10) {
-            throw new RuntimeException("Too many arguments - Text params only support 10");
-        }
-
-        Collections.sort(keys, (s1, s2) -> s1.compareTo(s2));
 
         String[] parameters = new String[keys.size()];
         for(int i = 0; i < keys.size(); ++i) {
@@ -367,6 +352,26 @@ public class Text implements Externalizable, DetailTemplate, XPathAnalyzable {
         }
 
         return parameters;
+    }
+
+    private List<String> getOrderedKeys(Hashtable<String, Text> arguments) {
+        List<String> keys = new ArrayList<>();
+
+        for(String key : arguments.keySet()) {
+            if(key.equals("id")) {
+                continue;
+            }
+            keys.add(key);
+        }
+
+        //We presume all of the keys here are numbers and that they are in order (implicit in
+        //the data model), this prevents the need to do a bunch of type coercion.
+        if(keys.size() > 10) {
+            throw new RuntimeException("Too many arguments - Text params only support 10");
+        }
+
+        Collections.sort(keys, (s1, s2) -> s1.compareTo(s2));
+        return keys;
     }
 
     @Override

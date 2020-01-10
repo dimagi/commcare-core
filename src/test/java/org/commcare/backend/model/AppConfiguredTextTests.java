@@ -1,24 +1,20 @@
 package org.commcare.backend.model;
 
-import org.commcare.backend.session.test.SessionStackTests;
 import org.commcare.backend.suite.model.test.EmptyAppElementsTests;
 import org.commcare.modern.session.SessionWrapper;
-import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.MenuLoader;
 import org.commcare.test.utilities.MockApp;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.services.locale.Localization;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Tests navigating through a CommCareSession (setting datum values and commands, using stepBack(),
- * etc.) for a sample app
+ * Tests for <text/> elements as they are used live in the suite file structure
  *
- * @author amstone
+ * @author ctsims
  */
 public class AppConfiguredTextTests {
 
