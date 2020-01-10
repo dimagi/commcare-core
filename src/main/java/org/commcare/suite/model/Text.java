@@ -21,10 +21,13 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
@@ -88,11 +91,23 @@ public class Text implements Externalizable, DetailTemplate, XPathAnalyzable {
      * localized value of the ID provided.
      */
     public static Text LocaleText(String id) {
+        return LocaleText(id, null);
+    }
+
+    /**
+     * @param id The locale key.
+     * @param arguments arguments to the localizer
+     * @return A Text object that evaluates to the
+     * localized value of the ID provided.
+     */
+    public static Text LocaleText(String id, Hashtable<String, Text> arguments) {
         Text t = TextFactory();
         t.argument = id;
         t.type = TEXT_TYPE_LOCALE;
+        t.arguments = arguments;
         return t;
     }
+
 
     /**
      * @param localeText A Text object which evaluates
@@ -102,9 +117,25 @@ public class Text implements Externalizable, DetailTemplate, XPathAnalyzable {
      * localeText
      */
     public static Text LocaleText(Text localeText) {
+        Hashtable<String, Text> arguments = new Hashtable<>();
+        arguments.put("id", localeText);
+        return LocaleText(arguments);
+    }
+
+    /**
+     * @return A Text object that evaluates to the
+     * localized value of the id returned by evaluating
+     * localeText
+     */
+    public static Text LocaleText(Hashtable<String, Text> arguments) {
         Text t = TextFactory();
-        t.arguments = new Hashtable<>();
-        t.arguments.put("id", localeText);
+
+        //ensure there is an id text argument
+        if (!arguments.containsKey("id")) {
+            throw new RuntimeException("Locale text constructor requires 'id' key in arguments");
+        }
+
+        t.arguments = arguments;
         t.argument = "";
         t.type = TEXT_TYPE_LOCALE;
         return t;
@@ -186,7 +217,10 @@ public class Text implements Externalizable, DetailTemplate, XPathAnalyzable {
                 if (argument.equals("")) {
                     id = arguments.get("id").evaluate(context);
                 }
-                return Localization.get(id);
+
+                String[] params = generateOrderedParameterListForLocalization(arguments, context);
+
+                return Localization.get(id, params);
             case TEXT_TYPE_XPATH:
                 try {
                     ensureCacheIsParsed();
@@ -300,6 +334,39 @@ public class Text implements Externalizable, DetailTemplate, XPathAnalyzable {
             default:
                 return argument;
         }
+    }
+
+    private String[] generateOrderedParameterListForLocalization(Hashtable<String, Text> arguments,
+                                                                 EvaluationContext context) {
+        if(arguments == null) {
+            return new String[0];
+        }
+
+        List<String> keys = new ArrayList<>();
+        for(String key : arguments.keySet()) {
+            if(key.equals("id")) {
+                continue;
+            }
+            keys.add(key);
+        }
+
+        if(keys.size() == 0) {
+            return new String[0];
+        }
+
+
+        if(keys.size() > 10) {
+            throw new RuntimeException("Too many arguments - Text params only support 10");
+        }
+
+        Collections.sort(keys, (s1, s2) -> s1.compareTo(s2));
+
+        String[] parameters = new String[keys.size()];
+        for(int i = 0; i < keys.size(); ++i) {
+            parameters[i] = arguments.get(keys.get(i)).evaluate(context);
+        }
+
+        return parameters;
     }
 
     @Override
