@@ -66,7 +66,7 @@ public class AppConfiguredTextTests {
     }
 
     @Test
-    public void testLocaliationIdParam() {
+    public void testLocalizationIdParam() {
         Localization.setLocale("en");
         MenuDisplayable display = getDisplayable("test4");
         EvaluationContext evaluationContext = session.getEvaluationContext("test4");

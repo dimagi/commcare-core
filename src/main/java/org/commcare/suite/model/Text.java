@@ -364,8 +364,9 @@ public class Text implements Externalizable, DetailTemplate, XPathAnalyzable {
             keys.add(key);
         }
 
-        //We presume all of the keys here are numbers and that they are in order (implicit in
-        //the data model), this prevents the need to do a bunch of type coercion.
+        //This code uses a hacky shortcut to need to prevent type coercing the keys into integers,
+        //and just sorts them alphanumerically, which will fail if there are more than 10 keys.
+        //This check should keep us honest should we ever need to fix that.
         if(keys.size() > 10) {
             throw new RuntimeException("Too many arguments - Text params only support 10");
         }

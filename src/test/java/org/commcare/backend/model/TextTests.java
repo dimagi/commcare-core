@@ -1,9 +1,7 @@
 package org.commcare.backend.model;
 
 import org.commcare.suite.model.Text;
-import org.commcare.xml.TextParser;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathException;
 import org.junit.Assert;
 import org.junit.Test;
