@@ -1,0 +1,4 @@
+unused=unused
+witharg=${0}Value
+msg_in_lang=msg2
+multiarg=${1}${0}${2}

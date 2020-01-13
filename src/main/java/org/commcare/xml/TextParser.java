@@ -96,15 +96,34 @@ public class TextParser extends ElementParser<Text> {
     private Text parseLocale() throws InvalidStructureException, IOException, XmlPullParserException {
         checkNode("locale");
         String id = parser.getAttributeValue(null, "id");
-        if (id != null) {
-            return Text.LocaleText(id);
-        } else {
+
+        Hashtable<String, Text> arguments = new Hashtable<>();
+
+
+        if (id == null) {
             //Get ID Node, throw exception if there isn't a tag
             getNextTagInBlock("locale");
             checkNode("id");
             Text idText = new TextParser(parser).parseBody();
-            return Text.LocaleText(idText);
+
+            arguments.put("id", idText);
         }
+
+
+        int count = 0;
+        while (nextTagInBlock("locale")) {
+            checkNode("argument");
+            Text argumentText = new TextParser(parser).parseBody();
+
+            arguments.put(String.valueOf(count), argumentText);
+            count++;
+        }
+        if(id == null) {
+            return Text.LocaleText(arguments);
+        } else {
+            return Text.LocaleText(id, arguments);
+        }
+
     }
 
     private Text parseXPath() throws InvalidStructureException, IOException, XmlPullParserException {
