@@ -46,7 +46,7 @@ public class XFormSerializer {
      *                                               that are not UTF-8 encoded.
      */
     public static byte[] getUtfBytesFromDocument(Document doc) throws IOException {
-        KXmlSerializer serializer = new KXmlSerializer() {
+        CommCareKXmlSerializer serializer = new CommCareKXmlSerializer() {
             @Override
             public XmlSerializer text(String text) throws IOException {
                 try {
