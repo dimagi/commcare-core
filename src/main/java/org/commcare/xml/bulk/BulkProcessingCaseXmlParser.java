@@ -243,6 +243,12 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
             if (value.equals("")) {
                 value = null;
             }
+
+            if ("".equals(relationship)) {
+                throw new InvalidStructureException(String.format("Invalid Case Transaction for Case[%s]: Attempt to add a '' relationship type to entity[%s]", caseId, value));
+            }
+
+
             //Process blank inputs in the same manner as data fields (IE: Remove the underlying model)
             if (value == null) {
                 if (caseForBlock.removeIndex(indexName)) {

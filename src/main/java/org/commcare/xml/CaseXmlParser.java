@@ -226,6 +226,8 @@ public class CaseXmlParser extends TransactionParser<Case> {
             String relationship = parser.getAttributeValue(null, "relationship");
             if (relationship == null) {
                 relationship = CaseIndex.RELATIONSHIP_CHILD;
+            } else if ("".equals(relationship)) {
+                throw new InvalidStructureException("Invalid Case Transaction: Attempt to create '' relationship type", parser);
             }
 
             String value = parser.nextText().trim();
