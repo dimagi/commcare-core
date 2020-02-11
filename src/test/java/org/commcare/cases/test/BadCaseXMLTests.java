@@ -1,5 +1,7 @@
 package org.commcare.cases.test;
 
+import org.commcare.cases.model.Case;
+import org.commcare.cases.model.CaseIndex;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.test.utilities.TestProfileConfiguration;
 import org.commcare.util.mocks.MockDataUtils;
@@ -57,6 +59,16 @@ public class BadCaseXMLTests {
         }finally {
             //Make sure that we didn't make a case entry for the bad case though
             Assert.assertEquals("Case XML with invalid index not have created a case record", sandbox.getCaseStorage().getNumRecords(), 0);
+        }
+    }
+
+    @Test(expected = InvalidStructureException.class)
+    public void testEmptyRelationship() throws Exception {
+        try {
+            config.parseIntoSandbox(this.getClass().getResourceAsStream("/case_parse/empty_relationship.xml"), sandbox, true);
+        }finally {
+            //Make sure that we didn't make a case entry for the bad case though
+            Assert.assertNotEquals("Case XML with invalid index not have created a case record", sandbox.getCaseStorage().getNumRecords(), 2);
         }
     }
 }
