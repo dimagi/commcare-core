@@ -39,7 +39,8 @@ public class XmlSerializerTests {
                 DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
                 dBuilder.parse(is);
             } catch (Exception e) {
-                fail(e.getMessage());
+                e.printStackTrace();
+                fail("Xml parsing failed with exception: " + e.getMessage());
             }
         } catch (IOException e) {
             fail("Unable to load form at " + formPath);
