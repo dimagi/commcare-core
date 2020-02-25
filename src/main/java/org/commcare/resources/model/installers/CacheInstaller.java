@@ -49,7 +49,7 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
     public abstract boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCarePlatform platform, boolean upgrade, boolean recovery) throws UnresolvedResourceException, UnfullfilledRequirementsException;
 
     @Override
-    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) throws
+    public boolean initialize(Resource r, CommCarePlatform platform, boolean isUpgrade) throws
             IOException, InvalidReferenceException, InvalidStructureException,
             XmlPullParserException, UnfullfilledRequirementsException {
         return false;

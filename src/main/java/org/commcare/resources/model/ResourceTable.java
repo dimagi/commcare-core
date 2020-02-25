@@ -939,7 +939,7 @@ public class ResourceTable {
     private void attemptResourceInitialization(CommCarePlatform platform, boolean isUpgrade,
                                                Resource r, Vector<Resource> missingResources) throws ResourceInitializationException {
         try {
-            r.getInstaller().initialize(platform, isUpgrade);
+            r.getInstaller().initialize(r, platform, isUpgrade);
         } catch (FileNotFoundException e) {
             missingResources.add(r);
         } catch (IOException | InvalidStructureException | InvalidReferenceException

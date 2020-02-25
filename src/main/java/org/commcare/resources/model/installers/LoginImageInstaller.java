@@ -1,5 +1,6 @@
 package org.commcare.resources.model.installers;
 
+import org.commcare.resources.model.Resource;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -17,7 +18,7 @@ import java.io.IOException;
 public class LoginImageInstaller extends BasicInstaller {
 
     @Override
-    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) throws
+    public boolean initialize(Resource r, CommCarePlatform platform, boolean isUpgrade) throws
             IOException, InvalidReferenceException, InvalidStructureException,
             XmlPullParserException, UnfullfilledRequirementsException {
         //Tell the login screen where to get this?

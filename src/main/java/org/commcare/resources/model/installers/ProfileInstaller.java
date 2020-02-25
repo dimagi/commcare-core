@@ -50,7 +50,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
     }
 
     @Override
-    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) throws
+    public boolean initialize(Resource r, CommCarePlatform platform, boolean isUpgrade) throws
             IOException, InvalidReferenceException, InvalidStructureException,
             XmlPullParserException, UnfullfilledRequirementsException {
         //Certain properties may not have been able to set during install, so we'll make sure they're

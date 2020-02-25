@@ -29,7 +29,7 @@ import java.util.Vector;
 public class BasicInstaller implements ResourceInstaller<CommCarePlatform> {
 
     @Override
-    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) throws
+    public boolean initialize(Resource r, CommCarePlatform platform, boolean isUpgrade) throws
             IOException, InvalidReferenceException, InvalidStructureException,
             XmlPullParserException, UnfullfilledRequirementsException {
         return true;
