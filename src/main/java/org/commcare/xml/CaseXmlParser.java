@@ -187,6 +187,10 @@ public class CaseXmlParser extends TransactionParser<Case> {
                 case "owner_id":
                     String oldUserId = caseForBlock.getUserId();
 
+                    if (oldUserId == null) {
+                        throw InvalidStructureException.readableInvalidStructureException("The userid field of a <case> was found null", parser);
+                    }
+
                     if (!oldUserId.equals(value)) {
                         onIndexDisrupted(caseId);
                     }
