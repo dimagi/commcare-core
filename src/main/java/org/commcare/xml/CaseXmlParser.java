@@ -73,6 +73,8 @@ public class CaseXmlParser extends TransactionParser<Case> {
         }
         Date modified = DateUtils.parseDateTime(dateModified);
 
+        String userId = parser.getAttributeValue(null, "user_id");
+
         Case caseForBlock = null;
         boolean isCreateOrUpdate = false;
 
@@ -80,7 +82,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
             String action = parser.getName().toLowerCase();
             switch (action) {
                 case "create":
-                    caseForBlock = createCase(caseId, modified);
+                    caseForBlock = createCase(caseId, modified, userId);
                     isCreateOrUpdate = true;
                     break;
                 case "update":
@@ -122,7 +124,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
         return null;
     }
 
-    private Case createCase(String caseId, Date modified) throws InvalidStructureException, IOException, XmlPullParserException {
+    private Case createCase(String caseId, Date modified, String userId) throws InvalidStructureException, IOException, XmlPullParserException {
         String[] data = new String[3];
         Case caseForBlock = null;
 
@@ -165,6 +167,8 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
         if (data[1] != null) {
             caseForBlock.setUserId(data[1]);
+        } else {
+            caseForBlock.setUserId(userId);
         }
         return caseForBlock;
     }
