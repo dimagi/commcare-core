@@ -170,6 +170,11 @@ public class CaseXmlParser extends TransactionParser<Case> {
         } else {
             caseForBlock.setUserId(userId);
         }
+
+        if (caseForBlock.getUserId() == null || caseForBlock.getUserId().contentEquals("")) {
+            throw new InvalidStructureException("One of [user_id, owner_id] is missing for case <create> with ID: " + caseId, parser);
+        }
+
         return caseForBlock;
     }
 
@@ -190,10 +195,6 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     break;
                 case "owner_id":
                     String oldUserId = caseForBlock.getUserId();
-
-                    if (oldUserId == null) {
-                        throw InvalidStructureException.readableInvalidStructureException("The userid field of a <case> was found null", parser);
-                    }
 
                     if (!oldUserId.equals(value)) {
                         onIndexDisrupted(caseId);
