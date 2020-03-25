@@ -1,6 +1,8 @@
 package org.commcare.util.screen;
 
 import org.commcare.cases.entity.EntityUtil;
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Action;
@@ -12,6 +14,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
@@ -76,6 +79,16 @@ public class EntityScreen extends CompoundScreenHost {
         evalContext = mSession.getEvaluationContext();
 
         Vector<TreeReference> references = expandEntityReferenceSet(evalContext);
+
+        //Pulled from NodeEntityFactory. We should likely replace this whole functonality with
+        //that from nodeentityfactory
+        QueryContext newContext = evalContext.getCurrentQueryContext()
+                .checkForDerivativeContextAndReturn(references.size());
+
+        newContext.setHackyOriginalContextBody(new CurrentModelQuerySet(references));
+
+        evalContext.setQueryContext(newContext);
+
         referenceMap = new Hashtable<>();
         for(TreeReference reference: references) {
             referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), evalContext), reference);
