@@ -54,6 +54,8 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
         }
         Date modified = DateUtils.parseDateTime(dateModified);
 
+        String userId = parser.getAttributeValue(null, "user_id");
+
         Case caseForBlock = null;
         boolean isCreateOrUpdate = false;
 
@@ -62,7 +64,7 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
             String action = subElement.getName().toLowerCase();
             switch (action) {
                 case "create":
-                    caseForBlock = createCase(subElement, currentOperatingSet, caseId, modified);
+                    caseForBlock = createCase(subElement, currentOperatingSet, caseId, modified, userId);
                     isCreateOrUpdate = true;
                     break;
                 case "update":
@@ -114,7 +116,7 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
 
 
     private Case createCase(TreeElement createElement, Map<String, Case> currentOperatingSet,
-                            String caseId, Date modified) throws InvalidStructureException {
+                            String caseId, Date modified, String userId) throws InvalidStructureException {
 
         String[] data = new String[3];
         Case caseForBlock = null;
@@ -157,6 +159,11 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
 
         if (data[1] != null) {
             caseForBlock.setUserId(data[1]);
+        } else {
+            caseForBlock.setUserId(userId);
+        }
+        if (caseForBlock.getUserId() == null || caseForBlock.getUserId().contentEquals("")) {
+            throw new InvalidStructureException("One of [user_id, owner_id] is missing for case <create> with ID: " + caseId, parser);
         }
         return caseForBlock;
     }
