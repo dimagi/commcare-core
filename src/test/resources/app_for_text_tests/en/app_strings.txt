@@ -1,0 +1,3 @@
+display.string=EnglishString
+unused=unused
+msg_in_lang=msg1
