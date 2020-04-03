@@ -42,7 +42,7 @@ public class CommCareNetworkServiceGenerator {
         if (response.code() == 301) {
             String newUrl = response.header("Location");
             if (!isValidRedirect(request.url(), HttpUrl.parse(newUrl))) {
-                Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Invalid redirect from " + request.url().toString() + " to " + response.request().url().toString());
+                Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Invalid redirect from " + request.url().toString() + " to " + newUrl);
                 throw new IOException("Invalid redirect from secure server to insecure server");
             }
         }
