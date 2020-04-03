@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 import okhttp3.FormBody;
 import okhttp3.MultipartBody;
@@ -112,8 +114,29 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
             default:
                 throw new IllegalArgumentException("Invalid HTTPMethod " + method.toString());
         }
-        return currentCall.execute();
+
+        return executeAndCheckCaptivePortals(currentCall);
     }
+
+    private Response executeAndCheckCaptivePortals(Call currentCall) throws IOException {
+        try {
+            return currentCall.execute();
+        } catch (SSLHandshakeException | SSLPeerUnverifiedException e) {
+            // This may be a real SSL exception associated with the real endpoint server, or this
+            // might be a property of the local network.
+            if(checkCurrentNetworkAsCaptivePortal()) {
+                throw new CaptivePortalRedirectException(e);
+            }
+
+            //Otherwise just rethrow the original exception. Probably a certificate issue
+            throw e;
+        }
+    }
+
+    private boolean checkCurrentNetworkAsCaptivePortal() {
+        return false;
+    }
+
 
     public static void processResponse(HttpResponseProcessor responseProcessor,
                                        int responseCode,
