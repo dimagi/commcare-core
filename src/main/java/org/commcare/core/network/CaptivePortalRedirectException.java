@@ -4,7 +4,7 @@ import java.io.IOException;
 
 /**
  * Exception wrapper which communicates that an exception is the result of the current network
- * being behind a captive portal which
+ * being behind a captive portal which is redirecting traffic
  *
  * @author Clayton Sims (csims@dimagi.com)
  */
