@@ -4,7 +4,9 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.interfaces.ResponseStreamAccessor;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -134,7 +136,17 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     }
 
     private boolean checkCurrentNetworkAsCaptivePortal() {
-        return false;
+        String captivePortalURL = "http://www.commcarehq.org/serverup.txt";
+        CommCareNetworkService commCareNetworkService =
+                CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
+        try {
+            Response<ResponseBody> response =
+                    commCareNetworkService.makeGetRequest(captivePortalURL, new HashMap<>(), new HashMap<>()).execute();
+            return response.code() == 200 && !"success".equals(response.body().string());
+        } catch (IOException e) {
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Detecting captive portal failed with exception" + e.getMessage());
+            return false;
+        }
     }
 
 
