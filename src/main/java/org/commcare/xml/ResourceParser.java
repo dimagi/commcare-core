@@ -27,6 +27,7 @@ public class ResourceParser extends ElementParser<Resource> {
         int version = parseInt(parser.getAttributeValue(null, "version"));
 
         String descriptor = parser.getAttributeValue(null, "descriptor");
+        String lazy = parser.getAttributeValue(null, "lazy");
 
         Vector<ResourceLocation> locations = new Vector<>();
 
@@ -46,6 +47,6 @@ public class ResourceParser extends ElementParser<Resource> {
             }
         }
 
-        return new Resource(version, id, locations, descriptor);
+        return new Resource(version, id, locations, descriptor, lazy != null && lazy.contentEquals("true"));
     }
 }

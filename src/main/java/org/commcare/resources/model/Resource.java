@@ -111,7 +111,8 @@ public class Resource implements Persistable, IMetaData {
     // Not sure if we want this persisted just yet...
     protected String parent;
 
-    private String descriptor;
+    protected String descriptor;
+    private boolean lazy;
 
     /**
      * For serialization only
@@ -124,19 +125,24 @@ public class Resource implements Persistable, IMetaData {
      * Creates a resource record identifying where a specific version of a resource
      * can be located.
      *
-     * @param version    The version of the resource being defined.
-     * @param id         A unique string identifying the abstract resource
-     * @param locations  A set of locations from which this resource's definition
-     *                   can be retrieved. Note that this vector is copied and should not be changed
-     *                   after being passed in here.
+     * @param version   The version of the resource being defined.
+     * @param id        A unique string identifying the abstract resource
+     * @param locations A set of locations from which this resource's definition
+     *                  can be retrieved. Note that this vector is copied and should not be changed
+     *                  after being passed in here.
      */
-    public Resource(int version, String id, Vector<ResourceLocation> locations, String descriptor) {
+    public Resource(int version, String id, Vector<ResourceLocation> locations, String descriptor, boolean lazy) {
         this.version = version;
         this.id = id;
         this.locations = locations;
         this.guid = PropertyUtils.genGUID(25);
         this.status = RESOURCE_STATUS_UNINITIALIZED;
         this.descriptor = descriptor;
+        this.lazy = lazy;
+    }
+
+    public Resource(int version, String id, Vector<ResourceLocation> locations, String descriptor) {
+        this(version, id, locations, descriptor, false);
     }
 
     /**
@@ -166,6 +172,10 @@ public class Resource implements Persistable, IMetaData {
      */
     public String getRecordGuid() {
         return guid;
+    }
+
+    public void setRecordGuid(String guid) {
+        this.guid = guid;
     }
 
     /**
@@ -230,7 +240,7 @@ public class Resource implements Persistable, IMetaData {
      * @param status The current status of this resource. Should only be called by the resource
      *               table.
      */
-    protected void setStatus(int status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 
@@ -288,6 +298,7 @@ public class Resource implements Persistable, IMetaData {
         locations = (Vector<ResourceLocation>)ExtUtil.read(in, new ExtWrapList(ResourceLocation.class), pf);
         this.initializer = (ResourceInstaller)ExtUtil.read(in, new ExtWrapTagged(), pf);
         this.descriptor = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        this.lazy = ExtUtil.readBool(in);
     }
 
     @Override
@@ -302,6 +313,7 @@ public class Resource implements Persistable, IMetaData {
         ExtUtil.write(out, new ExtWrapList(locations));
         ExtUtil.write(out, new ExtWrapTagged(initializer));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(descriptor));
+        ExtUtil.writeBool(out, lazy);
     }
 
     @Override
