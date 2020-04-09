@@ -254,6 +254,10 @@ public class Resource implements Persistable, IMetaData {
         recordId = ID;
     }
 
+    public boolean isLazy() {
+        return lazy;
+    }
+
     /**
      * @param peer A resource record which defines the same resource as this record.
      * @return True if this record defines a newer version of the same resource as
