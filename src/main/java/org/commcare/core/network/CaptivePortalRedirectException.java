@@ -9,7 +9,7 @@ import java.io.IOException;
  * @author Clayton Sims (csims@dimagi.com)
  */
 
-public class CaptivePortalRedirectException extends IOException {
+public class CaptivePortalRedirectException extends RuntimeException {
     public CaptivePortalRedirectException(IOException sourceException) {
         super("The current network is not connected to the internet. You may need to log in from " +
                 "a web browser");
