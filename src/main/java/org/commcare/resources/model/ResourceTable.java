@@ -1131,16 +1131,20 @@ public class ResourceTable {
         this.installStatsLogger = logger;
     }
 
-    public boolean recoverResources(CommCarePlatform platform, String profileRef) throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
+    public boolean recoverResources(CommCarePlatform platform, String profileRef)
+            throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
+        return recoverResources(platform, profileRef, mMissingResources);
+    }
+
+    // Downloads and re-installs the missingResources into the table
+    public boolean recoverResources(CommCarePlatform platform, String profileRef, Vector<Resource> missingResources)
+            throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
         int count = 0;
-        int total = mMissingResources.size();
-        for (Resource missingResource : mMissingResources) {
+        int total = missingResources.size();
+        for (Resource missingResource : missingResources) {
 
-            if (missingResource.id.contentEquals(CommCarePlatform.APP_PROFILE_RESOURCE_ID)) {
-                addRemoteLocationIfMissing(missingResource, profileRef);
-            }
+            recoverResource(missingResource, platform, profileRef);
 
-            findResourceLocationAndInstall(missingResource, new Vector<>(), false, platform, null, true);
             count++;
 
             if (stateListener != null) {
@@ -1152,6 +1156,17 @@ public class ResourceTable {
             }
         }
         return true;
+    }
+
+    // Downloads and re-installs a missing resource
+    private void recoverResource(Resource missingResource, CommCarePlatform platform, String profileRef)
+            throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
+
+        if (missingResource.id.contentEquals(CommCarePlatform.APP_PROFILE_RESOURCE_ID)) {
+            addRemoteLocationIfMissing(missingResource, profileRef);
+        }
+
+        findResourceLocationAndInstall(missingResource, new Vector<>(), false, platform, null, true);
     }
 
     private void addRemoteLocationIfMissing(Resource resource, String remoteLocation) {
