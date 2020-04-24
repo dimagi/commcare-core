@@ -91,9 +91,9 @@ public class XPathFuncExprTest {
     public void testIndexOf() {
         FormInstance instance = ExprEvalUtils.loadInstance("/xpath/test_distinct.xml");
 
-        ExprEvalUtils.testEval("index-of(/data/places/country/@id, 'ca')", instance, null, 1);
-        ExprEvalUtils.testEval("index-of('ma ks ca', 'ca')", instance, null, 2);
-        ExprEvalUtils.testEval("index-of(distinct-values(/data/places/country/@continent), 'na')", instance, null, 0);
+        ExprEvalUtils.testEval("index-of(/data/places/country/@id, 'ca')", instance, null, 1.0);
+        ExprEvalUtils.testEval("index-of('ma ks ca', 'ca')", instance, null, 2.0);
+        ExprEvalUtils.testEval("index-of(distinct-values(/data/places/country/@continent), 'na')", instance, null, 0.0);
 
         ExprEvalUtils.testEval("index-of(/data/places/country/@id, 'NOTHING')", instance, null, "");
     }

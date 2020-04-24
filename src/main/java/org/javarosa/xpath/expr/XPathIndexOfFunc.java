@@ -38,7 +38,7 @@ public class XPathIndexOfFunc extends XPathFuncExpr {
 
         for(int i = 0 ; i < argList.length ; ++i) {
             if(argList[i].equals(indexedItem)) {
-                return i;
+                return new Double(i);
             }
         }
         return "";
