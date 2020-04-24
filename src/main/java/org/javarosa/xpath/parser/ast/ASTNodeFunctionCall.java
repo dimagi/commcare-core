@@ -173,6 +173,8 @@ public class ASTNodeFunctionCall extends ASTNode {
                 return new XPathDistinctValuesFunc(args);
             case "sleep":
                 return new XPathSleepFunc(args);
+            case "index-of":
+                return new XPathIndexOfFunc(args);
             default:
                 return new XPathCustomRuntimeFunc(name, args);
         }
