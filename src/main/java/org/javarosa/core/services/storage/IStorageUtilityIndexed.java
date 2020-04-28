@@ -155,7 +155,7 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      * specified contains the value specified.
      *
      * @param metaFieldName The name of a field which should be evaluated
-     * @param value     The value which should be contained by the field specified
+     * @param value         The value which should be contained by the field specified
      * @return A Vector of Integers such that retrieving the Externalizable object with any
      * of those integer IDs will result in an object for which the field specified is equal
      * to the value provided.
@@ -165,40 +165,40 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
     Vector<Integer> getIDsForValue(String metaFieldName, Object value);
 
     /**
-    * Retrieves a Vector of IDs of Externalizable objects in storage for which the field
-    * specified contains the values specified.
-    *
-    * @param metaFieldNames A list of metadata field names to match
-    * @param values     The values which must match the field names provided
-    * @return A Vector of Integers such that retrieving the Externalizable object with any
-    * of those integer IDs will result in an object for which the fields specified are equal
-    * to the value provided.
-    * @throws RuntimeException (Fix this exception type) if the field is unrecognized by the
-    *                          meta data
-    */
+     * Retrieves a Vector of IDs of Externalizable objects in storage for which the field
+     * specified contains the values specified.
+     *
+     * @param metaFieldNames A list of metadata field names to match
+     * @param values         The values which must match the field names provided
+     * @return A Vector of Integers such that retrieving the Externalizable object with any
+     * of those integer IDs will result in an object for which the fields specified are equal
+     * to the value provided.
+     * @throws RuntimeException (Fix this exception type) if the field is unrecognized by the
+     *                          meta data
+     */
     List<Integer> getIDsForValues(String[] metaFieldNames, Object[] values);
 
     /**
-    * Retrieves a Vector of IDs of Externalizable objects in storage for which the field
-    * specified contains the values specified.
-    *
-    * @param metaFieldNames A list of metadata field names to match
-    * @param values     The values which must match the field names provided
-    * @param returnSet A LinkedHashSet of integers which match the return value
-    * @return A Vector of Integers such that retrieving the Externalizable object with any
-    * of those integer IDs will result in an object for which the fields specified are equal
-    * to the value provided.
-    * @throws RuntimeException (Fix this exception type) if the field is unrecognized by the
-    *                          meta data
-    */
+     * Retrieves a Vector of IDs of Externalizable objects in storage for which the field
+     * specified contains the values specified.
+     *
+     * @param metaFieldNames A list of metadata field names to match
+     * @param values         The values which must match the field names provided
+     * @param returnSet      A LinkedHashSet of integers which match the return value
+     * @return A Vector of Integers such that retrieving the Externalizable object with any
+     * of those integer IDs will result in an object for which the fields specified are equal
+     * to the value provided.
+     * @throws RuntimeException (Fix this exception type) if the field is unrecognized by the
+     *                          meta data
+     */
     List<Integer> getIDsForValues(String[] metaFieldNames, Object[] values, LinkedHashSet<Integer> returnSet);
 
     /**
      * Retrieves a Externalizable object from the storage which is reference by the unique index fieldName.
      *
      * @param metaFieldName The name of the index field which will be evaluated
-     * @param value     The value which should be set in the index specified by fieldName for the returned
-     *                  object.
+     * @param value         The value which should be set in the index specified by fieldName for the returned
+     *                      object.
      * @return An Externalizable object e, such that e.getMetaData(fieldName).equals(value);
      * @throws NoSuchElementException If no objects reside in storage for which the return condition
      *                                can be successful.
@@ -206,6 +206,19 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      *                                contains the value of the index requested.
      */
     E getRecordForValue(String metaFieldName, Object value) throws NoSuchElementException, InvalidIndexException;
+
+
+    /**
+     * Retrieves a Vector of Externalizable objects from the storage for which, for each field in fieldNames,
+     * the record has the correct corresponding value in values
+     *
+     * @param metaFieldNames A list of metadata field names to match
+     * @param values     The values which must match the field names provided
+     *
+     * @return A Vector of Externalizable objects e, such that the fields specified are equal to the corresponding values provided.
+     *
+     */
+    Vector<E> getRecordsForValues(String[] metaFieldNames, Object[] values);
 
     /**
      * Load multiple record objects from storage at one time from a list of record ids.
@@ -229,17 +242,12 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
     String[] getMetaDataForRecord(int recordId, String[] metaFieldNames);
 
     /**
-     *
      * Load metadata fields associated with a provided list of record IDs. For each recordId in the
      * provided set, the metadataMap should be loaded withe metadata from storage associated with
      * that record.
      * <p>
      * If the provided metadataMap already contains entries for any ids, it is _not_
      * required for the fields to be retrieved from storage again.
-     *
-     * @param recordIds
-     * @param metaFieldNames
-     * @param metadataMap
      */
     void bulkReadMetadata(LinkedHashSet<Integer> recordIds, String[] metaFieldNames, HashMap<Integer, String[]> metadataMap);
 }
