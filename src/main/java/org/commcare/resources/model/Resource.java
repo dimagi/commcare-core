@@ -58,6 +58,7 @@ public class Resource implements Persistable, IMetaData {
     public static final String META_INDEX_RESOURCE_GUID = "RGUID";
     public static final String META_INDEX_PARENT_GUID = "PGUID";
     public static final String META_INDEX_VERSION = "VERSION";
+    public static final String META_INDEX_LAZY = "LAZY";
 
     public static final int RESOURCE_AUTHORITY_LOCAL = 0;
     public static final int RESOURCE_AUTHORITY_REMOTE = 1;
@@ -331,13 +332,15 @@ public class Resource implements Persistable, IMetaData {
                 return parent == null ? "" : parent;
             case META_INDEX_VERSION:
                 return version;
+            case META_INDEX_LAZY:
+                return lazy;
         }
         throw new IllegalArgumentException("No Field w/name " + fieldName + " is relevant for resources");
     }
 
     @Override
     public String[] getMetaDataFields() {
-        return new String[]{META_INDEX_RESOURCE_ID, META_INDEX_RESOURCE_GUID, META_INDEX_PARENT_GUID, META_INDEX_VERSION};
+        return new String[]{META_INDEX_RESOURCE_ID, META_INDEX_RESOURCE_GUID, META_INDEX_PARENT_GUID, META_INDEX_VERSION, META_INDEX_LAZY};
     }
 
     public boolean isDirty() {
