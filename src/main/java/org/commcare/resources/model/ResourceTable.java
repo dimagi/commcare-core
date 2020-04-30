@@ -962,8 +962,8 @@ public class ResourceTable {
      * @param t table to look-up the resource's parents in
      * @return all local references a resource's potential locations
      */
-    public static Vector<Reference> gatherResourcesLocalRefs(Resource r,
-                                                             ResourceTable t) {
+    private static Vector<Reference> gatherResourcesLocalRefs(Resource r,
+                                                              ResourceTable t) {
         Vector<Reference> ret = new Vector<>();
 
         for (ResourceLocation location : r.getLocations()) {
@@ -999,7 +999,7 @@ public class ResourceTable {
      * @param m        Backup table to look-up the resource's parents in
      * @return All possible (derived) references pointing to a given locations
      */
-    public static Vector<Reference> gatherLocationsRefs(ResourceLocation location,
+    private static Vector<Reference> gatherLocationsRefs(ResourceLocation location,
                                                          Resource r,
                                                          ResourceTable t,
                                                          @Nullable ResourceTable m) {
@@ -1134,6 +1134,13 @@ public class ResourceTable {
     public boolean recoverResources(CommCarePlatform platform, String profileRef)
             throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
         return recoverResources(platform, profileRef, mMissingResources);
+    }
+
+    public boolean recoverResource(CommCarePlatform platform, String profileRef, Resource missingResource)
+            throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
+        Vector<Resource> missingResources = new Vector<>();
+        missingResources.add(missingResource);
+        return recoverResources(platform, profileRef, missingResources);
     }
 
     // Downloads and re-installs the missingResources into the table
