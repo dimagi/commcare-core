@@ -4,7 +4,9 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.interfaces.ResponseStreamAccessor;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +17,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 import okhttp3.FormBody;
 import okhttp3.MultipartBody;
@@ -112,8 +116,39 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
             default:
                 throw new IllegalArgumentException("Invalid HTTPMethod " + method.toString());
         }
-        return currentCall.execute();
+
+        return executeAndCheckCaptivePortals(currentCall);
     }
+
+    private Response executeAndCheckCaptivePortals(Call currentCall) throws IOException {
+        try {
+            return currentCall.execute();
+        } catch (SSLHandshakeException | SSLPeerUnverifiedException e) {
+            // This may be a real SSL exception associated with the real endpoint server, or this
+            // might be a property of the local network.
+            if(checkCurrentNetworkAsCaptivePortal()) {
+                throw new CaptivePortalRedirectException(e);
+            }
+
+            //Otherwise just rethrow the original exception. Probably a certificate issue
+            throw e;
+        }
+    }
+
+    private boolean checkCurrentNetworkAsCaptivePortal() {
+        String captivePortalURL = "http://www.commcarehq.org/serverup.txt";
+        CommCareNetworkService commCareNetworkService =
+                CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
+        try {
+            Response<ResponseBody> response =
+                    commCareNetworkService.makeGetRequest(captivePortalURL, new HashMap<>(), new HashMap<>()).execute();
+            return response.code() == 200 && !"success".equals(response.body().string());
+        } catch (IOException e) {
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Detecting captive portal failed with exception" + e.getMessage());
+            return false;
+        }
+    }
+
 
     public static void processResponse(HttpResponseProcessor responseProcessor,
                                        int responseCode,

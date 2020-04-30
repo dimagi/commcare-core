@@ -315,6 +315,7 @@ public class FormEntryPrompt extends FormEntryCaption {
     /**
      * Helper for getHintText, getHelpText, getConstraintText. Tries to localize text form textID,
      * falls back to innerText if not available.
+     * It may throw XPathException.
      */
     private String localizeText(QuestionString mQuestionString) {
 
@@ -331,9 +332,6 @@ public class FormEntryPrompt extends FormEntryCaption {
             //use fallback
         } catch (UnregisteredLocaleException ule) {
             System.err.println("Warning: No Locale set yet (while attempting to localizeText())");
-        } catch (Exception e) {
-            Logger.exception("FormEntryPrompt.localizeText", e);
-            e.printStackTrace();
         }
 
         return fallbackText;
