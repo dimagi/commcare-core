@@ -962,8 +962,8 @@ public class ResourceTable {
      * @param t table to look-up the resource's parents in
      * @return all local references a resource's potential locations
      */
-    private static Vector<Reference> gatherResourcesLocalRefs(Resource r,
-                                                              ResourceTable t) {
+    public static Vector<Reference> gatherResourcesLocalRefs(Resource r,
+                                                             ResourceTable t) {
         Vector<Reference> ret = new Vector<>();
 
         for (ResourceLocation location : r.getLocations()) {
@@ -999,10 +999,10 @@ public class ResourceTable {
      * @param m        Backup table to look-up the resource's parents in
      * @return All possible (derived) references pointing to a given locations
      */
-    private static Vector<Reference> gatherLocationsRefs(ResourceLocation location,
+    public static Vector<Reference> gatherLocationsRefs(ResourceLocation location,
                                                          Resource r,
                                                          ResourceTable t,
-                                                         ResourceTable m) {
+                                                         @Nullable ResourceTable m) {
         Vector<Reference> ret = new Vector<>();
 
         if (r.hasParent()) {
@@ -1189,5 +1189,9 @@ public class ResourceTable {
 
     public SizeBoundUniqueVector<Resource> getMissingResources() {
         return mMissingResources;
+    }
+
+    public Vector<Resource> getLazyResources() {
+        return storage.getRecordsForValues(new String[]{Resource.META_INDEX_LAZY}, new Boolean[]{true});
     }
 }
