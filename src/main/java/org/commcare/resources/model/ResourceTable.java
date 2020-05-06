@@ -1136,13 +1136,6 @@ public class ResourceTable {
         return recoverResources(platform, profileRef, mMissingResources);
     }
 
-    public boolean recoverResource(CommCarePlatform platform, String profileRef, Resource missingResource)
-            throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
-        Vector<Resource> missingResources = new Vector<>();
-        missingResources.add(missingResource);
-        return recoverResources(platform, profileRef, missingResources);
-    }
-
     // Downloads and re-installs the missingResources into the table
     public boolean recoverResources(CommCarePlatform platform, String profileRef, Vector<Resource> missingResources)
             throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
@@ -1166,7 +1159,7 @@ public class ResourceTable {
     }
 
     // Downloads and re-installs a missing resource
-    private void recoverResource(Resource missingResource, CommCarePlatform platform, String profileRef)
+    public void recoverResource(Resource missingResource, CommCarePlatform platform, String profileRef)
             throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
 
         if (missingResource.id.contentEquals(CommCarePlatform.APP_PROFILE_RESOURCE_ID)) {
@@ -1199,6 +1192,7 @@ public class ResourceTable {
     }
 
     public Vector<Resource> getLazyResources() {
-        return storage.getRecordsForValues(new String[]{Resource.META_INDEX_LAZY}, new Boolean[]{true});
+        // todo
+        return storage.getRecordsForValues(new String[]{Resource.META_INDEX_LAZY}, new Boolean[]{false});
     }
 }
