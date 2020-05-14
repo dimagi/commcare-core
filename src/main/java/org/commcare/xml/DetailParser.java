@@ -5,6 +5,7 @@ import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.DisplayUnit;
+import org.commcare.suite.model.Global;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathParseTool;
@@ -42,12 +43,14 @@ public class DetailParser extends CommCareElementParser<Detail> {
         checkNode("title");
         getNextTagInBlock("title");
         DisplayUnit title;
+
         if ("text".equals(parser.getName().toLowerCase())) {
             title = new DisplayUnit(new TextParser(parser).parse());
         } else {
             title = parseDisplayBlock();
         }
 
+        Global global = null;
         Callout callout = null;
         Vector<Action> actions = new Vector<>();
 
@@ -58,6 +61,16 @@ public class DetailParser extends CommCareElementParser<Detail> {
         String focusFunction = null;
 
         while (nextTagInBlock("detail")) {
+            if (GlobalParser.NAME_GLOBAL.equals(parser.getName().toLowerCase())) {
+                try {
+                    checkNode(GlobalParser.NAME_GLOBAL);
+                    global = new GlobalParser(parser).parse();
+                    parser.nextTag();
+
+                } catch (InvalidStructureException e) {
+                    System.out.println("Lookup block not found " + e);
+                }
+            }
             if ("lookup".equals(parser.getName().toLowerCase())) {
                 try {
                     checkNode("lookup");
@@ -111,7 +124,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
 
         return new Detail(id, title, nodeset, subdetails, fields, variables, actions, callout,
                 fitAcross, useUniformUnits, forceLandscapeView, focusFunction, printTemplatePath,
-                relevancy);
+                relevancy, global);
     }
 
     protected DetailParser getDetailParser() {

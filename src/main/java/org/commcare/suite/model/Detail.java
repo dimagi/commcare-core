@@ -36,6 +36,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.annotation.Nullable;
+
 /**
  * A Detail model defines the structure in which
  * the details about something should be displayed
@@ -87,6 +89,9 @@ public class Detail implements Externalizable {
 
     private XPathExpression parsedRelevancyExpression;
 
+    @Nullable
+    private Global global;
+
     // REGION -- These fields are only used if this detail is a case tile
 
     // Allows for the possibility of case tiles being displayed in a grid
@@ -109,7 +114,7 @@ public class Detail implements Externalizable {
                   Vector<DetailField> fieldsVector, OrderedHashtable<String, String> variables,
                   Vector<Action> actions, Callout callout, String fitAcross,
                   String uniformUnitsString, String forceLandscape, String focusFunction,
-                  String printPathProvided, String relevancy) {
+                  String printPathProvided, String relevancy, Global global) {
 
         if (detailsVector.size() > 0 && fieldsVector.size() > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
@@ -156,6 +161,7 @@ public class Detail implements Externalizable {
                 throw new RuntimeException(e.getMessage());
             }
         }
+        this.global = global;
     }
 
     /**
@@ -248,6 +254,7 @@ public class Detail implements Externalizable {
         numEntitiesToDisplayPerRow = (int)ExtUtil.readNumeric(in);
         useUniformUnitsInCaseTile = ExtUtil.readBool(in);
         parsedRelevancyExpression = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
+        global = (Global)ExtUtil.read(in, Global.class, pf);
     }
 
     @Override
@@ -267,6 +274,7 @@ public class Detail implements Externalizable {
         ExtUtil.writeBool(out, useUniformUnitsInCaseTile);
         ExtUtil.write(out, new ExtWrapNullable(
                 parsedRelevancyExpression == null ? null : new ExtWrapTagged(parsedRelevancyExpression)));
+        ExtUtil.write(out, new ExtWrapNullable(global == null ? null : new ExtWrapTagged(global)));
     }
 
     public OrderedHashtable<String, XPathExpression> getVariableDeclarations() {
@@ -578,4 +586,8 @@ public class Detail implements Externalizable {
         return FunctionUtils.toBoolean(parsedRelevancyExpression.eval(context));
     }
 
+    @Nullable
+    public Global getGlobal() {
+        return global;
+    }
 }
