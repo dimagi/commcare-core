@@ -9,6 +9,9 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 
+/**
+ * Parses the defintion for a {@code GeoOverlay} element
+ */
 public class GeoOverlayParser extends ElementParser<GeoOverlay> {
 
     static final String NAME_GEO_OVERLAY = "geo-overlay";

@@ -12,6 +12,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
+/**
+ * Defines top level UI logic for a case-select or case-detail view,
+ * Part of {@code Detail} model
+ */
 public class Global implements Externalizable {
 
     private GeoOverlay[] geoOverlays;

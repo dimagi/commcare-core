@@ -10,6 +10,9 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.Vector;
 
+/**
+ * Parser used in DetailParser to parse the defintion of Global element used in case-select and case-detail views
+ */
 class GlobalParser extends ElementParser<Global> {
 
     static final String NAME_GLOBAL = "global";

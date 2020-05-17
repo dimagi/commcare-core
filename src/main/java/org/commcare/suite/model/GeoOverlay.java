@@ -12,6 +12,9 @@ import java.io.IOException;
 
 import javax.annotation.Nullable;
 
+/**
+ * Defines a polygon region to be displayed on a map
+ */
 public class GeoOverlay implements Externalizable {
 
     @Nullable
