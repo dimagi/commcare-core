@@ -1192,7 +1192,6 @@ public class ResourceTable {
     }
 
     public Vector<Resource> getLazyResources() {
-        // todo
         return storage.getRecordsForValues(new String[]{Resource.META_INDEX_LAZY}, new Boolean[]{false});
     }
 }
