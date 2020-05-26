@@ -21,7 +21,7 @@ public class GeoOverlay implements Externalizable {
     private DisplayUnit coordinates;
 
     @Nullable
-    private DisplayUnit title;
+    private DisplayUnit label;
 
     /**
      * Serialization Only
@@ -29,28 +29,28 @@ public class GeoOverlay implements Externalizable {
     public GeoOverlay() {
     }
 
-    public GeoOverlay(DisplayUnit title, DisplayUnit coordinates) {
-        this.title = title;
+    public GeoOverlay(DisplayUnit label, DisplayUnit coordinates) {
+        this.label = label;
         this.coordinates = coordinates;
     }
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         coordinates = (DisplayUnit)ExtUtil.read(in, new ExtWrapNullable(DisplayUnit.class), pf);
-        title = (DisplayUnit)ExtUtil.read(in, new ExtWrapNullable(DisplayUnit.class), pf);
+        label = (DisplayUnit)ExtUtil.read(in, new ExtWrapNullable(DisplayUnit.class), pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapNullable(coordinates));
-        ExtUtil.write(out, new ExtWrapNullable(title));
+        ExtUtil.write(out, new ExtWrapNullable(label));
     }
 
     public DisplayUnit getCoordinates() {
         return coordinates;
     }
 
-    public DisplayUnit getTitle() {
-        return title;
+    public DisplayUnit getLabel() {
+        return label;
     }
 }

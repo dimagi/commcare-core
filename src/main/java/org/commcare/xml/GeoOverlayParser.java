@@ -16,7 +16,7 @@ public class GeoOverlayParser extends ElementParser<GeoOverlay> {
 
     static final String NAME_GEO_OVERLAY = "geo-overlay";
     private static final String NAME_COORDINATES = "coordinates";
-    private static final String NAME_TITLE = "title";
+    private static final String NAME_LABEL = "label";
 
     GeoOverlayParser(KXmlParser parser) {
         super(parser);
@@ -31,8 +31,8 @@ public class GeoOverlayParser extends ElementParser<GeoOverlay> {
             if (NAME_COORDINATES.contentEquals(tagName)) {
                 nextTagInBlock(NAME_COORDINATES);
                 coordinates = new DisplayUnit(new TextParser(parser).parse());
-            } else if (NAME_TITLE.contentEquals(tagName)) {
-                nextTagInBlock(NAME_TITLE);
+            } else if (NAME_LABEL.contentEquals(tagName)) {
+                nextTagInBlock(NAME_LABEL);
                 title = new DisplayUnit(new TextParser(parser).parse());
             }
         }
