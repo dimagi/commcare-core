@@ -62,24 +62,14 @@ public class DetailParser extends CommCareElementParser<Detail> {
 
         while (nextTagInBlock("detail")) {
             if (GlobalParser.NAME_GLOBAL.equals(parser.getName().toLowerCase())) {
-                try {
-                    checkNode(GlobalParser.NAME_GLOBAL);
-                    global = new GlobalParser(parser).parse();
-                    parser.nextTag();
-
-                } catch (InvalidStructureException e) {
-                    System.out.println("Lookup block not found " + e);
-                }
+                checkNode(GlobalParser.NAME_GLOBAL);
+                global = new GlobalParser(parser).parse();
+                parser.nextTag();
             }
             if ("lookup".equals(parser.getName().toLowerCase())) {
-                try {
-                    checkNode("lookup");
-                    callout = new CalloutParser(parser).parse();
-                    parser.nextTag();
-
-                } catch (InvalidStructureException e) {
-                    System.out.println("Lookup block not found " + e);
-                }
+                checkNode("lookup");
+                callout = new CalloutParser(parser).parse();
+                parser.nextTag();
             }
             if ("variables".equals(parser.getName().toLowerCase())) {
                 while (nextTagInBlock("variables")) {
