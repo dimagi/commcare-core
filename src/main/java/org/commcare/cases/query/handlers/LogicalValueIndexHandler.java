@@ -31,8 +31,15 @@ import java.util.Vector;
 import kotlin.collections.IndexedValue;
 
 /**
- * Performs a "selected in" lookup operation from an appropriately backed storage table
- * against a
+ * Optimizes predicates which are single logical operations that combine indexed values.
+ *
+ * Essentially enables one to query
+ *
+ * [index = a OR index = b]
+ *
+ * with a query optimization plan of
+ *
+ * O([index=a]) + O([index=b])
  *
  * Created by ctsims on 1/31/2017.
  */
