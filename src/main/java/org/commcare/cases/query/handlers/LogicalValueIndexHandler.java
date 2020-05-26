@@ -79,7 +79,7 @@ public class LogicalValueIndexHandler implements QueryHandler<LogicalIndexedValu
                     " AND " + namesToMatch[1] + "=" + valuesToMatch[1];
 
             EvaluationTrace trace =
-                    new EvaluationTrace("Logical Combination Lookup:|" + cacheKey);
+                    new EvaluationTrace("Logical Combination Lookup |" + cacheKey);
 
             List<Integer> results = storage.getIDsForValues(namesToMatch, valuesToMatch, ids);
 
@@ -91,16 +91,16 @@ public class LogicalValueIndexHandler implements QueryHandler<LogicalIndexedValu
             LinkedHashSet<Integer> ids = new LinkedHashSet<>();
 
             String cacheKey = lookupExpr.getA().key + "=" + lookupExpr.getA().value +
-                    " AND " + lookupExpr.getB().key + "=" + lookupExpr.getB().value;
+                    " OR " + lookupExpr.getB().key + "=" + lookupExpr.getB().value;
 
             EvaluationTrace trace =
-                new EvaluationTrace("Logical Combination Lookup:|" + cacheKey);
+                new EvaluationTrace("Logical Combination Lookup |" + cacheKey);
 
             storage.getIDsForValues(new String[] {lookupExpr.getA().key}, new String[] {(String)lookupExpr.getA().value}, ids);
 
             storage.getIDsForValues(new String[] {lookupExpr.getB().key}, new String[] {(String)lookupExpr.getB().value}, ids);
 
-            trace.setOutcome("Results: " + ids.size());
+            trace.setOutcome("Matches: " + ids.size());
             queryContext.reportTrace(trace);
 
             return ids;
