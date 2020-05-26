@@ -254,7 +254,7 @@ public class Detail implements Externalizable {
         numEntitiesToDisplayPerRow = (int)ExtUtil.readNumeric(in);
         useUniformUnitsInCaseTile = ExtUtil.readBool(in);
         parsedRelevancyExpression = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
-        global = (Global)ExtUtil.read(in, Global.class, pf);
+        global = (Global)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
     }
 
     @Override
