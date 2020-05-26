@@ -41,7 +41,7 @@ import kotlin.collections.IndexedValue;
  *
  * O([index=a]) + O([index=b])
  *
- * Created by ctsims on 1/31/2017.
+ * Created by ctsims on 5/26/2020.
  */
 
 public class LogicalValueIndexHandler implements QueryHandler<LogicalIndexedValuesLookup> {
