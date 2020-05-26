@@ -10,6 +10,18 @@
     <title>
       <text>Case List</text>
     </title>
+    <global>
+      <geo-overlay>
+        <coordinates>
+          <text>
+            25.099143024399652,76.51193084262178 \n25.09659806293257,76.50851525117463 \n25.094815052360374,76.51072357910209 \n25.097369086424337,76.51234989287263
+          </text>
+        </coordinates>
+        <label>
+          <text>region1</text>
+        </label>
+      </geo-overlay>
+    </global>
     <lookup name="Scan fingerprint"
             action="com.simprints.id.IDENTIFY"
             image="jr://file/commcare/image/module1_case_list_lookup.png"

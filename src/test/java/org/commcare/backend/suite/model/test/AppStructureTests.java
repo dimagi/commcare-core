@@ -3,6 +3,8 @@ package org.commcare.backend.suite.model.test;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.GeoOverlay;
+import org.commcare.suite.model.Global;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Suite;
@@ -63,8 +65,8 @@ public class AppStructureTests {
     @Test
     public void testDetailStructure() {
         // A suite detail can have a lookup block for performing an app callout
-        Callout callout = 
-            mApp.getSession().getPlatform().getDetail("m0_case_short").getCallout();
+        Callout callout =
+                mApp.getSession().getPlatform().getDetail("m0_case_short").getCallout();
 
         // specifies the callout's intent type
         assertEquals(callout.evaluate(mApp.getSession().getEvaluationContext()).getType(), "text/plain");
@@ -96,6 +98,15 @@ public class AppStructureTests {
         XPathExpression focusFunction =
                 mApp.getSession().getPlatform().getDetail("m0_case_short").getFocusFunction();
         Assert.assertTrue(focusFunction == null);
+    }
+
+    @Test
+    public void testDetailGlobalStructure() {
+        Global global = mApp.getSession().getPlatform().getDetail("m0_case_short").getGlobal();
+        Assert.assertEquals(1, global.getGeoOverlays().length);
+        GeoOverlay geoOverlay = global.getGeoOverlays()[0];
+        Assert.assertEquals("region1", geoOverlay.getLabel().evaluate().getName());
+        Assert.assertEquals("25.099143024399652,76.51193084262178 \\n25.09659806293257,76.50851525117463 \\n25.094815052360374,76.51072357910209 \\n25.097369086424337,76.51234989287263", geoOverlay.getCoordinates().evaluate().getName());
     }
 
     @Test
