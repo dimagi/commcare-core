@@ -146,17 +146,20 @@ public class StreamsUtil {
                 if (observer != null) {
                     observer.notifyCurrentCount(counter);
                 }
-
-                try {
-                    os.write(buffer, 0, count);
-                } catch (IOException e) {
-                    throw new StreamsUtil().new OutputIOException(e);
-                }
+                writeFromBuffer(os, buffer, count);
                 count = readIntoBuffer(is, buffer);
             }
         } finally {
             closeStream(is);
             closeStream(os);
+        }
+    }
+
+    private static void writeFromBuffer(OutputStream os, byte[] buffer, int count) throws OutputIOException {
+        try {
+            os.write(buffer, 0, count);
+        } catch (IOException e) {
+            throw new StreamsUtil().new OutputIOException(e);
         }
     }
 
