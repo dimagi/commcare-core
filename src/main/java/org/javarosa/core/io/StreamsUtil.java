@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.annotation.Nullable;
+
 public class StreamsUtil {
     /**
      * Write everything from input stream to output stream, byte by byte then
@@ -118,30 +120,54 @@ public class StreamsUtil {
     /**
      * Write is to os and close both
      */
-    public static void writeFromInputToOutputNew(InputStream is, OutputStream os) throws IOException {
-        writeFromInputToOutputNew(is, os, null);
+    public static void writeFromInputToOutputNew(InputStream is, OutputStream os) throws InputIOException, OutputIOException {
+        writeFromInputToOutputNewInner(is, os, null);
     }
 
     /**
      * Write is to os and close both
      */
-    public static void writeFromInputToOutputNew(InputStream is, OutputStream os, StreamReadObserver observer) throws IOException {
+    public static void writeFromInputToOutputNew(InputStream is, OutputStream os, StreamReadObserver observer) throws InputIOException, OutputIOException {
+        writeFromInputToOutputNewInner(is, os, observer);
+    }
+
+    /**
+     * Write is to os and close both
+     */
+    private static void writeFromInputToOutputNewInner(InputStream is, OutputStream os, @Nullable StreamReadObserver observer)
+            throws InputIOException, OutputIOException {
         byte[] buffer = new byte[8192];
         long counter = 0;
 
         try {
-            int count = is.read(buffer);
+            int count = readIntoBuffer(is, buffer);
             while (count != -1) {
                 counter += count;
                 if (observer != null) {
                     observer.notifyCurrentCount(counter);
                 }
-                os.write(buffer, 0, count);
-                count = is.read(buffer);
+                writeFromBuffer(os, buffer, count);
+                count = readIntoBuffer(is, buffer);
             }
         } finally {
             closeStream(is);
             closeStream(os);
+        }
+    }
+
+    private static void writeFromBuffer(OutputStream os, byte[] buffer, int count) throws OutputIOException {
+        try {
+            os.write(buffer, 0, count);
+        } catch (IOException e) {
+            throw new StreamsUtil().new OutputIOException(e);
+        }
+    }
+
+    private static int readIntoBuffer(InputStream is, byte[] buffer) throws InputIOException {
+        try {
+            return is.read(buffer);
+        } catch (IOException e) {
+            throw new StreamsUtil().new InputIOException(e);
         }
     }
 
