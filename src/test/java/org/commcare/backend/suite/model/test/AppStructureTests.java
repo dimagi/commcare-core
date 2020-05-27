@@ -114,7 +114,7 @@ public class AppStructureTests {
         GeoOverlay geoOverlay2 = global.getGeoOverlays()[1];
         Assert.assertEquals("region2", geoOverlay2.getLabel().evaluate().getName());
         Assert.assertEquals(
-                "25.099143024399652,76.51193084262178 \\n25.09659806293257,76.50851525117463 \\n25.094815052360374,76.51072357910209 \\n25.097369086424337,76.51234989287263",
+                "76.51193084262178,25.099143024399652 \\n76.50851525117463,25.09659806293257 \\n76.51072357910209,25.094815052360374 \\n76.51234989287263,25.097369086424337",
                 geoOverlay2.getCoordinates().evaluate().getName());
     }
 
