@@ -2,6 +2,7 @@ package org.javarosa.xpath.expr;
 
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.util.CacheTable;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.MathUtils;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathNodeset;
@@ -85,6 +86,7 @@ public class FunctionUtils {
         funcList.put(XPathSortByFunc.NAME, XPathSortByFunc.class);
         funcList.put(XPathDistinctValuesFunc.NAME, XPathDistinctValuesFunc.class);
         funcList.put(XPathSleepFunc.NAME, XPathSleepFunc.class);
+        funcList.put(XPathIndexOfFunc.NAME, XPathIndexOfFunc.class);
     }
 
     private static final CacheTable<String, Double> mDoubleParseCache = new CacheTable<>();
@@ -436,6 +438,25 @@ public class FunctionUtils {
             return s.toUpperCase();
         }
         return s.toLowerCase();
+    }
+
+
+    /**
+     * @return A sequence representation of the input, whether the input is
+     * a nodeset (which will be dereferenced and evaluated), an existing sequence,
+     * or a string representation of a sequence (space separated list of strings)
+     */
+    public static Object[] getSequence(Object input) {
+        Object[] argList;
+        if (input instanceof XPathNodeset) {
+            argList = ((XPathNodeset)input).toArgList();
+        } else if (input instanceof Object[]) {
+            argList = (Object[])input;
+        } else {
+            String selection = (String)FunctionUtils.unpack(input);
+            argList = DataUtil.splitOnSpaces(selection);
+        }
+        return argList;
     }
 
     /**

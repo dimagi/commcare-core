@@ -78,6 +78,12 @@ public class StringUtils {
         //starts being used (this is probably not necessary, and
         //basically only makes sure that "at" doesn't match "or" or similar
         if (source.length() > 3) {
+            // Makes sure that we're only matching strings with distanceThreshold as
+            // the maximum difference in length, otherwise LevenshteinDistance may return a
+            // distance more than distanceThreshold even if the prefix matches perfectly.
+            if (target.length() > source.length() + distanceThreshold) {
+                target = target.substring(0, source.length() + distanceThreshold);
+            }
             int distance = LevenshteinDistance(source, target);
             //tweakable parameter: edit distance past string length disparity
             if (distance <= distanceThreshold) {

@@ -527,6 +527,9 @@ public class EvaluationContext {
     }
 
     public AbstractTreeElement resolveReference(TreeReference qualifiedRef) {
+        if(Thread.interrupted()) {
+            throw new RequestAbandonedException();
+        }
         DataInstance instance = this.getMainInstance();
         if (qualifiedRef.getInstanceName() != null &&
                 (instance == null || instance.getInstanceId() == null || !instance.getInstanceId().equals(qualifiedRef.getInstanceName()))) {

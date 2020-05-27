@@ -73,6 +73,8 @@ public class CaseXmlParser extends TransactionParser<Case> {
         }
         Date modified = DateUtils.parseDateTime(dateModified);
 
+        String userId = parser.getAttributeValue(null, "user_id");
+
         Case caseForBlock = null;
         boolean isCreateOrUpdate = false;
 
@@ -80,7 +82,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
             String action = parser.getName().toLowerCase();
             switch (action) {
                 case "create":
-                    caseForBlock = createCase(caseId, modified);
+                    caseForBlock = createCase(caseId, modified, userId);
                     isCreateOrUpdate = true;
                     break;
                 case "update":
@@ -122,7 +124,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
         return null;
     }
 
-    private Case createCase(String caseId, Date modified) throws InvalidStructureException, IOException, XmlPullParserException {
+    private Case createCase(String caseId, Date modified, String userId) throws InvalidStructureException, IOException, XmlPullParserException {
         String[] data = new String[3];
         Case caseForBlock = null;
 
@@ -165,7 +167,14 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
         if (data[1] != null) {
             caseForBlock.setUserId(data[1]);
+        } else {
+            caseForBlock.setUserId(userId);
         }
+
+        if (caseForBlock.getUserId() == null || caseForBlock.getUserId().contentEquals("")) {
+            throw new InvalidStructureException("One of [user_id, owner_id] is missing for case <create> with ID: " + caseId, parser);
+        }
+
         return caseForBlock;
     }
 
@@ -226,6 +235,8 @@ public class CaseXmlParser extends TransactionParser<Case> {
             String relationship = parser.getAttributeValue(null, "relationship");
             if (relationship == null) {
                 relationship = CaseIndex.RELATIONSHIP_CHILD;
+            } else if ("".equals(relationship)) {
+                throw new InvalidStructureException("Invalid Case Transaction: Attempt to create '' relationship type", parser);
             }
 
             String value = parser.nextText().trim();

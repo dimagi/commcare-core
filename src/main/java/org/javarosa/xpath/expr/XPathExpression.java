@@ -1,6 +1,7 @@
 package org.javarosa.xpath.expr;
 
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.RequestAbandonedException;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -31,6 +32,9 @@ public abstract class XPathExpression extends InFormCacheableExpr implements Ext
      */
     public Object eval(DataInstance model, EvaluationContext evalContext) {
         evalContext.openTrace(this);
+        if(Thread.interrupted()) {
+            throw new RequestAbandonedException();
+        }
 
         Object value;
         boolean fromCache = false;
