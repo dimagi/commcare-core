@@ -1,18 +1,16 @@
 package org.commcare.core.parse;
 
 import org.commcare.cases.instance.FixtureIndexSchema;
-import org.commcare.cases.ledger.Ledger;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
+import org.commcare.xml.AppendixXmlParser;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.FixtureIndexSchemaParser;
 import org.commcare.xml.FixtureXmlParser;
 import org.commcare.xml.IndexedFixtureXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
 import org.commcare.xml.bulk.LinearBulkProcessingCaseXmlParser;
-import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
@@ -51,6 +49,8 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     protected TransactionParserFactory caseParser;
     protected TransactionParserFactory stockParser;
     protected TransactionParserFactory fixtureParser;
+    protected TransactionParserFactory appendixParser;
+
     private final Map<String, FixtureIndexSchema> fixtureSchemas = new HashMap<>();
     private final Set<String> processedFixtures = new HashSet<>();
 
@@ -70,6 +70,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         this.initUserParser();
         this.initCaseParser();
         this.initStockParser();
+        this.initAppendixParser();
     }
 
     @Override
@@ -131,6 +132,14 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                 }
 
             };
+        } else if (AppendixXmlParser.APPENDIX_XML_NAMESPACE.equals(namespace) &&
+                AppendixXmlParser.TAG_APPENDIX.equalsIgnoreCase(name)) {
+            if (appendixParser == null) {
+                return null;
+            }
+            req();
+            return appendixParser.getParser(parser);
+
         }
         return null;
     }
@@ -144,7 +153,11 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         // Overridden at the android level
     }
 
-    void initUserParser() {
+    public void initAppendixParser() {
+        appendixParser = null;
+    }
+
+    public void initUserParser() {
         userParser = new TransactionParserFactory() {
             UserXmlParser created = null;
 
