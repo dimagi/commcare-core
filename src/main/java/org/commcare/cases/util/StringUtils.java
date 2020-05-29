@@ -161,4 +161,8 @@ public class StringUtils {
 
         return myArrayList;
     }
+
+    public static boolean isEmpty(String text) {
+        return text == null || text.isEmpty();
+    }
 }
