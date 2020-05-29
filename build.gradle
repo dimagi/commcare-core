@@ -70,7 +70,7 @@ dependencies {
     compile 'joda-time:joda-time:2.9.4'
     compile 'com.carrotsearch:hppc:0.7.2'
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
-    compile 'com.squareup.okhttp3:okhttp:4.4.1'
+    compile 'com.squareup.okhttp3:okhttp:3.12.12'
     compile 'com.google.code.findbugs:jsr305:3.0.2'
     compile 'io.reactivex.rxjava2:rxjava:2.1.1'
 
