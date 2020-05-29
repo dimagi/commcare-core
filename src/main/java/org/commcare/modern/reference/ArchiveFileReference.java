@@ -45,8 +45,12 @@ public class ArchiveFileReference implements Reference {
         try {
             return mZipFile.getInputStream(mZipFile.getEntry(archiveURI));
         } catch (NullPointerException e) {
+            String reference = "";
+            if(mZipFile != null) {
+                reference = mZipFile.getName();
+            }
             RuntimeException re = new RuntimeException(String.format("ZipFile %s threw NullPointerException with URI %s in archive with GUID %s.",
-                    mZipFile.getName(), archiveURI, GUID));
+                    reference, archiveURI, GUID));
             re.initCause(e);
             throw re;
         }

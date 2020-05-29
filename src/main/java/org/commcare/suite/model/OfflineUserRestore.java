@@ -45,7 +45,7 @@ public class OfflineUserRestore implements Persistable {
 
     public OfflineUserRestore(String reference)
             throws UnfullfilledRequirementsException, IOException, InvalidStructureException,
-            XmlPullParserException, InvalidReferenceException {
+            XmlPullParserException {
         this.reference = reference;
         checkThatRestoreIsValidAndSetUsername();
     }
