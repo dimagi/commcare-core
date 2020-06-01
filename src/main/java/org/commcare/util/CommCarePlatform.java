@@ -52,19 +52,21 @@ public class CommCarePlatform {
 
     private final int majorVersion;
     private final int minorVersion;
+    private final int minimalVersion;
     private final Vector<Suite> installedSuites;
 
-    public CommCarePlatform(int majorVersion, int minorVersion, StorageManager storageManager) {
-        this(majorVersion, minorVersion);
+    public CommCarePlatform(int majorVersion, int minorVersion, int minimalVersion, StorageManager storageManager) {
+        this(majorVersion, minorVersion, minimalVersion);
         this.storageManager = storageManager;
         storageManager.registerStorage(PropertyManager.STORAGE_KEY, Property.class);
         this.propertyManager = new PropertyManager(storageManager.getStorage(PropertyManager.STORAGE_KEY));
     }
 
-    public CommCarePlatform(int majorVersion, int minorVersion) {
+    public CommCarePlatform(int majorVersion, int minorVersion, int minimalVersion) {
         profile = -1;
         this.majorVersion = majorVersion;
         this.minorVersion = minorVersion;
+        this.minimalVersion = minimalVersion;
         installedSuites = new Vector<>();
     }
 
@@ -74,6 +76,10 @@ public class CommCarePlatform {
 
     public int getMinorVersion() {
         return minorVersion;
+    }
+
+    public int getMinimalVersion() {
+        return minimalVersion;
     }
 
     public Profile getCurrentProfile() {

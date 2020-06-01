@@ -66,7 +66,8 @@ public class CommCareConfigEngine {
     protected ArchiveFileRoot mArchiveRoot;
 
     public static final int MAJOR_VERSION = 2;
-    public static final int MINOR_VERSION = 47;
+    public static final int MINOR_VERSION = 49;
+    public static final int MINIMAL_VERSION = 0;
 
 
     public CommCareConfigEngine() {
@@ -96,7 +97,7 @@ public class CommCareConfigEngine {
         storageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
         storageManager.registerStorage("fixture", FormInstance.class);
 
-        this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION, storageManager);
+        this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION, MINIMAL_VERSION, storageManager);
     }
 
     private static IStorageIndexedFactory setupDummyStorageFactory(final PrototypeFactory prototypeFactory) {
@@ -136,7 +137,7 @@ public class CommCareConfigEngine {
     protected String downloadToTemp(String resource) {
         try {
             URL url = new URL(resource);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
             conn.setInstanceFollowRedirects(true);  //you still need to handle redirect manully.
             HttpURLConnection.setFollowRedirects(true);
             File file = File.createTempFile("commcare_", ".ccz");
@@ -324,7 +325,7 @@ public class CommCareConfigEngine {
             if (datum instanceof FormIdDatum) {
                 print.println(emptyhead + "Form: " + datum.getValue());
             } else if (datum instanceof EntityDatum) {
-                String shortDetailId = ((EntityDatum) datum).getShortDetail();
+                String shortDetailId = ((EntityDatum)datum).getShortDetail();
                 if (shortDetailId != null) {
                     Detail d = s.getDetail(shortDetailId);
                     try {
