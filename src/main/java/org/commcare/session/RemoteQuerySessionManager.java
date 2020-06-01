@@ -1,7 +1,7 @@
 package org.commcare.session;
 
 import org.commcare.modern.util.Pair;
-import org.commcare.suite.model.DisplayUnit;
+import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -14,7 +14,6 @@ import org.javarosa.xml.TreeElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -58,7 +57,7 @@ public class RemoteQuerySessionManager {
         }
     }
 
-    public OrderedHashtable<String, DisplayUnit> getNeededUserInputDisplays() {
+    public OrderedHashtable<String, QueryPrompt> getNeededUserInputDisplays() {
         return queryDatum.getUserQueryPrompts();
     }
 
