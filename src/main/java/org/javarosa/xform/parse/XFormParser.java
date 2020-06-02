@@ -398,7 +398,7 @@ public class XFormParser {
 
             //Lots of code assumes there's _some_ title so if we never got anything during the parse
             //just initialize this to something
-            if(_f.getName() == null && _f.getTitle() == null) {
+            if (_f.getName() == null && _f.getTitle() == null) {
                 _f.setName("Form");
             }
         }
@@ -798,8 +798,8 @@ public class XFormParser {
 
     private String getRequiredAttribute(Element e, String attrName) {
         String value = e.getAttributeValue(null, attrName);
-        if(value == null || value == "") {
-            throw new XFormParseException("Missing required attribute "+ attrName + " in element",
+        if (value == null || value == "") {
+            throw new XFormParseException("Missing required attribute " + attrName + " in element",
                     e);
         }
         return value;
@@ -816,31 +816,31 @@ public class XFormParser {
         //For Validation Only
         String method = submission.getAttributeValue(null, "method");
 
-        if(!("get".equals(method))) {
+        if (!("get".equals(method))) {
             throw new XFormParseException("Unsupported submission @method: " + method);
         }
 
         String replace = submission.getAttributeValue(null, "replace");
 
-        if(!("text".equals(replace))) {
+        if (!("text".equals(replace))) {
             throw new XFormParseException("Unsupported submission @replace: " + replace);
         }
 
         String mode = submission.getAttributeValue(null, "mode");
 
-        if(!("synchronous".equals(mode))) {
+        if (!("synchronous".equals(mode))) {
             throw new XFormParseException("Unsupported submission @mode: " + mode);
         }
 
         TreeReference targetReference = XPathReference.getPathExpr(targetref).getReference();
-        if(targetReference.getInstanceName() != null) {
+        if (targetReference.getInstanceName() != null) {
             throw new XFormParseException("<submission> events can only target the main instance", submission);
         }
         registerActionTarget(targetReference);
 
 
         TreeReference refReference = null;
-        if(ref != null) {
+        if (ref != null) {
             refReference = XPathReference.getPathExpr(ref).getReference();
             registerActionTarget(refReference);
         }
@@ -908,7 +908,7 @@ public class XFormParser {
      * resulting QuestionDef
      *
      * @param usedAtts - used to pass in any additional attributes known to be used by this specific
-     *                  element, besides the basic ones already added by parseControl generically
+     *                 element, besides the basic ones already added by parseControl generically
      */
     protected QuestionDef parseControl(IFormElement parent, Element e, int controlType,
                                        Vector<String> usedAtts) {
@@ -1321,15 +1321,10 @@ public class XFormParser {
         copyUA.addElement(REF_ATTR);
         ////////////////////////////////////////////////////
 
-        String nodesetStr = e.getAttributeValue("", NODESET_ATTR);
-        if (nodesetStr == null) {
-            throw new RuntimeException("No nodeset attribute in element: [" + e.getName() + "]. This is required. (Element Printout:" + XFormSerializer.elementToString(e) + ")");
-        }
 
-        XPathPathExpr path = XPathReference.getPathExpr(nodesetStr);
-        itemset.nodesetExpr = new XPathConditional(path);
         itemset.contextRef = getFormElementRef(q);
-        itemset.nodesetRef = FormInstance.unpackReference(getAbsRef(new XPathReference(path.getReference()), itemset.contextRef));
+        String nodesetStr = e.getAttributeValue("", NODESET_ATTR);
+        ItemSetParsingUtils.setNodeset(itemset, nodesetStr, e.getName());
 
         for (int i = 0; i < e.getChildCount(); i++) {
             int type = e.getType(i);
@@ -1372,25 +1367,12 @@ public class XFormParser {
 
     private void parseItemsetLabelElement(Element child, ItemsetBinding itemset, Vector<String> labelUA) {
         String labelXpath = child.getAttributeValue("", REF_ATTR);
-        boolean labelItext = false;
 
         if (XFormUtils.showUnusedAttributeWarning(child, labelUA)) {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(child, labelUA), getVagueLocation(child));
         }
 
-        if (labelXpath != null) {
-            if (labelXpath.startsWith("jr:itext(") && labelXpath.endsWith(")")) {
-                labelXpath = labelXpath.substring("jr:itext(".length(), labelXpath.indexOf(")"));
-                labelItext = true;
-            }
-        } else {
-            throw new XFormParseException("<label> in <itemset> requires 'ref'");
-        }
-
-        XPathPathExpr labelPath = XPathReference.getPathExpr(labelXpath);
-        itemset.labelRef = FormInstance.unpackReference(getAbsRef(new XPathReference(labelPath), itemset.nodesetRef));
-        itemset.labelExpr = new XPathConditional(labelPath);
-        itemset.labelIsItext = labelItext;
+        ItemSetParsingUtils.setLabel(itemset, labelXpath);
     }
 
     private void parseItemsetCopyElement(Element child, ItemsetBinding itemset, Vector<String> copyUA) {
@@ -1411,25 +1393,12 @@ public class XFormParser {
         if (XFormUtils.showUnusedAttributeWarning(child, valueUA)) {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(child, valueUA), getVagueLocation(child));
         }
-        if (valueXpath == null) {
-            throw new XFormParseException("<value> in <itemset> requires 'ref'");
-        }
-
-        XPathPathExpr valuePath = XPathReference.getPathExpr(valueXpath);
-        itemset.valueRef = FormInstance.unpackReference(getAbsRef(new XPathReference(valuePath), itemset.nodesetRef));
-        itemset.valueExpr = new XPathConditional(valuePath);
-        itemset.copyMode = false;
+        ItemSetParsingUtils.setValue(itemset, valueXpath);
     }
 
     private void parseItemsetSortElement(Element child, ItemsetBinding itemset) {
         String sortXpathString = child.getAttributeValue("", REF_ATTR);
-        if (sortXpathString == null) {
-            throw new XFormParseException("<sort> in <itemset> requires 'ref'");
-        }
-
-        XPathPathExpr sortPath = XPathReference.getPathExpr(sortXpathString);
-        itemset.sortRef = FormInstance.unpackReference(getAbsRef(new XPathReference(sortPath), itemset.nodesetRef));
-        itemset.sortExpr = new XPathConditional(sortPath);
+        ItemSetParsingUtils.setSort(itemset, sortXpathString);
     }
 
     private void parseGroup(IFormElement parent, Element e, int groupType) {
@@ -2066,7 +2035,9 @@ public class XFormParser {
         return buildInstanceStructure(node, parent, null, node.getNamespace());
     }
 
-    /** parse instance hierarchy and turn into a skeleton model; ignoring data content, but respecting repeated nodes and 'template' flags */
+    /**
+     * parse instance hierarchy and turn into a skeleton model; ignoring data content, but respecting repeated nodes and 'template' flags
+     */
     public static TreeElement buildInstanceStructure(Element node, TreeElement parent, String instanceName, String docnamespace) {
         TreeElement element = null;
 
