@@ -56,11 +56,7 @@ public class ItemSetParsingUtils {
         XPathPathExpr path = XPathReference.getPathExpr(nodesetStr);
         itemset.nodesetExpr = new XPathConditional(path);
         XPathReference nodesetRef;
-        if (itemset.contextRef != null) {
-            nodesetRef = getAbsRef(new XPathReference(path.getReference()), itemset.contextRef);
-        } else {
-            nodesetRef = new XPathReference(path.getReference());
-        }
+        nodesetRef = getAbsRef(new XPathReference(path.getReference()), itemset.contextRef);
         itemset.nodesetRef = FormInstance.unpackReference(nodesetRef);
     }
 }

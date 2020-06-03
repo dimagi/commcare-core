@@ -4,6 +4,7 @@ import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.QueryPrompt;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xform.parse.ItemSetParsingUtils;
 import org.javarosa.xform.util.XFormSerializer;
@@ -55,6 +56,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
 
     private ItemsetBinding parseItemset() throws IOException, XmlPullParserException, InvalidStructureException {
         ItemsetBinding itemset = new ItemsetBinding();
+        itemset.contextRef = TreeReference.rootRef();
         String nodesetStr = parser.getAttributeValue(null, ATTR_NODESET);
         ItemSetParsingUtils.setNodeset(itemset, nodesetStr, NAME_ITEMSET);
         while (nextTagInBlock(NAME_ITEMSET)) {
