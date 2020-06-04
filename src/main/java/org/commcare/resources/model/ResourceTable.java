@@ -211,6 +211,14 @@ public class ResourceTable {
         }
     }
 
+    public Resource getResource(int rowId) {
+        try {
+            return (Resource)storage.read(rowId);
+        } catch (NoSuchElementException nsee) {
+            return null;
+        }
+    }
+
     private Resource getParentResource(Resource resource) {
         String parentId = resource.getParentId();
         if (parentId != null && !"".equals(parentId)) {
@@ -1193,5 +1201,9 @@ public class ResourceTable {
 
     public Vector<Resource> getLazyResources() {
         return storage.getRecordsForValues(new String[]{Resource.META_INDEX_LAZY}, new Boolean[]{false});
+    }
+
+    public Vector<Integer> getLazyResourceIds() {
+        return storage.getIDsForValue(Resource.META_INDEX_LAZY, false);
     }
 }
