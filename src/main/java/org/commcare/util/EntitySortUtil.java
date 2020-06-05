@@ -38,7 +38,7 @@ public class EntitySortUtil {
                 add = false;
                 for (int i = 0; i < e.getNumFields(); ++i) {
                     String field = e.getNormalizedField(i);
-                    if (!"".equals(field) && field.toLowerCase(currentLocale).contains(filter)) {
+                    if (!"".equals(field) && field.toLowerCase(currentLocale).contains(filter.toLowerCase(currentLocale))) {
                         add = true;
                         continue filter;
                     } else if (isFuzzySearchEnabled) {

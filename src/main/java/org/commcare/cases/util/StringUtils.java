@@ -77,6 +77,8 @@ public class StringUtils {
         //tweakable parameter: Minimum length before edit distance
         //starts being used (this is probably not necessary, and
         //basically only makes sure that "at" doesn't match "or" or similar
+        source = source.toLowerCase();
+        target = target.toLowerCase();
         if (source.length() > 3) {
             // Makes sure that we're only matching strings with distanceThreshold as
             // the maximum difference in length, otherwise LevenshteinDistance may return a

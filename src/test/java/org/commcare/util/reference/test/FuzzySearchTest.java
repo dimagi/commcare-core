@@ -30,5 +30,12 @@ public class FuzzySearchTest {
         // false even though we have an exact substring match,
         // Cuz fuzzy search starts checking from 0th location.
         Assert.assertFalse(StringUtils.fuzzyMatch("Test", "CrazyTest").first);
+
+        // Checking for case sensitivity.
+        Assert.assertTrue(StringUtils.fuzzyMatch("mehr", "MEHROTRA").first);
+        Assert.assertTrue(StringUtils.fuzzyMatch("bugs", "Bugs Bunny").first);
+        Assert.assertTrue(StringUtils.fuzzyMatch("BUGS", "Bugs Bunny").first);
+        Assert.assertTrue(StringUtils.fuzzyMatch("bugs bunny", "Bugs Bunny").first);
+        Assert.assertTrue(StringUtils.fuzzyMatch("BUGS BUNNY", "Bugs Bunny").first);
     }
 }
