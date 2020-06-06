@@ -1200,10 +1200,10 @@ public class ResourceTable {
     }
 
     public Vector<Resource> getLazyResources() {
-        return storage.getRecordsForValues(new String[]{Resource.META_INDEX_LAZY}, new Boolean[]{false});
+        return storage.getRecordsForValues(new String[]{Resource.META_INDEX_LAZY}, new Boolean[]{true});
     }
 
     public Vector<Integer> getLazyResourceIds() {
-        return storage.getIDsForValue(Resource.META_INDEX_LAZY, false);
+        return storage.getIDsForValue(Resource.META_INDEX_LAZY, true);
     }
 }
