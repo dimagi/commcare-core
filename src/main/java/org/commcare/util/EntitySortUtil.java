@@ -38,6 +38,7 @@ public class EntitySortUtil {
                 add = false;
                 for (int i = 0; i < e.getNumFields(); ++i) {
                     String field = e.getNormalizedField(i);
+                    filter = StringUtils.normalize(filter);
                     if (!"".equals(field) && field.toLowerCase(currentLocale).contains(filter)) {
                         add = true;
                         continue filter;
