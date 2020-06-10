@@ -113,7 +113,7 @@ public class Resource implements Persistable, IMetaData {
     protected String parent;
 
     protected String descriptor;
-    private boolean lazy;
+    private String lazy;
 
     /**
      * For serialization only
@@ -132,7 +132,7 @@ public class Resource implements Persistable, IMetaData {
      *                  can be retrieved. Note that this vector is copied and should not be changed
      *                  after being passed in here.
      */
-    public Resource(int version, String id, Vector<ResourceLocation> locations, String descriptor, boolean lazy) {
+    public Resource(int version, String id, Vector<ResourceLocation> locations, String descriptor, String lazy) {
         this.version = version;
         this.id = id;
         this.locations = locations;
@@ -143,7 +143,7 @@ public class Resource implements Persistable, IMetaData {
     }
 
     public Resource(int version, String id, Vector<ResourceLocation> locations, String descriptor) {
-        this(version, id, locations, descriptor, false);
+        this(version, id, locations, descriptor, "false");
     }
 
     /**
@@ -256,7 +256,7 @@ public class Resource implements Persistable, IMetaData {
     }
 
     public boolean isLazy() {
-        return lazy;
+        return lazy.contentEquals("true");
     }
 
     /**
@@ -303,7 +303,7 @@ public class Resource implements Persistable, IMetaData {
         locations = (Vector<ResourceLocation>)ExtUtil.read(in, new ExtWrapList(ResourceLocation.class), pf);
         this.initializer = (ResourceInstaller)ExtUtil.read(in, new ExtWrapTagged(), pf);
         this.descriptor = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-        this.lazy = ExtUtil.readBool(in);
+        this.lazy = ExtUtil.readString(in);
     }
 
     @Override
@@ -318,7 +318,7 @@ public class Resource implements Persistable, IMetaData {
         ExtUtil.write(out, new ExtWrapList(locations));
         ExtUtil.write(out, new ExtWrapTagged(initializer));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(descriptor));
-        ExtUtil.writeBool(out, lazy);
+        ExtUtil.writeString(out, lazy);
     }
 
     @Override

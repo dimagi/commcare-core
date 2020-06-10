@@ -47,6 +47,6 @@ public class ResourceParser extends ElementParser<Resource> {
             }
         }
 
-        return new Resource(version, id, locations, descriptor, lazy != null && lazy.contentEquals("true"));
+        return new Resource(version, id, locations, descriptor, lazy == null ? "false" : lazy);
     }
 }
