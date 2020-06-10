@@ -24,6 +24,8 @@ import java.util.Vector;
 
 import javax.annotation.Nullable;
 
+import static org.commcare.resources.model.Resource.LAZY_VAL_TRUE;
+
 
 /**
  * A Resource Table maintains a set of Resource Records,
@@ -1200,10 +1202,10 @@ public class ResourceTable {
     }
 
     public Vector<Resource> getLazyResources() {
-        return storage.getRecordsForValues(new String[]{Resource.META_INDEX_LAZY}, new String[]{"true"});
+        return storage.getRecordsForValues(new String[]{Resource.META_INDEX_LAZY}, new String[]{LAZY_VAL_TRUE});
     }
 
     public Vector<Integer> getLazyResourceIds() {
-        return storage.getIDsForValue(Resource.META_INDEX_LAZY, "true");
+        return storage.getIDsForValue(Resource.META_INDEX_LAZY, LAZY_VAL_TRUE);
     }
 }

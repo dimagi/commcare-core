@@ -60,6 +60,9 @@ public class Resource implements Persistable, IMetaData {
     public static final String META_INDEX_VERSION = "VERSION";
     public static final String META_INDEX_LAZY = "LAZY";
 
+    public static final String LAZY_VAL_TRUE = "true";
+    public static final String LAZY_VAL_FALSE = "false";
+
     public static final int RESOURCE_AUTHORITY_LOCAL = 0;
     public static final int RESOURCE_AUTHORITY_REMOTE = 1;
     public static final int RESOURCE_AUTHORITY_CACHE = 2;
@@ -143,7 +146,7 @@ public class Resource implements Persistable, IMetaData {
     }
 
     public Resource(int version, String id, Vector<ResourceLocation> locations, String descriptor) {
-        this(version, id, locations, descriptor, "false");
+        this(version, id, locations, descriptor, LAZY_VAL_FALSE);
     }
 
     /**
@@ -256,7 +259,7 @@ public class Resource implements Persistable, IMetaData {
     }
 
     public boolean isLazy() {
-        return lazy.contentEquals("true");
+        return lazy.contentEquals(LAZY_VAL_TRUE);
     }
 
     /**

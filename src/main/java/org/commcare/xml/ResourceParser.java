@@ -10,6 +10,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.Vector;
 
+import static org.commcare.resources.model.Resource.LAZY_VAL_FALSE;
+
 public class ResourceParser extends ElementParser<Resource> {
 
     final int maximumAuthority;
@@ -47,6 +49,6 @@ public class ResourceParser extends ElementParser<Resource> {
             }
         }
 
-        return new Resource(version, id, locations, descriptor, lazy == null ? "false" : lazy);
+        return new Resource(version, id, locations, descriptor, lazy == null ? LAZY_VAL_FALSE : lazy);
     }
 }
