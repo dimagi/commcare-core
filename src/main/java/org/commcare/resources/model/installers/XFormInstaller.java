@@ -181,7 +181,8 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
         try {
             formDef = storage(platform).read(cacheLocation);
         } catch (Exception e) {
-            sizeBoundProblems.addElement(new MissingMediaException(r, "Form did not properly save into persistent storage"));
+            sizeBoundProblems.addElement(new MissingMediaException(r, "Form did not properly save into persistent storage",
+                    MissingMediaException.MissingMediaExceptionType.NONE));
             return true;
         }
         //Otherwise, we want to figure out if the form has media, and we need to see whether it's properly
