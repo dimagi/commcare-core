@@ -55,7 +55,6 @@ public class ResourceTable {
 
     private TableStateListener stateListener = null;
     private InstallCancelled cancellationChecker = null;
-    private InstallStatsLogger installStatsLogger = null;
 
     private static final int NUMBER_OF_LOSSY_RETRIES = 3;
     // Tracks whether a compound resource has been added, requiring
@@ -397,7 +396,6 @@ public class ResourceTable {
                             unresolvedResourceException = ure;
                         }
                         if (handled) {
-                            recordSuccess(r);
                             break;
                         }
                     }
@@ -408,7 +406,6 @@ public class ResourceTable {
                             ReferenceManager.instance().DeriveReference(location.getLocation()),
                             this, platform, upgrade, recovery);
                     if (handled) {
-                        recordSuccess(r);
                         break;
                     }
                 } catch (InvalidResourceException e) {
@@ -609,7 +606,6 @@ public class ResourceTable {
             try {
                 return r.getInstaller().install(r, location, ref, table, platform, upgrade, recovery);
             } catch (UnreliableSourceException use) {
-                recordFailure(r, use);
                 aFailure = use;
             }
         }
@@ -623,20 +619,7 @@ public class ResourceTable {
         if (cancellationChecker != null && cancellationChecker.wasInstallCancelled()) {
             InstallCancelledException installException =
                     new InstallCancelledException("Installation/upgrade was cancelled while processing " + r.getResourceId());
-            recordFailure(r, installException);
             throw installException;
-        }
-    }
-
-    private void recordFailure(Resource resource, Exception e) {
-        if (installStatsLogger != null) {
-            installStatsLogger.recordResourceInstallFailure(resource.getResourceId(), e);
-        }
-    }
-
-    private void recordSuccess(Resource resource) {
-        if (installStatsLogger != null) {
-            installStatsLogger.recordResourceInstallSuccess(resource.getResourceId());
         }
     }
 
@@ -1125,10 +1108,6 @@ public class ResourceTable {
 
     public void setInstallCancellationChecker(InstallCancelled cancellationChecker) {
         this.cancellationChecker = cancellationChecker;
-    }
-
-    public void setInstallStatsLogger(InstallStatsLogger logger) {
-        this.installStatsLogger = logger;
     }
 
     public boolean recoverResources(CommCarePlatform platform, String profileRef) throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
