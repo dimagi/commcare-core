@@ -2,6 +2,7 @@ package org.javarosa.xpath.expr;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -37,19 +38,12 @@ public class XPathDistinctValuesFunc extends XPathFuncExpr {
 
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
-        if (!(evaluatedArgs[0] instanceof XPathNodeset)) {
-            throw new XPathTypeMismatchException("distinct-values requires a nodeset input, instead, argument" +
-                    " is " + evaluatedArgs);
-        }
-        XPathNodeset input = (XPathNodeset)evaluatedArgs[0];
-        Object[] list = input.toArgList();
+        Object[] argList = FunctionUtils.getSequence(evaluatedArgs[0]);
+
         HashSet<String> returnSet = new LinkedHashSet<>();
-        for (Object o : list) {
+        for (Object o : argList) {
             returnSet.add(FunctionUtils.toString(o));
         }
         return returnSet.toArray();
     }
-
-
-
 }
