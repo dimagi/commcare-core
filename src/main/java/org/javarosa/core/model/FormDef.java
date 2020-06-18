@@ -385,10 +385,11 @@ public class FormDef implements IFormElement, IMetaData,
     /**
      * When a repeat is deleted, we need to reduce the multiplicities of its siblings that were higher than it
      * by one.
+     *
      * @param parentElement the parent of the deleted element
      * @param deleteElement the deleted element
      */
-    private void reduceTreeSiblingMultiplicities(TreeElement parentElement, TreeElement deleteElement){
+    private void reduceTreeSiblingMultiplicities(TreeElement parentElement, TreeElement deleteElement) {
         int childMult = deleteElement.getMult();
         // update multiplicities of other child nodes
         for (int i = 0; i < parentElement.getNumChildren(); i++) {
@@ -721,8 +722,8 @@ public class FormDef implements IFormElement, IMetaData,
                 // Get child refs because children are affected by parents
                 ArrayList<TreeReference> updatedNodes = getTreeReferenceAndChildren(outerReference);
                 if (updatedNodes != null) {
-                    for (TreeReference innerReference: updatedNodes) {
-                        Vector<Triggerable> triggered = (Vector<Triggerable>) conditionsTriggeredByRef(innerReference);
+                    for (TreeReference innerReference : updatedNodes) {
+                        Vector<Triggerable> triggered = (Vector<Triggerable>)conditionsTriggeredByRef(innerReference);
                         if (triggered != null) {
                             for (Triggerable trig : triggered) {
                                 if (!innerReference.equals(outerReference)) {
@@ -731,7 +732,7 @@ public class FormDef implements IFormElement, IMetaData,
                                     edges.add(new TreeReference[]{outerReference, innerReference});
                                 }
                                 // Add all the targets of the of the triggered
-                                for (TreeReference reference: trig.getTargets()) {
+                                for (TreeReference reference : trig.getTargets()) {
                                     edges.add(new TreeReference[]{innerReference, reference});
                                 }
                             }
@@ -1011,7 +1012,7 @@ public class FormDef implements IFormElement, IMetaData,
      * triggerables can still be fired if a dependency is modified.
      *
      * @param triggeredDuringInsert Triggerables that don't need to be fired
-     * because they have already been fired while processing insert events
+     *                              because they have already been fired while processing insert events
      */
     private void initTriggerablesRootedBy(TreeReference rootRef,
                                           Vector<Triggerable> triggeredDuringInsert) {
@@ -1094,8 +1095,8 @@ public class FormDef implements IFormElement, IMetaData,
      * against the anchor (the value that changed which triggered
      * recomputation)
      *
-     * @param triggerable         The triggerable to be updated
-     * @param anchorRef The reference to the value which was changed.
+     * @param triggerable The triggerable to be updated
+     * @param anchorRef   The reference to the value which was changed.
      */
     private void evaluateTriggerable(Triggerable triggerable, TreeReference anchorRef) {
         // Contextualize the reference used by the triggerable against the anchor
@@ -1375,7 +1376,7 @@ public class FormDef implements IFormElement, IMetaData,
 
         ec = getPotentiallyLimitedScopeContext(ec, itemset);
 
-        Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(formInstance,ec);
+        Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(formInstance, ec);
 
         if (reporter != null) {
             InstrumentationUtils.printAndClearTraces(reporter, "itemset expansion");
@@ -1402,7 +1403,7 @@ public class FormDef implements IFormElement, IMetaData,
 
         for (int i = 0; i < matches.size(); i++) {
             choices.addElement(buildSelectChoice(matches.elementAt(i), itemset, formInstance,
-                    ec, reporter, i));
+                    getMainInstance(), ec, reporter, i));
         }
         if (reporter != null) {
             InstrumentationUtils.printAndClearTraces(reporter, "ItemSet Field Population");
@@ -1420,7 +1421,7 @@ public class FormDef implements IFormElement, IMetaData,
                                                                 ItemsetBinding itemset) {
         Set<TreeReference> references;
         try {
-             references = pullAllReferencesFromItemset(questionContext, itemset);
+            references = pullAllReferencesFromItemset(questionContext, itemset);
         } catch (AnalysisInvalidException e) {
             return questionContext;
         }
@@ -1441,10 +1442,10 @@ public class FormDef implements IFormElement, IMetaData,
      * evaluated to produce the itemset output
      *
      * @throws AnalysisInvalidException If the itemset's references could not be fully understood
-     * or qualified through static evaluation
+     *                                  or qualified through static evaluation
      */
     private Set<TreeReference> pullAllReferencesFromItemset(EvaluationContext questionContext, ItemsetBinding itemset)
-            throws AnalysisInvalidException{
+            throws AnalysisInvalidException {
 
 
         Set<TreeReference> references = getAccumulatedReferencesOrThrow(questionContext, itemset.nodesetRef);
@@ -1473,9 +1474,9 @@ public class FormDef implements IFormElement, IMetaData,
         return newReferences;
     }
 
-    private SelectChoice buildSelectChoice(TreeReference choiceRef, ItemsetBinding itemset,
-                                           DataInstance formInstance, EvaluationContext ec,
-                                           ReducingTraceReporter reporter, int index) {
+    public static SelectChoice buildSelectChoice(TreeReference choiceRef, ItemsetBinding itemset,
+                                                 DataInstance formInstance, FormInstance mainInstance, EvaluationContext ec,
+                                                 ReducingTraceReporter reporter, int index) {
 
         EvaluationContext subContext = new EvaluationContext(ec, choiceRef);
 
@@ -1484,8 +1485,8 @@ public class FormDef implements IFormElement, IMetaData,
         String value = null;
         TreeElement copyNode = null;
 
-        if (itemset.copyMode) {
-            copyNode = this.getMainInstance().resolveReference(itemset.copyRef.contextualize(choiceRef));
+        if (itemset.copyMode && mainInstance != null) {
+            copyNode = mainInstance.resolveReference(itemset.copyRef.contextualize(choiceRef));
         }
 
         if (itemset.valueRef != null) {
@@ -1513,7 +1514,7 @@ public class FormDef implements IFormElement, IMetaData,
     }
 
     public void postProcessInstance() {
-        if(!isCompletedInstance) {
+        if (!isCompletedInstance) {
             actionController.triggerActionsFromEvent(Action.EVENT_XFORMS_REVALIDATE, this);
         }
     }
@@ -1559,8 +1560,8 @@ public class FormDef implements IFormElement, IMetaData,
     /**
      * meant to be called after deserialization and initialization of handlers
      *
-     * @param newInstance true if the form is to be used for a new entry interaction,
-     *                    false if it is using an existing IDataModel
+     * @param newInstance         true if the form is to be used for a new entry interaction,
+     *                            false if it is using an existing IDataModel
      * @param isCompletedInstance true if this is an already completed instance we are editing
      *                            (presumably in HQ) - so don't fire end of form event.
      */
@@ -1583,8 +1584,8 @@ public class FormDef implements IFormElement, IMetaData,
      *
      * @param newInstance true if the form is to be used for a new entry interaction,
      *                    false if it is using an existing IDataModel
-     * @param locale The default locale in the current environment, if provided. Can be null
-     *               to rely on the form's internal default.
+     * @param locale      The default locale in the current environment, if provided. Can be null
+     *                    to rely on the form's internal default.
      */
     public void initialize(boolean newInstance, boolean isCompletedInstance,
                            InstanceInitializationFactory factory, String locale, boolean isReadOnly) {
@@ -1987,7 +1988,7 @@ public class FormDef implements IFormElement, IMetaData,
     }
 
     public String dispatchSendCallout(String url, Map<String, String> paramMap) {
-        if(sendCalloutHandler == null) {
+        if (sendCalloutHandler == null) {
             return null;
         } else {
             return sendCalloutHandler.performHttpCalloutForResponse(url, paramMap);
