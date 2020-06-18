@@ -117,8 +117,7 @@ public abstract class IndexedStorageUtilityTests {
     public void testBulkMetaMatching() {
         writeBulkSets();
 
-        List<Integer> matches =
-                storage.getIDsForValues(new String[] {Shoe.META_BRAND, Shoe.META_STYLE}, new String[] {"nike", "mens"});
+        List<Integer> matches = storage.getIDsForValues(new String[] {Shoe.META_BRAND, Shoe.META_STYLE}, new String[] {"nike", "mens"});
 
         Assert.assertEquals("Failed index match [brand,style][nike,mens]", getIdsFromModels(tenSizesOfMensNikes), new HashSet<>(matches));
 
@@ -128,6 +127,8 @@ public abstract class IndexedStorageUtilityTests {
         Assert.assertEquals("Failed index match [brand,style][nike,mens]", new HashSet<>(matches), newResultPath);
 
 
+        Vector<Shoe> matchedRecords = storage.getRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"nike", "mens"});
+        Assert.assertEquals("Failed index match [brand,style][nike,mens]", getIdsFromModels(tenSizesOfMensNikes), getIdsFromModels(matchedRecords.toArray(new Shoe[]{})));
     }
 
     private void writeBulkSets() {

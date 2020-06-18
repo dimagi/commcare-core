@@ -282,7 +282,8 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCarePlatform> 
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems, CommCarePlatform platform) {
         try {
             if (locale == null) {
-                problems.addElement(new MissingMediaException(r, "Bad metadata, no locale"));
+                problems.addElement(new MissingMediaException(r, "Bad metadata, no locale",
+                        MissingMediaException.MissingMediaExceptionType.NONE));
                 return true;
             }
             if (cache != null) {
@@ -290,12 +291,15 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCarePlatform> 
             } else {
                 try {
                     if (!ReferenceManager.instance().DeriveReference(localReference).doesBinaryExist()) {
-                        throw new MissingMediaException(r, "Locale data does note exist at: " + localReference);
+                        throw new MissingMediaException(r, "Locale data does note exist at: " + localReference, localReference,
+                                MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND);
                     }
                 } catch (IOException e) {
-                    throw new MissingMediaException(r, "Problem reading locale data from: " + localReference);
+                    throw new MissingMediaException(r, "Problem reading locale data from: " + localReference, localReference,
+                            MissingMediaException.MissingMediaExceptionType.FILE_NOT_ACCESSIBLE);
                 } catch (InvalidReferenceException e) {
-                    throw new MissingMediaException(r, "Locale reference is invalid: " + localReference);
+                    throw new MissingMediaException(r, "Locale reference is invalid: " + localReference, localReference,
+                            MissingMediaException.MissingMediaExceptionType.INVALID_REFERENCE);
                 }
             }
         } catch (MissingMediaException ure) {
