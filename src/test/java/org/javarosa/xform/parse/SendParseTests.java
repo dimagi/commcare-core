@@ -28,11 +28,4 @@ public class SendParseTests {
         new FormParseInit("/send_action/missing_submission.xml");
     }
 
-    @Test
-    public void testUnicode() {
-        FormParseInit fpi = new FormParseInit("/xform_tests/itext_encoding.xml");
-        Localizer l = fpi.getFormDef().getLocalizer();
-        Assert.assertEquals("\uD83E\uDDD2", l.getText("four_byte_emoji","en"));
-    }
-
 }
