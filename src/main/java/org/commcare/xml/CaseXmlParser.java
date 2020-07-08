@@ -175,6 +175,8 @@ public class CaseXmlParser extends TransactionParser<Case> {
             throw new InvalidStructureException("One of [user_id, owner_id] is missing for case <create> with ID: " + caseId, parser);
         }
 
+        checkForMaxLength(caseForBlock);
+
         return caseForBlock;
     }
 
@@ -208,6 +210,27 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     caseForBlock.setProperty(key, value);
                     break;
             }
+        }
+        checkForMaxLength(caseForBlock);
+    }
+
+    private void checkForMaxLength(Case caseForBlock) throws InvalidStructureException {
+        if (caseForBlock.getTypeId().length() > 255) {
+            throw new InvalidStructureException(
+                    "case_type is longer than 255 chars for case with ID: " + caseForBlock.getCaseId() + " and case_type " + caseForBlock.getTypeId(),
+                    parser);
+        } else if (caseForBlock.getUserId().length() > 255) {
+            throw new InvalidStructureException(
+                    "owner_id is longer than 255 chars for case with ID: " + caseForBlock.getCaseId() + " and owner_id " + caseForBlock.getUserId(),
+                    parser);
+        } else if (caseForBlock.getName().length() > 255) {
+            throw new InvalidStructureException(
+                    "case_name is longer than 255 chars for case with ID: " + caseForBlock.getCaseId() + " and case_name " + caseForBlock.getName(),
+                    parser);
+        } else if (caseForBlock.getExternalId()!=null && caseForBlock.getExternalId().length() > 255) {
+            throw new InvalidStructureException(
+                    "external_id is longer than 255 chars for case with ID: " + caseForBlock.getCaseId() + " and external_id " + caseForBlock.getExternalId(),
+                    parser);
         }
     }
 
