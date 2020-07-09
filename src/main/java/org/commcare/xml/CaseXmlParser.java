@@ -217,19 +217,19 @@ public class CaseXmlParser extends TransactionParser<Case> {
     private void checkForMaxLength(Case caseForBlock) throws InvalidStructureException {
         if (caseForBlock.getTypeId().length() > 255) {
             throw new InvalidStructureException(
-                    "Invalid <case_type>, value must be 256 characters or less",
+                    "Invalid <case_type>, value must be 255 characters or less",
                     parser);
         } else if (caseForBlock.getUserId().length() > 255) {
             throw new InvalidStructureException(
-                    "Invalid <owner_id>, value must be 256 characters or less",
+                    "Invalid <owner_id>, value must be 255 characters or less",
                     parser);
         } else if (caseForBlock.getName().length() > 255) {
             throw new InvalidStructureException(
-                    "Invalid <case_name>, value must be 256 characters or less",
+                    "Invalid <case_name>, value must be 255 characters or less",
                     parser);
         } else if (caseForBlock.getExternalId()!=null && caseForBlock.getExternalId().length() > 255) {
             throw new InvalidStructureException(
-                    "Invalid <external_id>, value must be 256 characters or less",
+                    "Invalid <external_id>, value must be 255 characters or less",
                     parser);
         }
     }
