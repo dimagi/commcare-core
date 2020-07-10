@@ -53,6 +53,16 @@ public class BadCaseXMLTests {
     }
 
     @Test(expected = InvalidStructureException.class)
+    public void testMaxLength() throws Exception {
+        try {
+            config.parseIntoSandbox(this.getClass().getResourceAsStream("/case_parse/case_create_broken_length.xml"), sandbox, true);
+        }finally {
+            //Make sure that we didn't make a case entry for the bad case though
+            Assert.assertEquals("Case XML with no id should not have created a case record", sandbox.getCaseStorage().getNumRecords(), 0);
+        }
+    }
+
+    @Test(expected = InvalidStructureException.class)
     public void testBadCaseIndexOp() throws Exception {
         try {
             config.parseIntoSandbox(this.getClass().getResourceAsStream("/case_parse/broken_self_index.xml"), sandbox, true);
