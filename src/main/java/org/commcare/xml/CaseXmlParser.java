@@ -6,6 +6,7 @@ import org.commcare.data.xml.TransactionParser;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.externalizable.SerializationLimitationException;
+import org.javarosa.xml.util.InvalidCasePropertyLengthException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.ActionableInvalidStructureException;
 import org.kxml2.io.KXmlParser;
@@ -216,21 +217,13 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
     private void checkForMaxLength(Case caseForBlock) throws InvalidStructureException {
         if (caseForBlock.getTypeId().length() > 255) {
-            throw new InvalidStructureException(
-                    "Invalid <case_type>, value must be 255 characters or less",
-                    parser);
+            throw new InvalidCasePropertyLengthException("case_type");
         } else if (caseForBlock.getUserId().length() > 255) {
-            throw new InvalidStructureException(
-                    "Invalid <owner_id>, value must be 255 characters or less",
-                    parser);
+            throw new InvalidCasePropertyLengthException("owner_id");
         } else if (caseForBlock.getName().length() > 255) {
-            throw new InvalidStructureException(
-                    "Invalid <case_name>, value must be 255 characters or less",
-                    parser);
+            throw new InvalidCasePropertyLengthException("case_name");
         } else if (caseForBlock.getExternalId()!=null && caseForBlock.getExternalId().length() > 255) {
-            throw new InvalidStructureException(
-                    "Invalid <external_id>, value must be 255 characters or less",
-                    parser);
+            throw new InvalidCasePropertyLengthException("external_id");
         }
     }
 
