@@ -42,7 +42,7 @@ public class CommCareNetworkServiceGenerator {
         if (response.code() == 301) {
             String newUrl = response.header("Location");
             if (!isValidRedirect(request.url(), HttpUrl.parse(newUrl))) {
-                Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Invalid redirect from " + request.url().toString() + " to " + response.request().url().toString());
+                Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Invalid redirect from " + request.url().toString() + " to " + newUrl);
                 throw new IOException("Invalid redirect from secure server to insecure server");
             }
         }
@@ -92,6 +92,11 @@ public class CommCareNetworkServiceGenerator {
     private static Retrofit noRetryRetrofit = builder.client(
             httpClient.retryOnConnectionFailure(false).build())
             .build();
+
+    public static void customizeRetrofitSetup(HttpBuilderConfig config) {
+        retrofit =  builder.client(config.performCustomConfig(httpClient.retryOnConnectionFailure(true)).build()).build();
+        noRetryRetrofit =  builder.client(config.performCustomConfig(httpClient.retryOnConnectionFailure(false)).build()).build();
+    }
 
     public static CommCareNetworkService createCommCareNetworkService(final String credential, boolean enforceSecureEndpoint, boolean retry) {
         authenticationInterceptor.setCredential(credential);

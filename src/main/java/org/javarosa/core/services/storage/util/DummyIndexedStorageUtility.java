@@ -125,6 +125,16 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     @Override
+    public Vector<T> getRecordsForValues(String[] metaFieldNames, Object[] values) {
+        Vector<T> matches = new Vector<>();
+        List<Integer> idMatches = getIDsForValues(metaFieldNames, values);
+        for (Integer id : idMatches) {
+            matches.add(read(id));
+        }
+        return matches;
+    }
+
+    @Override
     public int add(T e) {
         data.put(DataUtil.integer(curCount), e);
 
@@ -177,6 +187,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         try {
             T t = prototype.newInstance();
             t.readExternal(new DataInputStream(new ByteArrayInputStream(readBytes(id))), mFactory);
+            t.setID(id);
             return t;
         } catch (IllegalAccessException | InstantiationException | IOException | DeserializationException e) {
             e.printStackTrace();

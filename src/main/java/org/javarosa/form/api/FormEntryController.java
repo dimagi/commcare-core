@@ -123,8 +123,7 @@ public class FormEntryController {
         }
     }
 
-    public int checkQuestionConstraint(IAnswerData data) {
-        FormIndex index = model.getFormIndex();
+    public int checkQuestionConstraint(FormIndex index, IAnswerData data) {
         QuestionDef q = model.getQuestionPrompt(index).getQuestion();
 
         if (model.getEvent(index) != FormEntryController.EVENT_QUESTION) {

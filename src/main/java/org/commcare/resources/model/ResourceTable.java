@@ -24,6 +24,8 @@ import java.util.Vector;
 
 import javax.annotation.Nullable;
 
+import static org.commcare.resources.model.Resource.LAZY_VAL_TRUE;
+
 
 /**
  * A Resource Table maintains a set of Resource Records,
@@ -206,6 +208,14 @@ public class ResourceTable {
     public Resource getResourceWithGuid(String guid) {
         try {
             return (Resource)storage.getRecordForValue(Resource.META_INDEX_RESOURCE_GUID, guid);
+        } catch (NoSuchElementException nsee) {
+            return null;
+        }
+    }
+
+    public Resource getResource(int rowId) {
+        try {
+            return (Resource)storage.read(rowId);
         } catch (NoSuchElementException nsee) {
             return null;
         }
@@ -1002,7 +1012,7 @@ public class ResourceTable {
     private static Vector<Reference> gatherLocationsRefs(ResourceLocation location,
                                                          Resource r,
                                                          ResourceTable t,
-                                                         ResourceTable m) {
+                                                         @Nullable ResourceTable m) {
         Vector<Reference> ret = new Vector<>();
 
         if (r.hasParent()) {
@@ -1131,16 +1141,20 @@ public class ResourceTable {
         this.installStatsLogger = logger;
     }
 
-    public boolean recoverResources(CommCarePlatform platform, String profileRef) throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
+    public boolean recoverResources(CommCarePlatform platform, String profileRef)
+            throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
+        return recoverResources(platform, profileRef, mMissingResources);
+    }
+
+    // Downloads and re-installs the missingResources into the table
+    public boolean recoverResources(CommCarePlatform platform, String profileRef, Vector<Resource> missingResources)
+            throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
         int count = 0;
-        int total = mMissingResources.size();
-        for (Resource missingResource : mMissingResources) {
+        int total = missingResources.size();
+        for (Resource missingResource : missingResources) {
 
-            if (missingResource.id.contentEquals(CommCarePlatform.APP_PROFILE_RESOURCE_ID)) {
-                addRemoteLocationIfMissing(missingResource, profileRef);
-            }
+            recoverResource(missingResource, platform, profileRef);
 
-            findResourceLocationAndInstall(missingResource, new Vector<>(), false, platform, null, true);
             count++;
 
             if (stateListener != null) {
@@ -1148,10 +1162,21 @@ public class ResourceTable {
             }
 
             if (cancellationChecker != null && cancellationChecker.wasInstallCancelled()) {
-                break;
+                new InstallCancelledException("Resource recovery was cancelled");
             }
         }
         return true;
+    }
+
+    // Downloads and re-installs a missing resource
+    public void recoverResource(Resource missingResource, CommCarePlatform platform, String profileRef)
+            throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
+
+        if (missingResource.id.contentEquals(CommCarePlatform.APP_PROFILE_RESOURCE_ID)) {
+            addRemoteLocationIfMissing(missingResource, profileRef);
+        }
+
+        findResourceLocationAndInstall(missingResource, new Vector<>(), false, platform, null, true);
     }
 
     private void addRemoteLocationIfMissing(Resource resource, String remoteLocation) {
@@ -1174,5 +1199,13 @@ public class ResourceTable {
 
     public SizeBoundUniqueVector<Resource> getMissingResources() {
         return mMissingResources;
+    }
+
+    public Vector<Resource> getLazyResources() {
+        return storage.getRecordsForValues(new String[]{Resource.META_INDEX_LAZY}, new String[]{LAZY_VAL_TRUE});
+    }
+
+    public Vector<Integer> getLazyResourceIds() {
+        return storage.getIDsForValue(Resource.META_INDEX_LAZY, LAZY_VAL_TRUE);
     }
 }
