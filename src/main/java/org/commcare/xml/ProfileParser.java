@@ -141,7 +141,7 @@ public class ProfileParser extends ElementParser<Profile> {
             }
 
             //For the minimal version, anything greater than the profile's version is valid
-            if (this.instance.getMinimalVersion() < minimal) {
+            if (this.instance.getMinorVersion() == minor &&  this.instance.getMinimalVersion() < minimal) {
                 throw new UnfullfilledRequirementsException(
                         "Minimal Version Mismatch (Required: " + minimal + " | Available: " +
                                 this.instance.getMinimalVersion() + ")",

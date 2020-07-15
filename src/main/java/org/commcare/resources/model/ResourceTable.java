@@ -1162,7 +1162,7 @@ public class ResourceTable {
             }
 
             if (cancellationChecker != null && cancellationChecker.wasInstallCancelled()) {
-                break;
+                new InstallCancelledException("Resource recovery was cancelled");
             }
         }
         return true;
