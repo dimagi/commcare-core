@@ -1,26 +1,19 @@
 package org.commcare.session;
 
-import org.commcare.cases.query.QueryContext;
 import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
-import org.javarosa.core.model.ItemsetBinding;
-import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.condition.IConditionExpr;
-import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.model.utils.InstrumentationUtils;
+import org.javarosa.core.model.utils.ItemSetUtils;
 import org.javarosa.core.util.OrderedHashtable;
-import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.TreeElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -30,9 +23,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Vector;
-
-import static org.javarosa.core.model.FormDef.buildSelectChoice;
 
 /**
  * Manager for remote query datums; get/answer user prompts and build
@@ -135,40 +125,8 @@ public class RemoteQuerySessionManager {
     }
 
     public void populateItemSetChoices(QueryPrompt queryPrompt) {
-        evaluationContext.setVariables(userAnswers);
-        ItemsetBinding itemset = queryPrompt.getItemsetBinding();
-        if (itemset != null) {
-            String instanceName = itemset.nodesetRef.getInstanceName();
-            if (instanceName != null) {
-                DataInstance dataInstance = evaluationContext.getInstance(instanceName);
-                if (dataInstance == null) {
-                    throw new XPathException("Instance " + instanceName + " not found");
-                }
-
-                IConditionExpr nodesetExpr = itemset.nodesetExpr;
-
-                Vector<TreeReference> matches = nodesetExpr.evalNodeset(dataInstance, evaluationContext);
-
-                if (matches == null) {
-                    throw new XPathException("Make sure the '" + instanceName +
-                            "' lookup table is available, and that its contents are accessible to the current user.");
-                }
-
-                Vector<SelectChoice> choices = new Vector<>();
-                //Escalate the new context if our result set is substantial, this will prevent reverting
-                //from a bulk read mode to a scanned read mode
-                QueryContext newContext = evaluationContext.getCurrentQueryContext()
-                        .checkForDerivativeContextAndReturn(matches.size());
-                evaluationContext.setQueryContext(newContext);
-
-                for (int i = 0; i < matches.size(); i++) {
-                    choices.addElement(buildSelectChoice(matches.elementAt(i), itemset, dataInstance, null,
-                            evaluationContext, null, i));
-                }
-                itemset.setChoices(choices);
-            } else {
-                throw new XPathException("No items found at '" + itemset.nodesetRef + "'");
-            }
-        }
+        EvaluationContext evalContextWithAnswers = evaluationContext.spawnWithCleanLifecycle();
+        evalContextWithAnswers.setVariables(userAnswers);
+        ItemSetUtils.populateDynamicChoices(queryPrompt.getItemsetBinding(), evalContextWithAnswers);
     }
 }
