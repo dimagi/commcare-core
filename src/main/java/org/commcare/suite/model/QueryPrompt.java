@@ -16,6 +16,8 @@ import javax.annotation.Nullable;
 // Model for <prompt> node in {@link
 public class QueryPrompt implements Externalizable {
 
+    public static final CharSequence INPUT_TYPE_SELECT1 = "select1";
+
     private String key;
 
     @Nullable
@@ -63,10 +65,12 @@ public class QueryPrompt implements Externalizable {
         return key;
     }
 
+    @Nullable
     public String getAppearance() {
         return appearance;
     }
 
+    @Nullable
     public String getInput() {
         return input;
     }

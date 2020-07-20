@@ -4,6 +4,7 @@ import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
+import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
@@ -23,6 +24,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
+
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
 /**
  * Manager for remote query datums; get/answer user prompts and build
@@ -128,5 +132,42 @@ public class RemoteQuerySessionManager {
         EvaluationContext evalContextWithAnswers = evaluationContext.spawnWithCleanLifecycle();
         evalContextWithAnswers.setVariables(userAnswers);
         ItemSetUtils.populateDynamicChoices(queryPrompt.getItemsetBinding(), evalContextWithAnswers);
+    }
+
+    // loops over query prompts and validates selection until all selections are valid
+    public void refreshItemSetChoices(Hashtable<String, String> userAnswers) {
+        OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
+        boolean dirty = true;
+        while (dirty) {
+            dirty = false;
+            for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
+                String promptId = (String)en.nextElement();
+                QueryPrompt queryPrompt = userInputDisplays.get(promptId);
+                if (queryPrompt.getInput() != null && queryPrompt.getInput().contentEquals(INPUT_TYPE_SELECT1)) {
+                    String answer = userAnswers.get(promptId);
+                    populateItemSetChoices(queryPrompt);
+                    Vector<SelectChoice> items = queryPrompt.getItemsetBinding().getChoices();
+                    if (!checkForValidSelectValue(items, answer)) {
+                        // if it's not a valid select value, blank it out
+                        userAnswers.put(promptId, "");
+                        dirty = true;
+                    }
+                }
+            }
+        }
+    }
+
+    // checks if @param{value} is one of the select choices give in @param{items}
+    private boolean checkForValidSelectValue(Vector<SelectChoice> items, String value) {
+        // blank is always a valid choice
+        if (value.contentEquals("")) {
+            return true;
+        }
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).getValue().contentEquals(value)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
