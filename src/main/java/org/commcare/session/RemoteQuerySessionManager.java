@@ -1,5 +1,6 @@
 package org.commcare.session;
 
+import org.commcare.cases.util.StringUtils;
 import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
@@ -102,7 +103,10 @@ public class RemoteQuerySessionManager {
         }
         for (Enumeration e = userAnswers.keys(); e.hasMoreElements(); ) {
             String key = (String)e.nextElement();
-            params.put(key, userAnswers.get(key));
+            String value =  userAnswers.get(key);
+            if(!StringUtils.isEmpty(value)) {
+                params.put(key, userAnswers.get(key));
+            }
         }
         return params;
     }
@@ -160,7 +164,7 @@ public class RemoteQuerySessionManager {
     // checks if @param{value} is one of the select choices give in @param{items}
     private boolean checkForValidSelectValue(Vector<SelectChoice> items, String value) {
         // blank is always a valid choice
-        if (value.contentEquals("")) {
+        if (StringUtils.isEmpty(value)) {
             return true;
         }
         for (int i = 0; i < items.size(); i++) {
