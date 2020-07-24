@@ -73,7 +73,7 @@ public class CaseXPathQueryTest {
     }
 
     @Test
-    public void caseQueryWithBadPath() throws Exception {
+    public void caseQueryWithNoProperty() throws Exception {
         config.parseIntoSandbox(
                 this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
         EvaluationContext ec = MockDataUtils.buildContextWithInstance(sandbox, "casedb",
@@ -81,6 +81,12 @@ public class CaseXPathQueryTest {
 
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
                 "instance('casedb')/casedb/case[@case_id = 'case_one']/doesnt_exist", ""));
+
+        CaseTestUtils.xpathEvalAndAssert(ec,
+                "count(instance('casedb')/casedb/case[@case_id = 'case_one'][not(doesnt_exist = '')])", 0.0);
+
+        CaseTestUtils.xpathEvalAndAssert(ec,
+                "count(instance('casedb')/casedb/case[1][not(doesnt_exist = '')])", 0.0);
     }
 
     @Test
