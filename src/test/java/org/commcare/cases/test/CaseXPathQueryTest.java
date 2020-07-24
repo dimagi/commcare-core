@@ -82,6 +82,9 @@ public class CaseXPathQueryTest {
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
                 "instance('casedb')/casedb/case[@case_id = 'case_one']/doesnt_exist", ""));
 
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "instance('casedb')/casedb/case[1]/doesnt_exist", ""));
+
         CaseTestUtils.xpathEvalAndAssert(ec,
                 "count(instance('casedb')/casedb/case[@case_id = 'case_one'][not(doesnt_exist = '')])", 0.0);
 
