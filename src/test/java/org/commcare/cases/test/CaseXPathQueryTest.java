@@ -90,6 +90,9 @@ public class CaseXPathQueryTest {
 
         CaseTestUtils.xpathEvalAndAssert(ec,
                 "count(instance('casedb')/casedb/case[1][not(doesnt_exist = '')])", 0.0);
+
+        CaseTestUtils.xpathEvalAndAssert(ec,
+                "count(instance('casedb')/casedb/case[1][doesnt_exist = 'nomatch'])", 0.0);
     }
 
     @Test
