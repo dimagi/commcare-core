@@ -332,7 +332,7 @@ public class FormEntryModel {
         }
     }
 
-    private static void createModelForGroup(GroupDef g, FormIndex index, FormDef form) {
+    private void createModelForGroup(GroupDef g, FormIndex index, FormDef form) {
         if (g.isRepeat() && g.getCountReference() != null) {
             TreeReference countRef = g.getConextualizedCountReference(index.getReference());
             IAnswerData count = form.getMainInstance().resolveReference(countRef).getValue();
@@ -346,13 +346,35 @@ public class FormEntryModel {
                             + g.getConextualizedCountReference(index.getReference()).toString()
                             + " must be a number!");
                 }
-
+                deleteModelIfAboveMaxCount(index, form, fullcount);
                 createModelIfBelowMaxCount(index, form, fullcount);
             }
         }
     }
 
-    private static void createModelIfBelowMaxCount(FormIndex index, FormDef form, int fullcount) {
+    private void deleteModelIfAboveMaxCount(FormIndex index, FormDef form, int fullcount) {
+        // Check if index is valid and belongs to a repeat group.
+        if (index == null || !index.isInForm()) {
+            return;
+        }
+        IFormElement element = form.getChild(index);
+        if (!(element instanceof GroupDef && ((GroupDef) element).isRepeat())) {
+            return;
+        }
+        // Check if repeat element is valid.
+        TreeReference ref = form.getChildInstanceRef(index);
+        if (form.getMainInstance().resolveReference(ref) == null ) {
+            return;
+        }
+
+        if (index.getLastRepeatInstanceIndex() + 1 > fullcount) {
+            FormIndex newIndex = incrementIndex(index, false);
+            deleteModelIfAboveMaxCount(newIndex, form, fullcount);
+            form.deleteRepeat(index);
+        }
+    }
+
+    private void createModelIfBelowMaxCount(FormIndex index, FormDef form, int fullcount) {
         TreeReference ref = form.getChildInstanceRef(index);
         TreeElement element = form.getMainInstance().resolveReference(ref);
         if (element == null) {
