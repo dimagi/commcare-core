@@ -301,7 +301,7 @@ public class EvaluationContext {
 
         if (baseInstance.getRoot().getRef() == null) {
             Logger.log(LogTypes.SOFT_ASSERT, "Invalid instance definition encountered while evaluating " + ref.toString() +
-                    " for instance" + baseInstance.getInstanceId() + " with root: " + baseInstance.getRoot());
+                    " for instance " + baseInstance.getInstanceId() + " with root: " + baseInstance.getRoot());
         }
 
         expandReferenceAccumulator(ref, baseInstance, baseInstance.getRoot().getRef(), v, includeTemplates);
