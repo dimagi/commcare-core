@@ -4,6 +4,7 @@ import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.QuerySensitiveTreeElementWrapper;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.cases.util.QueryUtils;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -13,15 +14,22 @@ import org.javarosa.core.model.trace.BulkEvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.CacheHost;
-import org.javarosa.xpath.expr.ExpressionCacher;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.IExprDataType;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.XPathMissingInstanceException;
+import org.javarosa.xpath.expr.ExpressionCacher;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Vector;
 
 
 /**
@@ -290,6 +298,12 @@ public class EvaluationContext {
 
         DataInstance baseInstance = retrieveInstance(ref);
         Vector<TreeReference> v = new Vector<>();
+
+        if (baseInstance.getRoot().getRef() == null) {
+            Logger.log(LogTypes.SOFT_ASSERT, "Invalid instance definition encountered while evaluating " + ref.toString() +
+                    " for instance" + baseInstance.getInstanceId() + " with root: " + baseInstance.getRoot());
+        }
+
         expandReferenceAccumulator(ref, baseInstance, baseInstance.getRoot().getRef(), v, includeTemplates);
         return v;
     }
@@ -309,6 +323,7 @@ public class EvaluationContext {
     private void expandReferenceAccumulator(TreeReference sourceRef, DataInstance sourceInstance,
                                             TreeReference workingRef, Vector<TreeReference> refs,
                                             boolean includeTemplates) {
+
         int depth = workingRef.size();
 
         if (depth == sourceRef.size()) {
