@@ -323,7 +323,7 @@ public class EvaluationContext {
             depth = workingRef.size();
         } catch (NullPointerException e) {
             throw new RuntimeException("Invalid instance definition encountered while evaluating " + sourceRef.toString() +
-                    " for instance " + sourceInstance.getInstanceId() + " with root: " + sourceInstance.getRoot());
+                    " for instance " + sourceInstance.getInstanceId() + " with root: " + sourceInstance.getRoot(), e);
         }
 
         if (depth == sourceRef.size()) {
