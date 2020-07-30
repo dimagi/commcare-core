@@ -299,11 +299,6 @@ public class EvaluationContext {
         DataInstance baseInstance = retrieveInstance(ref);
         Vector<TreeReference> v = new Vector<>();
 
-        if (baseInstance.getRoot().getRef() == null) {
-            Logger.log(LogTypes.SOFT_ASSERT, "Invalid instance definition encountered while evaluating " + ref.toString() +
-                    " for instance " + baseInstance.getInstanceId() + " with root: " + baseInstance.getRoot());
-        }
-
         expandReferenceAccumulator(ref, baseInstance, baseInstance.getRoot().getRef(), v, includeTemplates);
         return v;
     }
@@ -323,8 +318,13 @@ public class EvaluationContext {
     private void expandReferenceAccumulator(TreeReference sourceRef, DataInstance sourceInstance,
                                             TreeReference workingRef, Vector<TreeReference> refs,
                                             boolean includeTemplates) {
-
-        int depth = workingRef.size();
+        int depth;
+        try {
+            depth = workingRef.size();
+        } catch (NullPointerException e) {
+            throw new RuntimeException("Invalid instance definition encountered while evaluating " + sourceRef.toString() +
+                    " for instance " + sourceInstance.getInstanceId() + " with root: " + sourceInstance.getRoot());
+        }
 
         if (depth == sourceRef.size()) {
             // We've matched fully
@@ -498,7 +498,7 @@ public class EvaluationContext {
      * set and the original context reference correspondingly updated.
      */
     public EvaluationContext rescope(TreeReference newContextRef, int newContextPosition,
-                                      QueryContext subContext) {
+                                     QueryContext subContext) {
         EvaluationContext ec = new EvaluationContext(this, newContextRef);
         ec.setQueryContext(subContext);
         ec.currentContextPosition = newContextPosition;
@@ -542,7 +542,7 @@ public class EvaluationContext {
     }
 
     public AbstractTreeElement resolveReference(TreeReference qualifiedRef) {
-        if(Thread.interrupted()) {
+        if (Thread.interrupted()) {
             throw new RequestAbandonedException();
         }
         DataInstance instance = this.getMainInstance();
@@ -658,13 +658,13 @@ public class EvaluationContext {
             trace.setEvaluatedPredicates(startingSet, finalSet, childSet);
             if (!(trace.isBulkEvaluationSucceeded())) {
                 EvaluationTrace parentTrace = trace.getParent();
-                if (parentTrace == null){
+                if (parentTrace == null) {
                     trace.markClosed();
                     //no need to remove from the parent context if it doens't exist
                     return;
                 }
                 Vector<EvaluationTrace> traces = trace.getParent().getSubTraces();
-                synchronized (traces){
+                synchronized (traces) {
                     traces.remove(trace);
                 }
             }
@@ -680,6 +680,7 @@ public class EvaluationContext {
 
     /**
      * Records the outcome of the current trace by value.
+     *
      * @param value The result of the currently open Trace Expression
      */
     public void reportTraceValue(Object value, boolean fromCache) {
@@ -698,7 +699,6 @@ public class EvaluationContext {
     /**
      * Closes the current evaluation trace and records the
      * relevant outcomes and context
-     *
      */
     public void closeTrace() {
         if (mAccumulateExprs) {
