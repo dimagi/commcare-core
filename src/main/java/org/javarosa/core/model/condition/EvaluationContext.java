@@ -318,13 +318,13 @@ public class EvaluationContext {
     private void expandReferenceAccumulator(TreeReference sourceRef, DataInstance sourceInstance,
                                             TreeReference workingRef, Vector<TreeReference> refs,
                                             boolean includeTemplates) {
-        int depth;
-        try {
-            depth = workingRef.size();
-        } catch (NullPointerException e) {
-            throw new RuntimeException("Invalid instance definition encountered while evaluating " + sourceRef.toString() +
-                    " for instance " + sourceInstance.getInstanceId() + " with root: " + sourceInstance.getRoot(), e);
+
+        if (workingRef == null) {
+            throw new RuntimeException("Encountered invalid instance definition while evaluating " + sourceRef.toString() +
+                    " for instance " + sourceInstance.getInstanceId() + " with root: " + sourceInstance.getRoot());
         }
+
+        int depth = workingRef.size();
 
         if (depth == sourceRef.size()) {
             // We've matched fully
