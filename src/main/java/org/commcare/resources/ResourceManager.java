@@ -23,6 +23,7 @@ public class ResourceManager {
     private final ResourceTable masterTable;
     protected final ResourceTable upgradeTable;
     protected final ResourceTable tempTable;
+    public static final String ApplicationDescriptor = "Application Descriptor";
 
     public ResourceManager(CommCarePlatform platform,
                            ResourceTable masterTable,
@@ -67,7 +68,7 @@ public class ResourceManager {
                 locations.addElement(new ResourceLocation(authorityForProfile, profileReference));
                 Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
                         CommCarePlatform.APP_PROFILE_RESOURCE_ID,
-                        locations, "Application Descriptor");
+                        locations, ApplicationDescriptor);
 
                 global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
                 global.prepareResources(null, platform, forceInstall);
@@ -115,7 +116,7 @@ public class ResourceManager {
 
         Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
                 CommCarePlatform.APP_PROFILE_RESOURCE_ID, locations,
-                "Application Descriptor");
+                ApplicationDescriptor);
 
         table.addResource(r,
                 table.getInstallers().getProfileInstaller(false),
