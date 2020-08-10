@@ -9,6 +9,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -54,6 +55,7 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      * @param r        The resource to be stepped
      * @param table    the table where the resource is being managed
      * @param recovery Whether we are in app recovery mode
+     * @param customRequestHeaders
      * @return Whether the resource was able to complete an installation
      * step in the current circumstances.
      * @throws UnresolvedResourceException       If the local resource
@@ -63,7 +65,7 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      */
     boolean install(Resource r, ResourceLocation location,
                     Reference ref, ResourceTable table,
-                    T platform, boolean upgrade, boolean recovery) throws
+                    T platform, boolean upgrade, boolean recovery, Map<String, String> customRequestHeaders) throws
             UnresolvedResourceException, UnfullfilledRequirementsException;
 
     /**

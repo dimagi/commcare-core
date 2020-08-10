@@ -7,6 +7,8 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.reference.Reference;
 
+import java.util.Map;
+
 /**
  * TODO: This should possibly just be replaced by a basic file installer along
  * with a reference for the login screen. We'll see.
@@ -20,8 +22,8 @@ public class MediaInstaller extends BasicInstaller {
     }
 
     @Override
-    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCarePlatform platform, boolean upgrade, boolean recovery) throws UnresolvedResourceException {
-        boolean result = super.install(r, location, ref, table, platform, upgrade, recovery);
+    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCarePlatform platform, boolean upgrade, boolean recovery, Map<String, String> customRequestHeaders) throws UnresolvedResourceException {
+        boolean result = super.install(r, location, ref, table, platform, upgrade, recovery, customRequestHeaders);
         if (result) {
             table.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
             return true;

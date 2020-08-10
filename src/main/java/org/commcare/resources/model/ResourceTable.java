@@ -18,6 +18,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 import java.util.Vector;
@@ -376,7 +377,7 @@ public class ResourceTable {
                                                 boolean upgrade,
                                                 CommCarePlatform platform,
                                                 ResourceTable master,
-                                                boolean recovery)
+                                                boolean recovery, Map<String, String> customHeaders)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
         // TODO: Possibly check if resource status is local and proceeding to
@@ -398,7 +399,7 @@ public class ResourceTable {
                     if (!(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL && invalid.contains(ref))) {
                         try {
                             handled = installResource(r, location, ref, this,
-                                    platform, upgrade, recovery);
+                                    platform, upgrade, recovery, customHeaders);
                         } catch (InvalidResourceException e) {
                             invalidResourceException = e;
                         } catch (UnreliableSourceException use) {
@@ -416,7 +417,7 @@ public class ResourceTable {
                 try {
                     handled = installResource(r, location,
                             ReferenceManager.instance().DeriveReference(location.getLocation()),
-                            this, platform, upgrade, recovery);
+                            this, platform, upgrade, recovery, customHeaders);
                     if (handled) {
                         recordSuccess(r);
                         break;
@@ -576,7 +577,7 @@ public class ResourceTable {
             }
         }
 
-        findResourceLocationAndInstall(r, invalid, upgrade, platform, master, installOver);
+        findResourceLocationAndInstall(r, invalid, upgrade, platform, master, installOver, customHeaders);
 
         if (stateListener != null) {
             if (isResourceProgressStale) {
@@ -610,14 +611,14 @@ public class ResourceTable {
      */
     private boolean installResource(Resource r, ResourceLocation location,
                                     Reference ref, ResourceTable table,
-                                    CommCarePlatform platform, boolean upgrade, boolean recovery)
+                                    CommCarePlatform platform, boolean upgrade, boolean recovery, Map<String, String> customHeaders)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         UnreliableSourceException aFailure = null;
 
         for (int i = 0; i < NUMBER_OF_LOSSY_RETRIES + 1; ++i) {
             abortIfInstallCancelled(r);
             try {
-                return r.getInstaller().install(r, location, ref, table, platform, upgrade, recovery);
+                return r.getInstaller().install(r, location, ref, table, platform, upgrade, recovery, customHeaders);
             } catch (UnreliableSourceException use) {
                 recordFailure(r, use);
                 aFailure = use;
@@ -1141,19 +1142,19 @@ public class ResourceTable {
         this.installStatsLogger = logger;
     }
 
-    public boolean recoverResources(CommCarePlatform platform, String profileRef)
+    public boolean recoverResources(CommCarePlatform platform, String profileRef, Map<String, String> customHeaders)
             throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
-        return recoverResources(platform, profileRef, mMissingResources);
+        return recoverResources(platform, profileRef, customHeaders, mMissingResources);
     }
 
     // Downloads and re-installs the missingResources into the table
-    public boolean recoverResources(CommCarePlatform platform, String profileRef, Vector<Resource> missingResources)
+    private boolean recoverResources(CommCarePlatform platform, String profileRef, Map<String, String> customHeaders, Vector<Resource> missingResources)
             throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
         int count = 0;
         int total = missingResources.size();
         for (Resource missingResource : missingResources) {
 
-            recoverResource(missingResource, platform, profileRef);
+            recoverResource(missingResource, platform, profileRef, customHeaders);
 
             count++;
 
@@ -1169,14 +1170,14 @@ public class ResourceTable {
     }
 
     // Downloads and re-installs a missing resource
-    public void recoverResource(Resource missingResource, CommCarePlatform platform, String profileRef)
+    public void recoverResource(Resource missingResource, CommCarePlatform platform, String profileRef, Map<String, String> customHeaders)
             throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
 
         if (missingResource.id.contentEquals(CommCarePlatform.APP_PROFILE_RESOURCE_ID)) {
             addRemoteLocationIfMissing(missingResource, profileRef);
         }
 
-        findResourceLocationAndInstall(missingResource, new Vector<>(), false, platform, null, true);
+        findResourceLocationAndInstall(missingResource, new Vector<>(), false, platform, null, true, customHeaders);
     }
 
     private void addRemoteLocationIfMissing(Resource resource, String remoteLocation) {

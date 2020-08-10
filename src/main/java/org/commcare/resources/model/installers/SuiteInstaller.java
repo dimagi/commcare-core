@@ -20,6 +20,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -48,7 +49,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
                            ResourceTable table, CommCarePlatform platform,
-                           boolean upgrade, boolean recovery) throws UnresolvedResourceException, UnfullfilledRequirementsException {
+                           boolean upgrade, boolean recovery, Map<String, String> customRequestHeaders) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_CACHE) {
             //If it's in the cache, we should just get it from there
             return false;

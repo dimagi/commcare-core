@@ -13,6 +13,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Install user restore xml file present in app for use in offline logins.
@@ -42,7 +43,7 @@ public class OfflineUserRestoreInstaller extends CacheInstaller<OfflineUserResto
     @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
-                           CommCarePlatform platform, boolean upgrade, boolean recovery)
+                           CommCarePlatform platform, boolean upgrade, boolean recovery, Map<String, String> customRequestHeaders)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
             OfflineUserRestore offlineUserRestore = OfflineUserRestore.buildInMemoryUserRestore(ref.getStream());
