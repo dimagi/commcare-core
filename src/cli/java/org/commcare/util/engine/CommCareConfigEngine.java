@@ -5,6 +5,7 @@ import org.commcare.modern.reference.JavaFileRoot;
 import org.commcare.modern.reference.JavaHttpRoot;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelledException;
+import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.InstallerFactory;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -207,7 +208,7 @@ public class CommCareConfigEngine {
             throws UnresolvedResourceException,
             UnfullfilledRequirementsException, InstallCancelledException {
         ResourceManager.installAppResources(platform, profileReference, this.table, true,
-                Resource.RESOURCE_AUTHORITY_LOCAL);
+                Resource.RESOURCE_AUTHORITY_LOCAL, InstallRequestSource.INSTALL);
     }
 
     public void initEnvironment() throws ResourceInitializationException {
@@ -430,7 +431,7 @@ public class CommCareConfigEngine {
 
         print.println("Checking for updates....");
         ResourceManager resourceManager = new ResourceManager(platform, global, updateTable, recoveryTable);
-        resourceManager.stageUpgradeTable(authRef, true, platform);
+        resourceManager.stageUpgradeTable(authRef, true, platform, InstallRequestSource.FOREGROUND_UPDATE);
         Resource newProfile = updateTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
         if (!newProfile.isNewer(profileRef)) {
             print.println("Your app is up to date!");
@@ -439,7 +440,7 @@ public class CommCareConfigEngine {
 
         print.println("Update found. New Version: " + newProfile.getVersion());
         print.println("Downloading / Preparing Update");
-        resourceManager.prepareUpgradeResources();
+        resourceManager.prepareUpgradeResources(InstallRequestSource.FOREGROUND_UPDATE);
         print.print("Installing update");
 
         // Replaces global table with temporary, or w/ recovery if
