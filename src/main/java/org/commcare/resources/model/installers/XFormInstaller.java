@@ -1,5 +1,6 @@
 package org.commcare.resources.model.installers;
 
+import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
@@ -19,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Hashtable;
-import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -39,7 +39,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
                            ResourceTable table, CommCarePlatform platform,
-                           boolean upgrade, boolean recovery, Map<String, String> customRequestHeaders) throws UnresolvedResourceException {
+                           boolean upgrade, boolean recovery, InstallRequestSource installRequestSource) throws UnresolvedResourceException {
         InputStream incoming = null;
         try {
             if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_CACHE) {

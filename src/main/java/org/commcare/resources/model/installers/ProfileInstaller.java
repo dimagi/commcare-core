@@ -1,5 +1,6 @@
 package org.commcare.resources.model.installers;
 
+import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
@@ -24,7 +25,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
-import java.util.Map;
 
 /**
  * @author ctsims
@@ -76,7 +76,7 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
     @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
-                           CommCarePlatform platform, boolean upgrade, boolean recovery, Map<String, String> customRequestHeaders)
+                           CommCarePlatform platform, boolean upgrade, boolean recovery, InstallRequestSource installRequestSource)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //Install for the profile installer is a two step process. Step one is to parse the file and read the relevant data.
         //Step two is to actually install the resource if it needs to be (whether or not it should will be handled
