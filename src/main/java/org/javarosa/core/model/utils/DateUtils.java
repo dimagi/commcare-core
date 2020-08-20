@@ -838,8 +838,9 @@ public class DateUtils {
 
     public static Double fractionalDaysSinceEpoch(Date a) {
         //Even though EPOCH_DATE uses the device timezone, calendar Daylight savings time adjustments
-        //are based on the instance of evaluation (the epoch), not today, so we need to manually
-        //correct for any drift in the offsets
+        //are based on the instant of evaluation (the epoch), not today, so we need to manually
+        //correct for any drift in the offsets. This can also present if timezone definitions
+        //have drifted over time
         long timeZoneAdjust = (a.getTimezoneOffset() - EPOCH_DATE.getTimezoneOffset()) * 60* 1000;
         return new Double(((a.getTime() - EPOCH_DATE.getTime()) - timeZoneAdjust) / (double)DAY_IN_MS);
     }
