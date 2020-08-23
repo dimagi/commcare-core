@@ -1,6 +1,8 @@
 package org.commcare.resources.model;
 
-// All the workflows a resource install can be part of
+/**
+ * All the install workflows a resource install can be part of
+ */
 public enum InstallRequestSource {
     INSTALL,
     BACKGROUND_UPDATE,
