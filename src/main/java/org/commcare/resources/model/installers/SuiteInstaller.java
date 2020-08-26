@@ -1,6 +1,5 @@
 package org.commcare.resources.model.installers;
 
-import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
@@ -49,7 +48,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
                            ResourceTable table, CommCarePlatform platform,
-                           boolean upgrade, boolean recovery, InstallRequestSource installRequestSource) throws UnresolvedResourceException, UnfullfilledRequirementsException {
+                           boolean upgrade, boolean recovery) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_CACHE) {
             //If it's in the cache, we should just get it from there
             return false;

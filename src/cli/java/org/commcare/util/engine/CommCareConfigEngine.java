@@ -42,6 +42,7 @@ import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathMissingInstanceException;
+import org.commcare.resources.ResourceInstallContext;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -430,8 +431,9 @@ public class CommCareConfigEngine {
         // actually pull in all the new references
 
         print.println("Checking for updates....");
+        platform.registerInstallContext(new ResourceInstallContext(InstallRequestSource.FOREGROUND_UPDATE));
         ResourceManager resourceManager = new ResourceManager(platform, global, updateTable, recoveryTable);
-        resourceManager.stageUpgradeTable(authRef, true, platform, InstallRequestSource.FOREGROUND_UPDATE);
+        resourceManager.stageUpgradeTable(authRef, true, platform);
         Resource newProfile = updateTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
         if (!newProfile.isNewer(profileRef)) {
             print.println("Your app is up to date!");

@@ -83,7 +83,7 @@ public class ResourceManager {
      * @param clearProgress Clear the 'incoming' table of any partial update
      *                      info.
      */
-    public void stageUpgradeTable(String profileRef, boolean clearProgress, CommCarePlatform platform, InstallRequestSource installRequestSource) throws
+    public void stageUpgradeTable(String profileRef, boolean clearProgress, CommCarePlatform platform) throws
             UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
         synchronized (this.platform) {
             ensureMasterTableValid();
@@ -92,7 +92,7 @@ public class ResourceManager {
                 clearUpgrade();
             }
 
-            loadProfileIntoTable(upgradeTable, profileRef, Resource.RESOURCE_AUTHORITY_REMOTE, installRequestSource);
+            loadProfileIntoTable(upgradeTable, profileRef, Resource.RESOURCE_AUTHORITY_REMOTE);
         }
     }
 
@@ -108,8 +108,7 @@ public class ResourceManager {
 
     protected void loadProfileIntoTable(ResourceTable table,
                                         String profileRef,
-                                        int authority,
-                                        InstallRequestSource installRequestSource)
+                                        int authority)
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
@@ -124,15 +123,15 @@ public class ResourceManager {
                 table.getInstallers().getProfileInstaller(false),
                 null);
 
-        prepareProfileResource(table, installRequestSource);
+        prepareProfileResource(table);
     }
 
-    private void prepareProfileResource(ResourceTable targetTable, InstallRequestSource installRequestSource)
+    private void prepareProfileResource(ResourceTable targetTable)
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
         targetTable.prepareResourcesUpTo(masterTable, this.platform,
-                CommCarePlatform.APP_PROFILE_RESOURCE_ID, installRequestSource);
+                CommCarePlatform.APP_PROFILE_RESOURCE_ID);
     }
 
     /**

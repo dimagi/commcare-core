@@ -1,5 +1,6 @@
 package org.commcare.util;
 
+import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
@@ -10,22 +11,18 @@ import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.Property;
-import org.javarosa.core.services.storage.IStorageIndexedFactory;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
+
+import javax.annotation.Nullable;
 
 /**
  * TODO: This isn't really a great candidate for a
@@ -54,6 +51,9 @@ public class CommCarePlatform {
     private final int minorVersion;
     private final int minimalVersion;
     private final Vector<Suite> installedSuites;
+
+    @Nullable
+    private ResourceInstallContext mResourceInstallContext;
 
     public CommCarePlatform(int majorVersion, int minorVersion, int minimalVersion, StorageManager storageManager) {
         this(majorVersion, minorVersion, minimalVersion);
@@ -218,5 +218,14 @@ public class CommCarePlatform {
 
     public StorageManager getStorageManager() {
         return storageManager;
+    }
+
+    public void registerInstallContext(ResourceInstallContext installRequestSource) {
+        mResourceInstallContext = installRequestSource;
+    }
+
+    @Nullable
+    public ResourceInstallContext getResourceInstallContext() {
+        return mResourceInstallContext;
     }
 }
