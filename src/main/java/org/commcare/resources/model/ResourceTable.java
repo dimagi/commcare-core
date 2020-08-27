@@ -533,11 +533,11 @@ public class ResourceTable {
     }
 
     /**
-     * @param master               The global resource to prepare against. Used to
-     *                             establish whether resources need to be fetched
-     *                             remotely
-     * @param masterResourceMap    Map from resource id to resources for master
-     *                             table. Null when 'master' is, or when
+     * @param master            The global resource to prepare against. Used to
+     *                          establish whether resources need to be fetched
+     *                          remotely
+     * @param masterResourceMap Map from resource id to resources for master
+     *                          table. Null when 'master' is, or when
      */
     private void prepareResource(ResourceTable master, CommCarePlatform platform,
                                  Resource r, Hashtable<String, Resource> masterResourceMap,
@@ -1180,8 +1180,12 @@ public class ResourceTable {
             addRemoteLocationIfMissing(missingResource, profileRef);
         }
 
-        platform.registerInstallContext(new ResourceInstallContext(source));
-        findResourceLocationAndInstall(missingResource, new Vector<>(), false, platform, null, true);
+        try {
+            platform.registerInstallContext(new ResourceInstallContext(source));
+            findResourceLocationAndInstall(missingResource, new Vector<>(), false, platform, null, true);
+        } finally {
+            platform.registerInstallContext(null);
+        }
     }
 
     private void addRemoteLocationIfMissing(Resource resource, String remoteLocation) {

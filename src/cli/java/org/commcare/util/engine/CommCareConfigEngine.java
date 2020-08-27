@@ -431,23 +431,27 @@ public class CommCareConfigEngine {
         // actually pull in all the new references
 
         print.println("Checking for updates....");
-        platform.registerInstallContext(new ResourceInstallContext(InstallRequestSource.FOREGROUND_UPDATE));
-        ResourceManager resourceManager = new ResourceManager(platform, global, updateTable, recoveryTable);
-        resourceManager.stageUpgradeTable(authRef, true);
-        Resource newProfile = updateTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
-        if (!newProfile.isNewer(profileRef)) {
-            print.println("Your app is up to date!");
-            return false;
+        try {
+            platform.registerInstallContext(new ResourceInstallContext(InstallRequestSource.FOREGROUND_UPDATE));
+            ResourceManager resourceManager = new ResourceManager(platform, global, updateTable, recoveryTable);
+            resourceManager.stageUpgradeTable(authRef, true);
+            Resource newProfile = updateTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+            if (!newProfile.isNewer(profileRef)) {
+                print.println("Your app is up to date!");
+                return false;
+            }
+
+            print.println("Update found. New Version: " + newProfile.getVersion());
+            print.println("Downloading / Preparing Update");
+            resourceManager.prepareUpgradeResources(InstallRequestSource.FOREGROUND_UPDATE);
+            print.print("Installing update");
+
+            // Replaces global table with temporary, or w/ recovery if
+            // something goes wrong
+            resourceManager.upgrade();
+        } finally {
+            platform.registerInstallContext(null);
         }
-
-        print.println("Update found. New Version: " + newProfile.getVersion());
-        print.println("Downloading / Preparing Update");
-        resourceManager.prepareUpgradeResources(InstallRequestSource.FOREGROUND_UPDATE);
-        print.print("Installing update");
-
-        // Replaces global table with temporary, or w/ recovery if
-        // something goes wrong
-        resourceManager.upgrade();
 
         // Initializes app resources and the app itself, including doing a check to see if this
         // app record was converted by the db upgrader
