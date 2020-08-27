@@ -433,7 +433,7 @@ public class CommCareConfigEngine {
         print.println("Checking for updates....");
         platform.registerInstallContext(new ResourceInstallContext(InstallRequestSource.FOREGROUND_UPDATE));
         ResourceManager resourceManager = new ResourceManager(platform, global, updateTable, recoveryTable);
-        resourceManager.stageUpgradeTable(authRef, true, platform);
+        resourceManager.stageUpgradeTable(authRef, true);
         Resource newProfile = updateTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
         if (!newProfile.isNewer(profileRef)) {
             print.println("Your app is up to date!");
