@@ -454,7 +454,7 @@ public class ResourceTable {
 
     public void prepareResources(@Nullable ResourceTable master, CommCarePlatform platform, InstallRequestSource installRequestSource)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
-        prepareResources(master, platform, false, installRequestSource);
+        prepareResources(master, platform, false);
     }
 
     /**
@@ -470,7 +470,7 @@ public class ResourceTable {
      *                                           version of CommCare
      */
     public void prepareResources(@Nullable ResourceTable master, CommCarePlatform platform,
-                                 boolean installOver, InstallRequestSource installRequestSource)
+                                 boolean installOver)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
         Hashtable<String, Resource> masterResourceMap = null;

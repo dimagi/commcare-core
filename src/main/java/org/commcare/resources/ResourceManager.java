@@ -49,13 +49,13 @@ public class ResourceManager {
      */
     public static void installAppResources(CommCarePlatform platform, String profileReference,
                                            ResourceTable global, boolean forceInstall,
-                                           int authorityForProfile, InstallRequestSource installRequestSource)
+                                           int authorityForProfile)
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
         synchronized (platform) {
             if (!global.isReady()) {
-                global.prepareResources(null, platform, forceInstall, installRequestSource);
+                global.prepareResources(null, platform, forceInstall);
             }
 
             // First, see if the appropriate profile exists
@@ -72,7 +72,7 @@ public class ResourceManager {
                         locations, ApplicationDescriptor);
 
                 global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
-                global.prepareResources(null, platform, forceInstall, installRequestSource);
+                global.prepareResources(null, platform, forceInstall);
             }
         }
     }
