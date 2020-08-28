@@ -20,8 +20,8 @@ public class MediaInstaller extends BasicInstaller {
     }
 
     @Override
-    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCarePlatform platform, boolean upgrade, boolean recovery) throws UnresolvedResourceException {
-        boolean result = super.install(r, location, ref, table, platform, upgrade, recovery);
+    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCarePlatform platform, boolean upgrade) throws UnresolvedResourceException {
+        boolean result = super.install(r, location, ref, table, platform, upgrade);
         if (result) {
             table.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
             return true;

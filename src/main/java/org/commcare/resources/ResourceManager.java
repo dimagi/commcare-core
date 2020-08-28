@@ -55,7 +55,7 @@ public class ResourceManager {
             InstallCancelledException {
         synchronized (platform) {
             if (!global.isReady()) {
-                global.prepareResources(null, platform, forceInstall);
+                global.prepareResources(null, platform);
             }
 
             // First, see if the appropriate profile exists
@@ -72,7 +72,7 @@ public class ResourceManager {
                         locations, ApplicationDescriptor);
 
                 global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
-                global.prepareResources(null, platform, forceInstall);
+                global.prepareResources(null, platform);
             }
         }
     }
