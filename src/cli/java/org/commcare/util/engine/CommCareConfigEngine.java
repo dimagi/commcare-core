@@ -209,7 +209,7 @@ public class CommCareConfigEngine {
             throws UnresolvedResourceException,
             UnfullfilledRequirementsException, InstallCancelledException {
         ResourceManager.installAppResources(platform, profileReference, this.table, true,
-                Resource.RESOURCE_AUTHORITY_LOCAL, InstallRequestSource.INSTALL);
+                Resource.RESOURCE_AUTHORITY_LOCAL);
     }
 
     public void initEnvironment() throws ResourceInitializationException {
@@ -443,7 +443,7 @@ public class CommCareConfigEngine {
 
             print.println("Update found. New Version: " + newProfile.getVersion());
             print.println("Downloading / Preparing Update");
-            resourceManager.prepareUpgradeResources(InstallRequestSource.FOREGROUND_UPDATE);
+            resourceManager.prepareUpgradeResources();
             print.print("Installing update");
 
             // Replaces global table with temporary, or w/ recovery if

@@ -452,7 +452,7 @@ public class ResourceTable {
         }
     }
 
-    public void prepareResources(@Nullable ResourceTable master, CommCarePlatform platform, InstallRequestSource installRequestSource)
+    public void prepareResources(@Nullable ResourceTable master, CommCarePlatform platform)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         prepareResources(master, platform, false);
     }

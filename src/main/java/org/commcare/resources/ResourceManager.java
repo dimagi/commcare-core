@@ -141,7 +141,7 @@ public class ResourceManager {
      * @throws InstallCancelledException The user/system has cancelled the
      *                                   installation process
      */
-    public void prepareUpgradeResources(InstallRequestSource installRequestSource)
+    public void prepareUpgradeResources()
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException, IllegalArgumentException,
             InstallCancelledException {
@@ -159,7 +159,7 @@ public class ResourceManager {
             tempTable.destroy();
 
             upgradeTable.setResourceProgressStale();
-            upgradeTable.prepareResources(masterTable, this.platform, installRequestSource);
+            upgradeTable.prepareResources(masterTable, this.platform);
         }
     }
 
