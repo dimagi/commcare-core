@@ -90,6 +90,7 @@ public class ProfileParser extends ElementParser<Profile> {
         String sMinimal = parser.getAttributeValue(null, "requiredMinimal");
         String uniqueId = parser.getAttributeValue(null, "uniqueid");
         String displayName = parser.getAttributeValue(null, "name");
+        String buildProfileId = parser.getAttributeValue(null, "buildProfileID");
 
         int major = -1;
         int minor = -1;
@@ -172,7 +173,12 @@ public class ProfileParser extends ElementParser<Profile> {
             displayName = "";
         }
 
-        return new Profile(version, authRef, uniqueId, displayName, fromOld);
+        // defaults to empty string instead of null
+        if(buildProfileId == null){
+            buildProfileId = "";
+        }
+
+        return new Profile(version, authRef, uniqueId, displayName, fromOld, buildProfileId);
     }
 
     private void parseProperty(Profile profile) {
