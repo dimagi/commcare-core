@@ -103,8 +103,8 @@ public class RemoteQuerySessionManager {
         }
         for (Enumeration e = userAnswers.keys(); e.hasMoreElements(); ) {
             String key = (String)e.nextElement();
-            String value =  userAnswers.get(key);
-            if(!StringUtils.isEmpty(value)) {
+            String value = userAnswers.get(key);
+            if (!StringUtils.isEmpty(value)) {
                 params.put(key, userAnswers.get(key));
             }
         }
@@ -142,7 +142,12 @@ public class RemoteQuerySessionManager {
     public void refreshItemSetChoices(Hashtable<String, String> userAnswers) {
         OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
         boolean dirty = true;
+        int index = 0;
         while (dirty) {
+            if (index == userInputDisplays.size()) {
+                // loop has already run as many times as no of questions and we are still dirty
+                throw new RuntimeException("Invalid itemset state encountered while trying to refresh itemset choices");
+            }
             dirty = false;
             for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
                 String promptId = (String)en.nextElement();
@@ -158,6 +163,7 @@ public class RemoteQuerySessionManager {
                     }
                 }
             }
+            index++;
         }
     }
 
