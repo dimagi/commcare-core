@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -71,6 +72,15 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
                 meta.put(key, new Hashtable<Object, Vector<Integer>>());
             }
         }
+    }
+
+    @Override
+    public Vector<Integer> getAllIDs() {
+        Vector<Integer> result = new Vector<>(data.size());
+        for (Map.Entry<Integer, T> entry : data.entrySet()) {
+            result.add(entry.getKey());
+        }
+        return result;
     }
 
     @Override

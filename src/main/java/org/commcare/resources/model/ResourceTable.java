@@ -1211,6 +1211,6 @@ public class ResourceTable {
     }
 
     public List<Integer> getResourceIds() {
-        return storage.getIDsForValues(new String[]{}, new String[]{});
+        return storage.getAllIDs();
     }
 }
