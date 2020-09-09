@@ -152,11 +152,6 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
 
 
     /**
-     * @return a Vector of IDs of all Externalizable objects in storage
-     */
-    Vector<Integer> getAllIDs();
-
-    /**
      * Retrieves a Vector of IDs of Externalizable objects in storage for which the field
      * specified contains the value specified.
      *

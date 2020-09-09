@@ -1210,7 +1210,7 @@ public class ResourceTable {
         return storage.getIDsForValue(Resource.META_INDEX_LAZY, LAZY_VAL_TRUE);
     }
 
-    public List<Integer> getResourceIds() {
-        return storage.getAllIDs();
+    public List<Integer> getAllResourceIds() {
+        return storage.getIDsForValues(new String[]{}, new String[]{});
     }
 }
