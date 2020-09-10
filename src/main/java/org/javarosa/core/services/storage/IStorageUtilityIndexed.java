@@ -150,6 +150,7 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      */
     Object getAccessLock();
 
+
     /**
      * Retrieves a Vector of IDs of Externalizable objects in storage for which the field
      * specified contains the value specified.
@@ -213,10 +214,8 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      * the record has the correct corresponding value in values
      *
      * @param metaFieldNames A list of metadata field names to match
-     * @param values     The values which must match the field names provided
-     *
+     * @param values         The values which must match the field names provided
      * @return A Vector of Externalizable objects e, such that the fields specified are equal to the corresponding values provided.
-     *
      */
     Vector<E> getRecordsForValues(String[] metaFieldNames, Object[] values);
 
