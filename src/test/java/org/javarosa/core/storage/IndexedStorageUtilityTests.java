@@ -131,11 +131,11 @@ public abstract class IndexedStorageUtilityTests {
     @Test
     public void testReadingAllEntries() {
         writeBulkSets();
-        List<Integer> matches = storage.getIDsForValues(new String[]{}, new String[]{});
+        List<Integer> matches = storage.getIDsForValues(new String[0], new String[0]);
         Set<Integer> expectedMatches = getIdsFromModels(tenSizesOfMensNikes);
         expectedMatches.addAll(getIdsFromModels(eightSizesOfWomensNikes));
         expectedMatches.addAll(getIdsFromModels(fiveSizesOfMensVans));
-        Assert.assertEquals("Failed index match [brand,style][nike,mens]", expectedMatches, new HashSet<>(matches));
+        Assert.assertEquals("Failed index match for all entries", expectedMatches, new HashSet<>(matches));
     }
 
     private void writeBulkSets() {
