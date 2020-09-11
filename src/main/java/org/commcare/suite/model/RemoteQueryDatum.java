@@ -23,7 +23,7 @@ import java.util.Hashtable;
  */
 public class RemoteQueryDatum extends SessionDatum {
     private Hashtable<String, XPathExpression> hiddenQueryValues;
-    private OrderedHashtable<String, DisplayUnit> userQueryPrompts;
+    private OrderedHashtable<String, QueryPrompt> userQueryPrompts;
     private boolean useCaseTemplate;
 
     @SuppressWarnings("unused")
@@ -37,7 +37,7 @@ public class RemoteQueryDatum extends SessionDatum {
      */
     public RemoteQueryDatum(URL url, String storageInstance,
                             Hashtable<String, XPathExpression> hiddenQueryValues,
-                            OrderedHashtable<String, DisplayUnit> userQueryPrompts,
+                            OrderedHashtable<String, QueryPrompt> userQueryPrompts,
                             boolean useCaseTemplate) {
         super(storageInstance, url.toString());
         this.hiddenQueryValues = hiddenQueryValues;
@@ -45,7 +45,7 @@ public class RemoteQueryDatum extends SessionDatum {
         this.useCaseTemplate = useCaseTemplate;
     }
 
-    public OrderedHashtable<String, DisplayUnit> getUserQueryPrompts() {
+    public OrderedHashtable<String, QueryPrompt> getUserQueryPrompts() {
         return userQueryPrompts;
     }
 
@@ -75,8 +75,8 @@ public class RemoteQueryDatum extends SessionDatum {
         hiddenQueryValues =
                 (Hashtable<String, XPathExpression>)ExtUtil.read(in, new ExtWrapMapPoly(String.class), pf);
         userQueryPrompts =
-                (OrderedHashtable<String, DisplayUnit>)ExtUtil.read(in,
-                        new ExtWrapMap(String.class, DisplayUnit.class, ExtWrapMap.TYPE_ORDERED), pf);
+                (OrderedHashtable<String, QueryPrompt>)ExtUtil.read(in,
+                        new ExtWrapMap(String.class, QueryPrompt.class, ExtWrapMap.TYPE_ORDERED), pf);
         useCaseTemplate = ExtUtil.readBool(in);
     }
 

@@ -42,25 +42,22 @@ public abstract class IndexedStorageUtilityTests {
         nike = new Shoe("nike", "mens", "10");
 
         tenSizesOfMensNikes = new Shoe[10];
-        for(int i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; ++i) {
             tenSizesOfMensNikes[i] =
-                    new Shoe("nike", "mens", String.valueOf(i+1));
+                    new Shoe("nike", "mens", String.valueOf(i + 1));
         }
 
         eightSizesOfWomensNikes = new Shoe[8];
-        for(int i = 0; i < 8; ++i) {
+        for (int i = 0; i < 8; ++i) {
             eightSizesOfWomensNikes[i] =
-                    new Shoe("nike", "womens", String.valueOf(i+1));
+                    new Shoe("nike", "womens", String.valueOf(i + 1));
         }
 
         fiveSizesOfMensVans = new Shoe[5];
-        for(int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 5; ++i) {
             fiveSizesOfMensVans[i] =
-                    new Shoe("vans", "mens", String.valueOf(i+1));
+                    new Shoe("vans", "mens", String.valueOf(i + 1));
         }
-
-
-
     }
 
     @Test
@@ -73,7 +70,7 @@ public abstract class IndexedStorageUtilityTests {
     @Test
     public void testWrite() {
         storage.write(nike);
-        int id= nike.getID();
+        int id = nike.getID();
         Shoe shouldBeNike = storage.read(id);
         Assert.assertNotNull("Failed to read record from DB", shouldBeNike);
         Assert.assertEquals("Incorrect record read from DB", nike, shouldBeNike);
@@ -107,7 +104,7 @@ public abstract class IndexedStorageUtilityTests {
         Assert.assertEquals("Failed single index match [size][3]", sizeMatch, new HashSet<>(matches));
 
         List<Integer> matchesOnVector =
-                storage.getIDsForValues(new String[]{Shoe.META_SIZE}, new String[] {"3"});
+                storage.getIDsForValues(new String[]{Shoe.META_SIZE}, new String[]{"3"});
 
         Assert.assertEquals("Failed single vector index match [size][3]", sizeMatch, new HashSet<>(matchesOnVector));
 
@@ -117,12 +114,12 @@ public abstract class IndexedStorageUtilityTests {
     public void testBulkMetaMatching() {
         writeBulkSets();
 
-        List<Integer> matches = storage.getIDsForValues(new String[] {Shoe.META_BRAND, Shoe.META_STYLE}, new String[] {"nike", "mens"});
+        List<Integer> matches = storage.getIDsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"nike", "mens"});
 
         Assert.assertEquals("Failed index match [brand,style][nike,mens]", getIdsFromModels(tenSizesOfMensNikes), new HashSet<>(matches));
 
         LinkedHashSet<Integer> newResultPath = new LinkedHashSet<>();
-        storage.getIDsForValues(new String[] {Shoe.META_BRAND, Shoe.META_STYLE}, new String[] {"nike", "mens"}, newResultPath);
+        storage.getIDsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"nike", "mens"}, newResultPath);
 
         Assert.assertEquals("Failed index match [brand,style][nike,mens]", new HashSet<>(matches), newResultPath);
 
@@ -131,22 +128,32 @@ public abstract class IndexedStorageUtilityTests {
         Assert.assertEquals("Failed index match [brand,style][nike,mens]", getIdsFromModels(tenSizesOfMensNikes), getIdsFromModels(matchedRecords.toArray(new Shoe[]{})));
     }
 
+    @Test
+    public void testReadingAllEntries() {
+        writeBulkSets();
+        List<Integer> matches = storage.getIDsForValues(new String[0], new String[0]);
+        Set<Integer> expectedMatches = getIdsFromModels(tenSizesOfMensNikes);
+        expectedMatches.addAll(getIdsFromModels(eightSizesOfWomensNikes));
+        expectedMatches.addAll(getIdsFromModels(fiveSizesOfMensVans));
+        Assert.assertEquals("Failed index match for all entries", expectedMatches, new HashSet<>(matches));
+    }
+
     private void writeBulkSets() {
         writeAll(tenSizesOfMensNikes);
         writeAll(eightSizesOfWomensNikes);
         writeAll(fiveSizesOfMensVans);
     }
 
-    Set<Integer> getIdsFromModels(Shoe[] shoes){
+    Set<Integer> getIdsFromModels(Shoe[] shoes) {
         Set<Integer> set = new HashSet<>();
-        for(Shoe s : shoes) {
+        for (Shoe s : shoes) {
             set.add(s.getID());
         }
         return set;
     }
 
     private void writeAll(Shoe[] shoes) {
-        for(Shoe s : shoes) {
+        for (Shoe s : shoes) {
             storage.write(s);
         }
     }

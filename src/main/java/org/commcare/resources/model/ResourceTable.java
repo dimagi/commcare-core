@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 import java.util.Vector;
@@ -1203,5 +1204,9 @@ public class ResourceTable {
 
     public Vector<Integer> getLazyResourceIds() {
         return storage.getIDsForValue(Resource.META_INDEX_LAZY, LAZY_VAL_TRUE);
+    }
+
+    public List<Integer> getAllResourceIds() {
+        return storage.getIDsForValues(new String[]{}, new String[]{});
     }
 }
