@@ -1,5 +1,6 @@
 package org.commcare.resources.model.installers;
 
+import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
@@ -38,7 +39,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
                            ResourceTable table, CommCarePlatform platform,
-                           boolean upgrade) throws UnresolvedResourceException {
+                           boolean upgrade, ResourceInstallContext resourceInstallContext) throws UnresolvedResourceException {
         InputStream incoming = null;
         try {
             if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_CACHE) {

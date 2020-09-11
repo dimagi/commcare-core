@@ -52,9 +52,6 @@ public class CommCarePlatform {
     private final int minimalVersion;
     private final Vector<Suite> installedSuites;
 
-    @Nullable
-    private ResourceInstallContext mResourceInstallContext;
-
     public CommCarePlatform(int majorVersion, int minorVersion, int minimalVersion, StorageManager storageManager) {
         this(majorVersion, minorVersion, minimalVersion);
         this.storageManager = storageManager;
@@ -218,14 +215,5 @@ public class CommCarePlatform {
 
     public StorageManager getStorageManager() {
         return storageManager;
-    }
-
-    public void registerInstallContext(ResourceInstallContext installRequestSource) {
-        mResourceInstallContext = installRequestSource;
-    }
-
-    @Nullable
-    public ResourceInstallContext getResourceInstallContext() {
-        return mResourceInstallContext;
     }
 }

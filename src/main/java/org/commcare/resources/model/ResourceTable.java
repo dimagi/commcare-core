@@ -375,7 +375,8 @@ public class ResourceTable {
                                                 Vector<Reference> invalid,
                                                 boolean upgrade,
                                                 CommCarePlatform platform,
-                                                ResourceTable master)
+                                                ResourceTable master,
+                                                ResourceInstallContext resourceInstallContext)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
         // TODO: Possibly check if resource status is local and proceeding to
@@ -397,7 +398,7 @@ public class ResourceTable {
                     if (!(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL && invalid.contains(ref))) {
                         try {
                             handled = installResource(r, location, ref, this,
-                                    platform, upgrade);
+                                    platform, upgrade, resourceInstallContext);
                         } catch (InvalidResourceException e) {
                             invalidResourceException = e;
                         } catch (UnreliableSourceException use) {
@@ -415,7 +416,7 @@ public class ResourceTable {
                 try {
                     handled = installResource(r, location,
                             ReferenceManager.instance().DeriveReference(location.getLocation()),
-                            this, platform, upgrade);
+                            this, platform, upgrade, resourceInstallContext);
                     if (handled) {
                         recordSuccess(r);
                         break;
@@ -462,7 +463,7 @@ public class ResourceTable {
      *                                           incompatible with the current
      *                                           version of CommCare
      */
-    public void prepareResources(@Nullable ResourceTable master, CommCarePlatform platform)
+    public void prepareResources(@Nullable ResourceTable master, CommCarePlatform platform, ResourceInstallContext resourceInstallContext)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
         Hashtable<String, Resource> masterResourceMap = null;
@@ -476,7 +477,7 @@ public class ResourceTable {
         // install all unready resources.
         while (!unreadyResources.isEmpty()) {
             for (Resource r : unreadyResources) {
-                prepareResource(master, platform, r, masterResourceMap);
+                prepareResource(master, platform, r, masterResourceMap, resourceInstallContext);
             }
             // Installing resources may have exposed more unready resources
             // that need installing.
@@ -508,7 +509,8 @@ public class ResourceTable {
      */
     public void prepareResourcesUpTo(ResourceTable master,
                                      CommCarePlatform platform,
-                                     String toInitialize)
+                                     String toInitialize,
+                                     ResourceInstallContext resourceInstallContext)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
         Vector<Resource> unreadyResources = getUnreadyResources();
@@ -516,7 +518,7 @@ public class ResourceTable {
         // install unready resources, until toInitialize has been installed.
         while (isResourceUninitialized(toInitialize) && !unreadyResources.isEmpty()) {
             for (Resource r : unreadyResources) {
-                prepareResource(master, platform, r, null);
+                prepareResource(master, platform, r, null, resourceInstallContext);
             }
             // Installing resources may have exposed more unready resources
             // that need installing.
@@ -529,10 +531,10 @@ public class ResourceTable {
      *                          establish whether resources need to be fetched
      *                          remotely
      * @param masterResourceMap Map from resource id to resources for master
-     *                          table. Null when 'master' is, or when
      */
     private void prepareResource(ResourceTable master, CommCarePlatform platform,
-                                 Resource r, Hashtable<String, Resource> masterResourceMap)
+                                 Resource r, Hashtable<String, Resource> masterResourceMap,
+                                 ResourceInstallContext resourceInstallContext)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         boolean upgrade = false;
 
@@ -569,7 +571,7 @@ public class ResourceTable {
             }
         }
 
-        findResourceLocationAndInstall(r, invalid, upgrade, platform, master);
+        findResourceLocationAndInstall(r, invalid, upgrade, platform, master, resourceInstallContext);
 
         if (stateListener != null) {
             if (isResourceProgressStale) {
@@ -603,14 +605,14 @@ public class ResourceTable {
      */
     private boolean installResource(Resource r, ResourceLocation location,
                                     Reference ref, ResourceTable table,
-                                    CommCarePlatform platform, boolean upgrade)
+                                    CommCarePlatform platform, boolean upgrade, ResourceInstallContext resourceInstallContext)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         UnreliableSourceException aFailure = null;
 
         for (int i = 0; i < NUMBER_OF_LOSSY_RETRIES + 1; ++i) {
             abortIfInstallCancelled(r);
             try {
-                return r.getInstaller().install(r, location, ref, table, platform, upgrade);
+                return r.getInstaller().install(r, location, ref, table, platform, upgrade, resourceInstallContext);
             } catch (UnreliableSourceException use) {
                 recordFailure(r, use);
                 aFailure = use;
@@ -1134,20 +1136,20 @@ public class ResourceTable {
         this.installStatsLogger = logger;
     }
 
-    public boolean recoverResources(CommCarePlatform platform, String profileRef, InstallRequestSource installRequestSource)
+    public boolean recoverResources(CommCarePlatform platform, String profileRef, ResourceInstallContext resourceInstallContext)
             throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
-        return recoverResources(platform, profileRef, installRequestSource, mMissingResources);
+        return recoverResources(platform, profileRef, resourceInstallContext, mMissingResources);
     }
 
     // Downloads and re-installs the missingResources into the table
     private boolean recoverResources(CommCarePlatform platform, String profileRef,
-                                     InstallRequestSource installRequestSource, Vector<Resource> missingResources)
+                                     ResourceInstallContext resourceInstallContext, Vector<Resource> missingResources)
             throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
         int count = 0;
         int total = missingResources.size();
         for (Resource missingResource : missingResources) {
 
-            recoverResource(missingResource, platform, profileRef, installRequestSource);
+            recoverResource(missingResource, platform, profileRef, resourceInstallContext);
 
             count++;
 
@@ -1163,19 +1165,14 @@ public class ResourceTable {
     }
 
     // Downloads and re-installs a missing resource
-    public void recoverResource(Resource missingResource, CommCarePlatform platform, String profileRef, InstallRequestSource source)
+    public void recoverResource(Resource missingResource, CommCarePlatform platform, String profileRef, ResourceInstallContext resourceInstallContext)
             throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
 
         if (missingResource.id.contentEquals(CommCarePlatform.APP_PROFILE_RESOURCE_ID)) {
             addRemoteLocationIfMissing(missingResource, profileRef);
         }
 
-        try {
-            platform.registerInstallContext(new ResourceInstallContext(source));
-            findResourceLocationAndInstall(missingResource, new Vector<>(), false, platform, null);
-        } finally {
-            platform.registerInstallContext(null);
-        }
+        findResourceLocationAndInstall(missingResource, new Vector<>(), false, platform, null, resourceInstallContext);
     }
 
     private void addRemoteLocationIfMissing(Resource resource, String remoteLocation) {

@@ -1,5 +1,6 @@
 package org.commcare.resources.model.installers;
 
+import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
@@ -20,8 +21,8 @@ public class MediaInstaller extends BasicInstaller {
     }
 
     @Override
-    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCarePlatform platform, boolean upgrade) throws UnresolvedResourceException {
-        boolean result = super.install(r, location, ref, table, platform, upgrade);
+    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCarePlatform platform, boolean upgrade, ResourceInstallContext resourceInstallContext) throws UnresolvedResourceException {
+        boolean result = super.install(r, location, ref, table, platform, upgrade, resourceInstallContext);
         if (result) {
             table.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
             return true;
