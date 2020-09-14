@@ -1,5 +1,6 @@
 package org.commcare.resources.model.installers;
 
+import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInstaller;
@@ -46,7 +47,7 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
     }
 
     @Override
-    public abstract boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCarePlatform platform, boolean upgrade, boolean recovery) throws UnresolvedResourceException, UnfullfilledRequirementsException;
+    public abstract boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCarePlatform platform, boolean upgrade, ResourceInstallContext resourceInstallContext) throws UnresolvedResourceException, UnfullfilledRequirementsException;
 
     @Override
     public boolean initialize(CommCarePlatform platform, boolean isUpgrade) throws

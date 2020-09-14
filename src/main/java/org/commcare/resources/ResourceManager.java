@@ -2,6 +2,7 @@ package org.commcare.resources;
 
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.InstallCancelled;
+import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
@@ -48,13 +49,13 @@ public class ResourceManager {
      */
     public static void installAppResources(CommCarePlatform platform, String profileReference,
                                            ResourceTable global, boolean forceInstall,
-                                           int authorityForProfile)
+                                           int authorityForProfile, ResourceInstallContext resourceInstallContext)
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
         synchronized (platform) {
             if (!global.isReady()) {
-                global.prepareResources(null, platform, forceInstall);
+                global.prepareResources(null, platform, resourceInstallContext);
             }
 
             // First, see if the appropriate profile exists
@@ -71,7 +72,7 @@ public class ResourceManager {
                         locations, ApplicationDescriptor);
 
                 global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
-                global.prepareResources(null, platform, forceInstall);
+                global.prepareResources(null, platform, resourceInstallContext);
             }
         }
     }
@@ -82,7 +83,7 @@ public class ResourceManager {
      * @param clearProgress Clear the 'incoming' table of any partial update
      *                      info.
      */
-    public void stageUpgradeTable(String profileRef, boolean clearProgress, CommCarePlatform platform) throws
+    public void stageUpgradeTable(String profileRef, boolean clearProgress, ResourceInstallContext resourceInstallContext) throws
             UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
         synchronized (this.platform) {
             ensureMasterTableValid();
@@ -91,7 +92,7 @@ public class ResourceManager {
                 clearUpgrade();
             }
 
-            loadProfileIntoTable(upgradeTable, profileRef, Resource.RESOURCE_AUTHORITY_REMOTE);
+            loadProfileIntoTable(upgradeTable, profileRef, Resource.RESOURCE_AUTHORITY_REMOTE, resourceInstallContext);
         }
     }
 
@@ -107,7 +108,8 @@ public class ResourceManager {
 
     protected void loadProfileIntoTable(ResourceTable table,
                                         String profileRef,
-                                        int authority)
+                                        int authority,
+                                        ResourceInstallContext resourceInstallContext)
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
@@ -122,15 +124,15 @@ public class ResourceManager {
                 table.getInstallers().getProfileInstaller(false),
                 null);
 
-        prepareProfileResource(table);
+        prepareProfileResource(table, resourceInstallContext);
     }
 
-    private void prepareProfileResource(ResourceTable targetTable)
+    private void prepareProfileResource(ResourceTable targetTable, ResourceInstallContext resourceInstallContext)
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
         targetTable.prepareResourcesUpTo(masterTable, this.platform,
-                CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+                CommCarePlatform.APP_PROFILE_RESOURCE_ID, resourceInstallContext);
     }
 
     /**
@@ -140,7 +142,7 @@ public class ResourceManager {
      * @throws InstallCancelledException The user/system has cancelled the
      *                                   installation process
      */
-    public void prepareUpgradeResources()
+    public void prepareUpgradeResources(ResourceInstallContext resourceInstallContext)
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException, IllegalArgumentException,
             InstallCancelledException {
@@ -158,7 +160,7 @@ public class ResourceManager {
             tempTable.destroy();
 
             upgradeTable.setResourceProgressStale();
-            upgradeTable.prepareResources(masterTable, this.platform);
+            upgradeTable.prepareResources(masterTable, this.platform, resourceInstallContext);
         }
     }
 

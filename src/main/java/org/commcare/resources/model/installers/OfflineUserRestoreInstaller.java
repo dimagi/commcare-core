@@ -1,5 +1,6 @@
 package org.commcare.resources.model.installers;
 
+import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
@@ -42,7 +43,7 @@ public class OfflineUserRestoreInstaller extends CacheInstaller<OfflineUserResto
     @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
-                           CommCarePlatform platform, boolean upgrade, boolean recovery)
+                           CommCarePlatform platform, boolean upgrade, ResourceInstallContext resourceInstallContext)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
             OfflineUserRestore offlineUserRestore = OfflineUserRestore.buildInMemoryUserRestore(ref.getStream());
