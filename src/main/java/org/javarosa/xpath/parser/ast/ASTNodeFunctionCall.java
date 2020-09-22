@@ -61,6 +61,8 @@ public class ASTNodeFunctionCall extends ASTNode {
                 return new XPathBooleanFromStringFunc(args);
             case "format-date":
                 return new XPathFormatDateFunc(args);
+            case "format-date-with-tz":
+                return new XPathFormatDateWithTimezoneFunc(args);
             case "selected":
                 // fall-through to is-selected on purpose
             case "is-selected":
