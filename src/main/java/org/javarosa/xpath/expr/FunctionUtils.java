@@ -39,6 +39,7 @@ public class FunctionUtils {
         funcList.put(XPathFloorFunc.NAME, XPathFloorFunc.class);
         funcList.put(XPathPiFunc.NAME, XPathPiFunc.class);
         funcList.put(XPathFormatDateFunc.NAME, XPathFormatDateFunc.class);
+        funcList.put(XPathFormatDateWithTimezoneFunc.NAME, XPathFormatDateWithTimezoneFunc.class);
         funcList.put(XPathFormatDateForCalendarFunc.NAME, XPathFormatDateForCalendarFunc.class);
         funcList.put(XPathMinFunc.NAME, XPathMinFunc.class);
         funcList.put(XPathSinFunc.NAME, XPathSinFunc.class);
