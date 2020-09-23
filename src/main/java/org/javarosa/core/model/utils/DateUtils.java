@@ -7,7 +7,6 @@ import org.javarosa.core.util.MathUtils;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -138,19 +137,19 @@ public class DateUtils {
         } else if (timezoneOffset() != -1) {
             return getFields(d, timezoneOffset());
         }
-        return getFields(cd);
+        return getFields(cd, cd.getTimeZone().getRawOffset());
     }
 
     private static DateFields getFields(Date d, int timezoneOffset) {
         Calendar cd = Calendar.getInstance();
-        cd.setTimeZone(new SimpleTimeZone(timezoneOffset, "UTC"));
+        // cd.setTimeZone(new SimpleTimeZone(timezoneOffset, "UTC"));
         cd.setTimeZone(TimeZone.getTimeZone("UTC"));
         cd.setTime(d);
         cd.add(Calendar.MILLISECOND, timezoneOffset);
-        return getFields(cd);
+        return getFields(cd, timezoneOffset);
     }
 
-    private static DateFields getFields(Calendar cal) {
+    private static DateFields getFields(Calendar cal, int timezoneOffset) {
         DateFields fields = new DateFields();
         fields.year = cal.get(Calendar.YEAR);
         fields.month = cal.get(Calendar.MONTH) + MONTH_OFFSET;
@@ -160,7 +159,7 @@ public class DateUtils {
         fields.second = cal.get(Calendar.SECOND);
         fields.secTicks = cal.get(Calendar.MILLISECOND);
         fields.dow = cal.get(Calendar.DAY_OF_WEEK);
-        fields.timezoneOffsetInMillis = cal.getTimeZone().getRawOffset();
+        fields.timezoneOffsetInMillis = timezoneOffset;
         return fields;
     }
 
@@ -428,9 +427,9 @@ public class DateUtils {
                     sb.append(stringsSource.dayNamesShort[f.dow - 1]);
                 } else if (c == 'w') {    //Day of the week (0 through 6), Sunday being 0.
                     sb.append(f.dow - 1);
-//                } else if (c == 'Z') {
-//                    sb.append(getOffsetInStandardFormat(f.timezoneOffsetInMillis));
-                } else if (Arrays.asList('c', 'C', 'D', 'F', 'g', 'G', 'I', 'j', 'k', 'l', 'p', 'P', 'r', 'R', 's', 't', 'T', 'u', 'U', 'V', 'W', 'x', 'X', 'z', 'Z').contains(c)) {
+                } else if (c == 'Z') {
+                    sb.append(getOffsetInStandardFormat(f.timezoneOffsetInMillis));
+                } else if (Arrays.asList('c', 'C', 'D', 'F', 'g', 'G', 'I', 'j', 'k', 'l', 'p', 'P', 'r', 'R', 's', 't', 'T', 'u', 'U', 'V', 'W', 'x', 'X', 'z').contains(c)) {
                     // Format specifiers supported by libc's strftime: https://www.gnu.org/software/libc/manual/html_node/Formatting-Calendar-Time.html
                     throw new RuntimeException("unsupported escape in date format string [%" + c + "]");
                 } else {
