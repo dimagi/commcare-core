@@ -142,7 +142,6 @@ public class DateUtils {
 
     private static DateFields getFields(Date d, int timezoneOffset) {
         Calendar cd = Calendar.getInstance();
-        // cd.setTimeZone(new SimpleTimeZone(timezoneOffset, "UTC"));
         cd.setTimeZone(TimeZone.getTimeZone("UTC"));
         cd.setTime(d);
         cd.add(Calendar.MILLISECOND, timezoneOffset);
