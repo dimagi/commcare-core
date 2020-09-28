@@ -230,13 +230,23 @@ public class DateUtilsTests {
         Date d = c.getTime();
 
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-        String expectedDateTime1HourAhead = "2017-01-02 02:00:00Z";
-        assertEquals(expectedDateTime1HourAhead,
+        String expectedDateTime = "2017-01-02 02:00:00Z";
+        assertEquals(expectedDateTime,
                 DateUtils.format(d, format));
 
-        TimeZone.setDefault(TimeZone.getTimeZone("US/Eastern"));
-        expectedDateTime1HourAhead = "2017-01-01 21:00:00-05";
-        assertEquals(expectedDateTime1HourAhead,
+        TimeZone.setDefault(TimeZone.getTimeZone("EST"));
+        expectedDateTime = "2017-01-01 21:00:00-05";
+        assertEquals(expectedDateTime,
+                DateUtils.format(d, format));
+
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Katmandu"));
+        expectedDateTime = "2017-01-02 07:45:00+05:45";
+        assertEquals(expectedDateTime,
+                DateUtils.format(d, format));
+
+        TimeZone.setDefault(TimeZone.getTimeZone("IST"));
+        expectedDateTime = "2017-01-02 07:30:00+05:30";
+        assertEquals(expectedDateTime,
                 DateUtils.format(d, format));
 
         TimeZone.setDefault(null);
