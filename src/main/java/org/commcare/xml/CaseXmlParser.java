@@ -216,15 +216,22 @@ public class CaseXmlParser extends TransactionParser<Case> {
     }
 
     private void checkForMaxLength(Case caseForBlock) throws InvalidStructureException {
-        if (caseForBlock.getTypeId().length() > 255) {
+        if (getStringLength(caseForBlock.getTypeId()) > 255) {
             throw new InvalidCasePropertyLengthException("case_type");
-        } else if (caseForBlock.getUserId().length() > 255) {
+        } else if (getStringLength(caseForBlock.getUserId()) > 255) {
             throw new InvalidCasePropertyLengthException("owner_id");
-        } else if (caseForBlock.getName().length() > 255) {
+        } else if (getStringLength(caseForBlock.getName()) > 255) {
             throw new InvalidCasePropertyLengthException("case_name");
-        } else if (caseForBlock.getExternalId()!=null && caseForBlock.getExternalId().length() > 255) {
+        } else if (getStringLength(caseForBlock.getExternalId()) > 255) {
             throw new InvalidCasePropertyLengthException("external_id");
         }
+    }
+
+    /**
+     * Returns the length of string if it's not null, otherwise 0.
+     */
+    private int getStringLength(String input) {
+        return input != null ? input.length() : 0;
     }
 
     private Case loadCase(Case caseForBlock, String caseId, boolean errorIfMissing) throws InvalidStructureException {
