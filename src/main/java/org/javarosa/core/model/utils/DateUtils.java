@@ -119,6 +119,10 @@ public class DateUtils {
         return tzProvider.getTimezoneOffsetMillis();
     }
 
+    private static TimeZone timezone() {
+        return tzProvider.getTimezone();
+    }
+
     public static DateFields getFieldsForNonGregorianCalendar(int year, int monthOfYear, int dayOfMonth) {
         DateFields nonGregorian = new DateFields();
         nonGregorian.year = year;
@@ -136,6 +140,8 @@ public class DateUtils {
         cd.setTime(d);
         if (timezone != null) {
             cd.setTimeZone(TimeZone.getTimeZone(timezone));
+        } else if (timezone() != null) {
+            cd.setTimeZone(timezone());
         } else if (timezoneOffset() != -1) {
             return getFields(d, timezoneOffset());
         }
@@ -201,6 +207,8 @@ public class DateUtils {
 
         if (timezone != null) {
             cd.setTimeZone(TimeZone.getTimeZone(timezone));
+        } else if (timezone() != null) {
+            cd.setTimeZone(timezone());
         } else if (timezoneOffset() != -1) {
             return getDate(df, timezoneOffset());
         }
