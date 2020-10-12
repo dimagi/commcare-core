@@ -101,6 +101,8 @@ public class ResourceManager {
             repair();
 
             if (masterTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
+                Logger.log(LogTypes.TYPE_RESOURCES, "master table " + "\n" + masterTable.toString());
+                Logger.log(LogTypes.TYPE_RESOURCES, "upgrade table " + "\n" + upgradeTable.toString());
                 throw new IllegalArgumentException("Global resource table was not ready for upgrading");
             }
         }
@@ -272,15 +274,19 @@ public class ResourceManager {
                 Logger.log(LogTypes.TYPE_RESOURCES, "Global resources recovered. Wiping recovery table");
                 tempTable.destroy();
             }
+        } else {
+            Logger.log(LogTypes.TYPE_RESOURCES, "Empty recovery table while repair");
         }
 
         // Global and incoming are now in the right places. Ensure we have no
         // uncommitted resources.
         if (masterTable.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
+            Logger.log(LogTypes.TYPE_RESOURCES, "starting rollback of uncommited resources in master");
             masterTable.rollbackCommits(platform);
         }
 
         if (upgradeTable.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
+            Logger.log(LogTypes.TYPE_RESOURCES, "starting rollback of uncommited resources in upgrade");
             upgradeTable.rollbackCommits(platform);
         }
 
