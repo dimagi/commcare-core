@@ -51,6 +51,8 @@ public class EntityScreen extends CompoundScreenHost {
 
     private boolean handleCaseIndex;
 
+    private Vector<TreeReference> references;
+
     public EntityScreen(boolean handleCaseIndex) {
         this.handleCaseIndex = handleCaseIndex;
     }
@@ -78,7 +80,7 @@ public class EntityScreen extends CompoundScreenHost {
 
         evalContext = mSession.getEvaluationContext();
 
-        Vector<TreeReference> references = expandEntityReferenceSet(evalContext);
+        references = expandEntityReferenceSet(evalContext);
 
         //Pulled from NodeEntityFactory. We should likely replace this whole functonality with
         //that from nodeentityfactory
@@ -250,6 +252,10 @@ public class EntityScreen extends CompoundScreenHost {
 
     public TreeReference getCurrentSelection() {
         return mCurrentSelection;
+    }
+
+    public Vector<TreeReference> getReferences() {
+        return references;
     }
 
     @Override
