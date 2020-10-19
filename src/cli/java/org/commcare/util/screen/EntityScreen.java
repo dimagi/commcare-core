@@ -58,6 +58,10 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     public void init(SessionWrapper session) throws CommCareSessionException {
+        init(session, true);
+    }
+
+    public void init(SessionWrapper session, boolean full) throws CommCareSessionException {
         SessionDatum datum = session.getNeededDatum();
         if (!(datum instanceof EntityDatum)) {
             throw new CommCareSessionException("Didn't find an entity select action where one is expected.");
@@ -91,22 +95,24 @@ public class EntityScreen extends CompoundScreenHost {
 
         evalContext.setQueryContext(newContext);
 
-        referenceMap = new Hashtable<>();
-        for(TreeReference reference: references) {
-            referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), evalContext), reference);
-        }
-
-        // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic setting
-        evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56, -46.66));
-
-        if (mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
-            this.setHighlightedEntity(references.firstElement());
-            if (!this.setCurrentScreenToDetail()) {
-                this.updateSession(session);
-                readyToSkip = true;
+        if (full) {
+            referenceMap = new Hashtable<>();
+            for(TreeReference reference: references) {
+                referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), evalContext), reference);
             }
-        } else {
-            mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext, handleCaseIndex);
+
+            // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic setting
+            evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56, -46.66));
+
+            if (mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
+                this.setHighlightedEntity(references.firstElement());
+                if (!this.setCurrentScreenToDetail()) {
+                    this.updateSession(session);
+                    readyToSkip = true;
+                }
+            } else {
+                mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext, handleCaseIndex);
+            }
         }
     }
 
