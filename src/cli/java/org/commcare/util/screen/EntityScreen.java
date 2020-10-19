@@ -95,7 +95,7 @@ public class EntityScreen extends CompoundScreenHost {
 
         evalContext.setQueryContext(newContext);
 
-        if (full) {
+        if (full || references.size() == 1) {
             referenceMap = new Hashtable<>();
             for(TreeReference reference: references) {
                 referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), evalContext), reference);
