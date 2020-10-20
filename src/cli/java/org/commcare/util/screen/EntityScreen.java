@@ -50,6 +50,7 @@ public class EntityScreen extends CompoundScreenHost {
     private Hashtable<String, TreeReference> referenceMap;
 
     private boolean handleCaseIndex;
+    private boolean full = true;
 
     private Vector<TreeReference> references;
 
@@ -57,11 +58,20 @@ public class EntityScreen extends CompoundScreenHost {
         this.handleCaseIndex = handleCaseIndex;
     }
 
-    public void init(SessionWrapper session) throws CommCareSessionException {
-        init(session, true);
+    /**
+     * This constructor allows specifying whether to use the complete init or a minimal one
+     *
+     * @param handleCaseIndex Allow specifying entity by list index rather than unique ID
+     * @param full            If set to false, the subscreen and referenceMap, used for
+     *                        selecting and rendering entity details, will not be created.
+     *                        This speeds up initialization but makes further selection impossible.
+     */
+    public EntityScreen(boolean handleCaseIndex, boolean full) {
+        this.handleCaseIndex = handleCaseIndex;
+        this.full = full;
     }
 
-    public void init(SessionWrapper session, boolean full) throws CommCareSessionException {
+    public void init(SessionWrapper session) throws CommCareSessionException {
         SessionDatum datum = session.getNeededDatum();
         if (!(datum instanceof EntityDatum)) {
             throw new CommCareSessionException("Didn't find an entity select action where one is expected.");
