@@ -50,11 +50,25 @@ public class EntityScreen extends CompoundScreenHost {
     private Hashtable<String, TreeReference> referenceMap;
 
     private boolean handleCaseIndex;
+    private boolean full = true;
 
     private Vector<TreeReference> references;
 
     public EntityScreen(boolean handleCaseIndex) {
         this.handleCaseIndex = handleCaseIndex;
+    }
+
+    /**
+     * This constructor allows specifying whether to use the complete init or a minimal one
+     *
+     * @param handleCaseIndex Allow specifying entity by list index rather than unique ID
+     * @param full            If set to false, the subscreen and referenceMap, used for
+     *                        selecting and rendering entity details, will not be created.
+     *                        This speeds up initialization but makes further selection impossible.
+     */
+    public EntityScreen(boolean handleCaseIndex, boolean full) {
+        this.handleCaseIndex = handleCaseIndex;
+        this.full = full;
     }
 
     public void init(SessionWrapper session) throws CommCareSessionException {
@@ -91,22 +105,24 @@ public class EntityScreen extends CompoundScreenHost {
 
         evalContext.setQueryContext(newContext);
 
-        referenceMap = new Hashtable<>();
-        for(TreeReference reference: references) {
-            referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), evalContext), reference);
-        }
-
-        // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic setting
-        evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56, -46.66));
-
-        if (mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
-            this.setHighlightedEntity(references.firstElement());
-            if (!this.setCurrentScreenToDetail()) {
-                this.updateSession(session);
-                readyToSkip = true;
+        if (full || references.size() == 1) {
+            referenceMap = new Hashtable<>();
+            for(TreeReference reference: references) {
+                referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), evalContext), reference);
             }
-        } else {
-            mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext, handleCaseIndex);
+
+            // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic setting
+            evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56, -46.66));
+
+            if (mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
+                this.setHighlightedEntity(references.firstElement());
+                if (!this.setCurrentScreenToDetail()) {
+                    this.updateSession(session);
+                    readyToSkip = true;
+                }
+            } else {
+                mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext, handleCaseIndex);
+            }
         }
     }
 
