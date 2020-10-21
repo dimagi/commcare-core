@@ -143,7 +143,7 @@ public class DateUtils {
         } else if (timezoneOffset() != -1) {
             return getFields(d, timezoneOffset());
         }
-        return getFields(cd, cd.getTimeZone().getRawOffset());
+        return getFields(cd, cd.getTimeZone().getOffset(d.getTime()));
     }
 
     private static DateFields getFields(Date d, int timezoneOffset) {
