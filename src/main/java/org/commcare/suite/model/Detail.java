@@ -72,11 +72,13 @@ public class Detail implements Externalizable {
     private OrderedHashtable<String, String> variables;
     private OrderedHashtable<String, XPathExpression> variablesCompiled;
 
-
     private Vector<Action> actions;
 
     // Force the activity that is showing this detail to show itself in landscape view only
     private boolean forceLandscapeView;
+
+    // Only fetch entities if user has provided a search term
+    private boolean requireSearch;
 
     private XPathExpression focusFunction;
 
@@ -109,7 +111,7 @@ public class Detail implements Externalizable {
                   Vector<DetailField> fieldsVector, OrderedHashtable<String, String> variables,
                   Vector<Action> actions, Callout callout, String fitAcross,
                   String uniformUnitsString, String forceLandscape, String focusFunction,
-                  String printPathProvided, String relevancy) {
+                  String printPathProvided, String relevancy, String requireSearch) {
 
         if (detailsVector.size() > 0 && fieldsVector.size() > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
@@ -127,6 +129,8 @@ public class Detail implements Externalizable {
         this.callout = callout;
         this.useUniformUnitsInCaseTile = "true".equals(uniformUnitsString);
         this.forceLandscapeView = "true".equals(forceLandscape);
+        this.requireSearch = "true".equals(requireSearch);
+
         this.printEnabled = templatePathValid(printPathProvided);
 
         if (focusFunction != null) {
@@ -246,6 +250,7 @@ public class Detail implements Externalizable {
         forceLandscapeView = ExtUtil.readBool(in);
         focusFunction = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
         numEntitiesToDisplayPerRow = (int)ExtUtil.readNumeric(in);
+        requireSearch = ExtUtil.readBool(in);
         useUniformUnitsInCaseTile = ExtUtil.readBool(in);
         parsedRelevancyExpression = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
     }
@@ -264,6 +269,7 @@ public class Detail implements Externalizable {
         ExtUtil.writeBool(out, forceLandscapeView);
         ExtUtil.write(out, new ExtWrapNullable(focusFunction == null ? null : new ExtWrapTagged(focusFunction)));
         ExtUtil.writeNumeric(out, numEntitiesToDisplayPerRow);
+        ExtUtil.writeBool(out, requireSearch);
         ExtUtil.writeBool(out, useUniformUnitsInCaseTile);
         ExtUtil.write(out, new ExtWrapNullable(
                 parsedRelevancyExpression == null ? null : new ExtWrapTagged(parsedRelevancyExpression)));
@@ -507,6 +513,10 @@ public class Detail implements Externalizable {
             }
         }
         return false;
+    }
+
+    public boolean doesRequireSearch() {
+        return this.requireSearch;
     }
 
     public boolean isPrintEnabled() {
