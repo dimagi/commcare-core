@@ -38,8 +38,8 @@ public class CyclicReferenceTests {
      */
     @Test
     public void testCyclicalReferenceRegression() {
-        testCyclicReferenceForPath("/xform_tests/real_form_with_cycle_errors.xml",4);
-        testCyclicReferenceForPath("/xform_tests/real_form2_with_cycle_errors.xml",2);
+        testCyclicReferenceForPath("/xform_tests/real_form_with_cycle_errors.xml", 4);
+        testCyclicReferenceForPath("/xform_tests/real_form2_with_cycle_errors.xml", 2);
 
     }
 
