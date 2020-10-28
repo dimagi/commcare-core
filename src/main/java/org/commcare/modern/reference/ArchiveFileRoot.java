@@ -57,6 +57,17 @@ public class ArchiveFileRoot implements ReferenceFactory {
         return mGUID;
     }
 
+    public String removeArchiveFile(String appId) {
+        String mGUID;
+        if (appId == null) {
+            mGUID = PropertyUtils.genGUID(GUID_LENGTH);
+        } else {
+            mGUID = appId;
+        }
+        guidToFolderMap.remove(mGUID);
+        return mGUID;
+    }
+
     protected String getGUID(String jrpath) {
         String prependRemoved = jrpath.substring("jr://archive/".length());
         int slashindex = prependRemoved.indexOf("/");
