@@ -20,6 +20,7 @@ public class DateUtils {
     private static final int MONTH_OFFSET = (1 - Calendar.JANUARY);
 
     public static final int FORMAT_ISO8601 = 1;
+    public static final int FORMAT_ISO8601_WALL_TIME = 10;
     public static final int FORMAT_HUMAN_READABLE_SHORT = 2;
     public static final int FORMAT_HUMAN_READABLE_DAYS_FROM_TODAY = 5;
     public static final int FORMAT_TIMESTAMP_SUFFIX = 7;
@@ -296,6 +297,8 @@ public class DateUtils {
         switch (format) {
             case FORMAT_ISO8601:
                 return formatTimeISO8601(f);
+            case FORMAT_ISO8601_WALL_TIME:
+                return formatTimeISO8601(f, true);
             case FORMAT_HUMAN_READABLE_SHORT:
                 return formatTimeColloquial(f);
             case FORMAT_TIMESTAMP_SUFFIX:
@@ -342,7 +345,14 @@ public class DateUtils {
     }
 
     private static String formatTimeISO8601(DateFields f) {
+        return formatTimeISO8601(f, false);
+    }
+
+    private static String formatTimeISO8601(DateFields f, boolean suppressTimezone) {
         String time = intPad(f.hour, 2) + ":" + intPad(f.minute, 2) + ":" + intPad(f.second, 2) + "." + intPad(f.secTicks, 3);
+        if (suppressTimezone) {
+            return time;
+        }
 
         int offset;
         if (timezoneOffset() != -1) {
@@ -499,7 +509,11 @@ public class DateUtils {
     }
 
     public static Date parseTime(String str) {
-        if (timezoneOffset() != -1 && !str.contains("+") && !str.contains("-") && !str.contains("Z")) {
+        return parseTime(str, false);
+    }
+
+    public static Date parseTime(String str, boolean ignoreTimezone) {
+        if (!ignoreTimezone && (timezoneOffset() != -1 && !str.contains("+") && !str.contains("-") && !str.contains("Z"))) {
             str = str + getOffsetInStandardFormat(timezoneOffset());
         }
 
