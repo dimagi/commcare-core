@@ -77,7 +77,7 @@ public class TimeData implements IAnswerData {
 
     @Override
     public UncastData uncast() {
-        return new UncastData(DateUtils.formatTime(d, DateUtils.FORMAT_ISO8601));
+        return new UncastData(DateUtils.formatTime(d, DateUtils.FORMAT_ISO8601_WALL_TIME));
     }
 
     @Override
