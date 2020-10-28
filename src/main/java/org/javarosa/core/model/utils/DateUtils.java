@@ -509,7 +509,11 @@ public class DateUtils {
     }
 
     public static Date parseTime(String str) {
-        if (timezoneOffset() != -1 && !str.contains("+") && !str.contains("-") && !str.contains("Z")) {
+        return parseTime(str, false);
+    }
+
+    public static Date parseTime(String str, boolean ignoreTimezone) {
+        if (!ignoreTimezone && (timezoneOffset() != -1 && !str.contains("+") && !str.contains("-") && !str.contains("Z"))) {
             str = str + getOffsetInStandardFormat(timezoneOffset());
         }
 

@@ -82,7 +82,7 @@ public class TimeData implements IAnswerData {
 
     @Override
     public TimeData cast(UncastData data) throws IllegalArgumentException {
-        Date ret = DateUtils.parseTime(data.value);
+        Date ret = DateUtils.parseTime(data.value, true);
         if (ret != null) {
             return new TimeData(ret);
         }
