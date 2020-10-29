@@ -88,7 +88,7 @@ public class SuiteParser extends ElementParser<Suite> {
         Hashtable<String, Entry> entries = new Hashtable<>();
 
         Vector<Menu> menus = new Vector<>();
-        Vector<Endpoint> endpoints = new Vector<>();
+        Hashtable<String, Endpoint> endpoints = new Hashtable<>();
 
         try {
             //Now that we've covered being inside of a suite,
@@ -169,7 +169,7 @@ public class SuiteParser extends ElementParser<Suite> {
                             break;
                         case NAME_ENDPOINT:
                             Endpoint endpoint = new EndpointParser(parser).parse();
-                            endpoints.addElement(endpoint);
+                            endpoints.put(endpoint.getId(), endpoint);
                             break;
                         default:
                             System.out.println("Unrecognized Tag: " + parser.getName());

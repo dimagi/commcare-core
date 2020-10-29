@@ -4,6 +4,7 @@ import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.Endpoint;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
@@ -113,6 +114,16 @@ public class CommCarePlatform {
             Entry e = s.getEntry(entryId);
             if(e != null) {
                 return e;
+            }
+        }
+        return null;
+    }
+
+    public Endpoint getEndpoint(String endpointId) {
+        for(Suite s : getInstalledSuites()) {
+            Endpoint endpoint = s.getEndpoint(endpointId);
+            if(endpoint != null) {
+                return endpoint;
             }
         }
         return null;

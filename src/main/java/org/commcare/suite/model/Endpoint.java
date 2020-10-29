@@ -40,4 +40,16 @@ public class Endpoint implements Externalizable {
         ExtUtil.write(out, new ExtWrapList(arguments));
         ExtUtil.write(out, new ExtWrapList(stackOperations));
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public Vector<String> getArguments() {
+        return arguments;
+    }
+
+    public Vector<StackOperation> getStackOperations() {
+        return stackOperations;
+    }
 }

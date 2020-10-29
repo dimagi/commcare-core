@@ -46,7 +46,7 @@ public class Suite implements Persistable {
     private final HashMap<String, List<Menu>> rootToMenus = new HashMap<>();
 
     private Vector<Menu> menus;
-    private Vector<Endpoint> endpoints;
+    private Hashtable<String, Endpoint> endpoints;
 
     @SuppressWarnings("unused")
     public Suite() {
@@ -54,7 +54,7 @@ public class Suite implements Persistable {
     }
 
     public Suite(int version, Hashtable<String, Detail> details,
-                 Hashtable<String, Entry> entries, Vector<Menu> menus, Vector<Endpoint> endpoints) {
+                 Hashtable<String, Entry> entries, Vector<Menu> menus, Hashtable<String, Endpoint> endpoints) {
         this.version = version;
         this.details = details;
         this.entries = entries;
@@ -121,6 +121,10 @@ public class Suite implements Persistable {
 
     public Entry getEntry(String id) {
         return entries.get(id);
+    }
+
+    public Endpoint getEndpoint(String id) {
+        return endpoints.get(id);
     }
 
     /**
