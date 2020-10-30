@@ -772,8 +772,7 @@ public class XPathEvalTest {
         bb.get(cipherText);
 
         Cipher cipher = Cipher.getInstance(ENCRYPT_ALGO);
-        cipher.init(Cipher.DECRYPT_MODE, secretKey,
-                    new GCMParameterSpec(TAG_LENGTH_BIT, iv));
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, new GCMParameterSpec(TAG_LENGTH_BIT, iv));
         byte[] plainText = cipher.doFinal(cipherText);
         return new String(plainText, StandardCharsets.UTF_8);
     }
@@ -793,7 +792,6 @@ public class XPathEvalTest {
         // and check for the input message.
         String keyString =
                 new String(Base64.getEncoder().encode(secretKey.getEncoded()), "UTF-8");
-        System.out.println(keyString);
         try {
             Object result = evalExpr("encrypt-string('" + message + "','" +
                                      keyString + "','" + algorithm + "')",
