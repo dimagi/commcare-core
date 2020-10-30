@@ -30,6 +30,8 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
+
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
@@ -759,8 +761,8 @@ public class XPathEvalTest {
         final int TAG_LENGTH_BIT = 128;
         final int IV_LENGTH_BYTE = 12;
 
-        Base64.Decoder messageDecoder = Base64.getUrlDecoder();
-        byte[] messageBytes = messageDecoder.decode(output);
+        Base64.Decoder messageDecoder = Base64.getDecoder();
+        byte[] messageBytes = messageDecoder.decode(output.getBytes("UTF-8"));
 
         ByteBuffer bb = ByteBuffer.wrap(messageBytes);
         byte[] iv = new byte[IV_LENGTH_BYTE];
@@ -778,7 +780,7 @@ public class XPathEvalTest {
 
     public void encryptAndCompare(EvaluationContext ec, String algorithm,
                                   int keyLength, String message,
-                                  Exception expectedException) {
+                                  Exception expectedException) throws UnsupportedEncodingException {
         SecretKey secretKey = null;
         try {
             secretKey = generateSecretKey(keyLength);
@@ -790,7 +792,8 @@ public class XPathEvalTest {
         // we can't know in advance what it will be. Instead decrypt the output
         // and check for the input message.
         String keyString =
-            Base64.getUrlEncoder().encodeToString(secretKey.getEncoded());
+                new String(Base64.getEncoder().encode(secretKey.getEncoded()), "UTF-8");
+        System.out.println(keyString);
         try {
             Object result = evalExpr("encrypt-string('" + message + "','" +
                                      keyString + "','" + algorithm + "')",
@@ -810,7 +813,7 @@ public class XPathEvalTest {
     }
 
     @Test
-    public void testEncryptString() {
+    public void testEncryptString() throws UnsupportedEncodingException {
         final int KEY_LENGTH_BIT = 256;
         EvaluationContext ec = getFunctionHandlers();
         // Valid inputs that should decrypt to themselves.
