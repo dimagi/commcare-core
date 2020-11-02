@@ -54,6 +54,8 @@ public class EntityScreen extends CompoundScreenHost {
 
     private Vector<TreeReference> references;
 
+    private boolean initialized = false;
+
     public EntityScreen(boolean handleCaseIndex) {
         this.handleCaseIndex = handleCaseIndex;
     }
@@ -72,6 +74,9 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     public void init(SessionWrapper session) throws CommCareSessionException {
+        if (initialized) {
+            return;
+        }
         SessionDatum datum = session.getNeededDatum();
         if (!(datum instanceof EntityDatum)) {
             throw new CommCareSessionException("Didn't find an entity select action where one is expected.");
@@ -124,6 +129,7 @@ public class EntityScreen extends CompoundScreenHost {
                 mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext, handleCaseIndex);
             }
         }
+        initialized = true;
     }
 
     private Vector<TreeReference> expandEntityReferenceSet(EvaluationContext context) {
@@ -175,7 +181,6 @@ public class EntityScreen extends CompoundScreenHost {
         String selectedValue = this.getReturnValueFromSelection(this.mCurrentSelection,
                 mNeededDatum, evalContext);
         session.setDatum(mNeededDatum.getDataId(), selectedValue);
-
     }
 
     public void setHighlightedEntity(TreeReference selection) {
