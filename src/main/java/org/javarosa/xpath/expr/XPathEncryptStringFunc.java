@@ -16,7 +16,7 @@ import java.nio.charset.Charset;
 import java.security.SecureRandom;
 
 public class XPathEncryptStringFunc extends XPathFuncExpr {
-    public static final String NAME = "encrypt-string";
+    public static final String NAME = "encrypt";
     private static final int EXPECTED_ARG_COUNT = 3;
 
     public XPathEncryptStringFunc() {

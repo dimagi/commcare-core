@@ -793,7 +793,7 @@ public class XPathEvalTest {
         String keyString =
                 new String(Base64.getEncoder().encode(secretKey.getEncoded()), "UTF-8");
         try {
-            Object result = evalExpr("encrypt-string('" + message + "','" +
+            Object result = evalExpr("encrypt('" + message + "','" +
                                      keyString + "','" + algorithm + "')",
                                      null, ec);
             String resultString = FunctionUtils.toString(result);
