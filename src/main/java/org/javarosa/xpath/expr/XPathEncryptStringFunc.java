@@ -16,7 +16,7 @@ import java.nio.charset.Charset;
 import java.security.SecureRandom;
 
 public class XPathEncryptStringFunc extends XPathFuncExpr {
-    public static final String NAME = "encrypt";
+    public static final String NAME = "encrypt-string";
     private static final int EXPECTED_ARG_COUNT = 3;
 
     public XPathEncryptStringFunc() {
@@ -73,6 +73,11 @@ public class XPathEncryptStringFunc extends XPathFuncExpr {
             cipher.init(Cipher.ENCRYPT_MODE, secret);
             byte[] encryptedMessage = cipher.doFinal(message.getBytes(Charset.forName("UTF-8")));
             byte[] iv = cipher.getIV();
+            if (iv.length != IV_LENGTH_BYTE) {
+                throw new XPathException("Initialization vector should be " +
+                                         IV_LENGTH_BYTE + " bytes long, not " +
+                                         iv.length);
+            }
             byte[] ivPlusMessage = ByteBuffer.allocate(iv.length + encryptedMessage.length)
                 .put(iv)
                 .put(encryptedMessage)
