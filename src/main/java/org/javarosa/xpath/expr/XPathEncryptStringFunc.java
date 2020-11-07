@@ -46,7 +46,8 @@ public class XPathEncryptStringFunc extends XPathFuncExpr {
         String algorithm = FunctionUtils.toString(o3);
 
         final String ENCRYPT_ALGO = "AES/GCM/NoPadding";
-        final int IV_LENGTH_BYTE = 12;
+        final int MIN_IV_LENGTH_BYTE = 1;
+        final int MAX_IV_LENGTH_BYTE = 255;
         final int KEY_LENGTH_BIT = 256;
 
         if (!algorithm.equals("AES")) {
@@ -73,12 +74,15 @@ public class XPathEncryptStringFunc extends XPathFuncExpr {
             cipher.init(Cipher.ENCRYPT_MODE, secret);
             byte[] encryptedMessage = cipher.doFinal(message.getBytes(Charset.forName("UTF-8")));
             byte[] iv = cipher.getIV();
-            if (iv.length != IV_LENGTH_BYTE) {
-                throw new XPathException("Initialization vector should be " +
-                                         IV_LENGTH_BYTE + " bytes long, not " +
-                                         iv.length);
+            if (iv.length < MIN_IV_LENGTH_BYTE || iv.length > MAX_IV_LENGTH_BYTE) {
+                throw new XPathException("Initialization vector should be between " +
+                                         MIN_IV_LENGTH_BYTE + " and " + MAX_IV_LENGTH_BYTE +
+                                         " bytes long, but it is " + iv.length + " bytes");
             }
-            byte[] ivPlusMessage = ByteBuffer.allocate(iv.length + encryptedMessage.length)
+            // The conversion of iv.length to byte takes the low 8 bits. To
+            // convert back, cast to int and mask with 0xFF.
+            byte[] ivPlusMessage = ByteBuffer.allocate(1 + iv.length + encryptedMessage.length)
+                .put((byte) iv.length)
                 .put(iv)
                 .put(encryptedMessage)
                 .array();

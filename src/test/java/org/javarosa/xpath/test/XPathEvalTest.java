@@ -759,13 +759,13 @@ public class XPathEvalTest {
         throws Exception {
         final String ENCRYPT_ALGO = "AES/GCM/NoPadding";
         final int TAG_LENGTH_BIT = 128;
-        final int IV_LENGTH_BYTE = 12;
 
         Base64.Decoder messageDecoder = Base64.getDecoder();
         byte[] messageBytes = messageDecoder.decode(output.getBytes("UTF-8"));
 
         ByteBuffer bb = ByteBuffer.wrap(messageBytes);
-        byte[] iv = new byte[IV_LENGTH_BYTE];
+        int iv_length_byte = bb.get() & 0xFF;
+        byte[] iv = new byte[iv_length_byte];
         bb.get(iv);
 
         byte[] cipherText = new byte[bb.remaining()];
