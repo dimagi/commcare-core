@@ -262,7 +262,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     @Override
     public void update(int id, T e) {
         data.put(DataUtil.integer(id), e);
-        syncMeta();
+        addMeta(DataUtil.integer(id));
     }
 
     @Override
