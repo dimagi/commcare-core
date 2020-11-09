@@ -283,29 +283,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 
         for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
             Integer i = (Integer)en.nextElement();
-            Externalizable e = data.get(i);
-
-            if (e instanceof IMetaData) {
-                IMetaData m = (IMetaData)e;
-                for (Enumeration keys = meta.keys(); keys.hasMoreElements(); ) {
-                    String key = (String)keys.nextElement();
-
-                    Object value = m.getMetaData(key);
-                    if (value == null) {
-                        continue;
-                    }
-
-                    Hashtable<Object, Vector<Integer>> records = meta.get(key);
-
-                    if (!records.containsKey(value)) {
-                        records.put(value, new Vector<Integer>());
-                    }
-                    Vector<Integer> indices = records.get(value);
-                    if (!indices.contains(i)) {
-                        indices.add(i);
-                    }
-                }
-            }
+            addMeta(i);
         }
     }
 
