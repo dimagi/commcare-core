@@ -1,5 +1,6 @@
 package org.commcare.util.screen;
 
+import datadog.trace.api.Trace;
 import org.commcare.cases.entity.EntityUtil;
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
@@ -91,6 +92,7 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
+    @Trace
     public void init(SessionWrapper session) throws CommCareSessionException {
         if (initialized) {
             return;
@@ -156,6 +158,7 @@ public class EntityScreen extends CompoundScreenHost {
         evalContext = mSession.getEvaluationContext();
     }
 
+    @Trace
     private Vector<TreeReference> expandEntityReferenceSet(EvaluationContext context) {
         return evalContext.expandReference(mNeededDatum.getNodeset());
     }
@@ -179,6 +182,7 @@ public class EntityScreen extends CompoundScreenHost {
         return mCurrentScreen;
     }
 
+    @Trace
     public static String getReturnValueFromSelection(TreeReference contextRef, EntityDatum needed, EvaluationContext context) {
         // grab the session's (form) element reference, and load it.
         TreeReference elementRef =
@@ -195,6 +199,7 @@ public class EntityScreen extends CompoundScreenHost {
         return value;
     }
 
+    @Trace
     @Override
     protected void updateSession(CommCareSession session) {
         if (mPendingAction != null) {
@@ -207,10 +212,12 @@ public class EntityScreen extends CompoundScreenHost {
         session.setDatum(mNeededDatum.getDataId(), selectedValue);
     }
 
+    @Trace
     public void setHighlightedEntity(TreeReference selection) {
         this.mCurrentSelection = selection;
     }
 
+    @Trace
     public void setHighlightedEntity(String id) throws CommCareSessionException {
         if (referenceMap == null) {
             this.mCurrentSelection = mNeededDatum.getEntityFromID(evalContext, id);
