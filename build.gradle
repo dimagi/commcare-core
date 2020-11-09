@@ -73,6 +73,8 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:4.4.1'
     compile 'com.google.code.findbugs:jsr305:3.0.2'
     compile 'io.reactivex.rxjava2:rxjava:2.1.1'
+    compile 'io.opentracing:opentracing-util:0.33.0'
+    compile 'com.datadoghq:dd-trace-api:0.64.0'
 
     cliCompile 'org.json:json:20140107'
     cliCompile group: 'regexp', name: 'regexp', version: '1.3'
