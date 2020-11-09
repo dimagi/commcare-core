@@ -61,7 +61,7 @@
     </field>
   </detail>
 
-  <detail id="m1_case_short">
+  <detail id="m1_case_short" require-search="true">
     <title>
       <text>With focus function</text>
     </title>

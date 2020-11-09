@@ -99,6 +99,16 @@ public class AppStructureTests {
     }
 
     @Test
+    public void testCaseListRequiresSearch() {
+        Assert.assertTrue(mApp.getSession().getPlatform().getDetail("m1_case_short").isSearchRequired());
+    }
+
+    @Test
+    public void testCaseListDoesNotRequireSearch() {
+        Assert.assertFalse(mApp.getSession().getPlatform().getDetail("m0_case_short").isSearchRequired());
+    }
+
+    @Test
     public void testDemoUserRestoreParsing() throws Exception {
         // Test parsing an app with a properly-formed demo user restore file
         MockApp appWithGoodUserRestore = new MockApp("/app_with_good_demo_restore/");
