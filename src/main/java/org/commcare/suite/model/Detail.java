@@ -515,7 +515,7 @@ public class Detail implements Externalizable {
         return false;
     }
 
-    public boolean doesRequireSearch() {
+    public boolean isSearchRequired() {
         return this.requireSearch;
     }
 
