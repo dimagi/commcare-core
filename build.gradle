@@ -108,6 +108,9 @@ dependencies {
     apiCompile 'io.reactivex.rxjava2:rxjava:2.1.1'
     apiCompile "com.squareup.retrofit2:retrofit:2.3.0"
     apiCompile 'com.squareup.okhttp3:okhttp:4.4.1'
+    apiCompile 'io.opentracing:opentracing-api:0.33.0'
+    apiCompile 'io.opentracing:opentracing-util:0.33.0'
+    apiCompile 'com.datadoghq:dd-trace-api:0.64.0'
 
     translateCompile 'com.github.stefanhaustein:kxml2:2.4.1'
     translateCompile 'xpp3:xpp3:1.1.4c'
