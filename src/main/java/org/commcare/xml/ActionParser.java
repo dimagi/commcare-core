@@ -36,6 +36,7 @@ public class ActionParser extends CommCareElementParser<Action> {
         Vector<StackOperation> stackOps = new Vector<>();
 
         XPathExpression relevantExpr = parseRelevancyExpr();
+        boolean isAutoLaunching = "true".equals(parser.getAttributeValue(null, "auto_launch"));
 
         while (nextTagInBlock(NAME_ACTION)) {
             if (parser.getName().equals("display")) {
@@ -54,7 +55,7 @@ public class ActionParser extends CommCareElementParser<Action> {
         if (stackOps.size() == 0) {
             throw new InvalidStructureException("An <action> block must define at least one stack operation", parser);
         }
-        return new Action(display, stackOps, relevantExpr, iconForActionBarPlacement);
+        return new Action(display, stackOps, relevantExpr, iconForActionBarPlacement, isAutoLaunching);
     }
 
     private XPathExpression parseRelevancyExpr() throws InvalidStructureException {

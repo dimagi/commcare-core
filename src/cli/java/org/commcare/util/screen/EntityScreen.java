@@ -56,6 +56,10 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     public void init(SessionWrapper session) throws CommCareSessionException {
+        init(session, false);
+    }
+
+    public void init(SessionWrapper session, boolean allowAutoLaunch) throws CommCareSessionException {
         SessionDatum datum = session.getNeededDatum();
         if (!(datum instanceof EntityDatum)) {
             throw new CommCareSessionException("Didn't find an entity select action where one is expected.");
@@ -77,6 +81,19 @@ public class EntityScreen extends CompoundScreenHost {
         }
 
         evalContext = mSession.getEvaluationContext();
+
+        for (Action action : mShortDetail.getCustomActions(evalContext)) {
+            if (action.isAutoLaunching()) {
+                // Supply an empty case list so we can "select" from it later using getEntityFromID
+                mCurrentScreen = new EntityListSubscreen(mShortDetail, new Vector<TreeReference>(), evalContext, handleCaseIndex);
+                full = false;
+                if (allowAutoLaunch) {
+                    this.setPendingAction(action);
+                    this.updateSession(session);
+                    return;
+                }
+            }
+        }
 
         Vector<TreeReference> references = expandEntityReferenceSet(evalContext);
 
@@ -165,7 +182,11 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     public void setHighlightedEntity(String id) throws CommCareSessionException {
-        this.mCurrentSelection = referenceMap.get(id);
+        if (this.mCurrentSelection == null) {
+            this.mCurrentSelection = mNeededDatum.getEntityFromID(evalContext, id);
+        } else {
+            this.mCurrentSelection = referenceMap.get(id);
+        }
         if (this.mCurrentSelection == null) {
             throw new CommCareSessionException("EntityScreen " + this.toString() + " could not select case " + id + "." +
                     " If this error persists please report a bug to CommCareHQ.");
