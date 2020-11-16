@@ -204,6 +204,12 @@ public class CaseXmlParser extends TransactionParser<Case> {
                 case "external_id":
                     caseForBlock.setExternalId(value);
                     break;
+                case "patient_type":
+                    caseForBlock.setPatientType(value);
+                    break;
+                case "current_status":
+                    caseForBlock.setCurrentStatus(value);
+                    break;
                 default:
                     caseForBlock.setProperty(key, value);
                     break;
