@@ -73,35 +73,11 @@ public class EntityScreen extends CompoundScreenHost {
         this.full = full;
     }
 
-    public void init(SessionWrapper session) throws CommCareSessionException {
-        init(session, false);
-    }
+    public EntityScreen(boolean handleCaseIndex, boolean full, boolean allowAutoLaunch, SessionWrapper session) throws CommCareSessionException {
+        this.handleCaseIndex = handleCaseIndex;
+        this.full = full;
 
-    public void init(SessionWrapper session, boolean allowAutoLaunch) throws CommCareSessionException {
-        if (initialized) {
-            return;
-        }
-        SessionDatum datum = session.getNeededDatum();
-        if (!(datum instanceof EntityDatum)) {
-            throw new CommCareSessionException("Didn't find an entity select action where one is expected.");
-        }
-        mNeededDatum = (EntityDatum)datum;
-
-        this.mSession = session;
-        this.mPlatform = mSession.getPlatform();
-
-        String detailId = mNeededDatum.getShortDetail();
-        if (detailId == null) {
-            throw new CommCareSessionException("Can't handle entity selection with blank detail definition for datum " + mNeededDatum.getDataId());
-        }
-
-        mShortDetail = this.mPlatform.getDetail(detailId);
-
-        if (mShortDetail == null) {
-            throw new CommCareSessionException("Missing detail definition for: " + detailId);
-        }
-
-        evalContext = mSession.getEvaluationContext();
+        this.setSession(session);
 
         for (Action action : mShortDetail.getCustomActions(evalContext)) {
             if (action.isAutoLaunching()) {
@@ -115,6 +91,14 @@ public class EntityScreen extends CompoundScreenHost {
                 }
             }
         }
+    }
+
+    public void init(SessionWrapper session) throws CommCareSessionException {
+        if (initialized) {
+            return;
+        }
+
+        this.setSession(session);
 
         references = expandEntityReferenceSet(evalContext);
 
@@ -147,6 +131,30 @@ public class EntityScreen extends CompoundScreenHost {
             }
         }
         initialized = true;
+    }
+
+    private void setSession(SessionWrapper session) throws CommCareSessionException {
+        SessionDatum datum = session.getNeededDatum();
+        if (!(datum instanceof EntityDatum)) {
+            throw new CommCareSessionException("Didn't find an entity select action where one is expected.");
+        }
+        mNeededDatum = (EntityDatum)datum;
+
+        this.mSession = session;
+        this.mPlatform = mSession.getPlatform();
+
+        String detailId = mNeededDatum.getShortDetail();
+        if (detailId == null) {
+            throw new CommCareSessionException("Can't handle entity selection with blank detail definition for datum " + mNeededDatum.getDataId());
+        }
+
+        mShortDetail = this.mPlatform.getDetail(detailId);
+
+        if (mShortDetail == null) {
+            throw new CommCareSessionException("Missing detail definition for: " + detailId);
+        }
+
+        evalContext = mSession.getEvaluationContext();
     }
 
     private Vector<TreeReference> expandEntityReferenceSet(EvaluationContext context) {
