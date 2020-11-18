@@ -144,11 +144,10 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     @Override
     public int add(T e) {
         data.put(DataUtil.integer(curCount), e);
+        addMeta(curCount);
 
         // This is not a legit pair of operations;
         curCount++;
-
-        syncMeta();
 
         return curCount - 1;
     }
@@ -263,14 +262,14 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     @Override
     public void update(int id, T e) {
         data.put(DataUtil.integer(id), e);
-        syncMeta();
+        addMeta(DataUtil.integer(id));
     }
 
     @Override
     public void write(Persistable p) {
         if (p.getID() != -1) {
             this.data.put(DataUtil.integer(p.getID()), (T)p);
-            syncMeta();
+            addMeta(DataUtil.integer(p.getID()));
         } else {
             p.setID(curCount);
             this.add((T)p);
@@ -284,27 +283,31 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 
         for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
             Integer i = (Integer)en.nextElement();
-            Externalizable e = data.get(i);
+            addMeta(i);
+        }
+    }
 
-            if (e instanceof IMetaData) {
-                IMetaData m = (IMetaData)e;
-                for (Enumeration keys = meta.keys(); keys.hasMoreElements(); ) {
-                    String key = (String)keys.nextElement();
+    private void addMeta(Integer i) {
+        Externalizable e = data.get(i);
 
-                    Object value = m.getMetaData(key);
-                    if (value == null) {
-                        continue;
-                    }
+        if (e instanceof IMetaData) {
+            IMetaData m = (IMetaData)e;
+            for (Enumeration keys = meta.keys(); keys.hasMoreElements(); ) {
+                String key = (String)keys.nextElement();
 
-                    Hashtable<Object, Vector<Integer>> records = meta.get(key);
+                Object value = m.getMetaData(key);
+                if (value == null) {
+                    continue;
+                }
 
-                    if (!records.containsKey(value)) {
-                        records.put(value, new Vector<Integer>());
-                    }
-                    Vector<Integer> indices = records.get(value);
-                    if (!indices.contains(i)) {
-                        indices.add(i);
-                    }
+                Hashtable<Object, Vector<Integer>> records = meta.get(key);
+
+                if (!records.containsKey(value)) {
+                    records.put(value, new Vector<Integer>());
+                }
+                Vector<Integer> indices = records.get(value);
+                if (!indices.contains(i)) {
+                    indices.add(i);
                 }
             }
         }
