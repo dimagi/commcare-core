@@ -205,7 +205,7 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     public void setHighlightedEntity(String id) throws CommCareSessionException {
-        if (this.mCurrentSelection == null) {
+        if (referenceMap == null) {
             this.mCurrentSelection = mNeededDatum.getEntityFromID(evalContext, id);
         } else {
             this.mCurrentSelection = referenceMap.get(id);
