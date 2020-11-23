@@ -105,9 +105,6 @@ public class QueryScreen extends Screen {
         if (instanceOrError.first == null) {
             currentMessage = "Query response format error: " + instanceOrError.second;
             return false;
-        } else if (isResponseEmpty(instanceOrError.first)) {
-            currentMessage = "Query successful but returned no results.";
-            return false;
         } else {
             sessionWrapper.setQueryDatum(instanceOrError.first);
             return true;
