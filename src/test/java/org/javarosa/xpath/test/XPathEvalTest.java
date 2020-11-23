@@ -37,7 +37,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Date;
-import java.util.TimeZone;
 import java.util.Vector;
 
 import static org.junit.Assert.fail;
@@ -751,7 +750,7 @@ public class XPathEvalTest {
     // Utility methods for string encryption.
     private SecretKey generateSecretKey(int keyLength) throws Exception {
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-        keyGen.init(keyLength, SecureRandom.getInstanceStrong());
+        keyGen.init(keyLength, new SecureRandom());
         return keyGen.generateKey();
     }
 
