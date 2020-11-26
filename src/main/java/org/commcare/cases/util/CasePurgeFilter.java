@@ -5,6 +5,8 @@ package org.commcare.cases.util;
 
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
+import org.commcare.util.LogTypes;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -100,6 +102,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         for (Enumeration iterator = internalCaseDAG.getNodes(); iterator.hasMoreElements(); ) {
             int[] node = (int[])iterator.nextElement();
             if (!caseStatusIs(node[0], STATUS_ALIVE)) {
+                Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "Device found a dead case with ID: " + node[1]);
                 idsToRemove.addElement(new Integer(node[1]));
             }
         }
