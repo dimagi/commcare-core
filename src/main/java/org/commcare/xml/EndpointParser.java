@@ -36,7 +36,10 @@ public class EndpointParser extends ElementParser<Endpoint> {
                 }
                 arguments.add(argumentID);
             } else if (tagName.contentEquals(NAME_STACK)) {
-                stackOperations.add(new StackOpParser(parser).parse());
+                StackOpParser sop = new StackOpParser(parser);
+                while (this.nextTagInBlock(NAME_STACK)) {
+                    stackOperations.add(sop.parse());
+                }
             }
         }
 

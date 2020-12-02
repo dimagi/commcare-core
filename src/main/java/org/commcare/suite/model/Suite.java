@@ -127,6 +127,10 @@ public class Suite implements Persistable {
         return endpoints.get(id);
     }
 
+    public Hashtable<String, Endpoint> getEndpoints() {
+        return endpoints;
+    }
+
     /**
      * @param id The String ID of a detail definition
      * @return A Detail definition associated with the provided
