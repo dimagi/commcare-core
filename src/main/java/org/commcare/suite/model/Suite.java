@@ -148,6 +148,7 @@ public class Suite implements Persistable {
         this.details = (Hashtable<String, Detail>)ExtUtil.read(in, new ExtWrapMap(String.class, Detail.class), pf);
         this.entries = (Hashtable)ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
         this.menus = (Vector<Menu>)ExtUtil.read(in, new ExtWrapList(Menu.class), pf);
+        this.endpoints = (Hashtable<String, Endpoint>)ExtUtil.read(in, new ExtWrapMap(String.class, Endpoint.class), pf);
         buildIdToMenus();
     }
 
@@ -158,5 +159,6 @@ public class Suite implements Persistable {
         ExtUtil.write(out, new ExtWrapMap(details));
         ExtUtil.write(out, new ExtWrapMapPoly(entries));
         ExtUtil.write(out, new ExtWrapList(menus));
+        ExtUtil.write(out, new ExtWrapMap(endpoints));
     }
 }

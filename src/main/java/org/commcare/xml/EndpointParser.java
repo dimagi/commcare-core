@@ -23,7 +23,11 @@ public class EndpointParser extends ElementParser<Endpoint> {
 
     @Override
     public Endpoint parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
-        String id = parser.getAttributeValue(null, "id");
+        String endpointId = parser.getAttributeValue(null, "id");
+        if (endpointId == null || endpointId.isEmpty()) {
+            throw new InvalidStructureException("endpoint must define a non empty id", parser);
+        }
+
         Vector<StackOperation> stackOperations = new Vector<>();
         Vector<String> arguments = new Vector<>();
 
@@ -43,6 +47,6 @@ public class EndpointParser extends ElementParser<Endpoint> {
             }
         }
 
-        return new Endpoint(id, arguments, stackOperations);
+        return new Endpoint(endpointId, arguments, stackOperations);
     }
 }
