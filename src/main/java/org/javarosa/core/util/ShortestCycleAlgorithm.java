@@ -1,16 +1,18 @@
 package org.javarosa.core.util;
 
+import org.commcare.util.CollectionUtils;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
 /**
- *
  * Modeled after algorithm here https://stackoverflow.com/a/549312
  *
  * Given a Vector of TreeReference pairs where edges[0] references edges[1]
@@ -29,7 +31,7 @@ public class ShortestCycleAlgorithm {
 
     public ShortestCycleAlgorithm(Vector<TreeReference[]> edges) {
         this.edges = edges;
-        for (TreeReference[] references: edges) {
+        for (TreeReference[] references : edges) {
 
             String parentKey = references[1].toString();
             String childKey = references[0].toString();
@@ -40,7 +42,7 @@ public class ShortestCycleAlgorithm {
             }
         }
 
-        for (String node: nodes) {
+        for (String node : nodes) {
             ArrayList<String> shortestPath = depthFirstSearch(node, node, new ArrayList<String>());
             if (shortestPath != null && (shortestCycle == null || shortestPath.size() < shortestCycle.size())) {
                 shortestCycle = shortestPath;
@@ -60,7 +62,7 @@ public class ShortestCycleAlgorithm {
 
     // Add the new node to the set of reachable nodes for all already-visited nodes
     private void addReachbleToVisited(List<String> visited, String reachable) {
-        for (String visit: visited) {
+        for (String visit : visited) {
             addReachable(visit, reachable);
         }
     }
@@ -93,7 +95,7 @@ public class ShortestCycleAlgorithm {
                 // Then this child cannot contain a cycle
                 if (walked.contains(child)) {
                     ArrayList<String> reachables = reachableMap.get(child);
-                    if (reachables == null || !reachables.contains(visited)) {
+                    if (reachables == null || !CollectionUtils.containsAny(reachables, visited)) {
                         continue;
                     }
                 }
@@ -122,9 +124,9 @@ public class ShortestCycleAlgorithm {
                 stringBuilder.append(shortestCycle.get(0));
                 stringBuilder.append(".");
             } else {
-                stringBuilder.append( " references " );
+                stringBuilder.append(" references ");
                 stringBuilder.append(shortestCycle.get(i + 1));
-                stringBuilder.append( ", \n" );
+                stringBuilder.append(", \n");
             }
         }
         return stringBuilder.toString();
@@ -135,8 +137,8 @@ public class ShortestCycleAlgorithm {
      * edges. Helpful for debugging
      */
     private String toDOTDigraph() {
-        String graph ="";
-        for(TreeReference[] edge : edges){
+        String graph = "";
+        for (TreeReference[] edge : edges) {
             graph += clean(edge[0].toString(false)) + " -> " + clean(edge[1].toString(false)) + ";\n";
         }
 

@@ -77,12 +77,12 @@ public class TimeData implements IAnswerData {
 
     @Override
     public UncastData uncast() {
-        return new UncastData(DateUtils.formatTime(d, DateUtils.FORMAT_ISO8601));
+        return new UncastData(DateUtils.formatTime(d, DateUtils.FORMAT_ISO8601_WALL_TIME));
     }
 
     @Override
     public TimeData cast(UncastData data) throws IllegalArgumentException {
-        Date ret = DateUtils.parseTime(data.value);
+        Date ret = DateUtils.parseTime(data.value, true);
         if (ret != null) {
             return new TimeData(ret);
         }
