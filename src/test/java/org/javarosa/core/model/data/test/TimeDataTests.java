@@ -1,6 +1,7 @@
 package org.javarosa.core.model.data.test;
 
 import org.javarosa.core.model.data.TimeData;
+import org.javarosa.core.model.data.UncastData;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -65,5 +66,11 @@ public class TimeDataTests {
         }
         assertTrue("TimeData failed to throw an exception when setting null data", exceptionThrown);
         assertTrue("TimeData overwrote existing value on incorrect input", data.getValue().equals(now));
+    }
+
+    @Test
+    public void testIdentity() {
+        TimeData data = new TimeData().cast(new UncastData("10:00"));
+        assertEquals("10:00", data.getDisplayText());
     }
 }

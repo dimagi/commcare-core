@@ -7,6 +7,7 @@ import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.QueryPrompt;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.util.OrderedHashtable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,7 +31,7 @@ import okhttp3.Response;
 public class QueryScreen extends Screen {
 
     private RemoteQuerySessionManager remoteQuerySessionManager;
-    private Hashtable<String, QueryPrompt> userInputDisplays;
+    private OrderedHashtable<String, QueryPrompt> userInputDisplays;
     private SessionWrapper sessionWrapper;
     private String[] fields;
     private String mTitle;
@@ -105,9 +106,6 @@ public class QueryScreen extends Screen {
         if (instanceOrError.first == null) {
             currentMessage = "Query response format error: " + instanceOrError.second;
             return false;
-        } else if (isResponseEmpty(instanceOrError.first)) {
-            currentMessage = "Query successful but returned no results.";
-            return false;
         } else {
             sessionWrapper.setQueryDatum(instanceOrError.first);
             return true;
@@ -167,7 +165,8 @@ public class QueryScreen extends Screen {
         return refresh;
     }
 
-    public Hashtable<String, QueryPrompt> getUserInputDisplays(){
+
+    public OrderedHashtable<String, QueryPrompt> getUserInputDisplays(){
         return userInputDisplays;
     }
 

@@ -117,7 +117,8 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
                 continue;
             }
             if (mult == TreeReference.INDEX_UNBOUND) {
-                if (node.getChildMultiplicity(name) == 1) {
+                int inferredMultiplicity = node.getChildMultiplicity(name);
+                if (inferredMultiplicity == 1 || inferredMultiplicity == 0) {
                     mult = 0;
                 } else {
                     // reference is not unambiguous
