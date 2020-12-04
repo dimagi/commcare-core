@@ -73,6 +73,24 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         }
     }
 
+    private Vector<Integer> getIDsForInverseValue(String fieldName, Object value) {
+        if (meta.get(fieldName) == null) {
+            throw new IllegalArgumentException("Unsupported index: " + fieldName + " for storage of " + prototype.getName());
+        }
+        Hashtable<Object, Vector<Integer>> allValues = meta.get(fieldName);
+        Vector<Integer> ids = new Vector<>();
+        for (Enumeration en = allValues.keys(); en.hasMoreElements(); ) {
+            Object key = en.nextElement();
+
+            if (!key.equals(value) && allValues.get(key) != null) {
+                for (Integer id : allValues.get(key)) {
+                    ids.add(id);
+                }
+            }
+        }
+        return ids;
+    }
+
     @Override
     public Vector<Integer> getIDsForValue(String fieldName, Object value) {
         //We don't support all index types
@@ -92,9 +110,22 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 
     @Override
     public List<Integer> getIDsForValues(String[] fieldNames, Object[] values, LinkedHashSet<Integer> returnSet) {
+        return getIDsForValues(fieldNames, values, new String[0], new Object[0], returnSet);
+    }
+
+    @Override
+    public List<Integer> getIDsForValues(String[] fieldNames, Object[] values, String[] inverseMatchFields, Object[] inverseMatchValues, LinkedHashSet<Integer> returnSet) {
         List<Integer> accumulator = null;
         for (int i = 0; i < fieldNames.length; ++i) {
             Vector<Integer> matches = getIDsForValue(fieldNames[i], values[i]);
+            if (accumulator == null) {
+                accumulator = new Vector<>(matches);
+            } else {
+                accumulator = DataUtil.intersection(accumulator, matches);
+            }
+        }
+        for (int i = 0; i < inverseMatchFields.length; ++i) {
+            Vector<Integer> matches = getIDsForInverseValue(inverseMatchFields[i], inverseMatchValues[i]);
             if (accumulator == null) {
                 accumulator = new Vector<>(matches);
             } else {

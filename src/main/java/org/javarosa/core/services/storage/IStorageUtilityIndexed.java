@@ -194,6 +194,23 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
     List<Integer> getIDsForValues(String[] metaFieldNames, Object[] values, LinkedHashSet<Integer> returnSet);
 
     /**
+    * Retrieves a Vector of IDs of Externalizable objects in storage for which the field
+    * specified contains the values specified.
+    *
+    * @param metaFieldNames A list of metadata field names to match
+    * @param values     The values which must match the field names provided
+    * @param inverseFieldNames A list of field names to inverse match (!=)
+    * @param inverseValues     The values which the field must not match
+    * @param returnSet A LinkedHashSet of integers which match the return value
+    * @return A Vector of Integers such that retrieving the Externalizable object with any
+    * of those integer IDs will result in an object for which the fields specified are equal
+    * to the value provided.
+    * @throws RuntimeException (Fix this exception type) if the field is unrecognized by the
+    *                          meta data
+    */
+    List<Integer> getIDsForValues(String[] metaFieldNames, Object[] values, String[] inverseFieldNames, Object[] inverseValues, LinkedHashSet<Integer> returnSet);
+
+    /**
      * Retrieves a Externalizable object from the storage which is reference by the unique index fieldName.
      *
      * @param metaFieldName The name of the index field which will be evaluated

@@ -34,6 +34,20 @@ public class DatabaseHelper {
     public static Pair<String, String[]> createWhere(String[] fieldNames, Object[] values,
                                                      EncryptedModel em, Persistable p)
             throws IllegalArgumentException {
+        return createWhere(fieldNames, values, null, null, em, p);
+    }
+
+     public static Pair<String, String[]> createWhere(String[] fieldNames, Object[] values,
+                                                     String[] inverseFieldNames, Object[] inverseValues,
+                                                     Persistable p)
+             throws IllegalArgumentException {
+         return createWhere(fieldNames, values, null, null, null, p);
+     }
+
+    public static Pair<String, String[]> createWhere(String[] fieldNames, Object[] values,
+                                                     String[] inverseFieldNames, Object[] inverseValues,
+                                                     EncryptedModel em, Persistable p)
+            throws IllegalArgumentException {
         Set<String> fields = null;
         if (p instanceof IMetaData) {
             IMetaData m = (IMetaData)p;
@@ -75,6 +89,26 @@ public class DatabaseHelper {
             arguments.add(values[i].toString());
 
             set = true;
+        }
+        if (inverseFieldNames != null) {
+            for (int i=0; i < inverseFieldNames.length; ++i) {
+                String columnName = TableBuilder.scrubName(inverseFieldNames[i]);
+                if (fields != null) {
+                    if (!fields.contains(columnName)) {
+                        continue;
+                    }
+                }
+                if (set) {
+                    stringBuilder.append(" AND ");
+                }
+
+                stringBuilder.append(columnName);
+                stringBuilder.append("!=?");
+
+                arguments.add(inverseValues[i].toString());
+
+                set = true;
+            }
         }
         // we couldn't match any of the fields to our columns
         if (!set) {
