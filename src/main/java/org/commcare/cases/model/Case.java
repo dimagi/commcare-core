@@ -28,8 +28,8 @@ import java.util.Vector;
 public class Case implements Persistable, IMetaData {
     public static final String USER_ID_KEY = "userid";
     public static final String EXTERNAL_ID_KEY = "external_id";
-    public static final String PATIENT_TYPE_KEY = "patient_type";
-    public static final String CURRENT_STATUS_KEY = "currrent_status";
+    public static final String CATEGORY_KEY = "category";
+    public static final String STATE_KEY = "state";
     public static final String STORAGE_KEY = "CASE";
 
     public static final String INDEX_CASE_ID = "case-id";
@@ -38,8 +38,8 @@ public class Case implements Persistable, IMetaData {
     public static final String INDEX_CASE_INDEX_PRE = "case-in-";
     public static final String INDEX_OWNER_ID = "owner-id";
     public static final String INDEX_EXTERNAL_ID = "external-id";
-    public static final String INDEX_PATIENT_TYPE = "patient-type";
-    public static final String INDEX_CURRENT_STATUS = "current-status";
+    public static final String INDEX_CATEGORY = "category";
+    public static final String INDEX_STATE = "state";
 
     private static final String ATTACHMENT_PREFIX = "attachmentdata";
 
@@ -122,20 +122,20 @@ public class Case implements Persistable, IMetaData {
         data.put(EXTERNAL_ID_KEY, id);
     }
 
-    public String getPatientType() {
-        return (String)data.get(PATIENT_TYPE_KEY);
+    public String getCategory() {
+        return (String)data.get(CATEGORY_KEY);
     }
 
-    public void setPatientType(String id) {
-        data.put(PATIENT_TYPE_KEY, id);
+    public void setCategory(String id) {
+        data.put(CATEGORY_KEY, id);
     }
 
-    public String getCurrentStatus() {
-        return (String)data.get(CURRENT_STATUS_KEY);
+    public String getState() {
+        return (String)data.get(STATE_KEY);
     }
 
-    public void setCurrentStatus(String id) {
-        data.put(CURRENT_STATUS_KEY, id);
+    public void setState(String id) {
+        data.put(STATE_KEY, id);
     }
 
     public void setCaseId(String id) {
@@ -231,12 +231,12 @@ public class Case implements Persistable, IMetaData {
         } else if (fieldName.equals(INDEX_EXTERNAL_ID)) {
             String externalId = getExternalId();
             return externalId == null ? "" : externalId;
-        } else if (fieldName.equals(INDEX_PATIENT_TYPE)) {
-            String patientType = getPatientType();
-            return patientType == null ? "" : patientType;
-        } else if (fieldName.equals(INDEX_CURRENT_STATUS)) {
-            String currentStatus = getCurrentStatus();
-            return currentStatus == null ? "" : currentStatus;
+        } else if (fieldName.equals(INDEX_CATEGORY)) {
+            String category = getCategory();
+            return category == null ? "" : category;
+        } else if (fieldName.equals(INDEX_STATE)) {
+            String state = getState();
+            return state == null ? "" : state;
         } else {
             throw new IllegalArgumentException("No metadata field " + fieldName + " in the case storage system");
         }
@@ -244,7 +244,7 @@ public class Case implements Persistable, IMetaData {
 
     @Override
     public String[] getMetaDataFields() {
-        return new String[]{INDEX_CASE_ID, INDEX_CASE_TYPE, INDEX_CASE_STATUS, INDEX_OWNER_ID, INDEX_EXTERNAL_ID, INDEX_PATIENT_TYPE, INDEX_CURRENT_STATUS};
+        return new String[]{INDEX_CASE_ID, INDEX_CASE_TYPE, INDEX_CASE_STATUS, INDEX_OWNER_ID, INDEX_EXTERNAL_ID, INDEX_CATEGORY, INDEX_STATE};
     }
 
     /**
