@@ -69,7 +69,7 @@ public class Action implements Externalizable {
     }
 
     public boolean isRelevant(EvaluationContext evalContext) {
-        if (relevantExpr == null) {
+        if (isAutoLaunching || relevantExpr == null) {
             return true;
         } else {
             String result = RemoteQuerySessionManager.evalXpathExpression(relevantExpr, evalContext);
