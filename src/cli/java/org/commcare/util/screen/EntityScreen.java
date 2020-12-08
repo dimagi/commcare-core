@@ -73,31 +73,32 @@ public class EntityScreen extends CompoundScreenHost {
         this.full = full;
     }
 
+    public EntityScreen(boolean handleCaseIndex, boolean full, boolean allowAutoLaunch, SessionWrapper session) throws CommCareSessionException {
+        this.handleCaseIndex = handleCaseIndex;
+        this.full = full;
+
+        this.setSession(session);
+
+        for (Action action : mShortDetail.getCustomActions(evalContext)) {
+            if (action.isAutoLaunching()) {
+                // Supply an empty case list so we can "select" from it later using getEntityFromID
+                mCurrentScreen = new EntityListSubscreen(mShortDetail, new Vector<TreeReference>(), evalContext, handleCaseIndex);
+                full = false;
+                if (allowAutoLaunch) {
+                    this.setPendingAction(action);
+                    this.updateSession(session);
+                    return;
+                }
+            }
+        }
+    }
+
     public void init(SessionWrapper session) throws CommCareSessionException {
         if (initialized) {
             return;
         }
-        SessionDatum datum = session.getNeededDatum();
-        if (!(datum instanceof EntityDatum)) {
-            throw new CommCareSessionException("Didn't find an entity select action where one is expected.");
-        }
-        mNeededDatum = (EntityDatum)datum;
 
-        this.mSession = session;
-        this.mPlatform = mSession.getPlatform();
-
-        String detailId = mNeededDatum.getShortDetail();
-        if (detailId == null) {
-            throw new CommCareSessionException("Can't handle entity selection with blank detail definition for datum " + mNeededDatum.getDataId());
-        }
-
-        mShortDetail = this.mPlatform.getDetail(detailId);
-
-        if (mShortDetail == null) {
-            throw new CommCareSessionException("Missing detail definition for: " + detailId);
-        }
-
-        evalContext = mSession.getEvaluationContext();
+        this.setSession(session);
 
         references = expandEntityReferenceSet(evalContext);
 
@@ -130,6 +131,30 @@ public class EntityScreen extends CompoundScreenHost {
             }
         }
         initialized = true;
+    }
+
+    private void setSession(SessionWrapper session) throws CommCareSessionException {
+        SessionDatum datum = session.getNeededDatum();
+        if (!(datum instanceof EntityDatum)) {
+            throw new CommCareSessionException("Didn't find an entity select action where one is expected.");
+        }
+        mNeededDatum = (EntityDatum)datum;
+
+        this.mSession = session;
+        this.mPlatform = mSession.getPlatform();
+
+        String detailId = mNeededDatum.getShortDetail();
+        if (detailId == null) {
+            throw new CommCareSessionException("Can't handle entity selection with blank detail definition for datum " + mNeededDatum.getDataId());
+        }
+
+        mShortDetail = this.mPlatform.getDetail(detailId);
+
+        if (mShortDetail == null) {
+            throw new CommCareSessionException("Missing detail definition for: " + detailId);
+        }
+
+        evalContext = mSession.getEvaluationContext();
     }
 
     private Vector<TreeReference> expandEntityReferenceSet(EvaluationContext context) {
@@ -188,7 +213,11 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     public void setHighlightedEntity(String id) throws CommCareSessionException {
-        this.mCurrentSelection = referenceMap.get(id);
+        if (referenceMap == null) {
+            this.mCurrentSelection = mNeededDatum.getEntityFromID(evalContext, id);
+        } else {
+            this.mCurrentSelection = referenceMap.get(id);
+        }
         if (this.mCurrentSelection == null) {
             throw new CommCareSessionException("EntityScreen " + this.toString() + " could not select case " + id + "." +
                     " If this error persists please report a bug to CommCareHQ.");

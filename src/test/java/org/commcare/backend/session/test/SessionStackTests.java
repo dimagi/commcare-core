@@ -309,8 +309,11 @@ public class SessionStackTests {
 
         Action actionToInspect = actions.get(1);
         assertTrue(actionToInspect.hasActionBarIcon());
-        assertEquals("Jump to Menu 2 Form 1", actionToInspect.getDisplay().getText().evaluate(ec));
+        assertEquals("Jump to Menu 2 Form 1, with icon", actionToInspect.getDisplay().getText().evaluate(ec));
         assertEquals(1, actionToInspect.getStackOperations().size());
+        assertFalse(actionToInspect.isAutoLaunching());
+
+        assertTrue(actions.get(0).isAutoLaunching());
     }
 
     private static void assertInstanceMissing(SessionWrapper session, String xpath)
