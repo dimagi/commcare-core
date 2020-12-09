@@ -3,21 +3,17 @@ package org.commcare.xml;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.QueryPrompt;
 import org.javarosa.core.model.ItemsetBinding;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xform.parse.ItemSetParsingUtils;
-import org.javarosa.xform.util.XFormSerializer;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.xpath.XPathConditional;
-import org.javarosa.xpath.expr.XPathPathExpr;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-
-import static org.javarosa.xform.parse.XFormParser.LABEL_ELEMENT;
 
 public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
 
@@ -28,6 +24,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
     private static final String ATTR_KEY = "key";
     private static final String ATTR_INPUT = "input";
     private static final String ATTR_NODESET = "nodeset";
+    private static final String ATTR_DEFAULT = "default";
     private static final String NAME_LABEL = "label";
     private static final String NAME_VALUE = "value";
     private static final String NAME_SORT = "sort";
@@ -44,6 +41,21 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
         String input = parser.getAttributeValue(null, ATTR_INPUT);
         DisplayUnit display = null;
         ItemsetBinding itemsetBinding = null;
+        XPathExpression defaultValue = null;
+
+        String defaultValueString = parser.getAttributeValue(null, ATTR_DEFAULT);
+        if(defaultValueString != null) {
+            try {
+                defaultValue = XPathParseTool.parseXPath(defaultValueString);
+            } catch (XPathSyntaxException e) {
+                InvalidStructureException toThrow = new InvalidStructureException(String.format(
+                        "Invalid XPath Expression in QueryPrompt %s",
+                        e.getMessage()), parser);
+                toThrow.initCause(e);
+                throw toThrow;
+            }
+        }
+
         while (nextTagInBlock(NAME_PROMPT)) {
             if (NAME_DISPLAY.equals(parser.getName().toLowerCase())) {
                 display = parseDisplayBlock();
@@ -51,7 +63,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
                 itemsetBinding = parseItemset();
             }
         }
-        return new QueryPrompt(key, appearance, input, display, itemsetBinding);
+        return new QueryPrompt(key, appearance, input, display, itemsetBinding, defaultValue);
     }
 
     private ItemsetBinding parseItemset() throws IOException, XmlPullParserException, InvalidStructureException {

@@ -53,7 +53,11 @@ public class RemoteQuerySessionManager {
         for (Enumeration en = queryPrompts.keys(); en.hasMoreElements(); ) {
             String promptId = (String)en.nextElement();
             QueryPrompt prompt = queryPrompts.get(promptId);
-            userAnswers.put(prompt.getKey(), "");
+            String defaultValue = "";
+            if(prompt.getDefaultValueExpr() != null) {
+                defaultValue = FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext));
+            }
+            userAnswers.put(prompt.getKey(), defaultValue);
         }
     }
 
