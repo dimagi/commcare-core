@@ -53,6 +53,7 @@ public class EntityScreen extends CompoundScreenHost {
     private boolean full = true;
 
     private Vector<TreeReference> references;
+    public String jlsLog;
 
     private boolean initialized = false;
 
@@ -84,6 +85,8 @@ public class EntityScreen extends CompoundScreenHost {
                 full = false;
             }
         }
+
+        this.jlsLog = "";
     }
 
     public void init(SessionWrapper session) throws CommCareSessionException {
@@ -94,6 +97,7 @@ public class EntityScreen extends CompoundScreenHost {
         this.setSession(session);
 
         references = expandEntityReferenceSet(evalContext);
+        this.jlsLog += " ... references.size() = " + references.size();
 
         //Pulled from NodeEntityFactory. We should likely replace this whole functonality with
         //that from nodeentityfactory
@@ -151,6 +155,7 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     private Vector<TreeReference> expandEntityReferenceSet(EvaluationContext context) {
+        this.jlsLog += " in expandEntityReferenceSet, nodeset = " + mNeededDatum.getNodeset();
         return evalContext.expandReference(mNeededDatum.getNodeset());
     }
 
