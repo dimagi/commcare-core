@@ -42,7 +42,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
      */
     private int formId;
 
-    protected String instanceid;
+    public String instanceid;
 
     protected CacheHost mCacheHost;
 

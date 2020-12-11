@@ -29,6 +29,7 @@ import java.util.*;
  * function handlers and (not supported) variable bindings.
  */
 public class EvaluationContext {
+    public String jlsLog = "";
 
     /**
      * Whether XPath expressions being evaluated should be traced during
@@ -289,6 +290,7 @@ public class EvaluationContext {
         }
 
         DataInstance baseInstance = retrieveInstance(ref);
+        this.jlsLog = "In expandReference, baseInstance.instanceid = " + baseInstance.instanceid;
         Vector<TreeReference> v = new Vector<>();
         expandReferenceAccumulator(ref, baseInstance, baseInstance.getRoot().getRef(), v, includeTemplates);
         return v;
@@ -310,11 +312,13 @@ public class EvaluationContext {
                                             TreeReference workingRef, Vector<TreeReference> refs,
                                             boolean includeTemplates) {
         int depth = workingRef.size();
+        this.jlsLog += "... in expandReferenceAccumulator, depth = " + depth;
 
         if (depth == sourceRef.size()) {
             // We've matched fully
             //TODO: Should this reference be cloned?
             refs.addElement(workingRef);
+            this.jlsLog += "... adding " + workingRef + " to refs";
             return;
         }
         // Get the next set of matching references
@@ -362,6 +366,7 @@ public class EvaluationContext {
         // Create a place to store the current position markers
         int[] positionContext = new int[predicates == null ? 0 : predicates.size()];
 
+        this.jlsLog += " ... looping through childSet, which has size " + childSet.size();
         for (TreeReference refToExpand : childSet) {
             boolean passedAll = true;
             if (predicates != null && predicates.size() > 0) {

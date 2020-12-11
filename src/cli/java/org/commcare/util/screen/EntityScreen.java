@@ -156,7 +156,9 @@ public class EntityScreen extends CompoundScreenHost {
 
     private Vector<TreeReference> expandEntityReferenceSet(EvaluationContext context) {
         this.jlsLog += " in expandEntityReferenceSet, nodeset = " + mNeededDatum.getNodeset();
-        return evalContext.expandReference(mNeededDatum.getNodeset());
+        Vector<TreeReference> x = evalContext.expandReference(mNeededDatum.getNodeset());
+        this.jlsLog += evalContext.jlsLog;
+        return x;
     }
 
     @Override
