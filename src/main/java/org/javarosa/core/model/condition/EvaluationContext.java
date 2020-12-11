@@ -350,6 +350,9 @@ public class EvaluationContext {
 
         if (childSet == null) {
             childSet = loadReferencesChildren(node, name, mult, includeTemplates);
+            this.jlsLog += " ... childSet was null, so I loeaded it with " + node + ", " + name + ", " + mult + ", " + includeTemplates;
+        } else {
+            this.jlsLog += " ... childSet already existed with size " + childSet.size();
         }
 
         QueryContext subContext = queryContext.
