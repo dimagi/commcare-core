@@ -50,7 +50,7 @@ public class TreeUtilities {
                                                                String name,
                                                                int mult,
                                                                Vector<XPathExpression> predicates,
-                                                               EvaluationContext evalContext) {
+                                                               EvaluationContext evalContext, String jlsLog) {
         // This method builds a predictive model for quick queries that
         // prevents the need to fully flesh out full walks of the tree.
 
@@ -69,6 +69,7 @@ public class TreeUtilities {
 
         Vector<Integer> toRemove = new Vector<>();
         Collection<TreeReference> allSelectedChildren = null;
+System.out.println("In tryBatchChildFetch with parent " + parent);
 
         //Lazy init these until we've determined that our predicate is hintable
 
@@ -82,6 +83,7 @@ public class TreeUtilities {
         for (int i = 0; i < predicates.size(); ++i) {
             LinkedHashSet<TreeReference> predicateMatches = new LinkedHashSet<>();
             XPathExpression xpe = predicates.elementAt(i);
+System.out.println("looking at predicate " + xpe);
             //what we want here is a static evaluation of the expression to see if it consists of evaluating
             //something we index with something static.
             if (xpe instanceof XPathEqExpr) {
@@ -96,6 +98,7 @@ public class TreeUtilities {
                     if (right instanceof XPathStringLiteral) {
                         literalMatch = ((XPathStringLiteral)right).s;
                     } else if (right instanceof XPathPathExpr) {
+System.out.println("It's the kind of predicate I thought");
                         //We'll also try to match direct path queries as long as they are not
                         //complex.
 
@@ -103,6 +106,7 @@ public class TreeUtilities {
                         for (XPathStep step : ((XPathPathExpr)right).steps) {
                             if (step.predicates.length > 0) {
                                 //We can't evaluate this, just bail
+                                System.out.println("break because of reason 1");
                                 break;
                             }
                         }
@@ -111,6 +115,7 @@ public class TreeUtilities {
                             //Otherwise, go pull out the right hand value
                             Object o = FunctionUtils.unpack(right.eval(evalContext));
                             literalMatch = FunctionUtils.toString(o);
+System.out.println("literalMatch = " + literalMatch);
                         /*} catch (XPathException e) {
                             //We may have some weird lack of context that makes this not work, so don't choke on the bonus evaluation
                             //and just evaluate that traditional way
@@ -122,6 +127,7 @@ public class TreeUtilities {
                     //First, see if we can run this query with a hint map, rather than jumping out to storage
                     //since that may involve iterative I/O queries.
                     if (childAttributeHintMap != null) {
+System.out.println("I have a childAttributeHintMap, that is surprising");
                         if (childAttributeHintMap.containsKey(left)) {
 
                             //Retrieve the list of children which match our literal
@@ -144,10 +150,13 @@ public class TreeUtilities {
                     //TODO: Probably makes sense to actually just build the hint mapping here,
                     //but we currently don't robustly track changes to the models, so would
                     //be too dangerous at the moment
+System.out.println("attributes = " + attributes);
+System.out.println("indices = " + attributes);
                     if (attributes == null) {
                         attributes = new Vector<>();
                         indices = new Vector<>();
                         kids = parent.getChildrenWithName(name);
+System.out.println(kids.size() + " " + name + " kids");
 
                         if (kids.size() == 0) {
                             return null;
@@ -182,6 +191,7 @@ public class TreeUtilities {
                                 // this value before performing the match
                                 Object value = FunctionUtils.InferType(attrValue);
 
+System.out.println("Does " + value + " equal " + literalMatch + "? " + (isEqOp == XPathEqExpr.testEquality(value, literalMatch)));
                                 if (isEqOp == XPathEqExpr.testEquality(value, literalMatch)) {
                                     predicateMatches.add(kids.elementAt(kidI).getRef());
                                 }

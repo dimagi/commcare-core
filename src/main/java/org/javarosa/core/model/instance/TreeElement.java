@@ -882,8 +882,8 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     }
 
     @Override
-    public Collection<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
-        return TreeUtilities.tryBatchChildFetch(this, mChildStepMapping, name, mult, predicates, evalContext);
+    public Collection<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext, String jlsLog) {
+        return TreeUtilities.tryBatchChildFetch(this, mChildStepMapping, name, mult, predicates, evalContext, jlsLog);
     }
 
     // Return true if these elements are the same EXCEPT for their multiplicity (IE are members of the same repeat)

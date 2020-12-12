@@ -167,7 +167,7 @@ public class QuerySensitiveTreeElementWrapper<T extends AbstractTreeElement> imp
     }
 
     @Override
-    public Collection<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
-        return wrapped.tryBatchChildFetch(name, mult, predicates, evalContext);
+    public Collection<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext, String jlsLog) {
+        return wrapped.tryBatchChildFetch(name, mult, predicates, evalContext, jlsLog);
     }
 }

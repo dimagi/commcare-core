@@ -176,7 +176,7 @@ public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
     @Override
     public Collection<TreeReference> tryBatchChildFetch(String name, int mult,
                                                         Vector<XPathExpression> predicates,
-                                                        EvaluationContext evalContext) {
+                                                        EvaluationContext evalContext, String jlsLog) {
         return null;
     }
 

@@ -155,7 +155,7 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
     @Override
     public Collection<TreeReference> tryBatchChildFetch(String name, int mult,
                                                         Vector<XPathExpression> predicates,
-                                                        EvaluationContext evalContext) {
+                                                        EvaluationContext evalContext, String jlsLog) {
         //TODO: We should be able to catch the index case here?
         return null;
     }

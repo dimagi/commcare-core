@@ -112,5 +112,5 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
      */
     Collection<TreeReference> tryBatchChildFetch(String name, int mult,
                                                  Vector<XPathExpression> predicates,
-                                                 EvaluationContext evalContext);
+                                                 EvaluationContext evalContext, String jlsLog);
 }

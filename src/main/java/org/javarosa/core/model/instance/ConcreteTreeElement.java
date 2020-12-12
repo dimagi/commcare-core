@@ -404,7 +404,8 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
 
     @Override
     public Collection<TreeReference> tryBatchChildFetch(String name, int mult,
-                                                        Vector<XPathExpression> predicates, EvaluationContext evalContext) {
+                                                        Vector<XPathExpression> predicates, EvaluationContext
+                                                        evalContext, String jlsLog) {
         return null;
     }
 

@@ -353,7 +353,7 @@ public class EvaluationContext {
         // predicate input argument.
         this.jlsLog += " ... getting childSet from node " + node;
         this.jlsLog += " and mChildStepMapping is " + node.mChildStepMapping;
-        Collection<TreeReference> childSet = node.tryBatchChildFetch(name, mult, predicates, this);
+        Collection<TreeReference> childSet = node.tryBatchChildFetch(name, mult, predicates, this, this.jlsLog);
 
         this.reportBulkTraceResults(originalPredicates, predicates, childSet);
         this.closeTrace();
