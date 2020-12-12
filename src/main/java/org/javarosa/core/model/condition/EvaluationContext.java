@@ -343,6 +343,7 @@ public class EvaluationContext {
         // Use the reference's simple predicates to filter the potential
         // nodeset.  Predicates used in filtering are removed from the
         // predicate input argument.
+        this.jlsLog += " ... getting childSet from node " + node;
         Collection<TreeReference> childSet = node.tryBatchChildFetch(name, mult, predicates, this);
 
         this.reportBulkTraceResults(originalPredicates, predicates, childSet);
@@ -350,7 +351,7 @@ public class EvaluationContext {
 
         if (childSet == null) {
             childSet = loadReferencesChildren(node, name, mult, includeTemplates);
-            this.jlsLog += " ... childSet was null, so I loeaded it with " + node + ", " + name + ", " + mult + ", " + includeTemplates;
+            this.jlsLog += " ... childSet was null, so I loaded it with " + node + ", " + name + ", " + mult + ", " + includeTemplates;
         } else {
             this.jlsLog += " ... childSet already existed with size " + childSet.size();
         }
