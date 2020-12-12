@@ -84,7 +84,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
      * An optional mapping of this element's children based on a path step
      * result that can be used to quickly index child nodes
      */
-    private Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> mChildStepMapping = null;
+    public Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> mChildStepMapping = null;
 
     /**
      * TreeElement with null name and 0 multiplicity? (a "hidden root" node?)

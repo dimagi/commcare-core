@@ -344,10 +344,11 @@ public class EvaluationContext {
         // nodeset.  Predicates used in filtering are removed from the
         // predicate input argument.
         this.jlsLog += " ... getting childSet from node " + node;
-        this.jlsLog += " ...params to tryBatchChildFetch are " + name + ", " + mult + ", " + predicates.size() + " predicates: ";
-        for (XPathExpression p : predicates) {
+        this.jlsLog += " ...params to tryBatchChildFetch are " + name + ", " + mult;
+        this.jlsLog += " and mChildStepMapping is " + node.mChildStepMapping;
+        /*for (XPathExpression p : predicates) {
             this.jlsLog += p + "; ";
-        }
+        }*/
         Collection<TreeReference> childSet = node.tryBatchChildFetch(name, mult, predicates, this);
 
         this.reportBulkTraceResults(originalPredicates, predicates, childSet);

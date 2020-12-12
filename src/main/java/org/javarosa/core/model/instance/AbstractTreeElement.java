@@ -7,8 +7,12 @@ import org.javarosa.xpath.expr.XPathExpression;
 
 import java.util.Collection;
 import java.util.Vector;
+import java.util.Hashtable;
+import org.javarosa.xpath.expr.XPathPathExpr;
 
 public interface AbstractTreeElement<T extends AbstractTreeElement> {
+
+    public Hashtable<XPathPathExpr, Hashtable<String, AbstractTreeElement[]>> mChildStepMapping = null;
 
     boolean isLeaf();
 
