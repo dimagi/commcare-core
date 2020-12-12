@@ -344,7 +344,8 @@ public class EvaluationContext {
         // nodeset.  Predicates used in filtering are removed from the
         // predicate input argument.
         this.jlsLog += " ... getting childSet from node " + node;
-        this.jlsLog += " ...params to tryBatchChildFetch are " + name + ", " + mult;
+        this.jlsLog += " ...name is " + name;
+        this.jlsLog += ", and mult is " + mult;
         this.jlsLog += " and mChildStepMapping is " + node.mChildStepMapping;
         /*for (XPathExpression p : predicates) {
             this.jlsLog += p + "; ";
