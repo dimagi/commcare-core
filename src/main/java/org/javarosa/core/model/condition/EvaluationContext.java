@@ -326,6 +326,14 @@ public class EvaluationContext {
         int mult = sourceRef.getMultiplicity(depth);
         Vector<XPathExpression> predicates = sourceRef.getPredicate(depth);
         Vector<XPathExpression> originalPredicates = predicates;
+        if (predicates != null) {
+            this.jlsLog += " predicates? " + predicates.size();
+            for (XPathExpression p : predicates) {
+                this.jlsLog += " predicate=" + p;
+            }
+        } else {
+            this.jlsLog += "there aren't any predicates ";
+        }
 
         // Batch fetch is going to mutate the predicates vector, create a copy
         if (predicates != null) {
@@ -345,9 +353,6 @@ public class EvaluationContext {
         // predicate input argument.
         this.jlsLog += " ... getting childSet from node " + node;
         this.jlsLog += " and mChildStepMapping is " + node.mChildStepMapping;
-        /*for (XPathExpression p : predicates) {
-            this.jlsLog += p + "; ";
-        }*/
         Collection<TreeReference> childSet = node.tryBatchChildFetch(name, mult, predicates, this);
 
         this.reportBulkTraceResults(originalPredicates, predicates, childSet);
