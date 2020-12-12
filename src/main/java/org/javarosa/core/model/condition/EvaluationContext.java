@@ -290,7 +290,7 @@ public class EvaluationContext {
         }
 
         DataInstance baseInstance = retrieveInstance(ref);
-        this.jlsLog = "In expandReference, baseInstance.instanceid = " + baseInstance.instanceid;
+        this.jlsLog = "In expandReference, ref = " + ref;
         Vector<TreeReference> v = new Vector<>();
         expandReferenceAccumulator(ref, baseInstance, baseInstance.getRoot().getRef(), v, includeTemplates);
         return v;
@@ -344,8 +344,6 @@ public class EvaluationContext {
         // nodeset.  Predicates used in filtering are removed from the
         // predicate input argument.
         this.jlsLog += " ... getting childSet from node " + node;
-        this.jlsLog += " ...name is " + name;
-        this.jlsLog += ", and mult is " + mult;
         this.jlsLog += " and mChildStepMapping is " + node.mChildStepMapping;
         /*for (XPathExpression p : predicates) {
             this.jlsLog += p + "; ";
