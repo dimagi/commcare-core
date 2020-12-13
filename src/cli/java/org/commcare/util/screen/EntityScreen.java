@@ -73,7 +73,7 @@ public class EntityScreen extends CompoundScreenHost {
         this.full = full;
     }
 
-    public EntityScreen(boolean handleCaseIndex, boolean full, boolean allowAutoLaunch, SessionWrapper session) throws CommCareSessionException {
+    public EntityScreen(boolean handleCaseIndex, boolean full, SessionWrapper session) throws CommCareSessionException {
         this.handleCaseIndex = handleCaseIndex;
         this.full = full;
 
@@ -81,14 +81,7 @@ public class EntityScreen extends CompoundScreenHost {
 
         for (Action action : mShortDetail.getCustomActions(evalContext)) {
             if (action.isAutoLaunching()) {
-                // Supply an empty case list so we can "select" from it later using getEntityFromID
-                mCurrentScreen = new EntityListSubscreen(mShortDetail, new Vector<TreeReference>(), evalContext, handleCaseIndex);
                 full = false;
-                if (allowAutoLaunch) {
-                    this.setPendingAction(action);
-                    this.updateSession(session);
-                    return;
-                }
             }
         }
     }
@@ -213,11 +206,7 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     public void setHighlightedEntity(String id) throws CommCareSessionException {
-        if (referenceMap == null) {
-            this.mCurrentSelection = mNeededDatum.getEntityFromID(evalContext, id);
-        } else {
-            this.mCurrentSelection = referenceMap.get(id);
-        }
+        this.mCurrentSelection = referenceMap.get(id);
         if (this.mCurrentSelection == null) {
             throw new CommCareSessionException("EntityScreen " + this.toString() + " could not select case " + id + "." +
                     " If this error persists please report a bug to CommCareHQ.");
