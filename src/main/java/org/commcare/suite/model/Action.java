@@ -29,6 +29,7 @@ public class Action implements Externalizable {
     private Vector<StackOperation> stackOps;
     private XPathExpression relevantExpr;
     private String iconReferenceForActionBar;
+    private boolean isAutoLaunching;
 
     /**
      * Serialization only!!!
@@ -43,11 +44,12 @@ public class Action implements Externalizable {
      * operations set.
      */
     public Action(DisplayUnit display, Vector<StackOperation> stackOps,
-                  XPathExpression relevantExpr, String iconForActionBar) {
+                  XPathExpression relevantExpr, String iconForActionBar, boolean isAutoLaunching) {
         this.display = display;
         this.stackOps = stackOps;
         this.relevantExpr = relevantExpr;
         this.iconReferenceForActionBar = iconForActionBar == null ? "" : iconForActionBar;
+        this.isAutoLaunching = isAutoLaunching;
     }
 
     /**
@@ -67,12 +69,16 @@ public class Action implements Externalizable {
     }
 
     public boolean isRelevant(EvaluationContext evalContext) {
-        if (relevantExpr == null) {
+        if (isAutoLaunching || relevantExpr == null) {
             return true;
         } else {
             String result = RemoteQuerySessionManager.evalXpathExpression(relevantExpr, evalContext);
             return "true".equals(result);
         }
+    }
+
+    public boolean isAutoLaunching() {
+        return isAutoLaunching;
     }
 
     public boolean hasActionBarIcon() {
@@ -87,6 +93,7 @@ public class Action implements Externalizable {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
         stackOps = (Vector<StackOperation>)ExtUtil.read(in, new ExtWrapList(StackOperation.class), pf);
+        isAutoLaunching = ExtUtil.readBool(in);
         relevantExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
         iconReferenceForActionBar = ExtUtil.readString(in);
     }
@@ -95,6 +102,7 @@ public class Action implements Externalizable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapList(stackOps));
+        ExtUtil.writeBool(out, isAutoLaunching);
         ExtUtil.write(out, new ExtWrapNullable(relevantExpr == null ? null : new ExtWrapTagged(relevantExpr)));
         ExtUtil.writeString(out, iconReferenceForActionBar);
     }
