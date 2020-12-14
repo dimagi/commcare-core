@@ -236,13 +236,4 @@ public class StackFrameStep implements Externalizable {
     public String getElementType() {
         return elementType;
     }
-
-    // find and replace any arguments $argument with their value in {@code arguments}
-    public void substituteArgument(HashMap<String, String> arguments) {
-        if (value.indexOf("$") != -1) {
-            for (Map.Entry<String, String> argsSet : arguments.entrySet()) {
-                value = value.replace("$" + argsSet.getKey(), "'" + argsSet.getValue() + "'");
-            }
-        }
-    }
 }
