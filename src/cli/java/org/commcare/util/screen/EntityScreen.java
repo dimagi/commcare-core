@@ -206,7 +206,11 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     public void setHighlightedEntity(String id) throws CommCareSessionException {
-        this.mCurrentSelection = referenceMap.get(id);
+        if (referenceMap == null) {
+            this.mCurrentSelection = mNeededDatum.getEntityFromID(evalContext, id);
+        } else {
+            this.mCurrentSelection = referenceMap.get(id);
+        }
         if (this.mCurrentSelection == null) {
             throw new CommCareSessionException("EntityScreen " + this.toString() + " could not select case " + id + "." +
                     " If this error persists please report a bug to CommCareHQ.");
