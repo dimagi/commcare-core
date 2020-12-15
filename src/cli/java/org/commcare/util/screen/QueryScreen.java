@@ -6,6 +6,9 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.DisplayUnit;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +32,7 @@ import okhttp3.Response;
 public class QueryScreen extends Screen {
 
     private RemoteQuerySessionManager remoteQuerySessionManager;
-    private Hashtable<String, DisplayUnit> userInputDisplays;
+    private OrderedHashtable<String, DisplayUnit> userInputDisplays;
     private SessionWrapper sessionWrapper;
     private String[] fields;
     private String mTitle;
@@ -64,7 +67,11 @@ public class QueryScreen extends Screen {
         for (Map.Entry<String, DisplayUnit> displayEntry : userInputDisplays.entrySet()) {
             fields[count] = displayEntry.getValue().getText().evaluate(sessionWrapper.getEvaluationContext());
         }
-        mTitle = "Case Claim";
+        try {
+            mTitle = Localization.get("case.search.title");
+        } catch (NoLocalizedTextException nlte) {
+            mTitle = "Case Claim";
+        }
 
     }
 
@@ -103,9 +110,6 @@ public class QueryScreen extends Screen {
                 remoteQuerySessionManager.buildExternalDataInstance(responseData);
         if (instanceOrError.first == null) {
             currentMessage = "Query response format error: " + instanceOrError.second;
-            return false;
-        } else if (isResponseEmpty(instanceOrError.first)) {
-            currentMessage = "Query successful but returned no results.";
             return false;
         } else {
             sessionWrapper.setQueryDatum(instanceOrError.first);
@@ -166,7 +170,7 @@ public class QueryScreen extends Screen {
         return refresh;
     }
 
-    public Hashtable<String, DisplayUnit> getUserInputDisplays(){
+    public OrderedHashtable<String, DisplayUnit> getUserInputDisplays(){
         return userInputDisplays;
     }
 
