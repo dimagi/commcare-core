@@ -1,5 +1,6 @@
 package org.commcare.util.screen;
 
+import datadog.trace.api.Trace;
 import org.commcare.cases.entity.EntityUtil;
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
@@ -86,6 +87,7 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
+    @Trace
     public void init(SessionWrapper session) throws CommCareSessionException {
         if (initialized) {
             return;
