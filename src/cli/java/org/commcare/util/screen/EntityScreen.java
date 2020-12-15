@@ -73,7 +73,7 @@ public class EntityScreen extends CompoundScreenHost {
         this.full = full;
     }
 
-    public EntityScreen(boolean handleCaseIndex, boolean full, SessionWrapper session) throws CommCareSessionException {
+    public EntityScreen(boolean handleCaseIndex, boolean full, boolean allowAutoLaunch, SessionWrapper session) throws CommCareSessionException {
         this.handleCaseIndex = handleCaseIndex;
         this.full = full;
 
