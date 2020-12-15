@@ -16,6 +16,8 @@ import java.util.Vector;
  */
 public class StackOpParser extends ElementParser<StackOperation> {
 
+    public static final String NAME_STACK = "stack";
+
     public StackOpParser(KXmlParser parser) {
         super(parser);
     }

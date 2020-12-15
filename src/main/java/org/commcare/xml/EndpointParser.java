@@ -11,11 +11,13 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.Vector;
 
+import static org.commcare.xml.StackOpParser.NAME_STACK;
+
 public class EndpointParser extends ElementParser<Endpoint> {
 
     static final String NAME_ENDPOINT = "endpoint";
     private static final String NAME_ARGUMENT = "argument";
-    private static final String NAME_STACK = "stack";
+
 
     public EndpointParser(KXmlParser parser) {
         super(parser);

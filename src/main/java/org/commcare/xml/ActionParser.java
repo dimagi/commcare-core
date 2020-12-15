@@ -13,6 +13,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.Vector;
 
+import static org.commcare.xml.StackOpParser.NAME_STACK;
+
 /**
  * Parses case list actions, which when triggered manipulate the session stack
  *
@@ -42,7 +44,7 @@ public class ActionParser extends CommCareElementParser<Action> {
                 display = parseDisplayBlock();
             } else if (parser.getName().equals("stack")) {
                 StackOpParser sop = new StackOpParser(parser);
-                while (this.nextTagInBlock("stack")) {
+                while (this.nextTagInBlock(NAME_STACK)) {
                     stackOps.addElement(sop.parse());
                 }
             }
