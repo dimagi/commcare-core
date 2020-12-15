@@ -38,15 +38,21 @@ public class CyclicReferenceTests {
      */
     @Test
     public void testCyclicalReferenceRegression() {
+        testCyclicReferenceForPath("/xform_tests/real_form_with_cycle_errors.xml", 4);
+        testCyclicReferenceForPath("/xform_tests/real_form2_with_cycle_errors.xml", 2);
+
+    }
+
+    private void testCyclicReferenceForPath(String formPath, int numberOfCyclicReferences) {
         try {
-            new FormParseInit("/xform_tests/real_form_with_cycle_errors.xml");
+            new FormParseInit(formPath);
         } catch (XFormParseException e) {
             String detailMessage = e.getMessage();
             // Assert that we're using the shortest cycle algorithm
             assertTrue(detailMessage.contains("Logic is cyclical"));
-            // There should only be three newlines since only the three core cyclic references were included
+            // number of newlines should be equal to number of core cyclic references were included
             int newlineCount = detailMessage.length() - detailMessage.replace("\n", "").length();
-            assertTrue(newlineCount == 4);
+            assertTrue(newlineCount == numberOfCyclicReferences);
             return;
         }
         fail("Cyclical reference did not throw XFormParseException");

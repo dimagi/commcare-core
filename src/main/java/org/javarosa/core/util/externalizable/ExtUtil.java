@@ -92,7 +92,7 @@ public class ExtUtil {
             out.writeUTF(val);
         } catch (UTFDataFormatException e) {
             int percentOversized = ((val.getBytes("UTF-8").length / (((int)Short.MAX_VALUE) * 2)) - 1) * 100;
-            throw new SerializationLimitationException(percentOversized);
+            throw new SerializationLimitationException(percentOversized, e.getCause(), "Error while trying to write " + val + " percentOversized: " + percentOversized);
         }
         //we could easily come up with more efficient default encoding for string
     }
