@@ -1,4 +1,5 @@
 package org.commcare.util.screen;
+import datadog.trace.api.Trace;
 
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
@@ -121,6 +122,7 @@ public class SyncScreen extends Screen {
         return true;
     }
 
+    @Trace
     @Override
     public boolean handleInputAndUpdateSession(CommCareSession commCareSession, String s, boolean allowAutoLaunch) throws CommCareSessionException {
         if (syncSuccessful) {
