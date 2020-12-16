@@ -84,7 +84,6 @@ public class EntityScreen extends CompoundScreenHost {
             if (action.isAutoLaunching()) {
                 // Supply an empty case list so we can "select" from it later using getEntityFromID
                 mCurrentScreen = new EntityListSubscreen(mShortDetail, new Vector<TreeReference>(), evalContext, handleCaseIndex);
-                this.full = false;
                 this.autoLaunchAction = action;
             }
         }
