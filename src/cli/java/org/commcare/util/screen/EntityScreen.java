@@ -55,6 +55,7 @@ public class EntityScreen extends CompoundScreenHost {
     private Vector<TreeReference> references;
 
     private boolean initialized = false;
+    private Action autoLaunchAction;
 
     public EntityScreen(boolean handleCaseIndex) {
         this.handleCaseIndex = handleCaseIndex;
@@ -83,7 +84,8 @@ public class EntityScreen extends CompoundScreenHost {
             if (action.isAutoLaunching()) {
                 // Supply an empty case list so we can "select" from it later using getEntityFromID
                 mCurrentScreen = new EntityListSubscreen(mShortDetail, new Vector<TreeReference>(), evalContext, handleCaseIndex);
-                full = false;
+                this.full = false;
+                this.autoLaunchAction = action;
             }
         }
     }
@@ -301,6 +303,10 @@ public class EntityScreen extends CompoundScreenHost {
 
     public Vector<TreeReference> getReferences() {
         return references;
+    }
+
+    public boolean getAutoLaunchAction() {
+        return autoLaunchAction;
     }
 
     @Override
