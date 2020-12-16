@@ -80,8 +80,10 @@ public class EntityScreen extends CompoundScreenHost {
 
         this.setSession(session);
 
+        System.out.println("Creating " + mShortDetail.getId());
         for (Action action : mShortDetail.getCustomActions(evalContext)) {
             if (action.isAutoLaunching()) {
+                System.out.println("...which has an autolaunch action");
                 full = false;
             }
         }
@@ -95,35 +97,41 @@ public class EntityScreen extends CompoundScreenHost {
 
         this.setSession(session);
 
-        System.out.println("pre-expandEntityReferenceSet");
+        System.out.println("About to expandEntityReferenceSet");
         references = expandEntityReferenceSet(evalContext);
-        System.out.println("post-expandEntityReferenceSet");
 
         //Pulled from NodeEntityFactory. We should likely replace this whole functonality with
         //that from nodeentityfactory
         QueryContext newContext = evalContext.getCurrentQueryContext()
                 .checkForDerivativeContextAndReturn(references.size());
 
+        System.out.println("About to setHackyOriginalContextBody");
         newContext.setHackyOriginalContextBody(new CurrentModelQuerySet(references));
 
+        System.out.println("About to setQueryContext");
         evalContext.setQueryContext(newContext);
 
+        System.out.println("full = " + full + ", references.size() = " + references.size());
         if (full || references.size() == 1) {
             referenceMap = new Hashtable<>();
+            System.out.println("About to put");
             for(TreeReference reference: references) {
                 referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), evalContext), reference);
             }
 
             // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic setting
+            System.out.println("About to addFunctionHandler");
             evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56, -46.66));
 
             if (mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
+                System.out.println("About to setHighlightedEntity");
                 this.setHighlightedEntity(references.firstElement());
                 if (!this.setCurrentScreenToDetail()) {
                     this.updateSession(session);
                     readyToSkip = true;
                 }
             } else {
+                System.out.println("About to make a EntityListSubscreen");
                 mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext, handleCaseIndex);
             }
         }
@@ -154,6 +162,7 @@ public class EntityScreen extends CompoundScreenHost {
         evalContext = mSession.getEvaluationContext();
     }
 
+    @Trace
     private Vector<TreeReference> expandEntityReferenceSet(EvaluationContext context) {
         return evalContext.expandReference(mNeededDatum.getNodeset());
     }
@@ -177,6 +186,7 @@ public class EntityScreen extends CompoundScreenHost {
         return mCurrentScreen;
     }
 
+    @Trace
     public static String getReturnValueFromSelection(TreeReference contextRef, EntityDatum needed, EvaluationContext context) {
         // grab the session's (form) element reference, and load it.
         TreeReference elementRef =
@@ -193,6 +203,7 @@ public class EntityScreen extends CompoundScreenHost {
         return value;
     }
 
+    @Trace
     @Override
     protected void updateSession(CommCareSession session) {
         if (mPendingAction != null) {
@@ -205,10 +216,12 @@ public class EntityScreen extends CompoundScreenHost {
         session.setDatum(mNeededDatum.getDataId(), selectedValue);
     }
 
+    @Trace
     public void setHighlightedEntity(TreeReference selection) {
         this.mCurrentSelection = selection;
     }
 
+    @Trace
     public void setHighlightedEntity(String id) throws CommCareSessionException {
         this.mCurrentSelection = referenceMap.get(id);
         if (this.mCurrentSelection == null) {
