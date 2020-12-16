@@ -305,7 +305,7 @@ public class EntityScreen extends CompoundScreenHost {
         return references;
     }
 
-    public boolean getAutoLaunchAction() {
+    public Action getAutoLaunchAction() {
         return autoLaunchAction;
     }
 
