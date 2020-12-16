@@ -95,7 +95,9 @@ public class EntityScreen extends CompoundScreenHost {
 
         this.setSession(session);
 
+        System.out.println("pre-expandEntityReferenceSet");
         references = expandEntityReferenceSet(evalContext);
+        System.out.println("post-expandEntityReferenceSet");
 
         //Pulled from NodeEntityFactory. We should likely replace this whole functonality with
         //that from nodeentityfactory
