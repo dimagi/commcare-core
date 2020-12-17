@@ -8,6 +8,7 @@ import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.QueryPrompt;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -66,7 +67,7 @@ public class QueryScreen extends Screen {
         for (Map.Entry<String, QueryPrompt> queryPromptEntry : userInputDisplays.entrySet()) {
             fields[count] = queryPromptEntry.getValue().getDisplay().getText().evaluate(sessionWrapper.getEvaluationContext());
         }
-        mTitle = "Case Claim";
+        mTitle = Localization.get("case.search.title");
 
     }
 
