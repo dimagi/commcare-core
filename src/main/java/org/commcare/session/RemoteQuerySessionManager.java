@@ -15,6 +15,7 @@ import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.TreeElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.kxml2.io.KXmlParser;
@@ -42,13 +43,13 @@ public class RemoteQuerySessionManager {
             new Hashtable<>();
 
     private RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
-                                      EvaluationContext evaluationContext) {
+                                      EvaluationContext evaluationContext) throws XPathException {
         this.queryDatum = queryDatum;
         this.evaluationContext = evaluationContext;
         initUserAnswers();
     }
 
-    private void initUserAnswers() {
+    private void initUserAnswers() throws XPathException {
         OrderedHashtable<String, QueryPrompt> queryPrompts = queryDatum.getUserQueryPrompts();
         for (Enumeration en = queryPrompts.keys(); en.hasMoreElements(); ) {
             String promptId = (String)en.nextElement();
@@ -62,7 +63,7 @@ public class RemoteQuerySessionManager {
     }
 
     public static RemoteQuerySessionManager buildQuerySessionManager(CommCareSession session,
-                                                                     EvaluationContext sessionContext) {
+                                                                     EvaluationContext sessionContext)  throws XPathException {
         SessionDatum datum;
         try {
             datum = session.getNeededDatum();
