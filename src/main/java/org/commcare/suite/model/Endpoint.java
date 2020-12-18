@@ -1,5 +1,6 @@
 package org.commcare.suite.model;
 
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -9,6 +10,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Vector;
 
 public class Endpoint implements Externalizable {
@@ -51,5 +54,54 @@ public class Endpoint implements Externalizable {
 
     public Vector<StackOperation> getStackOperations() {
         return stackOperations;
+    }
+
+
+    // Utility Functions
+    public static void populateEndpointArgumentsToEvaluaionContext(Endpoint endpoint, ArrayList<String> args, EvaluationContext evaluationContext) {
+        Vector<String> endpointArguments = endpoint.getArguments();
+
+        if (endpointArguments.size() != args.size()) {
+            throw new InvalidNumberOfEndpointArgumentsException();
+        }
+
+        for (int i = 0; i < endpointArguments.size(); i++) {
+            String argumentName = endpointArguments.elementAt(i);
+            evaluationContext.setVariable(argumentName, args.get(i));
+        }
+    }
+
+    public static void populateEndpointArgumentsToEvaluaionContext(Endpoint endpoint, HashMap<String, String> args, EvaluationContext evaluationContext) {
+        Vector<String> endpointArguments = endpoint.getArguments();
+
+        if (endpointArguments.size() != args.size()) {
+            throw new InvalidNumberOfEndpointArgumentsException();
+        }
+
+        for (int i = 0; i < endpointArguments.size(); i++) {
+            String argumentName = endpointArguments.elementAt(i);
+            if (args.containsKey(argumentName)) {
+                evaluationContext.setVariable(argumentName, args.get(i));
+            } else {
+                throw new InvalidEndpointArgumentsException(argumentName);
+            }
+        }
+    }
+
+    public static class InvalidEndpointArgumentsException extends RuntimeException {
+        private final String argumentName;
+
+        public InvalidEndpointArgumentsException(String argumentName) {
+            this.argumentName = argumentName;
+        }
+
+        public String getArgumentName() {
+            return argumentName;
+        }
+    }
+
+    public static class InvalidNumberOfEndpointArgumentsException extends RuntimeException {
+        public InvalidNumberOfEndpointArgumentsException() {
+        }
     }
 }
