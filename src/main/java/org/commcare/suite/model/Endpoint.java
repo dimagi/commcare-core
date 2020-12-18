@@ -81,7 +81,7 @@ public class Endpoint implements Externalizable {
         for (int i = 0; i < endpointArguments.size(); i++) {
             String argumentName = endpointArguments.elementAt(i);
             if (args.containsKey(argumentName)) {
-                evaluationContext.setVariable(argumentName, args.get(i));
+                evaluationContext.setVariable(argumentName, args.get(argumentName));
             } else {
                 throw new InvalidEndpointArgumentsException(argumentName);
             }
