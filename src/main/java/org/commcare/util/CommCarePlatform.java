@@ -1,9 +1,9 @@
 package org.commcare.util;
 
-import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.Endpoint;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
@@ -21,8 +21,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
-
-import javax.annotation.Nullable;
 
 /**
  * TODO: This isn't really a great candidate for a
@@ -116,6 +114,24 @@ public class CommCarePlatform {
             }
         }
         return null;
+    }
+
+    public Endpoint getEndpoint(String endpointId) {
+        for(Suite s : getInstalledSuites()) {
+            Endpoint endpoint = s.getEndpoint(endpointId);
+            if(endpoint != null) {
+                return endpoint;
+            }
+        }
+        return null;
+    }
+
+    public Hashtable<String, Endpoint> getAllEndpoints() {
+        Hashtable<String, Endpoint> allEndpoints = new Hashtable<>();
+        for(Suite s : getInstalledSuites()) {
+            allEndpoints.putAll(s.getEndpoints());
+        }
+        return allEndpoints;
     }
 
     public void setProfile(Profile p) {

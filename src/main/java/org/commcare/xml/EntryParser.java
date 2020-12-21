@@ -25,6 +25,8 @@ import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import static org.commcare.xml.StackOpParser.NAME_STACK;
+
 /**
  * @author ctsims
  */
@@ -143,7 +145,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
 
     private void parseStack(Vector<StackOperation> stackOps) throws InvalidStructureException, IOException, XmlPullParserException {
         StackOpParser sop = new StackOpParser(parser);
-        while (this.nextTagInBlock("stack")) {
+        while (this.nextTagInBlock(NAME_STACK)) {
             stackOps.addElement(sop.parse());
         }
     }

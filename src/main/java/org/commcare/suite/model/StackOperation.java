@@ -39,6 +39,16 @@ public class StackOperation implements Externalizable {
 
     }
 
+    // Copy Constructor
+    public StackOperation(StackOperation oldStackOp) {
+        this.opType = oldStackOp.opType;
+        this.ifCondition = oldStackOp.ifCondition;
+        this.elements = new Vector<>(oldStackOp.elements.size());
+        for (StackFrameStep element : oldStackOp.elements) {
+            elements.add(new StackFrameStep(element));
+        }
+    }
+
     public static StackOperation buildCreateFrame(String ifCondition,
                                                   Vector<StackFrameStep> elements) throws XPathSyntaxException {
         return new StackOperation(OPERATION_CREATE, ifCondition, elements);
@@ -53,7 +63,7 @@ public class StackOperation implements Externalizable {
         return new StackOperation(OPERATION_CLEAR, ifCondition, null);
     }
 
-        private StackOperation(int opType, String ifCondition,
+    private StackOperation(int opType, String ifCondition,
                            Vector<StackFrameStep> elements) throws XPathSyntaxException {
         this.opType = opType;
         this.ifCondition = ifCondition;
