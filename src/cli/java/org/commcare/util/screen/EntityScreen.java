@@ -56,6 +56,7 @@ public class EntityScreen extends CompoundScreenHost {
     private Vector<TreeReference> references;
 
     private boolean initialized = false;
+    private Action autoLaunchAction;
 
     public EntityScreen(boolean handleCaseIndex) {
         this.handleCaseIndex = handleCaseIndex;
@@ -74,7 +75,7 @@ public class EntityScreen extends CompoundScreenHost {
         this.full = full;
     }
 
-    public EntityScreen(boolean handleCaseIndex, boolean full, SessionWrapper session) throws CommCareSessionException {
+    public EntityScreen(boolean handleCaseIndex, boolean full, boolean allowAutoLaunch, SessionWrapper session) throws CommCareSessionException {
         this.handleCaseIndex = handleCaseIndex;
         this.full = full;
 
@@ -83,8 +84,9 @@ public class EntityScreen extends CompoundScreenHost {
         System.out.println("Creating " + mShortDetail.getId());
         for (Action action : mShortDetail.getCustomActions(evalContext)) {
             if (action.isAutoLaunching()) {
-                System.out.println("...which has an autolaunch action");
-                full = false;
+                // Supply an empty case list so we can "select" from it later using getEntityFromID
+                mCurrentScreen = new EntityListSubscreen(mShortDetail, new Vector<TreeReference>(), evalContext, handleCaseIndex);
+                this.autoLaunchAction = action;
             }
         }
     }
@@ -223,7 +225,11 @@ public class EntityScreen extends CompoundScreenHost {
 
     @Trace
     public void setHighlightedEntity(String id) throws CommCareSessionException {
-        this.mCurrentSelection = referenceMap.get(id);
+        if (referenceMap == null) {
+            this.mCurrentSelection = mNeededDatum.getEntityFromID(evalContext, id);
+        } else {
+            this.mCurrentSelection = referenceMap.get(id);
+        }
         if (this.mCurrentSelection == null) {
             throw new CommCareSessionException("EntityScreen " + this.toString() + " could not select case " + id + "." +
                     " If this error persists please report a bug to CommCareHQ.");
@@ -312,6 +318,10 @@ public class EntityScreen extends CompoundScreenHost {
 
     public Vector<TreeReference> getReferences() {
         return references;
+    }
+
+    public Action getAutoLaunchAction() {
+        return autoLaunchAction;
     }
 
     @Override

@@ -9,7 +9,6 @@ import org.commcare.suite.model.DisplayUnit;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,12 +67,7 @@ public class QueryScreen extends Screen {
         for (Map.Entry<String, DisplayUnit> displayEntry : userInputDisplays.entrySet()) {
             fields[count] = displayEntry.getValue().getText().evaluate(sessionWrapper.getEvaluationContext());
         }
-        try {
-            mTitle = Localization.get("case.search.title");
-        } catch (NoLocalizedTextException nlte) {
-            mTitle = "Case Claim";
-        }
-
+        mTitle = Localization.get("case.search.title");
     }
 
     private static String buildUrl(String baseUrl, Hashtable<String, String> queryParams) {
