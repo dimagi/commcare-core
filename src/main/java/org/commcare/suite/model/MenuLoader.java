@@ -35,11 +35,7 @@ public class MenuLoader {
     public MenuLoader(CommCarePlatform platform, SessionWrapperInterface sessionWrapper,
                       String menuId, LoggerInterface loggerInterface,
                       boolean shouldOutputEvalTrace, boolean hideTrainingRoot) {
-        this.loggerInterface = loggerInterface;
-        if (shouldOutputEvalTrace) {
-            this.traceReporter = new ReducingTraceReporter(false);
-        }
-        this.getMenuDisplayables(platform, sessionWrapper, menuId, hideTrainingRoot);
+        this(platform, sessionWrapper, menuId, loggerInterface, shouldOutputEvalTrace, hideTrainingRoot, false);
     }
 
     public MenuLoader(CommCarePlatform platform, SessionWrapperInterface sessionWrapper,
