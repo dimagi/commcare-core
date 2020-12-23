@@ -175,6 +175,8 @@ public class ASTNodeFunctionCall extends ASTNode {
                 return new XPathSleepFunc(args);
             case "index-of":
                 return new XPathIndexOfFunc(args);
+            case "encrypt-string":
+                return new XPathEncryptStringFunc(args);
             default:
                 return new XPathCustomRuntimeFunc(name, args);
         }

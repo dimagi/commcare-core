@@ -4,11 +4,11 @@ import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
-import org.commcare.suite.model.DisplayUnit;
+import org.commcare.suite.model.QueryPrompt;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
+import org.javarosa.core.util.OrderedHashtable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +32,7 @@ import okhttp3.Response;
 public class QueryScreen extends Screen {
 
     private RemoteQuerySessionManager remoteQuerySessionManager;
-    private OrderedHashtable<String, DisplayUnit> userInputDisplays;
+    private OrderedHashtable<String, QueryPrompt> userInputDisplays;
     private SessionWrapper sessionWrapper;
     private String[] fields;
     private String mTitle;
@@ -64,15 +64,15 @@ public class QueryScreen extends Screen {
 
         int count = 0;
         fields = new String[userInputDisplays.keySet().size()];
-        for (Map.Entry<String, DisplayUnit> displayEntry : userInputDisplays.entrySet()) {
-            fields[count] = displayEntry.getValue().getText().evaluate(sessionWrapper.getEvaluationContext());
+        for (Map.Entry<String, QueryPrompt> queryPromptEntry : userInputDisplays.entrySet()) {
+            fields[count] = queryPromptEntry.getValue().getDisplay().getText().evaluate(sessionWrapper.getEvaluationContext());
         }
+
         try {
             mTitle = Localization.get("case.search.title");
         } catch (NoLocalizedTextException nlte) {
             mTitle = "Case Claim";
         }
-
     }
 
     private static String buildUrl(String baseUrl, Hashtable<String, String> queryParams) {
@@ -157,8 +157,8 @@ public class QueryScreen extends Screen {
         String[] answers = input.split(",");
         Hashtable<String, String> userAnswers = new Hashtable<>();
         int count = 0;
-        for (Map.Entry<String, DisplayUnit> displayEntry : userInputDisplays.entrySet()) {
-            userAnswers.put(displayEntry.getKey(), answers[count]);
+        for (Map.Entry<String, QueryPrompt> queryPromptEntry : userInputDisplays.entrySet()) {
+            userAnswers.put(queryPromptEntry.getKey(), answers[count]);
             count ++;
         }
         answerPrompts(userAnswers);
@@ -170,7 +170,8 @@ public class QueryScreen extends Screen {
         return refresh;
     }
 
-    public OrderedHashtable<String, DisplayUnit> getUserInputDisplays(){
+
+    public OrderedHashtable<String, QueryPrompt> getUserInputDisplays(){
         return userInputDisplays;
     }
 

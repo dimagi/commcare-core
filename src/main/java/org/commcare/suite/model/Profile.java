@@ -30,7 +30,6 @@ public class Profile implements Persistable {
 
     public static final String STORAGE_KEY = "PROFILE";
     public static final String FEATURE_REVIEW = "checkoff";
-    public static final String FEATURE_USERS = "users";
 
     private int recordId = -1;
     private int version;
@@ -41,6 +40,7 @@ public class Profile implements Persistable {
 
     private String uniqueId;
     private String displayName;
+    private String buildProfileId;
 
     /**
      * Indicates if this was generated from an old version of the profile file, before fields
@@ -66,16 +66,16 @@ public class Profile implements Persistable {
      *                is obsoleted by it.
      */
     public Profile(int version, String authRef, String uniqueId, String displayName,
-                   boolean fromOld) {
+                   boolean fromOld, String buildProfileId) {
         this.version = version;
         this.authRef = authRef;
         this.uniqueId = uniqueId;
         this.displayName = displayName;
+        this.buildProfileId = buildProfileId;
         this.fromOld = fromOld;
         properties = new Vector<>();
         roots = new Vector<>();
         featureStatus = new Hashtable<>();
-
         //turn on default features
         featureStatus.put("users", true);
     }
@@ -106,6 +106,13 @@ public class Profile implements Persistable {
 	public String getDisplayName() {
 	    return this.displayName;
 	}
+
+    /**
+     * @return the buildProfileId for this particular app profile
+     */
+    public String getBuildProfileId() {
+        return buildProfileId;
+    }
 
     /**
      * @return if this object was generated from an old version of the profile.ccpr file
@@ -208,6 +215,7 @@ public class Profile implements Persistable {
         properties = (Vector<PropertySetter>)ExtUtil.read(in, new ExtWrapList(PropertySetter.class), pf);
         roots = (Vector<RootTranslator>)ExtUtil.read(in, new ExtWrapList(RootTranslator.class), pf);
         featureStatus = (Hashtable<String, Boolean>)ExtUtil.read(in, new ExtWrapMap(String.class, Boolean.class), pf);
+        buildProfileId = ExtUtil.readString(in);
     }
 
     @Override
@@ -222,5 +230,6 @@ public class Profile implements Persistable {
         ExtUtil.write(out, new ExtWrapList(properties));
         ExtUtil.write(out, new ExtWrapList(roots));
         ExtUtil.write(out, new ExtWrapMap(featureStatus));
+        ExtUtil.writeString(out, buildProfileId);
     }
 }

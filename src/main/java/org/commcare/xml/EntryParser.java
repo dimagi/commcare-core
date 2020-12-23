@@ -12,6 +12,7 @@ import org.commcare.suite.model.ViewEntry;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -23,6 +24,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
+
+import static org.commcare.xml.StackOpParser.NAME_STACK;
 
 /**
  * @author ctsims
@@ -52,7 +55,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
     }
 
     @Override
-    public Entry parse() throws InvalidStructureException, IOException, XmlPullParserException {
+    public Entry parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         this.checkNode(parserBlockTag);
 
         String xFormNamespace = null;
@@ -133,7 +136,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
         return display;
     }
 
-    private void parseSessionData(Vector<SessionDatum> data) throws InvalidStructureException, IOException, XmlPullParserException {
+    private void parseSessionData(Vector<SessionDatum> data) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         while (nextTagInBlock("session")) {
             SessionDatumParser datumParser = new SessionDatumParser(this.parser);
             data.addElement(datumParser.parse());
@@ -142,7 +145,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
 
     private void parseStack(Vector<StackOperation> stackOps) throws InvalidStructureException, IOException, XmlPullParserException {
         StackOpParser sop = new StackOpParser(parser);
-        while (this.nextTagInBlock("stack")) {
+        while (this.nextTagInBlock(NAME_STACK)) {
             stackOps.addElement(sop.parse());
         }
     }

@@ -1,20 +1,23 @@
 package org.commcare.session;
 
+import org.commcare.cases.util.StringUtils;
 import org.commcare.modern.util.Pair;
-import org.commcare.suite.model.DisplayUnit;
+import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
+import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.model.utils.ItemSetUtils;
 import org.javarosa.core.util.OrderedHashtable;
-import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.TreeElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -23,6 +26,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
+
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
 /**
  * Manager for remote query datums; get/answer user prompts and build
@@ -37,13 +43,27 @@ public class RemoteQuerySessionManager {
             new Hashtable<>();
 
     private RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
-                                      EvaluationContext evaluationContext) {
+                                      EvaluationContext evaluationContext) throws XPathException {
         this.queryDatum = queryDatum;
         this.evaluationContext = evaluationContext;
+        initUserAnswers();
+    }
+
+    private void initUserAnswers() throws XPathException {
+        OrderedHashtable<String, QueryPrompt> queryPrompts = queryDatum.getUserQueryPrompts();
+        for (Enumeration en = queryPrompts.keys(); en.hasMoreElements(); ) {
+            String promptId = (String)en.nextElement();
+            QueryPrompt prompt = queryPrompts.get(promptId);
+            String defaultValue = "";
+            if(prompt.getDefaultValueExpr() != null) {
+                defaultValue = FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext));
+            }
+            userAnswers.put(prompt.getKey(), defaultValue);
+        }
     }
 
     public static RemoteQuerySessionManager buildQuerySessionManager(CommCareSession session,
-                                                                     EvaluationContext sessionContext) {
+                                                                     EvaluationContext sessionContext)  throws XPathException {
         SessionDatum datum;
         try {
             datum = session.getNeededDatum();
@@ -58,7 +78,7 @@ public class RemoteQuerySessionManager {
         }
     }
 
-    public OrderedHashtable<String, DisplayUnit> getNeededUserInputDisplays() {
+    public OrderedHashtable<String, QueryPrompt> getNeededUserInputDisplays() {
         return queryDatum.getUserQueryPrompts();
     }
 
@@ -88,7 +108,10 @@ public class RemoteQuerySessionManager {
         }
         for (Enumeration e = userAnswers.keys(); e.hasMoreElements(); ) {
             String key = (String)e.nextElement();
-            params.put(key, userAnswers.get(key));
+            String value = userAnswers.get(key);
+            if (!StringUtils.isEmpty(value)) {
+                params.put(key, userAnswers.get(key));
+            }
         }
         return params;
     }
@@ -114,4 +137,52 @@ public class RemoteQuerySessionManager {
         return new Pair<>(ExternalDataInstance.buildFromRemote(queryDatum.getDataId(), root, queryDatum.useCaseTemplate()), "");
     }
 
+    public void populateItemSetChoices(QueryPrompt queryPrompt) {
+        EvaluationContext evalContextWithAnswers = evaluationContext.spawnWithCleanLifecycle();
+        evalContextWithAnswers.setVariables(userAnswers);
+        ItemSetUtils.populateDynamicChoices(queryPrompt.getItemsetBinding(), evalContextWithAnswers);
+    }
+
+    // loops over query prompts and validates selection until all selections are valid
+    public void refreshItemSetChoices(Hashtable<String, String> userAnswers) {
+        OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
+        boolean dirty = true;
+        int index = 0;
+        while (dirty) {
+            if (index == userInputDisplays.size()) {
+                // loop has already run as many times as no of questions and we are still dirty
+                throw new RuntimeException("Invalid itemset state encountered while trying to refresh itemset choices");
+            }
+            dirty = false;
+            for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
+                String promptId = (String)en.nextElement();
+                QueryPrompt queryPrompt = userInputDisplays.get(promptId);
+                if (queryPrompt.getInput() != null && queryPrompt.getInput().contentEquals(INPUT_TYPE_SELECT1)) {
+                    String answer = userAnswers.get(promptId);
+                    populateItemSetChoices(queryPrompt);
+                    Vector<SelectChoice> items = queryPrompt.getItemsetBinding().getChoices();
+                    if (!checkForValidSelectValue(items, answer)) {
+                        // if it's not a valid select value, blank it out
+                        userAnswers.put(promptId, "");
+                        dirty = true;
+                    }
+                }
+            }
+            index++;
+        }
+    }
+
+    // checks if @param{value} is one of the select choices give in @param{items}
+    private boolean checkForValidSelectValue(Vector<SelectChoice> items, String value) {
+        // blank is always a valid choice
+        if (StringUtils.isEmpty(value)) {
+            return true;
+        }
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).getValue().contentEquals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
