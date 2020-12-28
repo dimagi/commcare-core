@@ -5,6 +5,7 @@ import org.commcare.modern.reference.JavaFileRoot;
 import org.commcare.modern.reference.JavaHttpRoot;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelledException;
+import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.InstallerFactory;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -41,6 +42,7 @@ import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathMissingInstanceException;
+import org.commcare.resources.ResourceInstallContext;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -66,7 +68,8 @@ public class CommCareConfigEngine {
     protected ArchiveFileRoot mArchiveRoot;
 
     public static final int MAJOR_VERSION = 2;
-    public static final int MINOR_VERSION = 47;
+    public static final int MINOR_VERSION = 49;
+    public static final int MINIMAL_VERSION = 0;
 
 
     public CommCareConfigEngine() {
@@ -96,7 +99,7 @@ public class CommCareConfigEngine {
         storageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
         storageManager.registerStorage("fixture", FormInstance.class);
 
-        this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION, storageManager);
+        this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION, MINIMAL_VERSION, storageManager);
     }
 
     private static IStorageIndexedFactory setupDummyStorageFactory(final PrototypeFactory prototypeFactory) {
@@ -136,7 +139,7 @@ public class CommCareConfigEngine {
     protected String downloadToTemp(String resource) {
         try {
             URL url = new URL(resource);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
             conn.setInstanceFollowRedirects(true);  //you still need to handle redirect manully.
             HttpURLConnection.setFollowRedirects(true);
             File file = File.createTempFile("commcare_", ".ccz");
@@ -206,7 +209,7 @@ public class CommCareConfigEngine {
             throws UnresolvedResourceException,
             UnfullfilledRequirementsException, InstallCancelledException {
         ResourceManager.installAppResources(platform, profileReference, this.table, true,
-                Resource.RESOURCE_AUTHORITY_LOCAL);
+                Resource.RESOURCE_AUTHORITY_LOCAL, new ResourceInstallContext(InstallRequestSource.INSTALL));
     }
 
     public void initEnvironment() throws ResourceInitializationException {
@@ -324,7 +327,7 @@ public class CommCareConfigEngine {
             if (datum instanceof FormIdDatum) {
                 print.println(emptyhead + "Form: " + datum.getValue());
             } else if (datum instanceof EntityDatum) {
-                String shortDetailId = ((EntityDatum) datum).getShortDetail();
+                String shortDetailId = ((EntityDatum)datum).getShortDetail();
                 if (shortDetailId != null) {
                     Detail d = s.getDetail(shortDetailId);
                     try {
@@ -428,8 +431,10 @@ public class CommCareConfigEngine {
         // actually pull in all the new references
 
         print.println("Checking for updates....");
+
+        ResourceInstallContext resourceInstallContext = new ResourceInstallContext(InstallRequestSource.FOREGROUND_UPDATE);
         ResourceManager resourceManager = new ResourceManager(platform, global, updateTable, recoveryTable);
-        resourceManager.stageUpgradeTable(authRef, true, platform);
+        resourceManager.stageUpgradeTable(authRef, true, resourceInstallContext);
         Resource newProfile = updateTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
         if (!newProfile.isNewer(profileRef)) {
             print.println("Your app is up to date!");
@@ -438,12 +443,13 @@ public class CommCareConfigEngine {
 
         print.println("Update found. New Version: " + newProfile.getVersion());
         print.println("Downloading / Preparing Update");
-        resourceManager.prepareUpgradeResources();
+        resourceManager.prepareUpgradeResources(resourceInstallContext);
         print.print("Installing update");
 
         // Replaces global table with temporary, or w/ recovery if
         // something goes wrong
         resourceManager.upgrade();
+
 
         // Initializes app resources and the app itself, including doing a check to see if this
         // app record was converted by the db upgrader

@@ -50,28 +50,33 @@ public class UnfullfilledRequirementsException extends Exception {
      */
     private final int maR;
     private final int miR;
+    private final int minR;
     private final int maA;
     private final int miA;
+    private final int minA;
 
     public UnfullfilledRequirementsException(String message) {
         this(message, RequirementType.NONE);
     }
 
     public UnfullfilledRequirementsException(String message, RequirementType requirementType) {
-        this(message, -1, -1, -1, -1, requirementType);
+        this(message, -1, -1, -1, -1, -1, -1, requirementType);
     }
 
     /**
      * Constructor for unfulfilled version requirements.
      */
     public UnfullfilledRequirementsException(String message,
-                                             int requiredMajor, int requiredMinor, int availableMajor, int availableMinor,
+                                             int requiredMajor, int requiredMinor, int requiredMinimal,
+                                             int availableMajor, int availableMinor, int availableMinimal,
                                              RequirementType requirementType) {
         super(message);
         this.maR = requiredMajor;
         this.miR = requiredMinor;
+        this.minR = requiredMinimal;
         this.maA = availableMajor;
         this.miA = availableMinor;
+        this.minA = availableMinimal;
         this.requirementType = requirementType;
     }
 
@@ -79,14 +84,14 @@ public class UnfullfilledRequirementsException extends Exception {
      * @return A human readable version string describing the required version
      */
     public String getRequiredVersionString() {
-        return maR + "." + miR;
+        return maR + "." + miR + "." + minR;
     }
 
     /**
      * @return A human readable version string describing the available version
      */
     public String getAvailableVesionString() {
-        return maA + "." + miA;
+        return maA + "." + miA + "." + minA;
     }
 
     public RequirementType getRequirementType() {

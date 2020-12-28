@@ -52,7 +52,7 @@ public class OfflineUserRestore implements Persistable {
 
     public static OfflineUserRestore buildInMemoryUserRestore(InputStream restoreStream)
             throws UnfullfilledRequirementsException, IOException, InvalidStructureException,
-            XmlPullParserException {
+            XmlPullParserException, InvalidReferenceException {
 
         OfflineUserRestore offlineUserRestore = new OfflineUserRestore();
         byte[] restoreBytes = StreamsUtil.inputStreamToByteArray(restoreStream);
@@ -62,7 +62,7 @@ public class OfflineUserRestore implements Persistable {
         return offlineUserRestore;
     }
 
-    public InputStream getRestoreStream() {
+    public InputStream getRestoreStream() throws IOException, InvalidReferenceException {
         if (reference != null) {
             // user restore xml was installed to a file
             return getStreamFromReference();
@@ -80,13 +80,9 @@ public class OfflineUserRestore implements Persistable {
         }
     }
 
-    private InputStream getStreamFromReference() {
-        try {
+    private InputStream getStreamFromReference() throws InvalidReferenceException, IOException {
             Reference local = ReferenceManager.instance().DeriveReference(reference);
             return local.getStream();
-        } catch (IOException | InvalidReferenceException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public String getReference() {
@@ -126,7 +122,7 @@ public class OfflineUserRestore implements Persistable {
 
     private void checkThatRestoreIsValidAndSetUsername()
             throws UnfullfilledRequirementsException, IOException, InvalidStructureException,
-            XmlPullParserException {
+            XmlPullParserException, InvalidReferenceException {
 
         TransactionParserFactory factory = parser -> {
             String name = parser.getName();

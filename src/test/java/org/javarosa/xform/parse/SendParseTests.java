@@ -1,6 +1,7 @@
 package org.javarosa.xform.parse;
 
 import org.javarosa.core.model.SubmissionProfile;
+import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.model.xform.XPathReference;
 import org.junit.Assert;

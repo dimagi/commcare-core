@@ -1,5 +1,6 @@
 package org.commcare.resources.model.installers;
 
+import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
@@ -10,7 +11,6 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.xml.SuiteParser;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localization;
@@ -49,7 +49,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
                            ResourceTable table, CommCarePlatform platform,
-                           boolean upgrade, boolean recovery) throws UnresolvedResourceException, UnfullfilledRequirementsException {
+                           boolean upgrade, ResourceInstallContext resourceInstallContext) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_CACHE) {
             //If it's in the cache, we should just get it from there
             return false;
@@ -102,7 +102,8 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
             suite = storage(platform).read(cacheLocation);
         } catch (Exception e) {
             e.printStackTrace();
-            sizeBoundProblems.addElement(new MissingMediaException(r, "Suite did not properly save into persistent storage"));
+            sizeBoundProblems.addElement(new MissingMediaException(r, "Suite did not properly save into persistent storage",
+                    MissingMediaException.MissingMediaExceptionType.NONE));
             return true;
         }
         //Otherwise, we want to figure out if the form has media, and we need to see whether it's properly
