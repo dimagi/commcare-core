@@ -127,6 +127,10 @@ public class QueryScreen extends Screen {
         }
     }
 
+    public void refreshItemSetChoices(){
+        remoteQuerySessionManager.refreshItemSetChoices(remoteQuerySessionManager.getUserAnswers());
+    }
+
     protected URL getBaseUrl(){
         return remoteQuerySessionManager.getBaseUrl();
     }
@@ -177,5 +181,9 @@ public class QueryScreen extends Screen {
 
     public String getCurrentMessage(){
         return currentMessage;
+    }
+
+    public Hashtable<String, String> getCurrentAnswers() {
+        return remoteQuerySessionManager.getUserAnswers();
     }
 }
