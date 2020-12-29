@@ -4,6 +4,7 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInstaller;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.Endpoint;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
@@ -20,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.Vector;
+
+import static org.commcare.xml.EndpointParser.NAME_ENDPOINT;
 
 /**
  * Parses a suite file resource and creates the associated object
@@ -85,6 +88,7 @@ public class SuiteParser extends ElementParser<Suite> {
         Hashtable<String, Entry> entries = new Hashtable<>();
 
         Vector<Menu> menus = new Vector<>();
+        Hashtable<String, Endpoint> endpoints = new Hashtable<>();
 
         try {
             //Now that we've covered being inside of a suite,
@@ -163,6 +167,10 @@ public class SuiteParser extends ElementParser<Suite> {
                                 new FixtureXmlParser(parser, isUpgrade, fixtureStorage).parse();
                             }
                             break;
+                        case NAME_ENDPOINT:
+                            Endpoint endpoint = new EndpointParser(parser).parse();
+                            endpoints.put(endpoint.getId(), endpoint);
+                            break;
                         default:
                             System.out.println("Unrecognized Tag: " + parser.getName());
                             break;
@@ -171,7 +179,7 @@ public class SuiteParser extends ElementParser<Suite> {
                 eventType = parser.next();
             } while (eventType != KXmlParser.END_DOCUMENT);
 
-            return new Suite(version, details, entries, menus);
+            return new Suite(version, details, entries, menus, endpoints);
         } catch (XmlPullParserException e) {
             e.printStackTrace();
             throw new InvalidStructureException("Pull Parse Exception, malformed XML.", parser);
