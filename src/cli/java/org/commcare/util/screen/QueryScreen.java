@@ -4,12 +4,11 @@ import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
-import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.QueryPrompt;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
+import org.javarosa.core.util.OrderedHashtable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,12 +67,12 @@ public class QueryScreen extends Screen {
         for (Map.Entry<String, QueryPrompt> queryPromptEntry : userInputDisplays.entrySet()) {
             fields[count] = queryPromptEntry.getValue().getDisplay().getText().evaluate(sessionWrapper.getEvaluationContext());
         }
+
         try {
             mTitle = Localization.get("case.search.title");
         } catch (NoLocalizedTextException nlte) {
             mTitle = "Case Claim";
         }
-
     }
 
     private static String buildUrl(String baseUrl, Hashtable<String, String> queryParams) {
@@ -128,6 +127,10 @@ public class QueryScreen extends Screen {
         }
     }
 
+    public void refreshItemSetChoices(){
+        remoteQuerySessionManager.refreshItemSetChoices(remoteQuerySessionManager.getUserAnswers());
+    }
+
     protected URL getBaseUrl(){
         return remoteQuerySessionManager.getBaseUrl();
     }
@@ -178,5 +181,9 @@ public class QueryScreen extends Screen {
 
     public String getCurrentMessage(){
         return currentMessage;
+    }
+
+    public Hashtable<String, String> getCurrentAnswers() {
+        return remoteQuerySessionManager.getUserAnswers();
     }
 }
