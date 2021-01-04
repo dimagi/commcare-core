@@ -282,7 +282,7 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
 
         RecordObjectCache<Model> recordObjectCache = getRecordObjectCacheIfRelevant(context);
 
-        if(recordObjectCache != null) {
+        if (recordObjectCache != null) {
             if (recordObjectCache.isLoaded(storageCacheKey, recordId)) {
                 return recordObjectCache.getLoadedRecordObject(storageCacheKey, recordId);
             }
@@ -292,9 +292,9 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
                         recordSetCache.getRecordSetForRecordId(storageCacheKey, recordId);
                 EvaluationTrace loadTrace =
                         new EvaluationTrace(String.format("Model [%s]: Bulk Load [%s}",
-                                this.getStorageCacheName(),tranche.first));
+                                this.getStorageCacheName(), tranche.first));
 
-                LinkedHashSet<Integer>  body = tranche.second;
+                LinkedHashSet<Integer> body = tranche.second;
                 storage.bulkRead(body, recordObjectCache.getLoadedCaseMap(storageCacheKey));
                 loadTrace.setOutcome("Loaded: " + body.size());
                 context.reportTrace(loadTrace);
@@ -333,7 +333,7 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
         Model m = storage.read(recordId);
 
         trace.setOutcome(String.valueOf(recordId));
-        if(context!= null) {
+        if (context != null) {
             context.reportTrace(trace);
         }
         return m;
@@ -344,4 +344,19 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
     }
 
     protected abstract T getChildTemplate();
+
+    @Override
+    public String toString() {
+        String name = "NULL";
+        if (modelName != null) {
+            name = modelName;
+        }
+
+        String childName = "NULL";
+        if (this.childName != null) {
+            childName = this.childName;
+        }
+
+        return name + " - child: " + childName +  " - Children: " + getNumChildren();
+    }
 }

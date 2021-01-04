@@ -5,10 +5,12 @@ import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
-import org.commcare.suite.model.DisplayUnit;
+import org.commcare.suite.model.QueryPrompt;
+import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
+import org.javarosa.core.util.OrderedHashtable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,12 +18,15 @@ import java.io.PrintStream;
 import java.net.URL;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Vector;
 
 import okhttp3.Credentials;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
 /**
  * Screen that displays user configurable entry texts and makes
@@ -32,7 +37,7 @@ import okhttp3.Response;
 public class QueryScreen extends Screen {
 
     private RemoteQuerySessionManager remoteQuerySessionManager;
-    private OrderedHashtable<String, DisplayUnit> userInputDisplays;
+    private OrderedHashtable<String, QueryPrompt> userInputDisplays;
     private SessionWrapper sessionWrapper;
     private String[] fields;
     private String mTitle;
@@ -64,15 +69,20 @@ public class QueryScreen extends Screen {
 
         int count = 0;
         fields = new String[userInputDisplays.keySet().size()];
-        for (Map.Entry<String, DisplayUnit> displayEntry : userInputDisplays.entrySet()) {
-            fields[count] = displayEntry.getValue().getText().evaluate(sessionWrapper.getEvaluationContext());
+        for (Map.Entry<String, QueryPrompt> queryPromptEntry : userInputDisplays.entrySet()) {
+            fields[count] = queryPromptEntry.getValue().getDisplay().getText().evaluate(sessionWrapper.getEvaluationContext());
         }
-        mTitle = Localization.get("case.search.title");
+
+        try {
+            mTitle = Localization.get("case.search.title");
+        } catch (NoLocalizedTextException nlte) {
+            mTitle = "Case Claim";
+        }
     }
 
     private static String buildUrl(String baseUrl, Hashtable<String, String> queryParams) {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
-        for (String key: queryParams.keySet()) {
+        for (String key : queryParams.keySet()) {
             urlBuilder.addQueryParameter(key, queryParams.get(key));
         }
         return urlBuilder.build().toString();
@@ -117,16 +127,30 @@ public class QueryScreen extends Screen {
     }
 
     public void answerPrompts(Hashtable<String, String> answers) {
-        for(String key: answers.keySet()){
-            remoteQuerySessionManager.answerUserPrompt(key, answers.get(key));
+        for (String key : answers.keySet()) {
+            QueryPrompt queryPrompt = userInputDisplays.get(key);
+            String answer = answers.get(key);
+
+            // If select question, we should have got an index as the answer which should
+            // be converted to the corresponding value
+            if (queryPrompt.isSelectOne() && answer != null) {
+                int choiceIndex = Integer.parseInt(answer);
+                Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
+                answer = selectChoices.get(choiceIndex).getValue();
+            }
+            remoteQuerySessionManager.answerUserPrompt(key, answer);
         }
     }
 
-    protected URL getBaseUrl(){
+    public void refreshItemSetChoices() {
+        remoteQuerySessionManager.refreshItemSetChoices(remoteQuerySessionManager.getUserAnswers());
+    }
+
+    protected URL getBaseUrl() {
         return remoteQuerySessionManager.getBaseUrl();
     }
 
-    protected Hashtable<String, String> getQueryParams(){
+    protected Hashtable<String, String> getQueryParams() {
         return remoteQuerySessionManager.getRawQueryParams();
     }
 
@@ -137,7 +161,7 @@ public class QueryScreen extends Screen {
     @Override
     public void prompt(PrintStream out) {
         out.println("Enter the search fields as a space separated list.");
-        for (int i=0; i< fields.length; i++) {
+        for (int i = 0; i < fields.length; i++) {
             out.println(i + ") " + fields[i]);
         }
     }
@@ -153,9 +177,9 @@ public class QueryScreen extends Screen {
         String[] answers = input.split(",");
         Hashtable<String, String> userAnswers = new Hashtable<>();
         int count = 0;
-        for (Map.Entry<String, DisplayUnit> displayEntry : userInputDisplays.entrySet()) {
-            userAnswers.put(displayEntry.getKey(), answers[count]);
-            count ++;
+        for (Map.Entry<String, QueryPrompt> queryPromptEntry : userInputDisplays.entrySet()) {
+            userAnswers.put(queryPromptEntry.getKey(), answers[count]);
+            count++;
         }
         answerPrompts(userAnswers);
         InputStream response = makeQueryRequestReturnStream();
@@ -166,11 +190,16 @@ public class QueryScreen extends Screen {
         return refresh;
     }
 
-    public OrderedHashtable<String, DisplayUnit> getUserInputDisplays(){
+
+    public OrderedHashtable<String, QueryPrompt> getUserInputDisplays() {
         return userInputDisplays;
     }
 
-    public String getCurrentMessage(){
+    public String getCurrentMessage() {
         return currentMessage;
+    }
+
+    public Hashtable<String, String> getCurrentAnswers() {
+        return remoteQuerySessionManager.getUserAnswers();
     }
 }

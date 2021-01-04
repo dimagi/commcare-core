@@ -35,11 +35,17 @@ public class MenuLoader {
     public MenuLoader(CommCarePlatform platform, SessionWrapperInterface sessionWrapper,
                       String menuId, LoggerInterface loggerInterface,
                       boolean shouldOutputEvalTrace, boolean hideTrainingRoot) {
+        this(platform, sessionWrapper, menuId, loggerInterface, shouldOutputEvalTrace, hideTrainingRoot, false);
+    }
+
+    public MenuLoader(CommCarePlatform platform, SessionWrapperInterface sessionWrapper,
+                      String menuId, LoggerInterface loggerInterface,
+                      boolean shouldOutputEvalTrace, boolean hideTrainingRoot, boolean includeBadges) {
         this.loggerInterface = loggerInterface;
         if (shouldOutputEvalTrace) {
             this.traceReporter = new ReducingTraceReporter(false);
         }
-        this.getMenuDisplayables(platform, sessionWrapper, menuId, hideTrainingRoot);
+        this.getMenuDisplayables(platform, sessionWrapper, menuId, hideTrainingRoot, includeBadges);
     }
 
     public String getErrorMessage() {
@@ -54,6 +60,12 @@ public class MenuLoader {
     private void getMenuDisplayables(CommCarePlatform platform,
                                      SessionWrapperInterface sessionWrapper,
                                      String menuID, boolean hideTrainingRoot) {
+        getMenuDisplayables(platform,sessionWrapper, menuID, hideTrainingRoot, false);
+    }
+    private void getMenuDisplayables(CommCarePlatform platform,
+                                     SessionWrapperInterface sessionWrapper,
+                                     String menuID, boolean hideTrainingRoot,
+                                     boolean includeBadges) {
         Vector<MenuDisplayable> items = new Vector<>();
         Vector<String> badges = new Vector<>();
         Hashtable<String, Entry> map = platform.getCommandToEntryMap();
@@ -62,10 +74,10 @@ public class MenuLoader {
                 try {
                     if (m.getId().equals(menuID)) {
                         if (menuIsRelevant(sessionWrapper, m)) {
-                            addRelevantCommandEntries(sessionWrapper, m, items, badges, map);
+                            addRelevantCommandEntries(sessionWrapper, m, items, badges, map, includeBadges);
                         }
                     } else {
-                        addUnaddedMenu(sessionWrapper, menuID, m, items, badges, hideTrainingRoot);
+                        addUnaddedMenu(sessionWrapper, menuID, m, items, badges, hideTrainingRoot, includeBadges);
                     }
                 } catch (CommCareInstanceInitializer.FixtureInitializationException
                         | XPathSyntaxException | XPathException xpe) {
@@ -77,13 +89,15 @@ public class MenuLoader {
         }
         menus = new MenuDisplayable[items.size()];
         items.copyInto(menus);
-        this.badges = new String[badges.size()];
-        badges.copyInto(this.badges);
+        if (includeBadges) {
+            this.badges = new String[badges.size()];
+            badges.copyInto(this.badges);
+        }
     }
 
     private void addUnaddedMenu(SessionWrapperInterface sessionWrapper, String currentMenuId,
                                 Menu toAdd, Vector<MenuDisplayable> items, Vector<String> badges,
-                                boolean hideTrainingRoot) throws XPathSyntaxException {
+                                boolean hideTrainingRoot, boolean includeBadges) throws XPathSyntaxException {
         if (hideTrainingRoot && toAdd.getId().equals(Menu.TRAINING_MENU_ROOT)) {
             return;
         }
@@ -101,7 +115,9 @@ public class MenuLoader {
             if (!idExists) {
                 if (menuIsRelevant(sessionWrapper, toAdd)) {
                     items.add(toAdd);
-                    badges.add(toAdd.getTextForBadge(sessionWrapper.getEvaluationContext(toAdd.getCommandID())).blockingGet());
+                    if (includeBadges) {
+                        badges.add(toAdd.getTextForBadge(sessionWrapper.getEvaluationContext(toAdd.getCommandID())).blockingGet());
+                    }
                 }
             }
         }
@@ -133,7 +149,8 @@ public class MenuLoader {
                                            Menu m,
                                            Vector<MenuDisplayable> items,
                                            Vector<String> badges,
-                                           Hashtable<String, Entry> map)
+                                           Hashtable<String, Entry> map,
+                                           boolean includeBadges)
             throws XPathSyntaxException {
         xPathErrorMessage = "";
         for (String command : m.getCommandIds()) {
@@ -171,7 +188,9 @@ public class MenuLoader {
             }
 
             items.add(e);
-            badges.add(e.getTextForBadge(sessionWrapper.getEvaluationContext(e.getCommandId())).blockingGet());
+            if (includeBadges) {
+                badges.add(e.getTextForBadge(sessionWrapper.getEvaluationContext(e.getCommandId())).blockingGet());
+            }
         }
     }
 

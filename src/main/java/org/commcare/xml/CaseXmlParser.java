@@ -6,6 +6,7 @@ import org.commcare.data.xml.TransactionParser;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.externalizable.SerializationLimitationException;
+import org.javarosa.xml.util.InvalidCasePropertyLengthException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.ActionableInvalidStructureException;
 import org.kxml2.io.KXmlParser;
@@ -175,6 +176,8 @@ public class CaseXmlParser extends TransactionParser<Case> {
             throw new InvalidStructureException("One of [user_id, owner_id] is missing for case <create> with ID: " + caseId, parser);
         }
 
+        checkForMaxLength(caseForBlock);
+
         return caseForBlock;
     }
 
@@ -209,6 +212,26 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     break;
             }
         }
+        checkForMaxLength(caseForBlock);
+    }
+
+    private void checkForMaxLength(Case caseForBlock) throws InvalidStructureException {
+        if (getStringLength(caseForBlock.getTypeId()) > 255) {
+            throw new InvalidCasePropertyLengthException("case_type");
+        } else if (getStringLength(caseForBlock.getUserId()) > 255) {
+            throw new InvalidCasePropertyLengthException("owner_id");
+        } else if (getStringLength(caseForBlock.getName()) > 255) {
+            throw new InvalidCasePropertyLengthException("case_name");
+        } else if (getStringLength(caseForBlock.getExternalId()) > 255) {
+            throw new InvalidCasePropertyLengthException("external_id");
+        }
+    }
+
+    /**
+     * Returns the length of string if it's not null, otherwise 0.
+     */
+    private int getStringLength(String input) {
+        return input != null ? input.length() : 0;
     }
 
     private Case loadCase(Case caseForBlock, String caseId, boolean errorIfMissing) throws InvalidStructureException {

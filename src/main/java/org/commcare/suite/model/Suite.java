@@ -46,6 +46,7 @@ public class Suite implements Persistable {
     private final HashMap<String, List<Menu>> rootToMenus = new HashMap<>();
 
     private Vector<Menu> menus;
+    private Hashtable<String, Endpoint> endpoints;
 
     @SuppressWarnings("unused")
     public Suite() {
@@ -53,11 +54,12 @@ public class Suite implements Persistable {
     }
 
     public Suite(int version, Hashtable<String, Detail> details,
-                 Hashtable<String, Entry> entries, Vector<Menu> menus) {
+                 Hashtable<String, Entry> entries, Vector<Menu> menus, Hashtable<String, Endpoint> endpoints) {
         this.version = version;
         this.details = details;
         this.entries = entries;
         this.menus = menus;
+        this.endpoints = endpoints;
         buildIdToMenus();
     }
 
@@ -121,6 +123,14 @@ public class Suite implements Persistable {
         return entries.get(id);
     }
 
+    public Endpoint getEndpoint(String id) {
+        return endpoints.get(id);
+    }
+
+    public Hashtable<String, Endpoint> getEndpoints() {
+        return endpoints;
+    }
+
     /**
      * @param id The String ID of a detail definition
      * @return A Detail definition associated with the provided
@@ -138,6 +148,7 @@ public class Suite implements Persistable {
         this.details = (Hashtable<String, Detail>)ExtUtil.read(in, new ExtWrapMap(String.class, Detail.class), pf);
         this.entries = (Hashtable)ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
         this.menus = (Vector<Menu>)ExtUtil.read(in, new ExtWrapList(Menu.class), pf);
+        this.endpoints = (Hashtable<String, Endpoint>)ExtUtil.read(in, new ExtWrapMap(String.class, Endpoint.class), pf);
         buildIdToMenus();
     }
 
@@ -148,5 +159,6 @@ public class Suite implements Persistable {
         ExtUtil.write(out, new ExtWrapMap(details));
         ExtUtil.write(out, new ExtWrapMapPoly(entries));
         ExtUtil.write(out, new ExtWrapList(menus));
+        ExtUtil.write(out, new ExtWrapMap(endpoints));
     }
 }

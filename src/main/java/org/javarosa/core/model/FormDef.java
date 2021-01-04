@@ -31,6 +31,7 @@ import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
 import org.javarosa.core.model.utils.InstrumentationUtils;
+import org.javarosa.core.model.utils.ItemSetUtils;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.util.CacheTable;
@@ -65,9 +66,12 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.annotation.Nullable;
+
 import datadog.trace.api.Trace;
 import io.opentracing.Span;
 import io.opentracing.util.GlobalTracer;
+
 
 /**
  * Definition of a form. This has some meta data about the form definition and a
@@ -389,10 +393,11 @@ public class FormDef implements IFormElement, IMetaData,
     /**
      * When a repeat is deleted, we need to reduce the multiplicities of its siblings that were higher than it
      * by one.
+     *
      * @param parentElement the parent of the deleted element
      * @param deleteElement the deleted element
      */
-    private void reduceTreeSiblingMultiplicities(TreeElement parentElement, TreeElement deleteElement){
+    private void reduceTreeSiblingMultiplicities(TreeElement parentElement, TreeElement deleteElement) {
         int childMult = deleteElement.getMult();
         // update multiplicities of other child nodes
         for (int i = 0; i < parentElement.getNumChildren(); i++) {
@@ -725,8 +730,8 @@ public class FormDef implements IFormElement, IMetaData,
                 // Get child refs because children are affected by parents
                 ArrayList<TreeReference> updatedNodes = getTreeReferenceAndChildren(outerReference);
                 if (updatedNodes != null) {
-                    for (TreeReference innerReference: updatedNodes) {
-                        Vector<Triggerable> triggered = (Vector<Triggerable>) conditionsTriggeredByRef(innerReference);
+                    for (TreeReference innerReference : updatedNodes) {
+                        Vector<Triggerable> triggered = (Vector<Triggerable>)conditionsTriggeredByRef(innerReference);
                         if (triggered != null) {
                             for (Triggerable trig : triggered) {
                                 if (!innerReference.equals(outerReference)) {
@@ -735,7 +740,7 @@ public class FormDef implements IFormElement, IMetaData,
                                     edges.add(new TreeReference[]{outerReference, innerReference});
                                 }
                                 // Add all the targets of the of the triggered
-                                for (TreeReference reference: trig.getTargets()) {
+                                for (TreeReference reference : trig.getTargets()) {
                                     edges.add(new TreeReference[]{innerReference, reference});
                                 }
                             }
@@ -1016,7 +1021,7 @@ public class FormDef implements IFormElement, IMetaData,
      * triggerables can still be fired if a dependency is modified.
      *
      * @param triggeredDuringInsert Triggerables that don't need to be fired
-     * because they have already been fired while processing insert events
+     *                              because they have already been fired while processing insert events
      */
     @Trace
     private void initTriggerablesRootedBy(TreeReference rootRef,
@@ -1102,8 +1107,8 @@ public class FormDef implements IFormElement, IMetaData,
      * against the anchor (the value that changed which triggered
      * recomputation)
      *
-     * @param triggerable         The triggerable to be updated
-     * @param anchorRef The reference to the value which was changed.
+     * @param triggerable The triggerable to be updated
+     * @param anchorRef   The reference to the value which was changed.
      */
     @Trace
     private void evaluateTriggerable(Triggerable triggerable, TreeReference anchorRef) {
@@ -1354,169 +1359,8 @@ public class FormDef implements IFormElement, IMetaData,
         return template;
     }
 
-    /**
-     * Identify the itemset in the backend model, and create a set of SelectChoice
-     * objects at the current question reference based on the data in the model.
-     *
-     * Will modify the itemset binding to contain the relevant choices
-     *
-     * @param itemset The binding for an itemset, where the choices will be populated
-     * @param curQRef A reference to the current question's element, which will be
-     *                used to determine the values to be chosen from.
-     */
-    public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef) {
-        DataInstance formInstance;
-        if (itemset.nodesetRef.getInstanceName() != null) {
-            formInstance = getNonMainInstance(itemset.nodesetRef.getInstanceName());
-            if (formInstance == null) {
-                throw new XPathException("Instance " + itemset.nodesetRef.getInstanceName() + " not found");
-            }
-        } else {
-            formInstance = getMainInstance();
-        }
-
-        EvaluationContext ec =
-                new EvaluationContext(exprEvalContext, itemset.contextRef.contextualize(curQRef));
-
-        ReducingTraceReporter reporter = null;
-        if (mProfilingEnabled) {
-            reporter = new ReducingTraceReporter(false);
-            ec.setDebugModeOn(reporter);
-        }
-
-        ec = getPotentiallyLimitedScopeContext(ec, itemset);
-
-        Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(formInstance,ec);
-
-        if (reporter != null) {
-            InstrumentationUtils.printAndClearTraces(reporter, "itemset expansion");
-        }
-
-        if (matches == null) {
-            String instanceName = itemset.nodesetRef.getInstanceName();
-            if (instanceName == null) {
-                // itemset references a path rooted in the main instance
-                throw new XPathException("No items found at '" + itemset.nodesetRef + "'");
-            } else {
-                // itemset references a path rooted in a lookup table
-                throw new XPathException("Make sure the '" + instanceName +
-                        "' lookup table is available, and that its contents are accessible to the current user.");
-            }
-        }
-
-        Vector<SelectChoice> choices = new Vector<>();
-        //Escalate the new context if our result set is substantial, this will prevent reverting
-        //from a bulk read mode to a scanned read mode
-        QueryContext newContext = ec.getCurrentQueryContext()
-                .checkForDerivativeContextAndReturn(matches.size());
-        ec.setQueryContext(newContext);
-
-        for (int i = 0; i < matches.size(); i++) {
-            choices.addElement(buildSelectChoice(matches.elementAt(i), itemset, formInstance,
-                    ec, reporter, i));
-        }
-        if (reporter != null) {
-            InstrumentationUtils.printAndClearTraces(reporter, "ItemSet Field Population");
-        }
-
-        itemset.setChoices(choices);
-    }
-
-    /**
-     * Returns an evaluation context which can be used to evaluate the itemset's references, and
-     * if possible will be more efficient than the base context provided through static analysis
-     * of the itemset expressions.
-     */
-    private EvaluationContext getPotentiallyLimitedScopeContext(EvaluationContext questionContext,
-                                                                ItemsetBinding itemset) {
-        Set<TreeReference> references;
-        try {
-             references = pullAllReferencesFromItemset(questionContext, itemset);
-        } catch (AnalysisInvalidException e) {
-            return questionContext;
-        }
-
-        EvaluationContext newContext = questionContext.spawnWithCleanLifecycle();
-
-        QueryContext isolatedContext = newContext.getCurrentQueryContext();
-        ScopeLimitedReferenceRequestCache cache = isolatedContext.getQueryCache(ScopeLimitedReferenceRequestCache.class);
-        cache.addTreeReferencesToLimitedScope(references);
-        return newContext;
-    }
-
-    /**
-     * Tries to get all of the absolute tree references which are referenced in the itemset, either in
-     * the nodeset calculation, or the individual (label, value, etc...) itemset element calculations.
-     *
-     * If a value is returned, that value should contain all tree references which will need to be
-     * evaluated to produce the itemset output
-     *
-     * @throws AnalysisInvalidException If the itemset's references could not be fully understood
-     * or qualified through static evaluation
-     */
-    private Set<TreeReference> pullAllReferencesFromItemset(EvaluationContext questionContext, ItemsetBinding itemset)
-            throws AnalysisInvalidException{
-
-
-        Set<TreeReference> references = getAccumulatedReferencesOrThrow(questionContext, itemset.nodesetRef);
-
-        EvaluationContext itemsetSubexpressionContext = new EvaluationContext(questionContext, itemset.nodesetRef);
-
-        references.addAll(getAccumulatedReferencesOrThrow(itemsetSubexpressionContext, itemset.labelRef));
-        references.addAll(getAccumulatedReferencesOrThrow(itemsetSubexpressionContext, itemset.valueRef));
-        references.addAll(getAccumulatedReferencesOrThrow(itemsetSubexpressionContext, itemset.sortRef));
-
-        return references;
-    }
-
-    private Set<TreeReference> getAccumulatedReferencesOrThrow(EvaluationContext subContext,
-                                                               TreeReference newRef) throws AnalysisInvalidException {
-        if (newRef == null) {
-            return new HashSet<>();
-        }
-        TreeReferenceAccumulatingAnalyzer analyzer = new TreeReferenceAccumulatingAnalyzer(subContext);
-
-        Set<TreeReference> newReferences = analyzer.accumulate(newRef);
-
-        if (newReferences == null) {
-            throw AnalysisInvalidException.INSTANCE_ITEMSET_ACCUM_FAILURE;
-        }
-        return newReferences;
-    }
-
-    private SelectChoice buildSelectChoice(TreeReference choiceRef, ItemsetBinding itemset,
-                                           DataInstance formInstance, EvaluationContext ec,
-                                           ReducingTraceReporter reporter, int index) {
-
-        EvaluationContext subContext = new EvaluationContext(ec, choiceRef);
-
-        String label = itemset.labelExpr.evalReadable(formInstance, subContext);
-
-        String value = null;
-        TreeElement copyNode = null;
-
-        if (itemset.copyMode) {
-            copyNode = this.getMainInstance().resolveReference(itemset.copyRef.contextualize(choiceRef));
-        }
-
-        if (itemset.valueRef != null) {
-            value = itemset.valueExpr.evalReadable(formInstance, subContext);
-        }
-
-        SelectChoice choice = new SelectChoice(label, value != null ? value : "dynamic:" + index,
-                itemset.labelIsItext);
-
-        choice.setIndex(index);
-
-        if (itemset.copyMode) {
-            choice.copyNode = copyNode;
-        }
-
-        if (itemset.sortRef != null) {
-            String evaluatedSortProperty = itemset.sortExpr.evalReadable(formInstance, subContext);
-            choice.setSortProperty(evaluatedSortProperty);
-        }
-        return choice;
+    public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef){
+        ItemSetUtils.populateDynamicChoices(itemset, curQRef, exprEvalContext, getMainInstance(), mProfilingEnabled);
     }
 
     public String toString() {
@@ -1524,7 +1368,7 @@ public class FormDef implements IFormElement, IMetaData,
     }
 
     public void postProcessInstance() {
-        if(!isCompletedInstance) {
+        if (!isCompletedInstance) {
             actionController.triggerActionsFromEvent(Action.EVENT_XFORMS_REVALIDATE, this);
         }
     }
@@ -1570,8 +1414,8 @@ public class FormDef implements IFormElement, IMetaData,
     /**
      * meant to be called after deserialization and initialization of handlers
      *
-     * @param newInstance true if the form is to be used for a new entry interaction,
-     *                    false if it is using an existing IDataModel
+     * @param newInstance         true if the form is to be used for a new entry interaction,
+     *                            false if it is using an existing IDataModel
      * @param isCompletedInstance true if this is an already completed instance we are editing
      *                            (presumably in HQ) - so don't fire end of form event.
      */
@@ -1594,8 +1438,8 @@ public class FormDef implements IFormElement, IMetaData,
      *
      * @param newInstance true if the form is to be used for a new entry interaction,
      *                    false if it is using an existing IDataModel
-     * @param locale The default locale in the current environment, if provided. Can be null
-     *               to rely on the form's internal default.
+     * @param locale      The default locale in the current environment, if provided. Can be null
+     *                    to rely on the form's internal default.
      */
     @Trace
     public void initialize(boolean newInstance, boolean isCompletedInstance,
@@ -1999,7 +1843,7 @@ public class FormDef implements IFormElement, IMetaData,
     }
 
     public String dispatchSendCallout(String url, Map<String, String> paramMap) {
-        if(sendCalloutHandler == null) {
+        if (sendCalloutHandler == null) {
             return null;
         } else {
             return sendCalloutHandler.performHttpCalloutForResponse(url, paramMap);
