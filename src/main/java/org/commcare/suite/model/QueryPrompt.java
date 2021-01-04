@@ -1,6 +1,8 @@
 package org.commcare.suite.model;
 
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.ItemsetBinding;
+import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
@@ -12,6 +14,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Vector;
 
 import javax.annotation.Nullable;
 
@@ -96,4 +99,26 @@ public class QueryPrompt implements Externalizable {
     public XPathExpression getDefaultValueExpr() {
         return defaultValueExpr;
     }
+
+    public boolean isSelectOne() {
+        return input != null && input.contentEquals(INPUT_TYPE_SELECT1);
+    }
+
+    public Pair<String[], Integer> getItemsetChoicesWithAnswerIndex(String currentAnswer) {
+        int answerIndex = -1;
+        if (itemsetBinding != null) {
+            Vector<SelectChoice> selectChoices = itemsetBinding.getChoices();
+            String[] choices = new String[selectChoices.size()];
+            for (int i = 0; i < selectChoices.size(); i++) {
+                SelectChoice selectChoice = selectChoices.get(i);
+                choices[i] = selectChoice.getLabelInnerText();
+                if (selectChoice.getValue().contentEquals(currentAnswer)) {
+                    answerIndex = i;
+                }
+            }
+            return new Pair<>(choices, answerIndex);
+        }
+        return new Pair<>(null, answerIndex);
+    }
+
 }
