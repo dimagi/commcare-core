@@ -1356,6 +1356,7 @@ public class FormDef implements IFormElement, IMetaData,
         return template;
     }
 
+    @Trace
     public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef){
         ItemSetUtils.populateDynamicChoices(itemset, curQRef, exprEvalContext, getMainInstance(), mProfilingEnabled);
     }
