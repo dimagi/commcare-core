@@ -20,6 +20,8 @@ import java.util.Vector;
 
 import javax.annotation.Nullable;
 
+import datadog.trace.api.Trace;
+
 // helper class for common functions related to @code{ItemsetBinding}
 public class ItemSetUtils {
 
@@ -168,6 +170,7 @@ public class ItemSetUtils {
     }
 
     // Builds select choices for a ItemsetBinding @param{itemset} by evaulating it against the given EvaluationContext @param{ec}
+    @Trace
     private static SelectChoice buildSelectChoice(TreeReference choiceRef, ItemsetBinding itemset,
                                                   DataInstance formInstance, @Nullable FormInstance mainInstance, EvaluationContext ec, int index) {
 
