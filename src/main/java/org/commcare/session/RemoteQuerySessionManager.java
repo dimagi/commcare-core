@@ -185,4 +185,8 @@ public class RemoteQuerySessionManager {
         }
         return false;
     }
+
+    public boolean doDefaultSearch() {
+        return queryDatum.doDefaultSearch();
+    }
 }

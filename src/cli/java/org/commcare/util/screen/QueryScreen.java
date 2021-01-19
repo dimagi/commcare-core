@@ -25,8 +25,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
-
 /**
  * Screen that displays user configurable entry texts and makes
  * a case query to the server with these fields.
@@ -46,6 +44,8 @@ public class QueryScreen extends Screen {
     private String password;
 
     private PrintStream out;
+
+    private boolean defaultSearch;
 
     public QueryScreen(String domainedUsername, String password, PrintStream out) {
         this.domainedUsername = domainedUsername;
@@ -199,5 +199,9 @@ public class QueryScreen extends Screen {
 
     public Hashtable<String, String> getCurrentAnswers() {
         return remoteQuerySessionManager.getUserAnswers();
+    }
+
+    public boolean doDefaultSearch() {
+        return remoteQuerySessionManager.doDefaultSearch();
     }
 }

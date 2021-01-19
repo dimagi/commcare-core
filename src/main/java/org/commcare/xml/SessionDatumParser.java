@@ -101,6 +101,9 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
             throw new InvalidStructureException(errorMsg, parser);
         }
 
+        String defaultSearchStr = parser.getAttributeValue(null, "default_search");
+        boolean defaultSearch = defaultSearchStr != null && Boolean.parseBoolean(defaultSearchStr);
+
         while (nextTagInBlock("query")) {
             String tagName = parser.getName();
             if ("data".equals(tagName)) {
@@ -119,6 +122,6 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
         }
 
         return new RemoteQueryDatum(queryUrl, queryResultStorageInstance,
-                hiddenQueryValues, userQueryPrompts, useCaseTemplate);
+                hiddenQueryValues, userQueryPrompts, useCaseTemplate, defaultSearch);
     }
 }
