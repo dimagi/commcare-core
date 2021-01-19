@@ -30,6 +30,7 @@ public class Action implements Externalizable {
     private XPathExpression relevantExpr;
     private String iconReferenceForActionBar;
     private boolean isAutoLaunching;
+    private boolean redoLast;
 
     /**
      * Serialization only!!!
@@ -44,12 +45,13 @@ public class Action implements Externalizable {
      * operations set.
      */
     public Action(DisplayUnit display, Vector<StackOperation> stackOps,
-                  XPathExpression relevantExpr, String iconForActionBar, boolean isAutoLaunching) {
+                  XPathExpression relevantExpr, String iconForActionBar, boolean isAutoLaunching, boolean redoLast) {
         this.display = display;
         this.stackOps = stackOps;
         this.relevantExpr = relevantExpr;
         this.iconReferenceForActionBar = iconForActionBar == null ? "" : iconForActionBar;
         this.isAutoLaunching = isAutoLaunching;
+        this.redoLast = redoLast;
     }
 
     /**
@@ -96,6 +98,7 @@ public class Action implements Externalizable {
         isAutoLaunching = ExtUtil.readBool(in);
         relevantExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
         iconReferenceForActionBar = ExtUtil.readString(in);
+        redoLast = ExtUtil.readBool(in);
     }
 
     @Override
@@ -105,5 +108,6 @@ public class Action implements Externalizable {
         ExtUtil.writeBool(out, isAutoLaunching);
         ExtUtil.write(out, new ExtWrapNullable(relevantExpr == null ? null : new ExtWrapTagged(relevantExpr)));
         ExtUtil.writeString(out, iconReferenceForActionBar);
+        ExtUtil.writeBool(out, redoLast);
     }
 }
