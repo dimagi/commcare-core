@@ -101,8 +101,7 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
             throw new InvalidStructureException(errorMsg, parser);
         }
 
-        String defaultSearchStr = parser.getAttributeValue(null, "default_search");
-        boolean defaultSearch = defaultSearchStr != null && Boolean.parseBoolean(defaultSearchStr);
+        boolean defaultSearch = "true".equals(parser.getAttributeValue(null, "default_search"));
 
         while (nextTagInBlock("query")) {
             String tagName = parser.getName();

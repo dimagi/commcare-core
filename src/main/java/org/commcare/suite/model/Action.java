@@ -83,6 +83,10 @@ public class Action implements Externalizable {
         return isAutoLaunching;
     }
 
+    public boolean isRedoLast() {
+        return redoLast;
+    }
+
     public boolean hasActionBarIcon() {
         return !"".equals(iconReferenceForActionBar);
     }
