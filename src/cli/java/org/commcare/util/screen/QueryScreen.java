@@ -126,13 +126,18 @@ public class QueryScreen extends Screen {
     }
 
     public void answerPrompts(Hashtable<String, String> answers) {
-        for (String key : answers.keySet()) {
+        for (String key : userInputDisplays.keySet()) {
             QueryPrompt queryPrompt = userInputDisplays.get(key);
             String answer = answers.get(key);
 
+            // Treat all missing values as empty
+            if (answer == null) {
+                answer = "";
+            }
+
             // If select question, we should have got an index as the answer which should
             // be converted to the corresponding value
-            if (queryPrompt.isSelectOne() && answer != null) {
+            if (queryPrompt.isSelectOne() && !answer.isEmpty()) {
                 int choiceIndex = Integer.parseInt(answer);
                 Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
                 answer = selectChoices.get(choiceIndex).getValue();
