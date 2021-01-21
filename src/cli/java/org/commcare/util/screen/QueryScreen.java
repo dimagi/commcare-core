@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
@@ -126,7 +127,8 @@ public class QueryScreen extends Screen {
     }
 
     public void answerPrompts(Hashtable<String, String> answers) {
-        for (String key : userInputDisplays.keySet()) {
+        for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
+            String key = (String)en.nextElement();
             QueryPrompt queryPrompt = userInputDisplays.get(key);
             String answer = answers.get(key);
 
@@ -140,9 +142,15 @@ public class QueryScreen extends Screen {
             if (queryPrompt.isSelectOne() && !answer.isEmpty()) {
                 int choiceIndex = Integer.parseInt(answer);
                 Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
-                answer = selectChoices.get(choiceIndex).getValue();
+                if (choiceIndex < selectChoices.size()) {
+                    answer = selectChoices.get(choiceIndex).getValue();
+                } else {
+                    // answer is no longer a valid choice, so clear it out
+                    answer = "";
+                }
             }
             remoteQuerySessionManager.answerUserPrompt(key, answer);
+            refreshItemSetChoices();
         }
     }
 
