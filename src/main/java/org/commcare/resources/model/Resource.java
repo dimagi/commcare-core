@@ -58,6 +58,10 @@ public class Resource implements Persistable, IMetaData {
     public static final String META_INDEX_RESOURCE_GUID = "RGUID";
     public static final String META_INDEX_PARENT_GUID = "PGUID";
     public static final String META_INDEX_VERSION = "VERSION";
+    public static final String META_INDEX_LAZY = "LAZY";
+
+    public static final String LAZY_VAL_TRUE = "true";
+    public static final String LAZY_VAL_FALSE = "false";
 
     public static final int RESOURCE_AUTHORITY_LOCAL = 0;
     public static final int RESOURCE_AUTHORITY_REMOTE = 1;
@@ -111,7 +115,8 @@ public class Resource implements Persistable, IMetaData {
     // Not sure if we want this persisted just yet...
     protected String parent;
 
-    private String descriptor;
+    protected String descriptor;
+    private String lazy;
 
     /**
      * For serialization only
@@ -124,19 +129,24 @@ public class Resource implements Persistable, IMetaData {
      * Creates a resource record identifying where a specific version of a resource
      * can be located.
      *
-     * @param version    The version of the resource being defined.
-     * @param id         A unique string identifying the abstract resource
-     * @param locations  A set of locations from which this resource's definition
-     *                   can be retrieved. Note that this vector is copied and should not be changed
-     *                   after being passed in here.
+     * @param version   The version of the resource being defined.
+     * @param id        A unique string identifying the abstract resource
+     * @param locations A set of locations from which this resource's definition
+     *                  can be retrieved. Note that this vector is copied and should not be changed
+     *                  after being passed in here.
      */
-    public Resource(int version, String id, Vector<ResourceLocation> locations, String descriptor) {
+    public Resource(int version, String id, Vector<ResourceLocation> locations, String descriptor, String lazy) {
         this.version = version;
         this.id = id;
         this.locations = locations;
         this.guid = PropertyUtils.genGUID(25);
         this.status = RESOURCE_STATUS_UNINITIALIZED;
         this.descriptor = descriptor;
+        this.lazy = lazy;
+    }
+
+    public Resource(int version, String id, Vector<ResourceLocation> locations, String descriptor) {
+        this(version, id, locations, descriptor, LAZY_VAL_FALSE);
     }
 
     /**
@@ -166,6 +176,10 @@ public class Resource implements Persistable, IMetaData {
      */
     public String getRecordGuid() {
         return guid;
+    }
+
+    public void setRecordGuid(String guid) {
+        this.guid = guid;
     }
 
     /**
@@ -230,7 +244,7 @@ public class Resource implements Persistable, IMetaData {
      * @param status The current status of this resource. Should only be called by the resource
      *               table.
      */
-    protected void setStatus(int status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 
@@ -242,6 +256,10 @@ public class Resource implements Persistable, IMetaData {
     @Override
     public void setID(int ID) {
         recordId = ID;
+    }
+
+    public boolean isLazy() {
+        return lazy.contentEquals(LAZY_VAL_TRUE);
     }
 
     /**
@@ -288,6 +306,7 @@ public class Resource implements Persistable, IMetaData {
         locations = (Vector<ResourceLocation>)ExtUtil.read(in, new ExtWrapList(ResourceLocation.class), pf);
         this.initializer = (ResourceInstaller)ExtUtil.read(in, new ExtWrapTagged(), pf);
         this.descriptor = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        this.lazy = ExtUtil.readString(in);
     }
 
     @Override
@@ -302,6 +321,7 @@ public class Resource implements Persistable, IMetaData {
         ExtUtil.write(out, new ExtWrapList(locations));
         ExtUtil.write(out, new ExtWrapTagged(initializer));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(descriptor));
+        ExtUtil.writeString(out, lazy);
     }
 
     @Override
@@ -315,13 +335,15 @@ public class Resource implements Persistable, IMetaData {
                 return parent == null ? "" : parent;
             case META_INDEX_VERSION:
                 return version;
+            case META_INDEX_LAZY:
+                return lazy;
         }
         throw new IllegalArgumentException("No Field w/name " + fieldName + " is relevant for resources");
     }
 
     @Override
     public String[] getMetaDataFields() {
-        return new String[]{META_INDEX_RESOURCE_ID, META_INDEX_RESOURCE_GUID, META_INDEX_PARENT_GUID, META_INDEX_VERSION};
+        return new String[]{META_INDEX_RESOURCE_ID, META_INDEX_RESOURCE_GUID, META_INDEX_PARENT_GUID, META_INDEX_VERSION, META_INDEX_LAZY};
     }
 
     public boolean isDirty() {

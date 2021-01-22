@@ -1,6 +1,7 @@
 package org.commcare.backend.suite.model.test;
 
 import org.commcare.modern.session.SessionWrapper;
+import org.commcare.suite.model.Global;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.MenuLoader;
 import org.commcare.test.utilities.MockApp;
@@ -31,6 +32,12 @@ public class EmptyAppElementsTests {
         MenuLoader menuLoader = new MenuLoader(session.getPlatform(), session, "root", new TestLogger(), false, false);
         this.mChoices = menuLoader.getMenus();
         Assert.assertEquals("Number of Menu roots in empty example", this.mChoices.length, 1);
+    }
+
+    @Test
+    public void testEmptyGlobal() {
+        Global global = mApp.getSession().getPlatform().getDetail("m0_case_short").getGlobal();
+        Assert.assertEquals(0, global.getGeoOverlays().length);
     }
 
     public static class TestLogger implements LoggerInterface {

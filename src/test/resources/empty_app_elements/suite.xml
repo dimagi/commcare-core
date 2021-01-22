@@ -10,6 +10,7 @@
     <title>
       <text>Case List</text>
     </title>
+    <global/>
     <field>
       <header>
         <text>Name</text>
