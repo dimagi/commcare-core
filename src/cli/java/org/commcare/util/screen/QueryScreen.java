@@ -90,7 +90,7 @@ public class QueryScreen extends Screen {
 
 
     private InputStream makeQueryRequestReturnStream() {
-        String url = buildUrl(getBaseUrl().toString(), getQueryParams());
+        String url = buildUrl(getBaseUrl().toString(), getQueryParams(false));
         String credential = Credentials.basic(domainedUsername, password);
 
         Request request = new Request.Builder()
@@ -162,8 +162,13 @@ public class QueryScreen extends Screen {
         return remoteQuerySessionManager.getBaseUrl();
     }
 
-    protected Hashtable<String, String> getQueryParams() {
-        return remoteQuerySessionManager.getRawQueryParams();
+    /**
+     *
+     * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
+     * @return filters to be applied to case search uri as query params
+     */
+    protected Hashtable<String, String> getQueryParams(boolean skipDefaultPromptValues) {
+        return remoteQuerySessionManager.getRawQueryParams(skipDefaultPromptValues);
     }
 
     public String getScreenTitle() {
