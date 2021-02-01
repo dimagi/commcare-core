@@ -26,8 +26,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
-
 /**
  * Screen that displays user configurable entry texts and makes
  * a case query to the server with these fields.
@@ -47,6 +45,8 @@ public class QueryScreen extends Screen {
     private String password;
 
     private PrintStream out;
+
+    private boolean defaultSearch;
 
     public QueryScreen(String domainedUsername, String password, PrintStream out) {
         this.domainedUsername = domainedUsername;
@@ -90,7 +90,7 @@ public class QueryScreen extends Screen {
 
 
     private InputStream makeQueryRequestReturnStream() {
-        String url = buildUrl(getBaseUrl().toString(), getQueryParams());
+        String url = buildUrl(getBaseUrl().toString(), getQueryParams(false));
         String credential = Credentials.basic(domainedUsername, password);
 
         Request request = new Request.Builder()
@@ -162,8 +162,13 @@ public class QueryScreen extends Screen {
         return remoteQuerySessionManager.getBaseUrl();
     }
 
-    protected Hashtable<String, String> getQueryParams() {
-        return remoteQuerySessionManager.getRawQueryParams();
+    /**
+     *
+     * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
+     * @return filters to be applied to case search uri as query params
+     */
+    protected Hashtable<String, String> getQueryParams(boolean skipDefaultPromptValues) {
+        return remoteQuerySessionManager.getRawQueryParams(skipDefaultPromptValues);
     }
 
     public String getScreenTitle() {
@@ -212,5 +217,9 @@ public class QueryScreen extends Screen {
 
     public Hashtable<String, String> getCurrentAnswers() {
         return remoteQuerySessionManager.getUserAnswers();
+    }
+
+    public boolean doDefaultSearch() {
+        return remoteQuerySessionManager.doDefaultSearch();
     }
 }

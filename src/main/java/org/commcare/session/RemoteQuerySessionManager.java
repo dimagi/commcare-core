@@ -98,7 +98,12 @@ public class RemoteQuerySessionManager {
         return queryDatum.getUrl();
     }
 
-    public Hashtable<String, String> getRawQueryParams() {
+    /**
+     *
+     * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
+     * @return filters to be applied to case search uri as query params
+     */
+    public Hashtable<String, String> getRawQueryParams(boolean skipDefaultPromptValues) {
         Hashtable<String, String> params = new Hashtable<>();
         Hashtable<String, XPathExpression> hiddenQueryValues = queryDatum.getHiddenQueryValues();
         for (Enumeration e = hiddenQueryValues.keys(); e.hasMoreElements(); ) {
@@ -106,11 +111,14 @@ public class RemoteQuerySessionManager {
             String evaluatedExpr = evalXpathExpression(hiddenQueryValues.get(key), evaluationContext);
             params.put(key, evaluatedExpr);
         }
-        for (Enumeration e = userAnswers.keys(); e.hasMoreElements(); ) {
-            String key = (String)e.nextElement();
-            String value = userAnswers.get(key);
-            if (!StringUtils.isEmpty(value)) {
-                params.put(key, userAnswers.get(key));
+
+        if(!skipDefaultPromptValues) {
+            for (Enumeration e = userAnswers.keys(); e.hasMoreElements(); ) {
+                String key = (String)e.nextElement();
+                String value = userAnswers.get(key);
+                if (!StringUtils.isEmpty(value)) {
+                    params.put(key, userAnswers.get(key));
+                }
             }
         }
         return params;
@@ -184,5 +192,9 @@ public class RemoteQuerySessionManager {
             }
         }
         return false;
+    }
+
+    public boolean doDefaultSearch() {
+        return queryDatum.doDefaultSearch();
     }
 }
