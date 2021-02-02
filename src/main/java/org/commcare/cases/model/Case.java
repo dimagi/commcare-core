@@ -30,6 +30,8 @@ public class Case implements Persistable, IMetaData {
     public static final String EXTERNAL_ID_KEY = "external_id";
     public static final String CATEGORY_KEY = "category";
     public static final String STATE_KEY = "state";
+    public static final String PATIENT_TYPE_KEY = "patient_type";
+    public static final String CURRENT_STATUS_KEY = "current_status";
     public static final String STORAGE_KEY = "CASE";
 
     public static final String INDEX_CASE_ID = "case-id";
@@ -123,7 +125,11 @@ public class Case implements Persistable, IMetaData {
     }
 
     public String getCategory() {
-        return (String)data.get(CATEGORY_KEY);
+        String category = (String)data.get(CATEGORY_KEY);
+        if (category == null) {
+            category = (String)data.get(PATIENT_TYPE_KEY);
+        }
+        return category;
     }
 
     public void setCategory(String id) {
@@ -131,7 +137,11 @@ public class Case implements Persistable, IMetaData {
     }
 
     public String getState() {
-        return (String)data.get(STATE_KEY);
+        String state = (String)data.get(STATE_KEY);
+        if (state == null) {
+            state = (String)data.get(CURRENT_STATUS_KEY);
+        }
+        return state;
     }
 
     public void setState(String id) {

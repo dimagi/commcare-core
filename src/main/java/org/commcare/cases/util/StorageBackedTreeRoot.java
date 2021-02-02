@@ -150,11 +150,13 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                             PredicateProfile lookup;
                             if (((XPathEqExpr)xpe).op == XPathEqExpr.EQ) {
                                 lookup = new IndexedValueLookup(filterIndex, o);
-                            } else {
+                                optimizations.add(lookup);
+                                continue predicate;
+                            } else if (((XPathEqExpr)xpe).op == XPathEqExpr.NEQ) {
                                 lookup = new NegativeIndexedValueLookup(filterIndex, o);
+                                optimizations.add(lookup);
+                                continue predicate;
                             }
-                            optimizations.add(lookup);
-                            continue predicate;
                         }
                     }
                 }
@@ -329,9 +331,11 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         String[] valuesArray = valuesToMatch.toArray(new String[valuesToMatch.size()]);
         String[] inverseNames = namesToInverseMatch.toArray(new String[namesToInverseMatch.size()]);
         String[] inverseValues = valuesToInverseMatch.toArray(new String[valuesToInverseMatch.size()]);
-        mMostRecentBatchFetch = new String[2][];
+        mMostRecentBatchFetch = new String[4][];
         mMostRecentBatchFetch[0] = namesArray;
         mMostRecentBatchFetch[1] = valuesArray;
+        mMostRecentBatchFetch[2] = inverseNames;
+        mMostRecentBatchFetch[3] = inverseValues;
 
         String storageTreeName = this.getStorageCacheName();
 

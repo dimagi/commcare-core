@@ -195,7 +195,8 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
 
     /**
     * Retrieves a Vector of IDs of Externalizable objects in storage for which the field
-    * specified contains the values specified.
+    * specified contains the values specified and the fields specified in inverseFieldNames
+    * do not contain the value specified in inverseValues. If no values are passed, all cases are returned
     *
     * @param metaFieldNames A list of metadata field names to match
     * @param values     The values which must match the field names provided
@@ -205,7 +206,7 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
     * @return A Vector of Integers such that retrieving the Externalizable object with any
     * of those integer IDs will result in an object for which the fields specified are equal
     * to the value provided.
-    * @throws RuntimeException (Fix this exception type) if the field is unrecognized by the
+    * @throws RuntimeException (Fix this exception type) if any field in is unrecognized by the
     *                          meta data
     */
     List<Integer> getIDsForValues(String[] metaFieldNames, Object[] values, String[] inverseFieldNames, Object[] inverseValues, LinkedHashSet<Integer> returnSet);
