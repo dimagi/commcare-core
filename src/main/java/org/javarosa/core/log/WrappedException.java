@@ -33,7 +33,7 @@ public class WrappedException extends RuntimeException {
         return str;
     }
 
-    public static String printException(Exception e) {
+    public static String printException(Throwable e) {
         if (e instanceof WrappedException) {
             return (e instanceof FatalException ? "FATAL: " : "") + e.getMessage();
         } else {

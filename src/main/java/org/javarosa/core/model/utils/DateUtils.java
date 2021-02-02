@@ -33,8 +33,10 @@ public class DateUtils {
     private static TimezoneProvider tzProvider = new TimezoneProvider();
 
     public static final long HOUR_IN_MS = TimeUnit.HOURS.toMillis(1);
-    public static final long DAY_IN_MS = TimeUnit.DAYS.toMillis(1);;
+    public static final long DAY_IN_MS = TimeUnit.DAYS.toMillis(1);
+
     private static final Date EPOCH_DATE = getDate(1970, 1, 1);
+
     private final static long EPOCH_TIME = roundDate(EPOCH_DATE).getTime();
 
     public static class CalendarStrings {
@@ -862,7 +864,12 @@ public class DateUtils {
 
 
     public static Double fractionalDaysSinceEpoch(Date a) {
-        return new Double((a.getTime() - EPOCH_DATE.getTime()) / (double)DAY_IN_MS);
+        //Even though EPOCH_DATE uses the device timezone, calendar Daylight savings time adjustments
+        //are based on the instant of evaluation (the epoch), not today, so we need to manually
+        //correct for any drift in the offsets. This can also present if timezone definitions
+        //have drifted over time
+        long timeZoneAdjust = (a.getTimezoneOffset() - EPOCH_DATE.getTimezoneOffset()) * 60* 1000;
+        return new Double(((a.getTime() - EPOCH_DATE.getTime()) - timeZoneAdjust) / (double)DAY_IN_MS);
     }
 
     /**

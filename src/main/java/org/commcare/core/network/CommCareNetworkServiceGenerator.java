@@ -93,6 +93,11 @@ public class CommCareNetworkServiceGenerator {
             httpClient.retryOnConnectionFailure(false).build())
             .build();
 
+    public static void customizeRetrofitSetup(HttpBuilderConfig config) {
+        retrofit =  builder.client(config.performCustomConfig(httpClient.retryOnConnectionFailure(true)).build()).build();
+        noRetryRetrofit =  builder.client(config.performCustomConfig(httpClient.retryOnConnectionFailure(false)).build()).build();
+    }
+
     public static CommCareNetworkService createCommCareNetworkService(final String credential, boolean enforceSecureEndpoint, boolean retry) {
         authenticationInterceptor.setCredential(credential);
         authenticationInterceptor.setEnforceSecureEndpoint(enforceSecureEndpoint);

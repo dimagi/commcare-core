@@ -1,5 +1,6 @@
 package org.javarosa.core.reference;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -43,7 +44,7 @@ public class ResourceReference implements Reference {
     public InputStream getStream() throws IOException {
         InputStream is = System.class.getResourceAsStream(URI);
         if (is == null) {
-            throw new IOException("File not found when opening resource as stream");
+            throw new FileNotFoundException("File not found when opening resource as stream");
         }
         return is;
     }

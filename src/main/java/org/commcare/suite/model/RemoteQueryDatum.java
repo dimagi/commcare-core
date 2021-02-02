@@ -23,8 +23,9 @@ import java.util.Hashtable;
  */
 public class RemoteQueryDatum extends SessionDatum {
     private Hashtable<String, XPathExpression> hiddenQueryValues;
-    private OrderedHashtable<String, DisplayUnit> userQueryPrompts;
+    private OrderedHashtable<String, QueryPrompt> userQueryPrompts;
     private boolean useCaseTemplate;
+    private boolean defaultSearch;
 
     @SuppressWarnings("unused")
     public RemoteQueryDatum() {
@@ -37,15 +38,16 @@ public class RemoteQueryDatum extends SessionDatum {
      */
     public RemoteQueryDatum(URL url, String storageInstance,
                             Hashtable<String, XPathExpression> hiddenQueryValues,
-                            OrderedHashtable<String, DisplayUnit> userQueryPrompts,
-                            boolean useCaseTemplate) {
+                            OrderedHashtable<String, QueryPrompt> userQueryPrompts,
+                            boolean useCaseTemplate, boolean defaultSearch) {
         super(storageInstance, url.toString());
         this.hiddenQueryValues = hiddenQueryValues;
         this.userQueryPrompts = userQueryPrompts;
         this.useCaseTemplate = useCaseTemplate;
+        this.defaultSearch = defaultSearch;
     }
 
-    public OrderedHashtable<String, DisplayUnit> getUserQueryPrompts() {
+    public OrderedHashtable<String, QueryPrompt> getUserQueryPrompts() {
         return userQueryPrompts;
     }
 
@@ -67,6 +69,10 @@ public class RemoteQueryDatum extends SessionDatum {
         return useCaseTemplate;
     }
 
+    public boolean doDefaultSearch() {
+        return defaultSearch;
+    }
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
@@ -75,9 +81,10 @@ public class RemoteQueryDatum extends SessionDatum {
         hiddenQueryValues =
                 (Hashtable<String, XPathExpression>)ExtUtil.read(in, new ExtWrapMapPoly(String.class), pf);
         userQueryPrompts =
-                (OrderedHashtable<String, DisplayUnit>)ExtUtil.read(in,
-                        new ExtWrapMap(String.class, DisplayUnit.class, ExtWrapMap.TYPE_ORDERED), pf);
+                (OrderedHashtable<String, QueryPrompt>)ExtUtil.read(in,
+                        new ExtWrapMap(String.class, QueryPrompt.class, ExtWrapMap.TYPE_ORDERED), pf);
         useCaseTemplate = ExtUtil.readBool(in);
+        defaultSearch = ExtUtil.readBool(in);
     }
 
     @Override
@@ -87,5 +94,6 @@ public class RemoteQueryDatum extends SessionDatum {
         ExtUtil.write(out, new ExtWrapMapPoly(hiddenQueryValues));
         ExtUtil.write(out, new ExtWrapMap(userQueryPrompts));
         ExtUtil.writeBool(out, useCaseTemplate);
+        ExtUtil.writeBool(out, defaultSearch);
     }
 }

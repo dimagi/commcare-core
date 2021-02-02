@@ -48,6 +48,11 @@ public class DatabaseHelper {
                                                      String[] inverseFieldNames, Object[] inverseValues,
                                                      EncryptedModel em, Persistable p)
             throws IllegalArgumentException {
+        // null selection
+        if (fieldNames.length == 0 && inverseFieldNames.length == 0) {
+            return new Pair<>(null, null);
+        }
+
         Set<String> fields = null;
         if (p instanceof IMetaData) {
             IMetaData m = (IMetaData)p;

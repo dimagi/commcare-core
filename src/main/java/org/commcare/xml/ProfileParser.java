@@ -87,17 +87,25 @@ public class ProfileParser extends ElementParser<Profile> {
         String authRef = parser.getAttributeValue(null, "update");
         String sMajor = parser.getAttributeValue(null, "requiredMajor");
         String sMinor = parser.getAttributeValue(null, "requiredMinor");
+        String sMinimal = parser.getAttributeValue(null, "requiredMinimal");
         String uniqueId = parser.getAttributeValue(null, "uniqueid");
         String displayName = parser.getAttributeValue(null, "name");
+        String buildProfileId = parser.getAttributeValue(null, "buildProfileID");
 
         int major = -1;
         int minor = -1;
+
+        // defaults to 0 since old app builds don't have requiredMinimal defined in Profile
+        int minimal = 0;
 
         if (sMajor != null) {
             major = parseInt(sMajor);
         }
         if (sMinor != null) {
             minor = parseInt(sMinor);
+        }
+        if (sMinimal != null) {
+            minimal = parseInt(sMinimal);
         }
 
         //If version information is available, check valid versions
@@ -106,12 +114,15 @@ public class ProfileParser extends ElementParser<Profile> {
             //For the major version, only a matching number is valid, 2.0 cannot be run on either 1.0 or 3.0
             if (this.instance.getMajorVersion() != -1
                     && this.instance.getMajorVersion() != major) {    //changed < to !=
-
                 throw new UnfullfilledRequirementsException(
                         "Major Version Mismatch (Required: " + major + " | Available: " +
                                 this.instance.getMajorVersion() + ")",
                         major,
-                        minor, this.instance.getMajorVersion(), this.instance.getMinorVersion(),
+                        minor,
+                        minimal,
+                        this.instance.getMajorVersion(),
+                        this.instance.getMinorVersion(),
+                        this.instance.getMinimalVersion(),
                         UnfullfilledRequirementsException.RequirementType.MAJOR_APP_VERSION);
             }
 
@@ -122,7 +133,25 @@ public class ProfileParser extends ElementParser<Profile> {
                         "Minor Version Mismatch (Required: " + minor + " | Available: " +
                                 this.instance.getMinorVersion() + ")",
                         major,
-                        minor, this.instance.getMajorVersion(), this.instance.getMinorVersion(),
+                        minor,
+                        minimal,
+                        this.instance.getMajorVersion(),
+                        this.instance.getMinorVersion(),
+                        this.instance.getMinimalVersion(),
+                        UnfullfilledRequirementsException.RequirementType.MINOR_APP_VERSION);
+            }
+
+            //For the minimal version, anything greater than the profile's version is valid
+            if (this.instance.getMinorVersion() == minor &&  this.instance.getMinimalVersion() < minimal) {
+                throw new UnfullfilledRequirementsException(
+                        "Minimal Version Mismatch (Required: " + minimal + " | Available: " +
+                                this.instance.getMinimalVersion() + ")",
+                        major,
+                        minor,
+                        minimal,
+                        this.instance.getMajorVersion(),
+                        this.instance.getMinorVersion(),
+                        this.instance.getMinimalVersion(),
                         UnfullfilledRequirementsException.RequirementType.MINOR_APP_VERSION);
             }
         }
@@ -144,7 +173,12 @@ public class ProfileParser extends ElementParser<Profile> {
             displayName = "";
         }
 
-        return new Profile(version, authRef, uniqueId, displayName, fromOld);
+        // defaults to empty string instead of null
+        if(buildProfileId == null){
+            buildProfileId = "";
+        }
+
+        return new Profile(version, authRef, uniqueId, displayName, fromOld, buildProfileId);
     }
 
     private void parseProperty(Profile profile) {

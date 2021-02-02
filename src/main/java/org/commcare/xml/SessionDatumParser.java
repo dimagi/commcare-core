@@ -4,10 +4,12 @@ import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.FormIdDatum;
+import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -29,7 +31,7 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
     }
 
     @Override
-    public SessionDatum parse() throws InvalidStructureException, IOException, XmlPullParserException {
+    public SessionDatum parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         if ("query".equals(parser.getName())) {
             return parseRemoteQueryDatum();
         }
@@ -72,10 +74,10 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
     }
 
     private RemoteQueryDatum parseRemoteQueryDatum()
-            throws InvalidStructureException, IOException, XmlPullParserException {
+            throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         Hashtable<String, XPathExpression> hiddenQueryValues =
                 new Hashtable<>();
-        OrderedHashtable<String, DisplayUnit> userQueryPrompts =
+        OrderedHashtable<String, QueryPrompt> userQueryPrompts =
                 new OrderedHashtable<>();
         this.checkNode("query");
 
@@ -99,6 +101,8 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
             throw new InvalidStructureException(errorMsg, parser);
         }
 
+        boolean defaultSearch = "true".equals(parser.getAttributeValue(null, "default_search"));
+
         while (nextTagInBlock("query")) {
             String tagName = parser.getName();
             if ("data".equals(tagName)) {
@@ -112,12 +116,11 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
                 }
             } else if ("prompt".equals(tagName)) {
                 String key = parser.getAttributeValue(null, "key");
-                DisplayUnit display = parseDisplayBlock();
-                userQueryPrompts.put(key, display);
+                userQueryPrompts.put(key, new QueryPromptParser(parser).parse());
             }
         }
 
         return new RemoteQueryDatum(queryUrl, queryResultStorageInstance,
-                hiddenQueryValues, userQueryPrompts, useCaseTemplate);
+                hiddenQueryValues, userQueryPrompts, useCaseTemplate, defaultSearch);
     }
 }

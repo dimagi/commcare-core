@@ -13,6 +13,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.Vector;
 
+import static org.commcare.xml.StackOpParser.NAME_STACK;
+
 /**
  * Parses case list actions, which when triggered manipulate the session stack
  *
@@ -36,13 +38,15 @@ public class ActionParser extends CommCareElementParser<Action> {
         Vector<StackOperation> stackOps = new Vector<>();
 
         XPathExpression relevantExpr = parseRelevancyExpr();
+        boolean isAutoLaunching = "true".equals(parser.getAttributeValue(null, "auto_launch"));
+        boolean redoLast = "true".equals(parser.getAttributeValue(null, "redo_last"));
 
         while (nextTagInBlock(NAME_ACTION)) {
             if (parser.getName().equals("display")) {
                 display = parseDisplayBlock();
             } else if (parser.getName().equals("stack")) {
                 StackOpParser sop = new StackOpParser(parser);
-                while (this.nextTagInBlock("stack")) {
+                while (this.nextTagInBlock(NAME_STACK)) {
                     stackOps.addElement(sop.parse());
                 }
             }
@@ -51,10 +55,7 @@ public class ActionParser extends CommCareElementParser<Action> {
         if (display == null) {
             throw new InvalidStructureException("<action> block must define a <display> element", parser);
         }
-        if (stackOps.size() == 0) {
-            throw new InvalidStructureException("An <action> block must define at least one stack operation", parser);
-        }
-        return new Action(display, stackOps, relevantExpr, iconForActionBarPlacement);
+        return new Action(display, stackOps, relevantExpr, iconForActionBarPlacement, isAutoLaunching, redoLast);
     }
 
     private XPathExpression parseRelevancyExpr() throws InvalidStructureException {
