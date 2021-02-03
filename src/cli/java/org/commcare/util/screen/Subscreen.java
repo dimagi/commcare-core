@@ -22,12 +22,14 @@ public abstract class Subscreen<T extends CompoundScreenHost> implements Options
      * The return value of this method indicates whether the current Compound Screen is finished and
      * should update the session and return control to the application.
      *
-     * @param input User input
-     * @param host  The Compound Screen that should be updated based on the user's input
+     * @param input           User input
+     * @param host            The Compound Screen that should be updated based on the user's input
+     * @param allowAutoLaunch If this step is allowed to automatically launch an action,
+     *                        assuming it has an autolaunch action specified.
      * @return True if the compound screen is ready and the session should move to the next step.
      * False if current Compound Screen should continue executing.
      */
-    public abstract boolean handleInputAndUpdateHost(String input, T host) throws CommCareSessionException;
+    public abstract boolean handleInputAndUpdateHost(String input, T host, boolean allowAutoLaunch) throws CommCareSessionException;
 
     /**
      * Display this subscreen

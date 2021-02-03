@@ -1,13 +1,11 @@
 package org.commcare.util.cli;
 
-import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.data.xml.DataModelPullParser;
-import org.commcare.modern.session.SessionWrapper;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.resources.model.ResourceInitializationException;
@@ -29,22 +27,17 @@ import org.commcare.util.screen.SyncScreen;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
-import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.engine.XFormPlayer;
-import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -54,10 +47,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.net.Authenticator;
-import java.net.HttpURLConnection;
-import java.net.PasswordAuthentication;
-import java.net.URL;
 
 /**
  * CLI host for running a commcare application which has been configured and instatiated
@@ -255,7 +244,7 @@ public class ApplicationHost {
                         }
                     }
 
-                    screenIsRedrawing = s.handleInputAndUpdateSession(mSession, input);
+                    screenIsRedrawing = s.handleInputAndUpdateSession(mSession, input, false);
                     if (!screenIsRedrawing) {
                         s = getNextScreen();
                     }
