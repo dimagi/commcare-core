@@ -2814,8 +2814,8 @@ public class XFormParser {
         }
     }
 
-    public void loadXmlInstance(FormDef f, Reader xmlReader) throws IOException {
-        loadXmlInstance(f, getXMLDocument(xmlReader));
+    public static FormDef loadXmlInstance(FormDef formDef, Reader xmlReader) throws IOException {
+        return loadXmlInstance(formDef, getXMLDocument(xmlReader));
     }
 
     /**
@@ -2823,12 +2823,15 @@ public class XFormParser {
      *
      * call before f.initialize()!
      */
-    public static void loadXmlInstance(FormDef f, Document xmlInst) {
-        TreeElement savedRoot = XFormParser.restoreDataModel(xmlInst, null).getRoot();
-        TreeElement templateRoot = f.getMainInstance().getRoot().deepCopy(true);
+    public static FormDef loadXmlInstance(FormDef f, Document xmlInst) {
+        return loadXmlInstance(f, XFormParser.restoreDataModel(xmlInst, null));
+    }
+
+    public static FormDef loadXmlInstance(FormDef formDef, FormInstance xmlInst) {
+        TreeElement savedRoot = xmlInst.getRoot();
+        TreeElement templateRoot = formDef.getMainInstance().getRoot().deepCopy(true);
 
         // weak check for matching forms
-        // TODO: should check that namespaces match?
         if (!savedRoot.getName().equals(templateRoot.getName()) || savedRoot.getMult() != 0) {
             throw new RuntimeException("Saved form instance does not match template form definition");
         }
@@ -2839,14 +2842,9 @@ public class XFormParser {
         templateRoot.populate(savedRoot);
 
         // populated model to current form
-        f.getMainInstance().setRoot(templateRoot);
+        formDef.getMainInstance().setRoot(templateRoot);
 
-        // if the new instance is inserted into the formdef before f.initialize() is called, this
-        // locale refresh is unnecessary
-        //   Localizer loc = f.getLocalizer();
-        //   if (loc != null) {
-        //       f.localeChanged(loc.getLocale(), loc);
-        //     }
+        return formDef;
     }
 
     /**
