@@ -27,10 +27,8 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<Case, Ca
     private final static XPathPathExpr CASE_INDEX_EXPR = XPathReference.getPathExpr("index/*");
     private final static XPathPathExpr OWNER_ID_EXPR = XPathReference.getPathExpr("@owner_id");
     private final static XPathPathExpr EXTERNAL_ID_EXPR = XPathReference.getPathExpr("@external_id");
-    private final static XPathPathExpr CATEGORY_EXPR = XPathReference.getPathExpr("category");
-    private final static XPathPathExpr STATE_EXPR = XPathReference.getPathExpr("state");
-    private final static XPathPathExpr PATIENT_TYPE_EXPR = XPathReference.getPathExpr("patient_type");
-    private final static XPathPathExpr CURRENT_STATUS_EXPR = XPathReference.getPathExpr("current_status");
+    private final static XPathPathExpr CATEGORY_EXPR = XPathReference.getPathExpr("@category");
+    private final static XPathPathExpr STATE_EXPR = XPathReference.getPathExpr("@state");
 
     public CaseInstanceTreeElement(AbstractTreeElement instanceRoot,
                                    IStorageUtilityIndexed<Case> storage) {
@@ -76,8 +74,6 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<Case, Ca
         indices.put(EXTERNAL_ID_EXPR, Case.INDEX_EXTERNAL_ID);
         indices.put(CATEGORY_EXPR, Case.INDEX_CATEGORY);
         indices.put(STATE_EXPR, Case.INDEX_STATE);
-        indices.put(PATIENT_TYPE_EXPR, Case.INDEX_CATEGORY);
-        indices.put(CURRENT_STATUS_EXPR, Case.INDEX_STATE);
 
         return indices;
     }
