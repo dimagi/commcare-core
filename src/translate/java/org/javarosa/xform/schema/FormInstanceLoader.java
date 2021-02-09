@@ -46,11 +46,6 @@ public class FormInstanceLoader {
     public static FormDef loadInstance(FormDef formDef,
                                        InputStream instanceInput) throws IOException {
         FormInstance formInstance = XFormParser.restoreDataModel(instanceInput, null);
-        try {
-            return XFormParser.loadXmlInstance(formDef, formInstance);
-        } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
-            return null;
-        }
+        return XFormParser.loadXmlInstance(formDef, formInstance);
     }
 }
