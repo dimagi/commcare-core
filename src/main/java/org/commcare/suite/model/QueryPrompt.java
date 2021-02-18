@@ -28,6 +28,9 @@ public class QueryPrompt implements Externalizable {
     @Nullable
     private String input;
 
+    @Nullable
+    private String receive;
+
     private DisplayUnit display;
 
     @Nullable
@@ -40,10 +43,11 @@ public class QueryPrompt implements Externalizable {
     public QueryPrompt() {
     }
 
-    public QueryPrompt(String key, String appearance, String input, DisplayUnit display, ItemsetBinding itemsetBinding, XPathExpression defaultValueExpr) {
+    public QueryPrompt(String key, String appearance, String input, String receive, DisplayUnit display, ItemsetBinding itemsetBinding, XPathExpression defaultValueExpr) {
         this.key = key;
         this.appearance = appearance;
         this.input = input;
+        this.receive = receive;
         this.display = display;
         this.itemsetBinding = itemsetBinding;
         this.defaultValueExpr = defaultValueExpr;
@@ -54,6 +58,7 @@ public class QueryPrompt implements Externalizable {
         key = (String)ExtUtil.read(in, String.class, pf);
         appearance = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         input = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        receive = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
         itemsetBinding = (ItemsetBinding)ExtUtil.read(in, new ExtWrapNullable(ItemsetBinding.class), pf);
         defaultValueExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
@@ -64,6 +69,7 @@ public class QueryPrompt implements Externalizable {
         ExtUtil.write(out, key);
         ExtUtil.write(out, new ExtWrapNullable(appearance));
         ExtUtil.write(out, new ExtWrapNullable(input));
+        ExtUtil.write(out, new ExtWrapNullable(receive));
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapNullable(itemsetBinding));
         ExtUtil.write(out, new ExtWrapNullable(defaultValueExpr == null ? null : new ExtWrapTagged(defaultValueExpr)));
@@ -81,6 +87,11 @@ public class QueryPrompt implements Externalizable {
     @Nullable
     public String getInput() {
         return input;
+    }
+
+    @Nullable
+    public String getReceive() {
+        return receive;
     }
 
     public DisplayUnit getDisplay() {
