@@ -55,10 +55,14 @@ public class PostRequest implements Externalizable {
     }
 
     public boolean isRelevant(EvaluationContext evalContext) {
+        System.out.println("[jls] in isRelevant");
         if (relevantExpr == null) {
+            System.out.println("[jls] no expression");
             return true;
         } else {
             String result = RemoteQuerySessionManager.evalXpathExpression(relevantExpr, evalContext);
+            System.out.println("[jls] expression = " + relevantExpr);
+            System.out.println("[jls] result = " + result);
             return "true".equals(result);
         }
     }

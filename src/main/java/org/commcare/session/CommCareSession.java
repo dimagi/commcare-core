@@ -203,6 +203,7 @@ public class CommCareSession {
         } else if (entriesForCurrentCommand.size() == 1
                 && entriesForCurrentCommand.elementAt(0) instanceof RemoteRequestEntry
                 && ((RemoteRequestEntry)entriesForCurrentCommand.elementAt(0)).getPostRequest().isRelevant(evalContext)) {
+            System.out.println("[jls] need a STATE_SYNC_REQUEST");
             return SessionFrame.STATE_SYNC_REQUEST;
         } else if (entriesForCurrentCommand.size() > 1 || !entriesForCurrentCommand.elementAt(0).getCommandId().equals(currentCmd)) {
             //the only other thing we can need is a form command. If there's
