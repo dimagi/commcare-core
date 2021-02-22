@@ -45,29 +45,7 @@ public class FormInstanceLoader {
 
     public static FormDef loadInstance(FormDef formDef,
                                        InputStream instanceInput) throws IOException {
-        FormInstance savedModel;
-        savedModel = XFormParser.restoreDataModel(instanceInput, null);
-
-        // get the root of the saved and template instances
-        TreeElement savedRoot = savedModel.getRoot();
-        TreeElement templateRoot =
-                formDef.getInstance().getRoot().deepCopy(true);
-
-        // weak check for matching forms
-        if (!savedRoot.getName().equals(templateRoot.getName()) ||
-                savedRoot.getMult() != 0) {
-            System.out.println("Instance and template form definition don't match");
-            return null;
-        } else {
-            // populate the data model
-            TreeReference tr = TreeReference.rootRef();
-            tr.add(templateRoot.getName(), TreeReference.INDEX_UNBOUND);
-            templateRoot.populate(savedRoot);
-
-            // populated model to current form
-            formDef.getInstance().setRoot(templateRoot);
-        }
-
-        return formDef;
+        FormInstance formInstance = XFormParser.restoreDataModel(instanceInput, null);
+        return XFormParser.loadXmlInstance(formDef, formInstance);
     }
 }

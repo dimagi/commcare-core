@@ -9,6 +9,7 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.HeaderMap;
 import retrofit2.http.Multipart;
@@ -41,4 +42,9 @@ public interface CommCareNetworkService {
 
     @PUT
     Call<ResponseBody> makePutRequest(@Url String url, @Body RequestBody body);
+
+    @Streaming
+    @DELETE
+    Call<ResponseBody> makeDeleteRequest(@Url String url, @QueryMap Map<String, String> params,
+                                         @HeaderMap Map<String, String> headers);
 }
