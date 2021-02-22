@@ -11,6 +11,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import javax.annotation.Nullable;
+
 /**
  * A display unit element contains text and a set of potential image/audio
  * references for menus or other UI elements
@@ -20,9 +22,14 @@ import java.io.IOException;
 public class DisplayUnit implements Externalizable, DetailTemplate {
 
     private Text name;
+    @Nullable
     private Text imageReference;
+    @Nullable
     private Text audioReference;
+    @Nullable
     private Text badgeFunction;
+    @Nullable
+    private Text hintText;
 
     /**
      * Serialization only!!!
@@ -32,16 +39,17 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
     }
 
     public DisplayUnit(Text name) {
-        this(name, null, null, null);
+        this(name, null, null, null, null);
     }
 
 
     public DisplayUnit(Text name, Text imageReference, Text audioReference,
-                       Text badge) {
+                       Text badge, Text hintText) {
         this.name = name;
         this.imageReference = imageReference;
         this.audioReference = audioReference;
         this.badgeFunction = badge;
+        this.hintText = hintText;
     }
 
     public DisplayData evaluate() {
@@ -53,7 +61,8 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
         String imageRef = imageReference == null ? null : imageReference.evaluate(ec);
         String audioRef = audioReference == null ? null : audioReference.evaluate(ec);
         String textForBadge = badgeFunction == null ? null : badgeFunction.evaluate(ec);
-        return new DisplayData(name.evaluate(ec), imageRef, audioRef, textForBadge);
+        String textForHint = hintText == null ? null : hintText.evaluate(ec);
+        return new DisplayData(name.evaluate(ec), imageRef, audioRef, textForBadge, textForHint);
     }
 
     /**
@@ -64,16 +73,24 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
         return name;
     }
 
+    @Nullable
     public Text getImageURI() {
         return imageReference;
     }
 
+    @Nullable
     public Text getAudioURI() {
         return audioReference;
     }
 
+    @Nullable
     public Text getBadgeText() {
         return badgeFunction;
+    }
+
+    @Nullable
+    public Text getHintText() {
+        return hintText;
     }
 
     @Override
@@ -83,6 +100,7 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
         imageReference = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
         audioReference = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
         badgeFunction = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
+        hintText = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
     }
 
     @Override
@@ -91,6 +109,7 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
         ExtUtil.write(out, new ExtWrapNullable(imageReference));
         ExtUtil.write(out, new ExtWrapNullable(audioReference));
         ExtUtil.write(out, new ExtWrapNullable(badgeFunction));
+        ExtUtil.write(out, new ExtWrapNullable(hintText));
     }
 
 }
