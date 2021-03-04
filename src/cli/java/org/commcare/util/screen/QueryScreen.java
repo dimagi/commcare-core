@@ -106,24 +106,19 @@ public class QueryScreen extends Screen {
         }
     }
 
-    public boolean processResponse(InputStream responseData) {
+    public Pair<ExternalDataInstance, String> processResponse(InputStream responseData) {
         if (responseData == null) {
             currentMessage = "Query result null.";
-            return false;
+            return new Pair<>(null, currentMessage);
         }
         Pair<ExternalDataInstance, String> instanceOrError =
                 remoteQuerySessionManager.buildExternalDataInstance(responseData);
         if (instanceOrError.first == null) {
             currentMessage = "Query response format error: " + instanceOrError.second;
-            return false;
         } else {
             sessionWrapper.setQueryDatum(instanceOrError.first);
-            return true;
         }
-    }
-
-    private boolean isResponseEmpty(ExternalDataInstance instance) {
-        return !instance.getRoot().hasChildren();
+        return instanceOrError;
     }
 
     public void answerPrompts(Hashtable<String, String> answers) {
@@ -163,7 +158,6 @@ public class QueryScreen extends Screen {
     }
 
     /**
-     *
      * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
      * @return filters to be applied to case search uri as query params
      */
@@ -199,11 +193,11 @@ public class QueryScreen extends Screen {
         }
         answerPrompts(userAnswers);
         InputStream response = makeQueryRequestReturnStream();
-        boolean refresh = processResponse(response);
+        Pair<ExternalDataInstance, String> instanceOrError = processResponse(response);
         if (currentMessage != null) {
             out.println(currentMessage);
         }
-        return refresh;
+        return instanceOrError.first != null;
     }
 
 
