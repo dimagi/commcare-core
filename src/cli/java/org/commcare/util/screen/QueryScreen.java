@@ -115,10 +115,14 @@ public class QueryScreen extends Screen {
                 remoteQuerySessionManager.buildExternalDataInstance(responseData);
         if (instanceOrError.first == null) {
             currentMessage = "Query response format error: " + instanceOrError.second;
-        } else {
-            sessionWrapper.setQueryDatum(instanceOrError.first);
         }
         return instanceOrError;
+    }
+
+    public void setQueryDatum(ExternalDataInstance dataInstance) {
+        if (dataInstance != null) {
+            sessionWrapper.setQueryDatum(dataInstance);
+        }
     }
 
     public void answerPrompts(Hashtable<String, String> answers) {
@@ -194,6 +198,7 @@ public class QueryScreen extends Screen {
         answerPrompts(userAnswers);
         InputStream response = makeQueryRequestReturnStream();
         Pair<ExternalDataInstance, String> instanceOrError = processResponse(response);
+        setQueryDatum(instanceOrError.first);
         if (currentMessage != null) {
             out.println(currentMessage);
         }
