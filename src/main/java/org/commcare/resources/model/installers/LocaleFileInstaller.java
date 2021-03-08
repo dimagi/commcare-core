@@ -191,7 +191,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCarePlatform> 
         return false;
     }
 
-    private boolean cache(InputStream incoming, Resource r, ResourceTable table, boolean upgrade) throws UnresolvedResourceException {
+    protected boolean cache(InputStream incoming, Resource r, ResourceTable table, boolean upgrade) throws UnresolvedResourceException {
         //NOTE: Incoming here needs to be _fresh_. It's extremely important that
         //nothing have gotten the stream first
 
