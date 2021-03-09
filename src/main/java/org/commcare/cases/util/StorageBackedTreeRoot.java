@@ -317,7 +317,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                 namesToMatch.add(name);
                 valuesToMatch.add(value);
                 operator = "=";
-            } else {
+            } else if (profiles.elementAt(i) instanceof NegativeIndexedValueLookup) {
                 name = profiles.elementAt(i).getKey();
                 value = (String)(((NegativeIndexedValueLookup)profiles.elementAt(i)).value);
                 namesToInverseMatch.add(name);
