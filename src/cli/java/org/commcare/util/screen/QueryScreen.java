@@ -108,7 +108,6 @@ public class QueryScreen extends Screen {
     }
 
     public Pair<ExternalDataInstance, String> processResponse(InputStream responseData) {
-        long time = System.currentTimeMillis();
         if (responseData == null) {
             currentMessage = "Query result null.";
             return new Pair<>(null, currentMessage);
@@ -118,7 +117,6 @@ public class QueryScreen extends Screen {
         if (instanceOrError.first == null) {
             currentMessage = "Query response format error: " + instanceOrError.second;
         }
-        System.out.println("shubham " + (System.currentTimeMillis() - time));
         return instanceOrError;
     }
 
