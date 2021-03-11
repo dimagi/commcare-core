@@ -7,6 +7,7 @@ import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.QueryPrompt;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.core.util.OrderedHashtable;
@@ -107,6 +108,7 @@ public class QueryScreen extends Screen {
     }
 
     public Pair<ExternalDataInstance, String> processResponse(InputStream responseData) {
+        long time = System.currentTimeMillis();
         if (responseData == null) {
             currentMessage = "Query result null.";
             return new Pair<>(null, currentMessage);
@@ -116,6 +118,7 @@ public class QueryScreen extends Screen {
         if (instanceOrError.first == null) {
             currentMessage = "Query response format error: " + instanceOrError.second;
         }
+        System.out.println("shubham " + (System.currentTimeMillis() - time));
         return instanceOrError;
     }
 
@@ -123,6 +126,10 @@ public class QueryScreen extends Screen {
         if (dataInstance != null) {
             sessionWrapper.setQueryDatum(dataInstance);
         }
+    }
+
+    public ExternalDataInstance buildExternalDataInstance(TreeElement root){
+        return remoteQuerySessionManager.buildExternalDataInstance(root);
     }
 
     public void answerPrompts(Hashtable<String, String> answers) {
