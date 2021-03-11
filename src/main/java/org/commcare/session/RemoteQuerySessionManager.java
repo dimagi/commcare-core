@@ -42,14 +42,14 @@ public class RemoteQuerySessionManager {
     private final EvaluationContext evaluationContext;
     private final Hashtable<String, String> userAnswers =
             new Hashtable<>();
-    private final ArrayList<String> validPrompts;
+    private final ArrayList<String> supportedPrompts;
 
     private RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
                                       EvaluationContext evaluationContext,
-                                      ArrayList<String> validPrompts) throws XPathException {
+                                      ArrayList<String> supportedPrompts) throws XPathException {
         this.queryDatum = queryDatum;
         this.evaluationContext = evaluationContext;
-        this.validPrompts = validPrompts;
+        this.supportedPrompts = supportedPrompts;
         initUserAnswers();
     }
 
@@ -69,7 +69,8 @@ public class RemoteQuerySessionManager {
     }
 
     public static RemoteQuerySessionManager buildQuerySessionManager(CommCareSession session,
-                                                                     EvaluationContext sessionContext, ArrayList<String> validPrompts) throws XPathException {
+                                                                     EvaluationContext sessionContext,
+                                                                     ArrayList<String> supportedPrompts) throws XPathException {
         SessionDatum datum;
         try {
             datum = session.getNeededDatum();
@@ -78,7 +79,7 @@ public class RemoteQuerySessionManager {
             return null;
         }
         if (datum instanceof RemoteQueryDatum) {
-            return new RemoteQuerySessionManager((RemoteQueryDatum)datum, sessionContext, validPrompts);
+            return new RemoteQuerySessionManager((RemoteQueryDatum)datum, sessionContext, supportedPrompts);
         } else {
             return null;
         }
@@ -179,7 +180,7 @@ public class RemoteQuerySessionManager {
     }
 
     public boolean isPromptSupported(QueryPrompt queryPrompt) {
-        return queryPrompt.getInput() == null || validPrompts.indexOf(queryPrompt.getInput()) != -1;
+        return queryPrompt.getInput() == null || supportedPrompts.indexOf(queryPrompt.getInput()) != -1;
     }
 
     // checks if @param{value} is one of the select choices give in @param{items}

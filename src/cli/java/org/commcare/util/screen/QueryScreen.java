@@ -58,7 +58,7 @@ public class QueryScreen extends Screen {
         this.sessionWrapper = sessionWrapper;
         remoteQuerySessionManager =
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper,
-                        sessionWrapper.getEvaluationContext(), getValidPrompts());
+                        sessionWrapper.getEvaluationContext(), getSupportedPrompts());
 
         if (remoteQuerySessionManager == null) {
             throw new CommCareSessionException(String.format("QueryManager for case " +
@@ -75,11 +75,11 @@ public class QueryScreen extends Screen {
 
     }
 
-    private ArrayList<String> getValidPrompts() {
-        ArrayList<String> validPrompts = new ArrayList<>();
-        validPrompts.add(INPUT_TYPE_SELECT1);
-        validPrompts.add(INPUT_TYPE_DATE);
-        return validPrompts;
+    private ArrayList<String> getSupportedPrompts() {
+        ArrayList<String> supportedPrompts = new ArrayList<>();
+        supportedPrompts.add(INPUT_TYPE_SELECT1);
+        supportedPrompts.add(INPUT_TYPE_DATE);
+        return supportedPrompts;
     }
 
     private static String buildUrl(String baseUrl, Hashtable<String, String> queryParams) {
