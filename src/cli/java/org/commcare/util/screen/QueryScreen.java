@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -22,6 +23,9 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATE;
 
 /**
  * Screen that displays user configurable entry texts and makes
@@ -54,7 +58,7 @@ public class QueryScreen extends Screen {
         this.sessionWrapper = sessionWrapper;
         remoteQuerySessionManager =
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper,
-                        sessionWrapper.getEvaluationContext());
+                        sessionWrapper.getEvaluationContext(), getSupportedPrompts());
 
         if (remoteQuerySessionManager == null) {
             throw new CommCareSessionException(String.format("QueryManager for case " +
@@ -69,6 +73,13 @@ public class QueryScreen extends Screen {
         }
         mTitle = Localization.get("case.search.title");
 
+    }
+
+    private ArrayList<String> getSupportedPrompts() {
+        ArrayList<String> supportedPrompts = new ArrayList<>();
+        supportedPrompts.add(INPUT_TYPE_SELECT1);
+        supportedPrompts.add(INPUT_TYPE_DATE);
+        return supportedPrompts;
     }
 
     private static String buildUrl(String baseUrl, Hashtable<String, String> queryParams) {

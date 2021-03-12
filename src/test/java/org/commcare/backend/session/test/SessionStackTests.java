@@ -18,6 +18,7 @@ import org.commcare.session.SessionFrame;
 import org.junit.Test;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import static org.junit.Assert.assertEquals;
@@ -339,7 +340,7 @@ public class SessionStackTests {
                                                                 String resourcePath) {
         RemoteQuerySessionManager remoteQuerySessionManager =
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper,
-                        sessionWrapper.getEvaluationContext());
+                        sessionWrapper.getEvaluationContext(), new ArrayList<>());
         InputStream is = cls.getResourceAsStream(resourcePath);
         Pair<ExternalDataInstance, String> instanceOrError =
                 remoteQuerySessionManager.buildExternalDataInstance(is);
