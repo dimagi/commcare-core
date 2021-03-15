@@ -45,5 +45,9 @@
             <case_name>case name</case_name>
             <owner_id>test_group</owner_id>
         </create>
+        <update>
+            <patient_type>real</patient_type>
+            <current_status>c</current_status>
+        </update>
     </case>
 </OpenRosaResponse>

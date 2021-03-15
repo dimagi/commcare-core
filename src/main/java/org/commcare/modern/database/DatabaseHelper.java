@@ -34,8 +34,22 @@ public class DatabaseHelper {
     public static Pair<String, String[]> createWhere(String[] fieldNames, Object[] values,
                                                      EncryptedModel em, Persistable p)
             throws IllegalArgumentException {
+        return createWhere(fieldNames, values, new String[0], new String[0], em, p);
+    }
+
+     public static Pair<String, String[]> createWhere(String[] fieldNames, Object[] values,
+                                                     String[] inverseFieldNames, Object[] inverseValues,
+                                                     Persistable p)
+             throws IllegalArgumentException {
+         return createWhere(fieldNames, values, inverseFieldNames, inverseValues, null, p);
+     }
+
+    public static Pair<String, String[]> createWhere(String[] fieldNames, Object[] values,
+                                                     String[] inverseFieldNames, Object[] inverseValues,
+                                                     EncryptedModel em, Persistable p)
+            throws IllegalArgumentException {
         // null selection
-        if (fieldNames.length == 0) {
+        if (fieldNames.length == 0 && inverseFieldNames.length == 0) {
             return new Pair<>(null, null);
         }
 
@@ -78,6 +92,24 @@ public class DatabaseHelper {
             stringBuilder.append("=?");
 
             arguments.add(values[i].toString());
+
+            set = true;
+        }
+        for (int i=0; i < inverseFieldNames.length; ++i) {
+            String columnName = TableBuilder.scrubName(inverseFieldNames[i]);
+            if (fields != null) {
+                if (!fields.contains(columnName)) {
+                    continue;
+                }
+            }
+            if (set) {
+                stringBuilder.append(" AND ");
+            }
+
+            stringBuilder.append(columnName);
+            stringBuilder.append("!=?");
+
+            arguments.add(inverseValues[i].toString());
 
             set = true;
         }

@@ -118,4 +118,24 @@ public class CaseXPathQueryTest {
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
                 "count(instance('casedb')/casedb/case[@case_id != 'case_one'])", 2.0));
     }
+
+    @Test
+    public void caseIndexAliasTest() throws Exception {
+        config.parseIntoSandbox(
+                this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
+        EvaluationContext ec =
+                MockDataUtils.buildContextWithInstance(sandbox, "casedb",
+                        CaseTestUtils.CASE_INSTANCE);
+
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[@category = 'real'])", 1.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[patient_type = 'real'])", 1.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[current_status = 'c'])", 1.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[@state = 'c'])", 1.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[@category != 'real'])", 2.0));
+    }
 }

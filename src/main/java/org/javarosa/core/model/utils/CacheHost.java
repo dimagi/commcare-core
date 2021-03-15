@@ -38,15 +38,17 @@ public interface CacheHost {
     /**
      * Get the set of parameters expected to yield the best results for
      * priming the cache based on the most recent query sets. Expected
-     * is a set of String Key/Value pairs which make sense to the current
+     * is a two sets of String Key/Value pairs which make sense to the current
      * cache, ideally these pairs cover a close set of reference caches to
      * the most recent batch query.
      *
      * TODO: Super unclear whether this is the best place to put this
      *
-     * @return a two-deep array of keys and values that are the same length, IE:
+     * @return a four-deep array of keys and values. The first two and last two are the same length, IE:
      * String[] keys = returvalue[0];
      * String[] values = returnvalue[1];
+     * String[] inverseKeys = returnvalue[2];
+     * String[] inverseValues = returnvalue[3];
      */
     String[][] getCachePrimeGuess();
 }
