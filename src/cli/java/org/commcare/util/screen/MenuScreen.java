@@ -7,6 +7,7 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.MenuLoader;
+import org.commcare.suite.model.Suite;
 import org.commcare.util.LoggerInterface;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -14,6 +15,7 @@ import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -46,6 +48,12 @@ public class MenuScreen extends Screen {
         for (int i = 0; i < mChoices.length; i++) {
             MenuDisplayable menu = mChoices[i];
             badges[i] = menu.getTextForBadge(mSession.getEvaluationContext(menu.getCommandID())).blockingGet();
+        }
+    }
+
+    public void handleAutoMenuAdvance(SessionWrapper sessionWrapper) {
+        if (mChoices.length == 1) {
+            sessionWrapper.setCommand(mChoices[0].getCommandID());
         }
     }
 
