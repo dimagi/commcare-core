@@ -60,7 +60,7 @@
         <title>
             <text>Case List</text>
         </title>
-        <action>
+        <action auto_launch="true">
             <display>
                 <text>Jump to Menu 2 Form 1</text>
             </display>
@@ -73,7 +73,7 @@
         </action>
         <action relevant="true()" action-bar-icon="jr://fake-image-ref">
             <display>
-                <text>Jump to Menu 2 Form 1</text>
+                <text>Jump to Menu 2 Form 1, with icon</text>
             </display>
             <stack>
                 <push>
@@ -84,7 +84,7 @@
         </action>
         <action relevant="false()">
             <display>
-                <text>Jump to Menu 2 Form 1</text>
+                <text>Jump to Menu 2 Form 1, irrelevant</text>
             </display>
             <stack>
                 <push>

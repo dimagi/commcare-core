@@ -114,7 +114,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         return row.toString();
     }
 
-    public static Pair<String[], int[]> getHeaders(Detail shortDetail, EvaluationContext context, int sortIndex){
+    public static Pair<String[], int[]> getHeaders(Detail shortDetail, EvaluationContext context, int sortIndex) {
         DetailField[] fields = shortDetail.getFields();
         String[] headers = new String[fields.length];
         int[] widthHints = new int[fields.length];
@@ -209,7 +209,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     }
 
     @Override
-    public boolean handleInputAndUpdateHost(String input, EntityScreen host) throws CommCareSessionException {
+    public boolean handleInputAndUpdateHost(String input, EntityScreen host, boolean allowAutoLaunch) throws CommCareSessionException {
         if (input.startsWith("action ") && actions != null) {
             int chosenActionIndex;
             try {
@@ -221,6 +221,9 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                 host.setPendingAction(actions.elementAt(chosenActionIndex));
                 return true;
             }
+        } else if (host.getAutoLaunchAction() != null && allowAutoLaunch) {
+            host.setPendingAction(host.getAutoLaunchAction());
+            return true;
         }
 
         if (input.startsWith("debug ")) {
