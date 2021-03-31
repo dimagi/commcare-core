@@ -259,9 +259,6 @@ public class ApplicationHost {
 
                     //Restart
                     return true;
-                } catch (InvalidCaseGraphException e) {
-                    printErrorAndContinue("Case Purge failed due to: ", e);
-                    return true;
                 }
             }
             //We have a session and are ready to fill out a form!
@@ -473,7 +470,7 @@ public class ApplicationHost {
         printStream.println(availableLocales);
     }
 
-    private void syncAndReport() throws InvalidCaseGraphException {
+    private void syncAndReport() {
         performCasePurge(mSandbox);
         if (username != null && password != null) {
             System.out.println("Requesting sync...");
@@ -483,10 +480,15 @@ public class ApplicationHost {
         }
     }
 
-    public void performCasePurge(UserSandbox sandbox) throws InvalidCaseGraphException {
+    public void performCasePurge(UserSandbox sandbox) {
         printStream.println("Performing Case Purge");
-        CasePurgeFilter purger = new CasePurgeFilter(sandbox.getCaseStorage(),
-                SandboxUtils.extractEntityOwners(sandbox));
+        CasePurgeFilter purger = null;
+        try {
+            purger = new CasePurgeFilter(sandbox.getCaseStorage(),
+                    SandboxUtils.extractEntityOwners(sandbox));
+        } catch (InvalidCaseGraphException e) {
+            printStream.println(e.getMessage());
+        }
 
         int removedCases = sandbox.getCaseStorage().removeAll(purger).size();
 
