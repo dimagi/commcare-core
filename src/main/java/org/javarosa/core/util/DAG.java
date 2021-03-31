@@ -151,6 +151,10 @@ public class DAG<I, N, E> {
         return nodes.elements();
     }
 
+    public int getNodesCount() {
+        return nodes.size();
+    }
+
     public Enumeration getIndices() {
         return nodes.keys();
     }

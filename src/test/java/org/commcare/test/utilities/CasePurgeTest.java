@@ -3,6 +3,7 @@ package org.commcare.test.utilities;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.cases.util.CasePurgeFilter;
+import org.commcare.cases.util.InvalidCaseGraphException;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
@@ -126,7 +127,7 @@ public class CasePurgeTest {
     }
 
     @Test
-    public void executeTest() {
+    public void executeTest() throws InvalidCaseGraphException {
         DummyIndexedStorageUtility<Case> storage =
                 new DummyIndexedStorageUtility<>(Case.class, new LivePrototypeFactory());
 

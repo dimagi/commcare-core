@@ -58,7 +58,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     // List of case ids for cases that were deleted off of the device as a result missing cases
     private final Vector<String> casesRemovedDueToMissingCases = new Vector<>();
 
-    public CasePurgeFilter(IStorageUtilityIndexed<Case> caseStorage) {
+    public CasePurgeFilter(IStorageUtilityIndexed<Case> caseStorage) throws InvalidCaseGraphException {
         this(caseStorage, null);
     }
 
@@ -73,15 +73,15 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      *                    determining the purge behavior. Null to not enable
      *                    this behavior
      */
-    public CasePurgeFilter(IStorageUtilityIndexed<Case> caseStorage, Vector<String> owners) {
+    public CasePurgeFilter(IStorageUtilityIndexed<Case> caseStorage, Vector<String> owners) throws InvalidCaseGraphException {
         this(getFullCaseGraph(caseStorage, owners));
     }
 
-    public CasePurgeFilter(DAG<String, int[], String> graph) {
+    public CasePurgeFilter(DAG<String, int[], String> graph) throws InvalidCaseGraphException {
         setIdsToRemoveWithNewExtensions(graph);
     }
 
-    private void setIdsToRemoveWithNewExtensions(DAG<String, int[], String> graph) {
+    private void setIdsToRemoveWithNewExtensions(DAG<String, int[], String> graph) throws InvalidCaseGraphException {
         internalCaseDAG = graph;
 
         // It is important that actual edge removal be done after the call to getInvalidEdges() is
@@ -179,12 +179,12 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         return caseGraph;
     }
 
-    private static void propagateRelevance(DAG<String, int[], String> g) {
+    private static void propagateRelevance(DAG<String, int[], String> g) throws InvalidCaseGraphException {
         propagateMarkToDAG(g, true, STATUS_RELEVANT, STATUS_RELEVANT);
         propagateMarkToDAG(g, false, STATUS_RELEVANT, STATUS_RELEVANT, CaseIndex.RELATIONSHIP_EXTENSION, false);
     }
 
-    private static void propagateAvailabile(DAG<String, int[], String> g) {
+    private static void propagateAvailabile(DAG<String, int[], String> g) throws InvalidCaseGraphException {
         for (Enumeration e = g.getIndices(); e.hasMoreElements(); ) {
             String index = (String)e.nextElement();
             int[] node = g.getNode(index);
@@ -205,7 +205,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         return false;
     }
 
-    private static void propagateLive(DAG<String, int[], String> g) {
+    private static void propagateLive(DAG<String, int[], String> g) throws InvalidCaseGraphException {
         for (Enumeration e = g.getIndices(); e.hasMoreElements(); ) {
             String index = (String)e.nextElement();
             int[] node = g.getNode(index);
@@ -223,7 +223,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         propagateMarkToDAG(g, false, STATUS_ALIVE, STATUS_ALIVE, CaseIndex.RELATIONSHIP_EXTENSION, true);
     }
 
-    private static void propagateMarkToDAG(DAG<String, int[], String> g, boolean direction, int mask, int mark) {
+    private static void propagateMarkToDAG(DAG<String, int[], String> g, boolean direction, int mask, int mark) throws InvalidCaseGraphException {
         propagateMarkToDAG(g, direction, mask, mark, null, false);
     }
 
@@ -243,9 +243,15 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      */
     private static void propagateMarkToDAG(DAG<String, int[], String> dag, boolean walkFromSourceToSink,
                                            int maskCondition, int markToApply, String relationship,
-                                           boolean requireOpenDestination) {
+                                           boolean requireOpenDestination) throws InvalidCaseGraphException {
         Stack<String> toProcess = walkFromSourceToSink ? dag.getSources() : dag.getSinks();
+        int count = 0;
         while (!toProcess.isEmpty()) {
+
+            if (count > dag.getNodesCount() + dag.getEdges().size()) {
+                throw new InvalidCaseGraphException("Graph propogation exceeded max iterations most probably due to cyclic case relationship");
+            }
+
             // current node
             String index = toProcess.pop();
             int[] node = dag.getNode(index);
@@ -261,6 +267,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
                 }
                 toProcess.addElement(edge.i);
             }
+            count++;
         }
     }
 
