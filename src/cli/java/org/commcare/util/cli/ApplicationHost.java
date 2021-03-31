@@ -1,6 +1,7 @@
 package org.commcare.util.cli;
 
 import org.commcare.cases.util.CasePurgeFilter;
+import org.commcare.cases.util.InvalidCaseGraphException;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
@@ -258,6 +259,9 @@ public class ApplicationHost {
 
                     //Restart
                     return true;
+                } catch (InvalidCaseGraphException e) {
+                    printErrorAndContinue("Case Purge failed due to: ", e);
+                    return true;
                 }
             }
             //We have a session and are ready to fill out a form!
@@ -469,7 +473,7 @@ public class ApplicationHost {
         printStream.println(availableLocales);
     }
 
-    private void syncAndReport() {
+    private void syncAndReport() throws InvalidCaseGraphException {
         performCasePurge(mSandbox);
         if (username != null && password != null) {
             System.out.println("Requesting sync...");
@@ -479,7 +483,7 @@ public class ApplicationHost {
         }
     }
 
-    public void performCasePurge(UserSandbox sandbox) {
+    public void performCasePurge(UserSandbox sandbox) throws InvalidCaseGraphException {
         printStream.println("Performing Case Purge");
         CasePurgeFilter purger = new CasePurgeFilter(sandbox.getCaseStorage(),
                 SandboxUtils.extractEntityOwners(sandbox));

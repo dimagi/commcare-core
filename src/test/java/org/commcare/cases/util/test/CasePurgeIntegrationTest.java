@@ -1,6 +1,7 @@
 package org.commcare.cases.util.test;
 
 import org.commcare.cases.util.CasePurgeFilter;
+import org.commcare.cases.util.InvalidCaseGraphException;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.util.mocks.MockDataUtils;
@@ -31,7 +32,7 @@ public class CasePurgeIntegrationTest {
     }
 
     @Test
-    public void test() {
+    public void test() throws InvalidCaseGraphException {
         CasePurgeFilter purger = new CasePurgeFilter(sandbox.getCaseStorage(), owners);
         int removedCases = sandbox.getCaseStorage().removeAll(purger).size();
 
