@@ -308,9 +308,9 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         String keyDescription ="";
 
         for (int i = numKeysToProcess - 1; i >= 0; i--) {
-            String name;
-            String value;
-            String operator;
+            String name = "";
+            String value = "";
+            String operator = "";
             if (profiles.elementAt(i) instanceof IndexedValueLookup) {
                 name = profiles.elementAt(i).getKey();
                 value = (String)(((IndexedValueLookup)profiles.elementAt(i)).value);
