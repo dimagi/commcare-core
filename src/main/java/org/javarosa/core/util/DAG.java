@@ -1,6 +1,7 @@
 package org.javarosa.core.util;
 
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Stack;
 import java.util.Vector;
@@ -161,5 +162,36 @@ public class DAG<I, N, E> {
 
     public Hashtable<I, Vector<Edge<I, E>>> getEdges() {
         return this.edges;
+    }
+
+    public boolean containsCycle() {
+        HashSet<I> visited = new HashSet();
+        HashSet<I> currentPath = new HashSet<>();
+
+        for (I i : nodes.keySet()) {
+            if (nodePathContainsCycle(i, visited, currentPath)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean nodePathContainsCycle(I i, HashSet<I> visited, HashSet<I> currentPath) {
+        if (!visited.contains(i)) {
+            visited.add(i);
+            currentPath.add(i);
+
+            if(edges.containsKey(i)) {
+                for (Edge<I, E> e : edges.get(i)) {
+                    if (!visited.contains(e.i) && nodePathContainsCycle(e.i, visited, currentPath)) {
+                        return true;
+                    } else if (currentPath.contains(e.i)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        currentPath.remove(i);
+        return false;
     }
 }
