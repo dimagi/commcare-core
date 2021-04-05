@@ -8,15 +8,12 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.MenuLoader;
 import org.commcare.util.LoggerInterface;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
-import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.Set;
 
 
 /**
@@ -34,11 +31,22 @@ public class MenuScreen extends Screen {
     private String mTitle;
 
     public String[] getBadges() {
+        if (badges == null) {
+            calculateBadges();
+        }
         return badges;
     }
 
     public void setBadges(String[] badges) {
         this.badges = badges;
+    }
+
+    private void calculateBadges() {
+        badges = new String[mChoices.length];
+        for (int i = 0; i < mChoices.length; i++) {
+            MenuDisplayable menu = mChoices[i];
+            badges[i] = menu.getTextForBadge(mSession.getEvaluationContext(menu.getCommandID())).blockingGet();
+        }
     }
 
     class ScreenLogger implements LoggerInterface {
@@ -58,10 +66,9 @@ public class MenuScreen extends Screen {
     public void init(SessionWrapper session) throws CommCareSessionException {
         mSession = session;
         String root = deriveMenuRoot(session);
-        MenuLoader menuLoader = new MenuLoader(session.getPlatform(), session, root, new ScreenLogger(), false, false);
+        MenuLoader menuLoader = new MenuLoader(session.getPlatform(), session, root, new ScreenLogger(), false, false, false);
         this.mChoices = menuLoader.getMenus();
         this.mTitle = this.getBestTitle();
-        this.badges = menuLoader.getBadgeText();
         Exception loadException = menuLoader.getLoadException();
         if (loadException != null) {
             throw new CommCareSessionException(menuLoader.getErrorMessage());
@@ -100,7 +107,7 @@ public class MenuScreen extends Screen {
     }
 
     @Override
-    public boolean handleInputAndUpdateSession(CommCareSession session, String input) {
+    public boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch) {
         try {
             int i = Integer.parseInt(input);
             String commandId;
