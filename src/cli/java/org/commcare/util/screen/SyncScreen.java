@@ -121,7 +121,7 @@ public class SyncScreen extends Screen {
     }
 
     @Override
-    public boolean handleInputAndUpdateSession(CommCareSession commCareSession, String s) throws CommCareSessionException {
+    public boolean handleInputAndUpdateSession(CommCareSession commCareSession, String s, boolean allowAutoLaunch) throws CommCareSessionException {
         if (syncSuccessful) {
             commCareSession.syncState();
             if (commCareSession.finishExecuteAndPop(sessionWrapper.getEvaluationContext())) {

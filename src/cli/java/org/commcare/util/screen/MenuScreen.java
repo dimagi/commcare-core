@@ -8,15 +8,12 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.MenuLoader;
 import org.commcare.util.LoggerInterface;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
-import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.Set;
 
 
 /**
@@ -110,7 +107,7 @@ public class MenuScreen extends Screen {
     }
 
     @Override
-    public boolean handleInputAndUpdateSession(CommCareSession session, String input) {
+    public boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch) {
         try {
             int i = Integer.parseInt(input);
             String commandId;

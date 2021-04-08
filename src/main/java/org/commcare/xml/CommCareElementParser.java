@@ -31,6 +31,7 @@ public abstract class CommCareElementParser<T> extends ElementParser<T> {
         Text audioValue = null;
         Text displayText = null;
         Text badgeText = null;
+        Text hintText = null;
 
         while (nextTagInBlock("display")) {
             if (parser.getName().equals("text")) {
@@ -39,7 +40,7 @@ public abstract class CommCareElementParser<T> extends ElementParser<T> {
                     imageValue = new TextParser(parser).parse();
                 } else if ("audio".equals(attributeValue)) {
                     audioValue = new TextParser(parser).parse();
-                } else if ("badge".equals(attributeValue) ) {
+                } else if ("badge".equals(attributeValue)) {
                     badgeText = new TextParser(parser).parse();
                 } else {
                     displayText = new TextParser(parser).parse();
@@ -56,9 +57,13 @@ public abstract class CommCareElementParser<T> extends ElementParser<T> {
                 }
                 //only ends up grabbing the last entries with
                 //each attribute, but we can only use one of each anyway.
+            } else if ("hint".equals(parser.getName())) {
+                while (nextTagInBlock("hint")) {
+                    hintText = new TextParser(parser).parse();
+                }
             }
         }
 
-        return new DisplayUnit(displayText, imageValue, audioValue, badgeText);
+        return new DisplayUnit(displayText, imageValue, audioValue, badgeText, hintText);
     }
 }
