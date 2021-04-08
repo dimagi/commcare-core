@@ -1,5 +1,5 @@
 <wrapper>
-    <case case_id="" case_type="" owner_id="" status="" external_id="">
+    <case case_id="" case_type="" owner_id="" status="" external_id="" state="" category="">
         <!-- case_id: The unique GUID of this case -->
         <!-- case_type: The id of this case's type -->
         <!-- owner_id: The GUID of the case or group which owns this case -->
