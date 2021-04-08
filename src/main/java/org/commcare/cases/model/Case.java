@@ -30,8 +30,12 @@ public class Case implements Persistable, IMetaData {
     public static final String EXTERNAL_ID_KEY = "external_id";
     public static final String CATEGORY_KEY = "category";
     public static final String STATE_KEY = "state";
+
+    // Allowed as alias for preferred property category
     public static final String PATIENT_TYPE_KEY = "patient_type";
+    // Allowed as alias for preferred property state
     public static final String CURRENT_STATUS_KEY = "current_status";
+
     public static final String STORAGE_KEY = "CASE";
 
     public static final String INDEX_CASE_ID = "case-id";
