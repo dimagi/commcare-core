@@ -121,11 +121,11 @@ public class CaseChildElement extends StorageBackedChildElement<Case> implements
         }
 
         if (c.getCategory() != null) {
-            cacheBuilder.setAttribute(null, "category", "");
+            cacheBuilder.setAttribute(null, "category", c.getCategory());
         }
 
         if (c.getState() != null) {
-            cacheBuilder.setAttribute(null, "state", "");
+            cacheBuilder.setAttribute(null, "state", c.getState());
         }
 
 
