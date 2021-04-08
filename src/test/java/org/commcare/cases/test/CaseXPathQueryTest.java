@@ -132,10 +132,20 @@ public class CaseXPathQueryTest {
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
                 "count(instance('casedb')/casedb/case[patient_type = 'real'])", 1.0));
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
-                "count(instance('casedb')/casedb/case[current_status = 'c'])", 1.0));
+                "count(instance('casedb')/casedb/case[current_status = 'c'])", 2.0));
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
                 "count(instance('casedb')/casedb/case[@state = 'c'])", 1.0));
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
                 "count(instance('casedb')/casedb/case[@category != 'real'])", 2.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[@category = 'fake'])", 0.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[@category != 'fake'])", 3.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[true() and @category != 'real'])", 2.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[@state = 'c'][@category = 'real'])", 1.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[current_status = 'c'][@category = 'real'])", 1.0));
     }
 }
