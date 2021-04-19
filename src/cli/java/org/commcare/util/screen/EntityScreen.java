@@ -318,4 +318,18 @@ public class EntityScreen extends CompoundScreenHost {
     public Hashtable<String, TreeReference> getReferenceMap() {
         return referenceMap;
     }
+
+    @SupressWarnings("unsused")
+    public boolean referencesContainStep(String stepValue) {
+        if (referenceMap != null) {
+            return referenceMap.containsKey(stepValue);
+        }
+        for (TreeReference ref: references) {
+            String id = getReturnValueFromSelection(ref,(EntityDatum) session.getNeededDatum(), evalContext);
+            if (id.equals(stepValue)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
