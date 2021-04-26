@@ -75,6 +75,8 @@ public class SessionFrame implements Externalizable {
      */
     public static final String STATE_FORM_XMLNS = "FORM_XMLNS";
 
+    public static final String COMPOUND_STEP = "COMPOUND_STEP";
+
     // endregion - states
 
     private Vector<StackFrameStep> steps = new Vector<>();
