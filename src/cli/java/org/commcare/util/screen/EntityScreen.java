@@ -5,6 +5,7 @@ import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
+import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
@@ -18,6 +19,7 @@ import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.expr.XPathExpression;
 
 import java.util.Hashtable;
 import java.util.Vector;
@@ -77,13 +79,16 @@ public class EntityScreen extends CompoundScreenHost {
     public EntityScreen(boolean handleCaseIndex, boolean full, SessionWrapper session) throws CommCareSessionException {
         this.handleCaseIndex = handleCaseIndex;
         this.full = full;
-
         this.setSession(session);
+    }
 
+    public void evaluateAutoLaunch(String nextInput) throws CommCareSessionException {
+        EvaluationContext subContext = evalContext.spawnWithCleanLifecycle();
+        subContext.setVariable("next_input", nextInput);
         for (Action action : mShortDetail.getCustomActions(evalContext)) {
-            if (action.isAutoLaunching()) {
+            if (action.isAutoLaunchAction(subContext)) {
                 // Supply an empty case list so we can "select" from it later using getEntityFromID
-                mCurrentScreen = new EntityListSubscreen(mShortDetail, new Vector<TreeReference>(), evalContext, handleCaseIndex);
+                mCurrentScreen = new EntityListSubscreen(mShortDetail, new Vector<>(), evalContext, handleCaseIndex);
                 this.autoLaunchAction = action;
             }
         }
@@ -109,8 +114,8 @@ public class EntityScreen extends CompoundScreenHost {
 
         if (full || references.size() == 1) {
             referenceMap = new Hashtable<>();
-            for(TreeReference reference: references) {
-                referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), evalContext), reference);
+            for (TreeReference reference : references) {
+                referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum)session.getNeededDatum(), evalContext), reference);
             }
 
             // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic setting
@@ -241,7 +246,7 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
-    public Detail[] getLongDetailList(TreeReference ref){
+    public Detail[] getLongDetailList(TreeReference ref) {
         Detail[] longDetailList;
         String longDetailId = this.mNeededDatum.getLongDetail();
         if (longDetailId == null) {
@@ -275,9 +280,10 @@ public class EntityScreen extends CompoundScreenHost {
         this.mPendingAction = pendingAction;
     }
 
-    public Detail getShortDetail(){
+    public Detail getShortDetail() {
         return mShortDetail;
     }
+
     public SessionWrapper getSession() {
         return mSession;
     }
