@@ -45,7 +45,9 @@ public class ActionParser extends CommCareElementParser<Action> {
         XPathExpression autoLaunchExpr = null;
 
         try {
-            autoLaunchExpr = XPathParseTool.parseXPath(derivedAutoLaunchExpression);
+            if (derivedAutoLaunchExpression != null) {
+                autoLaunchExpr = XPathParseTool.parseXPath(derivedAutoLaunchExpression);
+            }
         } catch (XPathSyntaxException e) {
             String messageBase = "'autoLaunch' doesn't contain a valid xpath expression: ";
             throw new InvalidStructureException(messageBase + autoLaunch, parser);
