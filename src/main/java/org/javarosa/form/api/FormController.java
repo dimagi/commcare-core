@@ -5,6 +5,7 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.transport.payload.ByteArrayPayload;
 import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.model.xform.XPathReference;
@@ -119,6 +120,17 @@ public class FormController {
 
     public void postProcessInstance() {
         mFormEntryController.getModel().getForm().postProcessInstance();
+    }
+
+    @Nullable
+    public String getFormDescriptor() {
+        FormDef formDef = mFormEntryController.getModel().getForm();
+        String caseNameDescriptor = formDef.getLocalizer().getText("case-name-descriptor");
+        if (caseNameDescriptor != null) {
+            return formDef.fillTemplateString(caseNameDescriptor, TreeReference.rootRef());
+        } else {
+            return null;
+        }
     }
 
     public FormInstance getInstance() {
