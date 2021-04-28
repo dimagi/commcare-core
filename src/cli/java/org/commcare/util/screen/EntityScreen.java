@@ -109,9 +109,8 @@ public class EntityScreen extends CompoundScreenHost {
 
         if (full || references.size() == 1) {
             referenceMap = new Hashtable<>();
-            EntityDatum needed = (EntityDatum) session.getNeededDatum();
             for(TreeReference reference: references) {
-                referenceMap.put(getReturnValueFromSelection(reference, needed, evalContext), reference);
+                referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), evalContext), reference);
             }
 
             // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic setting
@@ -318,20 +317,5 @@ public class EntityScreen extends CompoundScreenHost {
     @SuppressWarnings("unused")
     public Hashtable<String, TreeReference> getReferenceMap() {
         return referenceMap;
-    }
-
-    @SupressWarnings("unsused")
-    public boolean referencesContainStep(String stepValue) {
-        if (referenceMap != null) {
-            return referenceMap.containsKey(stepValue);
-        }
-        EntityDatum needed = (EntityDatum) session.getNeededDatum();
-        for (TreeReference ref: references) {
-            String id = getReturnValueFromSelection(ref, needed, evalContext);
-            if (id.equals(stepValue)) {
-                return true;
-            }
-        }
-        return false;
     }
 }
