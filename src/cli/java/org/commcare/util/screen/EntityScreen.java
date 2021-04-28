@@ -320,7 +320,6 @@ public class EntityScreen extends CompoundScreenHost {
         return referenceMap;
     }
 
-    @SupressWarnings("unsused")
     public boolean referencesContainStep(String stepValue) {
         if (referenceMap != null) {
             return referenceMap.containsKey(stepValue);
