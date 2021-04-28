@@ -325,9 +325,8 @@ public class EntityScreen extends CompoundScreenHost {
         if (referenceMap != null) {
             return referenceMap.containsKey(stepValue);
         }
-        EntityDatum needed = (EntityDatum) session.getNeededDatum();
         for (TreeReference ref: references) {
-            String id = getReturnValueFromSelection(ref, needed, evalContext);
+            String id = getReturnValueFromSelection(ref, mNeededDatum, evalContext);
             if (id.equals(stepValue)) {
                 return true;
             }
