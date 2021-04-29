@@ -37,9 +37,6 @@ public class Menu implements Externalizable, MenuDisplayable {
     private String style;
     private XPathExpression relevance;
 
-    // todo take this from the xml
-    private boolean autoLaunch = true;
-
     /**
      * Serialization only!!!
      */
@@ -230,7 +227,4 @@ public class Menu implements Externalizable, MenuDisplayable {
         return "Menu with id " + this.getId();
     }
 
-    public boolean isAutoLaunch() {
-        return autoLaunch;
-    }
 }
