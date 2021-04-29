@@ -75,7 +75,7 @@ public class EntityScreen extends CompoundScreenHost {
         this.full = full;
     }
 
-    public EntityScreen(boolean handleCaseIndex, boolean full, boolean allowAutoLaunch, SessionWrapper session) throws CommCareSessionException {
+    public EntityScreen(boolean handleCaseIndex, boolean full, SessionWrapper session) throws CommCareSessionException {
         this.handleCaseIndex = handleCaseIndex;
         this.full = full;
 
@@ -117,8 +117,9 @@ public class EntityScreen extends CompoundScreenHost {
         if (full || references.size() == 1) {
             referenceMap = new Hashtable<>();
             System.out.println("About to put");
+            EntityDatum needed = (EntityDatum) session.getNeededDatum();
             for(TreeReference reference: references) {
-                referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), evalContext), reference);
+                referenceMap.put(getReturnValueFromSelection(reference, needed, evalContext), reference);
             }
 
             // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic setting
@@ -333,5 +334,18 @@ public class EntityScreen extends CompoundScreenHost {
     @SuppressWarnings("unused")
     public Hashtable<String, TreeReference> getReferenceMap() {
         return referenceMap;
+    }
+
+    public boolean referencesContainStep(String stepValue) {
+        if (referenceMap != null) {
+            return referenceMap.containsKey(stepValue);
+        }
+        for (TreeReference ref: references) {
+            String id = getReturnValueFromSelection(ref, mNeededDatum, evalContext);
+            if (id.equals(stepValue)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

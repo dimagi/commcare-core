@@ -8,6 +8,7 @@ import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.QueryPrompt;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.core.util.OrderedHashtable;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
@@ -25,8 +27,6 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
 /**
  * Screen that displays user configurable entry texts and makes
@@ -47,6 +47,8 @@ public class QueryScreen extends Screen {
     private String password;
 
     private PrintStream out;
+
+    private boolean defaultSearch;
 
     public QueryScreen(String domainedUsername, String password, PrintStream out) {
         this.domainedUsername = domainedUsername;
@@ -90,7 +92,7 @@ public class QueryScreen extends Screen {
 
 
     private InputStream makeQueryRequestReturnStream() {
-        String url = buildUrl(getBaseUrl().toString(), getQueryParams());
+        String url = buildUrl(getBaseUrl().toString(), getQueryParams(false));
         String credential = Credentials.basic(domainedUsername, password);
 
         Request request = new Request.Builder()
@@ -106,39 +108,54 @@ public class QueryScreen extends Screen {
         }
     }
 
-    public boolean processResponse(InputStream responseData) {
+    public Pair<ExternalDataInstance, String> processResponse(InputStream responseData) {
         if (responseData == null) {
             currentMessage = "Query result null.";
-            return false;
+            return new Pair<>(null, currentMessage);
         }
         Pair<ExternalDataInstance, String> instanceOrError =
                 remoteQuerySessionManager.buildExternalDataInstance(responseData);
         if (instanceOrError.first == null) {
             currentMessage = "Query response format error: " + instanceOrError.second;
-            return false;
-        } else {
-            sessionWrapper.setQueryDatum(instanceOrError.first);
-            return true;
+        }
+        return instanceOrError;
+    }
+
+    public void setQueryDatum(ExternalDataInstance dataInstance) {
+        if (dataInstance != null) {
+            sessionWrapper.setQueryDatum(dataInstance);
         }
     }
 
-    private boolean isResponseEmpty(ExternalDataInstance instance) {
-        return !instance.getRoot().hasChildren();
+    public ExternalDataInstance buildExternalDataInstance(TreeElement root){
+        return remoteQuerySessionManager.buildExternalDataInstance(root);
     }
 
     public void answerPrompts(Hashtable<String, String> answers) {
-        for (String key : answers.keySet()) {
+        for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
+            String key = (String)en.nextElement();
             QueryPrompt queryPrompt = userInputDisplays.get(key);
             String answer = answers.get(key);
 
+            // Treat all missing values as empty
+            if (answer == null) {
+                answer = "";
+            }
+
             // If select question, we should have got an index as the answer which should
             // be converted to the corresponding value
-            if (queryPrompt.isSelectOne() && answer != null) {
+            if (queryPrompt.isSelectOne() && !answer.isEmpty()) {
                 int choiceIndex = Integer.parseInt(answer);
                 Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
-                answer = selectChoices.get(choiceIndex).getValue();
+                if (choiceIndex < selectChoices.size()) {
+                    answer = selectChoices.get(choiceIndex).getValue();
+                } else {
+                    // answer is no longer a valid choice, so clear it out
+                    answer = "";
+                }
             }
             remoteQuerySessionManager.answerUserPrompt(key, answer);
+            refreshItemSetChoices();
         }
     }
 
@@ -150,8 +167,12 @@ public class QueryScreen extends Screen {
         return remoteQuerySessionManager.getBaseUrl();
     }
 
-    protected Hashtable<String, String> getQueryParams() {
-        return remoteQuerySessionManager.getRawQueryParams();
+    /**
+     * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
+     * @return filters to be applied to case search uri as query params
+     */
+    protected Hashtable<String, String> getQueryParams(boolean skipDefaultPromptValues) {
+        return remoteQuerySessionManager.getRawQueryParams(skipDefaultPromptValues);
     }
 
     public String getScreenTitle() {
@@ -173,7 +194,7 @@ public class QueryScreen extends Screen {
 
     @Trace
     @Override
-    public boolean handleInputAndUpdateSession(CommCareSession session, String input) {
+    public boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch) {
         String[] answers = input.split(",");
         Hashtable<String, String> userAnswers = new Hashtable<>();
         int count = 0;
@@ -183,11 +204,12 @@ public class QueryScreen extends Screen {
         }
         answerPrompts(userAnswers);
         InputStream response = makeQueryRequestReturnStream();
-        boolean refresh = processResponse(response);
+        Pair<ExternalDataInstance, String> instanceOrError = processResponse(response);
+        setQueryDatum(instanceOrError.first);
         if (currentMessage != null) {
             out.println(currentMessage);
         }
-        return refresh;
+        return instanceOrError.first != null;
     }
 
 
@@ -201,5 +223,9 @@ public class QueryScreen extends Screen {
 
     public Hashtable<String, String> getCurrentAnswers() {
         return remoteQuerySessionManager.getUserAnswers();
+    }
+
+    public boolean doDefaultSearch() {
+        return remoteQuerySessionManager.doDefaultSearch();
     }
 }

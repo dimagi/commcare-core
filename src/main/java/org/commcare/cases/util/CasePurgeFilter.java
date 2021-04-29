@@ -58,7 +58,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     // List of case ids for cases that were deleted off of the device as a result missing cases
     private final Vector<String> casesRemovedDueToMissingCases = new Vector<>();
 
-    public CasePurgeFilter(IStorageUtilityIndexed<Case> caseStorage) {
+    public CasePurgeFilter(IStorageUtilityIndexed<Case> caseStorage) throws InvalidCaseGraphException {
         this(caseStorage, null);
     }
 
@@ -73,15 +73,15 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      *                    determining the purge behavior. Null to not enable
      *                    this behavior
      */
-    public CasePurgeFilter(IStorageUtilityIndexed<Case> caseStorage, Vector<String> owners) {
+    public CasePurgeFilter(IStorageUtilityIndexed<Case> caseStorage, Vector<String> owners) throws InvalidCaseGraphException {
         this(getFullCaseGraph(caseStorage, owners));
     }
 
-    public CasePurgeFilter(DAG<String, int[], String> graph) {
+    public CasePurgeFilter(DAG<String, int[], String> graph) throws InvalidCaseGraphException {
         setIdsToRemoveWithNewExtensions(graph);
     }
 
-    private void setIdsToRemoveWithNewExtensions(DAG<String, int[], String> graph) {
+    private void setIdsToRemoveWithNewExtensions(DAG<String, int[], String> graph) throws InvalidCaseGraphException {
         internalCaseDAG = graph;
 
         // It is important that actual edge removal be done after the call to getInvalidEdges() is
@@ -89,6 +89,10 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         Vector<String[]> edgesToRemove = getInvalidEdges();
         for (String[] edge : edgesToRemove) {
             internalCaseDAG.removeEdge(edge[0], edge[1]);
+        }
+
+        if (internalCaseDAG.containsCycle()) {
+            throw new InvalidCaseGraphException("Invalid data sandbox, cycle detected");
         }
 
         propagateRelevance(internalCaseDAG);
