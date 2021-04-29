@@ -55,7 +55,7 @@ public class RemoteQuerySessionManager {
             String promptId = (String)en.nextElement();
             QueryPrompt prompt = queryPrompts.get(promptId);
             String defaultValue = "";
-            if(prompt.getDefaultValueExpr() != null) {
+            if (prompt.getDefaultValueExpr() != null) {
                 defaultValue = FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext));
             }
             userAnswers.put(prompt.getKey(), defaultValue);
@@ -63,7 +63,7 @@ public class RemoteQuerySessionManager {
     }
 
     public static RemoteQuerySessionManager buildQuerySessionManager(CommCareSession session,
-                                                                     EvaluationContext sessionContext)  throws XPathException {
+                                                                     EvaluationContext sessionContext) throws XPathException {
         SessionDatum datum;
         try {
             datum = session.getNeededDatum();
@@ -99,7 +99,6 @@ public class RemoteQuerySessionManager {
     }
 
     /**
-     *
      * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
      * @return filters to be applied to case search uri as query params
      */
@@ -112,7 +111,7 @@ public class RemoteQuerySessionManager {
             params.put(key, evaluatedExpr);
         }
 
-        if(!skipDefaultPromptValues) {
+        if (!skipDefaultPromptValues) {
             for (Enumeration e = userAnswers.keys(); e.hasMoreElements(); ) {
                 String key = (String)e.nextElement();
                 String value = userAnswers.get(key);
@@ -143,6 +142,13 @@ public class RemoteQuerySessionManager {
             return new Pair<>(null, e.getMessage());
         }
         return new Pair<>(ExternalDataInstance.buildFromRemote(queryDatum.getDataId(), root, queryDatum.useCaseTemplate()), "");
+    }
+
+    /**
+     * @return Data instance built from xml root or the error message raised during parsing
+     */
+    public ExternalDataInstance buildExternalDataInstance(TreeElement root) {
+        return ExternalDataInstance.buildFromRemote(queryDatum.getDataId(), root, queryDatum.useCaseTemplate());
     }
 
     public void populateItemSetChoices(QueryPrompt queryPrompt) {

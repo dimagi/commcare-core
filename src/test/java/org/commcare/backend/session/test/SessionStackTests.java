@@ -12,6 +12,7 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import org.commcare.session.SessionFrame;
@@ -311,9 +312,9 @@ public class SessionStackTests {
         assertTrue(actionToInspect.hasActionBarIcon());
         assertEquals("Jump to Menu 2 Form 1, with icon", actionToInspect.getDisplay().getText().evaluate(ec));
         assertEquals(1, actionToInspect.getStackOperations().size());
-        assertFalse(actionToInspect.isAutoLaunching());
+        assertTrue(actionToInspect.getAutoLaunchExpr()==null);
 
-        assertTrue(actions.get(0).isAutoLaunching());
+        assertTrue(FunctionUtils.toString(actions.get(0).getAutoLaunchExpr().eval(ec)).contentEquals("true"));
     }
 
     private static void assertInstanceMissing(SessionWrapper session, String xpath)

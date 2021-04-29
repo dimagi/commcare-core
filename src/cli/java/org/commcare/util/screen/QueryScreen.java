@@ -7,6 +7,7 @@ import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.QueryPrompt;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.core.util.OrderedHashtable;
@@ -106,24 +107,27 @@ public class QueryScreen extends Screen {
         }
     }
 
-    public boolean processResponse(InputStream responseData) {
+    public Pair<ExternalDataInstance, String> processResponse(InputStream responseData) {
         if (responseData == null) {
             currentMessage = "Query result null.";
-            return false;
+            return new Pair<>(null, currentMessage);
         }
         Pair<ExternalDataInstance, String> instanceOrError =
                 remoteQuerySessionManager.buildExternalDataInstance(responseData);
         if (instanceOrError.first == null) {
             currentMessage = "Query response format error: " + instanceOrError.second;
-            return false;
-        } else {
-            sessionWrapper.setQueryDatum(instanceOrError.first);
-            return true;
+        }
+        return instanceOrError;
+    }
+
+    public void setQueryDatum(ExternalDataInstance dataInstance) {
+        if (dataInstance != null) {
+            sessionWrapper.setQueryDatum(dataInstance);
         }
     }
 
-    private boolean isResponseEmpty(ExternalDataInstance instance) {
-        return !instance.getRoot().hasChildren();
+    public ExternalDataInstance buildExternalDataInstance(TreeElement root){
+        return remoteQuerySessionManager.buildExternalDataInstance(root);
     }
 
     public void answerPrompts(Hashtable<String, String> answers) {
@@ -163,7 +167,6 @@ public class QueryScreen extends Screen {
     }
 
     /**
-     *
      * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
      * @return filters to be applied to case search uri as query params
      */
@@ -199,11 +202,12 @@ public class QueryScreen extends Screen {
         }
         answerPrompts(userAnswers);
         InputStream response = makeQueryRequestReturnStream();
-        boolean refresh = processResponse(response);
+        Pair<ExternalDataInstance, String> instanceOrError = processResponse(response);
+        setQueryDatum(instanceOrError.first);
         if (currentMessage != null) {
             out.println(currentMessage);
         }
-        return refresh;
+        return instanceOrError.first != null;
     }
 
 
