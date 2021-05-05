@@ -154,7 +154,6 @@ public class QueryScreen extends Screen {
                 }
             }
             remoteQuerySessionManager.answerUserPrompt(key, answer);
-            refreshItemSetChoices();
         }
     }
 
