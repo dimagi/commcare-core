@@ -10,7 +10,7 @@ import io.reactivex.annotations.Nullable;
  */
 public class FormMetaIndicatorUtil {
 
-    public static final String CASE_NAME_DESCRIPTOR = "Pragma-Case-Name";
+    public static final String FORM_DESCRIPTOR = "Pragma-Form-Descriptor";
 
     @Nullable
     public static String getPragma(String key, FormDef formDef, TreeReference contextRef) {
