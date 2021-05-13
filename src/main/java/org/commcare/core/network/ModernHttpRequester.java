@@ -128,7 +128,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
             // This may be a real SSL exception associated with the real endpoint server, or this
             // might be a property of the local network.
             if(NetworkStatus.isCaptivePortal()) {
-                throw new CaptivePortalRedirectException(e);
+                throw new CaptivePortalRedirectException();
             }
 
             //Otherwise just rethrow the original exception. Probably a certificate issue

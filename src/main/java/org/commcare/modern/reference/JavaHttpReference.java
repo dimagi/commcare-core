@@ -46,7 +46,7 @@ public class JavaHttpReference implements Reference {
             return conn.getInputStream();
         } catch (SSLHandshakeException | SSLPeerUnverifiedException e) {
             if(NetworkStatus.isCaptivePortal()) {
-                throw new CaptivePortalRedirectException(e);
+                throw new CaptivePortalRedirectException();
             }
             throw e;
         }
