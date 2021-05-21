@@ -377,8 +377,7 @@ public class CommCareSession {
         if (popped != null) {
             Boolean wasLastStepCompound = (Boolean) popped.getExtra(SessionFrame.COMPOUND_STEP);
             Boolean isCurrentStepCompound = (Boolean) frame.getTopStepExtra(SessionFrame.COMPOUND_STEP);
-            Boolean yes = true;
-            if (yes.equals(wasLastStepCompound) && yes.equals(isCurrentStepCompound)) {
+            if (wasLastStepCompound && isCurrentStepCompound) {
                 return true;
             }
         }
