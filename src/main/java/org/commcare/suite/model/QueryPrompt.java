@@ -21,7 +21,8 @@ import javax.annotation.Nullable;
 // Model for <prompt> node in {@link
 public class QueryPrompt implements Externalizable {
 
-    public static final CharSequence INPUT_TYPE_SELECT1 = "select1";
+    public static final String INPUT_TYPE_SELECT1 = "select1";
+    public static final String INPUT_TYPE_DATE = "date";
 
     private String key;
 

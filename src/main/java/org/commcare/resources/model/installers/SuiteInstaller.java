@@ -73,7 +73,9 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
             } catch (InvalidStructureException e) {
                 throw new UnresolvedResourceException(r, e.getMessage(), true);
             } catch (IOException e) {
-                throw new UnreliableSourceException(r, e.getMessage());
+                UnreliableSourceException exception = new UnreliableSourceException(r, e.getMessage());
+                exception.initCause(e);
+                throw exception;
             } catch (XmlPullParserException e) {
                 e.printStackTrace();
                 return false;
