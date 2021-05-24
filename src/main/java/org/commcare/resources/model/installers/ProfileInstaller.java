@@ -116,7 +116,9 @@ public class ProfileInstaller extends CacheInstaller<Profile> {
                     if (e.getMessage() != null) {
                         Logger.log(LogTypes.TYPE_RESOURCES, "IO Exception fetching profile: " + e.getMessage());
                     }
-                    throw new UnreliableSourceException(r, e.getMessage());
+                    UnreliableSourceException exception = new UnreliableSourceException(r, e.getMessage());
+                    exception.initCause(e);
+                    throw exception;
                 }
 
                 //If we're upgrading we need to come back and see if the statuses need to change
