@@ -24,6 +24,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
     private static final String ATTR_KEY = "key";
     private static final String ATTR_INPUT = "input";
     private static final String ATTR_RECEIVE = "receive";
+    private static final String ATTR_HIDDEN = "hidden";
     private static final String ATTR_NODESET = "nodeset";
     private static final String ATTR_DEFAULT = "default";
     private static final String NAME_LABEL = "label";
@@ -41,6 +42,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
         String key = parser.getAttributeValue(null, ATTR_KEY);
         String input = parser.getAttributeValue(null, ATTR_INPUT);
         String receive = parser.getAttributeValue(null, ATTR_RECEIVE);
+        String hidden = parser.getAttributeValue(null, ATTR_HIDDEN);
         DisplayUnit display = null;
         ItemsetBinding itemsetBinding = null;
         XPathExpression defaultValue = null;
@@ -65,7 +67,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
                 itemsetBinding = parseItemset();
             }
         }
-        return new QueryPrompt(key, appearance, input, receive, display, itemsetBinding, defaultValue);
+        return new QueryPrompt(key, appearance, input, receive, hidden, display, itemsetBinding, defaultValue);
     }
 
     private ItemsetBinding parseItemset() throws IOException, XmlPullParserException, InvalidStructureException {
