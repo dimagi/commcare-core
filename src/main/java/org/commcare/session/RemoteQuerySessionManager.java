@@ -5,6 +5,7 @@ import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
+import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
@@ -171,14 +172,14 @@ public class RemoteQuerySessionManager {
             for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
                 String promptId = (String)en.nextElement();
                 QueryPrompt queryPrompt = userInputDisplays.get(promptId);
-                if (queryPrompt.getInput() != null && queryPrompt.getInput().contentEquals(INPUT_TYPE_SELECT1)) {
+                if (queryPrompt.getItemsetBinding() != null) {
                     String answer = userAnswers.get(promptId);
                     populateItemSetChoices(queryPrompt);
-                    Vector<SelectChoice> items = queryPrompt.getItemsetBinding().getChoices();
-                    if (!checkForValidSelectValue(items, answer)) {
-                        // if it's not a valid select value, blank it out
-                        userAnswers.put(promptId, "");
-                        dirty = true;
+                    String[] selectedChoices = answer.split(" ");
+                    for (String selectedChoice : selectedChoices) {
+                        if (!checkForValidSelectValue(queryPrompt.getItemsetBinding(), selectedChoice)) {
+                            answer = answer.replace(selectedChoice, "");
+                        }
                     }
                 }
             }
@@ -187,17 +188,12 @@ public class RemoteQuerySessionManager {
     }
 
     // checks if @param{value} is one of the select choices give in @param{items}
-    private boolean checkForValidSelectValue(Vector<SelectChoice> items, String value) {
+    private boolean checkForValidSelectValue(ItemsetBinding itemsetBinding, String value) {
         // blank is always a valid choice
         if (StringUtils.isEmpty(value)) {
             return true;
         }
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).getValue().contentEquals(value)) {
-                return true;
-            }
-        }
-        return false;
+        return ItemSetUtils.getIndexOf(itemsetBinding, value) != -1;
     }
 
     public boolean doDefaultSearch() {

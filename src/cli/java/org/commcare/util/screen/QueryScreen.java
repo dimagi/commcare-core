@@ -126,7 +126,7 @@ public class QueryScreen extends Screen {
         }
     }
 
-    public ExternalDataInstance buildExternalDataInstance(TreeElement root){
+    public ExternalDataInstance buildExternalDataInstance(TreeElement root) {
         return remoteQuerySessionManager.buildExternalDataInstance(root);
     }
 
@@ -151,6 +151,19 @@ public class QueryScreen extends Screen {
                 } else {
                     // answer is no longer a valid choice, so clear it out
                     answer = "";
+                }
+            } else if (queryPrompt.isMultiSelect() && !answer.isEmpty()) {
+                // split choices using space as a tokenizer
+                String[] selectedChoices = answer.split(" ");
+                for (String selectedChoice : selectedChoices) {
+                    int choiceIndex = Integer.parseInt(selectedChoice);
+                    Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
+                    if (choiceIndex < selectChoices.size()) {
+                        answer = answer.replace(selectedChoice, selectChoices.get(choiceIndex).getValue());
+                    } else {
+                        // clear choice from the answer
+                        answer = answer.replace(selectedChoice, "");
+                    }
                 }
             }
             remoteQuerySessionManager.answerUserPrompt(key, answer);

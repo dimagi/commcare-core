@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
 public class QueryPrompt implements Externalizable {
 
     public static final CharSequence INPUT_TYPE_SELECT1 = "select1";
+    public static final CharSequence INPUT_TYPE_SELECT = "select";
 
     private String key;
 
@@ -115,21 +116,8 @@ public class QueryPrompt implements Externalizable {
         return input != null && input.contentEquals(INPUT_TYPE_SELECT1);
     }
 
-    public Pair<String[], Integer> getItemsetChoicesWithAnswerIndex(String currentAnswer) {
-        int answerIndex = -1;
-        if (itemsetBinding != null) {
-            Vector<SelectChoice> selectChoices = itemsetBinding.getChoices();
-            String[] choices = new String[selectChoices.size()];
-            for (int i = 0; i < selectChoices.size(); i++) {
-                SelectChoice selectChoice = selectChoices.get(i);
-                choices[i] = selectChoice.getLabelInnerText();
-                if (selectChoice.getValue().contentEquals(currentAnswer)) {
-                    answerIndex = i;
-                }
-            }
-            return new Pair<>(choices, answerIndex);
-        }
-        return new Pair<>(null, answerIndex);
+    public boolean isMultiSelect() {
+        return input != null && input.contentEquals(INPUT_TYPE_SELECT);
     }
 
 }
