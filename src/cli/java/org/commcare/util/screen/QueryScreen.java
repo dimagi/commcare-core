@@ -81,10 +81,17 @@ public class QueryScreen extends Screen {
         }
     }
 
-    private static String buildUrl(String baseUrl, Hashtable<String, String> queryParams) {
+    private String buildUrl(String baseUrl, Hashtable<String, String> queryParams) {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
         for (String key : queryParams.keySet()) {
-            urlBuilder.addQueryParameter(key, queryParams.get(key));
+            if (userInputDisplays.get(key).getItemsetBinding() != null) {
+                String[] selectedChoices = queryParams.get(key).split(" ");
+                for (String selectedChoice : selectedChoices) {
+                    urlBuilder.addQueryParameter(key, selectedChoice);
+                }
+            } else {
+                urlBuilder.addQueryParameter(key, queryParams.get(key));
+            }
         }
         return urlBuilder.build().toString();
     }
