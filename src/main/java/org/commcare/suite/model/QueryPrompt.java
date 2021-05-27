@@ -21,9 +21,6 @@ import javax.annotation.Nullable;
 // Model for <prompt> node in {@link
 public class QueryPrompt implements Externalizable {
 
-    public static final CharSequence INPUT_TYPE_SELECT1 = "select1";
-    public static final CharSequence INPUT_TYPE_SELECT = "select";
-
     private String key;
 
     @Nullable
@@ -112,12 +109,11 @@ public class QueryPrompt implements Externalizable {
         return defaultValueExpr;
     }
 
-    public boolean isSelectOne() {
-        return input != null && input.contentEquals(INPUT_TYPE_SELECT1);
-    }
-
-    public boolean isMultiSelect() {
-        return input != null && input.contentEquals(INPUT_TYPE_SELECT);
+    /**
+     * @return whether the prompt has associated choices to select from
+     */
+    public boolean isSelect() {
+        return getItemsetBinding() != null;
     }
 
 }

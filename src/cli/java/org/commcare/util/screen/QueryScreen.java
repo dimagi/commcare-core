@@ -36,7 +36,7 @@ import okhttp3.Response;
 public class QueryScreen extends Screen {
 
     private RemoteQuerySessionManager remoteQuerySessionManager;
-    private OrderedHashtable<String, QueryPrompt> userInputDisplays;
+    protected OrderedHashtable<String, QueryPrompt> userInputDisplays;
     private SessionWrapper sessionWrapper;
     private String[] fields;
     private String mTitle;
@@ -81,11 +81,17 @@ public class QueryScreen extends Screen {
         }
     }
 
-    private String buildUrl(String baseUrl, Hashtable<String, String> queryParams) {
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
+    /**
+     * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
+     * @return case search url with search prompt values
+     */
+    public String buildUrl(boolean skipDefaultPromptValues) {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(getBaseUrl().toString()).newBuilder();
+        Hashtable<String, String> queryParams = getQueryParams(skipDefaultPromptValues);
         for (String key : queryParams.keySet()) {
-            if (userInputDisplays.get(key).getItemsetBinding() != null) {
-                String[] selectedChoices = queryParams.get(key).split(" ");
+            QueryPrompt prompt = userInputDisplays.get(key);
+            if (prompt != null && prompt.isSelect()) {
+                String[] selectedChoices = RemoteQuerySessionManager.extractSelectChoices(queryParams.get(key));
                 for (String selectedChoice : selectedChoices) {
                     urlBuilder.addQueryParameter(key, selectedChoice);
                 }
@@ -98,7 +104,7 @@ public class QueryScreen extends Screen {
 
 
     private InputStream makeQueryRequestReturnStream() {
-        String url = buildUrl(getBaseUrl().toString(), getQueryParams(false));
+        String url = buildUrl(false);
         String credential = Credentials.basic(domainedUsername, password);
 
         Request request = new Request.Builder()
@@ -150,27 +156,13 @@ public class QueryScreen extends Screen {
 
             // If select question, we should have got an index as the answer which should
             // be converted to the corresponding value
-            if (queryPrompt.isSelectOne() && !answer.isEmpty()) {
-                int choiceIndex = Integer.parseInt(answer);
-                Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
-                if (choiceIndex < selectChoices.size()) {
-                    answer = selectChoices.get(choiceIndex).getValue();
-                } else {
-                    // answer is no longer a valid choice, so clear it out
-                    answer = "";
-                }
-            } else if (queryPrompt.isMultiSelect() && !answer.isEmpty()) {
-                // split choices using space as a tokenizer
-                String[] selectedChoices = answer.split(" ");
+            if (queryPrompt.isSelect() && !answer.isEmpty()) {
+                String[] selectedChoices = RemoteQuerySessionManager.extractSelectChoices(answer);
                 for (String selectedChoice : selectedChoices) {
                     int choiceIndex = Integer.parseInt(selectedChoice);
                     Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
-                    if (choiceIndex < selectChoices.size()) {
-                        answer = answer.replace(selectedChoice, selectChoices.get(choiceIndex).getValue());
-                    } else {
-                        // clear choice from the answer
-                        answer = answer.replace(selectedChoice, "");
-                    }
+                    boolean validChoice = choiceIndex < selectChoices.size() && choiceIndex > -1;
+                    answer = answer.replace(selectedChoice, validChoice ? selectChoices.get(choiceIndex).getValue() : "");
                 }
             }
             remoteQuerySessionManager.answerUserPrompt(key, answer);

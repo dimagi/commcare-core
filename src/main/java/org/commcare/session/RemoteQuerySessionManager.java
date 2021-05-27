@@ -6,7 +6,6 @@ import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.ItemsetBinding;
-import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
@@ -27,9 +26,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Vector;
-
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
 /**
  * Manager for remote query datums; get/answer user prompts and build
@@ -172,10 +168,10 @@ public class RemoteQuerySessionManager {
             for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
                 String promptId = (String)en.nextElement();
                 QueryPrompt queryPrompt = userInputDisplays.get(promptId);
-                if (queryPrompt.getItemsetBinding() != null) {
+                if (queryPrompt.isSelect()) {
                     String answer = userAnswers.get(promptId);
                     populateItemSetChoices(queryPrompt);
-                    String[] selectedChoices = answer.split(" ");
+                    String[] selectedChoices = extractSelectChoices(answer);
                     for (String selectedChoice : selectedChoices) {
                         if (!checkForValidSelectValue(queryPrompt.getItemsetBinding(), selectedChoice)) {
                             answer = answer.replace(selectedChoice, "");
@@ -198,5 +194,11 @@ public class RemoteQuerySessionManager {
 
     public boolean doDefaultSearch() {
         return queryDatum.doDefaultSearch();
+    }
+
+    // Converts a string containing space separated list of select choices
+    // into a string array of individual choices
+    public static String[] extractSelectChoices(String answer){
+        return answer.split(" ");
     }
 }

@@ -2,7 +2,6 @@ package org.javarosa.core.model.utils;
 
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.ScopeLimitedReferenceRequestCache;
-import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.condition.EvaluationContext;
