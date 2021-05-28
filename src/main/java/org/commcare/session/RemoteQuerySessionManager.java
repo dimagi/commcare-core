@@ -174,7 +174,9 @@ public class RemoteQuerySessionManager {
                     String[] selectedChoices = extractSelectChoices(answer);
                     for (String selectedChoice : selectedChoices) {
                         if (!checkForValidSelectValue(queryPrompt.getItemsetBinding(), selectedChoice)) {
-                            answer = answer.replace(selectedChoice, "");
+                            // if it's not a valid select value, blank it out
+                            userAnswers.put(promptId, answer.replace(selectedChoice, ""));
+                            dirty = true;
                         }
                     }
                 }
