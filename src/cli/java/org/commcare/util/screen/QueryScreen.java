@@ -158,9 +158,9 @@ public class QueryScreen extends Screen {
             // be converted to the corresponding value
             if (queryPrompt.isSelect() && !answer.isEmpty()) {
                 String[] selectedChoices = RemoteQuerySessionManager.extractSelectChoices(answer);
+                Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
                 for (String selectedChoice : selectedChoices) {
                     int choiceIndex = Integer.parseInt(selectedChoice);
-                    Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
                     boolean validChoice = choiceIndex < selectChoices.size() && choiceIndex > -1;
                     answer = answer.replace(selectedChoice, validChoice ? selectChoices.get(choiceIndex).getValue() : "");
                 }
