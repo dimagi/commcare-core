@@ -34,6 +34,9 @@ public class QueryPrompt implements Externalizable {
     @Nullable
     private String receive;
 
+    @Nullable
+    private String hidden;
+
     private DisplayUnit display;
 
     @Nullable
@@ -46,11 +49,13 @@ public class QueryPrompt implements Externalizable {
     public QueryPrompt() {
     }
 
-    public QueryPrompt(String key, String appearance, String input, String receive, DisplayUnit display, ItemsetBinding itemsetBinding, XPathExpression defaultValueExpr) {
+    public QueryPrompt(String key, String appearance, String input, String receive,
+                       String hidden, DisplayUnit display, ItemsetBinding itemsetBinding, XPathExpression defaultValueExpr) {
         this.key = key;
         this.appearance = appearance;
         this.input = input;
         this.receive = receive;
+        this.hidden = hidden;
         this.display = display;
         this.itemsetBinding = itemsetBinding;
         this.defaultValueExpr = defaultValueExpr;
@@ -62,6 +67,7 @@ public class QueryPrompt implements Externalizable {
         appearance = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         input = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         receive = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        hidden = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
         itemsetBinding = (ItemsetBinding)ExtUtil.read(in, new ExtWrapNullable(ItemsetBinding.class), pf);
         defaultValueExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
@@ -73,6 +79,7 @@ public class QueryPrompt implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(appearance));
         ExtUtil.write(out, new ExtWrapNullable(input));
         ExtUtil.write(out, new ExtWrapNullable(receive));
+        ExtUtil.write(out, new ExtWrapNullable(hidden));
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapNullable(itemsetBinding));
         ExtUtil.write(out, new ExtWrapNullable(defaultValueExpr == null ? null : new ExtWrapTagged(defaultValueExpr)));
@@ -95,6 +102,11 @@ public class QueryPrompt implements Externalizable {
     @Nullable
     public String getReceive() {
         return receive;
+    }
+
+    @Nullable
+    public String getHidden() {
+        return hidden;
     }
 
     public DisplayUnit getDisplay() {
