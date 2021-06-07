@@ -159,11 +159,14 @@ public class QueryScreen extends Screen {
             if (queryPrompt.isSelect() && !answer.isEmpty()) {
                 String[] selectedChoices = RemoteQuerySessionManager.extractSelectChoices(answer);
                 Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
-                for (String selectedChoice : selectedChoices) {
-                    int choiceIndex = Integer.parseInt(selectedChoice);
+                StringBuilder answerWithSelectValues = new StringBuilder();
+                for (int i = 0; i < selectedChoices.length; i++) {
+                    int choiceIndex = Integer.parseInt(selectedChoices[i]);
                     boolean validChoice = choiceIndex < selectChoices.size() && choiceIndex > -1;
-                    answer = answer.replace(selectedChoice, validChoice ? selectChoices.get(choiceIndex).getValue() : "");
+                    answerWithSelectValues.append(validChoice ? selectChoices.get(choiceIndex).getValue() : "");
+                    answerWithSelectValues.append(i == selectedChoices.length - 1 ? "" : " ");
                 }
+                answer = answerWithSelectValues.toString();
             }
             remoteQuerySessionManager.answerUserPrompt(key, answer);
         }
