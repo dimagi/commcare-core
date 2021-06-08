@@ -51,11 +51,9 @@ public class RemoteQuerySessionManager {
         for (Enumeration en = queryPrompts.keys(); en.hasMoreElements(); ) {
             String promptId = (String)en.nextElement();
             QueryPrompt prompt = queryPrompts.get(promptId);
-            String defaultValue = "";
             if (prompt.getDefaultValueExpr() != null) {
-                defaultValue = FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext));
+                userAnswers.put(prompt.getKey(), FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext)));
             }
-            userAnswers.put(prompt.getKey(), defaultValue);
         }
     }
 
@@ -200,7 +198,10 @@ public class RemoteQuerySessionManager {
 
     // Converts a string containing space separated list of select choices
     // into a string array of individual choices
-    public static String[] extractSelectChoices(String answer){
+    public static String[] extractSelectChoices(String answer) {
+        if (answer == null) {
+            return new String[]{};
+        }
         return answer.split(" ");
     }
 }
