@@ -148,7 +148,7 @@ public class CaseXPathQueryTest {
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
                 "count(instance('casedb')/casedb/case[current_status = 'c'][@category = 'real'])", 1.0));
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
-                "count(instance('casedb')/casedb/case[@state = 'a'][@current_status != 'b'])", 1.0));
+                "count(instance('casedb')/casedb/case[@state = 'a'][@category != 'fake'])", 1.0));
 
     }
 }
