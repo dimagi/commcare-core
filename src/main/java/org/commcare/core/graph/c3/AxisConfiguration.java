@@ -5,6 +5,7 @@ import org.commcare.core.graph.model.SeriesData;
 import org.commcare.core.graph.util.GraphException;
 import org.commcare.core.graph.util.GraphUtil;
 
+import org.commcare.core.graph.util.StringWidthUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -86,6 +87,7 @@ public class AxisConfiguration extends Configuration {
         JSONObject tick = new JSONObject();
         boolean usingCustomText = false;
         boolean isX = key.startsWith("x");
+        int height = -1;
 
         mVariables.put(varName, "{}");
         if (labelString != null) {
@@ -110,6 +112,7 @@ public class AxisConfiguration extends Configuration {
                     // and the value is text with which to label it
                     JSONObject labels = new JSONObject(labelString);
                     JSONArray values = new JSONArray();
+                    String largestLabel = "";
                     Iterator i = labels.keys();
                     while (i.hasNext()) {
                         String location = (String)i.next();
@@ -118,10 +121,21 @@ public class AxisConfiguration extends Configuration {
                         } else {
                             values.put(parseDouble(location, key));
                         }
+                        try {
+                            String current = labels.getString(location);
+                            if (current.length() > largestLabel.length()) {
+                                largestLabel = current;
+                            }
+                        } catch (JSONException e) { }
                     }
                     tick.put("values", values);
                     mVariables.put(varName, labels.toString());
                     usingCustomText = true;
+                    // These custom labels can be large, rotating them ensures that they're shown correctly on X axis.
+                    height = StringWidthUtil.getStringWidth(largestLabel);
+                    if (isX && largestLabel.length() > 5 && height != -1) {
+                        tick.put("rotate", 75);
+                    }
                 } catch (JSONException e) {
                     // Assume labelString is just a scalar, which
                     // represents the number of labels the user wants.
@@ -150,6 +164,9 @@ public class AxisConfiguration extends Configuration {
 
         if (tick.length() > 0) {
             axis.put("tick", tick);
+            if (isX && height != -1) {
+                axis.put("height", height);
+            }
         }
     }
 
