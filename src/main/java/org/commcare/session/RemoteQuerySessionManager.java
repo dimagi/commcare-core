@@ -34,6 +34,9 @@ import java.util.Hashtable;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class RemoteQuerySessionManager {
+    // used to parse multi-select choices
+    public static final String MULTI_SELECT_DELIMITER = "#,#";
+
     private final RemoteQueryDatum queryDatum;
     private final EvaluationContext evaluationContext;
     private final Hashtable<String, String> userAnswers =
@@ -202,6 +205,6 @@ public class RemoteQuerySessionManager {
         if (answer == null) {
             return new String[]{};
         }
-        return answer.split(" ");
+        return answer.split(MULTI_SELECT_DELIMITER);
     }
 }

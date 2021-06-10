@@ -164,7 +164,7 @@ public class QueryScreen extends Screen {
                     int choiceIndex = Integer.parseInt(selectedChoices[i]);
                     boolean validChoice = choiceIndex < selectChoices.size() && choiceIndex > -1;
                     answerWithSelectValues.append(validChoice ? selectChoices.get(choiceIndex).getValue() : "");
-                    answerWithSelectValues.append(i == selectedChoices.length - 1 ? "" : " ");
+                    answerWithSelectValues.append(i == selectedChoices.length - 1 ? "" : RemoteQuerySessionManager.MULTI_SELECT_DELIMITER);
                 }
                 answer = answerWithSelectValues.toString();
             }
