@@ -1,5 +1,8 @@
 package org.javarosa.core.util.test;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import org.commcare.cases.model.Case;
 import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
@@ -10,6 +13,7 @@ import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapMapPoly;
+import org.javarosa.core.util.externalizable.ExtWrapArrayListMultiMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -268,6 +272,15 @@ public class ExternalizableTest {
         m.put("d", new SampleExtz("boris", "yeltsin"));
         m.put("e", new ExtWrapList(vs));
         testExternalizable(new ExtWrapMapPoly(m), new ExtWrapMapPoly(String.class, true), pf);
+
+        //MultiMapList
+        Multimap<String, SampleExtz> multimap = ArrayListMultimap.create();
+        testExternalizable(new ExtWrapArrayListMultiMap(multimap), new ExtWrapArrayListMultiMap(String.class));
+        testExternalizable(new ExtWrapTagged(new ExtWrapArrayListMultiMap(multimap)), new ExtWrapTagged());
+        multimap.put("key1", new SampleExtz("a", "b"));
+        multimap.put("key1", new SampleExtz("c", "d"));
+        multimap.put("key2", new SampleExtz("e", "f"));
+        testExternalizable(new ExtWrapArrayListMultiMap(multimap), new ExtWrapArrayListMultiMap(String.class), pf);
     }
 
     @Test(expected = SerializationLimitationException.class)

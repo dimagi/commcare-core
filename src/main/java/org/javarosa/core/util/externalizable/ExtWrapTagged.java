@@ -17,6 +17,7 @@ public class ExtWrapTagged extends ExternalizableWrapper {
         WRAPPER_CODES.put(ExtWrapListPoly.class, 0x21);
         WRAPPER_CODES.put(ExtWrapMap.class, 0x22);
         WRAPPER_CODES.put(ExtWrapMapPoly.class, 0x23);
+        WRAPPER_CODES.put(ExtWrapArrayListMultiMap.class, 0x24);
         WRAPPER_CODES.put(ExtWrapIntEncodingUniform.class, 0x40);
         WRAPPER_CODES.put(ExtWrapIntEncodingSmall.class, 0x41);
     }
