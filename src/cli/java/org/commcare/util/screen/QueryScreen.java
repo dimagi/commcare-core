@@ -1,5 +1,7 @@
 package org.commcare.util.screen;
 
+import com.google.common.collect.Multimap;
+
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.CommCareSession;
@@ -87,16 +89,18 @@ public class QueryScreen extends Screen {
      */
     public String buildUrl(boolean skipDefaultPromptValues) {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(getBaseUrl().toString()).newBuilder();
-        Hashtable<String, String> queryParams = getQueryParams(skipDefaultPromptValues);
+        Multimap<String, String> queryParams = getQueryParams(skipDefaultPromptValues);
         for (String key : queryParams.keySet()) {
             QueryPrompt prompt = userInputDisplays.get(key);
-            if (prompt != null && prompt.isSelect()) {
-                String[] selectedChoices = RemoteQuerySessionManager.extractSelectChoices(queryParams.get(key));
-                for (String selectedChoice : selectedChoices) {
-                    urlBuilder.addQueryParameter(key, selectedChoice);
+            for (String value : queryParams.get(key)) {
+                if (prompt != null && prompt.isSelect()) {
+                    String[] selectedChoices = RemoteQuerySessionManager.extractSelectChoices(value);
+                    for (String selectedChoice : selectedChoices) {
+                        urlBuilder.addQueryParameter(key, selectedChoice);
+                    }
+                } else {
+                    urlBuilder.addQueryParameter(key, value);
                 }
-            } else {
-                urlBuilder.addQueryParameter(key, queryParams.get(key));
             }
         }
         return urlBuilder.build().toString();
@@ -184,7 +188,7 @@ public class QueryScreen extends Screen {
      * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
      * @return filters to be applied to case search uri as query params
      */
-    protected Hashtable<String, String> getQueryParams(boolean skipDefaultPromptValues) {
+    protected Multimap<String, String> getQueryParams(boolean skipDefaultPromptValues) {
         return remoteQuerySessionManager.getRawQueryParams(skipDefaultPromptValues);
     }
 
