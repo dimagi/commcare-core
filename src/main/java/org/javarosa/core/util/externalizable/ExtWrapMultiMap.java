@@ -7,14 +7,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Iterator;
 
 public class ExtWrapMultiMap extends ExternalizableWrapper {
 
     private ExternalizableWrapper keyType;
-    private Class<? extends Multimap> mapImplementation;
 
     /* Constructors for serialization */
 
@@ -29,7 +27,6 @@ public class ExtWrapMultiMap extends ExternalizableWrapper {
 
         this.val = val;
         this.keyType = keyType;
-        this.mapImplementation = val.getClass();
     }
 
     /* Constructors for deserialization */
@@ -37,22 +34,16 @@ public class ExtWrapMultiMap extends ExternalizableWrapper {
     public ExtWrapMultiMap() {
     }
 
-
     public ExtWrapMultiMap(Class keyType) {
-        this(keyType, ArrayListMultimap.class);
+        this(new ExtWrapBase(keyType));
     }
 
-    public ExtWrapMultiMap(Class keyType, Class mapImplementation) {
-        this(new ExtWrapBase(keyType), mapImplementation);
-    }
-
-    public ExtWrapMultiMap(ExternalizableWrapper keyType, Class mapImplementation) {
+    public ExtWrapMultiMap(ExternalizableWrapper keyType) {
         if (keyType == null) {
             throw new NullPointerException();
         }
 
         this.keyType = keyType;
-        this.mapImplementation = mapImplementation;
     }
 
     @Override
@@ -63,26 +54,15 @@ public class ExtWrapMultiMap extends ExternalizableWrapper {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         long size = ExtUtil.readNumeric(in);
-        try {
-            Multimap<Object, Object> multimap;
-            if (mapImplementation.equals(ArrayListMultimap.class)) {
-                // avoid reflection for most common use cases
-                multimap = ArrayListMultimap.create();
-            } else {
-                multimap = (Multimap<Object, Object>)mapImplementation.getMethod("create").invoke(mapImplementation);
+        Multimap<Object, Object> multimap = ArrayListMultimap.create();
+        for (int i = 0; i < size; i++) {
+            Object key = ExtUtil.read(in, keyType, pf);
+            long numberOfValues = ExtUtil.readNumeric(in);
+            for (long l = 0; l < numberOfValues; l++) {
+                multimap.put(key, ExtUtil.read(in, new ExtWrapTagged(), pf));
             }
-            for (int i = 0; i < size; i++) {
-                Object key = ExtUtil.read(in, keyType, pf);
-                long numberOfValues = ExtUtil.readNumeric(in);
-                for (long l = 0; l < numberOfValues; l++) {
-                    multimap.put(key, ExtUtil.read(in, new ExtWrapTagged(), pf));
-                }
-            }
-            val = multimap;
-        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            throw new DeserializationException(e.getMessage());
         }
-
+        val = multimap;
     }
 
     @Override
@@ -103,11 +83,6 @@ public class ExtWrapMultiMap extends ExternalizableWrapper {
     @Override
     public void metaReadExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         keyType = ExtWrapTagged.readTag(in, pf);
-        try {
-            mapImplementation = (Class<? extends Multimap>)Class.forName(ExtUtil.readString(in));
-        } catch (ClassNotFoundException e) {
-            throw new DeserializationException(e.getMessage());
-        }
     }
 
     @Override
@@ -115,6 +90,5 @@ public class ExtWrapMultiMap extends ExternalizableWrapper {
         Multimap multimap = (Multimap)val;
         Object keyTagObj = (keyType == null ? (multimap.size() == 0 ? new Object() : multimap.keys().iterator().next()) : keyType);
         ExtWrapTagged.writeTag(out, keyTagObj);
-        ExtUtil.writeString(out, mapImplementation.getName());
     }
 }

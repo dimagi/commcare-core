@@ -284,12 +284,12 @@ public class ExternalizableTest {
 
         // Any other MultiMap
         Multimap<String, SampleExtz> hashMultimap = LinkedListMultimap.create();
-        testExternalizable(new ExtWrapMultiMap(hashMultimap), new ExtWrapMultiMap(String.class, LinkedListMultimap.class));
+        testExternalizable(new ExtWrapMultiMap(hashMultimap), new ExtWrapMultiMap(String.class));
         testExternalizable(new ExtWrapTagged(new ExtWrapMultiMap(hashMultimap)), new ExtWrapTagged());
         hashMultimap.put("key1", new SampleExtz("a", "b"));
         hashMultimap.put("key1", new SampleExtz("c", "d"));
         hashMultimap.put("key2", new SampleExtz("e", "f"));
-        testExternalizable(new ExtWrapMultiMap(hashMultimap), new ExtWrapMultiMap(String.class, LinkedListMultimap.class), pf);
+        testExternalizable(new ExtWrapMultiMap(hashMultimap), new ExtWrapMultiMap(String.class), pf);
     }
 
     @Test(expected = SerializationLimitationException.class)
