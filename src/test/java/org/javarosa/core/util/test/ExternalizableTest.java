@@ -1,6 +1,7 @@
 package org.javarosa.core.util.test;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.cases.model.Case;
@@ -13,7 +14,7 @@ import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapMapPoly;
-import org.javarosa.core.util.externalizable.ExtWrapArrayListMultiMap;
+import org.javarosa.core.util.externalizable.ExtWrapMultiMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -30,7 +31,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class ExternalizableTest {
@@ -273,14 +273,23 @@ public class ExternalizableTest {
         m.put("e", new ExtWrapList(vs));
         testExternalizable(new ExtWrapMapPoly(m), new ExtWrapMapPoly(String.class, true), pf);
 
-        //MultiMapList
+        //MultiMap ArrayList
         Multimap<String, SampleExtz> multimap = ArrayListMultimap.create();
-        testExternalizable(new ExtWrapArrayListMultiMap(multimap), new ExtWrapArrayListMultiMap(String.class));
-        testExternalizable(new ExtWrapTagged(new ExtWrapArrayListMultiMap(multimap)), new ExtWrapTagged());
+        testExternalizable(new ExtWrapMultiMap(multimap), new ExtWrapMultiMap(String.class));
+        testExternalizable(new ExtWrapTagged(new ExtWrapMultiMap(multimap)), new ExtWrapTagged());
         multimap.put("key1", new SampleExtz("a", "b"));
         multimap.put("key1", new SampleExtz("c", "d"));
         multimap.put("key2", new SampleExtz("e", "f"));
-        testExternalizable(new ExtWrapArrayListMultiMap(multimap), new ExtWrapArrayListMultiMap(String.class), pf);
+        testExternalizable(new ExtWrapMultiMap(multimap), new ExtWrapMultiMap(String.class), pf);
+
+        // Any other MultiMap
+        Multimap<String, SampleExtz> hashMultimap = LinkedListMultimap.create();
+        testExternalizable(new ExtWrapMultiMap(hashMultimap), new ExtWrapMultiMap(String.class, LinkedListMultimap.class));
+        testExternalizable(new ExtWrapTagged(new ExtWrapMultiMap(hashMultimap)), new ExtWrapTagged());
+        hashMultimap.put("key1", new SampleExtz("a", "b"));
+        hashMultimap.put("key1", new SampleExtz("c", "d"));
+        hashMultimap.put("key2", new SampleExtz("e", "f"));
+        testExternalizable(new ExtWrapMultiMap(hashMultimap), new ExtWrapMultiMap(String.class, LinkedListMultimap.class), pf);
     }
 
     @Test(expected = SerializationLimitationException.class)

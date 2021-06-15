@@ -5,7 +5,7 @@ import com.google.common.collect.Multimap;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapArrayListMultiMap;
+import org.javarosa.core.util.externalizable.ExtWrapMultiMap;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -80,7 +80,7 @@ public class RemoteQueryDatum extends SessionDatum {
         super.readExternal(in, pf);
 
         hiddenQueryValues =
-                (Multimap<String, XPathExpression>)ExtUtil.read(in, new ExtWrapArrayListMultiMap(String.class), pf);
+                (Multimap<String, XPathExpression>)ExtUtil.read(in, new ExtWrapMultiMap(String.class), pf);
         userQueryPrompts =
                 (OrderedHashtable<String, QueryPrompt>)ExtUtil.read(in,
                         new ExtWrapMap(String.class, QueryPrompt.class, ExtWrapMap.TYPE_ORDERED), pf);
@@ -91,7 +91,7 @@ public class RemoteQueryDatum extends SessionDatum {
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
-        ExtUtil.write(out, new ExtWrapArrayListMultiMap(hiddenQueryValues));
+        ExtUtil.write(out, new ExtWrapMultiMap(hiddenQueryValues));
         ExtUtil.write(out, new ExtWrapMap(userQueryPrompts));
         ExtUtil.writeBool(out, useCaseTemplate);
         ExtUtil.writeBool(out, defaultSearch);
