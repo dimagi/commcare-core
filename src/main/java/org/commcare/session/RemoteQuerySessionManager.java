@@ -24,6 +24,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -173,13 +174,15 @@ public class RemoteQuerySessionManager {
                     String answer = userAnswers.get(promptId);
                     populateItemSetChoices(queryPrompt);
                     String[] selectedChoices = extractSelectChoices(answer);
+                    ArrayList<String> validSelectedChoices = new ArrayList<>();
                     for (String selectedChoice : selectedChoices) {
-                        if (!checkForValidSelectValue(queryPrompt.getItemsetBinding(), selectedChoice)) {
-                            // if it's not a valid select value, blank it out
-                            userAnswers.put(promptId, answer.replace(selectedChoice, ""));
+                        if (checkForValidSelectValue(queryPrompt.getItemsetBinding(), selectedChoice)) {
+                            validSelectedChoices.add(selectedChoice);
+                        } else {
                             dirty = true;
                         }
                     }
+                    userAnswers.put(promptId, String.join(RemoteQuerySessionManager.MULTI_SELECT_DELIMITER, validSelectedChoices));
                 }
             }
             index++;
