@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
@@ -36,7 +37,7 @@ import okhttp3.Response;
 public class QueryScreen extends Screen {
 
     private RemoteQuerySessionManager remoteQuerySessionManager;
-    private OrderedHashtable<String, QueryPrompt> userInputDisplays;
+    protected OrderedHashtable<String, QueryPrompt> userInputDisplays;
     private SessionWrapper sessionWrapper;
     private String[] fields;
     private String mTitle;
@@ -81,17 +82,30 @@ public class QueryScreen extends Screen {
         }
     }
 
-    private static String buildUrl(String baseUrl, Hashtable<String, String> queryParams) {
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
+    /**
+     * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
+     * @return case search url with search prompt values
+     */
+    public String buildUrl(boolean skipDefaultPromptValues) {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(getBaseUrl().toString()).newBuilder();
+        Hashtable<String, String> queryParams = getQueryParams(skipDefaultPromptValues);
         for (String key : queryParams.keySet()) {
-            urlBuilder.addQueryParameter(key, queryParams.get(key));
+            QueryPrompt prompt = userInputDisplays.get(key);
+            if (prompt != null && prompt.isSelect()) {
+                String[] selectedChoices = RemoteQuerySessionManager.extractSelectChoices(queryParams.get(key));
+                for (String selectedChoice : selectedChoices) {
+                    urlBuilder.addQueryParameter(key, selectedChoice);
+                }
+            } else {
+                urlBuilder.addQueryParameter(key, queryParams.get(key));
+            }
         }
         return urlBuilder.build().toString();
     }
 
 
     private InputStream makeQueryRequestReturnStream() {
-        String url = buildUrl(getBaseUrl().toString(), getQueryParams(false));
+        String url = buildUrl(false);
         String credential = Credentials.basic(domainedUsername, password);
 
         Request request = new Request.Builder()
@@ -126,7 +140,7 @@ public class QueryScreen extends Screen {
         }
     }
 
-    public ExternalDataInstance buildExternalDataInstance(TreeElement root){
+    public ExternalDataInstance buildExternalDataInstance(TreeElement root) {
         return remoteQuerySessionManager.buildExternalDataInstance(root);
     }
 
@@ -143,15 +157,17 @@ public class QueryScreen extends Screen {
 
             // If select question, we should have got an index as the answer which should
             // be converted to the corresponding value
-            if (queryPrompt.isSelectOne() && !answer.isEmpty()) {
-                int choiceIndex = Integer.parseInt(answer);
+            if (queryPrompt.isSelect() && !answer.isEmpty()) {
                 Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
-                if (choiceIndex < selectChoices.size()) {
-                    answer = selectChoices.get(choiceIndex).getValue();
-                } else {
-                    // answer is no longer a valid choice, so clear it out
-                    answer = "";
+                String[] indicesOfSelectedChoices = RemoteQuerySessionManager.extractSelectChoices(answer);
+                ArrayList<String> selectedChoices = new ArrayList<>(indicesOfSelectedChoices.length);
+                for (int i = 0; i < indicesOfSelectedChoices.length; i++) {
+                    int choiceIndex = Integer.parseInt(indicesOfSelectedChoices[i]);
+                    if(choiceIndex < selectChoices.size() && choiceIndex > -1){
+                        selectedChoices.add(selectChoices.get(choiceIndex).getValue());
+                    }
                 }
+                answer = String.join(RemoteQuerySessionManager.MULTI_SELECT_DELIMITER, selectedChoices);
             }
             remoteQuerySessionManager.answerUserPrompt(key, answer);
         }

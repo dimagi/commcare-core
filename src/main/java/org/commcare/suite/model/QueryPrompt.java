@@ -21,8 +21,6 @@ import javax.annotation.Nullable;
 // Model for <prompt> node in {@link
 public class QueryPrompt implements Externalizable {
 
-    public static final CharSequence INPUT_TYPE_SELECT1 = "select1";
-
     private String key;
 
     @Nullable
@@ -123,25 +121,11 @@ public class QueryPrompt implements Externalizable {
         return defaultValueExpr;
     }
 
-    public boolean isSelectOne() {
-        return input != null && input.contentEquals(INPUT_TYPE_SELECT1);
-    }
-
-    public Pair<String[], Integer> getItemsetChoicesWithAnswerIndex(String currentAnswer) {
-        int answerIndex = -1;
-        if (itemsetBinding != null) {
-            Vector<SelectChoice> selectChoices = itemsetBinding.getChoices();
-            String[] choices = new String[selectChoices.size()];
-            for (int i = 0; i < selectChoices.size(); i++) {
-                SelectChoice selectChoice = selectChoices.get(i);
-                choices[i] = selectChoice.getLabelInnerText();
-                if (selectChoice.getValue().contentEquals(currentAnswer)) {
-                    answerIndex = i;
-                }
-            }
-            return new Pair<>(choices, answerIndex);
-        }
-        return new Pair<>(null, answerIndex);
+    /**
+     * @return whether the prompt has associated choices to select from
+     */
+    public boolean isSelect() {
+        return getItemsetBinding() != null;
     }
 
 }
