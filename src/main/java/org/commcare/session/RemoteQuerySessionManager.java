@@ -5,7 +5,7 @@ import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
-import org.javarosa.core.model.SelectChoice;
+import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
@@ -27,9 +27,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Vector;
-
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
 /**
  * Manager for remote query datums; get/answer user prompts and build
@@ -38,6 +35,9 @@ import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class RemoteQuerySessionManager {
+    // used to parse multi-select choices
+    public static final String MULTI_SELECT_DELIMITER = "#,#";
+
     private final RemoteQueryDatum queryDatum;
     private final EvaluationContext evaluationContext;
     private final Hashtable<String, String> userAnswers =
@@ -58,6 +58,7 @@ public class RemoteQuerySessionManager {
         for (Enumeration en = queryPrompts.keys(); en.hasMoreElements(); ) {
             String promptId = (String)en.nextElement();
             QueryPrompt prompt = queryPrompts.get(promptId);
+
             if (isPromptSupported(prompt)) {
                 String defaultValue = "";
                 if (prompt.getDefaultValueExpr() != null) {
@@ -65,6 +66,7 @@ public class RemoteQuerySessionManager {
                 }
                 userAnswers.put(prompt.getKey(), defaultValue);
             }
+
         }
     }
 
@@ -106,7 +108,6 @@ public class RemoteQuerySessionManager {
     }
 
     /**
-     *
      * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
      * @return filters to be applied to case search uri as query params
      */
@@ -119,7 +120,7 @@ public class RemoteQuerySessionManager {
             params.put(key, evaluatedExpr);
         }
 
-        if(!skipDefaultPromptValues) {
+        if (!skipDefaultPromptValues) {
             for (Enumeration e = userAnswers.keys(); e.hasMoreElements(); ) {
                 String key = (String)e.nextElement();
                 String value = userAnswers.get(key);
@@ -152,6 +153,13 @@ public class RemoteQuerySessionManager {
         return new Pair<>(ExternalDataInstance.buildFromRemote(queryDatum.getDataId(), root, queryDatum.useCaseTemplate()), "");
     }
 
+    /**
+     * @return Data instance built from xml root or the error message raised during parsing
+     */
+    public ExternalDataInstance buildExternalDataInstance(TreeElement root) {
+        return ExternalDataInstance.buildFromRemote(queryDatum.getDataId(), root, queryDatum.useCaseTemplate());
+    }
+
     public void populateItemSetChoices(QueryPrompt queryPrompt) {
         EvaluationContext evalContextWithAnswers = evaluationContext.spawnWithCleanLifecycle();
         evalContextWithAnswers.setVariables(userAnswers);
@@ -172,15 +180,19 @@ public class RemoteQuerySessionManager {
             for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
                 String promptId = (String)en.nextElement();
                 QueryPrompt queryPrompt = userInputDisplays.get(promptId);
-                if (queryPrompt.getInput() != null && queryPrompt.getInput().contentEquals(INPUT_TYPE_SELECT1)) {
+                if (queryPrompt.isSelect()) {
                     String answer = userAnswers.get(promptId);
                     populateItemSetChoices(queryPrompt);
-                    Vector<SelectChoice> items = queryPrompt.getItemsetBinding().getChoices();
-                    if (!checkForValidSelectValue(items, answer)) {
-                        // if it's not a valid select value, blank it out
-                        userAnswers.put(promptId, "");
-                        dirty = true;
+                    String[] selectedChoices = extractSelectChoices(answer);
+                    ArrayList<String> validSelectedChoices = new ArrayList<>();
+                    for (String selectedChoice : selectedChoices) {
+                        if (checkForValidSelectValue(queryPrompt.getItemsetBinding(), selectedChoice)) {
+                            validSelectedChoices.add(selectedChoice);
+                        } else {
+                            dirty = true;
+                        }
                     }
+                    userAnswers.put(promptId, String.join(RemoteQuerySessionManager.MULTI_SELECT_DELIMITER, validSelectedChoices));
                 }
             }
             index++;
@@ -192,20 +204,24 @@ public class RemoteQuerySessionManager {
     }
 
     // checks if @param{value} is one of the select choices give in @param{items}
-    private boolean checkForValidSelectValue(Vector<SelectChoice> items, String value) {
+    private boolean checkForValidSelectValue(ItemsetBinding itemsetBinding, String value) {
         // blank is always a valid choice
         if (StringUtils.isEmpty(value)) {
             return true;
         }
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).getValue().contentEquals(value)) {
-                return true;
-            }
-        }
-        return false;
+        return ItemSetUtils.getIndexOf(itemsetBinding, value) != -1;
     }
 
     public boolean doDefaultSearch() {
         return queryDatum.doDefaultSearch();
+    }
+
+    // Converts a string containing space separated list of select choices
+    // into a string array of individual choices
+    public static String[] extractSelectChoices(String answer) {
+        if (answer == null) {
+            return new String[]{};
+        }
+        return answer.split(MULTI_SELECT_DELIMITER);
     }
 }

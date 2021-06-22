@@ -7,6 +7,7 @@ import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.QueryPrompt;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.core.util.OrderedHashtable;
@@ -28,7 +29,9 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATE;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_ADDRESS;
 
 /**
  * Screen that displays user configurable entry texts and makes
@@ -39,7 +42,7 @@ import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATE;
 public class QueryScreen extends Screen {
 
     private RemoteQuerySessionManager remoteQuerySessionManager;
-    private OrderedHashtable<String, QueryPrompt> userInputDisplays;
+    protected OrderedHashtable<String, QueryPrompt> userInputDisplays;
     private SessionWrapper sessionWrapper;
     private String[] fields;
     private String mTitle;
@@ -84,24 +87,40 @@ public class QueryScreen extends Screen {
         }
     }
 
+    // Formplayer List of Supported prompts
     private ArrayList<String> getSupportedPrompts() {
         ArrayList<String> supportedPrompts = new ArrayList<>();
         supportedPrompts.add(INPUT_TYPE_SELECT1);
-        supportedPrompts.add(INPUT_TYPE_DATE);
+        supportedPrompts.add(INPUT_TYPE_SELECT);
+        supportedPrompts.add(INPUT_TYPE_DATERANGE);
+        supportedPrompts.add(INPUT_TYPE_ADDRESS);
         return supportedPrompts;
     }
 
-    private static String buildUrl(String baseUrl, Hashtable<String, String> queryParams) {
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
+    /**
+     * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
+     * @return case search url with search prompt values
+     */
+    public String buildUrl(boolean skipDefaultPromptValues) {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(getBaseUrl().toString()).newBuilder();
+        Hashtable<String, String> queryParams = getQueryParams(skipDefaultPromptValues);
         for (String key : queryParams.keySet()) {
-            urlBuilder.addQueryParameter(key, queryParams.get(key));
+            QueryPrompt prompt = userInputDisplays.get(key);
+            if (prompt != null && prompt.isSelect()) {
+                String[] selectedChoices = RemoteQuerySessionManager.extractSelectChoices(queryParams.get(key));
+                for (String selectedChoice : selectedChoices) {
+                    urlBuilder.addQueryParameter(key, selectedChoice);
+                }
+            } else {
+                urlBuilder.addQueryParameter(key, queryParams.get(key));
+            }
         }
         return urlBuilder.build().toString();
     }
 
 
     private InputStream makeQueryRequestReturnStream() {
-        String url = buildUrl(getBaseUrl().toString(), getQueryParams(false));
+        String url = buildUrl(false);
         String credential = Credentials.basic(domainedUsername, password);
 
         Request request = new Request.Builder()
@@ -117,24 +136,27 @@ public class QueryScreen extends Screen {
         }
     }
 
-    public boolean processResponse(InputStream responseData) {
+    public Pair<ExternalDataInstance, String> processResponse(InputStream responseData) {
         if (responseData == null) {
             currentMessage = "Query result null.";
-            return false;
+            return new Pair<>(null, currentMessage);
         }
         Pair<ExternalDataInstance, String> instanceOrError =
                 remoteQuerySessionManager.buildExternalDataInstance(responseData);
         if (instanceOrError.first == null) {
             currentMessage = "Query response format error: " + instanceOrError.second;
-            return false;
-        } else {
-            sessionWrapper.setQueryDatum(instanceOrError.first);
-            return true;
+        }
+        return instanceOrError;
+    }
+
+    public void setQueryDatum(ExternalDataInstance dataInstance) {
+        if (dataInstance != null) {
+            sessionWrapper.setQueryDatum(dataInstance);
         }
     }
 
-    private boolean isResponseEmpty(ExternalDataInstance instance) {
-        return !instance.getRoot().hasChildren();
+    public ExternalDataInstance buildExternalDataInstance(TreeElement root) {
+        return remoteQuerySessionManager.buildExternalDataInstance(root);
     }
 
     public void answerPrompts(Hashtable<String, String> answers) {
@@ -150,18 +172,19 @@ public class QueryScreen extends Screen {
 
             // If select question, we should have got an index as the answer which should
             // be converted to the corresponding value
-            if (queryPrompt.isSelectOne() && !answer.isEmpty()) {
-                int choiceIndex = Integer.parseInt(answer);
+            if (queryPrompt.isSelect() && !answer.isEmpty()) {
                 Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
-                if (choiceIndex < selectChoices.size()) {
-                    answer = selectChoices.get(choiceIndex).getValue();
-                } else {
-                    // answer is no longer a valid choice, so clear it out
-                    answer = "";
+                String[] indicesOfSelectedChoices = RemoteQuerySessionManager.extractSelectChoices(answer);
+                ArrayList<String> selectedChoices = new ArrayList<>(indicesOfSelectedChoices.length);
+                for (int i = 0; i < indicesOfSelectedChoices.length; i++) {
+                    int choiceIndex = Integer.parseInt(indicesOfSelectedChoices[i]);
+                    if(choiceIndex < selectChoices.size() && choiceIndex > -1){
+                        selectedChoices.add(selectChoices.get(choiceIndex).getValue());
+                    }
                 }
+                answer = String.join(RemoteQuerySessionManager.MULTI_SELECT_DELIMITER, selectedChoices);
             }
             remoteQuerySessionManager.answerUserPrompt(key, answer);
-            refreshItemSetChoices();
         }
     }
 
@@ -174,7 +197,6 @@ public class QueryScreen extends Screen {
     }
 
     /**
-     *
      * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
      * @return filters to be applied to case search uri as query params
      */
@@ -210,11 +232,12 @@ public class QueryScreen extends Screen {
         }
         answerPrompts(userAnswers);
         InputStream response = makeQueryRequestReturnStream();
-        boolean refresh = processResponse(response);
+        Pair<ExternalDataInstance, String> instanceOrError = processResponse(response);
+        setQueryDatum(instanceOrError.first);
         if (currentMessage != null) {
             out.println(currentMessage);
         }
-        return refresh;
+        return instanceOrError.first != null;
     }
 
 
