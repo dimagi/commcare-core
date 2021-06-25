@@ -488,6 +488,7 @@ public class ApplicationHost {
                     SandboxUtils.extractEntityOwners(sandbox));
         } catch (InvalidCaseGraphException e) {
             printStream.println(e.getMessage());
+            return;
         }
 
         int removedCases = sandbox.getCaseStorage().removeAll(purger).size();
