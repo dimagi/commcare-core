@@ -59,9 +59,16 @@ public class CaseParseReindexTests {
     }
 
     @Test
+    public void testAddIndex() throws Exception {
+        parseAndTestForBreakage("index_disruption/case_add_index.xml", new String[] {"base_case"});
+    }
+
+    @Test
     public void testChangeIndex() throws Exception {
         parseAndTestForBreakage("index_disruption/case_change_index.xml", new String[] {"base_case"});
     }
+
+
     private void parseAndTestForBreakage(String fileName, String[] expectedDisruptedIds)
             throws Exception {
         final HashSet<String> distruptedIndexes = new HashSet<>();
