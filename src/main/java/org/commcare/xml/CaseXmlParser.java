@@ -207,6 +207,12 @@ public class CaseXmlParser extends TransactionParser<Case> {
                 case "external_id":
                     caseForBlock.setExternalId(value);
                     break;
+                case "category":
+                    caseForBlock.setCategory(value);
+                    break;
+                case "state":
+                    caseForBlock.setState(value);
+                    break;
                 default:
                     caseForBlock.setProperty(key, value);
                     break;
@@ -278,10 +284,8 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     onIndexDisrupted(caseId);
                 }
             } else {
-                if (caseForBlock.setIndex(new CaseIndex(indexName, caseType, value,
-                        relationship))) {
-                    onIndexDisrupted(caseId);
-                }
+                caseForBlock.setIndex(new CaseIndex(indexName, caseType, value, relationship));
+                onIndexDisrupted(caseId);
             }
         }
     }

@@ -3,6 +3,7 @@ package org.commcare.cases.util;
 import org.commcare.cases.query.*;
 import org.commcare.cases.query.IndexedSetMemberLookup;
 import org.commcare.cases.query.IndexedValueLookup;
+import org.commcare.cases.query.NegativeIndexedValueLookup;
 import org.commcare.cases.query.PredicateProfile;
 import org.commcare.cases.query.handlers.BasicStorageBackedCachingQueryHandler;
 import org.commcare.modern.engine.cases.RecordSetResultCache;
@@ -134,7 +135,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         for (XPathExpression xpe : predicates) {
             //what we want here is a static evaluation of the expression to see if it consists of evaluating
             //something we index with something static.
-            if (xpe instanceof XPathEqExpr && ((XPathEqExpr)xpe).op == XPathEqExpr.EQ) {
+            if (xpe instanceof XPathEqExpr) {
                 XPathExpression left = ((XPathEqExpr)xpe).a;
                 if (left instanceof XPathPathExpr) {
                     for (Enumeration en = indices.keys(); en.hasMoreElements(); ) {
@@ -146,9 +147,16 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                             //sure the best way to do that....? Maybe tell the evaluation context to skip out here if it detects a request
                             //to resolve in a certain area?
                             Object o = FunctionUtils.unpack(((XPathEqExpr)xpe).b.eval(evalContext));
-                            optimizations.addElement(new IndexedValueLookup(filterIndex, o));
-
-                            continue predicate;
+                            PredicateProfile lookup;
+                            if (((XPathEqExpr)xpe).op == XPathEqExpr.EQ) {
+                                lookup = new IndexedValueLookup(filterIndex, o);
+                                optimizations.add(lookup);
+                                continue predicate;
+                            } else if (((XPathEqExpr)xpe).op == XPathEqExpr.NEQ) {
+                                lookup = new NegativeIndexedValueLookup(filterIndex, o);
+                                optimizations.add(lookup);
+                                continue predicate;
+                            }
                         }
                     }
                 }
@@ -291,23 +299,43 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         }
 
 
-        String[] namesToMatch = new String[numKeysToProcess];
-        String[] valuesToMatch = new String[numKeysToProcess];
+        Vector<String> namesToMatch = new Vector<>();
+        Vector<String> valuesToMatch = new Vector<>();
+        Vector<String> namesToInverseMatch = new Vector<>();
+        Vector<String> valuesToInverseMatch = new Vector<>();
 
         String cacheKey = "";
         String keyDescription ="";
 
         for (int i = numKeysToProcess - 1; i >= 0; i--) {
-            namesToMatch[i] = profiles.elementAt(i).getKey();
-            valuesToMatch[i] = (String)
-                    (((IndexedValueLookup)profiles.elementAt(i)).value);
-
-            cacheKey += "|" + namesToMatch[i] + "=" + valuesToMatch[i];
-            keyDescription += namesToMatch[i] + "|";
+            String name = "";
+            String value = "";
+            String operator = "";
+            if (profiles.elementAt(i) instanceof IndexedValueLookup) {
+                name = profiles.elementAt(i).getKey();
+                value = (String)(((IndexedValueLookup)profiles.elementAt(i)).value);
+                namesToMatch.add(name);
+                valuesToMatch.add(value);
+                operator = "=";
+            } else if (profiles.elementAt(i) instanceof NegativeIndexedValueLookup) {
+                name = profiles.elementAt(i).getKey();
+                value = (String)(((NegativeIndexedValueLookup)profiles.elementAt(i)).value);
+                namesToInverseMatch.add(name);
+                valuesToInverseMatch.add(value);
+                operator = "!=";                
+            }
+            cacheKey += "|" + name + operator + value;
+            keyDescription += name + "|";
         }
-        mMostRecentBatchFetch = new String[2][];
-        mMostRecentBatchFetch[0] = namesToMatch;
-        mMostRecentBatchFetch[1] = valuesToMatch;
+        String[] namesArray = namesToMatch.toArray(new String[namesToMatch.size()]);
+        String[] valuesArray = valuesToMatch.toArray(new String[valuesToMatch.size()]);
+        String[] inverseNames = namesToInverseMatch.toArray(new String[namesToInverseMatch.size()]);
+        String[] inverseValues = valuesToInverseMatch.toArray(new String[valuesToInverseMatch.size()]);
+        mMostRecentBatchFetch = new String[4][];
+        mMostRecentBatchFetch[0] = namesArray;
+        mMostRecentBatchFetch[1] = valuesArray;
+        mMostRecentBatchFetch[2] = inverseNames;
+        mMostRecentBatchFetch[3] = inverseValues;
 
         String storageTreeName = this.getStorageCacheName();
 
@@ -317,7 +345,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         } else {
             EvaluationTrace trace = new EvaluationTrace(String.format("Storage [%s] Key Lookup [%s]", storageTreeName, keyDescription));
             ids = new LinkedHashSet<>();
-            storage.getIDsForValues(namesToMatch, valuesToMatch, ids);
+            storage.getIDsForValues(namesArray, valuesArray, inverseNames, inverseValues, ids);
             trace.setOutcome("Results: " + ids.size());
             currentQueryContext.reportTrace(trace);
 
@@ -350,7 +378,8 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         //Otherwise see how many of these we can bulk process
         for (int i = 0; i < profiles.size(); ++i) {
             //If the current key isn't an indexedvalue lookup, we can't process in this step
-            if (!(profiles.elementAt(i) instanceof IndexedValueLookup)) {
+            if (!(profiles.elementAt(i) instanceof IndexedValueLookup ||
+                  profiles.elementAt(i) instanceof NegativeIndexedValueLookup)) {
                 break;
             }
 

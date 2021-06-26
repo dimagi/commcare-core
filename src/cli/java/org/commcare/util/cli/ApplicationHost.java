@@ -1,6 +1,7 @@
 package org.commcare.util.cli;
 
 import org.commcare.cases.util.CasePurgeFilter;
+import org.commcare.cases.util.InvalidCaseGraphException;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
@@ -481,8 +482,14 @@ public class ApplicationHost {
 
     public void performCasePurge(UserSandbox sandbox) {
         printStream.println("Performing Case Purge");
-        CasePurgeFilter purger = new CasePurgeFilter(sandbox.getCaseStorage(),
-                SandboxUtils.extractEntityOwners(sandbox));
+        CasePurgeFilter purger = null;
+        try {
+            purger = new CasePurgeFilter(sandbox.getCaseStorage(),
+                    SandboxUtils.extractEntityOwners(sandbox));
+        } catch (InvalidCaseGraphException e) {
+            printStream.println(e.getMessage());
+            return;
+        }
 
         int removedCases = sandbox.getCaseStorage().removeAll(purger).size();
 
