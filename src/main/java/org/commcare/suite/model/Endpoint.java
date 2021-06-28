@@ -58,7 +58,7 @@ public class Endpoint implements Externalizable {
 
 
     // Utility Functions
-    public static void populateEndpointArgumentsToEvaluaionContext(Endpoint endpoint, ArrayList<String> args, EvaluationContext evaluationContext) {
+    public static void populateEndpointArgumentsToEvaluationContext(Endpoint endpoint, ArrayList<String> args, EvaluationContext evaluationContext) {
         Vector<String> endpointArguments = endpoint.getArguments();
 
         if (endpointArguments.size() > args.size()) {
@@ -71,7 +71,7 @@ public class Endpoint implements Externalizable {
         }
     }
 
-    public static void populateEndpointArgumentsToEvaluaionContext(Endpoint endpoint, HashMap<String, String> args, EvaluationContext evaluationContext) {
+    public static void populateEndpointArgumentsToEvaluationContext(Endpoint endpoint, HashMap<String, String> args, EvaluationContext evaluationContext) {
         Vector<String> endpointArguments = endpoint.getArguments();
 
         if (endpointArguments.size() > args.size()) {
