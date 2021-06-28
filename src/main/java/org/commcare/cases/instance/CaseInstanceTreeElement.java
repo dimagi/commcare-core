@@ -26,6 +26,8 @@ import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.Vector;
 
+import javax.annotation.Nullable;
+
 import sun.rmi.runtime.Log;
 
 /**
@@ -52,11 +54,18 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<Case, Ca
 
 
     private final Hashtable<Integer, Integer> multiplicityIdMapping = new Hashtable<>();
+
+    @Nullable
     private final CaseIndexTable caseIndexTable;
 
     //We're storing this here for now because this is a safe lifecycle object that must represent
     //a single snapshot of the case database, but it could be generalized later.
     private Hashtable<String, LinkedHashSet<Integer>> mIndexCache = new Hashtable<>();
+
+    public CaseInstanceTreeElement(AbstractTreeElement instanceRoot,
+                                   IStorageUtilityIndexed<Case> storage){
+        this(instanceRoot, storage, null);
+    }
 
     public CaseInstanceTreeElement(AbstractTreeElement instanceRoot,
                                    IStorageUtilityIndexed<Case> storage, CaseIndexTable caseIndexTable) {
