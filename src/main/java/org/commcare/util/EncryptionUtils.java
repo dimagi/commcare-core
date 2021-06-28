@@ -18,11 +18,11 @@ import javax.crypto.spec.SecretKeySpec;
 public class EncryptionUtils {
 
     /**
-     * Encrypts a message using the AES encryption
+     * Encrypts a message using the AES encryption and produces a base64 encoded payload containing the ciphertext, and a random IV which was used to encrypt the input.
      *
-     * @param message a message to be encrypted
-     * @param key     the key used for encryption
-     * @return AES encrypted message using the given key
+     * @param message a UTF-8 encoded message to be encrypted 
+     * @param key     A base64 encoded 256 bit symmetric key
+     * @return A base64 encoded payload containing the IV and AES encrypted ciphertext, which can be decoded by this utility's decrypt method and the same symmetric key
      */
     public static String encrypt(String message, String key) throws EncryptionException {
         final String ENCRYPT_ALGO = "AES/GCM/NoPadding";
@@ -69,7 +69,7 @@ public class EncryptionUtils {
     }
 
     /**
-     * Decrypts a message encoded with the AES encryption
+     * Decrypts a base64 payload containing an IV and AES encrypted ciphertext using the provided key
      *
      * @param message a message to be decrypted
      * @param key     key that should be used for decryption
