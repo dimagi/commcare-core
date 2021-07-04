@@ -13,6 +13,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import javax.annotation.Nullable;
+
 /**
  * Contains all of the fully-evaluated data to draw a graph: a type, set of series, set of text annotations, and key-value map of configuration.
  *
@@ -23,6 +25,9 @@ public class GraphData implements ConfigurableData {
     private final Vector<SeriesData> mSeries;
     private final Hashtable<String, String> mConfiguration;
     private final Vector<AnnotationData> mAnnotations;
+
+    @Nullable
+    private String largestXLabel;
 
     public GraphData() {
         mSeries = new Vector<>();
@@ -52,6 +57,15 @@ public class GraphData implements ConfigurableData {
 
     public Vector<AnnotationData> getAnnotations() {
         return mAnnotations;
+    }
+
+    @Nullable
+    public String getLargestXLabel() {
+        return largestXLabel;
+    }
+
+    public void setLargestXLabel(@Nullable String largestXLabel) {
+        this.largestXLabel = largestXLabel;
     }
 
     @Override
