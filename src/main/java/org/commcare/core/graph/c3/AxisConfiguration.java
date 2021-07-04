@@ -35,8 +35,7 @@ public class AxisConfiguration extends Configuration {
         mConfiguration.put("y2", y2);
 
         // Bar graphs may be rotated. C3 defaults to vertical bars.
-        if (mData.getType().equals(GraphUtil.TYPE_BAR)
-                && !mData.getConfiguration("bar-orientation", "horizontal").equalsIgnoreCase("vertical")) {
+        if (isRotatedBarGraph) {
             mConfiguration.put("rotated", true);
         }
     }
@@ -133,9 +132,6 @@ public class AxisConfiguration extends Configuration {
                     usingCustomText = true;
                     // These custom labels can be large, rotating them ensures that they're shown correctly on X axis.
                     height = StringWidthUtil.getStringWidth(largestLabel);
-                    if (isX && largestLabel.length() > 5 && height != -1) {
-                        tick.put("rotate", 75);
-                    }
                 } catch (JSONException e) {
                     // Assume labelString is just a scalar, which
                     // represents the number of labels the user wants.
@@ -162,11 +158,19 @@ public class AxisConfiguration extends Configuration {
             }
         }
 
+        if ((isX && !isRotatedBarGraph) || (isRotatedBarGraph && key.startsWith("y"))) {
+            String largestLabel = mData.getLargestXLabel();
+            if (largestLabel != null && !largestLabel.isEmpty()) {
+                int largestHeight = StringWidthUtil.getStringWidth(largestLabel);
+                if (height < largestHeight) {
+                    height = largestHeight;
+                }
+            }
+            tick.put("rotate", 75);
+            axis.put("height", height);
+        }
         if (tick.length() > 0) {
             axis.put("tick", tick);
-            if (isX && height != -1) {
-                axis.put("height", height);
-            }
         }
     }
 
@@ -187,7 +191,7 @@ public class AxisConfiguration extends Configuration {
 
         // Show title regardless of whether or not it exists, to give all graphs consistent padding
         JSONObject label = new JSONObject();
-        label.put("text", title);
+        label.put("text", "title, rad");
         label.put("position", position);
         axis.put("label", label);
     }
