@@ -35,8 +35,7 @@ public class AxisConfiguration extends Configuration {
         mConfiguration.put("y2", y2);
 
         // Bar graphs may be rotated. C3 defaults to vertical bars.
-        if (mData.getType().equals(GraphUtil.TYPE_BAR)
-                && !mData.getConfiguration("bar-orientation", "horizontal").equalsIgnoreCase("vertical")) {
+        if (isRotatedBarGraph) {
             mConfiguration.put("rotated", true);
         }
     }
@@ -87,7 +86,7 @@ public class AxisConfiguration extends Configuration {
         JSONObject tick = new JSONObject();
         boolean usingCustomText = false;
         boolean isX = key.startsWith("x");
-        int height = -1;
+        int largestHeight = -1;
 
         mVariables.put(varName, "{}");
         if (labelString != null) {
@@ -132,10 +131,7 @@ public class AxisConfiguration extends Configuration {
                     mVariables.put(varName, labels.toString());
                     usingCustomText = true;
                     // These custom labels can be large, rotating them ensures that they're shown correctly on X axis.
-                    height = StringWidthUtil.getStringWidth(largestLabel);
-                    if (isX && largestLabel.length() > 5 && height != -1) {
-                        tick.put("rotate", 75);
-                    }
+                    largestHeight = StringWidthUtil.getStringWidth(largestLabel);
                 } catch (JSONException e) {
                     // Assume labelString is just a scalar, which
                     // represents the number of labels the user wants.
@@ -162,11 +158,19 @@ public class AxisConfiguration extends Configuration {
             }
         }
 
+        if ((isX && !isRotatedBarGraph) || (isRotatedBarGraph && key.startsWith("y"))) {
+            String largestLabel = mData.getLargestXLabel();
+            if (largestLabel != null && !largestLabel.isEmpty()) {
+                int height = StringWidthUtil.getStringWidth(largestLabel);
+                if (height > largestHeight) {
+                    largestHeight = height;
+                }
+            }
+            tick.put("rotate", 75);
+            axis.put("height", largestHeight);
+        }
         if (tick.length() > 0) {
             axis.put("tick", tick);
-            if (isX && height != -1) {
-                axis.put("height", height);
-            }
         }
     }
 
