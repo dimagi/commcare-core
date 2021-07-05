@@ -191,7 +191,7 @@ public class AxisConfiguration extends Configuration {
 
         // Show title regardless of whether or not it exists, to give all graphs consistent padding
         JSONObject label = new JSONObject();
-        label.put("text", "title, rad");
+        label.put("text", title);
         label.put("position", position);
         axis.put("label", label);
     }
