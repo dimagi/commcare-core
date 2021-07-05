@@ -86,7 +86,7 @@ public class AxisConfiguration extends Configuration {
         JSONObject tick = new JSONObject();
         boolean usingCustomText = false;
         boolean isX = key.startsWith("x");
-        int height = -1;
+        int largestHeight = -1;
 
         mVariables.put(varName, "{}");
         if (labelString != null) {
@@ -131,7 +131,7 @@ public class AxisConfiguration extends Configuration {
                     mVariables.put(varName, labels.toString());
                     usingCustomText = true;
                     // These custom labels can be large, rotating them ensures that they're shown correctly on X axis.
-                    height = StringWidthUtil.getStringWidth(largestLabel);
+                    largestHeight = StringWidthUtil.getStringWidth(largestLabel);
                 } catch (JSONException e) {
                     // Assume labelString is just a scalar, which
                     // represents the number of labels the user wants.
@@ -161,13 +161,13 @@ public class AxisConfiguration extends Configuration {
         if ((isX && !isRotatedBarGraph) || (isRotatedBarGraph && key.startsWith("y"))) {
             String largestLabel = mData.getLargestXLabel();
             if (largestLabel != null && !largestLabel.isEmpty()) {
-                int largestHeight = StringWidthUtil.getStringWidth(largestLabel);
-                if (height < largestHeight) {
-                    height = largestHeight;
+                int height = StringWidthUtil.getStringWidth(largestLabel);
+                if (height > largestHeight) {
+                    largestHeight = height;
                 }
             }
             tick.put("rotate", 75);
-            axis.put("height", height);
+            axis.put("height", largestHeight);
         }
         if (tick.length() > 0) {
             axis.put("tick", tick);

@@ -378,7 +378,7 @@ public class DataConfiguration extends Configuration {
                     if (!isRotatedBarGraph) {
                         currentXLabelStr = p.getX();
                     }
-                    mBarLabels.put(currentXLabelStr);
+                    mBarLabels.put(p.getX());
                 }
             } else {
                 if (mData.getType().equals(GraphUtil.TYPE_TIME)) {
