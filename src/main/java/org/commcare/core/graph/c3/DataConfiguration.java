@@ -387,11 +387,11 @@ public class DataConfiguration extends Configuration {
                 } else {
                     double val = parseDouble(p.getX(), description);
                     xValues.put(val);
-                    currentXLabelStr = "" + val;
+                    currentXLabelStr = String.valueOf(val);
                 }
             }
             if (isRotatedBarGraph) {
-                currentXLabelStr = "" + parseDouble(p.getY(), description);
+                currentXLabelStr = String.valueOf(parseDouble(p.getY(), description));
             }
             if (currentXLabelStr.length() > largestLabel.length()) {
                 largestLabel = currentXLabelStr;
