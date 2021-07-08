@@ -382,8 +382,9 @@ public class DataConfiguration extends Configuration {
                 }
             } else {
                 if (mData.getType().equals(GraphUtil.TYPE_TIME)) {
-                    currentXLabelStr = parseTime(p.getX(), description);
-                    xValues.put(currentXLabelStr);
+                    String time = parseTime(p.getX(), description); // c3 needs YYYY-MM-DD HH:MM:SS format
+                    currentXLabelStr = time.split(" ")[0]; // On graph we only show YYYY-MM-DD
+                    xValues.put(time);
                 } else {
                     double val = parseDouble(p.getX(), description);
                     xValues.put(val);
