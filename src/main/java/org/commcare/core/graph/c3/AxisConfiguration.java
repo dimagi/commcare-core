@@ -158,7 +158,7 @@ public class AxisConfiguration extends Configuration {
             }
         }
 
-        if ((isX && !isRotatedBarGraph) || (isRotatedBarGraph && key.startsWith("y"))) {
+        if (isX && !isRotatedBarGraph) {
             String largestLabel = mData.getLargestXLabel();
             if (largestLabel != null && !largestLabel.isEmpty()) {
                 int height = StringWidthUtil.getStringWidth(largestLabel);
@@ -168,6 +168,9 @@ public class AxisConfiguration extends Configuration {
             }
             tick.put("rotate", 75);
             axis.put("height", largestHeight);
+        } else if (isRotatedBarGraph && key.startsWith("y")) {
+            // For rotated bar graph, we will show the label inside the graph so no need to set height
+            tick.put("rotate", 75);
         }
         if (tick.length() > 0) {
             axis.put("tick", tick);
@@ -219,7 +222,12 @@ public class AxisConfiguration extends Configuration {
         // Undo C3's automatic axis padding
         config.put("padding", new JSONObject("{top: 0, right: 0, bottom: 0, left: 0}"));
 
-        addTitle(config, prefix + "-title", isX ? "outer-center" : "outer-middle");
+
+        if (isRotatedBarGraph && prefix.startsWith("y")) {
+            addTitle(config, prefix + "-title", "inner-right");
+        } else {
+            addTitle(config, prefix + "-title", isX ? "outer-center" : "outer-middle");
+        }
 
         addBounds(config, prefix);
 
