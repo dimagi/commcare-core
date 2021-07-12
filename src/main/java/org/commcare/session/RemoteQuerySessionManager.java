@@ -1,5 +1,8 @@
 package org.commcare.session;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import org.commcare.cases.util.StringUtils;
 import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.QueryPrompt;
@@ -101,13 +104,14 @@ public class RemoteQuerySessionManager {
      * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
      * @return filters to be applied to case search uri as query params
      */
-    public Hashtable<String, String> getRawQueryParams(boolean skipDefaultPromptValues) {
-        Hashtable<String, String> params = new Hashtable<>();
-        Hashtable<String, XPathExpression> hiddenQueryValues = queryDatum.getHiddenQueryValues();
-        for (Enumeration e = hiddenQueryValues.keys(); e.hasMoreElements(); ) {
-            String key = (String)e.nextElement();
-            String evaluatedExpr = evalXpathExpression(hiddenQueryValues.get(key), evaluationContext);
-            params.put(key, evaluatedExpr);
+    public Multimap<String, String> getRawQueryParams(boolean skipDefaultPromptValues) {
+        Multimap<String, String> params = ArrayListMultimap.create();
+        Multimap<String, XPathExpression> hiddenQueryValues = queryDatum.getHiddenQueryValues();
+        for (String key : hiddenQueryValues.keySet()) {
+            for (XPathExpression xpathExpression : hiddenQueryValues.get(key)) {
+                String evaluatedExpr = evalXpathExpression(xpathExpression, evaluationContext);
+                params.put(key, evaluatedExpr);
+            }
         }
 
         if (!skipDefaultPromptValues) {
