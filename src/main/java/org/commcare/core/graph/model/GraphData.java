@@ -5,6 +5,7 @@ import org.commcare.core.graph.c3.AxisConfiguration;
 import org.commcare.core.graph.c3.DataConfiguration;
 import org.commcare.core.graph.c3.GridConfiguration;
 import org.commcare.core.graph.c3.LegendConfiguration;
+import org.commcare.core.graph.util.GraphUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -99,6 +100,10 @@ public class GraphData implements ConfigurableData {
 
             variables.put("type", "'" + this.getType() + "'");
             variables.put("config", config.toString());
+
+            if (GraphUtil.getLabelCharacterLimit() != -1) {
+                variables.put("characterLimit", String.valueOf(GraphUtil.getLabelCharacterLimit()));
+            }
 
             // For debugging purposes, note that most minified files have un-minified equivalents in the same directory.
             // To use them, switch affix to "max" and get rid of the ignoreAssetsPattern in build.gradle that
