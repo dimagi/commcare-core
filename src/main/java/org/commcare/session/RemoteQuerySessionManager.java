@@ -118,8 +118,10 @@ public class RemoteQuerySessionManager {
             for (Enumeration e = userAnswers.keys(); e.hasMoreElements(); ) {
                 String key = (String)e.nextElement();
                 String value = userAnswers.get(key);
-                if (!StringUtils.isEmpty(value)) {
-                    params.put(key, userAnswers.get(key));
+                if (!(params.containsKey(key) && params.get(key).contains(value))) {
+                    if (!StringUtils.isEmpty(value)) {
+                        params.put(key, userAnswers.get(key));
+                    }
                 }
             }
         }
