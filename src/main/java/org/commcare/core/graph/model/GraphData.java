@@ -26,9 +26,6 @@ public class GraphData implements ConfigurableData {
     private final Hashtable<String, String> mConfiguration;
     private final Vector<AnnotationData> mAnnotations;
 
-    @Nullable
-    private String largestXLabel;
-
     public GraphData() {
         mSeries = new Vector<>();
         mConfiguration = new Hashtable<>();
@@ -57,15 +54,6 @@ public class GraphData implements ConfigurableData {
 
     public Vector<AnnotationData> getAnnotations() {
         return mAnnotations;
-    }
-
-    @Nullable
-    public String getLargestXLabel() {
-        return largestXLabel;
-    }
-
-    public void setLargestXLabel(@Nullable String largestXLabel) {
-        this.largestXLabel = largestXLabel;
     }
 
     @Override
