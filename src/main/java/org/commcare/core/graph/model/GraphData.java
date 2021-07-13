@@ -5,6 +5,7 @@ import org.commcare.core.graph.c3.AxisConfiguration;
 import org.commcare.core.graph.c3.DataConfiguration;
 import org.commcare.core.graph.c3.GridConfiguration;
 import org.commcare.core.graph.c3.LegendConfiguration;
+import org.commcare.core.graph.util.GraphUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -25,9 +26,6 @@ public class GraphData implements ConfigurableData {
     private final Vector<SeriesData> mSeries;
     private final Hashtable<String, String> mConfiguration;
     private final Vector<AnnotationData> mAnnotations;
-
-    @Nullable
-    private String largestXLabel;
 
     public GraphData() {
         mSeries = new Vector<>();
@@ -57,15 +55,6 @@ public class GraphData implements ConfigurableData {
 
     public Vector<AnnotationData> getAnnotations() {
         return mAnnotations;
-    }
-
-    @Nullable
-    public String getLargestXLabel() {
-        return largestXLabel;
-    }
-
-    public void setLargestXLabel(@Nullable String largestXLabel) {
-        this.largestXLabel = largestXLabel;
     }
 
     @Override
@@ -111,6 +100,10 @@ public class GraphData implements ConfigurableData {
 
             variables.put("type", "'" + this.getType() + "'");
             variables.put("config", config.toString());
+
+            if (GraphUtil.getLabelCharacterLimit() != -1) {
+                variables.put("characterLimit", String.valueOf(GraphUtil.getLabelCharacterLimit()));
+            }
 
             // For debugging purposes, note that most minified files have un-minified equivalents in the same directory.
             // To use them, switch affix to "max" and get rid of the ignoreAssetsPattern in build.gradle that

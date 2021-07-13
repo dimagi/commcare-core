@@ -5,7 +5,6 @@ import org.commcare.core.graph.model.SeriesData;
 import org.commcare.core.graph.util.GraphException;
 import org.commcare.core.graph.util.GraphUtil;
 
-import org.commcare.core.graph.util.StringWidthUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -86,7 +85,6 @@ public class AxisConfiguration extends Configuration {
         JSONObject tick = new JSONObject();
         boolean usingCustomText = false;
         boolean isX = key.startsWith("x");
-        int largestHeight = -1;
 
         mVariables.put(varName, "{}");
         if (labelString != null) {
@@ -130,8 +128,6 @@ public class AxisConfiguration extends Configuration {
                     tick.put("values", values);
                     mVariables.put(varName, labels.toString());
                     usingCustomText = true;
-                    // These custom labels can be large, rotating them ensures that they're shown correctly on X axis.
-                    largestHeight = StringWidthUtil.getStringWidth(largestLabel);
                 } catch (JSONException e) {
                     // Assume labelString is just a scalar, which
                     // represents the number of labels the user wants.
@@ -158,18 +154,7 @@ public class AxisConfiguration extends Configuration {
             }
         }
 
-        if (isX && !isRotatedBarGraph) {
-            String largestLabel = mData.getLargestXLabel();
-            if (largestLabel != null && !largestLabel.isEmpty()) {
-                int height = StringWidthUtil.getStringWidth(largestLabel);
-                if (height > largestHeight) {
-                    largestHeight = height;
-                }
-            }
-            tick.put("rotate", 75);
-            axis.put("height", largestHeight);
-        } else if (isRotatedBarGraph && key.startsWith("y")) {
-            // For rotated bar graph, we will show the label inside the graph so no need to set height
+        if ((isX && !isRotatedBarGraph) || (isRotatedBarGraph && key.startsWith("y"))) {
             tick.put("rotate", 75);
         }
         if (tick.length() > 0) {

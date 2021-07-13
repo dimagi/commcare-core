@@ -358,14 +358,12 @@ public class DataConfiguration extends Configuration {
         xValues.put(xID);
         yValues.put(yID);
 
-        String largestLabel = "";
         int barIndex = 0;
         boolean addBarLabels = mData.getType().equals(GraphUtil.TYPE_BAR) && mBarLabels.length() == 1;
         JSONArray rValues = new JSONArray();
         double maxRadius = parseDouble(s.getConfiguration("max-radius", "0"), "max-radius");
         for (XYPointData p : s.getPoints()) {
             String description = "data (" + p.getX() + ", " + p.getY() + ")";
-            String currentXLabelStr = "";
             if (mData.getType().equals(GraphUtil.TYPE_BAR)) {
                 // In CommCare, bar graphs are specified with x as a set of text labels
                 // and y as a set of values. In C3, bar graphs are still basically
@@ -375,27 +373,16 @@ public class DataConfiguration extends Configuration {
                 xValues.put(barIndex + 1);
                 mBarCount = Math.max(mBarCount, barIndex + 1);
                 if (addBarLabels) {
-                    if (!isRotatedBarGraph) {
-                        currentXLabelStr = p.getX();
-                    }
                     mBarLabels.put(p.getX());
                 }
             } else {
                 if (mData.getType().equals(GraphUtil.TYPE_TIME)) {
                     String time = parseTime(p.getX(), description); // c3 needs YYYY-MM-DD HH:MM:SS format
-                    currentXLabelStr = time.split(" ")[0]; // On graph we only show YYYY-MM-DD
                     xValues.put(time);
                 } else {
                     double val = parseDouble(p.getX(), description);
                     xValues.put(val);
-                    currentXLabelStr = String.valueOf(val);
                 }
-            }
-            if (isRotatedBarGraph) {
-                currentXLabelStr = String.valueOf(parseDouble(p.getY(), description));
-            }
-            if (currentXLabelStr.length() > largestLabel.length()) {
-                largestLabel = currentXLabelStr;
             }
             yValues.put(parseDouble(p.getY(), description));
 
@@ -415,7 +402,6 @@ public class DataConfiguration extends Configuration {
             mRadii.put(yID, rValues);
             mMaxRadii.put(yID, maxRadius);
         }
-        mData.setLargestXLabel(largestLabel);
     }
 
     /**
