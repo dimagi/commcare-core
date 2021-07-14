@@ -47,11 +47,14 @@ public class RemoteQuerySessionManager {
     private final EvaluationContext evaluationContext;
     private final Hashtable<String, String> userAnswers =
             new Hashtable<>();
+    private final ArrayList<String> supportedPrompts;
 
     private RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
-                                      EvaluationContext evaluationContext) throws XPathException {
+                                      EvaluationContext evaluationContext,
+                                      ArrayList<String> supportedPrompts) throws XPathException {
         this.queryDatum = queryDatum;
         this.evaluationContext = evaluationContext;
+        this.supportedPrompts = supportedPrompts;
         initUserAnswers();
     }
 
@@ -60,14 +63,21 @@ public class RemoteQuerySessionManager {
         for (Enumeration en = queryPrompts.keys(); en.hasMoreElements(); ) {
             String promptId = (String)en.nextElement();
             QueryPrompt prompt = queryPrompts.get(promptId);
-            if (prompt.getDefaultValueExpr() != null) {
-                userAnswers.put(prompt.getKey(), FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext)));
+
+            if (isPromptSupported(prompt)) {
+                String defaultValue = "";
+                if (prompt.getDefaultValueExpr() != null) {
+                    defaultValue = FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext));
+                }
+                userAnswers.put(prompt.getKey(), defaultValue);
             }
+
         }
     }
 
     public static RemoteQuerySessionManager buildQuerySessionManager(CommCareSession session,
-                                                                     EvaluationContext sessionContext) throws XPathException {
+                                                                     EvaluationContext sessionContext,
+                                                                     ArrayList<String> supportedPrompts) throws XPathException {
         SessionDatum datum;
         try {
             datum = session.getNeededDatum();
@@ -76,7 +86,7 @@ public class RemoteQuerySessionManager {
             return null;
         }
         if (datum instanceof RemoteQueryDatum) {
-            return new RemoteQuerySessionManager((RemoteQueryDatum)datum, sessionContext);
+            return new RemoteQuerySessionManager((RemoteQueryDatum)datum, sessionContext, supportedPrompts);
         } else {
             return null;
         }
@@ -208,6 +218,10 @@ public class RemoteQuerySessionManager {
             }
             index++;
         }
+    }
+
+    public boolean isPromptSupported(QueryPrompt queryPrompt) {
+        return queryPrompt.getInput() == null || supportedPrompts.indexOf(queryPrompt.getInput()) != -1;
     }
 
     // checks if @param{value} is one of the select choices give in @param{items}

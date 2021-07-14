@@ -284,10 +284,8 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     onIndexDisrupted(caseId);
                 }
             } else {
-                if (caseForBlock.setIndex(new CaseIndex(indexName, caseType, value,
-                        relationship))) {
-                    onIndexDisrupted(caseId);
-                }
+                caseForBlock.setIndex(new CaseIndex(indexName, caseType, value, relationship));
+                onIndexDisrupted(caseId);
             }
         }
     }
