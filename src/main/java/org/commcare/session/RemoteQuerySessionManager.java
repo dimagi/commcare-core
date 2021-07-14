@@ -64,12 +64,8 @@ public class RemoteQuerySessionManager {
             String promptId = (String)en.nextElement();
             QueryPrompt prompt = queryPrompts.get(promptId);
 
-            if (isPromptSupported(prompt)) {
-                String defaultValue = "";
-                if (prompt.getDefaultValueExpr() != null) {
-                    defaultValue = FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext));
-                }
-                userAnswers.put(prompt.getKey(), defaultValue);
+            if (isPromptSupported(prompt) && prompt.getDefaultValueExpr() != null) {
+                userAnswers.put(prompt.getKey(), FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext)));
             }
 
         }
