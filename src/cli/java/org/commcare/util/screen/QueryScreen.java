@@ -30,6 +30,11 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_ADDRESS;
+
 /**
  * Screen that displays user configurable entry texts and makes
  * a case query to the server with these fields.
@@ -63,7 +68,7 @@ public class QueryScreen extends Screen {
         this.sessionWrapper = sessionWrapper;
         remoteQuerySessionManager =
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper,
-                        sessionWrapper.getEvaluationContext());
+                        sessionWrapper.getEvaluationContext(), getSupportedPrompts());
 
         if (remoteQuerySessionManager == null) {
             throw new CommCareSessionException(String.format("QueryManager for case " +
@@ -82,6 +87,16 @@ public class QueryScreen extends Screen {
         } catch (NoLocalizedTextException nlte) {
             mTitle = "Case Claim";
         }
+    }
+
+    // Formplayer List of Supported prompts
+    private ArrayList<String> getSupportedPrompts() {
+        ArrayList<String> supportedPrompts = new ArrayList<>();
+        supportedPrompts.add(INPUT_TYPE_SELECT1);
+        supportedPrompts.add(INPUT_TYPE_SELECT);
+        supportedPrompts.add(INPUT_TYPE_DATERANGE);
+        supportedPrompts.add(INPUT_TYPE_ADDRESS);
+        return supportedPrompts;
     }
 
     /**
