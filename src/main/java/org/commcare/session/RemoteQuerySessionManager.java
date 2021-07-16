@@ -174,7 +174,15 @@ public class RemoteQuerySessionManager {
 
     public void populateItemSetChoices(QueryPrompt queryPrompt) {
         EvaluationContext evalContextWithAnswers = evaluationContext.spawnWithCleanLifecycle();
-        evalContextWithAnswers.setVariables(userAnswers);
+
+        OrderedHashtable<String, QueryPrompt> queryPrompts = queryDatum.getUserQueryPrompts();
+        for (Enumeration en = queryPrompts.keys(); en.hasMoreElements(); ) {
+            String promptId = (String)en.nextElement();
+            if (isPromptSupported(queryPrompts.get(promptId))) {
+                evalContextWithAnswers.setVariable(promptId, userAnswers.get(promptId));
+            }
+        }
+
         ItemSetUtils.populateDynamicChoices(queryPrompt.getItemsetBinding(), evalContextWithAnswers);
     }
 
