@@ -98,7 +98,7 @@ public class MenuScreen extends Screen {
     public void prompt(PrintStream out) {
         for (int i = 0; i < mChoices.length; ++i) {
             MenuDisplayable d = mChoices[i];
-            out.println(i + ")" + d.getDisplayText(mSession.getEvaluationContextWithAccumulatedInstances(d.getCommandID(), d.getRawText())));
+            out.println(i + ") " + d.getDisplayText(mSession.getEvaluationContextWithAccumulatedInstances(d.getCommandID(), d.getRawText())));
         }
     }
 
