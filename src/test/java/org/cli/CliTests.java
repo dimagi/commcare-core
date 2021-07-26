@@ -40,7 +40,7 @@ public class CliTests {
             ApplicationHost host = buildApplicationHost(applicationPath, restoreResource, cliTestReaderClass, steps);
             boolean passed = false;
             try {
-                host.run();
+                host.run(null);
             } catch (TestPassException e) {
                 passed = true;
             }
