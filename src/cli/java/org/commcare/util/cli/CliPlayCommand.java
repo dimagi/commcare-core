@@ -35,7 +35,16 @@ public class CliPlayCommand extends CliCommand {
                 .required(false)
                 .optionalArg(false)
                 .build();
-        options.addOption(restoreFile).addOption(demoUser);
+        Option endpointId = Option.builder("e")
+                .argName("ENDPOINT")
+                .hasArgs()
+                .valueSeparator(',')
+                .desc("Begin session from given endpoint, applying given arguments")
+                .longOpt("endpoint-id")
+                .required(false)
+                .optionalArg(false)
+                .build();
+        options.addOption(restoreFile).addOption(demoUser).addOption(endpointId);
 
         return options;
     }
@@ -68,7 +77,7 @@ public class CliPlayCommand extends CliCommand {
                 host.setRestoreToRemoteUser(username, password);
             }
 
-            host.run();
+            host.run(cmd.getOptionValues("e"));
             System.exit(-1);
         } catch (RuntimeException re) {
             System.out.print("Unhandled Fatal Error executing CommCare app");
