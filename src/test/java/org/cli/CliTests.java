@@ -36,11 +36,12 @@ public class CliTests {
         CliTestRun(String applicationPath,
                           String restoreResource,
                           Class<E> cliTestReaderClass,
-                          String steps) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+                          String steps,
+                          String[] endpointIdAndArgs) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
             ApplicationHost host = buildApplicationHost(applicationPath, restoreResource, cliTestReaderClass, steps);
             boolean passed = false;
             try {
-                host.run();
+                host.run(endpointIdAndArgs);
             } catch (TestPassException e) {
                 passed = true;
             }
@@ -76,7 +77,8 @@ public class CliTests {
         new CliTestRun<>("basic_app/basic.ccz",
                 "case_create_basic.xml",
                 BasicTestReader.class,
-                "1 0 \n");
+                "1 0 \n",
+                null);
     }
 
     @Test
@@ -85,7 +87,18 @@ public class CliTests {
         new CliTestRun<>("basic_app/basic.ccz",
                 "basic_app/restore.xml",
                 CaseTestReader.class,
-                "2 1 5 \n");
+                "2 1 5 \n",
+                null);
+    }
+
+    @Test
+    public void testSessionEndpoint() throws Exception {
+        // Run CLI with session endpoint arg
+        new CliTestRun<>("basic_app/basic.ccz",
+                "basic_app/restore.xml",
+                SessionEndpointTestReader.class,
+                "\n",
+                new String[] {"m5_endpoint", "124938b2-c228-4107-b7e6-31a905c3f4ff"});
     }
 
 
@@ -172,6 +185,25 @@ public class CliTests {
                     break;
                 case 4:
                     Assert.assertTrue(output.contains("This form will allow you to add and update"));
+                    throw new TestPassException();
+                default:
+                    throw new RuntimeException(String.format("Did not recognize output %s at stepIndex %s", output, stepIndex));
+
+            }
+        }
+    }
+
+    static class SessionEndpointTestReader extends CliTestReader {
+
+        public SessionEndpointTestReader(String args, ByteArrayOutputStream outStream) {
+            super(args, outStream);
+        }
+
+        void processLine(int stepIndex, String output) {
+            switch(stepIndex) {
+                case 0:
+                    Assert.assertTrue(output.contains("0)Update a Case"));
+                    Assert.assertTrue(output.contains("1)Close a Case"));
                     throw new TestPassException();
                 default:
                     throw new RuntimeException(String.format("Did not recognize output %s at stepIndex %s", output, stepIndex));
