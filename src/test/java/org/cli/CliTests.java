@@ -85,7 +85,7 @@ public class CliTests {
         new CliTestRun<>("basic_app/basic.ccz",
                 "basic_app/restore.xml",
                 CaseTestReader.class,
-                "2 1 5 \n");
+                "2 1 5 \n \n");
     }
 
 
@@ -168,9 +168,13 @@ public class CliTests {
                     Assert.assertTrue(output.contains("case one"));
                     break;
                 case 3:
-                    Assert.assertTrue(output.contains("Form Start: Press Return to proceed"));
+                    Assert.assertTrue(output.contains("Phone Number"));
+                    Assert.assertTrue(output.contains("9632580741"));
                     break;
                 case 4:
+                    Assert.assertTrue(output.contains("Form Start: Press Return to proceed"));
+                    break;
+                case 5:
                     Assert.assertTrue(output.contains("This form will allow you to add and update"));
                     throw new TestPassException();
                 default:
