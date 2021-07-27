@@ -85,7 +85,7 @@ public class CliTests {
         new CliTestRun<>("basic_app/basic.ccz",
                 "basic_app/restore.xml",
                 CaseTestReader.class,
-                "2 1 5 \n \n");
+                "2 1 5 1 \n \n");
     }
 
 
@@ -163,18 +163,25 @@ public class CliTests {
                     Assert.assertTrue(output.contains("0) Create a Case"));
                     break;
                 case 2:
+                    // m2_case_short
                     Assert.assertTrue(output.contains("Case | vl1"));
                     Assert.assertTrue(output.contains("Date Opened"));
                     Assert.assertTrue(output.contains("case one"));
                     break;
                 case 3:
+                    // Tab 0 of m2_case_long
                     Assert.assertTrue(output.contains("Phone Number"));
                     Assert.assertTrue(output.contains("9632580741"));
                     break;
                 case 4:
-                    Assert.assertTrue(output.contains("Form Start: Press Return to proceed"));
+                    // Tab 1 of m2_case_long
+                    Assert.assertTrue(output.contains("Geodata"));
+                    Assert.assertTrue(output.contains("17.4469641 78.3719456 543.4 24.36"));
                     break;
                 case 5:
+                    Assert.assertTrue(output.contains("Form Start: Press Return to proceed"));
+                    break;
+                case 6:
                     Assert.assertTrue(output.contains("This form will allow you to add and update"));
                     throw new TestPassException();
                 default:
