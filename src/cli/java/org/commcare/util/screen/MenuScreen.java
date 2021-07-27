@@ -124,11 +124,11 @@ public class MenuScreen extends Screen {
                 commandId = ((Menu)mChoices[i]).getId();
             }
             session.setCommand(commandId);
-            return false;
+            return true;
         } catch (NumberFormatException e) {
             //This will result in things just executing again, which is fine.
         }
-        return true;
+        return false;
     }
 
     public MenuDisplayable[] getMenuDisplayables() {
