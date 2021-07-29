@@ -271,7 +271,7 @@ public class ApplicationHost {
                         }
                     }
 
-                    screenIsRedrawing = s.handleInputAndUpdateSession(mSession, input, false);
+                    screenIsRedrawing = !s.handleInputAndUpdateSession(mSession, input, false);
                     if (!screenIsRedrawing) {
                         s = getNextScreen();
                     }
