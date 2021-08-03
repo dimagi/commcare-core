@@ -177,9 +177,13 @@ public class QueryScreen extends Screen {
                 String[] indicesOfSelectedChoices = RemoteQuerySessionManager.extractSelectChoices(answer);
                 ArrayList<String> selectedChoices = new ArrayList<>(indicesOfSelectedChoices.length);
                 for (int i = 0; i < indicesOfSelectedChoices.length; i++) {
-                    int choiceIndex = Integer.parseInt(indicesOfSelectedChoices[i]);
-                    if (choiceIndex < selectChoices.size() && choiceIndex > -1) {
-                        selectedChoices.add(selectChoices.get(choiceIndex).getValue());
+                    if (indicesOfSelectedChoices[i].isEmpty()) {
+                        selectedChoices.add("");
+                    } else {
+                        int choiceIndex = Integer.parseInt(indicesOfSelectedChoices[i]);
+                        if (choiceIndex < selectChoices.size() && choiceIndex > -1) {
+                            selectedChoices.add(selectChoices.get(choiceIndex).getValue());
+                        }
                     }
                 }
                 answer = String.join(RemoteQuerySessionManager.MULTI_SELECT_DELIMITER, selectedChoices);
