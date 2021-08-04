@@ -90,7 +90,10 @@ public class IndexedFixtureXmlParser extends TransactionParser<StorageIndexedTre
                 processEntry(entry, indices);
             }
         } else {
-            sandbox.getIndexedFixtureStorage(fixtureName).removeAll();
+            IStorageUtilityIndexed storage = sandbox.getIndexedFixtureStorage(fixtureName);
+            if (storage != null) {
+                storage.removeAll();
+            }
         }
     }
 
