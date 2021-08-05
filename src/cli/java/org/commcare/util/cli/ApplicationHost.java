@@ -120,6 +120,10 @@ public class ApplicationHost {
         if (endpoint == null) {
             throw new RuntimeException(endpointId + " not found");
         }
+
+        mSession.clearAllState();
+        mSession.clearVolatiles();
+
         EvaluationContext evalContext = mSession.getEvaluationContext();
         ArrayList endpointArgs = new ArrayList<>(Arrays.asList(Arrays.copyOfRange(endpointIdAndArgs, 1, endpointIdAndArgs.length)));
         try {
@@ -128,6 +132,7 @@ public class ApplicationHost {
             throw new RuntimeException("Insufficient of arguments for endpoint. " +
                                        " Expected number of arguments: " + endpoint.getArguments().size());
         }
+
         mSession.executeStackOperations(endpoint.getStackOperations(), evalContext);
         mSessionHasNextFrameReady = true;
     }
