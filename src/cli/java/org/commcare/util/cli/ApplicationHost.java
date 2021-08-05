@@ -15,6 +15,7 @@ import org.commcare.suite.model.Endpoint;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
+import org.commcare.suite.model.StackOperation;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.engine.CommCareConfigEngine;
 import org.commcare.util.mocks.CLISessionWrapper;
@@ -131,7 +132,18 @@ public class ApplicationHost {
                                        " Expected number of arguments: " + endpoint.getArguments().size());
         }
 
-        mSession.executeStackOperations(endpoint.getStackOperations(), evalContext);
+        for (StackOperation op : endpoint.getStackOperations()) {
+            mSession.executeStackOperations(new Vector<>(Arrays.asList(op)), evalContext);
+            Screen s = getNextScreen();
+            if (s instanceof SyncScreen) {
+                try {
+                    s.init(mSession);
+                    s.handleInputAndUpdateSession(mSession, "", false);
+                } catch (CommCareSessionException ccse) {
+                    printErrorAndContinue("Error during session execution:", ccse);
+                }
+            }
+        }
         mSessionHasNextFrameReady = true;
     }
 
