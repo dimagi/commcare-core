@@ -110,12 +110,11 @@ public class ApplicationHost {
         mRestoreStrategySet = true;
     }
 
-    public void advanceSessionWithEndpoint(String[] endpointIdAndArgs) {
-        if (endpointIdAndArgs == null || endpointIdAndArgs.length == 0) {
+    public void advanceSessionWithEndpoint(String endpointId, String[] endpointArgs) {
+        if (endpointId == null) {
             return;
         }
 
-        String endpointId = endpointIdAndArgs[0];
         Endpoint endpoint = mPlatform.getEndpoint(endpointId);
         if (endpoint == null) {
             throw new RuntimeException(endpointId + " not found");
@@ -125,9 +124,8 @@ public class ApplicationHost {
         mSession.clearVolatiles();
 
         EvaluationContext evalContext = mSession.getEvaluationContext();
-        ArrayList endpointArgs = new ArrayList<>(Arrays.asList(Arrays.copyOfRange(endpointIdAndArgs, 1, endpointIdAndArgs.length)));
         try {
-            Endpoint.populateEndpointArgumentsToEvaluationContext(endpoint, endpointArgs, evalContext);
+            Endpoint.populateEndpointArgumentsToEvaluationContext(endpoint, new ArrayList<String>(Arrays.asList(endpointArgs)), evalContext);
         } catch (Endpoint.InvalidNumberOfEndpointArgumentsException e) {
             throw new RuntimeException("Insufficient of arguments for endpoint. " +
                                        " Expected number of arguments: " + endpoint.getArguments().size());
@@ -137,7 +135,7 @@ public class ApplicationHost {
         mSessionHasNextFrameReady = true;
     }
 
-    public void run(String[] endpointIdAndArgs) {
+    public void run(String endpointId, String[] endpointArgs) {
         if (!mRestoreStrategySet) {
             throw new RuntimeException("You must set up an application host by calling " +
                     "one of the setRestore*() methods before running the app");
@@ -146,7 +144,7 @@ public class ApplicationHost {
 
         mSession = new CLISessionWrapper(mPlatform, mSandbox);
 
-        advanceSessionWithEndpoint(endpointIdAndArgs);
+        advanceSessionWithEndpoint(endpointId, endpointArgs);
 
         try {
             loop();
