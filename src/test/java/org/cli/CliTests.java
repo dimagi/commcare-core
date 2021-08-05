@@ -37,11 +37,12 @@ public class CliTests {
                           String restoreResource,
                           Class<E> cliTestReaderClass,
                           String steps,
-                          String[] endpointIdAndArgs) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+                          String endpointId,
+                          String[] endpointArgs) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
             ApplicationHost host = buildApplicationHost(applicationPath, restoreResource, cliTestReaderClass, steps);
             boolean passed = false;
             try {
-                host.run(endpointIdAndArgs);
+                host.run(endpointId, endpointArgs);
             } catch (TestPassException e) {
                 passed = true;
             }
@@ -78,6 +79,7 @@ public class CliTests {
                 "case_create_basic.xml",
                 BasicTestReader.class,
                 "1 0 \n",
+                null,
                 null);
     }
 
@@ -88,6 +90,7 @@ public class CliTests {
                 "basic_app/restore.xml",
                 CaseTestReader.class,
                 "2 1 5 \n",
+                null,
                 null);
     }
 
@@ -98,7 +101,8 @@ public class CliTests {
                 "basic_app/restore.xml",
                 SessionEndpointTestReader.class,
                 "\n",
-                new String[] {"m5_endpoint", "124938b2-c228-4107-b7e6-31a905c3f4ff"});
+                "m5_endpoint",
+                new String[] {"124938b2-c228-4107-b7e6-31a905c3f4ff"});
     }
 
 
