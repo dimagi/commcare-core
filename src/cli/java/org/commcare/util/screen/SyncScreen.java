@@ -127,10 +127,10 @@ public class SyncScreen extends Screen {
             if (commCareSession.finishExecuteAndPop(sessionWrapper.getEvaluationContext())) {
                 sessionWrapper.clearVolatiles();
             }
-            return true;
+            return false;
         } else {
             parseMakeRequest();
-            return false;
+            return true;
         }
     }
 
