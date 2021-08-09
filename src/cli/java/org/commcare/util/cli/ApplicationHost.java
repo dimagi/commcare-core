@@ -11,6 +11,7 @@ import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.session.SessionFrame;
+import org.commcare.suite.model.Endpoint;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
@@ -48,6 +49,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.util.*;
 
 /**
  * CLI host for running a commcare application which has been configured and instatiated
@@ -108,14 +110,41 @@ public class ApplicationHost {
         mRestoreStrategySet = true;
     }
 
-    public void run() {
+    public void advanceSessionWithEndpoint(String endpointId, String[] endpointArgs) {
+        if (endpointId == null) {
+            return;
+        }
+
+        Endpoint endpoint = mPlatform.getEndpoint(endpointId);
+        if (endpoint == null) {
+            throw new RuntimeException(endpointId + " not found");
+        }
+
+        mSession.clearAllState();
+        mSession.clearVolatiles();
+
+        EvaluationContext evalContext = mSession.getEvaluationContext();
+        try {
+            Endpoint.populateEndpointArgumentsToEvaluationContext(endpoint, new ArrayList<String>(Arrays.asList(endpointArgs)), evalContext);
+        } catch (Endpoint.InvalidNumberOfEndpointArgumentsException e) {
+            throw new RuntimeException("Insufficient of arguments for endpoint. " +
+                                       " Expected number of arguments: " + endpoint.getArguments().size());
+        }
+
+        mSession.executeStackOperations(endpoint.getStackOperations(), evalContext);
+        mSessionHasNextFrameReady = true;
+    }
+
+    public void run(String endpointId, String[] endpointArgs) {
         if (!mRestoreStrategySet) {
             throw new RuntimeException("You must set up an application host by calling " +
-                    "one of hte setRestore*() methods before running the app");
+                    "one of the setRestore*() methods before running the app");
         }
         setupSandbox();
 
         mSession = new CLISessionWrapper(mPlatform, mSandbox);
+
+        advanceSessionWithEndpoint(endpointId, endpointArgs);
 
         try {
             loop();
