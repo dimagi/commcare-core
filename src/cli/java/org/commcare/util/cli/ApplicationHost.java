@@ -119,6 +119,9 @@ public class ApplicationHost {
         if (endpoint == null) {
             throw new RuntimeException(endpointId + " not found");
         }
+        if (endpointArgs == null) {
+            endpointArgs = new String[0];
+        }
 
         mSession.clearAllState();
         mSession.clearVolatiles();
@@ -126,9 +129,16 @@ public class ApplicationHost {
         EvaluationContext evalContext = mSession.getEvaluationContext();
         try {
             Endpoint.populateEndpointArgumentsToEvaluationContext(endpoint, new ArrayList<String>(Arrays.asList(endpointArgs)), evalContext);
-        } catch (Endpoint.InvalidNumberOfEndpointArgumentsException e) {
-            throw new RuntimeException("Insufficient of arguments for endpoint. " +
-                                       " Expected number of arguments: " + endpoint.getArguments().size());
+        } catch (Endpoint.InvalidEndpointArgumentsException e) {
+            String missingMessage = "";
+            if (e.hasMissingArguments()) {
+                missingMessage = String.format(" Missing arguments: %s.", String.join(", ", e.getMissingArguments()));
+            }
+            String unexpectedMessage = "";
+            if (e.hasUnexpectedArguments()) {
+                unexpectedMessage = String.format(" Unexpected arguments: %s.", String.join(", ", e.getUnexpectedArguments()));
+            }
+            throw new RuntimeException("Invalid arguments for endpoint." + missingMessage + unexpectedMessage);
         }
 
         mSession.executeStackOperations(endpoint.getStackOperations(), evalContext);
