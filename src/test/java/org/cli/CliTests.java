@@ -217,8 +217,8 @@ public class CliTests {
         void processLine(int stepIndex, String output) {
             switch(stepIndex) {
                 case 0:
-                    Assert.assertTrue(output.contains("0)Update a Case"));
-                    Assert.assertTrue(output.contains("1)Close a Case"));
+                    Assert.assertTrue(output.contains("0) Update a Case"));
+                    Assert.assertTrue(output.contains("1) Close a Case"));
                     throw new TestPassException();
                 default:
                     throw new RuntimeException(String.format("Did not recognize output %s at stepIndex %s", output, stepIndex));
