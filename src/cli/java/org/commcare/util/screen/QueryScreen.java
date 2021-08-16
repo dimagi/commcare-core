@@ -111,7 +111,7 @@ public class QueryScreen extends Screen {
             QueryPrompt prompt = userInputDisplays.get(key);
             for (String value : queryParams.get(key)) {
                 if (prompt != null && prompt.isSelect()) {
-                    String[] selectedChoices = RemoteQuerySessionManager.extractSelectChoices(value);
+                    String[] selectedChoices = RemoteQuerySessionManager.extractMultipleChoices(value);
                     for (String selectedChoice : selectedChoices) {
                         urlBuilder.addQueryParameter(key, selectedChoice);
                     }
@@ -174,7 +174,7 @@ public class QueryScreen extends Screen {
             // be converted to the corresponding value
             if (queryPrompt.isSelect() && !StringUtils.isEmpty(answer)) {
                 Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
-                String[] indicesOfSelectedChoices = RemoteQuerySessionManager.extractSelectChoices(answer);
+                String[] indicesOfSelectedChoices = RemoteQuerySessionManager.extractMultipleChoices(answer);
                 ArrayList<String> selectedChoices = new ArrayList<>(indicesOfSelectedChoices.length);
                 for (int i = 0; i < indicesOfSelectedChoices.length; i++) {
                     if (indicesOfSelectedChoices[i].isEmpty()) {
@@ -186,7 +186,7 @@ public class QueryScreen extends Screen {
                         }
                     }
                 }
-                answer = String.join(RemoteQuerySessionManager.MULTI_SELECT_DELIMITER, selectedChoices);
+                answer = String.join(RemoteQuerySessionManager.ANSWER_DELIMITER, selectedChoices);
             }
             remoteQuerySessionManager.answerUserPrompt(key, answer);
         }

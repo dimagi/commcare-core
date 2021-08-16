@@ -41,7 +41,7 @@ import javax.annotation.Nullable;
  */
 public class RemoteQuerySessionManager {
     // used to parse multi-select choices
-    public static final String MULTI_SELECT_DELIMITER = "#,#";
+    public static final String ANSWER_DELIMITER = "#,#";
 
     private final RemoteQueryDatum queryDatum;
     private final EvaluationContext evaluationContext;
@@ -203,7 +203,7 @@ public class RemoteQuerySessionManager {
                 if (queryPrompt.isSelect()) {
                     String answer = userAnswers.get(promptId);
                     populateItemSetChoices(queryPrompt);
-                    String[] selectedChoices = extractSelectChoices(answer);
+                    String[] selectedChoices = extractMultipleChoices(answer);
                     ArrayList<String> validSelectedChoices = new ArrayList<>();
                     for (String selectedChoice : selectedChoices) {
                         if (checkForValidSelectValue(queryPrompt.getItemsetBinding(), selectedChoice)) {
@@ -213,7 +213,7 @@ public class RemoteQuerySessionManager {
                         }
                     }
                     if (validSelectedChoices.size() > 0) {
-                        userAnswers.put(promptId, String.join(RemoteQuerySessionManager.MULTI_SELECT_DELIMITER, validSelectedChoices));
+                        userAnswers.put(promptId, String.join(RemoteQuerySessionManager.ANSWER_DELIMITER, validSelectedChoices));
                     } else {
                         // no value
                         userAnswers.remove(promptId);
@@ -241,12 +241,12 @@ public class RemoteQuerySessionManager {
         return queryDatum.doDefaultSearch();
     }
 
-    // Converts a string containing space separated list of select choices
+    // Converts a string containing space separated list of choices
     // into a string array of individual choices
-    public static String[] extractSelectChoices(String answer) {
+    public static String[] extractMultipleChoices(String answer) {
         if (answer == null) {
             return new String[]{};
         }
-        return answer.split(MULTI_SELECT_DELIMITER);
+        return answer.split(ANSWER_DELIMITER);
     }
 }
