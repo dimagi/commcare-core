@@ -21,8 +21,9 @@ public abstract class CompoundScreenHost extends Screen {
     public abstract Subscreen getCurrentScreen();
 
     @Override
-    public void prompt(PrintStream out) throws CommCareSessionException {
+    public boolean prompt(PrintStream out) throws CommCareSessionException {
         getCurrentScreen().prompt(out);
+        return true;
     }
 
     @Override

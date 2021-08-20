@@ -95,11 +95,12 @@ public class MenuScreen extends Screen {
     }
 
     @Override
-    public void prompt(PrintStream out) {
+    public boolean prompt(PrintStream out) {
         for (int i = 0; i < mChoices.length; ++i) {
             MenuDisplayable d = mChoices[i];
             out.println(i + ")" + d.getDisplayText(mSession.getEvaluationContextWithAccumulatedInstances(d.getCommandID(), d.getRawText())));
         }
+        return true;
     }
 
     @Override

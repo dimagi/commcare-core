@@ -213,11 +213,15 @@ public class QueryScreen extends Screen {
     }
 
     @Override
-    public void prompt(PrintStream out) {
+    public boolean prompt(PrintStream out) {
+        if (doDefaultSearch()) {
+            return false;
+        }
         out.println("Enter the search fields as a space separated list.");
         for (int i = 0; i < fields.length; i++) {
             out.println(i + ") " + fields[i]);
         }
+        return true;
     }
 
     @Override
