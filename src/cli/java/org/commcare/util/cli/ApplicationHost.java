@@ -222,11 +222,13 @@ public class ApplicationHost {
                     printStream.println(s.getWrappedDisplaytitle(mSandbox, mPlatform));
 
                     printStream.println("====================");
-                    s.prompt(printStream);
-                    printStream.print("> ");
-
+                    boolean requiresInput = s.prompt(printStream);
                     screenIsRedrawing = false;
-                    String input = reader.readLine();
+                    String input = "";
+                    if (requiresInput) {
+                        printStream.print("> ");
+                        input = reader.readLine();
+                    }
 
                     //TODO: Command language
                     if (input.startsWith(":")) {
