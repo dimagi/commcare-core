@@ -26,7 +26,6 @@ import java.util.Vector;
 
 import okhttp3.Credentials;
 import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
@@ -43,6 +42,23 @@ import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_ADDRESS;
  */
 public class QueryScreen extends Screen {
 
+    public interface QueryClient {
+        public InputStream makeRequest(Request request);
+    }
+
+    private class OkHttpQueryClient implements QueryClient {
+        @Override
+        public InputStream makeRequest(Request request) {
+            try {
+                Response response = new okhttp3.OkHttpClient().newCall(request).execute();
+                return response.body().byteStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+    }
+
     private RemoteQuerySessionManager remoteQuerySessionManager;
     protected OrderedHashtable<String, QueryPrompt> userInputDisplays;
     private SessionWrapper sessionWrapper;
@@ -56,6 +72,7 @@ public class QueryScreen extends Screen {
     private PrintStream out;
 
     private boolean defaultSearch;
+    private QueryClient client = new OkHttpQueryClient();
 
     public QueryScreen(String domainedUsername, String password, PrintStream out) {
         this.domainedUsername = domainedUsername;
@@ -87,6 +104,10 @@ public class QueryScreen extends Screen {
         } catch (NoLocalizedTextException nlte) {
             mTitle = "Case Claim";
         }
+    }
+
+    public void setClient(QueryClient client) {
+        this.client = client;
     }
 
     // Formplayer List of Supported prompts
@@ -131,13 +152,7 @@ public class QueryScreen extends Screen {
                 .url(url)
                 .header("Authorization", credential)
                 .build();
-        try {
-            Response response = new OkHttpClient().newCall(request).execute();
-            return response.body().byteStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return client.makeRequest(request);
     }
 
     public Pair<ExternalDataInstance, String> processResponse(InputStream responseData) {
