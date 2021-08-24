@@ -18,7 +18,7 @@ public class LogTypes {
     /**
      * Used for internal checking of whether or not certain sections of code ever get called
      */
-    public static final String SOFT_ASSERT = "soft-assert";
+    public static final String SOFT_ASSERT = "-assert";
 
     /**
      * Something bad/unexpected occurred in a user's workflow
