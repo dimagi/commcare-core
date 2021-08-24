@@ -8,7 +8,7 @@ public class LogTypes {
     /**
      * Fatal problem with one of CommCare's cryptography libraries
      */
-    public static final String TYPE_ERROR_CRYPTO = "error-crypto";
+    public static final String TYPE_ERROR_CRYPTO = "crypto";
 
     /**
      * Some invariant application assumption has been violated
