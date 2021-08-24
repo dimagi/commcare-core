@@ -13,7 +13,7 @@ public class LogTypes {
     /**
      * Some invariant application assumption has been violated
      */
-    public static final String TYPE_ERROR_ASSERTION = "error-state";
+    public static final String TYPE_ERROR_ASSERTION = "-state";
 
     /**
      * Used for internal checking of whether or not certain sections of code ever get called
