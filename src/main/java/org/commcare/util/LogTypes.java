@@ -23,7 +23,7 @@ public class LogTypes {
     /**
      * Something bad/unexpected occurred in a user's workflow
      */
-    public static final String TYPE_ERROR_WORKFLOW = "error-workflow";
+    public static final String TYPE_ERROR_WORKFLOW = "-workflow";
 
     /**
      * There is a problem with the underlying storage layer which is preventing the app from working correctly
