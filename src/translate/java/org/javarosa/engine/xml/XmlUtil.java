@@ -3,7 +3,12 @@ package org.javarosa.engine.xml;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
+import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.Document;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -28,17 +33,24 @@ public class XmlUtil {
         try {
             String unformattedXml = new String(xml);
             final Document document = parseXmlFile(unformattedXml);
+            StringWriter stringWriter=new StringWriter();
 
-            OutputFormat format = new OutputFormat(document);
-            format.setLineWidth(65);
-            format.setIndenting(true);
-            format.setIndent(2);
-            Writer out = new StringWriter();
-            XMLSerializer serializer = new XMLSerializer(out, format);
-            serializer.serialize(document);
 
-            return out.toString();
-        } catch (IOException e) {
+            DOMImplementationRegistry registry =  DOMImplementationRegistry.newInstance();
+            DOMImplementationLS impls =  (DOMImplementationLS)registry.getDOMImplementation("LS");
+
+            LSOutput lsOutput = impls.createLSOutput();
+            lsOutput.setEncoding("UTF-8");
+            lsOutput.setCharacterStream(stringWriter);
+
+            LSSerializer lsSerializer = impls.createLSSerializer();
+            DOMConfiguration domConfig = lsSerializer.getDomConfig();
+            domConfig.setParameter("format-pretty-print", true);
+            domConfig.setParameter("cdata-sections", true);
+            lsSerializer.setNewLine("\r\n");
+            lsSerializer.write(document, lsOutput);
+            return stringWriter.toString();
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
