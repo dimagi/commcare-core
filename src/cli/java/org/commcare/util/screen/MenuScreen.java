@@ -98,7 +98,7 @@ public class MenuScreen extends Screen {
     public boolean prompt(PrintStream out) {
         for (int i = 0; i < mChoices.length; ++i) {
             MenuDisplayable d = mChoices[i];
-            out.println(i + ")" + d.getDisplayText(mSession.getEvaluationContextWithAccumulatedInstances(d.getCommandID(), d.getRawText())));
+            out.println(i + ") " + d.getDisplayText(mSession.getEvaluationContextWithAccumulatedInstances(d.getCommandID(), d.getRawText())));
         }
         return true;
     }
@@ -125,11 +125,11 @@ public class MenuScreen extends Screen {
                 commandId = ((Menu)mChoices[i]).getId();
             }
             session.setCommand(commandId);
-            return false;
+            return true;
         } catch (NumberFormatException e) {
             //This will result in things just executing again, which is fine.
         }
-        return true;
+        return false;
     }
 
     public MenuDisplayable[] getMenuDisplayables() {
