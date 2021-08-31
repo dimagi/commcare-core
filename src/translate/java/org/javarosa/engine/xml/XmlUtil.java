@@ -29,7 +29,7 @@ public class XmlUtil {
             String unformattedXml = new String(xml);
             final Document document = parseXmlFile(unformattedXml);
 
-            OutputFormat format = new OutputFormat(document);
+            OutputFormat format = new OutputFormat();
             format.setLineWidth(65);
             format.setIndenting(true);
             format.setIndent(2);
