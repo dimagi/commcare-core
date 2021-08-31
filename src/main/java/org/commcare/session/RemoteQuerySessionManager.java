@@ -117,32 +117,55 @@ public class RemoteQuerySessionManager {
     }
 
     /**
-     * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
+     * Evaluate filters to be applied to the search uri using following rules -
+     * 1. If no defaults are specified for a property, add the user input for search property as it is
+     * 2. If defaults are specified, only add the user input if it's also specified in defaults
+     * 3. If no user input is specified, add the defaults for the property as it is
+     *
+     * @param skipUserInput don't populate user inputs for query prompts into search params
      * @return filters to be applied to case search uri as query params
      */
-    public Multimap<String, String> getRawQueryParams(boolean skipDefaultPromptValues) {
-        Multimap<String, String> params = ArrayListMultimap.create();
+    public Multimap<String, String> getRawQueryParams(boolean skipUserInput) {
+        Multimap<String, String> defaultParams = ArrayListMultimap.create();
         Multimap<String, XPathExpression> hiddenQueryValues = queryDatum.getHiddenQueryValues();
         for (String key : hiddenQueryValues.keySet()) {
             for (XPathExpression xpathExpression : hiddenQueryValues.get(key)) {
                 String evaluatedExpr = evalXpathExpression(xpathExpression, evaluationContext);
-                params.put(key, evaluatedExpr);
+                defaultParams.put(key, evaluatedExpr);
             }
         }
 
-        if (!skipDefaultPromptValues) {
+        Multimap<String, String> searchParams = ArrayListMultimap.create();
+
+        // Populate User Params
+        if (!skipUserInput) {
             for (Enumeration e = userAnswers.keys(); e.hasMoreElements(); ) {
                 String key = (String)e.nextElement();
                 String value = userAnswers.get(key);
-                if (!(params.containsKey(key) && params.get(key).contains(value))) {
-                    if (value != null) {
-                        params.put(key, userAnswers.get(key));
+
+                // if defaults are defined, make sure userParams are restricted to defaults
+                String[] choices = RemoteQuerySessionManager.extractMultipleChoices(value);
+                for (String choice : choices) {
+                    if (choice != null &&
+                            ((defaultParams.containsKey(key) && defaultParams.get(key).contains(choice))
+                                    || !defaultParams.containsKey(key)) &&
+                            !(searchParams.containsKey(key) && searchParams.get(key).contains(choice))) {
+                        searchParams.put(key, choice);
                     }
                 }
             }
         }
-        return params;
+
+        // Add defaults if no user inputs have been defined
+        for (String key : defaultParams.keySet()) {
+            if (!searchParams.containsKey(key)) {
+                searchParams.putAll(key, defaultParams.get(key));
+            }
+        }
+
+        return searchParams;
     }
+
 
     public static String evalXpathExpression(XPathExpression expr,
                                              EvaluationContext evaluationContext) {
