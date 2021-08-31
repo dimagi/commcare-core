@@ -146,11 +146,13 @@ public class RemoteQuerySessionManager {
                 // if defaults are defined, make sure userParams are restricted to defaults
                 String[] choices = RemoteQuerySessionManager.extractMultipleChoices(value);
                 for (String choice : choices) {
-                    if (choice != null &&
-                            ((defaultParams.containsKey(key) && defaultParams.get(key).contains(choice))
-                                    || !defaultParams.containsKey(key)) &&
-                            !(searchParams.containsKey(key) && searchParams.get(key).contains(choice))) {
-                        searchParams.put(key, choice);
+                    if (choice != null) {
+                        boolean validParam = !defaultParams.containsKey(key) || defaultParams.get(key).contains(choice);
+                        boolean duplicateValue = searchParams.containsKey(key) && searchParams.get(key).contains(choice);
+
+                        if (validParam && !duplicateValue) {
+                            searchParams.put(key, choice);
+                        }
                     }
                 }
             }
