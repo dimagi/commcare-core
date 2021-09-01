@@ -30,7 +30,7 @@ public class QueryModelTests {
 
         SessionDatum datum = session.getNeededDatum();
         Assert.assertTrue(datum instanceof RemoteQueryDatum);
-        Assert.assertEquals("registry", datum.getDataId());
+        Assert.assertEquals("registry1", datum.getDataId());
 
         // construct the screen
         QueryScreen screen = new QueryScreen("username", "password", System.out);
