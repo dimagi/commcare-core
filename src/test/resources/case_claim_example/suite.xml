@@ -88,7 +88,7 @@
       <text>Form</text>
     </command>
     <session>
-      <query url="http://www.example.com/a/domain/phone/get_case/" storage-instance="registry" template="case" default_search="true">
+      <query url="http://www.example.com/a/domain/phone/get_case/" storage-instance="registry1" template="case" default_search="true">
         <data key="case_type" ref="'case'"/>
       </query>
     </session>
