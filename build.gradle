@@ -135,7 +135,7 @@ jar.dependsOn test
 
 configurations {
   ccapi
-  cliOutput.extendsFrom (cliCompile)
+  cliOutput.extendsFrom (cliImplementation)
   harness
   translate
   testsAsJar
@@ -147,17 +147,14 @@ task cliJar(type: Jar, dependsOn: cliClasses) {
     from sourceSets.cli.output
     from sourceSets.main.output
     from {
-        configurations.cliImplementation.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-        configurations.cliRuntime.collect {
+        configurations.cliOutput.collect {
             it.isDirectory() ? it : zipTree(it)
         }
     }
     manifest {
         attributes 'Main-Class': 'org.commcare.util.cli.CliMain'
     }
-
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 task ccapiJar(type: Jar, dependsOn: ccapiClasses) {
@@ -165,10 +162,7 @@ task ccapiJar(type: Jar, dependsOn: ccapiClasses) {
     from sourceSets.ccapi.output
     from sourceSets.main.output
     from {
-        configurations.ccapiImplementation.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-        configurations.ccapiRuntime.collect {
+        configurations.ccapi.collect {
             it.isDirectory() ? it : zipTree(it)
         }
     }
@@ -179,16 +173,14 @@ task harnessJar(type: Jar, dependsOn: translateClasses) {
     from sourceSets.translate.output
     from sourceSets.main.output
     from {
-        configurations.implementation.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-        configurations.runtime.collect {
+        configurations.runtimeClasspath.collect {
             it.isDirectory() ? it : zipTree(it)
         }
     }
     manifest {
         attributes 'Main-Class': 'org.javarosa.engine.Harness'
     }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 // used to provide the test source files to external projects, such as commcare-android,
@@ -205,10 +197,7 @@ task formTranslateJar(type: Jar, dependsOn: translateClasses) {
     from sourceSets.translate.output
     from sourceSets.main.output
     from {
-        configurations.translateImplementation.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-        configurations.translateRuntime.collect {
+        configurations.translate.collect {
             it.isDirectory() ? it : zipTree(it)
         }
     }
