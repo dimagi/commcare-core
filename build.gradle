@@ -16,6 +16,14 @@ plugins {
 sourceCompatibility = 11
 targetCompatibility = JavaVersion.VERSION_11
 
+configurations {
+    ccapi.extendsFrom(ccapiImplementation)
+    cliOutput.extendsFrom (cliImplementation)
+    harness
+    translate.extendsFrom(translateImplementation)
+    testsAsJar
+}
+
 repositories {
     mavenCentral()
     maven { url "https://jitpack.io" }
@@ -132,14 +140,6 @@ jar {
 }
 
 jar.dependsOn test
-
-configurations {
-  ccapi
-  cliOutput.extendsFrom (cliImplementation)
-  harness
-  translate
-  testsAsJar
-}
 
 task cliJar(type: Jar, dependsOn: cliClasses) {
     baseName = "commcare-cli"
