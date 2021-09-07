@@ -60,7 +60,7 @@ public class StackOperation implements Externalizable {
     }
 
     public static StackOperation buildClearFrame(String ifCondition) throws XPathSyntaxException {
-        return new StackOperation(OPERATION_CLEAR, ifCondition, null);
+        return new StackOperation(OPERATION_CLEAR, ifCondition, new Vector<>());
     }
 
     private StackOperation(int opType, String ifCondition,
