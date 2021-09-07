@@ -1380,6 +1380,7 @@ public class FormDef implements IFormElement, IMetaData,
      * Requires that the instance has been set to a prototype of the instance that
      * should be used for deserialization.
      */
+    @Trace
     @Override
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         setID(ExtUtil.readInt(dis));

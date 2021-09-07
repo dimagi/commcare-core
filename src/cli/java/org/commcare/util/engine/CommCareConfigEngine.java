@@ -55,6 +55,8 @@ import java.util.Hashtable;
 import java.util.Vector;
 import java.util.zip.ZipFile;
 
+import datadog.trace.api.Trace;
+
 /**
  * @author ctsims
  */
@@ -306,6 +308,7 @@ public class CommCareConfigEngine {
         return platform;
     }
 
+    @Trace
     public FormDef loadFormByXmlns(String xmlns) {
         IStorageUtilityIndexed<FormDef> formStorage = platform.getStorageManager().getStorage(FormDef.STORAGE_KEY);
         return formStorage.getRecordForValue("XMLNS", xmlns);
