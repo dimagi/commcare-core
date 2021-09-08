@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import javax.annotation.Nullable;
+
 /**
  * Manager for remote query datums; get/answer user prompts and build
  * resulting query url.
@@ -39,7 +41,7 @@ import java.util.Hashtable;
  */
 public class RemoteQuerySessionManager {
     // used to parse multi-select choices
-    public static final String MULTI_SELECT_DELIMITER = "#,#";
+    public static final String ANSWER_DELIMITER = "#,#";
 
     private final RemoteQueryDatum queryDatum;
     private final EvaluationContext evaluationContext;
@@ -62,12 +64,8 @@ public class RemoteQuerySessionManager {
             String promptId = (String)en.nextElement();
             QueryPrompt prompt = queryPrompts.get(promptId);
 
-            if (isPromptSupported(prompt)) {
-                String defaultValue = "";
-                if (prompt.getDefaultValueExpr() != null) {
-                    defaultValue = FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext));
-                }
-                userAnswers.put(prompt.getKey(), defaultValue);
+            if (isPromptSupported(prompt) && prompt.getDefaultValueExpr() != null) {
+                userAnswers.put(prompt.getKey(), FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext)));
             }
 
         }
@@ -102,8 +100,16 @@ public class RemoteQuerySessionManager {
         userAnswers.clear();
     }
 
-    public void answerUserPrompt(String key, String answer) {
-        userAnswers.put(key, answer);
+    /**
+     * Register a non-null value as an answer for the given key.
+     * If value is null, removes the corresponding answer
+     */
+    public void answerUserPrompt(String key, @Nullable String value) {
+        if (value == null) {
+            userAnswers.remove(key);
+        } else {
+            userAnswers.put(key, value);
+        }
     }
 
     public URL getBaseUrl() {
@@ -129,7 +135,7 @@ public class RemoteQuerySessionManager {
                 String key = (String)e.nextElement();
                 String value = userAnswers.get(key);
                 if (!(params.containsKey(key) && params.get(key).contains(value))) {
-                    if (!StringUtils.isEmpty(value)) {
+                    if (value != null) {
                         params.put(key, userAnswers.get(key));
                     }
                 }
@@ -168,7 +174,15 @@ public class RemoteQuerySessionManager {
 
     public void populateItemSetChoices(QueryPrompt queryPrompt) {
         EvaluationContext evalContextWithAnswers = evaluationContext.spawnWithCleanLifecycle();
-        evalContextWithAnswers.setVariables(userAnswers);
+
+        OrderedHashtable<String, QueryPrompt> queryPrompts = queryDatum.getUserQueryPrompts();
+        for (Enumeration en = queryPrompts.keys(); en.hasMoreElements(); ) {
+            String promptId = (String)en.nextElement();
+            if (isPromptSupported(queryPrompts.get(promptId))) {
+                evalContextWithAnswers.setVariable(promptId, userAnswers.get(promptId));
+            }
+        }
+
         ItemSetUtils.populateDynamicChoices(queryPrompt.getItemsetBinding(), evalContextWithAnswers);
     }
 
@@ -189,7 +203,7 @@ public class RemoteQuerySessionManager {
                 if (queryPrompt.isSelect()) {
                     String answer = userAnswers.get(promptId);
                     populateItemSetChoices(queryPrompt);
-                    String[] selectedChoices = extractSelectChoices(answer);
+                    String[] selectedChoices = extractMultipleChoices(answer);
                     ArrayList<String> validSelectedChoices = new ArrayList<>();
                     for (String selectedChoice : selectedChoices) {
                         if (checkForValidSelectValue(queryPrompt.getItemsetBinding(), selectedChoice)) {
@@ -198,7 +212,12 @@ public class RemoteQuerySessionManager {
                             dirty = true;
                         }
                     }
-                    userAnswers.put(promptId, String.join(RemoteQuerySessionManager.MULTI_SELECT_DELIMITER, validSelectedChoices));
+                    if (validSelectedChoices.size() > 0) {
+                        userAnswers.put(promptId, String.join(RemoteQuerySessionManager.ANSWER_DELIMITER, validSelectedChoices));
+                    } else {
+                        // no value
+                        userAnswers.remove(promptId);
+                    }
                 }
             }
             index++;
@@ -222,12 +241,12 @@ public class RemoteQuerySessionManager {
         return queryDatum.doDefaultSearch();
     }
 
-    // Converts a string containing space separated list of select choices
+    // Converts a string containing space separated list of choices
     // into a string array of individual choices
-    public static String[] extractSelectChoices(String answer) {
+    public static String[] extractMultipleChoices(String answer) {
         if (answer == null) {
             return new String[]{};
         }
-        return answer.split(MULTI_SELECT_DELIMITER);
+        return answer.split(ANSWER_DELIMITER);
     }
 }
