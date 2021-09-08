@@ -9,8 +9,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import sun.misc.IOUtils;
-
 /**
  * @author $|-|!˅@M
  */
@@ -19,7 +17,7 @@ public class XmlUtilTest {
     @Test
     public void testPrettifyXml() throws IOException {
         try (InputStream inputStream = getClass().getResourceAsStream("/minified_xml.xml")) {
-            byte[] bytes = IOUtils.readAllBytes(inputStream);
+            byte[] bytes = inputStream.readAllBytes();
             String actualOutput = XmlUtil.getPrettyXml(bytes);
 
             String expectedOutput = getPrettyXml();
