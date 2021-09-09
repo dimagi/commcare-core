@@ -236,15 +236,17 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             try {
                 int index = Integer.parseInt(input);
                 host.setHighlightedEntity(mChoices[index]);
+                host.setCurrentScreenToDetail();
+                return true;
             } catch (NumberFormatException e) {
                 // This will result in things just executing again, which is fine.
-                return false;
             }
         } else {
             host.setHighlightedEntity(input);
+            host.setCurrentScreenToDetail();
+            return true;
         }
         // Set entity screen to show detail and redraw
-        host.setCurrentScreenToDetail(0);
         return false;
     }
 
