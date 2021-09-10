@@ -63,7 +63,7 @@ public class MockApp {
         FormDef fd = fpi.getFormDef();
         // run initialization to ensure xforms-ready event and binds are
         // triggered.
-        fd.initialize(true, mSessionWrapper.getIIF());
+        fd.initialize(true, mSessionWrapper.getIIF(), mSessionWrapper);
         return fec;
     }
 

@@ -41,7 +41,7 @@ public class FormInstanceTest {
         FormDef fd = fpi.getFormDef();
         // run initialization to ensure xforms-ready event and binds are
         // triggered.
-        fd.initialize(true, new DummyInstanceInitializationFactory());
+        fd.initialize(true, new DummyInstanceInitializationFactory(), null);
 
         FormInstance instance = fd.getMainInstance();
         FormInstance reSerializedInstance = reSerializeFormInstance(instance);
@@ -102,7 +102,7 @@ public class FormInstanceTest {
         FormDef fd = fpi.getFormDef();
         // run initialization to ensure xforms-ready event and binds are
         // triggered.
-        fd.initialize(true, new DummyInstanceInitializationFactory());
+        fd.initialize(true, new DummyInstanceInitializationFactory(), null);
         FormInstance instance = fd.getMainInstance();
         do {
         } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
@@ -112,7 +112,7 @@ public class FormInstanceTest {
         FormInstance reSerializedInstance = reSerializeFormInstance(instance);
 
         fd.setInstance(reSerializedInstance);
-        fd.initialize(true, new DummyInstanceInitializationFactory());
+        fd.initialize(true, new DummyInstanceInitializationFactory(), null);
         FormEntryModel femodel = new FormEntryModel(fd);
         fec = new FormEntryController(femodel);
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
