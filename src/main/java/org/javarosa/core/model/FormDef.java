@@ -3,6 +3,7 @@ package org.javarosa.core.model;
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.ScopeLimitedReferenceRequestCache;
 import org.commcare.modern.util.Pair;
+import org.commcare.session.CommCareSession;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.actions.Action;
 import org.javarosa.core.model.actions.ActionController;
@@ -1347,7 +1348,7 @@ public class FormDef implements IFormElement, IMetaData,
         return template;
     }
 
-    public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef){
+    public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef) {
         ItemSetUtils.populateDynamicChoices(itemset, curQRef, exprEvalContext, getMainInstance(), mProfilingEnabled);
     }
 
@@ -1408,33 +1409,39 @@ public class FormDef implements IFormElement, IMetaData,
      *                            (presumably in HQ) - so don't fire end of form event.
      */
     public void initialize(boolean newInstance, boolean isCompletedInstance,
-                           InstanceInitializationFactory factory) {
-        initialize(newInstance, isCompletedInstance, factory, null, false);
+                           InstanceInitializationFactory factory, CommCareSession commCareSession) {
+        initialize(newInstance, isCompletedInstance, factory, null, false, commCareSession);
     }
 
-    public void initialize(boolean newInstance, InstanceInitializationFactory factory) {
-        initialize(newInstance, false, factory, null, false);
+    public void initialize(boolean newInstance, InstanceInitializationFactory factory, CommCareSession commCareSession) {
+        initialize(newInstance, false, factory, null, false, commCareSession);
     }
 
     public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale,
-                           boolean isReadOnly) {
-        initialize(newInstance, false, factory, locale, isReadOnly);
+                           boolean isReadOnly, CommCareSession commCareSession) {
+        initialize(newInstance, false, factory, locale, isReadOnly, commCareSession);
     }
 
     /**
      * meant to be called after deserialization and initialization of handlers
      *
-     * @param newInstance true if the form is to be used for a new entry interaction,
-     *                    false if it is using an existing IDataModel
-     * @param locale      The default locale in the current environment, if provided. Can be null
-     *                    to rely on the form's internal default.
+     * @param newInstance     true if the form is to be used for a new entry interaction,
+     *                        false if it is using an existing IDataModel
+     * @param locale          The default locale in the current environment, if provided. Can be null
+     *                        to rely on the form's internal default.
+     * @param isReadOnly      If we are in read only mode and only wants to view form
+     * @param commCareSession Current commcare session the form is opened in
      */
     public void initialize(boolean newInstance, boolean isCompletedInstance,
-                           InstanceInitializationFactory factory, String locale, boolean isReadOnly) {
+                           InstanceInitializationFactory factory, String locale, boolean isReadOnly, CommCareSession commCareSession) {
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
             formInstances.put(instanceId, instance.initialize(factory, instanceId));
+        }
+
+        if (commCareSession != null) {
+            commCareSession.addQueryInstancesFromFrame(formInstances, factory);
         }
 
         initLocale(locale);

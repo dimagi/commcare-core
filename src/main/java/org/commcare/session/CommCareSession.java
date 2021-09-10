@@ -18,6 +18,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -599,6 +600,15 @@ public class CommCareSession {
         }
     }
 
+    public void addQueryInstancesFromFrame(Hashtable<String, DataInstance> instanceMap,
+                                           InstanceInitializationFactory iif) {
+        for (StackFrameStep step : frame.getSteps()) {
+            if (step.hasXmlInstance() && step.getType().equals(SessionFrame.STATE_QUERY_REQUEST)) {
+                instanceMap.put(step.getId(), step.getXmlInstance().initialize(iif, step.getId()));
+            }
+        }
+    }
+
     /**
      * @return A copy of the current frame with UNKNOWN types evaluated to their best guess
      */
@@ -949,14 +959,28 @@ public class CommCareSession {
             stackFrames.push(lastElement);
         }
         restoredSession.setFrameStack(stackFrames);
-        restoredSession.syncState();
 
+        for (StackFrameStep step : restoredFrame.getSteps()) {
+            if (step.hasXmlInstance()) {
+                TreeElement root = (TreeElement)ExtUtil.read(inputStream, TreeElement.class, null);
+                step.setXmlInstance(ExternalDataInstance.buildFromRemote(
+                        step.getXmlInstance().getInstanceId(), root, step.getXmlInstance().useCaseTemplate()));
+
+            }
+        }
+
+        restoredSession.syncState();
         return restoredSession;
     }
 
     public void serializeSessionState(DataOutputStream outputStream) throws IOException {
         frame.writeExternal(outputStream);
         ExtUtil.write(outputStream, new ExtWrapList(frameStack));
+        for (StackFrameStep step : frame.getSteps()) {
+            if (step.hasXmlInstance()) {
+                ExtUtil.write(outputStream, step.getXmlInstance().getRoot());
+            }
+        }
     }
 
     protected void setFrameStack(Stack<SessionFrame> frameStack) {
