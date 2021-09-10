@@ -58,7 +58,8 @@ public class XFormEnvironment {
     public FormEntryController setup(InstanceInitializationFactory factory) {
         form.setEvaluationContext(buildBaseEvaluationContext());
 
-        form.initialize(true, factory, preferredLocale, false);
+        // todo not sure if we need to pass a real commcareSession object here
+        form.initialize(true, factory, preferredLocale, false, null);
 
         if(recording) {
             session = new Session();
