@@ -189,38 +189,40 @@ public class RemoteQuerySessionManager {
     // loops over query prompts and validates selection until all selections are valid
     public void refreshItemSetChoices(Hashtable<String, String> userAnswers) {
         OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
-        boolean dirty = true;
-        int index = 0;
-        while (dirty) {
-            if (index == userInputDisplays.size()) {
-                // loop has already run as many times as no of questions and we are still dirty
-                throw new RuntimeException("Invalid itemset state encountered while trying to refresh itemset choices");
-            }
-            dirty = false;
-            for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
-                String promptId = (String)en.nextElement();
-                QueryPrompt queryPrompt = userInputDisplays.get(promptId);
-                if (queryPrompt.isSelect()) {
-                    String answer = userAnswers.get(promptId);
-                    populateItemSetChoices(queryPrompt);
-                    String[] selectedChoices = extractMultipleChoices(answer);
-                    ArrayList<String> validSelectedChoices = new ArrayList<>();
-                    for (String selectedChoice : selectedChoices) {
-                        if (checkForValidSelectValue(queryPrompt.getItemsetBinding(), selectedChoice)) {
-                            validSelectedChoices.add(selectedChoice);
+        if (userInputDisplays.size() > 0) {
+            boolean dirty = true;
+            int index = 0;
+            while (dirty) {
+                if (index == userInputDisplays.size()) {
+                    // loop has already run as many times as no of questions and we are still dirty
+                    throw new RuntimeException("Invalid itemset state encountered while trying to refresh itemset choices");
+                }
+                dirty = false;
+                for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
+                    String promptId = (String)en.nextElement();
+                    QueryPrompt queryPrompt = userInputDisplays.get(promptId);
+                    if (queryPrompt.isSelect()) {
+                        String answer = userAnswers.get(promptId);
+                        populateItemSetChoices(queryPrompt);
+                        String[] selectedChoices = extractMultipleChoices(answer);
+                        ArrayList<String> validSelectedChoices = new ArrayList<>();
+                        for (String selectedChoice : selectedChoices) {
+                            if (checkForValidSelectValue(queryPrompt.getItemsetBinding(), selectedChoice)) {
+                                validSelectedChoices.add(selectedChoice);
+                            } else {
+                                dirty = true;
+                            }
+                        }
+                        if (validSelectedChoices.size() > 0) {
+                            userAnswers.put(promptId, String.join(RemoteQuerySessionManager.ANSWER_DELIMITER, validSelectedChoices));
                         } else {
-                            dirty = true;
+                            // no value
+                            userAnswers.remove(promptId);
                         }
                     }
-                    if (validSelectedChoices.size() > 0) {
-                        userAnswers.put(promptId, String.join(RemoteQuerySessionManager.ANSWER_DELIMITER, validSelectedChoices));
-                    } else {
-                        // no value
-                        userAnswers.remove(promptId);
-                    }
                 }
+                index++;
             }
-            index++;
         }
     }
 
