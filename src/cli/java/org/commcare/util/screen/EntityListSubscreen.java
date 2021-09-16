@@ -249,7 +249,6 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             host.setCurrentScreenToDetail();
             return true;
         }
-        return false;
     }
 
     public Detail getShortDetail() {
