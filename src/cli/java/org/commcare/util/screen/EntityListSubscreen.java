@@ -265,4 +265,6 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         }
         return widthHint;
     }
+
+    
 }
