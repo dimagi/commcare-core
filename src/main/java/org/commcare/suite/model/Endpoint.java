@@ -17,6 +17,7 @@ import java.util.Vector;
 public class Endpoint implements Externalizable {
 
     String id;
+    String commandId;
     Vector<String> arguments;
     Vector<StackOperation> stackOperations;
 
@@ -24,8 +25,9 @@ public class Endpoint implements Externalizable {
     public Endpoint() {
     }
 
-    public Endpoint(String id, Vector<String> arguments, Vector<StackOperation> stackOperations) {
+    public Endpoint(String id, String commandId, Vector<String> arguments, Vector<StackOperation> stackOperations) {
         this.id = id;
+        this.commandId = commandId;
         this.arguments = arguments;
         this.stackOperations = stackOperations;
     }
@@ -33,6 +35,7 @@ public class Endpoint implements Externalizable {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         id = ExtUtil.readString(in);
+        commandId = ExtUtil.readString(in);
         arguments = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
         stackOperations = (Vector<StackOperation>)ExtUtil.read(in, new ExtWrapList(StackOperation.class), pf);
     }
@@ -40,12 +43,17 @@ public class Endpoint implements Externalizable {
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, id);
+        ExtUtil.writeString(out, commandId);
         ExtUtil.write(out, new ExtWrapList(arguments));
         ExtUtil.write(out, new ExtWrapList(stackOperations));
     }
 
     public String getId() {
         return id;
+    }
+
+    public String getCommandId() {
+        return commandId;
     }
 
     public Vector<String> getArguments() {
