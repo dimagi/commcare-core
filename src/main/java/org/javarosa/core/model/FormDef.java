@@ -69,6 +69,11 @@ import java.util.Vector;
 
 import javax.annotation.Nullable;
 
+import datadog.trace.api.Trace;
+import io.opentracing.Span;
+import io.opentracing.util.GlobalTracer;
+
+
 /**
  * Definition of a form. This has some meta data about the form definition and a
  * collection of groups together with question branching or skipping rules.
@@ -997,6 +1002,7 @@ public class FormDef implements IFormElement, IMetaData,
         return debugInfo;
     }
 
+    @Trace
     private void initAllTriggerables() {
         // Use all triggerables because we can assume they are rooted by rootRef
         TreeReference rootRef = TreeReference.rootRef();
@@ -1018,6 +1024,7 @@ public class FormDef implements IFormElement, IMetaData,
      * @param triggeredDuringInsert Triggerables that don't need to be fired
      *                              because they have already been fired while processing insert events
      */
+    @Trace
     private void initTriggerablesRootedBy(TreeReference rootRef,
                                           Vector<Triggerable> triggeredDuringInsert) {
         TreeReference genericRoot = rootRef.genericize();
@@ -1043,6 +1050,7 @@ public class FormDef implements IFormElement, IMetaData,
      * @param ref The full contextualized unambiguous reference of the value that was
      *            changed.
      */
+    @Trace
     public void triggerTriggerables(TreeReference ref) {
         // turn unambiguous ref into a generic ref to identify what nodes
         // should be triggered by this reference changing
@@ -1073,6 +1081,7 @@ public class FormDef implements IFormElement, IMetaData,
      *                          children have already been queued to be
      *                          triggered.
      */
+    @Trace
     private void evaluateTriggerables(List<Triggerable> tv,
                                       TreeReference anchorRef,
                                       boolean isRepeatEntryInit) {
@@ -1102,9 +1111,12 @@ public class FormDef implements IFormElement, IMetaData,
      * @param triggerable The triggerable to be updated
      * @param anchorRef   The reference to the value which was changed.
      */
+    @Trace
     private void evaluateTriggerable(Triggerable triggerable, TreeReference anchorRef) {
         // Contextualize the reference used by the triggerable against the anchor
         TreeReference contextRef = triggerable.narrowContextBy(anchorRef);
+        final Span span = GlobalTracer.get().activeSpan();
+        span.setTag("triggerable", triggerable.toString());
 
         // Now identify all of the fully qualified nodes which this triggerable
         // updates. (Multiple nodes can be updated by the same trigger)
@@ -1348,7 +1360,11 @@ public class FormDef implements IFormElement, IMetaData,
         return template;
     }
 
+    @Trace
     public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef) {
+        final Span span = GlobalTracer.get().activeSpan();
+        span.setTag("itemset", itemset.nodesetRef.toString());
+        span.setTag("treeReference", curQRef.toString());
         ItemSetUtils.populateDynamicChoices(itemset, curQRef, exprEvalContext, getMainInstance(), mProfilingEnabled);
     }
 
@@ -1368,6 +1384,7 @@ public class FormDef implements IFormElement, IMetaData,
      * Requires that the instance has been set to a prototype of the instance that
      * should be used for deserialization.
      */
+    @Trace
     @Override
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         setID(ExtUtil.readInt(dis));
@@ -1432,6 +1449,7 @@ public class FormDef implements IFormElement, IMetaData,
      * @param isReadOnly      If we are in read only mode and only wants to view form
      * @param commCareSession Current commcare session the form is opened in
      */
+    @Trace
     public void initialize(boolean newInstance, boolean isCompletedInstance,
                            InstanceInitializationFactory factory, String locale, boolean isReadOnly, CommCareSession commCareSession) {
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
