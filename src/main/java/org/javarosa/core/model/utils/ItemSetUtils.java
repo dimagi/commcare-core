@@ -203,4 +203,26 @@ public class ItemSetUtils {
         }
         return choice;
     }
+
+    // Get index of a value for the given itemset,
+    // return -1 if value is not present in itemset
+    public static int getIndexOf(ItemsetBinding itemsetBinding, String value) {
+        for (int i = 0; i < itemsetBinding.getChoices().size(); i++) {
+            if (itemsetBinding.getChoices().get(i).getValue().contentEquals(value)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    // returns labels corresponding to choices associated with the given itemsetBinding
+    public static String[] getChoiceLabels(ItemsetBinding itemsetBinding) {
+        Vector<SelectChoice> selectChoices = itemsetBinding.getChoices();
+        String[] choiceLabels = new String[selectChoices.size()];
+        for (int i = 0; i < selectChoices.size(); i++) {
+            SelectChoice selectChoice = selectChoices.get(i);
+            choiceLabels[i] = selectChoice.getLabelInnerText();
+        }
+        return choiceLabels;
+    }
 }

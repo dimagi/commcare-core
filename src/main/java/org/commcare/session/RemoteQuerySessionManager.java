@@ -1,11 +1,14 @@
 package org.commcare.session;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import org.commcare.cases.util.StringUtils;
 import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
-import org.javarosa.core.model.SelectChoice;
+import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
@@ -24,11 +27,11 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Vector;
 
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
+import javax.annotation.Nullable;
 
 /**
  * Manager for remote query datums; get/answer user prompts and build
@@ -37,15 +40,21 @@ import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class RemoteQuerySessionManager {
+    // used to parse multi-select choices
+    public static final String ANSWER_DELIMITER = "#,#";
+
     private final RemoteQueryDatum queryDatum;
     private final EvaluationContext evaluationContext;
     private final Hashtable<String, String> userAnswers =
             new Hashtable<>();
+    private final ArrayList<String> supportedPrompts;
 
     private RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
-                                      EvaluationContext evaluationContext) throws XPathException {
+                                      EvaluationContext evaluationContext,
+                                      ArrayList<String> supportedPrompts) throws XPathException {
         this.queryDatum = queryDatum;
         this.evaluationContext = evaluationContext;
+        this.supportedPrompts = supportedPrompts;
         initUserAnswers();
     }
 
@@ -54,16 +63,17 @@ public class RemoteQuerySessionManager {
         for (Enumeration en = queryPrompts.keys(); en.hasMoreElements(); ) {
             String promptId = (String)en.nextElement();
             QueryPrompt prompt = queryPrompts.get(promptId);
-            String defaultValue = "";
-            if (prompt.getDefaultValueExpr() != null) {
-                defaultValue = FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext));
+
+            if (isPromptSupported(prompt) && prompt.getDefaultValueExpr() != null) {
+                userAnswers.put(prompt.getKey(), FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext)));
             }
-            userAnswers.put(prompt.getKey(), defaultValue);
+
         }
     }
 
     public static RemoteQuerySessionManager buildQuerySessionManager(CommCareSession session,
-                                                                     EvaluationContext sessionContext) throws XPathException {
+                                                                     EvaluationContext sessionContext,
+                                                                     ArrayList<String> supportedPrompts) throws XPathException {
         SessionDatum datum;
         try {
             datum = session.getNeededDatum();
@@ -72,7 +82,7 @@ public class RemoteQuerySessionManager {
             return null;
         }
         if (datum instanceof RemoteQueryDatum) {
-            return new RemoteQuerySessionManager((RemoteQueryDatum)datum, sessionContext);
+            return new RemoteQuerySessionManager((RemoteQueryDatum)datum, sessionContext, supportedPrompts);
         } else {
             return null;
         }
@@ -90,8 +100,16 @@ public class RemoteQuerySessionManager {
         userAnswers.clear();
     }
 
-    public void answerUserPrompt(String key, String answer) {
-        userAnswers.put(key, answer);
+    /**
+     * Register a non-null value as an answer for the given key.
+     * If value is null, removes the corresponding answer
+     */
+    public void answerUserPrompt(String key, @Nullable String value) {
+        if (value == null) {
+            userAnswers.remove(key);
+        } else {
+            userAnswers.put(key, value);
+        }
     }
 
     public URL getBaseUrl() {
@@ -102,21 +120,24 @@ public class RemoteQuerySessionManager {
      * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
      * @return filters to be applied to case search uri as query params
      */
-    public Hashtable<String, String> getRawQueryParams(boolean skipDefaultPromptValues) {
-        Hashtable<String, String> params = new Hashtable<>();
-        Hashtable<String, XPathExpression> hiddenQueryValues = queryDatum.getHiddenQueryValues();
-        for (Enumeration e = hiddenQueryValues.keys(); e.hasMoreElements(); ) {
-            String key = (String)e.nextElement();
-            String evaluatedExpr = evalXpathExpression(hiddenQueryValues.get(key), evaluationContext);
-            params.put(key, evaluatedExpr);
+    public Multimap<String, String> getRawQueryParams(boolean skipDefaultPromptValues) {
+        Multimap<String, String> params = ArrayListMultimap.create();
+        Multimap<String, XPathExpression> hiddenQueryValues = queryDatum.getHiddenQueryValues();
+        for (String key : hiddenQueryValues.keySet()) {
+            for (XPathExpression xpathExpression : hiddenQueryValues.get(key)) {
+                String evaluatedExpr = evalXpathExpression(xpathExpression, evaluationContext);
+                params.put(key, evaluatedExpr);
+            }
         }
 
         if (!skipDefaultPromptValues) {
             for (Enumeration e = userAnswers.keys(); e.hasMoreElements(); ) {
                 String key = (String)e.nextElement();
                 String value = userAnswers.get(key);
-                if (!StringUtils.isEmpty(value)) {
-                    params.put(key, userAnswers.get(key));
+                if (!(params.containsKey(key) && params.get(key).contains(value))) {
+                    if (value != null) {
+                        params.put(key, userAnswers.get(key));
+                    }
                 }
             }
         }
@@ -153,13 +174,25 @@ public class RemoteQuerySessionManager {
 
     public void populateItemSetChoices(QueryPrompt queryPrompt) {
         EvaluationContext evalContextWithAnswers = evaluationContext.spawnWithCleanLifecycle();
-        evalContextWithAnswers.setVariables(userAnswers);
+
+        OrderedHashtable<String, QueryPrompt> queryPrompts = queryDatum.getUserQueryPrompts();
+        for (Enumeration en = queryPrompts.keys(); en.hasMoreElements(); ) {
+            String promptId = (String)en.nextElement();
+            if (isPromptSupported(queryPrompts.get(promptId))) {
+                evalContextWithAnswers.setVariable(promptId, userAnswers.get(promptId));
+            }
+        }
+
         ItemSetUtils.populateDynamicChoices(queryPrompt.getItemsetBinding(), evalContextWithAnswers);
     }
 
     // loops over query prompts and validates selection until all selections are valid
     public void refreshItemSetChoices(Hashtable<String, String> userAnswers) {
         OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
+        if (userInputDisplays.size() == 0) {
+            return;
+        }
+
         boolean dirty = true;
         int index = 0;
         while (dirty) {
@@ -171,14 +204,23 @@ public class RemoteQuerySessionManager {
             for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
                 String promptId = (String)en.nextElement();
                 QueryPrompt queryPrompt = userInputDisplays.get(promptId);
-                if (queryPrompt.getInput() != null && queryPrompt.getInput().contentEquals(INPUT_TYPE_SELECT1)) {
+                if (queryPrompt.isSelect()) {
                     String answer = userAnswers.get(promptId);
                     populateItemSetChoices(queryPrompt);
-                    Vector<SelectChoice> items = queryPrompt.getItemsetBinding().getChoices();
-                    if (!checkForValidSelectValue(items, answer)) {
-                        // if it's not a valid select value, blank it out
-                        userAnswers.put(promptId, "");
-                        dirty = true;
+                    String[] selectedChoices = extractMultipleChoices(answer);
+                    ArrayList<String> validSelectedChoices = new ArrayList<>();
+                    for (String selectedChoice : selectedChoices) {
+                        if (checkForValidSelectValue(queryPrompt.getItemsetBinding(), selectedChoice)) {
+                            validSelectedChoices.add(selectedChoice);
+                        } else {
+                            dirty = true;
+                        }
+                    }
+                    if (validSelectedChoices.size() > 0) {
+                        userAnswers.put(promptId, String.join(RemoteQuerySessionManager.ANSWER_DELIMITER, validSelectedChoices));
+                    } else {
+                        // no value
+                        userAnswers.remove(promptId);
                     }
                 }
             }
@@ -186,21 +228,29 @@ public class RemoteQuerySessionManager {
         }
     }
 
+    public boolean isPromptSupported(QueryPrompt queryPrompt) {
+        return queryPrompt.getInput() == null || supportedPrompts.indexOf(queryPrompt.getInput()) != -1;
+    }
+
     // checks if @param{value} is one of the select choices give in @param{items}
-    private boolean checkForValidSelectValue(Vector<SelectChoice> items, String value) {
+    private boolean checkForValidSelectValue(ItemsetBinding itemsetBinding, String value) {
         // blank is always a valid choice
         if (StringUtils.isEmpty(value)) {
             return true;
         }
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).getValue().contentEquals(value)) {
-                return true;
-            }
-        }
-        return false;
+        return ItemSetUtils.getIndexOf(itemsetBinding, value) != -1;
     }
 
     public boolean doDefaultSearch() {
         return queryDatum.doDefaultSearch();
+    }
+
+    // Converts a string containing space separated list of choices
+    // into a string array of individual choices
+    public static String[] extractMultipleChoices(String answer) {
+        if (answer == null) {
+            return new String[]{};
+        }
+        return answer.split(ANSWER_DELIMITER);
     }
 }

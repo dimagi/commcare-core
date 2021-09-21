@@ -19,6 +19,7 @@ import org.commcare.util.engine.CommCareConfigEngine;
 import org.commcare.util.mocks.CLISessionWrapper;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.screen.CommCareSessionException;
+import org.commcare.util.screen.EntityListSubscreen;
 import org.commcare.util.screen.EntityScreen;
 import org.commcare.util.screen.MenuScreen;
 import org.commcare.util.screen.QueryScreen;
@@ -183,11 +184,13 @@ public class ApplicationHost {
                     printStream.println(s.getWrappedDisplaytitle(mSandbox, mPlatform));
 
                     printStream.println("====================");
-                    s.prompt(printStream);
-                    printStream.print("> ");
-
+                    boolean requiresInput = s.prompt(printStream);
                     screenIsRedrawing = false;
-                    String input = reader.readLine();
+                    String input = "";
+                    if (requiresInput) {
+                        printStream.print("> ");
+                        input = reader.readLine();
+                    }
 
                     //TODO: Command language
                     if (input.startsWith(":")) {
@@ -245,8 +248,18 @@ public class ApplicationHost {
                         }
                     }
 
-                    screenIsRedrawing = s.handleInputAndUpdateSession(mSession, input, false);
-                    if (!screenIsRedrawing) {
+                    // When a user selects an entity in the EntityListSubscreen, this sets mCurrentSelection
+                    // which ultimately updates the session, so getNextScreen will move onto the form list,
+                    // skipping the entity detail. To avoid this, flag that we want to force a redraw in this case.
+                    boolean waitForCaseDetail = false;
+                    if (s instanceof EntityScreen) {
+                        if (((EntityScreen) s).getCurrentScreen() instanceof EntityListSubscreen) {
+                            waitForCaseDetail = true;
+                        }
+                    }
+
+                    screenIsRedrawing = !s.handleInputAndUpdateSession(mSession, input, false);
+                    if (!screenIsRedrawing && !waitForCaseDetail) {
                         s = getNextScreen();
                     }
                 } catch (CommCareSessionException ccse) {
@@ -488,6 +501,7 @@ public class ApplicationHost {
                     SandboxUtils.extractEntityOwners(sandbox));
         } catch (InvalidCaseGraphException e) {
             printStream.println(e.getMessage());
+            return;
         }
 
         int removedCases = sandbox.getCaseStorage().removeAll(purger).size();

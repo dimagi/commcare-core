@@ -1,8 +1,6 @@
 package org.commcare.suite.model;
 
-import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.ItemsetBinding;
-import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
@@ -14,14 +12,16 @@ import org.javarosa.xpath.expr.XPathExpression;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Vector;
 
 import javax.annotation.Nullable;
 
 // Model for <prompt> node in {@link
 public class QueryPrompt implements Externalizable {
 
-    public static final CharSequence INPUT_TYPE_SELECT1 = "select1";
+    public static final String INPUT_TYPE_SELECT1 = "select1";
+    public static final String INPUT_TYPE_SELECT = "select";
+    public static final String INPUT_TYPE_DATERANGE = "daterange";
+    public static final String INPUT_TYPE_ADDRESS = "address";
 
     private String key;
 
@@ -34,6 +34,9 @@ public class QueryPrompt implements Externalizable {
     @Nullable
     private String receive;
 
+    @Nullable
+    private String hidden;
+
     private DisplayUnit display;
 
     @Nullable
@@ -42,18 +45,24 @@ public class QueryPrompt implements Externalizable {
     @Nullable
     private ItemsetBinding itemsetBinding;
 
+    private boolean allowBlankValue;
+
     @SuppressWarnings("unused")
     public QueryPrompt() {
     }
 
-    public QueryPrompt(String key, String appearance, String input, String receive, DisplayUnit display, ItemsetBinding itemsetBinding, XPathExpression defaultValueExpr) {
+    public QueryPrompt(String key, String appearance, String input, String receive,
+                       String hidden, DisplayUnit display, ItemsetBinding itemsetBinding,
+                       XPathExpression defaultValueExpr, boolean allowBlankValue) {
         this.key = key;
         this.appearance = appearance;
         this.input = input;
         this.receive = receive;
+        this.hidden = hidden;
         this.display = display;
         this.itemsetBinding = itemsetBinding;
         this.defaultValueExpr = defaultValueExpr;
+        this.allowBlankValue = allowBlankValue;
     }
 
     @Override
@@ -62,9 +71,11 @@ public class QueryPrompt implements Externalizable {
         appearance = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         input = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         receive = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        hidden = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
         itemsetBinding = (ItemsetBinding)ExtUtil.read(in, new ExtWrapNullable(ItemsetBinding.class), pf);
         defaultValueExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
+        allowBlankValue = ExtUtil.readBool(in);
     }
 
     @Override
@@ -73,9 +84,11 @@ public class QueryPrompt implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(appearance));
         ExtUtil.write(out, new ExtWrapNullable(input));
         ExtUtil.write(out, new ExtWrapNullable(receive));
+        ExtUtil.write(out, new ExtWrapNullable(hidden));
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapNullable(itemsetBinding));
         ExtUtil.write(out, new ExtWrapNullable(defaultValueExpr == null ? null : new ExtWrapTagged(defaultValueExpr)));
+        ExtUtil.writeBool(out, allowBlankValue);
     }
 
     public String getKey() {
@@ -97,6 +110,15 @@ public class QueryPrompt implements Externalizable {
         return receive;
     }
 
+    @Nullable
+    public String getHidden() {
+        return hidden;
+    }
+
+    public boolean isAllowBlankValue() {
+        return allowBlankValue;
+    }
+
     public DisplayUnit getDisplay() {
         return display;
     }
@@ -111,25 +133,11 @@ public class QueryPrompt implements Externalizable {
         return defaultValueExpr;
     }
 
-    public boolean isSelectOne() {
-        return input != null && input.contentEquals(INPUT_TYPE_SELECT1);
-    }
-
-    public Pair<String[], Integer> getItemsetChoicesWithAnswerIndex(String currentAnswer) {
-        int answerIndex = -1;
-        if (itemsetBinding != null) {
-            Vector<SelectChoice> selectChoices = itemsetBinding.getChoices();
-            String[] choices = new String[selectChoices.size()];
-            for (int i = 0; i < selectChoices.size(); i++) {
-                SelectChoice selectChoice = selectChoices.get(i);
-                choices[i] = selectChoice.getLabelInnerText();
-                if (selectChoice.getValue().contentEquals(currentAnswer)) {
-                    answerIndex = i;
-                }
-            }
-            return new Pair<>(choices, answerIndex);
-        }
-        return new Pair<>(null, answerIndex);
+    /**
+     * @return whether the prompt has associated choices to select from
+     */
+    public boolean isSelect() {
+        return getItemsetBinding() != null;
     }
 
 }

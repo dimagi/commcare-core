@@ -175,7 +175,9 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCarePlatform> 
                     return cache(ref.getStream(), r, table, upgrade);
                 }
             } catch (IOException e) {
-                throw new UnreliableSourceException(r, e.getMessage());
+                UnreliableSourceException exception = new UnreliableSourceException(r, e.getMessage());
+                exception.initCause(e);
+                throw exception;
             } finally {
                 try {
                     if (incoming != null) {

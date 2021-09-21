@@ -28,7 +28,13 @@ public abstract class Screen implements OptionsScreen {
      */
     public abstract void init(SessionWrapper session) throws CommCareSessionException;
 
-    public abstract void prompt(PrintStream out) throws CommCareSessionException;
+    /**
+     * Display a prompt to the user.
+     * @param out Output stream to write the prompt to.
+     * @return True if the screen requires an input from the user.
+     * @throws CommCareSessionException
+     */
+    public abstract boolean prompt(PrintStream out) throws CommCareSessionException;
 
     /**
      * Based on the the input provided from the user to the command line, either update the session

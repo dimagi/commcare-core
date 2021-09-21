@@ -1,6 +1,9 @@
 package org.commcare.util.screen;
 import datadog.trace.api.Trace;
 
+import com.google.common.collect.Multimap;
+
+import org.commcare.cases.util.StringUtils;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.CommCareSession;
@@ -17,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
@@ -24,9 +28,13 @@ import java.util.Vector;
 
 import okhttp3.Credentials;
 import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_ADDRESS;
 
 /**
  * Screen that displays user configurable entry texts and makes
@@ -36,8 +44,25 @@ import okhttp3.Response;
  */
 public class QueryScreen extends Screen {
 
+    public interface QueryClient {
+        public InputStream makeRequest(Request request);
+    }
+
+    private class OkHttpQueryClient implements QueryClient {
+        @Override
+        public InputStream makeRequest(Request request) {
+            try {
+                Response response = new okhttp3.OkHttpClient().newCall(request).execute();
+                return response.body().byteStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+    }
+
     private RemoteQuerySessionManager remoteQuerySessionManager;
-    private OrderedHashtable<String, QueryPrompt> userInputDisplays;
+    protected OrderedHashtable<String, QueryPrompt> userInputDisplays;
     private SessionWrapper sessionWrapper;
     private String[] fields;
     private String mTitle;
@@ -49,6 +74,7 @@ public class QueryScreen extends Screen {
     private PrintStream out;
 
     private boolean defaultSearch;
+    private QueryClient client = new OkHttpQueryClient();
 
     public QueryScreen(String domainedUsername, String password, PrintStream out) {
         this.domainedUsername = domainedUsername;
@@ -61,7 +87,7 @@ public class QueryScreen extends Screen {
         this.sessionWrapper = sessionWrapper;
         remoteQuerySessionManager =
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper,
-                        sessionWrapper.getEvaluationContext());
+                        sessionWrapper.getEvaluationContext(), getSupportedPrompts());
 
         if (remoteQuerySessionManager == null) {
             throw new CommCareSessionException(String.format("QueryManager for case " +
@@ -82,30 +108,53 @@ public class QueryScreen extends Screen {
         }
     }
 
-    private static String buildUrl(String baseUrl, Hashtable<String, String> queryParams) {
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
+    public void setClient(QueryClient client) {
+        this.client = client;
+    }
+
+    // Formplayer List of Supported prompts
+    private ArrayList<String> getSupportedPrompts() {
+        ArrayList<String> supportedPrompts = new ArrayList<>();
+        supportedPrompts.add(INPUT_TYPE_SELECT1);
+        supportedPrompts.add(INPUT_TYPE_SELECT);
+        supportedPrompts.add(INPUT_TYPE_DATERANGE);
+        supportedPrompts.add(INPUT_TYPE_ADDRESS);
+        return supportedPrompts;
+    }
+
+    /**
+     * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
+     * @return case search url with search prompt values
+     */
+    public String buildUrl(boolean skipDefaultPromptValues) {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(getBaseUrl().toString()).newBuilder();
+        Multimap<String, String> queryParams = getQueryParams(skipDefaultPromptValues);
         for (String key : queryParams.keySet()) {
-            urlBuilder.addQueryParameter(key, queryParams.get(key));
+            QueryPrompt prompt = userInputDisplays.get(key);
+            for (String value : queryParams.get(key)) {
+                if (prompt != null && prompt.isSelect()) {
+                    String[] selectedChoices = RemoteQuerySessionManager.extractMultipleChoices(value);
+                    for (String selectedChoice : selectedChoices) {
+                        urlBuilder.addQueryParameter(key, selectedChoice);
+                    }
+                } else {
+                    urlBuilder.addQueryParameter(key, value);
+                }
+            }
         }
         return urlBuilder.build().toString();
     }
 
 
     private InputStream makeQueryRequestReturnStream() {
-        String url = buildUrl(getBaseUrl().toString(), getQueryParams(false));
+        String url = buildUrl(false);
         String credential = Credentials.basic(domainedUsername, password);
 
         Request request = new Request.Builder()
                 .url(url)
                 .header("Authorization", credential)
                 .build();
-        try {
-            Response response = new OkHttpClient().newCall(request).execute();
-            return response.body().byteStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return client.makeRequest(request);
     }
 
     public Pair<ExternalDataInstance, String> processResponse(InputStream responseData) {
@@ -127,7 +176,7 @@ public class QueryScreen extends Screen {
         }
     }
 
-    public ExternalDataInstance buildExternalDataInstance(TreeElement root){
+    public ExternalDataInstance buildExternalDataInstance(TreeElement root) {
         return remoteQuerySessionManager.buildExternalDataInstance(root);
     }
 
@@ -137,25 +186,25 @@ public class QueryScreen extends Screen {
             QueryPrompt queryPrompt = userInputDisplays.get(key);
             String answer = answers.get(key);
 
-            // Treat all missing values as empty
-            if (answer == null) {
-                answer = "";
-            }
-
             // If select question, we should have got an index as the answer which should
             // be converted to the corresponding value
-            if (queryPrompt.isSelectOne() && !answer.isEmpty()) {
-                int choiceIndex = Integer.parseInt(answer);
+            if (queryPrompt.isSelect() && !StringUtils.isEmpty(answer)) {
                 Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
-                if (choiceIndex < selectChoices.size()) {
-                    answer = selectChoices.get(choiceIndex).getValue();
-                } else {
-                    // answer is no longer a valid choice, so clear it out
-                    answer = "";
+                String[] indicesOfSelectedChoices = RemoteQuerySessionManager.extractMultipleChoices(answer);
+                ArrayList<String> selectedChoices = new ArrayList<>(indicesOfSelectedChoices.length);
+                for (int i = 0; i < indicesOfSelectedChoices.length; i++) {
+                    if (indicesOfSelectedChoices[i].isEmpty()) {
+                        selectedChoices.add("");
+                    } else {
+                        int choiceIndex = Integer.parseInt(indicesOfSelectedChoices[i]);
+                        if (choiceIndex < selectChoices.size() && choiceIndex > -1) {
+                            selectedChoices.add(selectChoices.get(choiceIndex).getValue());
+                        }
+                    }
                 }
+                answer = String.join(RemoteQuerySessionManager.ANSWER_DELIMITER, selectedChoices);
             }
             remoteQuerySessionManager.answerUserPrompt(key, answer);
-            refreshItemSetChoices();
         }
     }
 
@@ -171,7 +220,7 @@ public class QueryScreen extends Screen {
      * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
      * @return filters to be applied to case search uri as query params
      */
-    protected Hashtable<String, String> getQueryParams(boolean skipDefaultPromptValues) {
+    protected Multimap<String, String> getQueryParams(boolean skipDefaultPromptValues) {
         return remoteQuerySessionManager.getRawQueryParams(skipDefaultPromptValues);
     }
 
@@ -180,11 +229,15 @@ public class QueryScreen extends Screen {
     }
 
     @Override
-    public void prompt(PrintStream out) {
-        out.println("Enter the search fields as a space separated list.");
+    public boolean prompt(PrintStream out) {
+        if (doDefaultSearch()) {
+            return false;
+        }
+        out.println("Enter the search fields as a comma-separated list.");
         for (int i = 0; i < fields.length; i++) {
             out.println(i + ") " + fields[i]);
         }
+        return true;
     }
 
     @Override

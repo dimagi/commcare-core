@@ -22,8 +22,9 @@ public abstract class CompoundScreenHost extends Screen {
     public abstract Subscreen getCurrentScreen();
 
     @Override
-    public void prompt(PrintStream out) throws CommCareSessionException {
+    public boolean prompt(PrintStream out) throws CommCareSessionException {
         getCurrentScreen().prompt(out);
+        return true;
     }
 
     @Override
@@ -36,9 +37,9 @@ public abstract class CompoundScreenHost extends Screen {
     public final boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch) throws CommCareSessionException {
         if (getCurrentScreen().handleInputAndUpdateHost(input, this, allowAutoLaunch)) {
             this.updateSession(session);
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**

@@ -29,7 +29,7 @@ public class Action implements Externalizable {
     private Vector<StackOperation> stackOps;
     private XPathExpression relevantExpr;
     private String iconReferenceForActionBar;
-    private boolean isAutoLaunching;
+    private XPathExpression autoLaunchExpr;
     private boolean redoLast;
 
     /**
@@ -45,12 +45,12 @@ public class Action implements Externalizable {
      * operations set.
      */
     public Action(DisplayUnit display, Vector<StackOperation> stackOps,
-                  XPathExpression relevantExpr, String iconForActionBar, boolean isAutoLaunching, boolean redoLast) {
+                  XPathExpression relevantExpr, String iconForActionBar, XPathExpression autoLaunchExpr, boolean redoLast) {
         this.display = display;
         this.stackOps = stackOps;
         this.relevantExpr = relevantExpr;
         this.iconReferenceForActionBar = iconForActionBar == null ? "" : iconForActionBar;
-        this.isAutoLaunching = isAutoLaunching;
+        this.autoLaunchExpr = autoLaunchExpr;
         this.redoLast = redoLast;
     }
 
@@ -71,7 +71,7 @@ public class Action implements Externalizable {
     }
 
     public boolean isRelevant(EvaluationContext evalContext) {
-        if (isAutoLaunching || relevantExpr == null) {
+        if (relevantExpr == null) {
             return true;
         } else {
             String result = RemoteQuerySessionManager.evalXpathExpression(relevantExpr, evalContext);
@@ -79,8 +79,16 @@ public class Action implements Externalizable {
         }
     }
 
-    public boolean isAutoLaunching() {
-        return isAutoLaunching;
+    public boolean isAutoLaunchAction(EvaluationContext evalContext) {
+        if (autoLaunchExpr != null) {
+            String result = RemoteQuerySessionManager.evalXpathExpression(autoLaunchExpr, evalContext);
+            return "true".equals(result);
+        }
+        return false;
+    }
+
+    public XPathExpression getAutoLaunchExpr() {
+        return autoLaunchExpr;
     }
 
     public boolean isRedoLast() {
@@ -99,7 +107,7 @@ public class Action implements Externalizable {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
         stackOps = (Vector<StackOperation>)ExtUtil.read(in, new ExtWrapList(StackOperation.class), pf);
-        isAutoLaunching = ExtUtil.readBool(in);
+        autoLaunchExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
         relevantExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
         iconReferenceForActionBar = ExtUtil.readString(in);
         redoLast = ExtUtil.readBool(in);
@@ -109,7 +117,7 @@ public class Action implements Externalizable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapList(stackOps));
-        ExtUtil.writeBool(out, isAutoLaunching);
+        ExtUtil.write(out, new ExtWrapNullable(autoLaunchExpr == null ? null : new ExtWrapTagged(autoLaunchExpr)));
         ExtUtil.write(out, new ExtWrapNullable(relevantExpr == null ? null : new ExtWrapTagged(relevantExpr)));
         ExtUtil.writeString(out, iconReferenceForActionBar);
         ExtUtil.writeBool(out, redoLast);

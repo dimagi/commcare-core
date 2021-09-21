@@ -64,7 +64,7 @@
             </text>
           </display>
         </prompt>
-        <prompt key="patient_id">
+        <prompt key="patient_id" hidden="false" allow_blank_value="true">
           <display>
             <text>
               <locale id="query.id"/>
@@ -87,9 +87,10 @@
     <command id="m0-f0">
       <text>Form</text>
     </command>
-    <instance id="casedb" src="jr://instance/casedb"/>
     <session>
-      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+      <query url="http://www.example.com/a/domain/phone/get_case/" storage-instance="registry1" template="case" default_search="true">
+        <data key="case_type" ref="'case'"/>
+      </query>
     </session>
   </entry>
   <menu id="root">

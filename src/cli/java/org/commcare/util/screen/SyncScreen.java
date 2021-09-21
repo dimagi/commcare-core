@@ -113,12 +113,13 @@ public class SyncScreen extends Screen {
     }
 
     @Override
-    public void prompt(PrintStream printStream) throws CommCareSessionException {
+    public boolean prompt(PrintStream printStream) throws CommCareSessionException {
         if (syncSuccessful) {
             printStream.println("Sync complete, press Enter to continue");
         } else {
             printStream.println("Sync failed, press Enter to retry");
         }
+        return true;
     }
 
     @Trace
@@ -129,10 +130,10 @@ public class SyncScreen extends Screen {
             if (commCareSession.finishExecuteAndPop(sessionWrapper.getEvaluationContext())) {
                 sessionWrapper.clearVolatiles();
             }
-            return false;
+            return true;
         } else {
             parseMakeRequest();
-            return true;
+            return false;
         }
     }
 

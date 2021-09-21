@@ -1,7 +1,9 @@
 package org.commcare.xml;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import org.commcare.suite.model.ComputedDatum;
-import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.QueryPrompt;
@@ -19,7 +21,6 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Hashtable;
 
 /**
  * @author ctsims
@@ -75,8 +76,7 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
 
     private RemoteQueryDatum parseRemoteQueryDatum()
             throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
-        Hashtable<String, XPathExpression> hiddenQueryValues =
-                new Hashtable<>();
+        Multimap<String, XPathExpression> hiddenQueryValues = ArrayListMultimap.create();
         OrderedHashtable<String, QueryPrompt> userQueryPrompts =
                 new OrderedHashtable<>();
         this.checkNode("query");

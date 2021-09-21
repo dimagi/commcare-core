@@ -401,7 +401,8 @@ public class FormEntryController {
         if (element instanceof GroupDef) {
             //Assert that this is a valid condition (only field lists return prompts)
             if (!this.isHostWithAppearance(currentIndex, FIELD_LIST)) {
-                throw new RuntimeException("Cannot get question prompts from a non-field-list group");
+                throw new RuntimeException("Cannot get question prompts from a non-field-list group at index "
+                        + currentIndex + " for form " + getModel().getForm().getName());
             }
 
             // Questions to collect

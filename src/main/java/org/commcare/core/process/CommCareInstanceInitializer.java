@@ -2,11 +2,12 @@ package org.commcare.core.process;
 
 import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
-import org.commcare.cases.instance.IndexedFixtureInstanceTreeElement;
 import org.commcare.cases.instance.LedgerInstanceTreeElement;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.sandbox.SandboxUtils;
+import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionInstanceBuilder;
+import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.User;
 import org.commcare.session.CommCareSession;
@@ -176,6 +177,11 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
 
     protected AbstractTreeElement setupRemoteData(ExternalDataInstance instance) {
+        for (StackFrameStep step : session.getFrame().getSteps()) {
+            if (step.getId().equals(instance.getInstanceId()) && step.getType().equals(SessionFrame.STATE_QUERY_REQUEST)) {
+                return step.getXmlInstance().getRoot();
+            }
+        }
         return instance.getRoot();
     }
 
