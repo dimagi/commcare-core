@@ -232,7 +232,7 @@ public class QueryScreen extends Screen {
         if (doDefaultSearch()) {
             return false;
         }
-        out.println("Enter the search fields as a space separated list.");
+        out.println("Enter the search fields as a comma-separated list.");
         for (int i = 0; i < fields.length; i++) {
             out.println(i + ") " + fields[i]);
         }
