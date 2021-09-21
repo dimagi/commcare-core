@@ -15,6 +15,7 @@ import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
@@ -962,10 +963,12 @@ public class CommCareSession {
 
         for (StackFrameStep step : restoredFrame.getSteps()) {
             if (step.hasXmlInstance()) {
-                TreeElement root = (TreeElement)ExtUtil.read(inputStream, TreeElement.class, null);
-                step.setXmlInstance(ExternalDataInstance.buildFromRemote(
-                        step.getXmlInstance().getInstanceId(), root, step.getXmlInstance().useCaseTemplate()));
-
+                boolean isValid = ExtUtil.readBool(inputStream);
+                if (isValid) {
+                    TreeElement root = (TreeElement)ExtUtil.read(inputStream, TreeElement.class, null);
+                    step.setXmlInstance(ExternalDataInstance.buildFromRemote(
+                            step.getXmlInstance().getInstanceId(), root, step.getXmlInstance().useCaseTemplate()));
+                }
             }
         }
 
@@ -978,7 +981,12 @@ public class CommCareSession {
         ExtUtil.write(outputStream, new ExtWrapList(frameStack));
         for (StackFrameStep step : frame.getSteps()) {
             if (step.hasXmlInstance()) {
-                ExtUtil.write(outputStream, step.getXmlInstance().getRoot());
+                AbstractTreeElement root = step.getXmlInstance().getRoot();
+                boolean isValid = root instanceof TreeElement);
+                ExtUtil.writeBool(outputStream, isValid);
+                if (isValid) {
+                    ExtUtil.write(outputStream, root);
+                }
             }
         }
     }
