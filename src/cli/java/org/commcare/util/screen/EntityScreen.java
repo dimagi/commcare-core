@@ -221,7 +221,7 @@ public class EntityScreen extends CompoundScreenHost {
             this.mCurrentSelection = referenceMap.get(id);
         }
         if (this.mCurrentSelection == null) {
-            throw new CommCareSessionException("EntityScreen " + this.toString() + " could not select case " + id + "." +
+            throw new CommCareSessionException("Could not select case " + id + " on this screen. " +
                     " If this error persists please report a bug to CommCareHQ.");
         }
     }
