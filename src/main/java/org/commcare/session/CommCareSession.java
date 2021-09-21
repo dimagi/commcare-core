@@ -982,7 +982,7 @@ public class CommCareSession {
         for (StackFrameStep step : frame.getSteps()) {
             if (step.hasXmlInstance()) {
                 AbstractTreeElement root = step.getXmlInstance().getRoot();
-                boolean isValid = root instanceof TreeElement);
+                boolean isValid = root instanceof TreeElement;
                 ExtUtil.writeBool(outputStream, isValid);
                 if (isValid) {
                     ExtUtil.write(outputStream, root);
