@@ -9,6 +9,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import javax.annotation.Nullable;
+
 /**
  * @author ctsims
  */
@@ -18,6 +20,10 @@ public class ExternalDataInstance extends DataInstance {
 
     private AbstractTreeElement root;
     private InstanceBase base;
+
+    @Nullable
+    private String remoteUrl;
+
     public final static String JR_REMOTE_REFERENCE = "jr://instance/remote";
 
     public ExternalDataInstance() {
@@ -45,10 +51,11 @@ public class ExternalDataInstance extends DataInstance {
     }
 
     private ExternalDataInstance(String reference, String instanceId,
-                                 TreeElement topLevel, boolean useCaseTemplate) {
+                                 TreeElement topLevel, String remoteUrl, boolean useCaseTemplate) {
         this(reference, instanceId);
 
         this.useCaseTemplate = useCaseTemplate;
+        this.remoteUrl = remoteUrl;
 
         base = new InstanceBase(instanceId);
         topLevel.setInstanceName(instanceId);
@@ -59,8 +66,9 @@ public class ExternalDataInstance extends DataInstance {
 
     public static ExternalDataInstance buildFromRemote(String instanceId,
                                                        TreeElement root,
+                                                       String remoteUrl,
                                                        boolean useCaseTemplate) {
-        return new ExternalDataInstance(JR_REMOTE_REFERENCE, instanceId, root, useCaseTemplate);
+        return new ExternalDataInstance(JR_REMOTE_REFERENCE, instanceId, root, remoteUrl, useCaseTemplate);
     }
 
     public boolean useCaseTemplate() {

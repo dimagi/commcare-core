@@ -347,7 +347,7 @@ public class SessionStackTests {
                         sessionWrapper.getEvaluationContext(), new ArrayList<>());
         InputStream is = cls.getResourceAsStream(resourcePath);
         Pair<ExternalDataInstance, String> instanceOrError =
-                remoteQuerySessionManager.buildExternalDataInstance(is);
+                remoteQuerySessionManager.buildExternalDataInstance(is, resourcePath);
         assertNotNull(instanceOrError.first);
         return instanceOrError.first;
     }
