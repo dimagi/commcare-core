@@ -127,7 +127,7 @@ public class XPathFuncExprTest {
     public void testOutOfBoundsPosition() throws XPathSyntaxException {
         FormParseInit fpi = new FormParseInit("/xform_tests/test_position_with_ref.xml");
         FormEntryController fec = fpi.getFormEntryController();
-        fpi.getFormDef().initialize(true, null, null);
+        fpi.getFormDef().initialize(true, null);
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
 
         try {

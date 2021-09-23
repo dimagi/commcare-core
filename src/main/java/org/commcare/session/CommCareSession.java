@@ -601,15 +601,6 @@ public class CommCareSession {
         }
     }
 
-    public void addQueryInstancesFromFrame(Hashtable<String, DataInstance> instanceMap,
-                                           InstanceInitializationFactory iif) {
-        for (StackFrameStep step : frame.getSteps()) {
-            if (step.hasXmlInstance() && step.getType().equals(SessionFrame.STATE_QUERY_REQUEST)) {
-                instanceMap.put(step.getId(), step.getXmlInstance().initialize(iif, step.getId()));
-            }
-        }
-    }
-
     /**
      * @return A copy of the current frame with UNKNOWN types evaluated to their best guess
      */

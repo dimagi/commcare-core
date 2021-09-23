@@ -82,7 +82,7 @@ public class FormDefTest {
         FormDef fd = fpi.getFormDef();
         // run initialization to ensure xforms-ready event and binds are
         // triggered.
-        fd.initialize(true, new DummyInstanceInitializationFactory(), null);
+        fd.initialize(true, new DummyInstanceInitializationFactory());
 
         FormInstance instance = fd.getMainInstance();
 
@@ -565,7 +565,7 @@ public class FormDefTest {
 
     private static FormEntryController initFormEntry(FormParseInit fpi, String locale) {
         FormEntryController fec = fpi.getFormEntryController();
-        fpi.getFormDef().initialize(true, null, locale, false, null);
+        fpi.getFormDef().initialize(true, null, locale, false);
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
         return fec;
     }

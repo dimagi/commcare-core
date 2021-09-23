@@ -10,14 +10,11 @@ import org.commcare.test.utilities.MockApp;
 import org.commcare.util.mocks.MockQueryClient;
 import org.commcare.util.screen.QueryScreen;
 import org.javarosa.core.model.instance.AbstractTreeElement;
-import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Hashtable;
 
 /**
  * Basic test for remote query as part of form entry session
@@ -49,12 +46,11 @@ public class QueryModelTests {
 
         // check that the datum got set and can be accessed correctly
         CommCareInstanceInitializer iif = session.getIIF();
-        Hashtable<String, DataInstance> instances = new Hashtable<>();
-        session.addQueryInstancesFromFrame(instances, iif);
-        Assert.assertEquals(1, instances.size());
-        DataInstance queryInstance = instances.get("registry1");
-        Assert.assertEquals("registry1", queryInstance.getInstanceId());
-        Assert.assertEquals("results", queryInstance.getRoot().getName());
-        Assert.assertEquals(1, queryInstance.getRoot().getNumChildren());
+        AbstractTreeElement root = iif.generateRoot(new ExternalDataInstance(ExternalDataInstance.JR_REMOTE_REFERENCE, "registry1"));
+        Assert.assertEquals("results", root.getName());
+        Assert.assertEquals(1, root.getNumChildren());
+
+        AbstractTreeElement root1 = iif.generateRoot(new ExternalDataInstance(ExternalDataInstance.JR_REMOTE_REFERENCE, "not-registry"));
+        Assert.assertNull("Expect that response is null if instanceId does not match", root1);
     }
 }

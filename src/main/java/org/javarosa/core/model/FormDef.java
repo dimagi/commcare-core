@@ -1409,17 +1409,17 @@ public class FormDef implements IFormElement, IMetaData,
      *                            (presumably in HQ) - so don't fire end of form event.
      */
     public void initialize(boolean newInstance, boolean isCompletedInstance,
-                           InstanceInitializationFactory factory, CommCareSession commCareSession) {
-        initialize(newInstance, isCompletedInstance, factory, null, false, commCareSession);
+                           InstanceInitializationFactory factory) {
+        initialize(newInstance, isCompletedInstance, factory, null, false);
     }
 
-    public void initialize(boolean newInstance, InstanceInitializationFactory factory, CommCareSession commCareSession) {
-        initialize(newInstance, false, factory, null, false, commCareSession);
+    public void initialize(boolean newInstance, InstanceInitializationFactory factory) {
+        initialize(newInstance, false, factory, null, false);
     }
 
     public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale,
-                           boolean isReadOnly, CommCareSession commCareSession) {
-        initialize(newInstance, false, factory, locale, isReadOnly, commCareSession);
+                           boolean isReadOnly) {
+        initialize(newInstance, false, factory, locale, isReadOnly);
     }
 
     /**
@@ -1430,18 +1430,13 @@ public class FormDef implements IFormElement, IMetaData,
      * @param locale          The default locale in the current environment, if provided. Can be null
      *                        to rely on the form's internal default.
      * @param isReadOnly      If we are in read only mode and only wants to view form
-     * @param commCareSession Current commcare session the form is opened in
      */
     public void initialize(boolean newInstance, boolean isCompletedInstance,
-                           InstanceInitializationFactory factory, String locale, boolean isReadOnly, CommCareSession commCareSession) {
+                           InstanceInitializationFactory factory, String locale, boolean isReadOnly) {
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
             formInstances.put(instanceId, instance.initialize(factory, instanceId));
-        }
-
-        if (commCareSession != null) {
-            commCareSession.addQueryInstancesFromFrame(formInstances, factory);
         }
 
         initLocale(locale);

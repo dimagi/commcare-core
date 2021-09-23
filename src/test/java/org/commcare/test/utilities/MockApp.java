@@ -6,9 +6,6 @@ import org.commcare.util.engine.CommCareConfigEngine;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.services.storage.IStorageIndexedFactory;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.form.api.FormEntryController;
@@ -63,7 +60,7 @@ public class MockApp {
         FormDef fd = fpi.getFormDef();
         // run initialization to ensure xforms-ready event and binds are
         // triggered.
-        fd.initialize(true, mSessionWrapper.getIIF(), mSessionWrapper);
+        fd.initialize(true, mSessionWrapper.getIIF());
         return fec;
     }
 

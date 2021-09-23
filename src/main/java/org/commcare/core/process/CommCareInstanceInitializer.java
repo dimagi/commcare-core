@@ -177,6 +177,14 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
 
     protected AbstractTreeElement setupRemoteData(ExternalDataInstance instance) {
+        // If no instance root present, try to find it in the session frame
+        if (instance.getRoot() == null) {
+            for (StackFrameStep step : session.getFrame().getSteps()) {
+                if (step.getId().equals(instance.getInstanceId()) && step.getType().equals(SessionFrame.STATE_QUERY_REQUEST)) {
+                    return step.getXmlInstance().getRoot();
+                }
+            }
+        }
         return instance.getRoot();
     }
 
