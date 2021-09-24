@@ -110,10 +110,6 @@ public class StackFrameStep implements Externalizable {
         return xmlInstance;
     }
 
-    public void setXmlInstance(ExternalDataInstance xmlInstance) {
-        this.xmlInstance = xmlInstance;
-    }
-
     /**
      * @param value Must extend Externalizable or be a basic data type (String, Vector, etc)
      */

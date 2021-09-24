@@ -150,22 +150,6 @@ public class RemoteQuerySessionManager {
     }
 
     /**
-     * @return Data instance built from xml stream or the error message raised during parsing
-     */
-    public Pair<ExternalDataInstance, String> buildExternalDataInstance(InputStream instanceStream, String remoteUrl) {
-        TreeElement root;
-        try {
-            KXmlParser baseParser = ElementParser.instantiateParser(instanceStream);
-            root = new TreeElementParser(baseParser, 0, queryDatum.getDataId()).parse();
-        } catch (InvalidStructureException | IOException
-                | XmlPullParserException | UnfullfilledRequirementsException e) {
-            e.printStackTrace();
-            return new Pair<>(null, e.getMessage());
-        }
-        return new Pair<>(ExternalDataInstance.buildFromRemote(queryDatum.getDataId(), root, remoteUrl, queryDatum.useCaseTemplate()), "");
-    }
-
-    /**
      * @return Data instance built from xml root or the error message raised during parsing
      */
     public ExternalDataInstance buildExternalDataInstance(TreeElement root, String remoteUrl) {
@@ -252,5 +236,9 @@ public class RemoteQuerySessionManager {
             return new String[]{};
         }
         return answer.split(ANSWER_DELIMITER);
+    }
+
+    public RemoteQueryDatum getQueryDatum() {
+        return queryDatum;
     }
 }

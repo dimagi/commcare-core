@@ -198,7 +198,7 @@ public class FormDef implements IFormElement, IMetaData,
         return formInstances.get(name);
     }
 
-    public Enumeration getNonMainInstances() {
+    public Enumeration<DataInstance> getNonMainInstances() {
         return formInstances.elements();
     }
 
