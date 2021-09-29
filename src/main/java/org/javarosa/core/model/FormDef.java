@@ -1,9 +1,6 @@
 package org.javarosa.core.model;
 
-import org.commcare.cases.query.QueryContext;
-import org.commcare.cases.query.ScopeLimitedReferenceRequestCache;
 import org.commcare.modern.util.Pair;
-import org.commcare.session.CommCareSession;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.actions.Action;
 import org.javarosa.core.model.actions.ActionController;
@@ -29,9 +26,7 @@ import org.javarosa.core.model.instance.InvalidReferenceException;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
-import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
-import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.model.utils.ItemSetUtils;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
@@ -47,10 +42,7 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
-import org.javarosa.xpath.analysis.AnalysisInvalidException;
-import org.javarosa.xpath.analysis.TreeReferenceAccumulatingAnalyzer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -58,16 +50,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.Vector;
-
-import javax.annotation.Nullable;
 
 import datadog.trace.api.Trace;
 import io.opentracing.Span;
@@ -203,7 +191,7 @@ public class FormDef implements IFormElement, IMetaData,
         return formInstances.get(name);
     }
 
-    public Enumeration getNonMainInstances() {
+    public Enumeration<DataInstance> getNonMainInstances() {
         return formInstances.elements();
     }
 
@@ -1426,17 +1414,17 @@ public class FormDef implements IFormElement, IMetaData,
      *                            (presumably in HQ) - so don't fire end of form event.
      */
     public void initialize(boolean newInstance, boolean isCompletedInstance,
-                           InstanceInitializationFactory factory, CommCareSession commCareSession) {
-        initialize(newInstance, isCompletedInstance, factory, null, false, commCareSession);
+                           InstanceInitializationFactory factory) {
+        initialize(newInstance, isCompletedInstance, factory, null, false);
     }
 
-    public void initialize(boolean newInstance, InstanceInitializationFactory factory, CommCareSession commCareSession) {
-        initialize(newInstance, false, factory, null, false, commCareSession);
+    public void initialize(boolean newInstance, InstanceInitializationFactory factory) {
+        initialize(newInstance, false, factory, null, false);
     }
 
     public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale,
-                           boolean isReadOnly, CommCareSession commCareSession) {
-        initialize(newInstance, false, factory, locale, isReadOnly, commCareSession);
+                           boolean isReadOnly) {
+        initialize(newInstance, false, factory, locale, isReadOnly);
     }
 
     /**
@@ -1447,19 +1435,14 @@ public class FormDef implements IFormElement, IMetaData,
      * @param locale          The default locale in the current environment, if provided. Can be null
      *                        to rely on the form's internal default.
      * @param isReadOnly      If we are in read only mode and only wants to view form
-     * @param commCareSession Current commcare session the form is opened in
      */
     @Trace
     public void initialize(boolean newInstance, boolean isCompletedInstance,
-                           InstanceInitializationFactory factory, String locale, boolean isReadOnly, CommCareSession commCareSession) {
+                           InstanceInitializationFactory factory, String locale, boolean isReadOnly) {
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
             formInstances.put(instanceId, instance.initialize(factory, instanceId));
-        }
-
-        if (commCareSession != null) {
-            commCareSession.addQueryInstancesFromFrame(formInstances, factory);
         }
 
         initLocale(locale);

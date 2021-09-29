@@ -9,12 +9,16 @@ import org.commcare.modern.util.Pair;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.QueryPrompt;
+import org.commcare.suite.model.RemoteQueryDatum;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,10 +35,10 @@ import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT;
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_ADDRESS;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
 /**
  * Screen that displays user configurable entry texts and makes
@@ -43,6 +47,8 @@ import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_ADDRESS;
  * @author wspride
  */
 public class QueryScreen extends Screen {
+
+    private String queryUrl;
 
     public interface QueryClient {
         public InputStream makeRequest(Request request);
@@ -126,7 +132,7 @@ public class QueryScreen extends Screen {
      * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
      * @return case search url with search prompt values
      */
-    public String buildUrl(boolean skipDefaultPromptValues) {
+    private String buildUrl(boolean skipDefaultPromptValues) {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(getBaseUrl().toString()).newBuilder();
         Multimap<String, String> queryParams = getQueryParams(skipDefaultPromptValues);
         for (String key : queryParams.keySet()) {
@@ -147,23 +153,31 @@ public class QueryScreen extends Screen {
 
 
     private InputStream makeQueryRequestReturnStream() {
-        String url = buildUrl(false);
+        queryUrl = buildUrl(false);
         String credential = Credentials.basic(domainedUsername, password);
 
         Request request = new Request.Builder()
-                .url(url)
+                .url(queryUrl)
                 .header("Authorization", credential)
                 .build();
         return client.makeRequest(request);
     }
 
-    public Pair<ExternalDataInstance, String> processResponse(InputStream responseData) {
+    public Pair<ExternalDataInstance, String> processResponse(InputStream responseData, String url) {
         if (responseData == null) {
             currentMessage = "Query result null.";
             return new Pair<>(null, currentMessage);
         }
-        Pair<ExternalDataInstance, String> instanceOrError =
-                remoteQuerySessionManager.buildExternalDataInstance(responseData);
+        Pair<ExternalDataInstance, String> instanceOrError;
+        try {
+            ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(getQueryDatum().getDataId(), responseData, url, getQueryDatum().useCaseTemplate());
+            instanceOrError =  new Pair<>(instance, "");
+        } catch (InvalidStructureException | IOException
+                | XmlPullParserException | UnfullfilledRequirementsException e) {
+            e.printStackTrace();
+            instanceOrError =  new Pair<>(null, e.getMessage());
+        }
+
         if (instanceOrError.first == null) {
             currentMessage = "Query response format error: " + instanceOrError.second;
         }
@@ -176,8 +190,8 @@ public class QueryScreen extends Screen {
         }
     }
 
-    public ExternalDataInstance buildExternalDataInstance(TreeElement root) {
-        return remoteQuerySessionManager.buildExternalDataInstance(root);
+    public ExternalDataInstance buildExternalDataInstance(TreeElement root, String url) {
+        return remoteQuerySessionManager.buildExternalDataInstance(root, url);
     }
 
     public void answerPrompts(Hashtable<String, String> answers) {
@@ -257,7 +271,7 @@ public class QueryScreen extends Screen {
         }
         answerPrompts(userAnswers);
         InputStream response = makeQueryRequestReturnStream();
-        Pair<ExternalDataInstance, String> instanceOrError = processResponse(response);
+        Pair<ExternalDataInstance, String> instanceOrError = processResponse(response, queryUrl);
         setQueryDatum(instanceOrError.first);
         if (currentMessage != null) {
             out.println(currentMessage);
@@ -280,5 +294,9 @@ public class QueryScreen extends Screen {
 
     public boolean doDefaultSearch() {
         return remoteQuerySessionManager.doDefaultSearch();
+    }
+
+    public RemoteQueryDatum getQueryDatum() {
+        return remoteQuerySessionManager.getQueryDatum();
     }
 }

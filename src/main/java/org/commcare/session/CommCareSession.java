@@ -601,15 +601,6 @@ public class CommCareSession {
         }
     }
 
-    public void addQueryInstancesFromFrame(Hashtable<String, DataInstance> instanceMap,
-                                           InstanceInitializationFactory iif) {
-        for (StackFrameStep step : frame.getSteps()) {
-            if (step.hasXmlInstance() && step.getType().equals(SessionFrame.STATE_QUERY_REQUEST)) {
-                instanceMap.put(step.getId(), step.getXmlInstance().initialize(iif, step.getId()));
-            }
-        }
-    }
-
     /**
      * @return A copy of the current frame with UNKNOWN types evaluated to their best guess
      */
@@ -960,18 +951,6 @@ public class CommCareSession {
             stackFrames.push(lastElement);
         }
         restoredSession.setFrameStack(stackFrames);
-
-        for (StackFrameStep step : restoredFrame.getSteps()) {
-            if (step.hasXmlInstance()) {
-                boolean isValid = ExtUtil.readBool(inputStream);
-                if (isValid) {
-                    TreeElement root = (TreeElement)ExtUtil.read(inputStream, TreeElement.class, null);
-                    step.setXmlInstance(ExternalDataInstance.buildFromRemote(
-                            step.getXmlInstance().getInstanceId(), root, step.getXmlInstance().useCaseTemplate()));
-                }
-            }
-        }
-
         restoredSession.syncState();
         return restoredSession;
     }
@@ -979,16 +958,6 @@ public class CommCareSession {
     public void serializeSessionState(DataOutputStream outputStream) throws IOException {
         frame.writeExternal(outputStream);
         ExtUtil.write(outputStream, new ExtWrapList(frameStack));
-        for (StackFrameStep step : frame.getSteps()) {
-            if (step.hasXmlInstance()) {
-                AbstractTreeElement root = step.getXmlInstance().getRoot();
-                boolean isValid = root instanceof TreeElement;
-                ExtUtil.writeBool(outputStream, isValid);
-                if (isValid) {
-                    ExtUtil.write(outputStream, root);
-                }
-            }
-        }
     }
 
     protected void setFrameStack(Stack<SessionFrame> frameStack) {
