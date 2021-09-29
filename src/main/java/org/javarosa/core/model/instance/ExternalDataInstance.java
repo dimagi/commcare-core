@@ -135,6 +135,7 @@ public class ExternalDataInstance extends DataInstance {
         base = new InstanceBase(instanceId);
         root = initializer.generateRoot(this);
 
+        // If no root, try to load the instance from the session
         if (root == null) {
             ExternalDataInstance sessionInstance = initializer.getInstanceFromSession(instanceId);
             reference = sessionInstance.getReference();
