@@ -1,5 +1,6 @@
 package org.commcare.test.utilities;
 
+import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.util.engine.CommCareConfigEngine;
@@ -52,7 +53,7 @@ public class MockApp {
      * Loads the provided form and properly initializes external data instances,
      * such as the casedb and commcare session.
      */
-    public FormEntryController loadAndInitForm(String formFileInApp) {
+    public FormEntryController loadAndInitForm(String formFileInApp) throws RemoteInstanceFetcher.RemoteInstanceException {
         FormParseInit fpi = new FormParseInit(APP_BASE + formFileInApp);
         FormEntryController fec = fpi.getFormEntryController();
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
