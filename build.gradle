@@ -73,6 +73,9 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.12.12'
     compile 'com.google.code.findbugs:jsr305:3.0.2'
     compile 'io.reactivex.rxjava2:rxjava:2.1.1'
+    compile 'io.opentracing:opentracing-api:0.33.0'
+    compile 'io.opentracing:opentracing-util:0.33.0'
+    compile 'com.datadoghq:dd-trace-api:0.64.0'
     compile 'com.google.guava:guava:30.1.1-jre'
 
     cliCompile 'org.json:json:20140107'
@@ -84,6 +87,7 @@ dependencies {
     cliCompile 'io.reactivex.rxjava2:rxjava:2.1.1'
     cliCompile 'com.squareup.retrofit2:retrofit:2.3.0'
     cliCompile 'com.squareup.okhttp3:okhttp:4.4.1'
+    cliCompile 'com.datadoghq:dd-trace-api:0.64.0'
     cliCompile 'com.google.guava:guava:30.1.1-jre'
 
     testCompile sourceSets.main.output
@@ -108,6 +112,9 @@ dependencies {
     apiCompile 'io.reactivex.rxjava2:rxjava:2.1.1'
     apiCompile "com.squareup.retrofit2:retrofit:2.3.0"
     apiCompile 'com.squareup.okhttp3:okhttp:4.4.1'
+    apiCompile 'io.opentracing:opentracing-api:0.33.0'
+    apiCompile 'io.opentracing:opentracing-util:0.33.0'
+    apiCompile 'com.datadoghq:dd-trace-api:0.64.0'
     apiCompile 'com.google.guava:guava:30.1.1-jre'
 
     translateCompile 'com.github.stefanhaustein:kxml2:2.4.1'

@@ -15,9 +15,11 @@ import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -950,7 +952,6 @@ public class CommCareSession {
         }
         restoredSession.setFrameStack(stackFrames);
         restoredSession.syncState();
-
         return restoredSession;
     }
 

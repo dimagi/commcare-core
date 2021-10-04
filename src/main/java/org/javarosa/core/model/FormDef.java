@@ -1,7 +1,6 @@
 package org.javarosa.core.model;
 
-import org.commcare.cases.query.QueryContext;
-import org.commcare.cases.query.ScopeLimitedReferenceRequestCache;
+import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.actions.Action;
@@ -22,15 +21,14 @@ import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.InvalidReferenceException;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
-import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
-import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.model.utils.ItemSetUtils;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
@@ -46,25 +44,31 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.XPathException;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathTypeMismatchException;
-import org.javarosa.xpath.analysis.AnalysisInvalidException;
-import org.javarosa.xpath.analysis.TreeReferenceAccumulatingAnalyzer;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.Vector;
+
+
+import datadog.trace.api.Trace;
+import io.opentracing.Span;
+import io.opentracing.util.GlobalTracer;
+
 
 import javax.annotation.Nullable;
 
@@ -197,7 +201,7 @@ public class FormDef implements IFormElement, IMetaData,
         return formInstances.get(name);
     }
 
-    public Enumeration getNonMainInstances() {
+    public Enumeration<DataInstance> getNonMainInstances() {
         return formInstances.elements();
     }
 
@@ -996,6 +1000,7 @@ public class FormDef implements IFormElement, IMetaData,
         return debugInfo;
     }
 
+    @Trace
     private void initAllTriggerables() {
         // Use all triggerables because we can assume they are rooted by rootRef
         TreeReference rootRef = TreeReference.rootRef();
@@ -1017,6 +1022,7 @@ public class FormDef implements IFormElement, IMetaData,
      * @param triggeredDuringInsert Triggerables that don't need to be fired
      *                              because they have already been fired while processing insert events
      */
+    @Trace
     private void initTriggerablesRootedBy(TreeReference rootRef,
                                           Vector<Triggerable> triggeredDuringInsert) {
         TreeReference genericRoot = rootRef.genericize();
@@ -1042,6 +1048,7 @@ public class FormDef implements IFormElement, IMetaData,
      * @param ref The full contextualized unambiguous reference of the value that was
      *            changed.
      */
+    @Trace
     public void triggerTriggerables(TreeReference ref) {
         // turn unambiguous ref into a generic ref to identify what nodes
         // should be triggered by this reference changing
@@ -1072,6 +1079,7 @@ public class FormDef implements IFormElement, IMetaData,
      *                          children have already been queued to be
      *                          triggered.
      */
+    @Trace
     private void evaluateTriggerables(List<Triggerable> tv,
                                       TreeReference anchorRef,
                                       boolean isRepeatEntryInit) {
@@ -1101,9 +1109,12 @@ public class FormDef implements IFormElement, IMetaData,
      * @param triggerable The triggerable to be updated
      * @param anchorRef   The reference to the value which was changed.
      */
+    @Trace
     private void evaluateTriggerable(Triggerable triggerable, TreeReference anchorRef) {
         // Contextualize the reference used by the triggerable against the anchor
         TreeReference contextRef = triggerable.narrowContextBy(anchorRef);
+        final Span span = GlobalTracer.get().activeSpan();
+        span.setTag("triggerable", triggerable.toString());
 
         // Now identify all of the fully qualified nodes which this triggerable
         // updates. (Multiple nodes can be updated by the same trigger)
@@ -1347,7 +1358,11 @@ public class FormDef implements IFormElement, IMetaData,
         return template;
     }
 
-    public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef){
+    @Trace
+    public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef) {
+        final Span span = GlobalTracer.get().activeSpan();
+        span.setTag("itemset", itemset.nodesetRef.toString());
+        span.setTag("treeReference", curQRef.toString());
         ItemSetUtils.populateDynamicChoices(itemset, curQRef, exprEvalContext, getMainInstance(), mProfilingEnabled);
     }
 
@@ -1367,6 +1382,7 @@ public class FormDef implements IFormElement, IMetaData,
      * Requires that the instance has been set to a prototype of the instance that
      * should be used for deserialization.
      */
+    @Trace
     @Override
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         setID(ExtUtil.readInt(dis));
@@ -1408,17 +1424,17 @@ public class FormDef implements IFormElement, IMetaData,
      *                            (presumably in HQ) - so don't fire end of form event.
      */
     public void initialize(boolean newInstance, boolean isCompletedInstance,
-                           InstanceInitializationFactory factory) {
-        initialize(newInstance, isCompletedInstance, factory, null, false);
+                           InstanceInitializationFactory factory) throws RemoteInstanceFetcher.RemoteInstanceException {
+        initialize(newInstance, isCompletedInstance, factory, null, false, null);
     }
 
-    public void initialize(boolean newInstance, InstanceInitializationFactory factory) {
-        initialize(newInstance, false, factory, null, false);
+    public void initialize(boolean newInstance, InstanceInitializationFactory factory) throws RemoteInstanceFetcher.RemoteInstanceException {
+        initialize(newInstance, false, factory, null, false, null);
     }
 
     public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale,
-                           boolean isReadOnly) {
-        initialize(newInstance, false, factory, locale, isReadOnly);
+                           boolean isReadOnly, RemoteInstanceFetcher remoteInstanceFetcher) throws RemoteInstanceFetcher.RemoteInstanceException {
+        initialize(newInstance, false, factory, locale, isReadOnly, remoteInstanceFetcher);
     }
 
     /**
@@ -1428,13 +1444,20 @@ public class FormDef implements IFormElement, IMetaData,
      *                    false if it is using an existing IDataModel
      * @param locale      The default locale in the current environment, if provided. Can be null
      *                    to rely on the form's internal default.
+     * @param isReadOnly  If we are in read only mode and only wants to view form
+     * @param remoteInstanceFetcher utility to initialize remote instances over internet, can be null
      */
-    public void initialize(boolean newInstance, boolean isCompletedInstance,
-                           InstanceInitializationFactory factory, String locale, boolean isReadOnly) {
+    @Trace
+    public void initialize(boolean newInstance, boolean isCompletedInstance, InstanceInitializationFactory factory,
+                           String locale, boolean isReadOnly, @Nullable RemoteInstanceFetcher remoteInstanceFetcher) throws RemoteInstanceFetcher.RemoteInstanceException {
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
             formInstances.put(instanceId, instance.initialize(factory, instanceId));
+        }
+
+        if (remoteInstanceFetcher != null) {
+            tryAttachingRemoteInstances(remoteInstanceFetcher);
         }
 
         initLocale(locale);
@@ -1448,6 +1471,41 @@ public class FormDef implements IFormElement, IMetaData,
         this.isCompletedInstance = isCompletedInstance;
         if (!isReadOnly) {
             initAllTriggerables();
+        }
+    }
+
+    private void tryAttachingRemoteInstances(RemoteInstanceFetcher remoteInstanceFetcher) throws RemoteInstanceFetcher.RemoteInstanceException {
+        ArrayList<DataInstance> replacedInstances = new ArrayList<>();
+        Enumeration<DataInstance> instances = getNonMainInstances();
+        while (instances.hasMoreElements()) {
+            DataInstance instance = instances.nextElement();
+            if (instance instanceof ExternalDataInstance &&
+                    instance.getRoot() == null &&
+                    ((ExternalDataInstance)instance).getRemoteUrl() != null) {
+                try {
+                    ExternalDataInstance externalDataInstance = (ExternalDataInstance)instance;
+                    ExternalDataInstance newExternalDataInstance = remoteInstanceFetcher.getRemoteDataInstance(instance.getInstanceId(),
+                            externalDataInstance.useCaseTemplate(),
+                            new URI(externalDataInstance.getRemoteUrl()));
+                    if (newExternalDataInstance != null && newExternalDataInstance.getRoot() != null) {
+                        replacedInstances.add(newExternalDataInstance);
+                    }
+                } catch (UnfullfilledRequirementsException | XmlPullParserException |
+                        InvalidStructureException | IOException | URISyntaxException e) {
+                    String errorMessage;
+                    if (e instanceof URISyntaxException) {
+                        errorMessage = "Invalid url found for the remote instance " + instance.getName() + ".";
+                    } else if (e instanceof IOException) {
+                        errorMessage = "Could not retrieve data for remote instance " + instance.getName() + ". Please try opening the form again.";
+                    } else {
+                        errorMessage = "Invalid data retrieved from remote instance " + instance.getName() + ". If the error persists please contact your help desk.";
+                    }
+                    throw new RemoteInstanceFetcher.RemoteInstanceException(errorMessage, e.getCause());
+                }
+            }
+        }
+        for (DataInstance replacedInstance : replacedInstances) {
+            addNonMainInstance(replacedInstance);
         }
     }
 
