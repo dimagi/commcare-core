@@ -1,5 +1,6 @@
 package org.javarosa.core.model;
 
+import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.actions.Action;
@@ -20,6 +21,7 @@ import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.InvalidReferenceException;
@@ -42,11 +44,16 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -57,10 +64,13 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
+
 import datadog.trace.api.Trace;
 import io.opentracing.Span;
 import io.opentracing.util.GlobalTracer;
 
+
+import javax.annotation.Nullable;
 
 /**
  * Definition of a form. This has some meta data about the form definition and a
@@ -1414,35 +1424,40 @@ public class FormDef implements IFormElement, IMetaData,
      *                            (presumably in HQ) - so don't fire end of form event.
      */
     public void initialize(boolean newInstance, boolean isCompletedInstance,
-                           InstanceInitializationFactory factory) {
-        initialize(newInstance, isCompletedInstance, factory, null, false);
+                           InstanceInitializationFactory factory) throws RemoteInstanceFetcher.RemoteInstanceException {
+        initialize(newInstance, isCompletedInstance, factory, null, false, null);
     }
 
-    public void initialize(boolean newInstance, InstanceInitializationFactory factory) {
-        initialize(newInstance, false, factory, null, false);
+    public void initialize(boolean newInstance, InstanceInitializationFactory factory) throws RemoteInstanceFetcher.RemoteInstanceException {
+        initialize(newInstance, false, factory, null, false, null);
     }
 
     public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale,
-                           boolean isReadOnly) {
-        initialize(newInstance, false, factory, locale, isReadOnly);
+                           boolean isReadOnly, RemoteInstanceFetcher remoteInstanceFetcher) throws RemoteInstanceFetcher.RemoteInstanceException {
+        initialize(newInstance, false, factory, locale, isReadOnly, remoteInstanceFetcher);
     }
 
     /**
      * meant to be called after deserialization and initialization of handlers
      *
-     * @param newInstance     true if the form is to be used for a new entry interaction,
-     *                        false if it is using an existing IDataModel
-     * @param locale          The default locale in the current environment, if provided. Can be null
-     *                        to rely on the form's internal default.
-     * @param isReadOnly      If we are in read only mode and only wants to view form
+     * @param newInstance true if the form is to be used for a new entry interaction,
+     *                    false if it is using an existing IDataModel
+     * @param locale      The default locale in the current environment, if provided. Can be null
+     *                    to rely on the form's internal default.
+     * @param isReadOnly  If we are in read only mode and only wants to view form
+     * @param remoteInstanceFetcher utility to initialize remote instances over internet, can be null
      */
     @Trace
-    public void initialize(boolean newInstance, boolean isCompletedInstance,
-                           InstanceInitializationFactory factory, String locale, boolean isReadOnly) {
+    public void initialize(boolean newInstance, boolean isCompletedInstance, InstanceInitializationFactory factory,
+                           String locale, boolean isReadOnly, @Nullable RemoteInstanceFetcher remoteInstanceFetcher) throws RemoteInstanceFetcher.RemoteInstanceException {
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
             formInstances.put(instanceId, instance.initialize(factory, instanceId));
+        }
+
+        if (remoteInstanceFetcher != null) {
+            tryAttachingRemoteInstances(remoteInstanceFetcher);
         }
 
         initLocale(locale);
@@ -1456,6 +1471,41 @@ public class FormDef implements IFormElement, IMetaData,
         this.isCompletedInstance = isCompletedInstance;
         if (!isReadOnly) {
             initAllTriggerables();
+        }
+    }
+
+    private void tryAttachingRemoteInstances(RemoteInstanceFetcher remoteInstanceFetcher) throws RemoteInstanceFetcher.RemoteInstanceException {
+        ArrayList<DataInstance> replacedInstances = new ArrayList<>();
+        Enumeration<DataInstance> instances = getNonMainInstances();
+        while (instances.hasMoreElements()) {
+            DataInstance instance = instances.nextElement();
+            if (instance instanceof ExternalDataInstance &&
+                    instance.getRoot() == null &&
+                    ((ExternalDataInstance)instance).getRemoteUrl() != null) {
+                try {
+                    ExternalDataInstance externalDataInstance = (ExternalDataInstance)instance;
+                    ExternalDataInstance newExternalDataInstance = remoteInstanceFetcher.getRemoteDataInstance(instance.getInstanceId(),
+                            externalDataInstance.useCaseTemplate(),
+                            new URI(externalDataInstance.getRemoteUrl()));
+                    if (newExternalDataInstance != null && newExternalDataInstance.getRoot() != null) {
+                        replacedInstances.add(newExternalDataInstance);
+                    }
+                } catch (UnfullfilledRequirementsException | XmlPullParserException |
+                        InvalidStructureException | IOException | URISyntaxException e) {
+                    String errorMessage;
+                    if (e instanceof URISyntaxException) {
+                        errorMessage = "Invalid url found for the remote instance " + instance.getName() + ".";
+                    } else if (e instanceof IOException) {
+                        errorMessage = "Could not retrieve data for remote instance " + instance.getName() + ". Please try opening the form again.";
+                    } else {
+                        errorMessage = "Invalid data retrieved from remote instance " + instance.getName() + ". If the error persists please contact your help desk.";
+                    }
+                    throw new RemoteInstanceFetcher.RemoteInstanceException(errorMessage, e.getCause());
+                }
+            }
+        }
+        for (DataInstance replacedInstance : replacedInstances) {
+            addNonMainInstance(replacedInstance);
         }
     }
 
