@@ -148,6 +148,8 @@ public class StackFrameStep implements Externalizable {
                 return new StackFrameStep(SessionFrame.STATE_MARK, neededDatum.getDataId(), null);
             case SessionFrame.STATE_FORM_XMLNS:
                 throw new RuntimeException("Form Definitions in Steps are not yet supported!");
+            case SessionFrame.STATE_QUERY_REQUEST:
+                return new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST, id, evaluateValue(ec));
             default:
                 throw new RuntimeException("Invalid step [" + elementType + "] declared when constructing a new frame step");
         }
