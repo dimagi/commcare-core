@@ -7,6 +7,8 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMultiMap;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
+import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.expr.XPathExpression;
 
@@ -26,7 +28,7 @@ public class RemoteQueryDatum extends SessionDatum {
     private Multimap<String, XPathExpression> hiddenQueryValues;
     private OrderedHashtable<String, QueryPrompt> userQueryPrompts;
     private boolean useCaseTemplate;
-    private boolean defaultSearch;
+    private XPathExpression defaultSearch;
 
     @SuppressWarnings("unused")
     public RemoteQueryDatum() {
@@ -40,7 +42,7 @@ public class RemoteQueryDatum extends SessionDatum {
     public RemoteQueryDatum(URL url, String storageInstance,
                             Multimap<String, XPathExpression> hiddenQueryValues,
                             OrderedHashtable<String, QueryPrompt> userQueryPrompts,
-                            boolean useCaseTemplate, boolean defaultSearch) {
+                            boolean useCaseTemplate, XPathExpression defaultSearch) {
         super(storageInstance, url.toString());
         this.hiddenQueryValues = hiddenQueryValues;
         this.userQueryPrompts = userQueryPrompts;
@@ -70,7 +72,7 @@ public class RemoteQueryDatum extends SessionDatum {
         return useCaseTemplate;
     }
 
-    public boolean doDefaultSearch() {
+    public XPathExpression doDefaultSearch() {
         return defaultSearch;
     }
 
@@ -85,7 +87,7 @@ public class RemoteQueryDatum extends SessionDatum {
                 (OrderedHashtable<String, QueryPrompt>)ExtUtil.read(in,
                         new ExtWrapMap(String.class, QueryPrompt.class, ExtWrapMap.TYPE_ORDERED), pf);
         useCaseTemplate = ExtUtil.readBool(in);
-        defaultSearch = ExtUtil.readBool(in);
+        defaultSearch = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
     }
 
     @Override
@@ -94,6 +96,6 @@ public class RemoteQueryDatum extends SessionDatum {
         ExtUtil.write(out, new ExtWrapMultiMap(hiddenQueryValues));
         ExtUtil.write(out, new ExtWrapMap(userQueryPrompts));
         ExtUtil.writeBool(out, useCaseTemplate);
-        ExtUtil.writeBool(out, defaultSearch);
+        ExtUtil.write(out, new ExtWrapNullable(defaultSearch == null ? null : new ExtWrapTagged(defaultSearch)));
     }
 }

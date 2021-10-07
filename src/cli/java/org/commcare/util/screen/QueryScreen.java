@@ -11,6 +11,7 @@ import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.javarosa.core.model.SelectChoice;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
@@ -79,7 +80,6 @@ public class QueryScreen extends Screen {
 
     private PrintStream out;
 
-    private boolean defaultSearch;
     private QueryClient client = new OkHttpQueryClient();
 
     public QueryScreen(String domainedUsername, String password, PrintStream out) {
@@ -244,7 +244,7 @@ public class QueryScreen extends Screen {
 
     @Override
     public boolean prompt(PrintStream out) {
-        if (doDefaultSearch()) {
+        if (doDefaultSearch(sessionWrapper.getEvaluationContext())) {
             return false;
         }
         out.println("Enter the search fields as a comma-separated list.");
@@ -292,8 +292,8 @@ public class QueryScreen extends Screen {
         return remoteQuerySessionManager.getUserAnswers();
     }
 
-    public boolean doDefaultSearch() {
-        return remoteQuerySessionManager.doDefaultSearch();
+    public boolean doDefaultSearch(EvaluationContext ec) {
+        return remoteQuerySessionManager.doDefaultSearch(ec);
     }
 
     public RemoteQueryDatum getQueryDatum() {

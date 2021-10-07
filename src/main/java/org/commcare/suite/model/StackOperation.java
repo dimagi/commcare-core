@@ -104,6 +104,10 @@ public class StackOperation implements Externalizable {
         return elements;
     }
 
+    public void setStackFrameSteps(Vector<StackFrameStep> elements) {
+        this.elements = elements;
+    }
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {

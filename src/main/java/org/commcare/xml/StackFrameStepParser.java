@@ -22,25 +22,30 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
     @Override
     public StackFrameStep parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String operation = parser.getName();
+        String value = parser.getAttributeValue(null, "value");
 
         switch (operation) {
             case "datum":
-                String id = parser.getAttributeValue(null, "id");
-                return parseValue(SessionFrame.STATE_UNKNOWN, id);
+                String datumId = parser.getAttributeValue(null, "id");
+                return parseValue(SessionFrame.STATE_UNKNOWN, datumId, value);
             case "rewind":
-                return parseValue(SessionFrame.STATE_REWIND, null);
+                return parseValue(SessionFrame.STATE_REWIND, null, value);
             case "mark":
-                return parseValue(SessionFrame.STATE_MARK, null);
+                return parseValue(SessionFrame.STATE_MARK, null, value);
             case "command":
-                return parseValue(SessionFrame.STATE_COMMAND_ID, null);
+                return parseValue(SessionFrame.STATE_COMMAND_ID, null, value);
+            case "query":
+                // TODO: id is results instance, value is url, include GET string for now, maybe later use extras for URL args and template="case"
+                String queryId = parser.getAttributeValue(null, "storage-instance");
+                String queryValue = parser.getAttributeValue(null, "url");
+                return parseValue(SessionFrame.STATE_QUERY_REQUEST, queryId, queryValue);
             default:
                 throw new InvalidStructureException("<" + operation + "> is not a valid stack frame element!", this.parser);
         }
     }
 
-    private StackFrameStep parseValue(String type, String datumId) throws XmlPullParserException, IOException, InvalidStructureException {
+    private StackFrameStep parseValue(String type, String datumId, String value) throws XmlPullParserException, IOException, InvalidStructureException {
         //TODO: ... require this to have a value!!!! It's not processing this properly
-        String value = parser.getAttributeValue(null, "value");
         boolean valueIsXpath;
         if (value == null) {
             //must have a child

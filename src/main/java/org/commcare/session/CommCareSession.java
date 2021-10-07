@@ -198,6 +198,7 @@ public class CommCareSession {
         String needDatum = getDataNeededByAllEntries(entriesForCurrentCommand);
 
         if (needDatum != null) {
+            System.out.println(" [needDatum: " + needDatum + "]");
             return needDatum;
         } else if (entriesForCurrentCommand.isEmpty()) {
             // No entries available directly within the current command, so we must need to select another menu
@@ -317,6 +318,7 @@ public class CommCareSession {
      */
     private SessionDatum getFirstMissingDatum(OrderedHashtable datumsCollectedSoFar,
                                               Vector<SessionDatum> allDatumsNeeded) {
+        //System.out.println("in getFirstMissingDatum, have already collected " + String.join(", ", datumsCollectedSoFar.keySet()));
         for (SessionDatum datum : allDatumsNeeded) {
             if (!datumsCollectedSoFar.containsKey(datum.getDataId())) {
                 return datum;

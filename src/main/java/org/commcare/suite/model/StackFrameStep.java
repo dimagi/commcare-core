@@ -148,6 +148,12 @@ public class StackFrameStep implements Externalizable {
                 return new StackFrameStep(SessionFrame.STATE_MARK, neededDatum.getDataId(), null);
             case SessionFrame.STATE_FORM_XMLNS:
                 throw new RuntimeException("Form Definitions in Steps are not yet supported!");
+            case SessionFrame.STATE_QUERY_REQUEST:
+                // just return URL as a value? with $case_id populated now, presumably
+                // run URL and set this.xmlInstance?
+                // but now I'm in core code, not formplayer
+                // but QueryScreen.handleInputAndUpdateSession does appear to execute a search
+                return new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST, id, evaluateValue(ec));
             default:
                 throw new RuntimeException("Invalid step [" + elementType + "] declared when constructing a new frame step");
         }

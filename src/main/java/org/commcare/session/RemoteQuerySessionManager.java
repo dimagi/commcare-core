@@ -216,8 +216,9 @@ public class RemoteQuerySessionManager {
         return ItemSetUtils.getIndexOf(itemsetBinding, value) != -1;
     }
 
-    public boolean doDefaultSearch() {
-        return queryDatum.doDefaultSearch();
+    public boolean doDefaultSearch(EvaluationContext ec) {
+        String result = evalXpathExpression(queryDatum.doDefaultSearch(), evaluationContext);
+        return "true".equals(result);
     }
 
     // Converts a string containing space separated list of choices

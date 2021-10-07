@@ -101,7 +101,15 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
             throw new InvalidStructureException(errorMsg, parser);
         }
 
-        boolean defaultSearch = "true".equals(parser.getAttributeValue(null, "default_search"));
+        XPathExpression defaultSearch = null;
+        String exprString = parser.getAttributeValue(null, "default_search");
+        if (exprString != null) {
+            try {
+                defaultSearch = XPathParseTool.parseXPath(exprString);
+            } catch (XPathSyntaxException e) {
+                throw new InvalidStructureException("this is bad: " + exprString, parser);
+            }
+        }
 
         while (nextTagInBlock("query")) {
             String tagName = parser.getName();
