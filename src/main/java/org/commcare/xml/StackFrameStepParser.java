@@ -22,17 +22,22 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
     @Override
     public StackFrameStep parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String operation = parser.getName();
+        String value = parser.getAttributeValue(null, "value");
 
         switch (operation) {
             case "datum":
-                String id = parser.getAttributeValue(null, "id");
-                return parseValue(SessionFrame.STATE_UNKNOWN, id);
+                String datumId = parser.getAttributeValue(null, "id");
+                return parseValue(SessionFrame.STATE_UNKNOWN, datumId);
             case "rewind":
                 return parseValue(SessionFrame.STATE_REWIND, null);
             case "mark":
                 return parseValue(SessionFrame.STATE_MARK, null);
             case "command":
                 return parseValue(SessionFrame.STATE_COMMAND_ID, null);
+            case "query":
+                String queryId = parser.getAttributeValue(null, "storage-instance");
+                String queryValue = parser.getAttributeValue(null, "url");
+                return parseValue(SessionFrame.STATE_QUERY_REQUEST, queryId);
             default:
                 throw new InvalidStructureException("<" + operation + "> is not a valid stack frame element!", this.parser);
         }
