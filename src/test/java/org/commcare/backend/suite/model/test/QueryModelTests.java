@@ -44,13 +44,7 @@ public class QueryModelTests {
         boolean success = screen.handleInputAndUpdateSession(session, "", false);
         Assert.assertTrue(success);
 
-        // check that the datum got set and can be accessed correctly
-        CommCareInstanceInitializer iif = session.getIIF();
-        AbstractTreeElement root = iif.generateRoot(new ExternalDataInstance(ExternalDataInstance.JR_REMOTE_REFERENCE, "registry1"));
-        Assert.assertEquals("results", root.getName());
-        Assert.assertEquals(1, root.getNumChildren());
-
-        AbstractTreeElement root1 = iif.generateRoot(new ExternalDataInstance(ExternalDataInstance.JR_REMOTE_REFERENCE, "not-registry"));
-        Assert.assertNull("Expect that response is null if instanceId does not match", root1);
+        // check that session datum requirement is satisfied
+        assert session.getNeededDatum() == null;
     }
 }

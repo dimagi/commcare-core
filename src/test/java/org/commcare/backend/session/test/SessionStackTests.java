@@ -10,6 +10,8 @@ import org.commcare.test.utilities.MockApp;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.test_utils.ExprEvalUtils;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.FunctionUtils;
@@ -17,7 +19,9 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import org.commcare.session.SessionFrame;
 import org.junit.Test;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -341,14 +345,17 @@ public class SessionStackTests {
 
     static ExternalDataInstance buildRemoteExternalDataInstance(Class cls,
                                                                 SessionWrapper sessionWrapper,
-                                                                String resourcePath) {
+                                                                String resourcePath) throws UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException, IOException {
         RemoteQuerySessionManager remoteQuerySessionManager =
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper,
                         sessionWrapper.getEvaluationContext(), new ArrayList<>());
         InputStream is = cls.getResourceAsStream(resourcePath);
-        Pair<ExternalDataInstance, String> instanceOrError =
-                remoteQuerySessionManager.buildExternalDataInstance(is);
-        assertNotNull(instanceOrError.first);
-        return instanceOrError.first;
+        ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(
+                remoteQuerySessionManager.getQueryDatum().getDataId(),
+                is,
+                resourcePath,
+                remoteQuerySessionManager.getQueryDatum().useCaseTemplate());
+        assertNotNull(instance);
+        return instance;
     }
 }

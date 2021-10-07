@@ -20,6 +20,8 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.CacheTable;
 
+import javax.annotation.Nullable;
+
 /**
  * Initializes a CommCare DataInstance against a UserDataInterface and (sometimes) optional
  * CommCareSession/Platform
@@ -84,6 +86,17 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             return setupRemoteData(instance);
         } else if (ref.contains("migration")) {
             return setupMigrationData(instance);
+        }
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public ExternalDataInstance getInstanceFromSession(String instanceId) {
+        for (StackFrameStep step : session.getFrame().getSteps()) {
+            if (step.getId().equals(instanceId) && step.getType().equals(SessionFrame.STATE_QUERY_REQUEST)) {
+                return step.getXmlInstance();
+            }
         }
         return null;
     }
@@ -177,11 +190,6 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
 
     protected AbstractTreeElement setupRemoteData(ExternalDataInstance instance) {
-        for (StackFrameStep step : session.getFrame().getSteps()) {
-            if (step.getId().equals(instance.getInstanceId()) && step.getType().equals(SessionFrame.STATE_QUERY_REQUEST)) {
-                return step.getXmlInstance().getRoot();
-            }
-        }
         return instance.getRoot();
     }
 

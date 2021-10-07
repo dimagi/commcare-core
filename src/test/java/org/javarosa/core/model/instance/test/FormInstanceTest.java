@@ -1,5 +1,6 @@
 package org.javarosa.core.model.instance.test;
 
+import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -33,7 +34,7 @@ public class FormInstanceTest {
      * Serialize/deserialize a form instance, ensuring the resulting roots are equal
      */
     @Test
-    public void testInstanceSerialization() {
+    public void testInstanceSerialization() throws RemoteInstanceFetcher.RemoteInstanceException {
         FormParseInit fpi = new FormParseInit("/xform_tests/test_repeat_insert_duplicate_triggering.xml");
         FormEntryController fec = fpi.getFormEntryController();
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
@@ -94,7 +95,7 @@ public class FormInstanceTest {
      * answers on a question with a dateTime type.
      */
     @Test
-    public void testFormEntryAfterSerialization() throws XPathSyntaxException {
+    public void testFormEntryAfterSerialization() throws XPathSyntaxException, RemoteInstanceFetcher.RemoteInstanceException {
         FormParseInit fpi = new FormParseInit("/xform_tests/test_repeat_insert_duplicate_triggering.xml");
         FormEntryController fec = fpi.getFormEntryController();
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
