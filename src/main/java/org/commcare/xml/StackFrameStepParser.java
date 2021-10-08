@@ -4,6 +4,7 @@ import org.commcare.suite.model.StackFrameStep;
 import org.commcare.session.SessionFrame;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -35,9 +36,28 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
             case "command":
                 return parseValue(SessionFrame.STATE_COMMAND_ID, null);
             case "query":
-                String queryId = parser.getAttributeValue(null, "storage-instance");
-                String queryValue = parser.getAttributeValue(null, "url");
-                return parseValue(SessionFrame.STATE_QUERY_REQUEST, queryId);
+                String queryId = parser.getAttributeValue(null, "id");
+                String url = parser.getAttributeValue(null, "value");
+                StackFrameStep step = null;
+                try {
+                    step = new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST, queryId, url, false);
+                } catch (XPathSyntaxException e) {
+                    throw new InvalidStructureException("Invalid expression for stack frame step definition: " + value + ".\n" + e.getMessage(), parser);
+                }
+                while (nextTagInBlock("query")) {
+                    String tagName = parser.getName();
+                    if ("data".equals(tagName)) {
+                        String key = parser.getAttributeValue(null, "key");
+                        String ref = parser.getAttributeValue(null, "ref");
+                        try {
+                            step.addExtra(key, XPathParseTool.parseXPath(ref));
+                        } catch (XPathSyntaxException e) {
+                            String errorMessage = "'ref' value is not a valid xpath expression: " + ref;
+                            throw new InvalidStructureException(errorMessage, this.parser);
+                        }
+                    }
+                }
+                return step;
             default:
                 throw new InvalidStructureException("<" + operation + "> is not a valid stack frame element!", this.parser);
         }

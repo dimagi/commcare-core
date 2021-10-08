@@ -12,6 +12,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.FunctionUtils;
+import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -19,6 +20,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+
+import okhttp3.HttpUrl;
 
 /**
  * @author ctsims
@@ -149,7 +152,12 @@ public class StackFrameStep implements Externalizable {
             case SessionFrame.STATE_FORM_XMLNS:
                 throw new RuntimeException("Form Definitions in Steps are not yet supported!");
             case SessionFrame.STATE_QUERY_REQUEST:
-                return new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST, id, evaluateValue(ec));
+                HttpUrl.Builder urlBuilder = HttpUrl.parse(value).newBuilder();
+                for (String key : extras.keySet()) {
+                    XPathExpression expr = (XPathExpression) getExtra(key);
+                    urlBuilder.addQueryParameter(key, FunctionUtils.toString(expr.eval(ec)));
+                }
+                return new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST, id, urlBuilder.build().toString());
             default:
                 throw new RuntimeException("Invalid step [" + elementType + "] declared when constructing a new frame step");
         }
