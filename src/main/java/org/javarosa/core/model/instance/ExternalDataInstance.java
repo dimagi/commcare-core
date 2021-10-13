@@ -101,6 +101,11 @@ public class ExternalDataInstance extends DataInstance {
 
     @Override
     public AbstractTreeElement getRoot() {
+        if (needsInit()) {
+            throw new RuntimeException("Attempt to use instance " + instanceid + " without inititalization.");
+        }
+        //TODO: We are just presuming this is lined up, but we should probably be pulling this
+        //straight from the source
         return root;
     }
 
