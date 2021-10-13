@@ -173,7 +173,6 @@ public class QueryScreen extends Screen {
             instanceOrError =  new Pair<>(instance, "");
         } catch (InvalidStructureException | IOException
                 | XmlPullParserException | UnfullfilledRequirementsException e) {
-            e.printStackTrace();
             instanceOrError =  new Pair<>(null, e.getMessage());
         }
 
