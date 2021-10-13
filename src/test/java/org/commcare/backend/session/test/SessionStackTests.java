@@ -9,6 +9,7 @@ import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -352,8 +353,8 @@ public class SessionStackTests {
         InputStream is = cls.getResourceAsStream(resourcePath);
         ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(
                 remoteQuerySessionManager.getQueryDatum().getDataId(),
-                is,
-                resourcePath,
+                ExternalDataInstance.parseExternalTree(is, remoteQuerySessionManager.getQueryDatum().getDataId()),
+                new ExternalDataInstanceSource(resourcePath),
                 remoteQuerySessionManager.getQueryDatum().useCaseTemplate());
         assertNotNull(instance);
         return instance;
