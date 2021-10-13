@@ -26,8 +26,10 @@ import java.util.Map;
 import java.util.Vector;
 
 import okhttp3.Credentials;
+import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
@@ -72,7 +74,6 @@ public class QueryScreen extends Screen {
 
     private PrintStream out;
 
-    private boolean defaultSearch;
     private QueryClient client = new OkHttpQueryClient();
 
     public QueryScreen(String domainedUsername, String password, PrintStream out) {
@@ -149,9 +150,13 @@ public class QueryScreen extends Screen {
         String url = buildUrl(false);
         String credential = Credentials.basic(domainedUsername, password);
 
+        RequestBody formBody = new FormBody.Builder()
+                                           //.add("message", "Your message")    // TODO
+                                           .build();
         Request request = new Request.Builder()
                 .url(url)
                 .header("Authorization", credential)
+                .post(formBody)
                 .build();
         return client.makeRequest(request);
     }
