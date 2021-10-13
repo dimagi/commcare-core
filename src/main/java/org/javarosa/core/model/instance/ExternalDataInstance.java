@@ -53,7 +53,8 @@ public class ExternalDataInstance extends DataInstance {
         super(instance.getInstanceId());
         this.reference = instance.getReference();
         this.base = instance.getBase();
-        this.root = instance.getRoot();
+        //Copy constructor avoids check.
+        this.root = instance.root;
         this.mCacheHost = instance.getCacheHost();
         this.source = instance.getSource();
         useCaseTemplate = CaseInstanceTreeElement.MODEL_NAME.equals(instanceid);
@@ -65,11 +66,11 @@ public class ExternalDataInstance extends DataInstance {
         this(reference, instanceId);
         this.useCaseTemplate = useCaseTemplate;
         base = new InstanceBase(instanceId);
+        this.source = source;
         topLevel.setInstanceName(instanceId);
         topLevel.setParent(base);
         this.root = topLevel;
         base.setChild(root);
-        this.source = source;
     }
 
     public static TreeElement parseExternalTree(InputStream stream, String instanceId) throws IOException, UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException {
@@ -79,10 +80,9 @@ public class ExternalDataInstance extends DataInstance {
     }
 
     public static ExternalDataInstance buildFromRemote(String instanceId,
-                                                       TreeElement root,
                                                        ExternalDataInstanceSource source,
                                                        boolean useCaseTemplate) {
-        return new ExternalDataInstance(JR_REMOTE_REFERENCE, instanceId, root, source, useCaseTemplate);
+        return new ExternalDataInstance(JR_REMOTE_REFERENCE, instanceId, source.getRoot(), source, useCaseTemplate);
     }
 
     public boolean useCaseTemplate() {
@@ -129,7 +129,12 @@ public class ExternalDataInstance extends DataInstance {
     public void remoteInit(RemoteInstanceFetcher remoteInstanceFetcher)
             throws RemoteInstanceFetcher.RemoteInstanceException {
         try {
-            remoteInstanceFetcher.getExternalRoot(getInstanceId(), this.getSource());
+            base = new InstanceBase(getInstanceId());
+            this.source.init(remoteInstanceFetcher.getExternalRoot(getInstanceId(), this.getSource()));
+            TreeElement root = source.getRoot();
+            root.setInstanceName(this.instanceid);
+            root.setParent(this.base);
+            this.root = root;
         } catch (Exception e) {
             throw new RemoteInstanceFetcher.RemoteInstanceException(e.getMessage(), e);
         }
@@ -157,6 +162,7 @@ public class ExternalDataInstance extends DataInstance {
         base = new InstanceBase(instanceId);
         root = initializer.generateRoot(this);
         base.setChild(root);
+
 
         return initializer.getSpecializedExternalDataInstance(this);
     }

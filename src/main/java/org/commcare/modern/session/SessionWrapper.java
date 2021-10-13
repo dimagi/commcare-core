@@ -87,7 +87,11 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
     }
 
     public void prepareExternalSources(RemoteInstanceFetcher remoteInstanceFetcher) throws RemoteInstanceFetcher.RemoteInstanceException {
-        getIIF().prepareExternalSources(remoteInstanceFetcher);
+        for(StackFrameStep step : frame.getSteps()) {
+            if (step.hasXmlInstance() && step.getXmlInstance().needsInit()) {
+                step.getXmlInstance().remoteInit(remoteInstanceFetcher);
+            }
+        }
     }
 
     @Override

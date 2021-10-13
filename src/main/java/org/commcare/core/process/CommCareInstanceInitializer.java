@@ -209,12 +209,4 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                     "Unable to find lookup table: " + lookupReference));
         }
     }
-
-    public void prepareExternalSources(RemoteInstanceFetcher remoteInstanceFetcher) throws RemoteInstanceFetcher.RemoteInstanceException {
-        for(StackFrameStep step : session.getFrame().getSteps()) {
-            if (step.hasXmlInstance() && step.getXmlInstance().needsInit()) {
-                step.getXmlInstance().remoteInit(remoteInstanceFetcher);
-            }
-        }
-    }
 }

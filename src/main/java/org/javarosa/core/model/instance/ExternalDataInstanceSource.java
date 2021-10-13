@@ -14,9 +14,24 @@ public class ExternalDataInstanceSource implements Externalizable {
 
     TreeElement root;
     private String sourceUri;
+    private String instanceId;
 
-    public ExternalDataInstanceSource(String sourceUri) {
+    /**
+     * Externalizable constructor
+     */
+    public ExternalDataInstanceSource() {
+
+    }
+
+    public ExternalDataInstanceSource(String instanceId, String sourceUri) {
+        this.instanceId = instanceId;
         this.sourceUri = sourceUri;
+    }
+
+    public ExternalDataInstanceSource(String instanceId, TreeElement root, String sourceUri) {
+        this.instanceId = instanceId;
+        this.sourceUri = sourceUri;
+        this.root = root;
     }
 
     public boolean needsInit() {
@@ -33,14 +48,21 @@ public class ExternalDataInstanceSource implements Externalizable {
         return root;
     }
 
+    public void init(TreeElement root) {
+        //TODO: One-time init
+        this.root = root;
+    }
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         sourceUri = ExtUtil.readString(in);
+        instanceId = ExtUtil.readString(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, sourceUri);
+        ExtUtil.write(out, instanceId);
     }
 
     public String getSourceUri() {
