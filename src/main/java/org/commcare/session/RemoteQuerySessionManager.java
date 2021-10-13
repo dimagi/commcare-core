@@ -10,6 +10,7 @@ import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.utils.ItemSetUtils;
 import org.javarosa.core.util.OrderedHashtable;
@@ -144,7 +145,7 @@ public class RemoteQuerySessionManager {
      * @return Data instance built from xml root or the error message raised during parsing
      */
     public ExternalDataInstance buildExternalDataInstance(TreeElement root, String remoteUrl) {
-        return ExternalDataInstance.buildFromRemote(queryDatum.getDataId(), root, remoteUrl, queryDatum.useCaseTemplate());
+        return ExternalDataInstance.buildFromRemote(queryDatum.getDataId(), root, new ExternalDataInstanceSource(remoteUrl), queryDatum.useCaseTemplate());
     }
 
     public void populateItemSetChoices(QueryPrompt queryPrompt) {
