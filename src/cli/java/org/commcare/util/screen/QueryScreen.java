@@ -170,11 +170,9 @@ public class QueryScreen extends Screen {
         }
         Pair<ExternalDataInstance, String> instanceOrError;
         try {
-            ExternalDataInstanceSource instanceSource = new ExternalDataInstanceSource(
-                    getQueryDatum().getDataId(),
-                    ExternalDataInstance.parseExternalTree(responseData, getQueryDatum().getDataId()),
-                    url,
-                    getQueryDatum().useCaseTemplate());
+            String instanceID = getQueryDatum().getDataId();
+            TreeElement root = ExternalDataInstance.parseExternalTree(responseData, instanceID));
+            ExternalDataInstanceSource instanceSource = new ExternalDataInstanceSource(instanceID, root, url, getQueryDatum().useCaseTemplate());
             ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(getQueryDatum().getDataId(), instanceSource);
             instanceOrError = new Pair<>(instance, "");
         } catch (InvalidStructureException | IOException

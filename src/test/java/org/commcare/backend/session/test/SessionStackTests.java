@@ -5,11 +5,13 @@ import org.commcare.modern.util.Pair;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.EntityDatum;
+import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -351,11 +353,10 @@ public class SessionStackTests {
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper,
                         sessionWrapper.getEvaluationContext(), new ArrayList<>());
         InputStream is = cls.getResourceAsStream(resourcePath);
-
-        ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(
-                remoteQuerySessionManager.getQueryDatum().getDataId(),
-                new ExternalDataInstanceSource(resourcePath, ExternalDataInstance.parseExternalTree(is, remoteQuerySessionManager.getQueryDatum().getDataId()), remoteQuerySessionManager.getQueryDatum().getDataId(),
-                remoteQuerySessionManager.getQueryDatum().useCaseTemplate()));
+        RemoteQueryDatum queryDatum = remoteQuerySessionManager.getQueryDatum();
+        TreeElement root = ExternalDataInstance.parseExternalTree(is, queryDatum.getDataId());
+        ExternalDataInstanceSource source = new ExternalDataInstanceSource(queryDatum.getDataId(), root, resourcePath, queryDatum.useCaseTemplate());
+        ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(queryDatum.getDataId(), source);
         assertNotNull(instance);
         return instance;
     }
