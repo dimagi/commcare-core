@@ -4,6 +4,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -17,6 +18,7 @@ import java.util.Vector;
 public class Endpoint implements Externalizable {
 
     String id;
+    String commandId;
     Vector<String> arguments;
     Vector<StackOperation> stackOperations;
 
@@ -24,8 +26,9 @@ public class Endpoint implements Externalizable {
     public Endpoint() {
     }
 
-    public Endpoint(String id, Vector<String> arguments, Vector<StackOperation> stackOperations) {
+    public Endpoint(String id, String commandId, Vector<String> arguments, Vector<StackOperation> stackOperations) {
         this.id = id;
+        this.commandId = commandId;
         this.arguments = arguments;
         this.stackOperations = stackOperations;
     }
@@ -33,6 +36,7 @@ public class Endpoint implements Externalizable {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         id = ExtUtil.readString(in);
+        commandId = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);    // old apps may not provide command id
         arguments = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
         stackOperations = (Vector<StackOperation>)ExtUtil.read(in, new ExtWrapList(StackOperation.class), pf);
     }
@@ -40,12 +44,17 @@ public class Endpoint implements Externalizable {
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, id);
+        ExtUtil.write(out, new ExtWrapNullable(commandId));
         ExtUtil.write(out, new ExtWrapList(arguments));
         ExtUtil.write(out, new ExtWrapList(stackOperations));
     }
 
     public String getId() {
         return id;
+    }
+
+    public String getCommandId() {
+        return commandId;
     }
 
     public Vector<String> getArguments() {
