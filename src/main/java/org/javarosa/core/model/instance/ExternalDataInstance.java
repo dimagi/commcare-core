@@ -104,9 +104,12 @@ public class ExternalDataInstance extends DataInstance {
         if (needsInit()) {
             throw new RuntimeException("Attempt to use instance " + instanceid + " without inititalization.");
         }
-        //TODO: We are just presuming this is lined up, but we should probably be pulling this
-        //straight from the source
-        return root;
+
+        if (source != null) {
+            return source.getRoot();
+        } else {
+            return root;
+        }
     }
 
     public String getReference() {
@@ -119,7 +122,7 @@ public class ExternalDataInstance extends DataInstance {
     }
 
     public boolean needsInit() {
-        if(source == null) {
+        if (source == null) {
             return false;
         } else {
             return source.needsInit();
@@ -135,8 +138,12 @@ public class ExternalDataInstance extends DataInstance {
             root.setInstanceName(this.instanceid);
             root.setParent(this.base);
             this.root = root;
-        } catch (Exception e) {
-            throw new RemoteInstanceFetcher.RemoteInstanceException(e.getMessage(), e);
+        } catch (IOException e) {
+            throw new RemoteInstanceFetcher.RemoteInstanceException(
+                    "Could not retrieve data for remote instance " + getName() + ". Please try opening the form again.", e);
+        } catch (XmlPullParserException | UnfullfilledRequirementsException | InvalidStructureException e) {
+            throw new RemoteInstanceFetcher.RemoteInstanceException(
+                    "Invalid data retrieved from remote instance " + getName() + ". If the error persists please contact your help desk.", e);
         }
     }
 

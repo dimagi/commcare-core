@@ -49,7 +49,9 @@ public class ExternalDataInstanceSource implements Externalizable {
     }
 
     public void init(TreeElement root) {
-        //TODO: One-time init
+        if (this.root != null) {
+            throw new RuntimeException("Initializing an already instantiated external instance source is not permitted");
+        }
         this.root = root;
     }
 
