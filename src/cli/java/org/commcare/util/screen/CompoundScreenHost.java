@@ -1,4 +1,5 @@
 package org.commcare.util.screen;
+import datadog.trace.api.Trace;
 
 import org.commcare.session.CommCareSession;
 
@@ -31,6 +32,7 @@ public abstract class CompoundScreenHost extends Screen {
         return getCurrentScreen().getOptions();
     }
 
+    @Trace
     @Override
     public final boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch) throws CommCareSessionException {
         if (getCurrentScreen().handleInputAndUpdateHost(input, this, allowAutoLaunch)) {
