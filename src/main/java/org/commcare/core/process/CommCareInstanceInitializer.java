@@ -3,7 +3,6 @@ package org.commcare.core.process;
 import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.instance.LedgerInstanceTreeElement;
-import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.session.SessionFrame;
@@ -14,14 +13,13 @@ import org.javarosa.core.model.User;
 import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.CacheTable;
-
-import javax.annotation.Nullable;
 
 /**
  * Initializes a CommCare DataInstance against a UserDataInterface and (sometimes) optional
@@ -182,8 +180,8 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     protected AbstractTreeElement setupRemoteData(ExternalDataInstance instance) {
         for (StackFrameStep step : session.getFrame().getSteps()) {
             if (step.getId().equals(instance.getInstanceId()) && step.getType().equals(SessionFrame.STATE_QUERY_REQUEST)) {
-                ExternalDataInstance externalInstance = step.getXmlInstance();
-                return externalInstance.getRoot();
+                ExternalDataInstanceSource externalDataInstanceSource = step.getXmlInstanceSource();
+                return externalDataInstanceSource.getRoot();
             }
         }
         return instance.getRoot();

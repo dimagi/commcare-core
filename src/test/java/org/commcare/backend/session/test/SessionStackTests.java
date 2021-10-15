@@ -351,10 +351,11 @@ public class SessionStackTests {
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper,
                         sessionWrapper.getEvaluationContext(), new ArrayList<>());
         InputStream is = cls.getResourceAsStream(resourcePath);
+
         ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(
                 remoteQuerySessionManager.getQueryDatum().getDataId(),
-                new ExternalDataInstanceSource(resourcePath, ExternalDataInstance.parseExternalTree(is, remoteQuerySessionManager.getQueryDatum().getDataId()), remoteQuerySessionManager.getQueryDatum().getDataId()),
-                remoteQuerySessionManager.getQueryDatum().useCaseTemplate());
+                new ExternalDataInstanceSource(resourcePath, ExternalDataInstance.parseExternalTree(is, remoteQuerySessionManager.getQueryDatum().getDataId()), remoteQuerySessionManager.getQueryDatum().getDataId(),
+                remoteQuerySessionManager.getQueryDatum().useCaseTemplate()));
         assertNotNull(instance);
         return instance;
     }

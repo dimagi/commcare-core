@@ -145,7 +145,8 @@ public class RemoteQuerySessionManager {
      * @return Data instance built from xml root or the error message raised during parsing
      */
     public ExternalDataInstance buildExternalDataInstance(TreeElement root, String remoteUrl) {
-        return ExternalDataInstance.buildFromRemote(queryDatum.getDataId(), new ExternalDataInstanceSource(queryDatum.getDataId(), root, remoteUrl), queryDatum.useCaseTemplate());
+        return ExternalDataInstance.buildFromRemote(queryDatum.getDataId(),
+                new ExternalDataInstanceSource(queryDatum.getDataId(), root, remoteUrl, queryDatum.useCaseTemplate()));
     }
 
     public void populateItemSetChoices(QueryPrompt queryPrompt) {
