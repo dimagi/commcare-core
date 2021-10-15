@@ -3,6 +3,7 @@ package org.commcare.core.process;
 import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.instance.LedgerInstanceTreeElement;
+import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.session.SessionFrame;
@@ -86,17 +87,6 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             return setupRemoteData(instance);
         } else if (ref.contains("migration")) {
             return setupMigrationData(instance);
-        }
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public ExternalDataInstance getInstanceFromSession(String instanceId) {
-        for (StackFrameStep step : session.getFrame().getSteps()) {
-            if (step.getId().equals(instanceId) && step.getType().equals(SessionFrame.STATE_QUERY_REQUEST)) {
-                return step.getXmlInstance();
-            }
         }
         return null;
     }
@@ -190,6 +180,12 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
 
     protected AbstractTreeElement setupRemoteData(ExternalDataInstance instance) {
+        for (StackFrameStep step : session.getFrame().getSteps()) {
+            if (step.getId().equals(instance.getInstanceId()) && step.getType().equals(SessionFrame.STATE_QUERY_REQUEST)) {
+                ExternalDataInstance externalInstance = step.getXmlInstance();
+                return externalInstance.getRoot();
+            }
+        }
         return instance.getRoot();
     }
 

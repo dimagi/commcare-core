@@ -568,11 +568,9 @@ public class FormDefTest {
 
     private static FormEntryController initFormEntry(FormParseInit fpi, String locale) {
         FormEntryController fec = fpi.getFormEntryController();
-        try {
-            fpi.getFormDef().initialize(true, null, locale, false, null);
-        } catch (RemoteInstanceFetcher.RemoteInstanceException e) {
-            throw new RuntimeException(e.getMessage(), e.getCause());
-        }
+
+        fpi.getFormDef().initialize(true, null, locale, false);
+
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
         return fec;
     }
