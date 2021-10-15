@@ -11,6 +11,7 @@ import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
@@ -169,7 +170,7 @@ public class QueryScreen extends Screen {
         }
         Pair<ExternalDataInstance, String> instanceOrError;
         try {
-            ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(getQueryDatum().getDataId(), responseData, url, getQueryDatum().useCaseTemplate());
+            ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(getQueryDatum().getDataId(), new ExternalDataInstanceSource(getQueryDatum().getDataId(), ExternalDataInstance.parseExternalTree(responseData, getQueryDatum().getDataId()), url), getQueryDatum().useCaseTemplate());
             instanceOrError =  new Pair<>(instance, "");
         } catch (InvalidStructureException | IOException
                 | XmlPullParserException | UnfullfilledRequirementsException e) {
