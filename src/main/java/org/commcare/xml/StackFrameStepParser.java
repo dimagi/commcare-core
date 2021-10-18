@@ -4,6 +4,7 @@ import org.commcare.suite.model.StackFrameStep;
 import org.commcare.session.SessionFrame;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -22,17 +23,41 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
     @Override
     public StackFrameStep parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String operation = parser.getName();
+        String value = parser.getAttributeValue(null, "value");
 
         switch (operation) {
             case "datum":
-                String id = parser.getAttributeValue(null, "id");
-                return parseValue(SessionFrame.STATE_UNKNOWN, id);
+                String datumId = parser.getAttributeValue(null, "id");
+                return parseValue(SessionFrame.STATE_UNKNOWN, datumId);
             case "rewind":
                 return parseValue(SessionFrame.STATE_REWIND, null);
             case "mark":
                 return parseValue(SessionFrame.STATE_MARK, null);
             case "command":
                 return parseValue(SessionFrame.STATE_COMMAND_ID, null);
+            case "query":
+                String queryId = parser.getAttributeValue(null, "id");
+                String url = parser.getAttributeValue(null, "value");
+                StackFrameStep step = null;
+                try {
+                    step = new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST, queryId, url, false);
+                } catch (XPathSyntaxException e) {
+                    throw new InvalidStructureException("Invalid expression for stack frame step definition: " + value + ".\n" + e.getMessage(), parser);
+                }
+                while (nextTagInBlock("query")) {
+                    String tagName = parser.getName();
+                    if ("data".equals(tagName)) {
+                        String key = parser.getAttributeValue(null, "key");
+                        String ref = parser.getAttributeValue(null, "ref");
+                        try {
+                            step.addExtra(key, XPathParseTool.parseXPath(ref));
+                        } catch (XPathSyntaxException e) {
+                            String errorMessage = "'ref' value is not a valid xpath expression: " + ref;
+                            throw new InvalidStructureException(errorMessage, this.parser);
+                        }
+                    }
+                }
+                return step;
             default:
                 throw new InvalidStructureException("<" + operation + "> is not a valid stack frame element!", this.parser);
         }
