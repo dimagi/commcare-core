@@ -40,7 +40,7 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
                 String url = parser.getAttributeValue(null, "value");
                 StackFrameStep step = null;
                 try {
-                    step = new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST, queryId, url, false);
+                    step = new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST, queryId, url, true);
                 } catch (XPathSyntaxException e) {
                     throw new InvalidStructureException("Invalid expression for stack frame step definition: " + value + ".\n" + e.getMessage(), parser);
                 }
