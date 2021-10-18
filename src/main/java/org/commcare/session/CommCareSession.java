@@ -61,6 +61,7 @@ public class CommCareSession {
     private final CommCarePlatform platform;
     private StackFrameStep popped;
     private String currentCmd;
+    public String smartLinkRedirect;        // TODO: make private, with getter and setter
 
     /**
      * A table of all datums (id --> value) that are currently on the session stack
@@ -106,6 +107,7 @@ public class CommCareSession {
         this.currentCmd = oldCommCareSession.currentCmd;
         this.currentXmlns = oldCommCareSession.currentXmlns;
         this.frame = new SessionFrame(oldCommCareSession.frame);
+        this.smartLinkRedirect = oldCommCareSession.smartLinkRedirect;
 
         collectedDatums = new OrderedHashtable<>();
         for (Enumeration e = oldCommCareSession.collectedDatums.keys(); e.hasMoreElements(); ) {
@@ -492,9 +494,12 @@ public class CommCareSession {
         this.currentCmd = null;
         this.currentXmlns = null;
         this.popped = null;
+        //this.smartLinkRedirect = null;      // TODO: should this be different? Clear it but add it back if there's a nav step, once nav steps exist?
 
         for (StackFrameStep step : frame.getSteps()) {
-            if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) ||
+            if ("whatever".equals(step.getId())) {  // TODO: should this be different? like in TODO right above this
+                this.smartLinkRedirect = step.getValue();
+            } else if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) ||
                     SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType()) ||
                     SessionFrame.STATE_UNKNOWN.equals(step.getType()) &&
                             (guessUnknownType(step).equals(SessionFrame.STATE_DATUM_COMPUTED)
@@ -686,6 +691,16 @@ public class CommCareSession {
                     return false;
                 }
                 // if no mark is found ignore the rewind and continue
+            }
+            else if (SessionFrame.STATE_QUERY_REQUEST.equals(step.getType())) {
+                // TODO: once this is a nav step, don't need this block, can just push a nav step as in pushFrameStep, right?
+                try {   // this try is basically copied from StackFrameStep.evaluateValue
+                    smartLinkRedirect = FunctionUtils.toString(XPathParseTool.parseXPath(step.getValue()).eval(ec));
+                } catch (XPathSyntaxException e) {
+                    //This error makes no sense, since we parse the input for
+                    //validation when we create it!
+                    throw new XPathException(e.getMessage());
+                }
             } else {
                 pushFrameStep(step, frame, ec);
             }
