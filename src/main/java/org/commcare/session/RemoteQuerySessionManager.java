@@ -4,28 +4,20 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.cases.util.StringUtils;
-import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.utils.ItemSetUtils;
 import org.javarosa.core.util.OrderedHashtable;
-import org.javarosa.xml.ElementParser;
-import org.javarosa.xml.TreeElementParser;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.kxml2.io.KXmlParser;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -150,26 +142,10 @@ public class RemoteQuerySessionManager {
     }
 
     /**
-     * @return Data instance built from xml stream or the error message raised during parsing
-     */
-    public Pair<ExternalDataInstance, String> buildExternalDataInstance(InputStream instanceStream) {
-        TreeElement root;
-        try {
-            KXmlParser baseParser = ElementParser.instantiateParser(instanceStream);
-            root = new TreeElementParser(baseParser, 0, queryDatum.getDataId()).parse();
-        } catch (InvalidStructureException | IOException
-                | XmlPullParserException | UnfullfilledRequirementsException e) {
-            e.printStackTrace();
-            return new Pair<>(null, e.getMessage());
-        }
-        return new Pair<>(ExternalDataInstance.buildFromRemote(queryDatum.getDataId(), root, queryDatum.useCaseTemplate()), "");
-    }
-
-    /**
      * @return Data instance built from xml root or the error message raised during parsing
      */
-    public ExternalDataInstance buildExternalDataInstance(TreeElement root) {
-        return ExternalDataInstance.buildFromRemote(queryDatum.getDataId(), root, queryDatum.useCaseTemplate());
+    public ExternalDataInstance buildExternalDataInstance(TreeElement root, String remoteUrl) {
+        return ExternalDataInstance.buildFromRemote(queryDatum.getDataId(), new ExternalDataInstanceSource(queryDatum.getDataId(), root, remoteUrl), queryDatum.useCaseTemplate());
     }
 
     public void populateItemSetChoices(QueryPrompt queryPrompt) {
@@ -252,5 +228,9 @@ public class RemoteQuerySessionManager {
             return new String[]{};
         }
         return answer.split(ANSWER_DELIMITER);
+    }
+
+    public RemoteQueryDatum getQueryDatum() {
+        return queryDatum;
     }
 }

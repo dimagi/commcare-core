@@ -1,7 +1,6 @@
 package org.javarosa.core.model;
 
-import org.commcare.cases.query.QueryContext;
-import org.commcare.cases.query.ScopeLimitedReferenceRequestCache;
+import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.actions.Action;
@@ -22,15 +21,14 @@ import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.InvalidReferenceException;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
-import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
-import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.model.utils.ItemSetUtils;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
@@ -46,24 +44,24 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.XPathException;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathTypeMismatchException;
-import org.javarosa.xpath.analysis.AnalysisInvalidException;
-import org.javarosa.xpath.analysis.TreeReferenceAccumulatingAnalyzer;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.Vector;
 
 import javax.annotation.Nullable;
@@ -197,7 +195,7 @@ public class FormDef implements IFormElement, IMetaData,
         return formInstances.get(name);
     }
 
-    public Enumeration getNonMainInstances() {
+    public Enumeration<DataInstance> getNonMainInstances() {
         return formInstances.elements();
     }
 
@@ -1347,7 +1345,7 @@ public class FormDef implements IFormElement, IMetaData,
         return template;
     }
 
-    public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef){
+    public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef) {
         ItemSetUtils.populateDynamicChoices(itemset, curQRef, exprEvalContext, getMainInstance(), mProfilingEnabled);
     }
 
@@ -1428,9 +1426,10 @@ public class FormDef implements IFormElement, IMetaData,
      *                    false if it is using an existing IDataModel
      * @param locale      The default locale in the current environment, if provided. Can be null
      *                    to rely on the form's internal default.
+     * @param isReadOnly  If we are in read only mode and only wants to view form
      */
-    public void initialize(boolean newInstance, boolean isCompletedInstance,
-                           InstanceInitializationFactory factory, String locale, boolean isReadOnly) {
+    public void initialize(boolean newInstance, boolean isCompletedInstance, InstanceInitializationFactory factory,
+                           String locale, boolean isReadOnly) {
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
