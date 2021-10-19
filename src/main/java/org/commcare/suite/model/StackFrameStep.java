@@ -154,8 +154,9 @@ public class StackFrameStep implements Externalizable {
                 return new StackFrameStep(SessionFrame.STATE_MARK, neededDatum.getDataId(), null);
             case SessionFrame.STATE_FORM_XMLNS:
                 throw new RuntimeException("Form Definitions in Steps are not yet supported!");
-            case SessionFrame.STATE_QUERY_REQUEST:  // TODO: switch to nav/jump request, and param is a url, and it isn't xpath
-                StackFrameStep defined = new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST, id, evaluateValue(ec));
+            case SessionFrame.STATE_QUERY_REQUEST:
+            case SessionFrame.STATE_SMART_LINK:
+                StackFrameStep defined = new StackFrameStep(elementType, id, evaluateValue(ec));
                 for (String key : extras.keySet()) {
                     XPathExpression expr = (XPathExpression) getExtra(key);
                     defined.addExtra(key, expr.eval(ec));
