@@ -16,4 +16,9 @@ public class InstanceInitializationFactory {
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
         return null;
     }
+
+    public ExternalDataInstance getInstanceFromSession(String instanceId){
+        return null;
+    }
+
 }
