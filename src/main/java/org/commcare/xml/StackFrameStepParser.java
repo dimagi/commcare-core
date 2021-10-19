@@ -10,6 +10,8 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * @author ctsims
@@ -38,6 +40,13 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
             case "query":
                 String queryId = parser.getAttributeValue(null, "id");
                 String url = parser.getAttributeValue(null, "value");
+                try {
+                    new URL(url);
+                } catch (MalformedURLException e) {
+                    String errorMsg = "<query> element has invalid 'value' attribute (" + url + ").";
+                    throw new InvalidStructureException(errorMsg, parser);
+                }
+
                 StackFrameStep step = null;
                 try {
                     step = new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST, queryId, url, false);
