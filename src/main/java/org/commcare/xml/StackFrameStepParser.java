@@ -38,7 +38,7 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
             case "command":
                 return parseValue(SessionFrame.STATE_COMMAND_ID, null);
             case "query":
-                return parseQuery(value);
+                return parseQuery();
             case "jump":
                 return parseJump();
             default:
@@ -46,7 +46,7 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
         }
     }
 
-    private StackFrameStep parseQuery(String value) throws InvalidStructureException, IOException, XmlPullParserException {
+    private StackFrameStep parseQuery() throws InvalidStructureException, IOException, XmlPullParserException {
         String queryId = parser.getAttributeValue(null, "id");
         String url = parser.getAttributeValue(null, "value");
         try {
@@ -56,12 +56,7 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
             throw new InvalidStructureException(errorMsg, parser);
         }
 
-        StackFrameStep step = null;
-        try {
-            step = new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST, queryId, url, false);
-        } catch (XPathSyntaxException e) {
-            throw new InvalidStructureException("Invalid expression for stack frame step definition: " + value + ".\n" + e.getMessage(), parser);
-        }
+        StackFrameStep step = new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST, queryId, url);
         while (nextTagInBlock("query")) {
             String tagName = parser.getName();
             if ("data".equals(tagName)) {
