@@ -690,7 +690,12 @@ public class CommCareSession {
             }
             else if (SessionFrame.STATE_SMART_LINK.equals(step.getType())) {
                 try {   // this try is basically copied from StackFrameStep.evaluateValue
-                    smartLinkRedirect = FunctionUtils.toString(XPathParseTool.parseXPath(step.getValue()).eval(ec));
+                    String template = FunctionUtils.toString(XPathParseTool.parseXPath(step.getValue()).eval(ec));
+                    for (String key : step.getExtras().keySet()) {
+                        String value = FunctionUtils.toString(((XPathExpression)step.getExtra(key)).eval(ec));
+                        template = template.replace("{" + key + "}", value);
+                    }
+                    smartLinkRedirect = template;
                 } catch (XPathSyntaxException e) {
                     //This error makes no sense, since we parse the input for
                     //validation when we create it!

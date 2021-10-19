@@ -21,8 +21,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-
-import okhttp3.HttpUrl;
+import java.util.Map;
 
 /**
  * @author ctsims
@@ -127,6 +126,10 @@ public class StackFrameStep implements Externalizable {
         return extras.get(key);
     }
 
+    public Map<String, Object> getExtras() {
+        return extras;
+    }
+
     /**
      * Get a performed step to pass on to an actual frame
      *
@@ -153,7 +156,12 @@ public class StackFrameStep implements Externalizable {
             case SessionFrame.STATE_FORM_XMLNS:
                 throw new RuntimeException("Form Definitions in Steps are not yet supported!");
             case SessionFrame.STATE_QUERY_REQUEST:  // TODO: switch to nav/jump request, and param is a url, and it isn't xpath
-                return new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST, id, evaluateValue(ec));
+                StackFrameStep defined = new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST, id, evaluateValue(ec));
+                for (String key : extras.keySet()) {
+                    XPathExpression expr = (XPathExpression) getExtra(key);
+                    defined.addExtra(key, expr.eval(ec));
+                }
+                return defined;
             default:
                 throw new RuntimeException("Invalid step [" + elementType + "] declared when constructing a new frame step");
         }
