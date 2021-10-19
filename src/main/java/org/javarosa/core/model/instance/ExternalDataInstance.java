@@ -24,13 +24,13 @@ import javax.annotation.Nullable;
  */
 public class ExternalDataInstance extends DataInstance {
     private String reference;
-    private boolean useCaseTemplate;
+
 
     private AbstractTreeElement root;
     private InstanceBase base;
 
     @Nullable
-    private String remoteUrl;
+    private ExternalDataInstanceSource source;
 
     public final static String JR_REMOTE_REFERENCE = "jr://instance/remote";
 
@@ -40,7 +40,6 @@ public class ExternalDataInstance extends DataInstance {
     public ExternalDataInstance(String reference, String instanceid) {
         super(instanceid);
         this.reference = reference;
-        useCaseTemplate = CaseInstanceTreeElement.MODEL_NAME.equals(instanceid);
     }
 
     /**
@@ -50,43 +49,36 @@ public class ExternalDataInstance extends DataInstance {
         super(instance.getInstanceId());
         this.reference = instance.getReference();
         this.base = instance.getBase();
-        this.root = instance.getRoot();
+        //Copy constructor avoids check.
+        this.root = instance.root;
         this.mCacheHost = instance.getCacheHost();
-        this.remoteUrl = instance.getRemoteUrl();
-        useCaseTemplate = CaseInstanceTreeElement.MODEL_NAME.equals(instanceid);
+        this.source = instance.getSource();
     }
 
     private ExternalDataInstance(String reference, String instanceId,
-                                 TreeElement topLevel, String remoteUrl, boolean useCaseTemplate) {
+                                 TreeElement topLevel, ExternalDataInstanceSource source) {
         this(reference, instanceId);
-        this.useCaseTemplate = useCaseTemplate;
-        this.remoteUrl = remoteUrl;
         base = new InstanceBase(instanceId);
+        this.source = source;
         topLevel.setInstanceName(instanceId);
         topLevel.setParent(base);
         this.root = topLevel;
         base.setChild(root);
     }
 
-    public static ExternalDataInstance buildFromRemote(String instanceId,
-                                                       TreeElement root,
-                                                       String remoteUrl,
-                                                       boolean useCaseTemplate) {
-        return new ExternalDataInstance(JR_REMOTE_REFERENCE, instanceId, root, remoteUrl, useCaseTemplate);
+    public static TreeElement parseExternalTree(InputStream stream, String instanceId) throws IOException, UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException {
+        KXmlParser baseParser = ElementParser.instantiateParser(stream);
+        TreeElement root = new TreeElementParser(baseParser, 0, instanceId).parse();
+        return root;
     }
 
     public static ExternalDataInstance buildFromRemote(String instanceId,
-                                                       InputStream instanceStream,
-                                                       String remoteUrl,
-                                                       boolean useCaseTemplate)
-            throws IOException, UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException {
-        KXmlParser baseParser = ElementParser.instantiateParser(instanceStream);
-        TreeElement root = new TreeElementParser(baseParser, 0, instanceId).parse();
-        return new ExternalDataInstance(JR_REMOTE_REFERENCE, instanceId, root, remoteUrl, useCaseTemplate);
+                                                       ExternalDataInstanceSource source) {
+        return new ExternalDataInstance(JR_REMOTE_REFERENCE, instanceId, source.getRoot(), source);
     }
 
     public boolean useCaseTemplate() {
-        return useCaseTemplate;
+        return source == null ? CaseInstanceTreeElement.MODEL_NAME.equals(instanceid) : source.useCaseTemplate();
     }
 
     @Override
@@ -101,7 +93,15 @@ public class ExternalDataInstance extends DataInstance {
 
     @Override
     public AbstractTreeElement getRoot() {
-        return root;
+        if (needsInit()) {
+            throw new RuntimeException("Attempt to use instance " + instanceid + " without inititalization.");
+        }
+
+        if (source != null) {
+            return source.getRoot();
+        } else {
+            return root;
+        }
     }
 
     public String getReference() {
@@ -109,8 +109,16 @@ public class ExternalDataInstance extends DataInstance {
     }
 
     @Nullable
-    public String getRemoteUrl() {
-        return remoteUrl;
+    public ExternalDataInstanceSource getSource() {
+        return source;
+    }
+
+    public boolean needsInit() {
+        if (source == null) {
+            return false;
+        } else {
+            return source.needsInit();
+        }
     }
 
     @Override
@@ -118,42 +126,21 @@ public class ExternalDataInstance extends DataInstance {
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
         reference = ExtUtil.readString(in);
-        useCaseTemplate = ExtUtil.readBool(in);
-        remoteUrl = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        source = (ExternalDataInstanceSource)ExtUtil.read(in, new ExtWrapNullable(ExternalDataInstanceSource.class), pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
         ExtUtil.writeString(out, reference);
-        ExtUtil.writeBool(out, useCaseTemplate);
-        ExtUtil.write(out, new ExtWrapNullable(remoteUrl));
+        ExtUtil.write(out, new ExtWrapNullable(source));
     }
 
     @Override
     public DataInstance initialize(InstanceInitializationFactory initializer, String instanceId) {
         base = new InstanceBase(instanceId);
         root = initializer.generateRoot(this);
-
-        // If no root, try to load the instance from the session
-        if (root == null) {
-            ExternalDataInstance sessionInstance = initializer.getInstanceFromSession(instanceId);
-            reference = sessionInstance.getReference();
-            base = sessionInstance.getBase();
-            root = sessionInstance.getRoot();
-            mCacheHost = sessionInstance.getCacheHost();
-            remoteUrl = sessionInstance.getRemoteUrl();
-            useCaseTemplate = CaseInstanceTreeElement.MODEL_NAME.equals(instanceid);
-        }
-
-        if (root == null) {
-            initializer.generateRoot(this);
-        }
-
-        if (root != null) {
-            base.setChild(root);
-        }
-
+        base.setChild(root);
         return initializer.getSpecializedExternalDataInstance(this);
     }
 }

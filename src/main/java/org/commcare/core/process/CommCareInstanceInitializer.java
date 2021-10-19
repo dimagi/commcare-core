@@ -13,14 +13,13 @@ import org.javarosa.core.model.User;
 import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.CacheTable;
-
-import javax.annotation.Nullable;
 
 /**
  * Initializes a CommCare DataInstance against a UserDataInterface and (sometimes) optional
@@ -86,17 +85,6 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             return setupRemoteData(instance);
         } else if (ref.contains("migration")) {
             return setupMigrationData(instance);
-        }
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public ExternalDataInstance getInstanceFromSession(String instanceId) {
-        for (StackFrameStep step : session.getFrame().getSteps()) {
-            if (step.getId().equals(instanceId) && step.getType().equals(SessionFrame.STATE_QUERY_REQUEST)) {
-                return step.getXmlInstance();
-            }
         }
         return null;
     }
@@ -190,6 +178,12 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
 
     protected AbstractTreeElement setupRemoteData(ExternalDataInstance instance) {
+        for (StackFrameStep step : session.getFrame().getSteps()) {
+            if (step.getId().equals(instance.getInstanceId()) && step.getType().equals(SessionFrame.STATE_QUERY_REQUEST)) {
+                ExternalDataInstanceSource externalDataInstanceSource = step.getXmlInstanceSource();
+                return externalDataInstanceSource.getRoot();
+            }
+        }
         return instance.getRoot();
     }
 

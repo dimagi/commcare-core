@@ -1424,17 +1424,17 @@ public class FormDef implements IFormElement, IMetaData,
      *                            (presumably in HQ) - so don't fire end of form event.
      */
     public void initialize(boolean newInstance, boolean isCompletedInstance,
-                           InstanceInitializationFactory factory) throws RemoteInstanceFetcher.RemoteInstanceException {
-        initialize(newInstance, isCompletedInstance, factory, null, false, null);
+                           InstanceInitializationFactory factory) {
+        initialize(newInstance, isCompletedInstance, factory, null, false);
     }
 
-    public void initialize(boolean newInstance, InstanceInitializationFactory factory) throws RemoteInstanceFetcher.RemoteInstanceException {
-        initialize(newInstance, false, factory, null, false, null);
+    public void initialize(boolean newInstance, InstanceInitializationFactory factory) {
+        initialize(newInstance, false, factory, null, false);
     }
 
     public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale,
-                           boolean isReadOnly, RemoteInstanceFetcher remoteInstanceFetcher) throws RemoteInstanceFetcher.RemoteInstanceException {
-        initialize(newInstance, false, factory, locale, isReadOnly, remoteInstanceFetcher);
+                           boolean isReadOnly) {
+        initialize(newInstance, false, factory, locale, isReadOnly);
     }
 
     /**
@@ -1445,19 +1445,14 @@ public class FormDef implements IFormElement, IMetaData,
      * @param locale      The default locale in the current environment, if provided. Can be null
      *                    to rely on the form's internal default.
      * @param isReadOnly  If we are in read only mode and only wants to view form
-     * @param remoteInstanceFetcher utility to initialize remote instances over internet, can be null
      */
     @Trace
     public void initialize(boolean newInstance, boolean isCompletedInstance, InstanceInitializationFactory factory,
-                           String locale, boolean isReadOnly, @Nullable RemoteInstanceFetcher remoteInstanceFetcher) throws RemoteInstanceFetcher.RemoteInstanceException {
+                           String locale, boolean isReadOnly) {
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
             formInstances.put(instanceId, instance.initialize(factory, instanceId));
-        }
-
-        if (remoteInstanceFetcher != null) {
-            tryAttachingRemoteInstances(remoteInstanceFetcher);
         }
 
         initLocale(locale);
@@ -1471,41 +1466,6 @@ public class FormDef implements IFormElement, IMetaData,
         this.isCompletedInstance = isCompletedInstance;
         if (!isReadOnly) {
             initAllTriggerables();
-        }
-    }
-
-    private void tryAttachingRemoteInstances(RemoteInstanceFetcher remoteInstanceFetcher) throws RemoteInstanceFetcher.RemoteInstanceException {
-        ArrayList<DataInstance> replacedInstances = new ArrayList<>();
-        Enumeration<DataInstance> instances = getNonMainInstances();
-        while (instances.hasMoreElements()) {
-            DataInstance instance = instances.nextElement();
-            if (instance instanceof ExternalDataInstance &&
-                    instance.getRoot() == null &&
-                    ((ExternalDataInstance)instance).getRemoteUrl() != null) {
-                try {
-                    ExternalDataInstance externalDataInstance = (ExternalDataInstance)instance;
-                    ExternalDataInstance newExternalDataInstance = remoteInstanceFetcher.getRemoteDataInstance(instance.getInstanceId(),
-                            externalDataInstance.useCaseTemplate(),
-                            new URI(externalDataInstance.getRemoteUrl()));
-                    if (newExternalDataInstance != null && newExternalDataInstance.getRoot() != null) {
-                        replacedInstances.add(newExternalDataInstance);
-                    }
-                } catch (UnfullfilledRequirementsException | XmlPullParserException |
-                        InvalidStructureException | IOException | URISyntaxException e) {
-                    String errorMessage;
-                    if (e instanceof URISyntaxException) {
-                        errorMessage = "Invalid url found for the remote instance " + instance.getName() + ".";
-                    } else if (e instanceof IOException) {
-                        errorMessage = "Could not retrieve data for remote instance " + instance.getName() + ". Please try opening the form again.";
-                    } else {
-                        errorMessage = "Invalid data retrieved from remote instance " + instance.getName() + ". If the error persists please contact your help desk.";
-                    }
-                    throw new RemoteInstanceFetcher.RemoteInstanceException(errorMessage, e.getCause());
-                }
-            }
-        }
-        for (DataInstance replacedInstance : replacedInstances) {
-            addNonMainInstance(replacedInstance);
         }
     }
 

@@ -58,11 +58,8 @@ public class XFormEnvironment {
     
     public FormEntryController setup(InstanceInitializationFactory factory) {
         form.setEvaluationContext(buildBaseEvaluationContext());
-        try {
-            form.initialize(true, factory, preferredLocale, false, null);
-        } catch (RemoteInstanceFetcher.RemoteInstanceException e) {
-            throw new RuntimeException(e.getMessage(), e.getCause());
-        }
+
+        form.initialize(true, factory, preferredLocale, false);
 
         if(recording) {
             session = new Session();
