@@ -171,7 +171,7 @@ public class QueryScreen extends Screen {
         Pair<ExternalDataInstance, String> instanceOrError;
         try {
             String instanceID = getQueryDatum().getDataId();
-            TreeElement root = ExternalDataInstance.parseExternalTree(responseData, instanceID));
+            TreeElement root = ExternalDataInstance.parseExternalTree(responseData, instanceID);
             ExternalDataInstanceSource instanceSource = new ExternalDataInstanceSource(instanceID, root, url, getQueryDatum().useCaseTemplate());
             ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(getQueryDatum().getDataId(), instanceSource);
             instanceOrError = new Pair<>(instance, "");
