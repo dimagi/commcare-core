@@ -1,7 +1,6 @@
 package org.javarosa.core.model.instance;
 
 import org.commcare.cases.instance.CaseInstanceTreeElement;
-import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
@@ -13,12 +12,10 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nullable;
 
@@ -27,7 +24,7 @@ import javax.annotation.Nullable;
  */
 public class ExternalDataInstance extends DataInstance {
     private String reference;
-    private boolean useCaseTemplate;
+
 
     private AbstractTreeElement root;
     private InstanceBase base;
@@ -43,7 +40,6 @@ public class ExternalDataInstance extends DataInstance {
     public ExternalDataInstance(String reference, String instanceid) {
         super(instanceid);
         this.reference = reference;
-        useCaseTemplate = CaseInstanceTreeElement.MODEL_NAME.equals(instanceid);
     }
 
     /**
@@ -57,14 +53,11 @@ public class ExternalDataInstance extends DataInstance {
         this.root = instance.root;
         this.mCacheHost = instance.getCacheHost();
         this.source = instance.getSource();
-        useCaseTemplate = CaseInstanceTreeElement.MODEL_NAME.equals(instanceid);
     }
 
     private ExternalDataInstance(String reference, String instanceId,
-                                 TreeElement topLevel, ExternalDataInstanceSource source,
-                                 boolean useCaseTemplate) {
+                                 TreeElement topLevel, ExternalDataInstanceSource source) {
         this(reference, instanceId);
-        this.useCaseTemplate = useCaseTemplate;
         base = new InstanceBase(instanceId);
         this.source = source;
         topLevel.setInstanceName(instanceId);
@@ -80,13 +73,12 @@ public class ExternalDataInstance extends DataInstance {
     }
 
     public static ExternalDataInstance buildFromRemote(String instanceId,
-                                                       ExternalDataInstanceSource source,
-                                                       boolean useCaseTemplate) {
-        return new ExternalDataInstance(JR_REMOTE_REFERENCE, instanceId, source.getRoot(), source, useCaseTemplate);
+                                                       ExternalDataInstanceSource source) {
+        return new ExternalDataInstance(JR_REMOTE_REFERENCE, instanceId, source.getRoot(), source);
     }
 
     public boolean useCaseTemplate() {
-        return useCaseTemplate;
+        return source == null ? CaseInstanceTreeElement.MODEL_NAME.equals(instanceid) : source.useCaseTemplate();
     }
 
     @Override
@@ -129,30 +121,11 @@ public class ExternalDataInstance extends DataInstance {
         }
     }
 
-    public void remoteInit(RemoteInstanceFetcher remoteInstanceFetcher)
-            throws RemoteInstanceFetcher.RemoteInstanceException {
-        try {
-            base = new InstanceBase(getInstanceId());
-            this.source.init(remoteInstanceFetcher.getExternalRoot(getInstanceId(), this.getSource()));
-            TreeElement root = source.getRoot();
-            root.setInstanceName(this.instanceid);
-            root.setParent(this.base);
-            this.root = root;
-        } catch (IOException e) {
-            throw new RemoteInstanceFetcher.RemoteInstanceException(
-                    "Could not retrieve data for remote instance " + getName() + ". Please try opening the form again.", e);
-        } catch (XmlPullParserException | UnfullfilledRequirementsException | InvalidStructureException e) {
-            throw new RemoteInstanceFetcher.RemoteInstanceException(
-                    "Invalid data retrieved from remote instance " + getName() + ". If the error persists please contact your help desk.", e);
-        }
-    }
-
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
         reference = ExtUtil.readString(in);
-        useCaseTemplate = ExtUtil.readBool(in);
         source = (ExternalDataInstanceSource)ExtUtil.read(in, new ExtWrapNullable(ExternalDataInstanceSource.class), pf);
     }
 
@@ -160,7 +133,6 @@ public class ExternalDataInstance extends DataInstance {
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
         ExtUtil.writeString(out, reference);
-        ExtUtil.writeBool(out, useCaseTemplate);
         ExtUtil.write(out, new ExtWrapNullable(source));
     }
 
@@ -169,8 +141,6 @@ public class ExternalDataInstance extends DataInstance {
         base = new InstanceBase(instanceId);
         root = initializer.generateRoot(this);
         base.setChild(root);
-
-
         return initializer.getSpecializedExternalDataInstance(this);
     }
 }

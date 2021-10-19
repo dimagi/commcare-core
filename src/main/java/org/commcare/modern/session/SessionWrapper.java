@@ -4,26 +4,12 @@ import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.session.CommCareSession;
-import org.commcare.session.SessionFrame;
-import org.commcare.suite.model.ComputedDatum;
-import org.commcare.suite.model.RemoteQueryDatum;
-import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 import org.javarosa.xpath.analysis.XPathAnalyzable;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Set;
 
 /**
@@ -88,8 +74,8 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
 
     public void prepareExternalSources(RemoteInstanceFetcher remoteInstanceFetcher) throws RemoteInstanceFetcher.RemoteInstanceException {
         for(StackFrameStep step : frame.getSteps()) {
-            if (step.hasXmlInstance() && step.getXmlInstance().needsInit()) {
-                step.getXmlInstance().remoteInit(remoteInstanceFetcher);
+            if (step.hasXmlInstance() && step.getXmlInstanceSource().needsInit()) {
+                step.getXmlInstanceSource().remoteInit(remoteInstanceFetcher);
             }
         }
     }

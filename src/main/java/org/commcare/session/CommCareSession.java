@@ -15,11 +15,9 @@ import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
-import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -452,7 +450,7 @@ public class CommCareSession {
         if (datum instanceof RemoteQueryDatum) {
             StackFrameStep step =
                     new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST,
-                            datum.getDataId(), datum.getValue(), queryResultInstance);
+                            datum.getDataId(), datum.getValue(), queryResultInstance.getSource());
             frame.pushStep(step);
             syncState();
         } else {
@@ -596,7 +594,8 @@ public class CommCareSession {
                                        InstanceInitializationFactory iif) {
         for (StackFrameStep step : frame.getSteps()) {
             if (step.hasXmlInstance()) {
-                instanceMap.put(step.getId(), step.getXmlInstance().initialize(iif, step.getId()));
+                ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(step.getId(), step.getXmlInstanceSource());
+                instanceMap.put(step.getId(), instance.initialize(iif, instance.getSource().getInstanceId()));
             }
         }
     }
