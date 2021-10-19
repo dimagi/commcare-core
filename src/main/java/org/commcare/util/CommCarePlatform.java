@@ -126,17 +126,6 @@ public class CommCarePlatform {
         return null;
     }
 
-    public Endpoint getEndpointByCommand(String commandId) {
-        for(Suite s : getInstalledSuites()) {
-            for(Endpoint endpoint : s.getEndpoints().values()) {
-                if (commandId.equals(endpoint.getCommandId())) {
-                    return endpoint;
-                }
-            }
-        }
-        return null;
-    }
-
     public Hashtable<String, Endpoint> getAllEndpoints() {
         Hashtable<String, Endpoint> allEndpoints = new Hashtable<>();
         for(Suite s : getInstalledSuites()) {

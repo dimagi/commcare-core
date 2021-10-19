@@ -29,7 +29,6 @@ public class EndpointParser extends ElementParser<Endpoint> {
         if (endpointId == null || endpointId.isEmpty()) {
             throw new InvalidStructureException("endpoint must define a non empty id", parser);
         }
-        String commandId = parser.getAttributeValue(null, "command_id");
 
         Vector<StackOperation> stackOperations = new Vector<>();
         Vector<String> arguments = new Vector<>();
@@ -50,6 +49,6 @@ public class EndpointParser extends ElementParser<Endpoint> {
             }
         }
 
-        return new Endpoint(endpointId, commandId, arguments, stackOperations);
+        return new Endpoint(endpointId, arguments, stackOperations);
     }
 }
