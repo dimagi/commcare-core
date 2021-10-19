@@ -59,7 +59,7 @@ public class CommCareSession {
     private final CommCarePlatform platform;
     private StackFrameStep popped;
     private String currentCmd;
-    public String smartLinkRedirect;        // TODO: make private, with getter and setter
+    private String smartLinkRedirect;
 
     /**
      * A table of all datums (id --> value) that are currently on the session stack
@@ -432,6 +432,14 @@ public class CommCareSession {
         //TODO: Check the "base state" of the frame after popping to see if we invalidated the stack
         syncState();
         popped = recentPop;
+    }
+
+    public String getSmartLinkRedirect() {
+        return smartLinkRedirect;
+    }
+
+    public void setSmartLinkRedirect(String url) {
+        smartLinkRedirect = url;
     }
 
     public void setDatum(String keyId, String value) {
