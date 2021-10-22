@@ -36,31 +36,39 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
             case "command":
                 return parseValue(SessionFrame.STATE_COMMAND_ID, null);
             case "query":
-                return parseUrlStep("query", SessionFrame.STATE_QUERY_REQUEST);
+                String queryId = parser.getAttributeValue(null, "id");
+                String url = parser.getAttributeValue(null, "value");
+                StackFrameStep step = null;
+                try {
+                    step = new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST, queryId, url, true);
+                } catch (XPathSyntaxException e) {
+                    throw new InvalidStructureException("Invalid expression for stack frame step definition: " + value + ".\n" + e.getMessage(), parser);
+                }
+                while (nextTagInBlock("query")) {
+                    String tagName = parser.getName();
+                    if ("data".equals(tagName)) {
+                        String key = parser.getAttributeValue(null, "key");
+                        String ref = parser.getAttributeValue(null, "ref");
+                        try {
+                            step.addExtra(key, XPathParseTool.parseXPath(ref));
+                        } catch (XPathSyntaxException e) {
+                            String errorMessage = "'ref' value is not a valid xpath expression: " + ref;
+                            throw new InvalidStructureException(errorMessage, this.parser);
+                        }
+                    }
+                }
+                return step;
             case "jump":
-                return parseUrlStep("jump", SessionFrame.STATE_SMART_LINK);
+                String jumpId = parser.getAttributeValue(null, "id");
+                step = new StackFrameStep(SessionFrame.STATE_SMART_LINK, jumpId, null);
+                TextParser textParser = new TextParser(parser);
+                nextTag("url");
+                nextTag("text");
+                step.addExtra("url", textParser.parse());
+                return step;
             default:
                 throw new InvalidStructureException("<" + operation + "> is not a valid stack frame element!", this.parser);
         }
-    }
-
-    private StackFrameStep parseUrlStep(String nodeName, String type) throws XmlPullParserException, IOException, InvalidStructureException {
-        String id = parser.getAttributeValue(null, "id");
-        StackFrameStep step = parseValue(type, id);
-        while (nextTagInBlock(nodeName)) {
-            String tagName = parser.getName();
-            if ("data".equals(tagName)) {
-                String key = parser.getAttributeValue(null, "key");
-                String ref = parser.getAttributeValue(null, "ref");
-                try {
-                    step.addExtra(key, XPathParseTool.parseXPath(ref));
-                } catch (XPathSyntaxException e) {
-                    String errorMessage = "'ref' value is not a valid xpath expression: " + ref;
-                    throw new InvalidStructureException(errorMessage, this.parser);
-                }
-            }
-        }
-        return step;
     }
 
     private StackFrameStep parseValue(String type, String datumId) throws XmlPullParserException, IOException, InvalidStructureException {
