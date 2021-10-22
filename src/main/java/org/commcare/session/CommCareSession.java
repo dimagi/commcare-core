@@ -13,6 +13,7 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
+import org.commcare.suite.model.Text;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
@@ -696,18 +697,8 @@ public class CommCareSession {
                 // if no mark is found ignore the rewind and continue
             }
             else if (SessionFrame.STATE_SMART_LINK.equals(step.getType())) {
-                try {   // this try is basically copied from StackFrameStep.evaluateValue
-                    String template = FunctionUtils.toString(XPathParseTool.parseXPath(step.getValue()).eval(ec));
-                    for (String key : step.getExtras().keySet()) {
-                        String value = FunctionUtils.toString(((XPathExpression)step.getExtra(key)).eval(ec));
-                        template = template.replace("{" + key + "}", value);
-                    }
-                    smartLinkRedirect = template;
-                } catch (XPathSyntaxException e) {
-                    //This error makes no sense, since we parse the input for
-                    //validation when we create it!
-                    throw new XPathException(e.getMessage());
-                }
+                Text url = (Text) step.getExtra("url");
+                smartLinkRedirect = url.evaluate(ec);
             } else {
                 pushFrameStep(step, frame, ec);
             }
