@@ -28,6 +28,7 @@ public class ExternalDataInstance extends DataInstance {
 
     private AbstractTreeElement root;
     private InstanceBase base;
+    private boolean useCaseTemplate;
 
     @Nullable
     private ExternalDataInstanceSource source;
@@ -40,6 +41,7 @@ public class ExternalDataInstance extends DataInstance {
     public ExternalDataInstance(String reference, String instanceid) {
         super(instanceid);
         this.reference = reference;
+        this.useCaseTemplate = false;
     }
 
     /**
@@ -53,6 +55,12 @@ public class ExternalDataInstance extends DataInstance {
         this.root = instance.root;
         this.mCacheHost = instance.getCacheHost();
         this.source = instance.getSource();
+        this.useCaseTemplate = source == null ? CaseInstanceTreeElement.MODEL_NAME.equals(instanceid) : source.useCaseTemplate();
+        if (source == null) {
+            this.useCaseTemplate = CaseInstanceTreeElement.MODEL_NAME.equals(instanceid);
+        } else {
+            this.useCaseTemplate = source.useCaseTemplate();
+        }
     }
 
     private ExternalDataInstance(String reference, String instanceId,
@@ -64,6 +72,11 @@ public class ExternalDataInstance extends DataInstance {
         topLevel.setParent(base);
         this.root = topLevel;
         base.setChild(root);
+        if (source == null) {
+            this.useCaseTemplate = CaseInstanceTreeElement.MODEL_NAME.equals(instanceid);
+        } else {
+            this.useCaseTemplate = source.useCaseTemplate();
+        }
     }
 
     public static TreeElement parseExternalTree(InputStream stream, String instanceId) throws IOException, UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException {
@@ -78,7 +91,7 @@ public class ExternalDataInstance extends DataInstance {
     }
 
     public boolean useCaseTemplate() {
-        return source == null ? CaseInstanceTreeElement.MODEL_NAME.equals(instanceid) : source.useCaseTemplate();
+        return useCaseTemplate;
     }
 
     @Override
@@ -139,7 +152,9 @@ public class ExternalDataInstance extends DataInstance {
     @Override
     public DataInstance initialize(InstanceInitializationFactory initializer, String instanceId) {
         base = new InstanceBase(instanceId);
-        root = initializer.generateRoot(this);
+        InstanceInitializationFactory.InstanceRoot instanceRoot = initializer.generateRoot(this);
+        root = instanceRoot.getRoot();
+        useCaseTemplate = instanceRoot.useCaseTemplate();
         base.setChild(root);
         return initializer.getSpecializedExternalDataInstance(this);
     }

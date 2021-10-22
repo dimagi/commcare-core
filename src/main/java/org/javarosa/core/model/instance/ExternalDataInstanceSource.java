@@ -47,6 +47,7 @@ public class ExternalDataInstanceSource implements Externalizable {
         this.instanceId = externalDataInstanceSource.instanceId;
         this.sourceUri = externalDataInstanceSource.sourceUri;
         this.root = externalDataInstanceSource.root;
+        this.useCaseTemplate = externalDataInstanceSource.useCaseTemplate();
     }
 
     public boolean needsInit() {

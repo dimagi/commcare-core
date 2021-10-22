@@ -18,7 +18,7 @@ public class DummyInstanceInitializationFactory extends InstanceInitializationFa
         return instance;
     }
     @Override
-    public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
+    public InstanceRoot generateRoot(ExternalDataInstance instance) {
         throw new RuntimeException("Loading external instances isn't supported " +
                 "using this instance initialization factory.");
     }

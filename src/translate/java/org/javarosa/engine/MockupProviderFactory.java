@@ -28,7 +28,7 @@ public class MockupProviderFactory extends InstanceInitializationFactory {
     }
 
     @Override
-    public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
+    public InstanceRoot generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
 
         if(instances.containsKey(ref)) {
@@ -39,7 +39,7 @@ public class MockupProviderFactory extends InstanceInitializationFactory {
 
             root.setParent(instance.getBase());
 
-            return root;
+            return new InstanceRoot(root);
         } else if(ref.equals("jr://session")) {
             throw new IllegalArgumentException("Session instances not yet supported");
         } else {

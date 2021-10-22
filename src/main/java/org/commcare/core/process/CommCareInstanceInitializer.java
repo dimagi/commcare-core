@@ -71,7 +71,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
 
     @Override
-    public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
+    public InstanceRoot generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
         if (ref.contains(LedgerInstanceTreeElement.MODEL_NAME)) {
             return setupLedgerData(instance);
@@ -89,29 +89,29 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         return null;
     }
 
-    protected AbstractTreeElement setupLedgerData(ExternalDataInstance instance) {
+    protected InstanceRoot setupLedgerData(ExternalDataInstance instance) {
         if (stockbase == null) {
             stockbase = new LedgerInstanceTreeElement(instance.getBase(), mSandbox.getLedgerStorage());
         } else {
             //re-use the existing model if it exists.
             stockbase.rebase(instance.getBase());
         }
-        return stockbase;
+        return new InstanceRoot(stockbase);
     }
 
-    protected AbstractTreeElement setupCaseData(ExternalDataInstance instance) {
+    protected InstanceRoot setupCaseData(ExternalDataInstance instance) {
         if (casebase == null) {
             casebase = new CaseInstanceTreeElement(instance.getBase(), mSandbox.getCaseStorage());
         } else {
             //re-use the existing model if it exists.
             casebase.rebase(instance.getBase());
         }
-        return casebase;
+        return new InstanceRoot(casebase, true);
     }
 
 
-    protected AbstractTreeElement setupFixtureData(ExternalDataInstance instance) {
-        return loadFixtureRoot(instance, instance.getReference());
+    protected InstanceRoot setupFixtureData(ExternalDataInstance instance) {
+        return new InstanceRoot(loadFixtureRoot(instance, instance.getReference()));
     }
 
     protected static String getRefId(String reference) {
@@ -160,7 +160,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         }
     }
 
-    protected AbstractTreeElement setupSessionData(ExternalDataInstance instance) {
+    protected InstanceRoot setupSessionData(ExternalDataInstance instance) {
         if (this.mPlatform == null) {
             throw new RuntimeException("Cannot generate session instance with undeclared platform!");
         }
@@ -170,21 +170,22 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                         getVersionString(), getCurrentDrift(), u.getUsername(), u.getUniqueId(),
                         u.getProperties()).getRoot();
         root.setParent(instance.getBase());
-        return root;
+        return new InstanceRoot(root);
     }
 
     protected long getCurrentDrift() {
         return 0;
     }
 
-    protected AbstractTreeElement setupRemoteData(ExternalDataInstance instance) {
+    protected InstanceRoot setupRemoteData(ExternalDataInstance instance) {
         for (StackFrameStep step : session.getFrame().getSteps()) {
             if (step.getId().equals(instance.getInstanceId()) && step.getType().equals(SessionFrame.STATE_QUERY_REQUEST)) {
-                ExternalDataInstanceSource externalDataInstanceSource = step.getXmlInstanceSource();
-                return externalDataInstanceSource.getRoot();
+                ExternalDataInstanceSource source = step.getXmlInstanceSource();
+                return new InstanceRoot(source.getRoot(), source.useCaseTemplate());
             }
         }
-        return instance.getRoot();
+        boolean useCaseTemplate = instance.getSource() != null && instance.getSource().useCaseTemplate();
+        return new InstanceRoot(instance.getRoot(), useCaseTemplate);
     }
 
     protected String getDeviceId() {
@@ -195,7 +196,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         return "CommCare Version: " + mPlatform.getMajorVersion() + "." + mPlatform.getMinorVersion();
     }
 
-    protected AbstractTreeElement setupMigrationData(ExternalDataInstance instance) {
+    protected InstanceRoot setupMigrationData(ExternalDataInstance instance) {
         return null;
     }
 
