@@ -153,9 +153,18 @@ public class ExternalDataInstance extends DataInstance {
     public DataInstance initialize(InstanceInitializationFactory initializer, String instanceId) {
         base = new InstanceBase(instanceId);
         InstanceInitializationFactory.InstanceRoot instanceRoot = initializer.generateRoot(this);
-        root = instanceRoot.getRoot();
-        useCaseTemplate = instanceRoot.useCaseTemplate();
-        base.setChild(root);
+        instanceRoot.setupNewCopy(this);
         return initializer.getSpecializedExternalDataInstance(this);
+    }
+
+    public void copyFromSource(InstanceInitializationFactory.InstanceRoot instanceRoot) {
+        root = instanceRoot.getRoot();
+        base.setChild(root);
+    }
+
+    public void copyFromSource(ExternalDataInstanceSource source) {
+        //parent copy
+        copyFromSource((InstanceInitializationFactory.InstanceRoot)source);
+        this.useCaseTemplate = source.useCaseTemplate();
     }
 }

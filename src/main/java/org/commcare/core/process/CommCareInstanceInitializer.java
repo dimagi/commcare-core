@@ -96,7 +96,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             //re-use the existing model if it exists.
             stockbase.rebase(instance.getBase());
         }
-        return new InstanceRoot(stockbase);
+        return new ConcreteInstanceRoot(stockbase);
     }
 
     protected InstanceRoot setupCaseData(ExternalDataInstance instance) {
@@ -106,12 +106,12 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             //re-use the existing model if it exists.
             casebase.rebase(instance.getBase());
         }
-        return new InstanceRoot(casebase, true);
+        return new ConcreteInstanceRoot(casebase);
     }
 
 
     protected InstanceRoot setupFixtureData(ExternalDataInstance instance) {
-        return new InstanceRoot(loadFixtureRoot(instance, instance.getReference()));
+        return new ConcreteInstanceRoot(loadFixtureRoot(instance, instance.getReference()));
     }
 
     protected static String getRefId(String reference) {
@@ -170,7 +170,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                         getVersionString(), getCurrentDrift(), u.getUsername(), u.getUniqueId(),
                         u.getProperties()).getRoot();
         root.setParent(instance.getBase());
-        return new InstanceRoot(root);
+        return new ConcreteInstanceRoot(root);
     }
 
     protected long getCurrentDrift() {
@@ -181,11 +181,10 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         for (StackFrameStep step : session.getFrame().getSteps()) {
             if (step.getId().equals(instance.getInstanceId()) && step.getType().equals(SessionFrame.STATE_QUERY_REQUEST)) {
                 ExternalDataInstanceSource source = step.getXmlInstanceSource();
-                return new InstanceRoot(source.getRoot(), source.useCaseTemplate());
+                return source;
             }
         }
-        boolean useCaseTemplate = instance.getSource() != null && instance.getSource().useCaseTemplate();
-        return new InstanceRoot(instance.getRoot(), useCaseTemplate);
+        return instance.getSource();
     }
 
     protected String getDeviceId() {

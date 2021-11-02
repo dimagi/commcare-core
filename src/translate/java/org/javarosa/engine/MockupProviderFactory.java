@@ -39,7 +39,7 @@ public class MockupProviderFactory extends InstanceInitializationFactory {
 
             root.setParent(instance.getBase());
 
-            return new InstanceRoot(root);
+            return new ConcreteInstanceRoot(root);
         } else if(ref.equals("jr://session")) {
             throw new IllegalArgumentException("Session instances not yet supported");
         } else {

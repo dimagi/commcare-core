@@ -13,7 +13,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class ExternalDataInstanceSource implements Externalizable {
+public class ExternalDataInstanceSource implements InstanceInitializationFactory.InstanceRoot, Externalizable {
 
     TreeElement root;
     private String sourceUri;
@@ -109,5 +109,9 @@ public class ExternalDataInstanceSource implements Externalizable {
 
     public String getInstanceId() {
         return instanceId;
+    }
+
+    public void setupNewCopy(ExternalDataInstance instance) {
+        instance.copyFromSource(this);
     }
 }

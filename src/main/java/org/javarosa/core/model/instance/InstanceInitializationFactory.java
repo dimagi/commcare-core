@@ -5,24 +5,23 @@ package org.javarosa.core.model.instance;
  */
 public class InstanceInitializationFactory {
 
-    public class InstanceRoot {
-        private AbstractTreeElement root;
-        private boolean useCaseTemplate;
-        public InstanceRoot(AbstractTreeElement root) {
-            this(root, false);
-        }
+    public interface InstanceRoot {
+        AbstractTreeElement getRoot();
+        void setupNewCopy(ExternalDataInstance instance);
+    }
 
-        public InstanceRoot(AbstractTreeElement root, boolean useCaseTemplate) {
+    public class ConcreteInstanceRoot implements InstanceRoot {
+        protected AbstractTreeElement root;
+        public ConcreteInstanceRoot(AbstractTreeElement root) {
             this.root = root;
-            this.useCaseTemplate = useCaseTemplate;
         }
 
         public AbstractTreeElement getRoot() {
             return root;
         }
 
-        public boolean useCaseTemplate() {
-            return useCaseTemplate;
+        public void setupNewCopy(ExternalDataInstance instance) {
+            instance.copyFromSource(this);
         }
     }
     /**
