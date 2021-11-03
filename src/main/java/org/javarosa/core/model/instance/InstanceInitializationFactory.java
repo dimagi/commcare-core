@@ -15,6 +15,6 @@ public class InstanceInitializationFactory {
     }
 
     public InstanceRoot generateRoot(ExternalDataInstance instance) {
-        return null;
+        return ConcreteInstanceRoot.NULL;
     }
 }

@@ -37,6 +37,6 @@ public class TestInstanceInitializer extends InstanceInitializationFactory {
             CaseInstanceTreeElement root = new CaseInstanceTreeElement(instance.getBase(), sandbox.getCaseStorage());
             return new ConcreteInstanceRoot(root);
         }
-        return null;
+        return ConcreteInstanceRoot.NULL;
     }
 }

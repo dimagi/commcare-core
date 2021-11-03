@@ -6,6 +6,9 @@ package org.javarosa.core.model.instance;
  * the `commcaresession` instance.
  */
 public class ConcreteInstanceRoot implements InstanceRoot {
+
+    public static InstanceRoot NULL = new ConcreteInstanceRoot(null);
+
     protected AbstractTreeElement root;
 
     public ConcreteInstanceRoot(AbstractTreeElement root) {

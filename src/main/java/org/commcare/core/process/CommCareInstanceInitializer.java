@@ -87,7 +87,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         } else if (ref.contains("migration")) {
             return setupMigrationData(instance);
         }
-        return null;
+        return ConcreteInstanceRoot.NULL;
     }
 
     protected InstanceRoot setupLedgerData(ExternalDataInstance instance) {
