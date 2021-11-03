@@ -34,7 +34,7 @@ public class TestInstanceInitializer extends InstanceInitializationFactory {
         String ref = instance.getReference();
         if (ref.contains(CaseInstanceTreeElement.MODEL_NAME)) {
             CaseInstanceTreeElement root = new CaseInstanceTreeElement(instance.getBase(), sandbox.getCaseStorage());
-            return new InstanceRoot(root, true);
+            return new ConcreteInstanceRoot(root);
         }
         return null;
     }
