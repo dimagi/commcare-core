@@ -298,4 +298,46 @@
       <datum id="adolescent_case_id" nodeset="instance('casedb')/casedb/case[@case_type='adolescent'][@status='open']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long" />
     </session>
   </entry>
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="eof-nav-registry">
+      <text>Some Form</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <query url="http://fake.com/patient_search/" storage-instance="results" template="case">
+        <data key="case_type" ref="'patient'"/>
+        <data key="commcare_registry" ref="'patient_reg'"/>
+        <prompt key="name">
+          <display>
+            <text>Name</text>
+          </display>
+        </prompt>
+      </query>
+      <datum id="case_id" nodeset="instance('results')/results/case[@case_type='patient'][@status='open']" value="./@case_id" detail-select="m0_case_short"/>
+      <query url="http://fake.com/registry_case/" storage-instance="registry" template="case" default_search="true">
+        <data key="case_type" ref="'patient'"/>
+        <data key="case_id" ref="instance('commcaresession')/session/data/case_id"/>
+        <data key="commcare_registry" ref="'patient_reg'"/>
+      </query>
+    </session>
+    <stack>
+      <create if="true()">
+        <command value="'m1'"/>
+        <query id="results" value="http://fake.com/registry_case/">
+          <data key="case_type" ref="'patient'"/>
+          <data key="commcare_registry" ref="'patient_reg'"/>
+          <data key="case_id" ref="instance('commcaresession')/session/data/case_id"/>
+        </query>
+        <datum id="case_id" value="instance('commcaresession')/session/data/case_id"/>
+        <query id="registry" value="http://fake.com/registry_case/">
+          <data key="case_type" ref="'patient'"/>
+          <data key="case_id" ref="instance('commcaresession')/session/data/case_id"/>
+          <data key="commcare_registry" ref="'patient_reg'"/>
+        </query>
+        <command value="'m1-f0'"/>
+      </create>
+    </stack>
+  </entry>
 </suite>
