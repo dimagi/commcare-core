@@ -39,6 +39,8 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
                 return parseValue(SessionFrame.STATE_COMMAND_ID, null);
             case "query":
                 return parseQuery();
+            case "jump":
+                return parseJump();
             default:
                 throw new InvalidStructureException("<" + operation + "> is not a valid stack frame element!", this.parser);
         }
@@ -68,6 +70,16 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
                 }
             }
         }
+        return step;
+    }
+
+    private StackFrameStep parseJump() throws InvalidStructureException, IOException, XmlPullParserException {
+        String id = parser.getAttributeValue(null, "id");
+        StackFrameStep step = new StackFrameStep(SessionFrame.STATE_SMART_LINK, id, null);
+        TextParser textParser = new TextParser(parser);
+        nextTag("url");
+        nextTag("text");
+        step.addExtra("url", textParser.parse());
         return step;
     }
 

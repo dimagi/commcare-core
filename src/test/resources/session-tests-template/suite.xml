@@ -198,6 +198,50 @@
   </remote-request>
 
   <remote-request>
+    <post url="http://fake.com/claim_patient/"
+          relevant="count(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/search_case_id]) = 0">
+      <data key="case_id" ref="instance('commcaresession')/session/data/search_case_id"/>
+    </post>
+    <command id="smart-link-search">
+      <display>
+        <text>Global patient search</text>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <query url="http://fake.com/patient_search/" storage-instance="patients">
+        <data key="case_type" ref="'patient'"/>
+        <data key="commcare_registry" ref="'patient_reg'"/>
+        <prompt key="name">
+          <display>
+            <text>Name</text>
+          </display>
+        </prompt>
+      </query>
+      <datum id="search_case_id" nodeset="instance('patients')/results/case[@case_type='patient']" value="./@case_id" detail-select="m0_search_short" detail-confirm="m0_search_long"/>
+    </session>
+    <stack>
+      <push if="instance('results')/results/case[@case_id=instance('commcaresession')/session/data/search_case_id]/commcare_project != instance('commcaresession')/session/user/data/commcare_project">
+        <jump>
+          <url>
+          <text>
+          <xpath function="concat('http://www.commcarehq.org/a/', $domain, '/app/v1/123abc/patients_endpoint/')">
+            <variable name="domain">
+              <xpath function="instance('results')/results/case[@case_id=instance('commcaresession')/session/data/search_case_id]/commcare_project"/>
+            </variable>
+          </xpath>
+          </text>
+          </url>
+        </jump>
+      </push>
+      <push>
+        <rewind value="instance('commcaresession')/session/data/search_case_id"/>
+      </push>
+    </stack>
+  </remote-request>
+
+  <remote-request>
     <post url="http://fake.com/claim_patient/"/>
     <command id="empty-remote-request">
       <display>
