@@ -13,7 +13,11 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class ExternalDataInstanceSource implements InstanceInitializationFactory.InstanceRoot, Externalizable {
+/**
+ * Wrapper class for remote data instances which will materialize the instance data
+ * from the source information when needed.
+ */
+public class ExternalDataInstanceSource implements InstanceRoot, Externalizable {
 
     TreeElement root;
     private String sourceUri;
