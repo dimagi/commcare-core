@@ -197,7 +197,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
 
     protected InstanceRoot setupMigrationData(ExternalDataInstance instance) {
-        return null;
+        return ConcreteInstanceRoot.NULL;
     }
 
     public static class FixtureInitializationException extends RuntimeException {
