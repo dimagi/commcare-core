@@ -22,6 +22,8 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.CacheTable;
 
+import javax.annotation.Nonnull;
+
 /**
  * Initializes a CommCare DataInstance against a UserDataInterface and (sometimes) optional
  * CommCareSession/Platform
@@ -72,6 +74,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
 
     @Override
+    @Nonnull
     public InstanceRoot generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
         if (ref.contains(LedgerInstanceTreeElement.MODEL_NAME)) {

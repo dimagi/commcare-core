@@ -1,5 +1,7 @@
 package org.javarosa.core.model.instance;
 
+import javax.annotation.Nonnull;
+
 /**
  * @author ctsims
  */
@@ -14,6 +16,7 @@ public class InstanceInitializationFactory {
         return instance;
     }
 
+    @Nonnull
     public InstanceRoot generateRoot(ExternalDataInstance instance) {
         return ConcreteInstanceRoot.NULL;
     }
