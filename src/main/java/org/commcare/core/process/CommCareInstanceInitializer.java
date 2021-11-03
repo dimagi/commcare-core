@@ -185,7 +185,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                 return source;
             }
         }
-        return instance.getSource();
+        return instance.getSource() == null ? ConcreteInstanceRoot.NULL : instance.getSource();
     }
 
     protected String getDeviceId() {
