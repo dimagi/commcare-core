@@ -3,9 +3,10 @@ package org.commcare.test.utilities;
 import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.util.mocks.MockUserDataSandbox;
-import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.ConcreteInstanceRoot;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
+import org.javarosa.core.model.instance.InstanceRoot;
 
 /**
  * Utility class for initializing abstract data instances from
@@ -30,11 +31,12 @@ public class TestInstanceInitializer extends InstanceInitializationFactory {
     }
 
     @Override
-    public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
+    public InstanceRoot generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
         if (ref.contains(CaseInstanceTreeElement.MODEL_NAME)) {
-            return new CaseInstanceTreeElement(instance.getBase(), sandbox.getCaseStorage());
+            CaseInstanceTreeElement root = new CaseInstanceTreeElement(instance.getBase(), sandbox.getCaseStorage());
+            return new ConcreteInstanceRoot(root);
         }
-        return null;
+        return ConcreteInstanceRoot.NULL;
     }
 }

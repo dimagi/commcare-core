@@ -13,7 +13,11 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class ExternalDataInstanceSource implements Externalizable {
+/**
+ * Wrapper class for remote data instances which will materialize the instance data
+ * from the source information when needed.
+ */
+public class ExternalDataInstanceSource implements InstanceRoot, Externalizable {
 
     TreeElement root;
     private String sourceUri;
@@ -47,6 +51,7 @@ public class ExternalDataInstanceSource implements Externalizable {
         this.instanceId = externalDataInstanceSource.instanceId;
         this.sourceUri = externalDataInstanceSource.sourceUri;
         this.root = externalDataInstanceSource.root;
+        this.useCaseTemplate = externalDataInstanceSource.useCaseTemplate();
     }
 
     public boolean needsInit() {
@@ -108,5 +113,9 @@ public class ExternalDataInstanceSource implements Externalizable {
 
     public String getInstanceId() {
         return instanceId;
+    }
+
+    public void setupNewCopy(ExternalDataInstance instance) {
+        instance.copyFromSource(this);
     }
 }
