@@ -26,8 +26,10 @@ import java.util.Map;
 import java.util.Vector;
 
 import okhttp3.Credentials;
+import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
@@ -121,36 +123,33 @@ public class QueryScreen extends Screen {
         return supportedPrompts;
     }
 
-    /**
-     * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
-     * @return case search url with search prompt values
-     */
-    public String buildUrl(boolean skipDefaultPromptValues) {
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(getBaseUrl().toString()).newBuilder();
-        Multimap<String, String> queryParams = getQueryParams(skipDefaultPromptValues);
+    private RequestBody getRequestBody() {
+        FormBody.Builder formBodyBuilder = new FormBody.Builder();
+        Multimap<String, String> queryParams = getQueryParams(false);
         for (String key : queryParams.keySet()) {
             QueryPrompt prompt = userInputDisplays.get(key);
             for (String value : queryParams.get(key)) {
                 if (prompt != null && prompt.isSelect()) {
                     String[] selectedChoices = RemoteQuerySessionManager.extractMultipleChoices(value);
                     for (String selectedChoice : selectedChoices) {
-                        urlBuilder.addQueryParameter(key, selectedChoice);
+                        formBodyBuilder.add(key, selectedChoice);
                     }
                 } else {
-                    urlBuilder.addQueryParameter(key, value);
+                    formBodyBuilder.add(key, value);
                 }
             }
         }
-        return urlBuilder.build().toString();
+        return formBodyBuilder.build();
     }
 
-
     private InputStream makeQueryRequestReturnStream() {
-        String url = buildUrl(false);
+        String url = getBaseUrl().toString();
+        RequestBody requestBody = getRequestBody();
         String credential = Credentials.basic(domainedUsername, password);
 
         Request request = new Request.Builder()
                 .url(url)
+                .method("POST", requestBody)
                 .header("Authorization", credential)
                 .build();
         return client.makeRequest(request);
