@@ -1,5 +1,6 @@
 package org.javarosa.engine;
 
+import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;

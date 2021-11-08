@@ -5,11 +5,16 @@ import org.commcare.modern.util.Pair;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.EntityDatum;
+import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.test_utils.ExprEvalUtils;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.FunctionUtils;
@@ -17,7 +22,9 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import org.commcare.session.SessionFrame;
 import org.junit.Test;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -359,14 +366,16 @@ public class SessionStackTests {
 
     static ExternalDataInstance buildRemoteExternalDataInstance(Class cls,
                                                                 SessionWrapper sessionWrapper,
-                                                                String resourcePath) {
+                                                                String resourcePath) throws UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException, IOException {
         RemoteQuerySessionManager remoteQuerySessionManager =
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper,
                         sessionWrapper.getEvaluationContext(), new ArrayList<>());
         InputStream is = cls.getResourceAsStream(resourcePath);
-        Pair<ExternalDataInstance, String> instanceOrError =
-                remoteQuerySessionManager.buildExternalDataInstance(is);
-        assertNotNull(instanceOrError.first);
-        return instanceOrError.first;
+        RemoteQueryDatum queryDatum = remoteQuerySessionManager.getQueryDatum();
+        TreeElement root = ExternalDataInstance.parseExternalTree(is, queryDatum.getDataId());
+        ExternalDataInstanceSource source = new ExternalDataInstanceSource(queryDatum.getDataId(), root, resourcePath, queryDatum.useCaseTemplate());
+        ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(queryDatum.getDataId(), source);
+        assertNotNull(instance);
+        return instance;
     }
 }

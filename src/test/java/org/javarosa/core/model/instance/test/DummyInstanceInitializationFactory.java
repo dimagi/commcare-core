@@ -1,8 +1,8 @@
 package org.javarosa.core.model.instance.test;
 
-import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
+import org.javarosa.core.model.instance.InstanceRoot;
 
 /**
  * Dummy instance initialization factory used in testing.  Doesn't actually
@@ -18,7 +18,7 @@ public class DummyInstanceInitializationFactory extends InstanceInitializationFa
         return instance;
     }
     @Override
-    public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
+    public InstanceRoot generateRoot(ExternalDataInstance instance) {
         throw new RuntimeException("Loading external instances isn't supported " +
                 "using this instance initialization factory.");
     }

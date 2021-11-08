@@ -461,7 +461,7 @@ public class CommCareSession {
         if (datum instanceof RemoteQueryDatum) {
             StackFrameStep step =
                     new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST,
-                            datum.getDataId(), datum.getValue(), queryResultInstance);
+                            datum.getDataId(), datum.getValue(), queryResultInstance.getSource());
             frame.pushStep(step);
             syncState();
         } else {
@@ -605,7 +605,8 @@ public class CommCareSession {
                                        InstanceInitializationFactory iif) {
         for (StackFrameStep step : frame.getSteps()) {
             if (step.hasXmlInstance()) {
-                instanceMap.put(step.getId(), step.getXmlInstance().initialize(iif, step.getId()));
+                ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(step.getId(), step.getXmlInstanceSource());
+                instanceMap.put(step.getId(), instance.initialize(iif, instance.getSource().getInstanceId()));
             }
         }
     }
@@ -965,7 +966,6 @@ public class CommCareSession {
         }
         restoredSession.setFrameStack(stackFrames);
         restoredSession.syncState();
-
         return restoredSession;
     }
 
