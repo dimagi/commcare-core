@@ -3,10 +3,11 @@
  */
 package org.javarosa.engine;
 
-import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.ConcreteInstanceRoot;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
+import org.javarosa.core.model.instance.InstanceRoot;
 import org.javarosa.core.model.instance.TreeElement;
 
 import java.util.Hashtable;
@@ -28,7 +29,7 @@ public class MockupProviderFactory extends InstanceInitializationFactory {
     }
 
     @Override
-    public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
+    public InstanceRoot generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
 
         if(instances.containsKey(ref)) {
@@ -39,7 +40,7 @@ public class MockupProviderFactory extends InstanceInitializationFactory {
 
             root.setParent(instance.getBase());
 
-            return root;
+            return new ConcreteInstanceRoot(root);
         } else if(ref.equals("jr://session")) {
             throw new IllegalArgumentException("Session instances not yet supported");
         } else {
