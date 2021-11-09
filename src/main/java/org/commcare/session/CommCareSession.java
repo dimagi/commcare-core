@@ -692,6 +692,7 @@ public class CommCareSession {
     private boolean performPushInner(StackOperation op, SessionFrame frame, EvaluationContext ec) {
         for (StackFrameStep step : op.getStackFrameSteps()) {
             if (SessionFrame.STATE_REWIND.equals(step.getType())) {
+                // TODO: set smartLinkRedirect, as is done a few lines down
                 if (frame.rewindToMarkAndSet(step, ec)) {
                     return false;
                 }
@@ -700,6 +701,9 @@ public class CommCareSession {
             else if (SessionFrame.STATE_SMART_LINK.equals(step.getType())) {
                 Text url = (Text) step.getExtra("url");
                 smartLinkRedirect = url.evaluate(ec);
+                if (frame.rewindToMarkAndSet(step, ec)) {
+                    return false;
+                }
             } else {
                 pushFrameStep(step, frame, ec);
             }

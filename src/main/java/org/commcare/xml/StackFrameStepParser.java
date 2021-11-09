@@ -32,6 +32,7 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
                 String datumId = parser.getAttributeValue(null, "id");
                 return parseValue(SessionFrame.STATE_UNKNOWN, datumId);
             case "rewind":
+                // jls: parse out optional url (with a relevant attribute), add as extra
                 return parseValue(SessionFrame.STATE_REWIND, null);
             case "mark":
                 return parseValue(SessionFrame.STATE_MARK, null);
@@ -75,7 +76,14 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
 
     private StackFrameStep parseJump() throws InvalidStructureException, IOException, XmlPullParserException {
         String id = parser.getAttributeValue(null, "id");
-        StackFrameStep step = new StackFrameStep(SessionFrame.STATE_SMART_LINK, id, null);
+        String value = parser.getAttributeValue(null, "value");
+        StackFrameStep step = null;
+        try {
+            step = new StackFrameStep(SessionFrame.STATE_SMART_LINK, id, value, true);     // TODO: parse for errors
+        } catch (XPathSyntaxException e) {
+            return null;
+        }
+        //StackFrameStep step = parseValue(SessionFrame.STATE_SMART_LINK, id);
         TextParser textParser = new TextParser(parser);
         nextTag("url");
         nextTag("text");

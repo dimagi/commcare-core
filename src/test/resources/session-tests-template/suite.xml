@@ -223,7 +223,7 @@
     </session>
     <stack>
       <push if="instance('results')/results/case[@case_id=instance('commcaresession')/session/data/search_case_id]/commcare_project != instance('commcaresession')/session/user/data/commcare_project">
-        <jump>
+        <jump value="'jls'">
           <url>
           <text>
           <xpath function="concat('http://www.commcarehq.org/a/', $domain, '/app/v1/123abc/patients_endpoint/')">
