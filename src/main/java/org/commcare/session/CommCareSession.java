@@ -686,7 +686,7 @@ public class CommCareSession {
     }
 
     /**
-     * @return false if push was terminated early by a 'rewind'
+     * @return false if push was terminated early by a 'rewind' or 'jump'
      */
     private boolean performPushInner(StackOperation op, SessionFrame frame, EvaluationContext ec) {
         for (StackFrameStep step : op.getStackFrameSteps()) {
@@ -699,6 +699,7 @@ public class CommCareSession {
             else if (SessionFrame.STATE_SMART_LINK.equals(step.getType())) {
                 Text url = (Text) step.getExtra("url");
                 smartLinkRedirect = url.evaluate(ec);
+                return false;
             } else {
                 pushFrameStep(step, frame, ec);
             }
