@@ -279,4 +279,9 @@ public class QueryScreen extends Screen {
     public boolean doDefaultSearch() {
         return remoteQuerySessionManager.doDefaultSearch();
     }
+
+    @Override
+    public String toString() {
+        return "QueryScreen[" + mTitle + "]";
+    }
 }

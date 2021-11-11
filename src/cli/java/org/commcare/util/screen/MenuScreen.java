@@ -148,6 +148,6 @@ public class MenuScreen extends Screen {
 
     @Override
     public String toString() {
-        return "MenuScreen " + mTitle + " with choices " + Arrays.toString(mChoices);
+        return "MenuScreen['" + mTitle + "' with choices " + Arrays.toString(mChoices) + "]";
     }
 }
