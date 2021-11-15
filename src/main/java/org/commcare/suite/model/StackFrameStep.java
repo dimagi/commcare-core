@@ -3,6 +3,7 @@ package org.commcare.suite.model;
 import org.commcare.session.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMapPoly;
@@ -38,7 +39,7 @@ public class StackFrameStep implements Externalizable {
      * in the session's evaluation context. For instance, useful to store
      * results of a query command during case search and claim workflow
      */
-    private ExternalDataInstance xmlInstance;
+    private ExternalDataInstanceSource xmlInstanceSource;
 
     /**
      * Serialization Only
@@ -62,7 +63,7 @@ public class StackFrameStep implements Externalizable {
         }
 
         if (oldStackFrameStep.hasXmlInstance()) {
-            this.xmlInstance = new ExternalDataInstance(oldStackFrameStep.xmlInstance);
+            this.xmlInstanceSource = new ExternalDataInstanceSource(oldStackFrameStep.xmlInstanceSource);
         }
     }
 
@@ -73,10 +74,10 @@ public class StackFrameStep implements Externalizable {
     }
 
     public StackFrameStep(String type, String id, String value,
-                          ExternalDataInstance xmlInstance) {
+                          ExternalDataInstanceSource xmlInstanceSource) {
         this(type, id, value);
 
-        this.xmlInstance = xmlInstance;
+        this.xmlInstanceSource = xmlInstanceSource;
     }
 
     public StackFrameStep(String type, String id,
@@ -105,11 +106,11 @@ public class StackFrameStep implements Externalizable {
     }
 
     public boolean hasXmlInstance() {
-        return xmlInstance != null;
+        return xmlInstanceSource != null;
     }
 
-    public ExternalDataInstance getXmlInstance() {
-        return xmlInstance;
+    public ExternalDataInstanceSource getXmlInstanceSource() {
+        return xmlInstanceSource;
     }
 
     /**
@@ -188,7 +189,7 @@ public class StackFrameStep implements Externalizable {
         this.value = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         this.valueIsXpath = ExtUtil.readBool(in);
         this.extras = (Hashtable<String, Object>)ExtUtil.read(in, new ExtWrapMapPoly(String.class), pf);
-        this.xmlInstance = (ExternalDataInstance)ExtUtil.read(in, new ExtWrapNullable(ExternalDataInstance.class), pf);
+        this.xmlInstanceSource = (ExternalDataInstanceSource)ExtUtil.read(in, new ExtWrapNullable(ExternalDataInstanceSource.class), pf);
     }
 
     @Override
@@ -198,7 +199,7 @@ public class StackFrameStep implements Externalizable {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(value));
         ExtUtil.writeBool(out, valueIsXpath);
         ExtUtil.write(out, new ExtWrapMapPoly(extras));
-        ExtUtil.write(out, new ExtWrapNullable(xmlInstance));
+        ExtUtil.write(out, new ExtWrapNullable(xmlInstanceSource));
     }
 
     @Override
