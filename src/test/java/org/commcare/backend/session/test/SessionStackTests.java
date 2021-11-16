@@ -293,6 +293,24 @@ public class SessionStackTests {
     }
 
     @Test
+    public void testStackNavParsing() throws Exception {
+        MockApp mockApp = new MockApp("/session-tests-template/");
+        SessionWrapper session = mockApp.getSession();
+
+        session.setCommand("smart-link-search");
+        assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
+    }
+
+    @Test
+    public void testStackQueryParsing() throws Exception {
+        MockApp mockApp = new MockApp("/session-tests-template/");
+        SessionWrapper session = mockApp.getSession();
+
+        session.setCommand("eof-nav-registry");
+        assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
+    }
+
+    @Test
     public void testActionParsing() throws Exception {
         MockApp mApp = new MockApp("/complex_stack/");
         SessionWrapper session = mApp.getSession();
