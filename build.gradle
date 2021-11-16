@@ -148,10 +148,10 @@ task cliJar(type: Jar, dependsOn: cliClasses) {
     from sourceSets.cli.output
     from sourceSets.main.output
     from {
-        configurations.cliCompile.collect {
+        configurations.cliImplementation.collect {
             it.isDirectory() ? it : zipTree(it)
         }
-        configurations.cliRuntime.collect {
+        configurations.cliCompileOnly.collect {
             it.isDirectory() ? it : zipTree(it)
         }
     }
