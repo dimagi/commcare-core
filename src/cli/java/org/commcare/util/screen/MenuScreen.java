@@ -49,10 +49,12 @@ public class MenuScreen extends Screen {
         }
     }
 
-    public void handleAutoMenuAdvance(SessionWrapper sessionWrapper) {
+    public boolean handleAutoMenuAdvance(SessionWrapper sessionWrapper) {
         if (mChoices.length == 1) {
             sessionWrapper.setCommand(mChoices[0].getCommandID());
+            return true;
         }
+        return false;
     }
 
     class ScreenLogger implements LoggerInterface {
@@ -146,6 +148,6 @@ public class MenuScreen extends Screen {
 
     @Override
     public String toString() {
-        return "MenuScreen " + mTitle + " with choices " + Arrays.toString(mChoices);
+        return "MenuScreen['" + mTitle + "' with choices " + Arrays.toString(mChoices) + "]";
     }
 }
