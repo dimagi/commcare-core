@@ -159,7 +159,7 @@ public class StackFrameStep implements Externalizable {
                 StackFrameStep defined = new StackFrameStep(elementType, id, evaluateValue(ec));
                 for (String key : extras.keySet()) {
                     XPathExpression expr = (XPathExpression) getExtra(key);
-                    defined.addExtra(key, expr.eval(ec));
+                    defined.addExtra(key, FunctionUtils.toString(expr.eval(ec)));
                 }
                 return defined;
             default:
