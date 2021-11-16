@@ -300,4 +300,9 @@ public class QueryScreen extends Screen {
     public RemoteQueryDatum getQueryDatum() {
         return remoteQuerySessionManager.getQueryDatum();
     }
+
+    @Override
+    public String toString() {
+        return "QueryScreen[" + mTitle + "]";
+    }
 }
