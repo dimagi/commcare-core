@@ -1,5 +1,6 @@
 package org.javarosa.xpath.expr.test;
 
+import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.test.FormParseInit;
@@ -124,7 +125,7 @@ public class XPathFuncExprTest {
      * some_ref points to an empty nodeset
      */
     @Test
-    public void testOutOfBoundsPosition() throws XPathSyntaxException {
+    public void testOutOfBoundsPosition() throws XPathSyntaxException, RemoteInstanceFetcher.RemoteInstanceException {
         FormParseInit fpi = new FormParseInit("/xform_tests/test_position_with_ref.xml");
         FormEntryController fec = fpi.getFormEntryController();
         fpi.getFormDef().initialize(true, null);

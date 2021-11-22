@@ -5,9 +5,14 @@ import org.commcare.test.utilities.MockApp;
 import org.commcare.session.SessionFrame;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 /**
  * Tests navigating through a CommCareSession (setting datum values and commands, using stepBack(),
@@ -126,7 +131,7 @@ public class BasicSessionNavigationTests {
     }
 
     @Test
-    public void testStepToSyncRequest() {
+    public void testStepToSyncRequest() throws UnfullfilledRequirementsException, XmlPullParserException, IOException, InvalidStructureException {
         session.setCommand("patient-case-search");
         Assert.assertEquals(SessionFrame.STATE_QUERY_REQUEST, session.getNeededData());
 
@@ -148,7 +153,7 @@ public class BasicSessionNavigationTests {
      * Try selecting case already in local case db
      */
     @Test
-    public void testStepToIrrelevantSyncRequest() {
+    public void testStepToIrrelevantSyncRequest() throws UnfullfilledRequirementsException, XmlPullParserException, IOException, InvalidStructureException {
         session.setCommand("patient-case-search");
         Assert.assertEquals(SessionFrame.STATE_QUERY_REQUEST, session.getNeededData());
 
