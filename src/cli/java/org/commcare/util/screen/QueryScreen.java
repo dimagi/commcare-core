@@ -138,7 +138,7 @@ public class QueryScreen extends Screen {
         for (String key : queryParams.keySet()) {
             QueryPrompt prompt = userInputDisplays.get(key);
             for (String value : queryParams.get(key)) {
-                if (prompt != null && prompt.isSelect()) {
+                if (prompt != null) {
                     String[] selectedChoices = RemoteQuerySessionManager.extractMultipleChoices(value);
                     for (String selectedChoice : selectedChoices) {
                         urlBuilder.addQueryParameter(key, selectedChoice);
