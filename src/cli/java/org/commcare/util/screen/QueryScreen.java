@@ -1,5 +1,6 @@
 package org.commcare.util.screen;
 
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.cases.util.StringUtils;
@@ -31,8 +32,9 @@ import java.util.Map;
 import java.util.Vector;
 
 import okhttp3.Credentials;
-import okhttp3.HttpUrl;
+import okhttp3.FormBody;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_ADDRESS;
@@ -47,8 +49,6 @@ import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
  * @author wspride
  */
 public class QueryScreen extends Screen {
-
-    private String queryUrl;
 
     public interface QueryClient {
         public InputStream makeRequest(Request request);
@@ -128,42 +128,43 @@ public class QueryScreen extends Screen {
         return supportedPrompts;
     }
 
-    /**
-     * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
-     * @return case search url with search prompt values
-     */
-    private String buildUrl(boolean skipDefaultPromptValues) {
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(getBaseUrl().toString()).newBuilder();
+    public Multimap<String, String> getRequestData(boolean skipDefaultPromptValues) {
+        ImmutableListMultimap.Builder<String, String> dataBuilder = ImmutableListMultimap.builder();
         Multimap<String, String> queryParams = getQueryParams(skipDefaultPromptValues);
         for (String key : queryParams.keySet()) {
             QueryPrompt prompt = userInputDisplays.get(key);
             for (String value : queryParams.get(key)) {
                 if (prompt != null) {
-                    String[] selectedChoices = RemoteQuerySessionManager.extractMultipleChoices(value);
-                    for (String selectedChoice : selectedChoices) {
-                        urlBuilder.addQueryParameter(key, selectedChoice);
+                    String[] choices = RemoteQuerySessionManager.extractMultipleChoices(value);
+                    for (String choice : choices) {
+                        dataBuilder.put(key, choice);
                     }
                 } else {
-                    urlBuilder.addQueryParameter(key, value);
+                    dataBuilder.put(key, value);
                 }
             }
         }
-        return urlBuilder.build().toString();
+        return dataBuilder.build();
     }
 
+    private RequestBody makeRequestBody(Multimap<String, String> requestData) {
+        FormBody.Builder formBodyBuilder = new FormBody.Builder();
+        requestData.forEach(formBodyBuilder::add);
+        return formBodyBuilder.build();
+    }
 
-    private InputStream makeQueryRequestReturnStream() {
-        queryUrl = buildUrl(false);
+    private InputStream makeQueryRequestReturnStream(URL url, Multimap<String, String> requestData) {
         String credential = Credentials.basic(domainedUsername, password);
 
         Request request = new Request.Builder()
-                .url(queryUrl)
+                .url(url)
+                .method("POST", makeRequestBody(requestData))
                 .header("Authorization", credential)
                 .build();
         return client.makeRequest(request);
     }
 
-    public Pair<ExternalDataInstance, String> processResponse(InputStream responseData, String url) {
+    public Pair<ExternalDataInstance, String> processResponse(InputStream responseData, URL url, Multimap<String, String> requestData) {
         if (responseData == null) {
             currentMessage = "Query result null.";
             return new Pair<>(null, currentMessage);
@@ -172,7 +173,9 @@ public class QueryScreen extends Screen {
         try {
             String instanceID = getQueryDatum().getDataId();
             TreeElement root = ExternalDataInstance.parseExternalTree(responseData, instanceID);
-            ExternalDataInstanceSource instanceSource = new ExternalDataInstanceSource(instanceID, root, url, getQueryDatum().useCaseTemplate());
+            ExternalDataInstanceSource instanceSource = new ExternalDataInstanceSource(
+                    instanceID, root, url.toString(), requestData, getQueryDatum().useCaseTemplate()
+            );
             ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(getQueryDatum().getDataId(), instanceSource);
             instanceOrError = new Pair<>(instance, "");
         } catch (InvalidStructureException | IOException
@@ -224,7 +227,7 @@ public class QueryScreen extends Screen {
         remoteQuerySessionManager.refreshItemSetChoices(remoteQuerySessionManager.getUserAnswers());
     }
 
-    protected URL getBaseUrl() {
+    public URL getBaseUrl() {
         return remoteQuerySessionManager.getBaseUrl();
     }
 
@@ -267,8 +270,10 @@ public class QueryScreen extends Screen {
             count++;
         }
         answerPrompts(userAnswers);
-        InputStream response = makeQueryRequestReturnStream();
-        Pair<ExternalDataInstance, String> instanceOrError = processResponse(response, queryUrl);
+        URL url = getBaseUrl();
+        Multimap<String, String> requestData = getRequestData(false);
+        InputStream response = makeQueryRequestReturnStream(url, requestData);
+        Pair<ExternalDataInstance, String> instanceOrError = processResponse(response, url, requestData);
         setQueryDatum(instanceOrError.first);
         if (currentMessage != null) {
             out.println(currentMessage);
