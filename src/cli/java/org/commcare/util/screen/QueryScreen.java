@@ -192,10 +192,6 @@ public class QueryScreen extends Screen {
         }
     }
 
-    public ExternalDataInstance buildExternalDataInstance(TreeElement root, String url) {
-        return remoteQuerySessionManager.buildExternalDataInstance(root, url);
-    }
-
     public void answerPrompts(Hashtable<String, String> answers) {
         for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
