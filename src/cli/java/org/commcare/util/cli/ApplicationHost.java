@@ -15,11 +15,13 @@ import org.commcare.suite.model.Endpoint;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
+import org.commcare.suite.model.StackOperation;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.engine.CommCareConfigEngine;
 import org.commcare.util.mocks.CLISessionWrapper;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.screen.CommCareSessionException;
+import org.commcare.util.screen.EntityListSubscreen;
 import org.commcare.util.screen.EntityScreen;
 import org.commcare.util.screen.MenuScreen;
 import org.commcare.util.screen.QueryScreen;
@@ -141,7 +143,18 @@ public class ApplicationHost {
             throw new RuntimeException("Invalid arguments for endpoint." + missingMessage + unexpectedMessage);
         }
 
-        mSession.executeStackOperations(endpoint.getStackOperations(), evalContext);
+        for (StackOperation op : endpoint.getStackOperations()) {
+            mSession.executeStackOperations(new Vector<>(Arrays.asList(op)), evalContext);
+            Screen s = getNextScreen();
+            if (s instanceof SyncScreen) {
+                try {
+                    s.init(mSession);
+                    s.handleInputAndUpdateSession(mSession, "", false);
+                } catch (CommCareSessionException ccse) {
+                    printErrorAndContinue("Error during session execution:", ccse);
+                }
+            }
+        }
         mSessionHasNextFrameReady = true;
     }
 
@@ -284,8 +297,18 @@ public class ApplicationHost {
                         }
                     }
 
+                    // When a user selects an entity in the EntityListSubscreen, this sets mCurrentSelection
+                    // which ultimately updates the session, so getNextScreen will move onto the form list,
+                    // skipping the entity detail. To avoid this, flag that we want to force a redraw in this case.
+                    boolean waitForCaseDetail = false;
+                    if (s instanceof EntityScreen) {
+                        if (((EntityScreen) s).getCurrentScreen() instanceof EntityListSubscreen) {
+                            waitForCaseDetail = true;
+                        }
+                    }
+
                     screenIsRedrawing = !s.handleInputAndUpdateSession(mSession, input, false);
-                    if (!screenIsRedrawing) {
+                    if (!screenIsRedrawing && !waitForCaseDetail) {
                         s = getNextScreen();
                     }
                 } catch (CommCareSessionException ccse) {
