@@ -1,8 +1,11 @@
 package org.commcare.util.screen;
 
 import org.commcare.cases.entity.EntityUtil;
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
+import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
@@ -12,9 +15,11 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.expr.XPathExpression;
 
 import java.util.Hashtable;
 import java.util.Vector;
@@ -47,12 +52,90 @@ public class EntityScreen extends CompoundScreenHost {
     private Hashtable<String, TreeReference> referenceMap;
 
     private boolean handleCaseIndex;
+    private boolean full = true;
+
+    private Vector<TreeReference> references;
+
+    private boolean initialized = false;
+    private Action autoLaunchAction;
 
     public EntityScreen(boolean handleCaseIndex) {
         this.handleCaseIndex = handleCaseIndex;
     }
 
+    /**
+     * This constructor allows specifying whether to use the complete init or a minimal one
+     *
+     * @param handleCaseIndex Allow specifying entity by list index rather than unique ID
+     * @param full            If set to false, the subscreen and referenceMap, used for
+     *                        selecting and rendering entity details, will not be created.
+     *                        This speeds up initialization but makes further selection impossible.
+     */
+    public EntityScreen(boolean handleCaseIndex, boolean full) {
+        this.handleCaseIndex = handleCaseIndex;
+        this.full = full;
+    }
+
+    public EntityScreen(boolean handleCaseIndex, boolean full, SessionWrapper session) throws CommCareSessionException {
+        this.handleCaseIndex = handleCaseIndex;
+        this.full = full;
+        this.setSession(session);
+    }
+
+    public void evaluateAutoLaunch(String nextInput) throws CommCareSessionException {
+        EvaluationContext subContext = evalContext.spawnWithCleanLifecycle();
+        subContext.setVariable("next_input", nextInput);
+        for (Action action : mShortDetail.getCustomActions(evalContext)) {
+            if (action.isAutoLaunchAction(subContext)) {
+                // Supply an empty case list so we can "select" from it later using getEntityFromID
+                mCurrentScreen = new EntityListSubscreen(mShortDetail, new Vector<>(), evalContext, handleCaseIndex);
+                this.autoLaunchAction = action;
+            }
+        }
+    }
+
     public void init(SessionWrapper session) throws CommCareSessionException {
+        if (initialized) {
+            return;
+        }
+
+        this.setSession(session);
+
+        references = expandEntityReferenceSet(evalContext);
+
+        //Pulled from NodeEntityFactory. We should likely replace this whole functonality with
+        //that from nodeentityfactory
+        QueryContext newContext = evalContext.getCurrentQueryContext()
+                .checkForDerivativeContextAndReturn(references.size());
+
+        newContext.setHackyOriginalContextBody(new CurrentModelQuerySet(references));
+
+        evalContext.setQueryContext(newContext);
+
+        if (full || references.size() == 1) {
+            referenceMap = new Hashtable<>();
+            EntityDatum needed = (EntityDatum) session.getNeededDatum();
+            for(TreeReference reference: references) {
+                referenceMap.put(getReturnValueFromSelection(reference, needed, evalContext), reference);
+            }
+
+            // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic setting
+            evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56, -46.66));
+
+            if (mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
+                this.setHighlightedEntity(references.firstElement());
+                if (!this.setCurrentScreenToDetail()) {
+                    this.updateSession(session);
+                    readyToSkip = true;
+                }
+            } else {
+                mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext, handleCaseIndex);
+            }
+        }
+        initialized = true;
+    }
+
+    private void setSession(SessionWrapper session) throws CommCareSessionException {
         SessionDatum datum = session.getNeededDatum();
         if (!(datum instanceof EntityDatum)) {
             throw new CommCareSessionException("Didn't find an entity select action where one is expected.");
@@ -74,25 +157,6 @@ public class EntityScreen extends CompoundScreenHost {
         }
 
         evalContext = mSession.getEvaluationContext();
-
-        Vector<TreeReference> references = expandEntityReferenceSet(evalContext);
-        referenceMap = new Hashtable<>();
-        for(TreeReference reference: references) {
-            referenceMap.put(getReturnValueFromSelection(reference, (EntityDatum) session.getNeededDatum(), evalContext), reference);
-        }
-
-        // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic setting
-        evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56, -46.66));
-
-        if (mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
-            this.setHighlightedEntity(references.firstElement());
-            if (!this.setCurrentScreenToDetail()) {
-                this.updateSession(session);
-                readyToSkip = true;
-            }
-        } else {
-            mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext, handleCaseIndex);
-        }
     }
 
     private Vector<TreeReference> expandEntityReferenceSet(EvaluationContext context) {
@@ -144,7 +208,6 @@ public class EntityScreen extends CompoundScreenHost {
         String selectedValue = this.getReturnValueFromSelection(this.mCurrentSelection,
                 mNeededDatum, evalContext);
         session.setDatum(mNeededDatum.getDataId(), selectedValue);
-
     }
 
     public void setHighlightedEntity(TreeReference selection) {
@@ -152,7 +215,11 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     public void setHighlightedEntity(String id) throws CommCareSessionException {
-        this.mCurrentSelection = referenceMap.get(id);
+        if (referenceMap == null) {
+            this.mCurrentSelection = mNeededDatum.getEntityFromID(evalContext, id);
+        } else {
+            this.mCurrentSelection = referenceMap.get(id);
+        }
         if (this.mCurrentSelection == null) {
             throw new CommCareSessionException("EntityScreen " + this.toString() + " could not select case " + id + "." +
                     " If this error persists please report a bug to CommCareHQ.");
@@ -180,7 +247,7 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
-    public Detail[] getLongDetailList(TreeReference ref){
+    public Detail[] getLongDetailList(TreeReference ref) {
         Detail[] longDetailList;
         String longDetailId = this.mNeededDatum.getLongDetail();
         if (longDetailId == null) {
@@ -214,9 +281,10 @@ public class EntityScreen extends CompoundScreenHost {
         this.mPendingAction = pendingAction;
     }
 
-    public Detail getShortDetail(){
+    public Detail getShortDetail() {
         return mShortDetail;
     }
+
     public SessionWrapper getSession() {
         return mSession;
     }
@@ -239,6 +307,14 @@ public class EntityScreen extends CompoundScreenHost {
         return mCurrentSelection;
     }
 
+    public Vector<TreeReference> getReferences() {
+        return references;
+    }
+
+    public Action getAutoLaunchAction() {
+        return autoLaunchAction;
+    }
+
     @Override
     public String toString() {
         return "EntityScreen [Detail=" + mShortDetail + ", selection=" + mCurrentSelection + "]";
@@ -248,5 +324,18 @@ public class EntityScreen extends CompoundScreenHost {
     @SuppressWarnings("unused")
     public Hashtable<String, TreeReference> getReferenceMap() {
         return referenceMap;
+    }
+
+    public boolean referencesContainStep(String stepValue) {
+        if (referenceMap != null) {
+            return referenceMap.containsKey(stepValue);
+        }
+        for (TreeReference ref: references) {
+            String id = getReturnValueFromSelection(ref, mNeededDatum, evalContext);
+            if (id.equals(stepValue)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

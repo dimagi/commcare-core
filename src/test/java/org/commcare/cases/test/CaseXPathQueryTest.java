@@ -73,7 +73,7 @@ public class CaseXPathQueryTest {
     }
 
     @Test
-    public void caseQueryWithBadPath() throws Exception {
+    public void caseQueryWithNoProperty() throws Exception {
         config.parseIntoSandbox(
                 this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
         EvaluationContext ec = MockDataUtils.buildContextWithInstance(sandbox, "casedb",
@@ -81,6 +81,18 @@ public class CaseXPathQueryTest {
 
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
                 "instance('casedb')/casedb/case[@case_id = 'case_one']/doesnt_exist", ""));
+
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "instance('casedb')/casedb/case[1]/doesnt_exist", ""));
+
+        CaseTestUtils.xpathEvalAndAssert(ec,
+                "count(instance('casedb')/casedb/case[@case_id = 'case_one'][not(doesnt_exist = '')])", 0.0);
+
+        CaseTestUtils.xpathEvalAndAssert(ec,
+                "count(instance('casedb')/casedb/case[1][not(doesnt_exist = '')])", 0.0);
+
+        CaseTestUtils.xpathEvalAndAssert(ec,
+                "count(instance('casedb')/casedb/case[1][doesnt_exist = 'nomatch'])", 0.0);
     }
 
     @Test
@@ -105,5 +117,38 @@ public class CaseXPathQueryTest {
 
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
                 "count(instance('casedb')/casedb/case[@case_id != 'case_one'])", 2.0));
+    }
+
+    @Test
+    public void caseIndexAliasTest() throws Exception {
+        config.parseIntoSandbox(
+                this.getClass().getResourceAsStream("/case_query_testing.xml"), sandbox);
+        EvaluationContext ec =
+                MockDataUtils.buildContextWithInstance(sandbox, "casedb",
+                        CaseTestUtils.CASE_INSTANCE);
+
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[@category = 'real'])", 1.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[patient_type = 'real'])", 1.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[current_status = 'c'])", 2.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[@state = 'c'])", 1.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[@category != 'real'])", 2.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[@category = 'fake'])", 0.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[@category != 'fake'])", 3.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[true() and @category != 'real'])", 2.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[@state = 'c'][@category = 'real'])", 1.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[current_status = 'c'][@category = 'real'])", 1.0));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
+                "count(instance('casedb')/casedb/case[@state = 'a'][@category != 'fake'])", 1.0));
+
     }
 }

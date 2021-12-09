@@ -16,6 +16,7 @@
 
 package org.javarosa.core.model.data.helper;
 
+import org.commcare.cases.util.StringUtils;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -113,8 +114,12 @@ public class Selection implements Externalizable {
         if (choice != null) {
             attachChoice(choice);
         } else {
-            throw new XPathTypeMismatchException("value " + xmlValue + " could not be loaded into question " + q.getTextID()
-                    + ".  Check to see if value " + xmlValue + " is a valid option for question " + q.getTextID() + ".");
+            String questionText = q.getTextID();
+            if (StringUtils.isEmpty(questionText)) {
+                questionText = q.getBind().getReference().toString();
+            }
+            throw new XPathTypeMismatchException("value " + xmlValue + " could not be loaded into question " + questionText
+                    + ".  Check to see if value " + xmlValue + " is a valid option for question " + questionText + ".");
         }
     }
 
@@ -137,13 +142,14 @@ public class Selection implements Externalizable {
         ExtUtil.writeString(out, getValue());
         ExtUtil.writeNumeric(out, index);
     }
+
     /**
      * Used by touchforms
      *
      * Compatibility index for Touchforms which expects 1-indexed selections
      */
     @SuppressWarnings("unused")
-    public int getTouchformsIndex(){
+    public int getTouchformsIndex() {
         return index + 1;
     }
 }

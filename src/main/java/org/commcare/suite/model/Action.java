@@ -29,6 +29,8 @@ public class Action implements Externalizable {
     private Vector<StackOperation> stackOps;
     private XPathExpression relevantExpr;
     private String iconReferenceForActionBar;
+    private XPathExpression autoLaunchExpr;
+    private boolean redoLast;
 
     /**
      * Serialization only!!!
@@ -43,11 +45,13 @@ public class Action implements Externalizable {
      * operations set.
      */
     public Action(DisplayUnit display, Vector<StackOperation> stackOps,
-                  XPathExpression relevantExpr, String iconForActionBar) {
+                  XPathExpression relevantExpr, String iconForActionBar, XPathExpression autoLaunchExpr, boolean redoLast) {
         this.display = display;
         this.stackOps = stackOps;
         this.relevantExpr = relevantExpr;
         this.iconReferenceForActionBar = iconForActionBar == null ? "" : iconForActionBar;
+        this.autoLaunchExpr = autoLaunchExpr;
+        this.redoLast = redoLast;
     }
 
     /**
@@ -75,6 +79,22 @@ public class Action implements Externalizable {
         }
     }
 
+    public boolean isAutoLaunchAction(EvaluationContext evalContext) {
+        if (autoLaunchExpr != null) {
+            String result = RemoteQuerySessionManager.evalXpathExpression(autoLaunchExpr, evalContext);
+            return "true".equals(result);
+        }
+        return false;
+    }
+
+    public XPathExpression getAutoLaunchExpr() {
+        return autoLaunchExpr;
+    }
+
+    public boolean isRedoLast() {
+        return redoLast;
+    }
+
     public boolean hasActionBarIcon() {
         return !"".equals(iconReferenceForActionBar);
     }
@@ -87,15 +107,19 @@ public class Action implements Externalizable {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
         stackOps = (Vector<StackOperation>)ExtUtil.read(in, new ExtWrapList(StackOperation.class), pf);
+        autoLaunchExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
         relevantExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
         iconReferenceForActionBar = ExtUtil.readString(in);
+        redoLast = ExtUtil.readBool(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapList(stackOps));
+        ExtUtil.write(out, new ExtWrapNullable(autoLaunchExpr == null ? null : new ExtWrapTagged(autoLaunchExpr)));
         ExtUtil.write(out, new ExtWrapNullable(relevantExpr == null ? null : new ExtWrapTagged(relevantExpr)));
         ExtUtil.writeString(out, iconReferenceForActionBar);
+        ExtUtil.writeBool(out, redoLast);
     }
 }

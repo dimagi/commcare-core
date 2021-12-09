@@ -50,7 +50,7 @@ public class Logger {
         }
     }
 
-    public static void exception(String info, Exception e) {
+    public static void exception(String info, Throwable e) {
         e.printStackTrace();
         log("exception", (info != null ? info + ": " : "") + WrappedException.printException(e));
     }

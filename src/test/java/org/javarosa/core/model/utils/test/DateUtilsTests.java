@@ -187,6 +187,8 @@ public class DateUtilsTests {
 
     @Test
     public void testFormat() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+
         Calendar novFifth2016 = Calendar.getInstance();
         novFifth2016.set(2016, Calendar.NOVEMBER, 5);
         Date novFifthDate = novFifth2016.getTime();
@@ -199,6 +201,7 @@ public class DateUtilsTests {
         escapesResults.put("%d", "05");
         escapesResults.put("%e", "5");
         escapesResults.put("%w", "6");
+        escapesResults.put("%Z", "Z");
 
         for (String escape : escapesResults.keySet()) {
             String result = escapesResults.get(escape);
@@ -213,6 +216,63 @@ public class DateUtilsTests {
             didFail = true;
         }
         assertTrue(didFail);
+
+        TimeZone.setDefault(null);
+    }
+
+    @Test
+    public void testFormatWithDefaultTimezone() {
+        String format = "%Y-%m-%d %H:%M:%S%Z";
+
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        c.set(2017, 0, 2, 2, 0, 0); // Jan 2, 2017 2:00 AM in UTC
+        c.set(Calendar.MILLISECOND, 0);
+        Date d = c.getTime();
+
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        String expectedDateTime = "2017-01-02 02:00:00Z";
+        assertEquals(expectedDateTime,
+                DateUtils.format(d, format));
+
+        TimeZone.setDefault(TimeZone.getTimeZone("EST"));
+        expectedDateTime = "2017-01-01 21:00:00-05";
+        assertEquals(expectedDateTime,
+                DateUtils.format(d, format));
+
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Katmandu"));
+        expectedDateTime = "2017-01-02 07:45:00+05:45";
+        assertEquals(expectedDateTime,
+                DateUtils.format(d, format));
+
+        TimeZone.setDefault(TimeZone.getTimeZone("IST"));
+        expectedDateTime = "2017-01-02 07:30:00+05:30";
+        assertEquals(expectedDateTime,
+                DateUtils.format(d, format));
+
+        TimeZone.setDefault(null);
+    }
+
+    @Test
+    public void testFormatWithProviderTimezone() {
+        String format = "%Y-%m-%d %H:%M:%S%Z";
+
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        c.set(2017, 0, 2, 2, 0, 0); // Jan 2, 2017 2:00 AM in UTC
+        c.set(Calendar.MILLISECOND, 0);
+        Date d = c.getTime();
+
+        MockTimezoneProvider tzProvider = new MockTimezoneProvider();
+        DateUtils.setTimezoneProvider(tzProvider);
+
+        tzProvider.setOffset(0);
+        String expectedDateTime1HourAhead = "2017-01-02 02:00:00Z";
+        assertEquals(expectedDateTime1HourAhead,
+                DateUtils.format(d, format));
+
+        tzProvider.setOffset(HOUR_IN_MILLIS);
+        expectedDateTime1HourAhead = "2017-01-02 03:00:00+01";
+        assertEquals(expectedDateTime1HourAhead,
+                DateUtils.format(d, format));
     }
 
     @Test

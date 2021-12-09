@@ -12,12 +12,14 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import org.commcare.session.SessionFrame;
 import org.junit.Test;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import static org.junit.Assert.assertEquals;
@@ -291,6 +293,24 @@ public class SessionStackTests {
     }
 
     @Test
+    public void testStackNavParsing() throws Exception {
+        MockApp mockApp = new MockApp("/session-tests-template/");
+        SessionWrapper session = mockApp.getSession();
+
+        session.setCommand("smart-link-search");
+        assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
+    }
+
+    @Test
+    public void testStackQueryParsing() throws Exception {
+        MockApp mockApp = new MockApp("/session-tests-template/");
+        SessionWrapper session = mockApp.getSession();
+
+        session.setCommand("eof-nav-registry");
+        assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
+    }
+
+    @Test
     public void testActionParsing() throws Exception {
         MockApp mApp = new MockApp("/complex_stack/");
         SessionWrapper session = mApp.getSession();
@@ -309,8 +329,11 @@ public class SessionStackTests {
 
         Action actionToInspect = actions.get(1);
         assertTrue(actionToInspect.hasActionBarIcon());
-        assertEquals("Jump to Menu 2 Form 1", actionToInspect.getDisplay().getText().evaluate(ec));
+        assertEquals("Jump to Menu 2 Form 1, with icon", actionToInspect.getDisplay().getText().evaluate(ec));
         assertEquals(1, actionToInspect.getStackOperations().size());
+        assertTrue(actionToInspect.getAutoLaunchExpr()==null);
+
+        assertTrue(FunctionUtils.toString(actions.get(0).getAutoLaunchExpr().eval(ec)).contentEquals("true"));
     }
 
     private static void assertInstanceMissing(SessionWrapper session, String xpath)
@@ -339,7 +362,7 @@ public class SessionStackTests {
                                                                 String resourcePath) {
         RemoteQuerySessionManager remoteQuerySessionManager =
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper,
-                        sessionWrapper.getEvaluationContext());
+                        sessionWrapper.getEvaluationContext(), new ArrayList<>());
         InputStream is = cls.getResourceAsStream(resourcePath);
         Pair<ExternalDataInstance, String> instanceOrError =
                 remoteQuerySessionManager.buildExternalDataInstance(is);

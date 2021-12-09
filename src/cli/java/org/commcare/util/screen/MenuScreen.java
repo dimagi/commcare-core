@@ -8,15 +8,12 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.MenuLoader;
 import org.commcare.util.LoggerInterface;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
-import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.Set;
 
 
 /**
@@ -34,11 +31,28 @@ public class MenuScreen extends Screen {
     private String mTitle;
 
     public String[] getBadges() {
+        if (badges == null) {
+            calculateBadges();
+        }
         return badges;
     }
 
     public void setBadges(String[] badges) {
         this.badges = badges;
+    }
+
+    private void calculateBadges() {
+        badges = new String[mChoices.length];
+        for (int i = 0; i < mChoices.length; i++) {
+            MenuDisplayable menu = mChoices[i];
+            badges[i] = menu.getTextForBadge(mSession.getEvaluationContext(menu.getCommandID())).blockingGet();
+        }
+    }
+
+    public void handleAutoMenuAdvance(SessionWrapper sessionWrapper) {
+        if (mChoices.length == 1) {
+            sessionWrapper.setCommand(mChoices[0].getCommandID());
+        }
     }
 
     class ScreenLogger implements LoggerInterface {
@@ -58,10 +72,9 @@ public class MenuScreen extends Screen {
     public void init(SessionWrapper session) throws CommCareSessionException {
         mSession = session;
         String root = deriveMenuRoot(session);
-        MenuLoader menuLoader = new MenuLoader(session.getPlatform(), session, root, new ScreenLogger(), false, false);
+        MenuLoader menuLoader = new MenuLoader(session.getPlatform(), session, root, new ScreenLogger(), false, false, false);
         this.mChoices = menuLoader.getMenus();
         this.mTitle = this.getBestTitle();
-        this.badges = menuLoader.getBadgeText();
         Exception loadException = menuLoader.getLoadException();
         if (loadException != null) {
             throw new CommCareSessionException(menuLoader.getErrorMessage());
@@ -85,7 +98,7 @@ public class MenuScreen extends Screen {
     public void prompt(PrintStream out) {
         for (int i = 0; i < mChoices.length; ++i) {
             MenuDisplayable d = mChoices[i];
-            out.println(i + ")" + d.getDisplayText(mSession.getEvaluationContextWithAccumulatedInstances(d.getCommandID(), d.getRawText())));
+            out.println(i + ") " + d.getDisplayText(mSession.getEvaluationContextWithAccumulatedInstances(d.getCommandID(), d.getRawText())));
         }
     }
 
@@ -100,7 +113,7 @@ public class MenuScreen extends Screen {
     }
 
     @Override
-    public boolean handleInputAndUpdateSession(CommCareSession session, String input) {
+    public boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch) {
         try {
             int i = Integer.parseInt(input);
             String commandId;
@@ -111,11 +124,11 @@ public class MenuScreen extends Screen {
                 commandId = ((Menu)mChoices[i]).getId();
             }
             session.setCommand(commandId);
-            return false;
+            return true;
         } catch (NumberFormatException e) {
             //This will result in things just executing again, which is fine.
         }
-        return true;
+        return false;
     }
 
     public MenuDisplayable[] getMenuDisplayables() {

@@ -8,34 +8,29 @@ package org.commcare.resources.model;
  */
 public class MissingMediaException extends Exception {
     final Resource r;
-    final boolean userFacing;
-    String URI;
+    private final MissingMediaExceptionType type;
+    private String URI;
 
-    public MissingMediaException(Resource r, String message) {
-        this(r, message, message, false);
+    public enum MissingMediaExceptionType {
+        FILE_NOT_FOUND,
+        FILE_NOT_ACCESSIBLE,
+        INVALID_REFERENCE,
+        NONE
     }
 
-    public MissingMediaException(Resource r, String message, String uri) {
-        this(r, message, uri, false);
+    public MissingMediaException(Resource r, String message, MissingMediaExceptionType mediaExceptionType) {
+        this(r, message, message, mediaExceptionType);
     }
 
-    public MissingMediaException(Resource r, String message, boolean userFacing) {
+    public MissingMediaException(Resource r, String message, String uri, MissingMediaExceptionType mediaExceptionType) {
         super(message);
-        this.r = r;
-        this.userFacing = userFacing;
-    }
-
-    public MissingMediaException(Resource r, String message, String uri, boolean userFacing) {
-        this(r, message, userFacing);
         URI = uri;
+        this.r = r;
+        this.type = mediaExceptionType;
     }
 
     public Resource getResource() {
         return r;
-    }
-
-    public boolean isMessageUseful() {
-        return userFacing;
     }
 
     public String getURI() {
@@ -58,6 +53,9 @@ public class MissingMediaException extends Exception {
 
     public String toString() {
         return URI;
+    }
 
+    public MissingMediaExceptionType getType() {
+        return type;
     }
 }

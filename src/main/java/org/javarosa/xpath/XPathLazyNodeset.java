@@ -103,7 +103,7 @@ public class XPathLazyNodeset extends XPathNodeset {
                 //figure out if we can roll that in easily. For now the catch handles it
                 return XPathPathExpr.getRefValue(instance, ec, unExpandedRef);
             } catch (XPathException xpe) {
-                //This isn't really a best effort attempt, so if we can, see if evaluating cleany works.
+                //This isn't really a best effort attempt, so if we can, see if evaluating cleanly works.
                 performEvaluation();
                 return super.unpack();
             }

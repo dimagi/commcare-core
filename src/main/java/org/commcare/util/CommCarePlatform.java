@@ -3,6 +3,7 @@ package org.commcare.util;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.Endpoint;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
@@ -10,18 +11,12 @@ import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.Property;
-import org.javarosa.core.services.storage.IStorageIndexedFactory;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
@@ -52,19 +47,21 @@ public class CommCarePlatform {
 
     private final int majorVersion;
     private final int minorVersion;
+    private final int minimalVersion;
     private final Vector<Suite> installedSuites;
 
-    public CommCarePlatform(int majorVersion, int minorVersion, StorageManager storageManager) {
-        this(majorVersion, minorVersion);
+    public CommCarePlatform(int majorVersion, int minorVersion, int minimalVersion, StorageManager storageManager) {
+        this(majorVersion, minorVersion, minimalVersion);
         this.storageManager = storageManager;
         storageManager.registerStorage(PropertyManager.STORAGE_KEY, Property.class);
         this.propertyManager = new PropertyManager(storageManager.getStorage(PropertyManager.STORAGE_KEY));
     }
 
-    public CommCarePlatform(int majorVersion, int minorVersion) {
+    public CommCarePlatform(int majorVersion, int minorVersion, int minimalVersion) {
         profile = -1;
         this.majorVersion = majorVersion;
         this.minorVersion = minorVersion;
+        this.minimalVersion = minimalVersion;
         installedSuites = new Vector<>();
     }
 
@@ -74,6 +71,10 @@ public class CommCarePlatform {
 
     public int getMinorVersion() {
         return minorVersion;
+    }
+
+    public int getMinimalVersion() {
+        return minimalVersion;
     }
 
     public Profile getCurrentProfile() {
@@ -113,6 +114,24 @@ public class CommCarePlatform {
             }
         }
         return null;
+    }
+
+    public Endpoint getEndpoint(String endpointId) {
+        for(Suite s : getInstalledSuites()) {
+            Endpoint endpoint = s.getEndpoint(endpointId);
+            if(endpoint != null) {
+                return endpoint;
+            }
+        }
+        return null;
+    }
+
+    public Hashtable<String, Endpoint> getAllEndpoints() {
+        Hashtable<String, Endpoint> allEndpoints = new Hashtable<>();
+        for(Suite s : getInstalledSuites()) {
+            allEndpoints.putAll(s.getEndpoints());
+        }
+        return allEndpoints;
     }
 
     public void setProfile(Profile p) {

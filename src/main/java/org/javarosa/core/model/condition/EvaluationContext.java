@@ -4,6 +4,7 @@ import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.QuerySensitiveTreeElementWrapper;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.cases.util.QueryUtils;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -13,15 +14,22 @@ import org.javarosa.core.model.trace.BulkEvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.CacheHost;
-import org.javarosa.xpath.expr.ExpressionCacher;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.IExprDataType;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.XPathMissingInstanceException;
+import org.javarosa.xpath.expr.ExpressionCacher;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Vector;
 
 
 /**
@@ -290,6 +298,7 @@ public class EvaluationContext {
 
         DataInstance baseInstance = retrieveInstance(ref);
         Vector<TreeReference> v = new Vector<>();
+
         expandReferenceAccumulator(ref, baseInstance, baseInstance.getRoot().getRef(), v, includeTemplates);
         return v;
     }
@@ -309,6 +318,12 @@ public class EvaluationContext {
     private void expandReferenceAccumulator(TreeReference sourceRef, DataInstance sourceInstance,
                                             TreeReference workingRef, Vector<TreeReference> refs,
                                             boolean includeTemplates) {
+
+        if (workingRef == null) {
+            throw new RuntimeException("Encountered invalid instance definition while evaluating " + sourceRef.toString() +
+                    " for instance " + sourceInstance.getInstanceId() + " with root: " + sourceInstance.getRoot());
+        }
+
         int depth = workingRef.size();
 
         if (depth == sourceRef.size()) {
@@ -483,7 +498,7 @@ public class EvaluationContext {
      * set and the original context reference correspondingly updated.
      */
     public EvaluationContext rescope(TreeReference newContextRef, int newContextPosition,
-                                      QueryContext subContext) {
+                                     QueryContext subContext) {
         EvaluationContext ec = new EvaluationContext(this, newContextRef);
         ec.setQueryContext(subContext);
         ec.currentContextPosition = newContextPosition;
@@ -527,7 +542,7 @@ public class EvaluationContext {
     }
 
     public AbstractTreeElement resolveReference(TreeReference qualifiedRef) {
-        if(Thread.interrupted()) {
+        if (Thread.interrupted()) {
             throw new RequestAbandonedException();
         }
         DataInstance instance = this.getMainInstance();
@@ -643,13 +658,13 @@ public class EvaluationContext {
             trace.setEvaluatedPredicates(startingSet, finalSet, childSet);
             if (!(trace.isBulkEvaluationSucceeded())) {
                 EvaluationTrace parentTrace = trace.getParent();
-                if (parentTrace == null){
+                if (parentTrace == null) {
                     trace.markClosed();
                     //no need to remove from the parent context if it doens't exist
                     return;
                 }
                 Vector<EvaluationTrace> traces = trace.getParent().getSubTraces();
-                synchronized (traces){
+                synchronized (traces) {
                     traces.remove(trace);
                 }
             }
@@ -665,6 +680,7 @@ public class EvaluationContext {
 
     /**
      * Records the outcome of the current trace by value.
+     *
      * @param value The result of the currently open Trace Expression
      */
     public void reportTraceValue(Object value, boolean fromCache) {
@@ -683,7 +699,6 @@ public class EvaluationContext {
     /**
      * Closes the current evaluation trace and records the
      * relevant outcomes and context
-     *
      */
     public void closeTrace() {
         if (mAccumulateExprs) {

@@ -13,6 +13,7 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
+import org.commcare.suite.model.Text;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
@@ -59,6 +60,7 @@ public class CommCareSession {
     private final CommCarePlatform platform;
     private StackFrameStep popped;
     private String currentCmd;
+    private String smartLinkRedirect;
 
     /**
      * A table of all datums (id --> value) that are currently on the session stack
@@ -104,6 +106,7 @@ public class CommCareSession {
         this.currentCmd = oldCommCareSession.currentCmd;
         this.currentXmlns = oldCommCareSession.currentXmlns;
         this.frame = new SessionFrame(oldCommCareSession.frame);
+        this.smartLinkRedirect = oldCommCareSession.smartLinkRedirect;
 
         collectedDatums = new OrderedHashtable<>();
         for (Enumeration e = oldCommCareSession.collectedDatums.keys(); e.hasMoreElements(); ) {
@@ -432,6 +435,14 @@ public class CommCareSession {
         popped = recentPop;
     }
 
+    public String getSmartLinkRedirect() {
+        return smartLinkRedirect;
+    }
+
+    public void setSmartLinkRedirect(String url) {
+        smartLinkRedirect = url;
+    }
+
     public void setDatum(String keyId, String value) {
         setDatum(SessionFrame.STATE_DATUM_VAL, keyId, value);
     }
@@ -675,7 +686,7 @@ public class CommCareSession {
     }
 
     /**
-     * @return false if push was terminated early by a 'rewind'
+     * @return false if push was terminated early by a 'rewind' or 'jump'
      */
     private boolean performPushInner(StackOperation op, SessionFrame frame, EvaluationContext ec) {
         for (StackFrameStep step : op.getStackFrameSteps()) {
@@ -684,6 +695,11 @@ public class CommCareSession {
                     return false;
                 }
                 // if no mark is found ignore the rewind and continue
+            }
+            else if (SessionFrame.STATE_SMART_LINK.equals(step.getType())) {
+                Text url = (Text) step.getExtra("url");
+                smartLinkRedirect = url.evaluate(ec);
+                return false;
             } else {
                 pushFrameStep(step, frame, ec);
             }

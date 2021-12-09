@@ -1,6 +1,7 @@
 package org.commcare.cases.util.test;
 
 import org.commcare.cases.model.Case;
+import org.commcare.cases.util.InvalidCaseGraphException;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.junit.Assert;
@@ -183,6 +184,15 @@ public class CasePurgeRegressions {
         Vector<Integer> expectedToRemove = new Vector<>();
         Vector<Integer> removed = storage.removeAll(filter);
         checkProperCasesRemoved(expectedToRemove, removed);
+    }
+
+    @Test(expected = InvalidCaseGraphException.class)
+    public void testCyclicGraphThrowsException() throws Exception {
+        MockUserDataSandbox sandbox = MockDataUtils.getStaticStorage();
+        ParseUtils.parseIntoSandbox(this.getClass().getClassLoader().
+                getResourceAsStream("case_purge/cyclic_case_relationship_test.xml"), sandbox);
+        IStorageUtilityIndexed<Case> storage = sandbox.getCaseStorage();
+        new CasePurgeFilter(storage);
     }
 
     /**
