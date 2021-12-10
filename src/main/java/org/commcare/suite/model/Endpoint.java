@@ -58,11 +58,12 @@ public class Endpoint implements Externalizable {
 
 
     // Utility Functions
-    public static void populateEndpointArgumentsToEvaluaionContext(Endpoint endpoint, ArrayList<String> args, EvaluationContext evaluationContext) {
+    public static void populateEndpointArgumentsToEvaluationContext(Endpoint endpoint, ArrayList<String> args, EvaluationContext evaluationContext) {
         Vector<String> endpointArguments = endpoint.getArguments();
 
         if (endpointArguments.size() > args.size()) {
-            throw new InvalidNumberOfEndpointArgumentsException();
+            Vector<String> missingArguments = new Vector<String>(endpointArguments.subList(args.size(), endpointArguments.size()));
+            throw new InvalidEndpointArgumentsException(missingArguments, null);
         }
 
         for (int i = 0; i < endpointArguments.size(); i++) {
@@ -71,37 +72,50 @@ public class Endpoint implements Externalizable {
         }
     }
 
-    public static void populateEndpointArgumentsToEvaluaionContext(Endpoint endpoint, HashMap<String, String> args, EvaluationContext evaluationContext) {
+    public static void populateEndpointArgumentsToEvaluationContext(Endpoint endpoint, HashMap<String, String> args, EvaluationContext evaluationContext) {
         Vector<String> endpointArguments = endpoint.getArguments();
 
-        if (endpointArguments.size() > args.size()) {
-            throw new InvalidNumberOfEndpointArgumentsException();
+        Vector<String> missingArguments = (Vector<String>)endpointArguments.clone();
+        missingArguments.removeAll(args.keySet());
+
+        Vector<String> unexpectedArguments = new Vector<String>(args.keySet());
+        unexpectedArguments.removeAll(endpointArguments);
+
+        if (missingArguments.size() > 0 || unexpectedArguments.size() > 0) {
+            throw new InvalidEndpointArgumentsException(missingArguments, unexpectedArguments);
         }
 
         for (int i = 0; i < endpointArguments.size(); i++) {
             String argumentName = endpointArguments.elementAt(i);
             if (args.containsKey(argumentName)) {
                 evaluationContext.setVariable(argumentName, args.get(argumentName));
-            } else {
-                throw new InvalidEndpointArgumentsException(argumentName);
             }
         }
     }
 
     public static class InvalidEndpointArgumentsException extends RuntimeException {
-        private final String argumentName;
+        private final Vector<String> missingArguments;
+        private final Vector<String> unexpectedArguments;
 
-        public InvalidEndpointArgumentsException(String argumentName) {
-            this.argumentName = argumentName;
+        public InvalidEndpointArgumentsException(Vector<String> missingArguments, Vector<String> unexpectedArguments) {
+            this.missingArguments = missingArguments;
+            this.unexpectedArguments = unexpectedArguments;
         }
 
-        public String getArgumentName() {
-            return argumentName;
+        public boolean hasMissingArguments() {
+            return missingArguments != null && missingArguments.size() > 0;
         }
-    }
 
-    public static class InvalidNumberOfEndpointArgumentsException extends RuntimeException {
-        public InvalidNumberOfEndpointArgumentsException() {
+        public Vector<String> getMissingArguments() {
+            return missingArguments;
+        }
+
+        public boolean hasUnexpectedArguments() {
+            return unexpectedArguments != null && unexpectedArguments.size() > 0;
+        }
+
+        public Vector<String> getUnexpectedArguments() {
+            return unexpectedArguments;
         }
     }
 }
