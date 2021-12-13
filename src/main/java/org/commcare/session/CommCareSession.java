@@ -1,5 +1,6 @@
 package org.commcare.session;
 
+import com.google.common.collect.Multimap;
 import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
@@ -942,8 +943,17 @@ public class CommCareSession {
         frame.addExtraTopStep(key, value);
     }
 
+    /**
+     * Get the 'extra' value for the given key.
+     * This method only supports keys that have a single value. For keys with multiple values
+     * use `getCurrentFrameStepExtras().get(key)` which returns a Collection of the values.
+     */
     public Object getCurrentFrameStepExtra(String key) {
-        return frame.getTopStepExtra(key);
+        return frame.getTopStep().getExtra(key);
+    }
+
+    public Multimap<String, Object> getCurrentFrameStepExtras() {
+        return frame.getTopStep().getExtras();
     }
 
     /**
