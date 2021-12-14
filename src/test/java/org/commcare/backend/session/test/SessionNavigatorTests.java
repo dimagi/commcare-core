@@ -11,6 +11,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 /**
  * Tests for SessionNavigator.java
  *
@@ -210,6 +212,7 @@ public class SessionNavigatorTests {
         session.addExtraToCurrentFrameStep(LAST_QUERY_KEY, "the lorax");
         // you can store any externalizable object in the extras of a frame step
         session.addExtraToCurrentFrameStep(COLOR_KEY, 253);
+        session.addExtraToCurrentFrameStep(COLOR_KEY, 153);
         triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
 
         // set forward again, set more extras
@@ -223,7 +226,7 @@ public class SessionNavigatorTests {
         triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
         Assert.assertEquals("m0", session.getCommand());
         Assert.assertEquals("the lorax", session.getCurrentFrameStepExtra(LAST_QUERY_KEY));
-        Assert.assertEquals(253, session.getCurrentFrameStepExtra(COLOR_KEY));
+        Assert.assertEquals(Arrays.asList(253, 153), session.getCurrentFrameStepExtras().get(COLOR_KEY));
 
         // step back and then forward into frame w/ same command and
         // assert that extras are no longer present
