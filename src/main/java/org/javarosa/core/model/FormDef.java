@@ -1109,8 +1109,10 @@ public class FormDef implements IFormElement, IMetaData,
     private void evaluateTriggerable(Triggerable triggerable, TreeReference anchorRef) {
         // Contextualize the reference used by the triggerable against the anchor
         TreeReference contextRef = triggerable.narrowContextBy(anchorRef);
-        final Span span = GlobalTracer.get().activeSpan();
-        span.setTag("triggerable", triggerable.toString());
+        if (isTracingEnabled()) {
+            final Span span = GlobalTracer.get().activeSpan();
+            span.setTag("triggerable", triggerable.toString());
+        }
 
         // Now identify all of the fully qualified nodes which this triggerable
         // updates. (Multiple nodes can be updated by the same trigger)
@@ -1356,10 +1358,16 @@ public class FormDef implements IFormElement, IMetaData,
 
     @Trace
     public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef) {
-        final Span span = GlobalTracer.get().activeSpan();
-        span.setTag("itemset", itemset.nodesetRef.toString());
-        span.setTag("treeReference", curQRef.toString());
+        if (isTracingEnabled())) {
+            final Span span = GlobalTracer.get().activeSpan();
+            span.setTag("itemset", itemset.nodesetRef.toString());
+            span.setTag("treeReference", curQRef.toString());
+        }
         ItemSetUtils.populateDynamicChoices(itemset, curQRef, exprEvalContext, getMainInstance(), mProfilingEnabled);
+    }
+
+    private boolean isTracingEnabled() {
+        return "true".equals(System.getProperty("src.main.java.org.javarosa.enableOpenTracing"));
     }
 
     public String toString() {
