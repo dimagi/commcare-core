@@ -1358,7 +1358,7 @@ public class FormDef implements IFormElement, IMetaData,
 
     @Trace
     public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef) {
-        if (isTracingEnabled())) {
+        if (isTracingEnabled()) {
             final Span span = GlobalTracer.get().activeSpan();
             span.setTag("itemset", itemset.nodesetRef.toString());
             span.setTag("treeReference", curQRef.toString());
