@@ -1,6 +1,5 @@
 package org.commcare.core.interfaces;
 
-import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -8,7 +7,6 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.net.URI;
 
 /**
  * Fetches remote instance definitions from cache or by making a remote web call

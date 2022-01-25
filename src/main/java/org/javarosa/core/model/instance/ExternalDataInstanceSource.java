@@ -2,11 +2,15 @@ package org.javarosa.core.model.instance;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+
 import org.commcare.core.interfaces.RemoteInstanceFetcher;
-import org.javarosa.core.util.externalizable.*;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapMultiMap;
+import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.xpath.expr.XPathExpression;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.DataInputStream;

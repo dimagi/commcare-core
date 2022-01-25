@@ -8,7 +8,6 @@ import org.commcare.core.graph.model.XYPointData;
 import org.commcare.core.graph.util.ColorUtils;
 import org.commcare.core.graph.util.GraphException;
 import org.commcare.core.graph.util.GraphUtil;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

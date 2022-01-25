@@ -10,7 +10,6 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;

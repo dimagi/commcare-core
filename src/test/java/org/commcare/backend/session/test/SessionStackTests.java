@@ -1,8 +1,8 @@
 package org.commcare.backend.session.test;
 
 import org.commcare.modern.session.SessionWrapper;
-import org.commcare.modern.util.Pair;
 import org.commcare.session.RemoteQuerySessionManager;
+import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.RemoteQueryDatum;
@@ -19,8 +19,6 @@ import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
-
-import org.commcare.session.SessionFrame;
 import org.junit.Test;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -30,9 +28,9 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 /**

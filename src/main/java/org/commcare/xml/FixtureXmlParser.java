@@ -5,7 +5,6 @@ import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.xml.TreeElementParser;
 import org.javarosa.xml.util.InvalidStructureException;

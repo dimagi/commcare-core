@@ -8,12 +8,12 @@ import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.expr.XPathStep;
 import org.javarosa.xpath.expr.XPathStringLiteral;
-import org.javarosa.xpath.expr.FunctionUtils;
 
 import java.util.Collection;
 import java.util.Hashtable;

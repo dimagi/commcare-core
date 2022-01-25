@@ -28,8 +28,6 @@ import java.util.Vector;
 
 import javax.annotation.Nullable;
 
-import sun.rmi.runtime.Log;
-
 /**
  * The root element for the <casedb> abstract type. All children are
  * nodes in the case database. Depending on instantiation, the <casedb>

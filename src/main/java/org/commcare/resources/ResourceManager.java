@@ -1,8 +1,7 @@
 package org.commcare.resources;
 
-import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.InstallCancelled;
-import org.commcare.resources.model.InstallRequestSource;
+import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;

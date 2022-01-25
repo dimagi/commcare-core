@@ -4,7 +4,6 @@ import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
-import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.analysis.XPathAnalyzable;
 

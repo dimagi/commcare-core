@@ -2,8 +2,6 @@ package org.javarosa.core.model.utils;
 
 import org.javarosa.core.model.data.GeoPointData;
 
-import java.lang.Math;
-
 /**
  * Static utility methods for GeoPointData.
  *

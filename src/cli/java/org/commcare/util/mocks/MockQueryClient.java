@@ -1,10 +1,11 @@
 package org.commcare.util.mocks;
 
-import okhttp3.Request;
 import org.commcare.util.screen.QueryScreen;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+
+import okhttp3.Request;
 
 public class MockQueryClient implements QueryScreen.QueryClient {
     private InputStream mockResponse;

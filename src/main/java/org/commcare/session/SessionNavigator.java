@@ -7,8 +7,6 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
 
-import java.util.Vector;
-
 /**
  * Performs all logic involved in polling the current CommCareSession to determine what information
  * or action is needed by the session, and then sends a signal to the registered

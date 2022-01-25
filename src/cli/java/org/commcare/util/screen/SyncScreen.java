@@ -1,5 +1,4 @@
 package org.commcare.util.screen;
-import datadog.trace.api.Trace;
 
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
@@ -11,6 +10,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Hashtable;
 
+import datadog.trace.api.Trace;
 import okhttp3.Credentials;
 import okhttp3.HttpUrl;
 import okhttp3.MultipartBody;

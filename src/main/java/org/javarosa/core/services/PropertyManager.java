@@ -3,9 +3,7 @@ package org.javarosa.core.services;
 import org.javarosa.core.services.properties.IPropertyRules;
 import org.javarosa.core.services.properties.Property;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageManager;
 
-import java.util.Enumeration;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 

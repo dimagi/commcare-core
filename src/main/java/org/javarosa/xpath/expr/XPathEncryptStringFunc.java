@@ -8,12 +8,12 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.security.SecureRandom;
 
 public class XPathEncryptStringFunc extends XPathFuncExpr {
     public static final String NAME = "encrypt-string";

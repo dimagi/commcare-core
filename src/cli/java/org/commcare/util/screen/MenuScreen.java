@@ -1,6 +1,4 @@
 package org.commcare.util.screen;
-import datadog.trace.api.Trace;
-
 
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
@@ -15,6 +13,8 @@ import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.io.PrintStream;
 import java.util.Arrays;
+
+import datadog.trace.api.Trace;
 
 
 /**

@@ -1,17 +1,16 @@
 package org.commcare;
 
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.SessionNavigator;
+import org.commcare.test.utilities.MockApp;
+import org.commcare.test.utilities.MockSessionNavigationResponder;
+import org.javarosa.form.api.FormEntryController;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Group;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-
-import org.commcare.modern.session.SessionWrapper;
-import org.commcare.test.utilities.MockApp;
-import org.commcare.test.utilities.MockSessionNavigationResponder;
-import org.javarosa.form.api.FormEntryController;
 
 public class LoadAndInitLargeForm {
 

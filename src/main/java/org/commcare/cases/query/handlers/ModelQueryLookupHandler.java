@@ -1,10 +1,10 @@
 package org.commcare.cases.query.handlers;
 
-import org.commcare.cases.query.queryset.ModelQueryLookup;
-import org.commcare.cases.query.queryset.ModelQuerySetMatcher;
 import org.commcare.cases.query.PredicateProfile;
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.QueryHandler;
+import org.commcare.cases.query.queryset.ModelQueryLookup;
+import org.commcare.cases.query.queryset.ModelQuerySetMatcher;
 import org.commcare.cases.query.queryset.QuerySetLookup;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;

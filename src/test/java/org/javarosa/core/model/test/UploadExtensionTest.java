@@ -12,11 +12,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Vector;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
-
-import java.util.Vector;
 
 /**
  * Tests for UploadQuestionExtensionParser and UploadQuestionExtension

@@ -1,9 +1,9 @@
 package org.commcare.util.screen;
 
-import org.commcare.modern.session.SessionWrapper;
 import org.commcare.core.interfaces.UserSandbox;
-import org.commcare.util.CommCarePlatform;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
