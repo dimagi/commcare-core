@@ -2,13 +2,7 @@ package org.javarosa.xpath.expr;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.util.DataUtil;
-import org.javarosa.xpath.XPathNodeset;
-import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
-
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 
 /**
  * Identifies the numerical index of the provided argument into the provided sequence, if

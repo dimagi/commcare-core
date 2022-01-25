@@ -2,6 +2,7 @@ package org.commcare.modern.database;
 
 import com.carrotsearch.hppc.IntCollection;
 import com.carrotsearch.hppc.cursors.IntCursor;
+
 import org.commcare.modern.models.MetaField;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.services.storage.IMetaData;
@@ -13,7 +14,13 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * Functions for generating CommCare SQL statements based on classes

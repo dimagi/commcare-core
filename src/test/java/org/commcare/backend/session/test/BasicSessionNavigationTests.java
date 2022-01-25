@@ -1,10 +1,9 @@
 package org.commcare.backend.session.test;
 
 import org.commcare.modern.session.SessionWrapper;
-import org.commcare.test.utilities.MockApp;
 import org.commcare.session.SessionFrame;
+import org.commcare.test.utilities.MockApp;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.junit.Assert;

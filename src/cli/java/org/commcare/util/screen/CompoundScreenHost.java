@@ -1,9 +1,10 @@
 package org.commcare.util.screen;
-import datadog.trace.api.Trace;
 
 import org.commcare.session.CommCareSession;
 
 import java.io.PrintStream;
+
+import datadog.trace.api.Trace;
 
 /**
  * A compound screen is a controller for screens with internal state that requires navigation.

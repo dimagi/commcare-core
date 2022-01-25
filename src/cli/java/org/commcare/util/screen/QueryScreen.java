@@ -1,5 +1,4 @@
 package org.commcare.util.screen;
-import datadog.trace.api.Trace;
 
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
@@ -32,6 +31,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
 
+import datadog.trace.api.Trace;
 import okhttp3.Credentials;
 import okhttp3.FormBody;
 import okhttp3.Request;

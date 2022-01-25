@@ -1,7 +1,5 @@
 package org.javarosa.core.model;
 
-import org.javarosa.core.model.instance.TreeElement;
-
 import javax.annotation.Nullable;
 
 /**

@@ -1,6 +1,5 @@
 package org.commcare.util.screen;
 
-import datadog.trace.api.Trace;
 import org.commcare.cases.entity.EntityUtil;
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
@@ -21,6 +20,8 @@ import org.javarosa.model.xform.XPathReference;
 
 import java.util.Hashtable;
 import java.util.Vector;
+
+import datadog.trace.api.Trace;
 
 /**
  * Compound Screen to select an entity from a list and then display the one or more details that

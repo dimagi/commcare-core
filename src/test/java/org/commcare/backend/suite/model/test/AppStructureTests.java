@@ -16,11 +16,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-
-import io.reactivex.Observable;
 import io.reactivex.observers.TestObserver;
-import io.reactivex.subscribers.TestSubscriber;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;

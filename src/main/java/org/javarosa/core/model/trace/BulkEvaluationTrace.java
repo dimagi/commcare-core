@@ -1,8 +1,6 @@
 package org.javarosa.core.model.trace;
 
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.xpath.XPathNodeset;
-import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 
 import java.util.Collection;

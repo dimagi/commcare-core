@@ -1,16 +1,11 @@
 package org.commcare.backend.suite.model.test;
 
-import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.modern.session.SessionWrapper;
-import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
-import org.commcare.suite.model.StackFrameStep;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.util.mocks.MockQueryClient;
 import org.commcare.util.screen.QueryScreen;
-import org.javarosa.core.model.instance.AbstractTreeElement;
-import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.junit.Assert;
 import org.junit.Test;
 

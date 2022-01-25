@@ -6,14 +6,10 @@ import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageManager;
-import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+
 import java.util.Hashtable;
-import java.util.Vector;
 
 
 /**

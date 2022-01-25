@@ -2,7 +2,6 @@ package org.javarosa.core.model.trace;
 
 import org.javarosa.core.util.OrderedHashtable;
 
-import java.util.HashMap;
 import java.util.Vector;
 
 /**

@@ -2,12 +2,12 @@ package org.commcare.xml;
 
 import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.DisplayUnit;
-import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormEntry;
+import org.commcare.suite.model.PostRequest;
+import org.commcare.suite.model.RemoteRequestEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
-import org.commcare.suite.model.RemoteRequestEntry;
-import org.commcare.suite.model.PostRequest;
 import org.commcare.suite.model.ViewEntry;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
