@@ -38,7 +38,7 @@ public class Style {
         Text,
         Graph,
         Phone,
-        MARKDOWN
+        Markdown,
     }
 
     public DisplayFormat getDisplayFormat() {
@@ -83,7 +83,7 @@ public class Style {
                 setDisplayFormat(DisplayFormat.Phone);
                 break;
             case "markdown":
-                setDisplayFormat(DisplayFormat.MARKDOWN);
+                setDisplayFormat(DisplayFormat.Markdown);
                 break;
         }
     }
