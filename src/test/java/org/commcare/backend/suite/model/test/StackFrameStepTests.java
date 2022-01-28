@@ -1,6 +1,7 @@
 package org.commcare.backend.suite.model.test;
 
 import com.google.common.collect.ImmutableMultimap;
+
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Action;
@@ -18,7 +19,10 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Vector;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by amstone326 on 8/7/15.

@@ -1,10 +1,10 @@
 package org.commcare.core.graph.model;
 
-import org.commcare.core.graph.util.GraphException;
 import org.commcare.core.graph.c3.AxisConfiguration;
 import org.commcare.core.graph.c3.DataConfiguration;
 import org.commcare.core.graph.c3.GridConfiguration;
 import org.commcare.core.graph.c3.LegendConfiguration;
+import org.commcare.core.graph.util.GraphException;
 import org.json.JSONException;
 import org.json.JSONObject;
 

@@ -2,7 +2,6 @@ package org.javarosa.core.model.test;
 
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.xform.parse.XFormParseException;
-import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Test;
 
 /**

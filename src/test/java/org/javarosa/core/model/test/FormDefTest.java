@@ -31,7 +31,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)

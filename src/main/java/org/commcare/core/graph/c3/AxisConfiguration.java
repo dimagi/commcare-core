@@ -4,7 +4,6 @@ import org.commcare.core.graph.model.GraphData;
 import org.commcare.core.graph.model.SeriesData;
 import org.commcare.core.graph.util.GraphException;
 import org.commcare.core.graph.util.GraphUtil;
-
 import org.commcare.core.graph.util.StringWidthUtil;
 import org.json.JSONArray;
 import org.json.JSONException;

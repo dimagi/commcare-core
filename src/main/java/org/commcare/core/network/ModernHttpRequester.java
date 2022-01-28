@@ -4,10 +4,8 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.interfaces.ResponseStreamAccessor;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
-import org.commcare.util.LogTypes;
 import org.commcare.util.NetworkStatus;
 import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
