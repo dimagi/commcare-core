@@ -38,6 +38,7 @@ public class Style {
         Text,
         Graph,
         Phone,
+        Markdown,
     }
 
     public DisplayFormat getDisplayFormat() {
@@ -80,6 +81,9 @@ public class Style {
                 break;
             case "phone":
                 setDisplayFormat(DisplayFormat.Phone);
+                break;
+            case "markdown":
+                setDisplayFormat(DisplayFormat.Markdown);
                 break;
         }
     }
