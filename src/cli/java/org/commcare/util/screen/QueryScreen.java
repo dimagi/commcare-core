@@ -53,8 +53,6 @@ public class QueryScreen extends Screen {
 
     private PrintStream out;
 
-    private boolean defaultSearch;
-
     public QueryScreen(String domainedUsername, String password, PrintStream out) {
         this.domainedUsername = domainedUsername;
         this.password = password;
