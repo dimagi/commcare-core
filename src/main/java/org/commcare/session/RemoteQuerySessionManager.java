@@ -110,12 +110,14 @@ public class RemoteQuerySessionManager {
      * @return filters to be applied to case search uri as query params
      */
     public Multimap<String, String> getRawQueryParams(boolean skipDefaultPromptValues) {
+        EvaluationContext evalContextWithAnswers = getEvaluationContextWithUserAnswers(evaluationContext);
         Multimap<String, String> params = ArrayListMultimap.create();
         Multimap<String, XPathExpression> hiddenQueryValues = queryDatum.getHiddenQueryValues();
         for (String key : hiddenQueryValues.keySet()) {
             for (XPathExpression xpathExpression : hiddenQueryValues.get(key)) {
-                String evaluatedExpr = evalXpathExpression(xpathExpression, evaluationContext);
+                String evaluatedExpr = evalXpathExpression(xpathExpression, evalContextWithAnswers);
                 params.put(key, evaluatedExpr);
+                System.out.println("[jls] " + key + " => " + evaluatedExpr);
             }
         }
 
@@ -139,17 +141,28 @@ public class RemoteQuerySessionManager {
     }
 
     public void populateItemSetChoices(QueryPrompt queryPrompt) {
-        EvaluationContext evalContextWithAnswers = evaluationContext.spawnWithCleanLifecycle();
+        EvaluationContext evalContextWithAnswers = getEvaluationContextWithUserAnswers(evaluationContext);
+        ItemSetUtils.populateDynamicChoices(queryPrompt.getItemsetBinding(), evalContextWithAnswers);
+    }
 
+    /**
+     * @param originalContext
+     * @return New EvaluationContext, based on originalContext, that includes user inputs as variables.
+     */
+    private EvaluationContext getEvaluationContextWithUserAnswers(EvaluationContext originalContext) {
+        EvaluationContext evalContextWithAnswers = originalContext.spawnWithCleanLifecycle();
         OrderedHashtable<String, QueryPrompt> queryPrompts = queryDatum.getUserQueryPrompts();
         for (Enumeration en = queryPrompts.keys(); en.hasMoreElements(); ) {
             String promptId = (String)en.nextElement();
             if (isPromptSupported(queryPrompts.get(promptId))) {
-                evalContextWithAnswers.setVariable(promptId, userAnswers.get(promptId));
+                String thing = userAnswers.get(promptId);
+                if (thing == null) {
+                    thing = "jls";
+                }
+                evalContextWithAnswers.setVariable(promptId, thing);
             }
         }
-
-        ItemSetUtils.populateDynamicChoices(queryPrompt.getItemsetBinding(), evalContextWithAnswers);
+        return evalContextWithAnswers;
     }
 
     // loops over query prompts and validates selection until all selections are valid
