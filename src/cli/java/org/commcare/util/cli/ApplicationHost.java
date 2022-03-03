@@ -11,9 +11,11 @@ import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.session.SessionFrame;
+import org.commcare.suite.model.Endpoint;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
+import org.commcare.suite.model.StackOperation;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.engine.CommCareConfigEngine;
 import org.commcare.util.mocks.CLISessionWrapper;
@@ -49,6 +51,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.util.*;
 
 /**
  * CLI host for running a commcare application which has been configured and instatiated
@@ -109,14 +112,62 @@ public class ApplicationHost {
         mRestoreStrategySet = true;
     }
 
-    public void run() {
+    public void advanceSessionWithEndpoint(String endpointId, String[] endpointArgs) {
+        if (endpointId == null) {
+            return;
+        }
+
+        Endpoint endpoint = mPlatform.getEndpoint(endpointId);
+        if (endpoint == null) {
+            throw new RuntimeException(endpointId + " not found");
+        }
+        if (endpointArgs == null) {
+            endpointArgs = new String[0];
+        }
+
+        mSession.clearAllState();
+        mSession.clearVolatiles();
+
+        EvaluationContext evalContext = mSession.getEvaluationContext();
+        try {
+            Endpoint.populateEndpointArgumentsToEvaluationContext(endpoint, new ArrayList<String>(Arrays.asList(endpointArgs)), evalContext);
+        } catch (Endpoint.InvalidEndpointArgumentsException e) {
+            String missingMessage = "";
+            if (e.hasMissingArguments()) {
+                missingMessage = String.format(" Missing arguments: %s.", String.join(", ", e.getMissingArguments()));
+            }
+            String unexpectedMessage = "";
+            if (e.hasUnexpectedArguments()) {
+                unexpectedMessage = String.format(" Unexpected arguments: %s.", String.join(", ", e.getUnexpectedArguments()));
+            }
+            throw new RuntimeException("Invalid arguments for endpoint." + missingMessage + unexpectedMessage);
+        }
+
+        for (StackOperation op : endpoint.getStackOperations()) {
+            mSession.executeStackOperations(new Vector<>(Arrays.asList(op)), evalContext);
+            Screen s = getNextScreen();
+            if (s instanceof SyncScreen) {
+                try {
+                    s.init(mSession);
+                    s.handleInputAndUpdateSession(mSession, "", false);
+                } catch (CommCareSessionException ccse) {
+                    printErrorAndContinue("Error during session execution:", ccse);
+                }
+            }
+        }
+        mSessionHasNextFrameReady = true;
+    }
+
+    public void run(String endpointId, String[] endpointArgs) {
         if (!mRestoreStrategySet) {
             throw new RuntimeException("You must set up an application host by calling " +
-                    "one of hte setRestore*() methods before running the app");
+                    "one of the setRestore*() methods before running the app");
         }
         setupSandbox();
 
         mSession = new CLISessionWrapper(mPlatform, mSandbox);
+
+        advanceSessionWithEndpoint(endpointId, endpointArgs);
 
         try {
             loop();
