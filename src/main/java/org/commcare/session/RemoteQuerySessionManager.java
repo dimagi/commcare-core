@@ -153,7 +153,7 @@ public class RemoteQuerySessionManager {
     }
 
     // loops over query prompts and validates selection until all selections are valid
-    public void refreshItemSetChoices(Hashtable<String, String> userAnswers) {
+    public void refreshItemSetChoices() {
         OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
         if (userInputDisplays.size() == 0) {
             return;
