@@ -1,6 +1,7 @@
 package org.commcare.backend.suite.model.test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.RemoteQuerySessionManager;
@@ -12,6 +13,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Tests for basic app models for case claim
@@ -34,6 +36,18 @@ public class CaseClaimModelTests {
 
     @Test
     public void testRemoteRequestSessionManager_getRawQueryParamsWithUserInput() throws Exception {
+        testGetRawQueryParamsWithUserInput(
+                ImmutableMap.of("patient_id", "123"),
+                ImmutableList.of("external_id = 123")
+        );
+    }
+
+    @Test
+    public void testRemoteRequestSessionManager_getRawQueryParamsWithUserInput_missing() throws Exception {
+        testGetRawQueryParamsWithUserInput(ImmutableMap.of(), ImmutableList.of(""));
+    }
+
+    private void testGetRawQueryParamsWithUserInput(Map<String, String> userInput, List<String> expected) throws Exception {
         MockApp mApp = new MockApp("/case_claim_example/");
 
         SessionWrapper session = mApp.getSession();
@@ -42,10 +56,10 @@ public class CaseClaimModelTests {
         RemoteQuerySessionManager remoteQuerySessionManager = RemoteQuerySessionManager.buildQuerySessionManager(
                 session, session.getEvaluationContext(), new ArrayList<>());
 
-        remoteQuerySessionManager.answerUserPrompt("patient_id", "123");
+        userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
+
         Multimap<String, String> rawQueryParams = remoteQuerySessionManager.getRawQueryParams(true);
 
-        List<String> expected = ImmutableList.of("123");
-        Assert.assertEquals(expected, rawQueryParams.get("patient_id_from_input"));
+        Assert.assertEquals(expected, rawQueryParams.get("_xpath_query"));
     }
 }

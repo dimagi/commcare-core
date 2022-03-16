@@ -169,7 +169,10 @@ public class RemoteQuerySessionManager {
         for (Enumeration en = queryPrompts.keys(); en.hasMoreElements(); ) {
             String promptId = (String)en.nextElement();
             if (isPromptSupported(queryPrompts.get(promptId))) {
-                values.put(promptId, userAnswers.get(promptId));
+                String answer = userAnswers.get(promptId);
+                if (answer != null) {
+                    values.put(promptId, answer);
+                }
             }
         }
         return values;
