@@ -19,6 +19,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.annotation.Nullable;
 
@@ -140,16 +142,24 @@ public class RemoteQuerySessionManager {
 
     public void populateItemSetChoices(QueryPrompt queryPrompt) {
         EvaluationContext evalContextWithAnswers = evaluationContext.spawnWithCleanLifecycle();
+        Map<String, Object> userQueryValues = getUserQueryValues();
+        userQueryValues.forEach((promptId, value) -> {
+            evalContextWithAnswers.setVariable(promptId, userAnswers.get(promptId));
+        });
 
+        ItemSetUtils.populateDynamicChoices(queryPrompt.getItemsetBinding(), evalContextWithAnswers);
+    }
+
+    private Map<String, Object> getUserQueryValues() {
+        Map<String, Object> values = new HashMap<>();
         OrderedHashtable<String, QueryPrompt> queryPrompts = queryDatum.getUserQueryPrompts();
         for (Enumeration en = queryPrompts.keys(); en.hasMoreElements(); ) {
             String promptId = (String)en.nextElement();
             if (isPromptSupported(queryPrompts.get(promptId))) {
-                evalContextWithAnswers.setVariable(promptId, userAnswers.get(promptId));
+                values.put(promptId, userAnswers.get(promptId));
             }
         }
-
-        ItemSetUtils.populateDynamicChoices(queryPrompt.getItemsetBinding(), evalContextWithAnswers);
+        return values;
     }
 
     // loops over query prompts and validates selection until all selections are valid
