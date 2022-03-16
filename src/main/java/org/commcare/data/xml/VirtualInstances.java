@@ -14,12 +14,13 @@ public class VirtualInstances {
     public static final String SEARCH_INSTANCE_NODE_NAME = "field";
     public static final String SEARCH_INPUT_NODE_NAME_ATTR = "name";
 
-    public static TreeElement buildSearchInputRoot(Map<String, String> userInputValues) {
+    public static VirtualDataInstance buildSearchInputInstance(Map<String, String> userInputValues) {
         List<SimpleNode> nodes = new ArrayList<>();
         userInputValues.forEach((key, value) -> {
             Map<String, String> attributes = ImmutableMap.of(SEARCH_INPUT_NODE_NAME_ATTR, key);
             nodes.add(SimpleNode.textNode(SEARCH_INSTANCE_NODE_NAME, attributes, value));
         });
-        return TreeBuilder.buildTree(SEARCH_INSTANCE_ID, SEARCH_INSTANCE_ROOT_NAME, nodes);
+        TreeElement root = TreeBuilder.buildTree(SEARCH_INSTANCE_ID, SEARCH_INSTANCE_ROOT_NAME, nodes);
+        return new VirtualDataInstance(SEARCH_INSTANCE_ID, root);
     }
 }

@@ -57,6 +57,7 @@
     <session>
       <query url="https://www.fake.com/patient_search/" storage-instance="patients">
         <data key="device_id" ref="instance('session')/session/context/deviceid"/>
+        <data key="patient_id_from_input" ref="instance('search-input')/input/field[@name='patient_id']"/>
         <prompt key="name" default="instance('session')/session/context/deviceid">
           <display>
             <text>
