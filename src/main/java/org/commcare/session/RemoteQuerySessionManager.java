@@ -22,6 +22,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -41,11 +42,11 @@ public class RemoteQuerySessionManager {
     private final EvaluationContext evaluationContext;
     private final Hashtable<String, String> userAnswers =
             new Hashtable<>();
-    private final ArrayList<String> supportedPrompts;
+    private final List<String> supportedPrompts;
 
     private RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
             EvaluationContext evaluationContext,
-            ArrayList<String> supportedPrompts) throws XPathException {
+            List<String> supportedPrompts) throws XPathException {
         this.queryDatum = queryDatum;
         this.evaluationContext = evaluationContext;
         this.supportedPrompts = supportedPrompts;
@@ -68,7 +69,7 @@ public class RemoteQuerySessionManager {
 
     public static RemoteQuerySessionManager buildQuerySessionManager(CommCareSession session,
             EvaluationContext sessionContext,
-            ArrayList<String> supportedPrompts) throws XPathException {
+            List<String> supportedPrompts) throws XPathException {
         SessionDatum datum;
         try {
             datum = session.getNeededDatum();
@@ -142,7 +143,7 @@ public class RemoteQuerySessionManager {
     }
 
     private EvaluationContext getEvaluationContextWithUserInputInstance() {
-        Map<String, String> userQueryValues = getUserQueryValues();
+        Map<String, String> userQueryValues = getUserQueryValues(false);
         VirtualDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(userQueryValues);
         return evaluationContext.spawnWithCleanLifecycle(
                 ImmutableMap.of(userInputInstance.getInstanceId(), userInputInstance)
@@ -156,7 +157,7 @@ public class RemoteQuerySessionManager {
 
     public void populateItemSetChoices(QueryPrompt queryPrompt) {
         EvaluationContext evalContextWithAnswers = evaluationContext.spawnWithCleanLifecycle();
-        Map<String, String> userQueryValues = getUserQueryValues();
+        Map<String, String> userQueryValues = getUserQueryValues(true);
         userQueryValues.forEach((promptId, value) -> {
             evalContextWithAnswers.setVariable(promptId, userAnswers.get(promptId));
         });
@@ -164,14 +165,14 @@ public class RemoteQuerySessionManager {
         ItemSetUtils.populateDynamicChoices(queryPrompt.getItemsetBinding(), evalContextWithAnswers);
     }
 
-    private Map<String, String> getUserQueryValues() {
+    private Map<String, String> getUserQueryValues(boolean includeNulls) {
         Map<String, String> values = new HashMap<>();
         OrderedHashtable<String, QueryPrompt> queryPrompts = queryDatum.getUserQueryPrompts();
         for (Enumeration en = queryPrompts.keys(); en.hasMoreElements(); ) {
             String promptId = (String)en.nextElement();
             if (isPromptSupported(queryPrompts.get(promptId))) {
                 String answer = userAnswers.get(promptId);
-                if (answer != null) {
+                if (includeNulls || answer != null) {
                     values.put(promptId, answer);
                 }
             }

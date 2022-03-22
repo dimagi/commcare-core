@@ -4,17 +4,27 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 
+import org.commcare.data.xml.SimpleNode;
+import org.commcare.data.xml.TreeBuilder;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.RemoteQuerySessionManager;
+import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.test.utilities.MockApp;
+import org.javarosa.core.model.SelectChoice;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.model.instance.VirtualDataInstance;
+import org.javarosa.core.util.OrderedHashtable;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Tests for basic app models for case claim
@@ -36,6 +46,43 @@ public class CaseClaimModelTests {
     }
 
     @Test
+    public void testPopulateItemsetChoices__inputReference() throws Exception {
+        testPopulateItemsetChoices(ImmutableMap.of("state", "ka"), ImmutableList.of("bang"));
+    }
+
+    @Test
+    public void testPopulateItemsetChoices__emptyInput() throws Exception {
+        testPopulateItemsetChoices(Collections.emptyMap(), Collections.emptyList());
+    }
+
+    private void testPopulateItemsetChoices(Map<String, String> userInput, List<String> expected)
+            throws Exception {
+        MockApp mApp = new MockApp("/case_claim_example/");
+
+        SessionWrapper session = mApp.getSession();
+        session.setCommand("patient-search");
+
+        VirtualDataInstance districtInstance = buildDistrictInstance();
+        EvaluationContext context = session.getEvaluationContext().spawnWithCleanLifecycle(ImmutableMap.of(
+                districtInstance.getInstanceId(), districtInstance
+        ));
+
+        RemoteQuerySessionManager remoteQuerySessionManager = RemoteQuerySessionManager.buildQuerySessionManager(
+                session, context, ImmutableList.of(QueryPrompt.INPUT_TYPE_SELECT1));
+
+        userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
+
+        OrderedHashtable<String, QueryPrompt> inputDisplays =
+                remoteQuerySessionManager.getNeededUserInputDisplays();
+        QueryPrompt districtPrompt = inputDisplays.get("district");
+
+        remoteQuerySessionManager.populateItemSetChoices(districtPrompt);
+        List<String> choices = districtPrompt.getItemsetBinding().getChoices().stream().map(
+                SelectChoice::getValue).collect(Collectors.toList());
+        Assert.assertEquals(expected, choices);
+    }
+
+    @Test
     public void testRemoteRequestSessionManager_getRawQueryParamsWithUserInput() throws Exception {
         testGetRawQueryParamsWithUserInput(
                 ImmutableMap.of("patient_id", "123"),
@@ -45,7 +92,7 @@ public class CaseClaimModelTests {
 
     @Test
     public void testRemoteRequestSessionManager_getRawQueryParamsWithUserInput_missing() throws Exception {
-        testGetRawQueryParamsWithUserInput(ImmutableMap.of(), ImmutableList.of(""));
+        testGetRawQueryParamsWithUserInput(Collections.emptyMap(), ImmutableList.of(""));
     }
 
     private void testGetRawQueryParamsWithUserInput(Map<String, String> userInput, List<String> expected)
@@ -60,8 +107,27 @@ public class CaseClaimModelTests {
 
         userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
 
-        Multimap<String, String> rawQueryParams = remoteQuerySessionManager.getRawQueryParams(true);
+        Multimap<String, String> params = remoteQuerySessionManager.getRawQueryParams(true);
 
-        Assert.assertEquals(expected, rawQueryParams.get("_xpath_query"));
+        Assert.assertEquals(expected, params.get("_xpath_query"));
+    }
+
+    private VirtualDataInstance buildDistrictInstance() {
+        Map<String, String> noAttrs = Collections.emptyMap();
+        List<SimpleNode> nodes = ImmutableList.of(
+                SimpleNode.parentNode("district", noAttrs, ImmutableList.of(
+                        SimpleNode.textNode("id", noAttrs, "bang"),
+                        SimpleNode.textNode("state_id", noAttrs, "ka"),
+                        SimpleNode.textNode("name", noAttrs, "Bangalore")
+                )),
+                SimpleNode.parentNode("district", noAttrs, ImmutableList.of(
+                        SimpleNode.textNode("id", noAttrs, "kota"),
+                        SimpleNode.textNode("state_id", noAttrs, "rj"),
+                        SimpleNode.textNode("name", noAttrs, "Kota")
+                ))
+        );
+
+        TreeElement root = TreeBuilder.buildTree("district", "district_list", nodes);
+        return new VirtualDataInstance("district", root);
     }
 }
