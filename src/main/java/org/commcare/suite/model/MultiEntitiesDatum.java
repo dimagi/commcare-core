@@ -8,6 +8,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+/**
+ * Special kind of EntityDatum that allows for selection of multiple entities in the session
+ */
 public class MultiEntitiesDatum extends EntityDatum {
 
     private int maxSelectValue = -1;
