@@ -8,6 +8,7 @@ import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
+import org.commcare.suite.model.MultiEntitiesDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -57,6 +58,9 @@ public class EntityScreen extends CompoundScreenHost {
 
     private boolean initialized = false;
     private Action autoLaunchAction;
+
+    private boolean isMultiSelect = false;
+    private int maxSelectValue = -1;
 
     public EntityScreen(boolean handleCaseIndex) {
         this.handleCaseIndex = handleCaseIndex;
@@ -157,6 +161,11 @@ public class EntityScreen extends CompoundScreenHost {
         }
 
         evalContext = mSession.getEvaluationContext();
+
+        if (mNeededDatum instanceof MultiEntitiesDatum) {
+            isMultiSelect = true;
+            maxSelectValue = ((MultiEntitiesDatum)mNeededDatum).getMaxSelectValue();
+        }
     }
 
     @Trace
@@ -342,5 +351,13 @@ public class EntityScreen extends CompoundScreenHost {
             }
         }
         return false;
+    }
+
+    public boolean isMultiSelect() {
+        return isMultiSelect;
+    }
+
+    public int getMaxSelectValue() {
+        return maxSelectValue;
     }
 }

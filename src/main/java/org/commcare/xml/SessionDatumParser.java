@@ -3,9 +3,11 @@ package org.commcare.xml;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import org.commcare.cases.util.StringUtils;
 import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.FormIdDatum;
+import org.commcare.suite.model.MultiEntitiesDatum;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
@@ -32,13 +34,19 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
     }
 
     @Override
-    public SessionDatum parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
-        if ("query".equals(parser.getName())) {
+    public SessionDatum parse()
+            throws InvalidStructureException, IOException, XmlPullParserException,
+            UnfullfilledRequirementsException {
+        String name = parser.getName();
+        if ("query".equals(name)) {
             return parseRemoteQueryDatum();
         }
 
-        if ((!"datum".equals(this.parser.getName())) && !("form".equals(this.parser.getName()))) {
-            throw new InvalidStructureException("Expected <datum> or <form> data in <session> block, instead found " + this.parser.getName() + ">", this.parser);
+        if ((!"datum".equals(name)) && !("form".equals(name)) && !("instance-datum".equals(name))) {
+            throw new InvalidStructureException(
+                    "Expected one of <instance-datum>, <datum> or <form> data in <session> block,"
+                            + " instead found "
+                            + this.parser.getName() + ">", this.parser);
         }
 
         String id = parser.getAttributeValue(null, "id");
@@ -54,13 +62,30 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
             String persistentDetail = parser.getAttributeValue(null, "detail-persistent");
             String value = parser.getAttributeValue(null, "value");
             String autoselect = parser.getAttributeValue(null, "autoselect");
-
-            if (nodeset == null) {
-                throw new InvalidStructureException("Expected @nodeset in " + id + " <datum> definition", this.parser);
+            String maxSelectValueStr = parser.getAttributeValue(null, "max-select-value");
+            int maxSelectValue = -1;
+            if (!StringUtils.isEmpty(maxSelectValueStr)) {
+                try {
+                    maxSelectValue = Integer.parseInt(maxSelectValueStr);
+                } catch (NumberFormatException e) {
+                    throw new InvalidStructureException(
+                            "Invalid value " + maxSelectValueStr
+                                    + "for max-select-value. Must be an Integer", this.parser);
+                }
             }
 
-            datum = new EntityDatum(id, nodeset, shortDetail, longDetail, inlineDetail,
-                    persistentDetail, value, autoselect);
+            if (nodeset == null) {
+                throw new InvalidStructureException(
+                        "Expected @nodeset in " + id + " <datum> definition", this.parser);
+            }
+
+            if ("instance-datum".equals(name)) {
+                datum = new MultiEntitiesDatum(id, nodeset, shortDetail, longDetail, inlineDetail,
+                        persistentDetail, value, autoselect, maxSelectValue);
+            } else {
+                datum = new EntityDatum(id, nodeset, shortDetail, longDetail, inlineDetail,
+                        persistentDetail, value, autoselect);
+            }
         } else {
             if ("form".equals(this.parser.getName())) {
                 datum = new FormIdDatum(calculate);
@@ -75,13 +100,15 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
     }
 
     private RemoteQueryDatum parseRemoteQueryDatum()
-            throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+            throws InvalidStructureException, IOException, XmlPullParserException,
+            UnfullfilledRequirementsException {
         Multimap<String, XPathExpression> hiddenQueryValues = ArrayListMultimap.create();
         OrderedHashtable<String, QueryPrompt> userQueryPrompts =
                 new OrderedHashtable<>();
         this.checkNode("query");
 
-        // The 'template' argument specifies whether the query result should follow a specific xml structure.
+        // The 'template' argument specifies whether the query result should follow a specific
+        // xml structure.
         // Currently only 'case' is supported; asserting the casedb xml structure
         String xpathTemplateType = parser.getAttributeValue(null, "template");
         boolean useCaseTemplate = "case".equals(xpathTemplateType);
