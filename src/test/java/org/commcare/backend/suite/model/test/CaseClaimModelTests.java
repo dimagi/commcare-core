@@ -3,6 +3,7 @@ package org.commcare.backend.suite.model.test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
+
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.RemoteQueryDatum;
@@ -47,7 +48,8 @@ public class CaseClaimModelTests {
         testGetRawQueryParamsWithUserInput(ImmutableMap.of(), ImmutableList.of(""));
     }
 
-    private void testGetRawQueryParamsWithUserInput(Map<String, String> userInput, List<String> expected) throws Exception {
+    private void testGetRawQueryParamsWithUserInput(Map<String, String> userInput, List<String> expected)
+            throws Exception {
         MockApp mApp = new MockApp("/case_claim_example/");
 
         SessionWrapper session = mApp.getSession();

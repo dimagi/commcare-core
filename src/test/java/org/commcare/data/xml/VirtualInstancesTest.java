@@ -1,6 +1,7 @@
 package org.commcare.data.xml;
 
 import com.google.common.collect.ImmutableMap;
+
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.VirtualDataInstance;
@@ -17,22 +18,25 @@ import static org.junit.Assert.assertEquals;
 
 public class VirtualInstancesTest {
     @Test
-    public void testBuildSearchInputRoot() throws UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException, IOException {
+    public void testBuildSearchInputRoot()
+            throws UnfullfilledRequirementsException, XmlPullParserException,
+            InvalidStructureException, IOException {
         VirtualDataInstance instance = VirtualInstances.buildSearchInputInstance(ImmutableMap.of(
-            "key0", "val0",
-            "key1", "val1",
-            "key2", "val2"
+                "key0", "val0",
+                "key1", "val1",
+                "key2", "val2"
         ));
         String expectedXml = String.join(
-            "",
-            "<input id=\"search-input\">",
+                "",
+                "<input id=\"search-input\">",
                 "<field name=\"key0\">val0</field>",
                 "<field name=\"key1\">val1</field>",
                 "<field name=\"key2\">val2</field>",
-            "</input>"
+                "</input>"
         );
         TreeElement expected = ExternalDataInstance.parseExternalTree(
-                new ByteArrayInputStream(expectedXml.getBytes(StandardCharsets.UTF_8)), VirtualInstances.SEARCH_INSTANCE_ID
+                new ByteArrayInputStream(expectedXml.getBytes(StandardCharsets.UTF_8)),
+                VirtualInstances.SEARCH_INSTANCE_ID
         );
         assertEquals(expected, instance.getRoot());
     }

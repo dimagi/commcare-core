@@ -44,8 +44,8 @@ public class RemoteQuerySessionManager {
     private final ArrayList<String> supportedPrompts;
 
     private RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
-                                      EvaluationContext evaluationContext,
-                                      ArrayList<String> supportedPrompts) throws XPathException {
+            EvaluationContext evaluationContext,
+            ArrayList<String> supportedPrompts) throws XPathException {
         this.queryDatum = queryDatum;
         this.evaluationContext = evaluationContext;
         this.supportedPrompts = supportedPrompts;
@@ -59,15 +59,16 @@ public class RemoteQuerySessionManager {
             QueryPrompt prompt = queryPrompts.get(promptId);
 
             if (isPromptSupported(prompt) && prompt.getDefaultValueExpr() != null) {
-                userAnswers.put(prompt.getKey(), FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext)));
+                userAnswers.put(prompt.getKey(),
+                        FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext)));
             }
 
         }
     }
 
     public static RemoteQuerySessionManager buildQuerySessionManager(CommCareSession session,
-                                                                     EvaluationContext sessionContext,
-                                                                     ArrayList<String> supportedPrompts) throws XPathException {
+            EvaluationContext sessionContext,
+            ArrayList<String> supportedPrompts) throws XPathException {
         SessionDatum datum;
         try {
             datum = session.getNeededDatum();
@@ -144,12 +145,12 @@ public class RemoteQuerySessionManager {
         Map<String, String> userQueryValues = getUserQueryValues();
         VirtualDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(userQueryValues);
         return evaluationContext.spawnWithCleanLifecycle(
-            ImmutableMap.of(userInputInstance.getInstanceId(), userInputInstance)
+                ImmutableMap.of(userInputInstance.getInstanceId(), userInputInstance)
         );
     }
 
     public static String evalXpathExpression(XPathExpression expr,
-                                             EvaluationContext evaluationContext) {
+            EvaluationContext evaluationContext) {
         return FunctionUtils.toString(expr.eval(evaluationContext));
     }
 
@@ -209,7 +210,8 @@ public class RemoteQuerySessionManager {
                         }
                     }
                     if (validSelectedChoices.size() > 0) {
-                        userAnswers.put(promptId, String.join(RemoteQuerySessionManager.ANSWER_DELIMITER, validSelectedChoices));
+                        userAnswers.put(promptId,
+                                String.join(RemoteQuerySessionManager.ANSWER_DELIMITER, validSelectedChoices));
                     } else {
                         // no value
                         userAnswers.remove(promptId);

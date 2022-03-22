@@ -9,8 +9,8 @@ import java.util.Map;
  * {@link org.javarosa.core.model.instance.TreeElement} trees.
  *
  * SimpleNode.parentNode("node", ImmutableMap.of("attr1", "v1"), ImmutableList.of(
- *     SimpleNode.textNode("child", Collections.emptyMap(), "some text"),
- *     SimpleNode.textNode("child", Collections.emptyMap(), "other text")
+ * SimpleNode.textNode("child", Collections.emptyMap(), "some text"),
+ * SimpleNode.textNode("child", Collections.emptyMap(), "other text")
  * ))
  */
 public class SimpleNode {
