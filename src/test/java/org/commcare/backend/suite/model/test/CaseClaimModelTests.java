@@ -55,7 +55,8 @@ public class CaseClaimModelTests {
         testPopulateItemsetChoices(Collections.emptyMap(), Collections.emptyList());
     }
 
-    private void testPopulateItemsetChoices(Map<String, String> userInput, List<String> expected) throws Exception {
+    private void testPopulateItemsetChoices(Map<String, String> userInput, List<String> expected)
+            throws Exception {
         MockApp mApp = new MockApp("/case_claim_example/");
 
         SessionWrapper session = mApp.getSession();
@@ -71,7 +72,8 @@ public class CaseClaimModelTests {
 
         userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
 
-        OrderedHashtable<String, QueryPrompt> inputDisplays = remoteQuerySessionManager.getNeededUserInputDisplays();
+        OrderedHashtable<String, QueryPrompt> inputDisplays =
+                remoteQuerySessionManager.getNeededUserInputDisplays();
         QueryPrompt districtPrompt = inputDisplays.get("district");
 
         remoteQuerySessionManager.populateItemSetChoices(districtPrompt);
@@ -105,9 +107,9 @@ public class CaseClaimModelTests {
 
         userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
 
-        Multimap<String, String> rawQueryParams = remoteQuerySessionManager.getRawQueryParams(true);
+        Multimap<String, String> params = remoteQuerySessionManager.getRawQueryParams(true);
 
-        Assert.assertEquals(expected, rawQueryParams.get("_xpath_query"));
+        Assert.assertEquals(expected, params.get("_xpath_query"));
     }
 
     private VirtualDataInstance buildDistrictInstance() {
