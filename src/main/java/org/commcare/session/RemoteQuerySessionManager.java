@@ -142,7 +142,7 @@ public class RemoteQuerySessionManager {
     }
 
     private EvaluationContext getEvaluationContextWithUserInputInstance() {
-        Map<String, String> userQueryValues = getUserQueryValues();
+        Map<String, String> userQueryValues = getUserQueryValues(false);
         VirtualDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(userQueryValues);
         return evaluationContext.spawnWithCleanLifecycle(
                 ImmutableMap.of(userInputInstance.getInstanceId(), userInputInstance)
@@ -156,7 +156,7 @@ public class RemoteQuerySessionManager {
 
     public void populateItemSetChoices(QueryPrompt queryPrompt) {
         EvaluationContext evalContextWithAnswers = evaluationContext.spawnWithCleanLifecycle();
-        Map<String, String> userQueryValues = getUserQueryValues();
+        Map<String, String> userQueryValues = getUserQueryValues(true);
         userQueryValues.forEach((promptId, value) -> {
             evalContextWithAnswers.setVariable(promptId, userAnswers.get(promptId));
         });
@@ -164,14 +164,14 @@ public class RemoteQuerySessionManager {
         ItemSetUtils.populateDynamicChoices(queryPrompt.getItemsetBinding(), evalContextWithAnswers);
     }
 
-    private Map<String, String> getUserQueryValues() {
+    private Map<String, String> getUserQueryValues(boolean includeNulls) {
         Map<String, String> values = new HashMap<>();
         OrderedHashtable<String, QueryPrompt> queryPrompts = queryDatum.getUserQueryPrompts();
         for (Enumeration en = queryPrompts.keys(); en.hasMoreElements(); ) {
             String promptId = (String)en.nextElement();
             if (isPromptSupported(queryPrompts.get(promptId))) {
                 String answer = userAnswers.get(promptId);
-                if (answer != null) {
+                if (includeNulls || answer != null) {
                     values.put(promptId, answer);
                 }
             }
