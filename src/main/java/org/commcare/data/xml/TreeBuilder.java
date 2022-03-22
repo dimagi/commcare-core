@@ -14,17 +14,17 @@ public class TreeBuilder {
     /**
      * Build a TreeElement populated with children
      */
-    public static TreeElement buildTree(String instanceId, String rootElementName, List<SimpleNode> nodes) {
+    public static TreeElement buildTree(String instanceId, String rootElementName, List<SimpleNode> children) {
         TreeElement root = new TreeElement(rootElementName, 0);
         root.setInstanceName(instanceId);
         root.setAttribute(null, "id", instanceId);
-        addChildren(instanceId, root, nodes);
+        addChildren(instanceId, root, children);
         return root;
     }
 
-    private static void addChildren(String instanceId, TreeElement parent, List<SimpleNode> nodes) {
+    private static void addChildren(String instanceId, TreeElement parent, List<SimpleNode> children) {
         Hashtable<String, Integer> multiplicities = new Hashtable<>();
-        for (SimpleNode node : nodes) {
+        for (SimpleNode node : children) {
             int val;
             String name = node.getName();
             if (multiplicities.containsKey(name)) {

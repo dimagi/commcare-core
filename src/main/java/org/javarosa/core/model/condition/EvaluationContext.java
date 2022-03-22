@@ -748,10 +748,10 @@ public class EvaluationContext {
         return spawnWithCleanLifecycle(null);
     }
 
-    public EvaluationContext spawnWithCleanLifecycle(Map<String, DataInstance> additionalInstance) {
+    public EvaluationContext spawnWithCleanLifecycle(Map<String, DataInstance> additionalInstances) {
         EvaluationContext ec = new EvaluationContext(this, this.getContextRef());
-        if (additionalInstance != null) {
-            additionalInstance.forEach((name, instance) -> {
+        if (additionalInstances != null) {
+            additionalInstances.forEach((name, instance) -> {
                 if (!ec.formInstances.containsKey(name)) {
                     ec.formInstances.put(name, instance);
                 }
