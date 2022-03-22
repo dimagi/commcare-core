@@ -17,7 +17,7 @@ public class SimpleNode {
     private String name;
     private Map<String, String> attributes;
     private List<SimpleNode> children;
-    private String text;
+    private String value;
 
     public static SimpleNode textNode(String name, Map<String, String> attributes, String text) {
         return new SimpleNode(name, attributes, text);
@@ -30,7 +30,7 @@ public class SimpleNode {
     private SimpleNode(String name, Map<String, String> attributes, String text) {
         this.name = name;
         this.attributes = attributes;
-        this.text = text;
+        this.value = text;
     }
 
     private SimpleNode(String name, Map<String, String> attributes, List<SimpleNode> children) {
@@ -47,8 +47,8 @@ public class SimpleNode {
         return attributes;
     }
 
-    public String getText() {
-        return text;
+    public String getValue() {
+        return value;
     }
 
     public List<SimpleNode> getChildren() {

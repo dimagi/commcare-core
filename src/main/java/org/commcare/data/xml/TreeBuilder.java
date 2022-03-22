@@ -39,8 +39,8 @@ public class TreeBuilder {
             node.getAttributes().forEach((attributeName, value) -> {
                 element.setAttribute(null, attributeName, value);
             });
-            if (node.getText() != null) {
-                element.setValue(new UncastData(node.getText()));
+            if (node.getValue() != null) {
+                element.setValue(new UncastData(node.getValue()));
             } else if (node.getChildren() != null) {
                 addChildren(instanceId, element, node.getChildren());
             }
