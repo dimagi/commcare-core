@@ -22,10 +22,10 @@ import org.javarosa.xpath.expr.XPathExpression;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import javax.annotation.Nullable;
 
@@ -123,7 +123,7 @@ public class RemoteQuerySessionManager {
         Multimap<String, String> params = ArrayListMultimap.create();
         List<QueryData> hiddenQueryValues = queryDatum.getHiddenQueryValues();
         for (QueryData queryData : hiddenQueryValues) {
-            params.put(queryData.getKey(), queryData.getValue(evalContextWithAnswers));
+            params.putAll(queryData.getKey(), queryData.getValues(evalContextWithAnswers));
         }
 
         if (!skipDefaultPromptValues) {

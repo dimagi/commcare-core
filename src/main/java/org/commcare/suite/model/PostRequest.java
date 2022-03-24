@@ -1,5 +1,8 @@
 package org.commcare.suite.model;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import org.commcare.session.RemoteQuerySessionManager;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -15,7 +18,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Hashtable;
 import java.util.List;
 
 /**
@@ -43,10 +45,10 @@ public class PostRequest implements Externalizable {
         return url;
     }
 
-    public Hashtable<String, String> getEvaluatedParams(EvaluationContext evalContext) {
-        Hashtable<String, String> evaluatedParams = new Hashtable<>();
-        for (QueryData param : params) {
-            evaluatedParams.put(param.getKey(), param.getValue(evalContext));
+    public Multimap<String, String> getEvaluatedParams(EvaluationContext evalContext) {
+        Multimap<String, String> evaluatedParams = ArrayListMultimap.create();
+        for (QueryData queryData : params) {
+            evaluatedParams.putAll(queryData.getKey(), queryData.getValues(evalContext));
         }
         return evaluatedParams;
     }

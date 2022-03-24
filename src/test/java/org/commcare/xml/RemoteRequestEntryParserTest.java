@@ -3,6 +3,7 @@ package org.commcare.xml;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
 
 import org.commcare.data.xml.SimpleNode;
 import org.commcare.data.xml.TreeBuilder;
@@ -23,6 +24,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
@@ -53,10 +55,9 @@ public class RemoteRequestEntryParserTest {
         assertEquals(1, params.size());
         assertEquals("case_id", params.get(0).getKey());
 
-        Hashtable<String, String> evaluatedParams = post.getEvaluatedParams(
-                new EvaluationContext(null, buildSessionInstance()));
-        assertEquals("bang", evaluatedParams.get("case_id"));
-
+        EvaluationContext evalContext = new EvaluationContext(null, buildSessionInstance());
+        Multimap<String, String> evaluatedParams = post.getEvaluatedParams(evalContext);
+        assertEquals(Arrays.asList("bang"), evaluatedParams.get("case_id"));
     }
 
     private Hashtable<String, DataInstance> buildSessionInstance() {

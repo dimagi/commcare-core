@@ -8,5 +8,5 @@ import org.javarosa.core.util.externalizable.Externalizable;
  */
 public interface QueryData extends Externalizable {
     String getKey();
-    String getValue(EvaluationContext context);
+    Iterable<String> getValues(EvaluationContext context);
 }

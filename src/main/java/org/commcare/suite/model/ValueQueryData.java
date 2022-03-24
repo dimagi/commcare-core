@@ -11,6 +11,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Collections;
 
 /**
  * Data class for single value query data elements
@@ -37,8 +38,8 @@ public class ValueQueryData implements QueryData {
     }
 
     @Override
-    public String getValue(EvaluationContext context) {
-        return FunctionUtils.toString(ref.eval(context));
+    public Iterable<String> getValues(EvaluationContext context) {
+        return Collections.singleton(FunctionUtils.toString(ref.eval(context)));
     }
 
     @Override
