@@ -6,6 +6,7 @@ import com.google.common.collect.Multimap;
 
 import org.commcare.cases.util.StringUtils;
 import org.commcare.data.xml.VirtualInstances;
+import org.commcare.suite.model.QueryData;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
@@ -120,12 +121,9 @@ public class RemoteQuerySessionManager {
         EvaluationContext evalContextWithAnswers = getEvaluationContextWithUserInputInstance();
 
         Multimap<String, String> params = ArrayListMultimap.create();
-        Multimap<String, XPathExpression> hiddenQueryValues = queryDatum.getHiddenQueryValues();
-        for (String key : hiddenQueryValues.keySet()) {
-            for (XPathExpression xpathExpression : hiddenQueryValues.get(key)) {
-                String evaluatedExpr = evalXpathExpression(xpathExpression, evalContextWithAnswers);
-                params.put(key, evaluatedExpr);
-            }
+        List<QueryData> hiddenQueryValues = queryDatum.getHiddenQueryValues();
+        for (QueryData queryData : hiddenQueryValues) {
+            params.put(queryData.getKey(), queryData.getValue(evalContextWithAnswers));
         }
 
         if (!skipDefaultPromptValues) {

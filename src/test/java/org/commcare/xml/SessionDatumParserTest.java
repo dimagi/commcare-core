@@ -1,22 +1,23 @@
 package org.commcare.xml;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.Multimap;
-
+import org.commcare.suite.model.QueryData;
 import org.commcare.suite.model.RemoteQueryDatum;
-import org.commcare.suite.model.SessionDatum;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.xpath.expr.XPathExpression;
 import org.junit.Test;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.List;
 
+/**
+ * Low level tests for session parsing
+ */
 public class SessionDatumParserTest {
 
     @Test
@@ -30,8 +31,9 @@ public class SessionDatumParserTest {
         KXmlParser parser = ElementParser.instantiateParser(inputStream);
         SessionDatumParser sessionDatumParser = new SessionDatumParser(parser);
         RemoteQueryDatum datum = (RemoteQueryDatum) sessionDatumParser.parse();
-        Multimap<String, XPathExpression> hiddenQueryValues = datum.getHiddenQueryValues();
+        List<QueryData> hiddenQueryValues = datum.getHiddenQueryValues();
         assertEquals(1, hiddenQueryValues.size());
-        assertTrue(hiddenQueryValues.containsKey("device_id"));
+        QueryData queryData = hiddenQueryValues.get(0);
+        assertEquals("device_id", queryData.getKey());
     }
 }
