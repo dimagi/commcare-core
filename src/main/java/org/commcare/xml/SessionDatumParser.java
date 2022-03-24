@@ -76,9 +76,7 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
 
     private RemoteQueryDatum parseRemoteQueryDatum()
             throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
-        Multimap<String, XPathExpression> hiddenQueryValues = ArrayListMultimap.create();
-        OrderedHashtable<String, QueryPrompt> userQueryPrompts =
-                new OrderedHashtable<>();
+        OrderedHashtable<String, QueryPrompt> userQueryPrompts = new OrderedHashtable<>();
         this.checkNode("query");
 
         // The 'template' argument specifies whether the query result should follow a specific xml structure.
@@ -103,17 +101,11 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
 
         boolean defaultSearch = "true".equals(parser.getAttributeValue(null, "default_search"));
 
+        Multimap<String, XPathExpression> hiddenQueryValues = ArrayListMultimap.create();
         while (nextTagInBlock("query")) {
             String tagName = parser.getName();
             if ("data".equals(tagName)) {
-                String key = parser.getAttributeValue(null, "key");
-                String ref = parser.getAttributeValue(null, "ref");
-                try {
-                    hiddenQueryValues.put(key, XPathParseTool.parseXPath(ref));
-                } catch (XPathSyntaxException e) {
-                    String errorMessage = "'ref' value is not a valid xpath expression: " + ref;
-                    throw new InvalidStructureException(errorMessage, this.parser);
-                }
+                hiddenQueryValues.putAll(parseQueryData());
             } else if ("prompt".equals(tagName)) {
                 String key = parser.getAttributeValue(null, "key");
                 userQueryPrompts.put(key, new QueryPromptParser(parser).parse());
@@ -122,5 +114,22 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
 
         return new RemoteQueryDatum(queryUrl, queryResultStorageInstance,
                 hiddenQueryValues, userQueryPrompts, useCaseTemplate, defaultSearch);
+    }
+
+    private Multimap<String, XPathExpression> parseQueryData() throws InvalidStructureException {
+        String tagName = parser.getName();
+        if (!"data".equals(tagName)) {
+            throw new InvalidStructureException("Expected a 'data' element", this.parser);
+        }
+        Multimap<String, XPathExpression> hiddenQueryValues = ArrayListMultimap.create();
+        String key = parser.getAttributeValue(null, "key");
+        String ref = parser.getAttributeValue(null, "ref");
+        try {
+            hiddenQueryValues.put(key, XPathParseTool.parseXPath(ref));
+        } catch (XPathSyntaxException e) {
+            String errorMessage = "'ref' value is not a valid xpath expression: " + ref;
+            throw new InvalidStructureException(errorMessage, this.parser);
+        }
+        return hiddenQueryValues;
     }
 }
