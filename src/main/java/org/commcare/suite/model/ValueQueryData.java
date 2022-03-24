@@ -39,7 +39,7 @@ public class ValueQueryData implements QueryData {
 
     @Override
     public Iterable<String> getValues(EvaluationContext context) {
-        return Collections.singleton(FunctionUtils.toString(ref.eval(context)));
+        return Collections.singletonList(FunctionUtils.toString(ref.eval(context)));
     }
 
     @Override

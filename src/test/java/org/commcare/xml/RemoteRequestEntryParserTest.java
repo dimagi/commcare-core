@@ -46,7 +46,7 @@ public class RemoteRequestEntryParserTest {
         assertEquals(1, params.size());
         assertEquals("case_id", params.get(0).getKey());
 
-        EvaluationContext evalContext = new EvaluationContext(null, buildSessionInstance());
+        EvaluationContext evalContext = new EvaluationContext(null, TestInstances.getInstances());
         Multimap<String, String> evaluatedParams = post.getEvaluatedParams(evalContext);
         assertEquals(Arrays.asList("bang"), evaluatedParams.get("case_id"));
     }
@@ -63,15 +63,5 @@ public class RemoteRequestEntryParserTest {
         Field paramsField = PostRequest.class.getDeclaredField("params");
         paramsField.setAccessible(true);
         return (List<QueryData>)paramsField.get(post);
-    }
-
-    private Hashtable<String, DataInstance> buildSessionInstance() {
-        List<SimpleNode> nodes = ImmutableList.of(
-            SimpleNode.textNode("case_id", Collections.emptyMap(), "bang")
-        );
-        TreeElement root = TreeBuilder.buildTree("session", "session", nodes);
-        Hashtable<String, DataInstance> instances = new Hashtable<>();
-        instances.put("session", new VirtualDataInstance("session", root));
-        return instances;
     }
 }

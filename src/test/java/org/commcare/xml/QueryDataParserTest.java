@@ -3,8 +3,16 @@ package org.commcare.xml;
 import static org.junit.Assert.assertEquals;
 
 import org.commcare.suite.model.QueryData;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.junit.Test;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Hashtable;
 
 /**
  * Low level tests for query data parsing
@@ -12,10 +20,28 @@ import org.junit.Test;
 public class QueryDataParserTest {
 
     @Test
-    public void testQueryDataParser() throws InvalidStructureException {
-        String query = "<data key=\"device_id\" ref=\"instance('session')/session/context/deviceid\"/>";
+    public void testParseValueData() throws InvalidStructureException, XmlPullParserException, IOException {
+        String query = "<data key=\"device_id\" ref=\"instance('session')/session/case_id\"/>";
         QueryDataParser parser = ParserTestUtils.buildParser(query, QueryDataParser.class);
         QueryData queryData = parser.parse();
         assertEquals("device_id", queryData.getKey());
+
+        EvaluationContext evalContext = new EvaluationContext(null, TestInstances.getInstances());
+        assertEquals(Collections.singletonList("bang"), queryData.getValues(evalContext));
+    }
+
+    @Test
+    public void testParseListData() throws InvalidStructureException, XmlPullParserException, IOException {
+        String query = "<data key=\"case_id_list\">"
+                + "<list nodeset=\"instance('selected-cases')/session-data/value\" exclude=\"count(instance"
+                + "('casedb')/casedb/case[@case_id = current()/.]) = 1\" ref=\".\"/>"
+                + "</data>";
+        QueryDataParser parser = ParserTestUtils.buildParser(query, QueryDataParser.class);
+        QueryData queryData = parser.parse();
+        assertEquals("case_id_list", queryData.getKey());
+
+        Hashtable<String, DataInstance> instances = TestInstances.getInstances();
+        EvaluationContext evalContext = new EvaluationContext(null, instances);
+        assertEquals(Arrays.asList("456", "789"), queryData.getValues(evalContext));
     }
 }
