@@ -108,7 +108,7 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
         while (nextTagInBlock("query")) {
             String tagName = parser.getName();
             if ("data".equals(tagName)) {
-                hiddenQueryValues.add(parseQueryData());
+                hiddenQueryValues.add(new QueryDataParser(parser).parse());
             } else if ("prompt".equals(tagName)) {
                 String key = parser.getAttributeValue(null, "key");
                 userQueryPrompts.put(key, new QueryPromptParser(parser).parse());
@@ -117,22 +117,5 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
 
         return new RemoteQueryDatum(queryUrl, queryResultStorageInstance,
                 hiddenQueryValues, userQueryPrompts, useCaseTemplate, defaultSearch);
-    }
-
-    private QueryData parseQueryData() throws InvalidStructureException {
-        String tagName = parser.getName();
-        if (!"data".equals(tagName)) {
-            throw new InvalidStructureException("Expected a 'data' element", this.parser);
-        }
-        String key = parser.getAttributeValue(null, "key");
-        String ref = parser.getAttributeValue(null, "ref");
-        XPathExpression parseXPath;
-        try {
-            parseXPath = XPathParseTool.parseXPath(ref);
-        } catch (XPathSyntaxException e) {
-            String errorMessage = "'ref' value is not a valid xpath expression: " + ref;
-            throw new InvalidStructureException(errorMessage, this.parser);
-        }
-        return new ValueQueryData(key, parseXPath);
     }
 }

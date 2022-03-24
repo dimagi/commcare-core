@@ -14,14 +14,11 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.VirtualDataInstance;
-import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.junit.Test;
-import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -44,20 +41,28 @@ public class RemoteRequestEntryParserTest {
                 + "    </display>\n"
                 + "  </command>\n"
                 + "</remote-request>";
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(query.getBytes("UTF-8"));
-        KXmlParser parser = ElementParser.instantiateParser(inputStream);
-        EntryParser entryParser = EntryParser.buildRemoteSyncParser(parser);
-        RemoteRequestEntry entry = (RemoteRequestEntry)entryParser.parse();
-        PostRequest post = entry.getPostRequest();
-        Field paramsField = PostRequest.class.getDeclaredField("params");
-        paramsField.setAccessible(true);
-        List<QueryData> params = (List<QueryData>)paramsField.get(post);
+        PostRequest post = getRemoteRequestPost(query);
+        List<QueryData> params = getPostParams(post);
         assertEquals(1, params.size());
         assertEquals("case_id", params.get(0).getKey());
 
         EvaluationContext evalContext = new EvaluationContext(null, buildSessionInstance());
         Multimap<String, String> evaluatedParams = post.getEvaluatedParams(evalContext);
         assertEquals(Arrays.asList("bang"), evaluatedParams.get("case_id"));
+    }
+
+    private PostRequest getRemoteRequestPost(String xml)
+            throws UnfullfilledRequirementsException, InvalidStructureException, XmlPullParserException,
+            IOException {
+        EntryParser parser = ParserTestUtils.buildParser(xml, EntryParser::buildRemoteSyncParser);
+        RemoteRequestEntry entry = (RemoteRequestEntry)parser.parse();
+        return entry.getPostRequest();
+    }
+
+    private List<QueryData> getPostParams(PostRequest post) throws NoSuchFieldException, IllegalAccessException {
+        Field paramsField = PostRequest.class.getDeclaredField("params");
+        paramsField.setAccessible(true);
+        return (List<QueryData>)paramsField.get(post);
     }
 
     private Hashtable<String, DataInstance> buildSessionInstance() {

@@ -187,21 +187,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
 
         List<QueryData> postData = new ArrayList<QueryData>();
         while (nextTagInBlock("post")) {
-            if ("data".equals(parser.getName())) {
-                String refString = parser.getAttributeValue(null, "ref");
-                String key = parser.getAttributeValue(null, "key");
-                XPathExpression expr;
-                try {
-                    expr = XPathParseTool.parseXPath(refString);
-                } catch (XPathSyntaxException e) {
-                    String errorMessage = "'ref' value is not a valid xpath expression: " + refString;
-                    throw new InvalidStructureException(errorMessage, parser);
-                }
-                postData.add(new ValueQueryData(key, expr));
-            } else {
-                throw new InvalidStructureException("Expected <data> element in a <post> structure.",
-                        parser);
-            }
+            postData.add(new QueryDataParser(parser).parse());
         }
         return new PostRequest(url, relevantExpr, postData);
     }
