@@ -6,9 +6,11 @@ import com.google.common.collect.Multimap;
 import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.FormIdDatum;
+import org.commcare.suite.model.QueryData;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.ValueQueryData;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -21,6 +23,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 /**
  * @author ctsims
@@ -76,9 +79,7 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
 
     private RemoteQueryDatum parseRemoteQueryDatum()
             throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
-        Multimap<String, XPathExpression> hiddenQueryValues = ArrayListMultimap.create();
-        OrderedHashtable<String, QueryPrompt> userQueryPrompts =
-                new OrderedHashtable<>();
+        OrderedHashtable<String, QueryPrompt> userQueryPrompts = new OrderedHashtable<>();
         this.checkNode("query");
 
         // The 'template' argument specifies whether the query result should follow a specific xml structure.
@@ -103,17 +104,11 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
 
         boolean defaultSearch = "true".equals(parser.getAttributeValue(null, "default_search"));
 
+        ArrayList<QueryData> hiddenQueryValues = new ArrayList<QueryData>();
         while (nextTagInBlock("query")) {
             String tagName = parser.getName();
             if ("data".equals(tagName)) {
-                String key = parser.getAttributeValue(null, "key");
-                String ref = parser.getAttributeValue(null, "ref");
-                try {
-                    hiddenQueryValues.put(key, XPathParseTool.parseXPath(ref));
-                } catch (XPathSyntaxException e) {
-                    String errorMessage = "'ref' value is not a valid xpath expression: " + ref;
-                    throw new InvalidStructureException(errorMessage, this.parser);
-                }
+                hiddenQueryValues.add(new QueryDataParser(parser).parse());
             } else if ("prompt".equals(tagName)) {
                 String key = parser.getAttributeValue(null, "key");
                 userQueryPrompts.put(key, new QueryPromptParser(parser).parse());
