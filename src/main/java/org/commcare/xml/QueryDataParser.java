@@ -53,10 +53,14 @@ public class QueryDataParser extends CommCareElementParser<QueryData> {
         String exclude = parser.getAttributeValue(null, "exclude");
         String ref = parser.getAttributeValue(null, "ref");
 
+        XPathExpression excludeExpr = null;
+        if (exclude != null) {
+            excludeExpr = parseXpath(exclude);
+        }
         return new ListQueryData(
                 key,
                 XPathReference.getPathExpr(nodeset).getReference(),
-                parseXpath(exclude),
+                excludeExpr,
                 XPathReference.getPathExpr(ref)
         );
     }

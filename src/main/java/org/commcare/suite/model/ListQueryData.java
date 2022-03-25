@@ -57,7 +57,7 @@ public class ListQueryData implements QueryData {
 
         for (TreeReference node : result) {
             EvaluationContext temp = new EvaluationContext(ec, node);
-            if (!(boolean) excludeExpr.eval(temp)) {
+            if (excludeExpr == null || !(boolean) excludeExpr.eval(temp)) {
                 values.add(DatumUtil.getReturnValueFromSelection(node, ref, ec));
             }
         }
