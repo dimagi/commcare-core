@@ -1,6 +1,7 @@
 package org.commcare.xml;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.commcare.suite.model.QueryData;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -57,5 +58,40 @@ public class QueryDataParserTest {
         Hashtable<String, DataInstance> instances = TestInstances.getInstances();
         EvaluationContext evalContext = new EvaluationContext(null, instances);
         assertEquals(Arrays.asList("123", "456", "789"), queryData.getValues(evalContext));
+    }
+
+    @Test
+    public void testParseQueryData_doubleList() throws XmlPullParserException, IOException {
+        String query = "<data key=\"case_id_list\">"
+                + "<list nodeset=\"instance('selected-cases')/session-data/value\" ref=\".\"/>"
+                + "<list nodeset=\"instance('selected-cases')/session-data/value\" ref=\".\"/>"
+                + "</data>";
+        QueryDataParser parser = ParserTestUtils.buildParser(query, QueryDataParser.class);
+        try {
+            parser.parse();
+            fail("Expected InvalidStructureException");
+        } catch (InvalidStructureException ignored) {}
+    }
+
+    @Test
+    public void testParseQueryData_noRef() throws XmlPullParserException, IOException {
+        String query = "<data key=\"case_id_list\"></data>";
+        QueryDataParser parser = ParserTestUtils.buildParser(query, QueryDataParser.class);
+        try {
+            parser.parse();
+            fail("Expected InvalidStructureException");
+        } catch (InvalidStructureException ignored) {}
+    }
+
+    @Test
+    public void testParseQueryData_badNesting() throws XmlPullParserException, IOException {
+        String query = "<data key=\"case_id_list\">"
+                + "<data key=\"device_id\" ref=\"instance('session')/session/case_id\"/>"
+                + "</data>";
+        QueryDataParser parser = ParserTestUtils.buildParser(query, QueryDataParser.class);
+        try {
+            parser.parse();
+            fail("Expected InvalidStructureException");
+        } catch (InvalidStructureException ignored) {}
     }
 }

@@ -12,6 +12,8 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Parser for parsing <data> elements
@@ -24,9 +26,7 @@ public class QueryDataParser extends CommCareElementParser<QueryData> {
 
     @Override
     public QueryData parse() throws InvalidStructureException, XmlPullParserException, IOException {
-        if (!"data".equals(parser.getName())) {
-            throw new InvalidStructureException("Expected <data> instead found " + this.parser.getName() + ">", this.parser);
-        }
+        checkNode("data");
 
         String key = parser.getAttributeValue(null, "key");
         String ref = parser.getAttributeValue(null, "ref");
@@ -34,13 +34,15 @@ public class QueryDataParser extends CommCareElementParser<QueryData> {
             return getValueQueryData(key, ref);
         }
 
-        parser.nextTag();
-        String tagName = parser.getName();
-        if ("list".equals(tagName)) {
-            return getListQueryData(key, parser);
+        List<QueryData> listQueryData = new ArrayList<>();
+        while (nextTagInBlock("data")) {
+            listQueryData.add(getListQueryData(key, parser));
+        }
+        if (listQueryData.size() == 1) {
+            return listQueryData.get(0);
         }
 
-        throw new InvalidStructureException("Expected <data> to have a 'ref' attribute or a <list> child"
+        throw new InvalidStructureException("Expected <data> to have a 'ref' attribute or a single <list> child"
                 + this.parser.getName() + ">", this.parser);
     }
 
@@ -49,6 +51,7 @@ public class QueryDataParser extends CommCareElementParser<QueryData> {
     }
 
     private QueryData getListQueryData(String key, KXmlParser parser) throws InvalidStructureException {
+        checkNode("list");
         String nodeset = parser.getAttributeValue(null, "nodeset");
         String exclude = parser.getAttributeValue(null, "exclude");
         String ref = parser.getAttributeValue(null, "ref");
