@@ -7,6 +7,9 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.expr.XPathPathExpr;
 
+/**
+ * Utils for getting values for datums
+ */
 public class DatumUtil {
 
     public static String getReturnValueFromSelection(TreeReference contextRef, SessionDatum needed,

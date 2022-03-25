@@ -2,18 +2,12 @@ package org.commcare.xml;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 
-import org.commcare.data.xml.SimpleNode;
-import org.commcare.data.xml.TreeBuilder;
 import org.commcare.suite.model.PostRequest;
 import org.commcare.suite.model.QueryData;
 import org.commcare.suite.model.RemoteRequestEntry;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.core.model.instance.VirtualDataInstance;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.junit.Test;
@@ -22,10 +16,11 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Hashtable;
 import java.util.List;
 
+/**
+ * Tests for {@link EntryParser} when parsing {@code <remote-request>} elements.
+ */
 public class RemoteRequestEntryParserTest {
 
     @Test

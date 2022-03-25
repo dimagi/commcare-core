@@ -20,13 +20,13 @@ import java.util.Vector;
 /**
  * Data class for list query data elements
  *
- * ```
+ * <pre>{@code
  * <data key="case_id_list">
  *   <list nodeset="instance('selected-cases')/session-data/value"
  *         exclude="count(instance('casedb')/casedb/case[@case_id = current()/.]) = 1"
  *         ref="."/>
  * </data>
- * ```
+ * }</pre>
  */
 public class ListQueryData implements QueryData {
     private String key;

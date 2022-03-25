@@ -15,10 +15,9 @@ import java.util.Collections;
 
 /**
  * Data class for single value query data elements
- *
- * ```
- * <data key="device_id" ref="instance('session')/session/context/deviceid"/>
- * ```
+ * <pre>{@code
+ *  <data key="device_id" ref="instance('session')/session/context/deviceid"/>
+ * }</pre>
  */
 public class ValueQueryData implements QueryData {
     private String key;

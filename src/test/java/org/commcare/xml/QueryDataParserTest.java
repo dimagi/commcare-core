@@ -47,7 +47,8 @@ public class QueryDataParserTest {
     }
 
     @Test
-    public void testParseListData_noExclude() throws InvalidStructureException, XmlPullParserException, IOException {
+    public void testParseListData_noExclude() throws InvalidStructureException, XmlPullParserException,
+            IOException {
         String query = "<data key=\"case_id_list\">"
                 + "<list nodeset=\"instance('selected-cases')/session-data/value\" ref=\".\"/>"
                 + "</data>";

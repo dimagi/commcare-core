@@ -7,6 +7,9 @@ import java.io.ByteArrayInputStream;
 import java.lang.reflect.Constructor;
 import java.util.function.Function;
 
+/**
+ * Helper functions for building parsers
+ */
 public class ParserTestUtils {
 
     public static <T extends CommCareElementParser> T buildParser(String xml, Class<T> parserClass) {

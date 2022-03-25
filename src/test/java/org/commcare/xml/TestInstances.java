@@ -13,6 +13,9 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 
+/**
+ * Utilities for building mock {@link DataInstance} objects for tests.
+ */
 public class TestInstances {
 
     private static final String SELECTED_CASES = "selected-cases";

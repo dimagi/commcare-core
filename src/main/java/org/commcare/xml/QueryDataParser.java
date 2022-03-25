@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Parser for parsing <data> elements
+ * Parser for parsing {@code <data>} elements
  */
 public class QueryDataParser extends CommCareElementParser<QueryData> {
 
