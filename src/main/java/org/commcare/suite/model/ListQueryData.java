@@ -18,13 +18,13 @@ import java.util.List;
 import java.util.Vector;
 
 /**
- * Data class for single value query data elements
+ * Data class for list query data elements
  *
  * ```
  * <data key="case_id_list">
- *   <list nodeset="instance('selected_cases')/session-data"
- *         exclude="count(instance('casedb')/casedb/case[@case_id = current()/value] = 1)"
- *         ref="value"/>
+ *   <list nodeset="instance('selected-cases')/session-data/value"
+ *         exclude="count(instance('casedb')/casedb/case[@case_id = current()/.]) = 1"
+ *         ref="."/>
  * </data>
  * ```
  */
