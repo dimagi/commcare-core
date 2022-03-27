@@ -33,10 +33,10 @@ public class QueryDataParserTest {
 
     @Test
     public void testParseListData() throws InvalidStructureException, XmlPullParserException, IOException {
-        String query = "<data key=\"case_id_list\">"
-                + "<list nodeset=\"instance('selected-cases')/session-data/value\" exclude=\"count(instance"
-                + "('casedb')/casedb/case[@case_id = current()/.]) = 1\" ref=\".\"/>"
-                + "</data>";
+        String query = "<data key=\"case_id_list\""
+                + "nodeset=\"instance('selected-cases')/session-data/value\""
+                + "exclude=\"count(instance('casedb')/casedb/case[@case_id = current()/.]) = 1\""
+                + "ref=\".\"/>";
         QueryDataParser parser = ParserTestUtils.buildParser(query, QueryDataParser.class);
         QueryData queryData = parser.parse();
         assertEquals("case_id_list", queryData.getKey());
@@ -49,9 +49,9 @@ public class QueryDataParserTest {
     @Test
     public void testParseListData_noExclude() throws InvalidStructureException, XmlPullParserException,
             IOException {
-        String query = "<data key=\"case_id_list\">"
-                + "<list nodeset=\"instance('selected-cases')/session-data/value\" ref=\".\"/>"
-                + "</data>";
+        String query = "<data key=\"case_id_list\""
+                + "nodeset=\"instance('selected-cases')/session-data/value\""
+                + "ref=\".\"/>";
         QueryDataParser parser = ParserTestUtils.buildParser(query, QueryDataParser.class);
         QueryData queryData = parser.parse();
         assertEquals("case_id_list", queryData.getKey());
@@ -59,19 +59,6 @@ public class QueryDataParserTest {
         Hashtable<String, DataInstance> instances = TestInstances.getInstances();
         EvaluationContext evalContext = new EvaluationContext(null, instances);
         assertEquals(Arrays.asList("123", "456", "789"), queryData.getValues(evalContext));
-    }
-
-    @Test
-    public void testParseQueryData_doubleList() throws XmlPullParserException, IOException {
-        String query = "<data key=\"case_id_list\">"
-                + "<list nodeset=\"instance('selected-cases')/session-data/value\" ref=\".\"/>"
-                + "<list nodeset=\"instance('selected-cases')/session-data/value\" ref=\".\"/>"
-                + "</data>";
-        QueryDataParser parser = ParserTestUtils.buildParser(query, QueryDataParser.class);
-        try {
-            parser.parse();
-            fail("Expected InvalidStructureException");
-        } catch (InvalidStructureException ignored) {}
     }
 
     @Test
@@ -86,7 +73,7 @@ public class QueryDataParserTest {
 
     @Test
     public void testParseQueryData_badNesting() throws XmlPullParserException, IOException {
-        String query = "<data key=\"case_id_list\">"
+        String query = "<data key=\"case_id_list\" ref=\"true()\">"
                 + "<data key=\"device_id\" ref=\"instance('session')/session/case_id\"/>"
                 + "</data>";
         QueryDataParser parser = ParserTestUtils.buildParser(query, QueryDataParser.class);

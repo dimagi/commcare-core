@@ -22,13 +22,15 @@ import java.util.Collections;
 public class ValueQueryData implements QueryData {
     private String key;
     private XPathExpression ref;
+    private XPathExpression excludeExpr;
 
     @SuppressWarnings("unused")
     public ValueQueryData() {}
 
-    public ValueQueryData(String key, XPathExpression ref) {
+    public ValueQueryData(String key, XPathExpression ref, XPathExpression excludeExpr) {
         this.key = key;
         this.ref = ref;
+        this.excludeExpr = excludeExpr;
     }
 
     @Override
@@ -46,11 +48,21 @@ public class ValueQueryData implements QueryData {
             throws IOException, DeserializationException {
         key = ExtUtil.readString(in);
         ref = (XPathExpression) ExtUtil.read(in, new ExtWrapTagged(), pf);
+        boolean excludeIsNull = ExtUtil.readBool(in);
+        if (excludeIsNull) {
+            excludeExpr = null;
+        } else {
+            excludeExpr = (XPathExpression) ExtUtil.read(in, new ExtWrapTagged(), pf);
+        }
+
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, key);
         ExtUtil.write(out, new ExtWrapTagged(ref));
+        boolean excludeIsNull = excludeExpr == null;
+        ExtUtil.write(out, excludeIsNull);
+        ExtUtil.write(out, new ExtWrapTagged(excludeExpr));
     }
 }

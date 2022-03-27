@@ -30,42 +30,31 @@ public class QueryDataParser extends CommCareElementParser<QueryData> {
 
         String key = parser.getAttributeValue(null, "key");
         String ref = parser.getAttributeValue(null, "ref");
-        if (ref != null) {
-            return getValueQueryData(key, ref);
-        }
-
-        List<QueryData> listQueryData = new ArrayList<>();
-        while (nextTagInBlock("data")) {
-            listQueryData.add(getListQueryData(key, parser));
-        }
-        if (listQueryData.size() == 1) {
-            return listQueryData.get(0);
-        }
-
-        throw new InvalidStructureException("Expected <data> to have a 'ref' attribute or a single <list> child"
-                + this.parser.getName() + ">", this.parser);
-    }
-
-    private ValueQueryData getValueQueryData(String key, String ref) throws InvalidStructureException {
-        return new ValueQueryData(key, parseXpath(ref));
-    }
-
-    private QueryData getListQueryData(String key, KXmlParser parser) throws InvalidStructureException {
-        checkNode("list");
         String nodeset = parser.getAttributeValue(null, "nodeset");
         String exclude = parser.getAttributeValue(null, "exclude");
-        String ref = parser.getAttributeValue(null, "ref");
+
+        if (nextTagInBlock("data")) {
+            throw new InvalidStructureException("<data> block does not support nested elements", parser);
+        }
+
+        if (ref == null) {
+            throw new InvalidStructureException("<data> block must define a 'ref' attribute", parser);
+        }
 
         XPathExpression excludeExpr = null;
         if (exclude != null) {
             excludeExpr = parseXpath(exclude);
         }
-        return new ListQueryData(
-                key,
-                XPathReference.getPathExpr(nodeset).getReference(),
-                excludeExpr,
-                XPathReference.getPathExpr(ref)
-        );
+
+        if (nodeset != null) {
+            return new ListQueryData(
+                    key,
+                    XPathReference.getPathExpr(nodeset).getReference(),
+                    excludeExpr,
+                    XPathReference.getPathExpr(ref)
+            );
+        }
+        return new ValueQueryData(key, parseXpath(ref), excludeExpr);
     }
 
     private XPathExpression parseXpath(String ref) throws InvalidStructureException {
