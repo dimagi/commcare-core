@@ -28,6 +28,8 @@ import java.util.Vector;
  *   ref="."
  * />
  * }</pre>
+ *
+ * The {@code exclude} attribute is optional.
  */
 public class ListQueryData implements QueryData {
     private String key;

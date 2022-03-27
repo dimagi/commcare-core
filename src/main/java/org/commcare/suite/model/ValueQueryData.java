@@ -16,8 +16,14 @@ import java.util.Collections;
 /**
  * Data class for single value query data elements
  * <pre>{@code
- *  <data key="device_id" ref="instance('session')/session/context/deviceid"/>
+ *  <data
+ *    key="device_id"
+ *    ref="instance('session')/session/context/deviceid"
+ *    exclude="true()"
+ * />
  * }</pre>
+ *
+ * The {@code exclude} attribute is optional.
  */
 public class ValueQueryData implements QueryData {
     private String key;
