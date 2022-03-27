@@ -40,7 +40,10 @@ public class ValueQueryData implements QueryData {
 
     @Override
     public Iterable<String> getValues(EvaluationContext context) {
-        return Collections.singletonList(FunctionUtils.toString(ref.eval(context)));
+        if (excludeExpr == null || !(boolean) excludeExpr.eval(context)) {
+            return Collections.singletonList(FunctionUtils.toString(ref.eval(context)));
+        }
+        return Collections.emptyList();
     }
 
     @Override

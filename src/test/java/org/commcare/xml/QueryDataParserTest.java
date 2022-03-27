@@ -32,6 +32,18 @@ public class QueryDataParserTest {
     }
 
     @Test
+    public void testParseValueData_withExclude() throws InvalidStructureException, XmlPullParserException, IOException {
+        String query = "<data key=\"device_id\" ref=\"instance('session')/session/case_id\""
+                + "exclude=\"true()\"/>";
+        QueryDataParser parser = ParserTestUtils.buildParser(query, QueryDataParser.class);
+        QueryData queryData = parser.parse();
+        assertEquals("device_id", queryData.getKey());
+
+        EvaluationContext evalContext = new EvaluationContext(null, TestInstances.getInstances());
+        assertEquals(Collections.emptyList(), queryData.getValues(evalContext));
+    }
+
+    @Test
     public void testParseListData() throws InvalidStructureException, XmlPullParserException, IOException {
         String query = "<data key=\"case_id_list\""
                 + "nodeset=\"instance('selected-cases')/session-data/value\""
