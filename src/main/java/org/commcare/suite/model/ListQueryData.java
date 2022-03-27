@@ -72,15 +72,21 @@ public class ListQueryData implements QueryData {
             throws IOException, DeserializationException {
         key = ExtUtil.readString(in);
         nodeset = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
-        excludeExpr = (XPathExpression) ExtUtil.read(in, new ExtWrapTagged(), pf);
         ref = (XPathPathExpr) ExtUtil.read(in, new ExtWrapTagged(), pf);
+        boolean excludeIsNull = ExtUtil.readBool(in);
+        if (excludeIsNull) {
+            excludeExpr = null;
+        } else {
+            excludeExpr = (XPathExpression) ExtUtil.read(in, new ExtWrapTagged(), pf);
+        }
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, key);
         ExtUtil.write(out, nodeset);
-        ExtUtil.write(out, new ExtWrapTagged(excludeExpr));
         ExtUtil.write(out, new ExtWrapTagged(ref));
+        boolean excludeIsNull = excludeExpr == null;
+        ExtUtil.write(out, excludeIsNull);
     }
 }
