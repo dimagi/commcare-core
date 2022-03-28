@@ -5,6 +5,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -21,12 +22,15 @@ import java.util.Vector;
  * Data class for list query data elements
  *
  * <pre>{@code
- * <data key="case_id_list">
- *   <list nodeset="instance('selected-cases')/session-data/value"
- *         exclude="count(instance('casedb')/casedb/case[@case_id = current()/.]) = 1"
- *         ref="."/>
- * </data>
+ * <data
+ *   key="case_id_list">
+ *   nodeset="instance('selected-cases')/session-data/value"
+ *   exclude="count(instance('casedb')/casedb/case[@case_id = current()/.]) = 1"
+ *   ref="."
+ * />
  * }</pre>
+ * <p>
+ * The {@code exclude} attribute is optional.
  */
 public class ListQueryData implements QueryData {
     private String key;
@@ -69,15 +73,15 @@ public class ListQueryData implements QueryData {
             throws IOException, DeserializationException {
         key = ExtUtil.readString(in);
         nodeset = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
-        excludeExpr = (XPathExpression) ExtUtil.read(in, new ExtWrapTagged(), pf);
         ref = (XPathPathExpr) ExtUtil.read(in, new ExtWrapTagged(), pf);
+        excludeExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, key);
         ExtUtil.write(out, nodeset);
-        ExtUtil.write(out, new ExtWrapTagged(excludeExpr));
         ExtUtil.write(out, new ExtWrapTagged(ref));
+        ExtUtil.write(out, new ExtWrapNullable(excludeExpr == null ? null : new ExtWrapTagged(excludeExpr)));
     }
 }
