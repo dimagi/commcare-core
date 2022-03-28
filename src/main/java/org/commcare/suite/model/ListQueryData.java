@@ -5,6 +5,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -73,12 +74,7 @@ public class ListQueryData implements QueryData {
         key = ExtUtil.readString(in);
         nodeset = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
         ref = (XPathPathExpr) ExtUtil.read(in, new ExtWrapTagged(), pf);
-        boolean excludeIsNull = ExtUtil.readBool(in);
-        if (excludeIsNull) {
-            excludeExpr = null;
-        } else {
-            excludeExpr = (XPathExpression) ExtUtil.read(in, new ExtWrapTagged(), pf);
-        }
+        excludeExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
     }
 
     @Override
@@ -86,7 +82,6 @@ public class ListQueryData implements QueryData {
         ExtUtil.writeString(out, key);
         ExtUtil.write(out, nodeset);
         ExtUtil.write(out, new ExtWrapTagged(ref));
-        boolean excludeIsNull = excludeExpr == null;
-        ExtUtil.write(out, excludeIsNull);
+        ExtUtil.write(out, new ExtWrapNullable(excludeExpr == null ? null : new ExtWrapTagged(excludeExpr)));
     }
 }

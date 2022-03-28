@@ -8,6 +8,7 @@ import org.commcare.suite.model.PostRequest;
 import org.commcare.suite.model.QueryData;
 import org.commcare.suite.model.RemoteRequestEntry;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.test_utils.ReflectionUtils;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.junit.Test;
@@ -37,7 +38,7 @@ public class RemoteRequestEntryParserTest {
                 + "  </command>\n"
                 + "</remote-request>";
         PostRequest post = getRemoteRequestPost(query);
-        List<QueryData> params = getPostParams(post);
+        List<QueryData> params = (List<QueryData>) ReflectionUtils.getField(post, "params");
         assertEquals(1, params.size());
         assertEquals("case_id", params.get(0).getKey());
 
@@ -52,11 +53,5 @@ public class RemoteRequestEntryParserTest {
         EntryParser parser = ParserTestUtils.buildParser(xml, EntryParser::buildRemoteSyncParser);
         RemoteRequestEntry entry = (RemoteRequestEntry)parser.parse();
         return entry.getPostRequest();
-    }
-
-    private List<QueryData> getPostParams(PostRequest post) throws NoSuchFieldException, IllegalAccessException {
-        Field paramsField = PostRequest.class.getDeclaredField("params");
-        paramsField.setAccessible(true);
-        return (List<QueryData>)paramsField.get(post);
     }
 }

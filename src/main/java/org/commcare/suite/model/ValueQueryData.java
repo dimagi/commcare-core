@@ -3,6 +3,7 @@ package org.commcare.suite.model;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.expr.FunctionUtils;
@@ -57,12 +58,7 @@ public class ValueQueryData implements QueryData {
             throws IOException, DeserializationException {
         key = ExtUtil.readString(in);
         ref = (XPathExpression) ExtUtil.read(in, new ExtWrapTagged(), pf);
-        boolean excludeIsNull = ExtUtil.readBool(in);
-        if (excludeIsNull) {
-            excludeExpr = null;
-        } else {
-            excludeExpr = (XPathExpression) ExtUtil.read(in, new ExtWrapTagged(), pf);
-        }
+        excludeExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
 
     }
 
@@ -70,8 +66,6 @@ public class ValueQueryData implements QueryData {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, key);
         ExtUtil.write(out, new ExtWrapTagged(ref));
-        boolean excludeIsNull = excludeExpr == null;
-        ExtUtil.write(out, excludeIsNull);
-        ExtUtil.write(out, new ExtWrapTagged(excludeExpr));
+        ExtUtil.write(out, new ExtWrapNullable(excludeExpr == null ? null : new ExtWrapTagged(excludeExpr)));
     }
 }

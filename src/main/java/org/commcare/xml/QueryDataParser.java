@@ -41,6 +41,11 @@ public class QueryDataParser extends CommCareElementParser<QueryData> {
             throw new InvalidStructureException("<data> block must define a 'ref' attribute", parser);
         }
 
+        return buildQueryData(key, ref, exclude, nodeset);
+    }
+
+    public static QueryData buildQueryData(String key, String ref, String exclude, String nodeset)
+            throws InvalidStructureException {
         XPathExpression excludeExpr = null;
         if (exclude != null) {
             excludeExpr = parseXpath(exclude);
@@ -57,12 +62,12 @@ public class QueryDataParser extends CommCareElementParser<QueryData> {
         return new ValueQueryData(key, parseXpath(ref), excludeExpr);
     }
 
-    private XPathExpression parseXpath(String ref) throws InvalidStructureException {
+    private static XPathExpression parseXpath(String ref) throws InvalidStructureException {
         try {
             return XPathParseTool.parseXPath(ref);
         } catch (XPathSyntaxException e) {
             String errorMessage = "'ref' value is not a valid xpath expression: " + ref;
-            throw new InvalidStructureException(errorMessage, this.parser);
+            throw new InvalidStructureException(errorMessage);
         }
     }
 }
