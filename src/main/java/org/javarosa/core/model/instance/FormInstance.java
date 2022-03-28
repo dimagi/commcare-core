@@ -175,6 +175,7 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         super.readExternal(in, pf);
         schema = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        formVersion = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         dateSaved = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
 
         namespaces = (Hashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
@@ -185,6 +186,7 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
         ExtUtil.write(out, new ExtWrapNullable(schema));
+        ExtUtil.write(out, new ExtWrapNullable(formVersion));
         ExtUtil.write(out, new ExtWrapNullable(dateSaved));
         ExtUtil.write(out, new ExtWrapMap(namespaces));
 
