@@ -32,7 +32,8 @@ public class QueryDataParserTest {
     }
 
     @Test
-    public void testParseValueData_withExclude() throws InvalidStructureException, XmlPullParserException, IOException {
+    public void testParseValueData_withExclude() throws InvalidStructureException, XmlPullParserException,
+            IOException {
         String query = "<data key=\"device_id\" ref=\"instance('session')/session/case_id\""
                 + "exclude=\"true()\"/>";
         QueryDataParser parser = ParserTestUtils.buildParser(query, QueryDataParser.class);

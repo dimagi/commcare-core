@@ -65,7 +65,7 @@ public class QueryDataModelTest {
         byte[] bytes = mSandbox.serialize(value);
         T deserialized = mSandbox.deserialize(bytes, clazz);
         assertEquals(value.getKey(), deserialized.getKey());
-        for (String fieldName : fields){
+        for (String fieldName : fields) {
             assertEquals(
                     ReflectionUtils.getField(value, fieldName),
                     ReflectionUtils.getField(deserialized, fieldName)

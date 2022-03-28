@@ -23,7 +23,7 @@ import java.util.Collections;
  *    exclude="true()"
  * />
  * }</pre>
- *
+ * <p>
  * The {@code exclude} attribute is optional.
  */
 public class ValueQueryData implements QueryData {

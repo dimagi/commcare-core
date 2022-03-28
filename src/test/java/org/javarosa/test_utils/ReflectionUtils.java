@@ -6,7 +6,7 @@ import java.lang.reflect.Modifier;
 /**
  * ReflectionUtils is a collection of reflection-based utility methods for use in
  * unit testing scenarios.
- *
+ * <p>
  * Code adapter from org.springframework.test.util.ReflectionTestUtils
  */
 public class ReflectionUtils {
@@ -53,8 +53,7 @@ public class ReflectionUtils {
     private static Field[] getDeclaredFields(Class<?> clazz) {
         try {
             return clazz.getDeclaredFields();
-        }
-        catch (Throwable ex) {
+        } catch (Throwable ex) {
             throw new IllegalStateException("Failed to introspect Class [" + clazz.getName() +
                     "] from ClassLoader [" + clazz.getClassLoader() + "]", ex);
         }

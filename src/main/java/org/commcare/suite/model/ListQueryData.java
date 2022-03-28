@@ -29,7 +29,7 @@ import java.util.Vector;
  *   ref="."
  * />
  * }</pre>
- *
+ * <p>
  * The {@code exclude} attribute is optional.
  */
 public class ListQueryData implements QueryData {
