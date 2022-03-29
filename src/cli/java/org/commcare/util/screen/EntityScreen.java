@@ -8,18 +8,15 @@ import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
-import org.commcare.suite.model.MultiEntitiesDatum;
+import org.commcare.suite.model.MultiSelectEntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.DatumUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.util.NoLocalizedTextException;
-import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.expr.XPathPathExpr;
 
 import java.util.Hashtable;
 import java.util.Vector;
@@ -164,9 +161,9 @@ public class EntityScreen extends CompoundScreenHost {
 
         evalContext = mSession.getEvaluationContext();
 
-        if (mNeededDatum instanceof MultiEntitiesDatum) {
+        if (mNeededDatum instanceof MultiSelectEntityDatum) {
             isMultiSelect = true;
-            maxSelectValue = ((MultiEntitiesDatum)mNeededDatum).getMaxSelectValue();
+            maxSelectValue = ((MultiSelectEntityDatum)mNeededDatum).getMaxSelectValue();
         }
     }
 
