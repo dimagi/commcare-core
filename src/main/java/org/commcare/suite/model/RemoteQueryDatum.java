@@ -1,20 +1,19 @@
 package org.commcare.suite.model;
 
-import com.google.common.collect.Multimap;
-
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
-import org.javarosa.core.util.externalizable.ExtWrapMultiMap;
+import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xpath.expr.XPathExpression;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 /**
  * Entry config for querying a remote server with user and session provided
@@ -23,7 +22,7 @@ import java.net.URL;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class RemoteQueryDatum extends SessionDatum {
-    private Multimap<String, XPathExpression> hiddenQueryValues;
+    private List<QueryData> hiddenQueryValues;
     private OrderedHashtable<String, QueryPrompt> userQueryPrompts;
     private boolean useCaseTemplate;
     private boolean defaultSearch;
@@ -38,7 +37,7 @@ public class RemoteQueryDatum extends SessionDatum {
      *                        heterogeneity) in case data lookups
      */
     public RemoteQueryDatum(URL url, String storageInstance,
-                            Multimap<String, XPathExpression> hiddenQueryValues,
+            List<QueryData> hiddenQueryValues,
                             OrderedHashtable<String, QueryPrompt> userQueryPrompts,
                             boolean useCaseTemplate, boolean defaultSearch) {
         super(storageInstance, url.toString());
@@ -52,7 +51,7 @@ public class RemoteQueryDatum extends SessionDatum {
         return userQueryPrompts;
     }
 
-    public Multimap<String, XPathExpression> getHiddenQueryValues() {
+    public List<QueryData> getHiddenQueryValues() {
         return hiddenQueryValues;
     }
 
@@ -80,7 +79,7 @@ public class RemoteQueryDatum extends SessionDatum {
         super.readExternal(in, pf);
 
         hiddenQueryValues =
-                (Multimap<String, XPathExpression>)ExtUtil.read(in, new ExtWrapMultiMap(String.class), pf);
+                (List<QueryData>) ExtUtil.read(in, new ExtWrapList(new ExtWrapTagged()), pf);
         userQueryPrompts =
                 (OrderedHashtable<String, QueryPrompt>)ExtUtil.read(in,
                         new ExtWrapMap(String.class, QueryPrompt.class, ExtWrapMap.TYPE_ORDERED), pf);
@@ -91,7 +90,7 @@ public class RemoteQueryDatum extends SessionDatum {
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
-        ExtUtil.write(out, new ExtWrapMultiMap(hiddenQueryValues));
+        ExtUtil.write(out, new ExtWrapList(hiddenQueryValues, new ExtWrapTagged()));
         ExtUtil.write(out, new ExtWrapMap(userQueryPrompts));
         ExtUtil.writeBool(out, useCaseTemplate);
         ExtUtil.writeBool(out, defaultSearch);

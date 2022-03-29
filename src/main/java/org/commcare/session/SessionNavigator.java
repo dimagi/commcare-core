@@ -3,6 +3,7 @@ package org.commcare.session;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Text;
+import org.commcare.util.DatumUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
@@ -128,7 +129,7 @@ public class SessionNavigator {
             if (entityDatum.getLongDetail() == null) {
                 // No confirm detail defined for this entity select, so just set the case id right away
                 // and proceed
-                String autoSelectedCaseId = EntityDatum.getCaseIdFromReference(
+                String autoSelectedCaseId = DatumUtil.getReturnValueFromSelection(
                         currentAutoSelectedCase, entityDatum, ec);
                 currentSession.setDatum(entityDatum.getDataId(), autoSelectedCaseId);
                 startNextSessionStep();

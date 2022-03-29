@@ -11,6 +11,7 @@ import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.MultiEntitiesDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.DatumUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -18,6 +19,7 @@ import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.expr.XPathPathExpr;
 
 import java.util.Hashtable;
 import java.util.Vector;
@@ -194,20 +196,9 @@ public class EntityScreen extends CompoundScreenHost {
 
     @Trace
     public static String getReturnValueFromSelection(TreeReference contextRef, EntityDatum needed, EvaluationContext context) {
-        // grab the session's (form) element reference, and load it.
-        TreeReference elementRef =
-                XPathReference.getPathExpr(needed.getValue()).getReference();
-
-        AbstractTreeElement element =
-                context.resolveReference(elementRef.contextualize(contextRef));
-
-        String value = "";
-        // get the case id and add it to the intent
-        if (element != null && element.getValue() != null) {
-            value = element.getValue().uncast().getString();
-        }
-        return value;
+        return DatumUtil.getReturnValueFromSelection(contextRef, needed, context);
     }
+
 
     @Trace
     @Override
