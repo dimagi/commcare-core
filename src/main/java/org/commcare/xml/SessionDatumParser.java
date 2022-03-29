@@ -7,7 +7,7 @@ import org.commcare.cases.util.StringUtils;
 import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.FormIdDatum;
-import org.commcare.suite.model.MultiEntitiesDatum;
+import org.commcare.suite.model.MultiSelectEntityDatum;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
@@ -80,7 +80,7 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
             }
 
             if ("instance-datum".equals(name)) {
-                datum = new MultiEntitiesDatum(id, nodeset, shortDetail, longDetail, inlineDetail,
+                datum = new MultiSelectEntityDatum(id, nodeset, shortDetail, longDetail, inlineDetail,
                         persistentDetail, value, autoselect, maxSelectValue);
             } else {
                 datum = new EntityDatum(id, nodeset, shortDetail, longDetail, inlineDetail,

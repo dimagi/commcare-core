@@ -9,6 +9,7 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.MultiSelectEntityDatum;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.RemoteRequestEntry;
 import org.commcare.suite.model.SessionDatum;
@@ -232,7 +233,9 @@ public class CommCareSession {
             if (datumNeededForThisEntry != null) {
                 if (neededDatumId == null) {
                     neededDatumId = datumNeededForThisEntry.getDataId();
-                    if (datumNeededForThisEntry instanceof EntityDatum) {
+                    if (datumNeededForThisEntry instanceof MultiSelectEntityDatum) {
+                        datumNeededByAllEntriesSoFar = SessionFrame.STATE_MULTIPLE_DATUM_VAL;
+                    } else if (datumNeededForThisEntry instanceof EntityDatum) {
                         datumNeededByAllEntriesSoFar = SessionFrame.STATE_DATUM_VAL;
                     } else if (datumNeededForThisEntry instanceof ComputedDatum) {
                         datumNeededByAllEntriesSoFar = SessionFrame.STATE_DATUM_COMPUTED;
@@ -506,6 +509,7 @@ public class CommCareSession {
 
         for (StackFrameStep step : frame.getSteps()) {
             if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) ||
+                    SessionFrame.STATE_MULTIPLE_DATUM_VAL.equals(step.getType()) ||
                     SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType()) ||
                     SessionFrame.STATE_UNKNOWN.equals(step.getType()) &&
                             (guessUnknownType(step).equals(SessionFrame.STATE_DATUM_COMPUTED)

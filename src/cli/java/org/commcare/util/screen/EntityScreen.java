@@ -8,7 +8,7 @@ import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
-import org.commcare.suite.model.MultiEntitiesDatum;
+import org.commcare.suite.model.MultiSelectEntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -41,7 +41,7 @@ public class EntityScreen extends CompoundScreenHost {
 
     private Detail mShortDetail;
 
-    private EntityDatum mNeededDatum;
+    protected EntityDatum mNeededDatum;
     private Action mPendingAction;
 
     private Subscreen<EntityScreen> mCurrentScreen;
@@ -49,7 +49,7 @@ public class EntityScreen extends CompoundScreenHost {
     private boolean readyToSkip = false;
     private EvaluationContext evalContext;
 
-    private Hashtable<String, TreeReference> referenceMap;
+    protected Hashtable<String, TreeReference> referenceMap;
 
     private boolean handleCaseIndex;
     private boolean full = true;
@@ -58,9 +58,6 @@ public class EntityScreen extends CompoundScreenHost {
 
     private boolean initialized = false;
     private Action autoLaunchAction;
-
-    private boolean isMultiSelect = false;
-    private int maxSelectValue = -1;
 
     public EntityScreen(boolean handleCaseIndex) {
         this.handleCaseIndex = handleCaseIndex;
@@ -79,7 +76,8 @@ public class EntityScreen extends CompoundScreenHost {
         this.full = full;
     }
 
-    public EntityScreen(boolean handleCaseIndex, boolean full, SessionWrapper session) throws CommCareSessionException {
+    public EntityScreen(boolean handleCaseIndex, boolean full, SessionWrapper session)
+            throws CommCareSessionException {
         this.handleCaseIndex = handleCaseIndex;
         this.full = full;
         this.setSession(session);
@@ -91,7 +89,8 @@ public class EntityScreen extends CompoundScreenHost {
         for (Action action : mShortDetail.getCustomActions(evalContext)) {
             if (action.isAutoLaunchAction(subContext)) {
                 // Supply an empty case list so we can "select" from it later using getEntityFromID
-                mCurrentScreen = new EntityListSubscreen(mShortDetail, new Vector<>(), evalContext, handleCaseIndex);
+                mCurrentScreen = new EntityListSubscreen(mShortDetail, new Vector<>(), evalContext,
+                        handleCaseIndex);
                 this.autoLaunchAction = action;
             }
         }
@@ -118,12 +117,14 @@ public class EntityScreen extends CompoundScreenHost {
 
         if (full || references.size() == 1) {
             referenceMap = new Hashtable<>();
-            EntityDatum needed = (EntityDatum) session.getNeededDatum();
-            for(TreeReference reference: references) {
-                referenceMap.put(getReturnValueFromSelection(reference, needed, evalContext), reference);
+            EntityDatum needed = (EntityDatum)session.getNeededDatum();
+            for (TreeReference reference : references) {
+                referenceMap.put(getReturnValueFromSelection(reference, needed, evalContext),
+                        reference);
             }
 
-            // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic setting
+            // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic
+            // setting
             evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56, -46.66));
 
             if (mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
@@ -133,16 +134,18 @@ public class EntityScreen extends CompoundScreenHost {
                     readyToSkip = true;
                 }
             } else {
-                mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext, handleCaseIndex);
+                mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext,
+                        handleCaseIndex);
             }
         }
         initialized = true;
     }
 
-    private void setSession(SessionWrapper session) throws CommCareSessionException {
+    protected void setSession(SessionWrapper session) throws CommCareSessionException {
         SessionDatum datum = session.getNeededDatum();
         if (!(datum instanceof EntityDatum)) {
-            throw new CommCareSessionException("Didn't find an entity select action where one is expected.");
+            throw new CommCareSessionException(
+                    "Didn't find an entity select action where one is expected.");
         }
         mNeededDatum = (EntityDatum)datum;
 
@@ -151,7 +154,9 @@ public class EntityScreen extends CompoundScreenHost {
 
         String detailId = mNeededDatum.getShortDetail();
         if (detailId == null) {
-            throw new CommCareSessionException("Can't handle entity selection with blank detail definition for datum " + mNeededDatum.getDataId());
+            throw new CommCareSessionException(
+                    "Can't handle entity selection with blank detail definition for datum "
+                            + mNeededDatum.getDataId());
         }
 
         mShortDetail = this.mPlatform.getDetail(detailId);
@@ -161,11 +166,6 @@ public class EntityScreen extends CompoundScreenHost {
         }
 
         evalContext = mSession.getEvaluationContext();
-
-        if (mNeededDatum instanceof MultiEntitiesDatum) {
-            isMultiSelect = true;
-            maxSelectValue = ((MultiEntitiesDatum)mNeededDatum).getMaxSelectValue();
-        }
     }
 
     @Trace
@@ -192,8 +192,13 @@ public class EntityScreen extends CompoundScreenHost {
         return mCurrentScreen;
     }
 
+    protected String getReturnValueFromSelection(TreeReference contextRef) {
+        return getReturnValueFromSelection(contextRef, mNeededDatum, evalContext);
+    }
+
     @Trace
-    public static String getReturnValueFromSelection(TreeReference contextRef, EntityDatum needed, EvaluationContext context) {
+    public static String getReturnValueFromSelection(TreeReference contextRef, EntityDatum needed,
+            EvaluationContext context) {
         // grab the session's (form) element reference, and load it.
         TreeReference elementRef =
                 XPathReference.getPathExpr(needed.getValue()).getReference();
@@ -212,14 +217,21 @@ public class EntityScreen extends CompoundScreenHost {
     @Trace
     @Override
     protected void updateSession(CommCareSession session) {
-        if (mPendingAction != null) {
-            session.executeStackOperations(mPendingAction.getStackOperations(), evalContext);
+        if (executePendingAction(session)) {
             return;
         }
 
-        String selectedValue = this.getReturnValueFromSelection(this.mCurrentSelection,
+        String selectedValue = getReturnValueFromSelection(this.mCurrentSelection,
                 mNeededDatum, evalContext);
         session.setDatum(mNeededDatum.getDataId(), selectedValue);
+    }
+
+    protected boolean executePendingAction(CommCareSession session) {
+        if (mPendingAction != null) {
+            session.executeStackOperations(mPendingAction.getStackOperations(), evalContext);
+            return true;
+        }
+        return false;
     }
 
     @Trace
@@ -229,14 +241,18 @@ public class EntityScreen extends CompoundScreenHost {
 
     @Trace
     public void setHighlightedEntity(String id) throws CommCareSessionException {
-        if (referenceMap == null) {
-            this.mCurrentSelection = mNeededDatum.getEntityFromID(evalContext, id);
-        } else {
-            this.mCurrentSelection = referenceMap.get(id);
-        }
+        mCurrentSelection = getEntityReference(id);
         if (this.mCurrentSelection == null) {
             throw new CommCareSessionException("Could not select case " + id + " on this screen. " +
                     " If this error persists please report a bug to CommCareHQ.");
+        }
+    }
+
+    protected TreeReference getEntityReference(String id) {
+        if (referenceMap == null) {
+            return mNeededDatum.getEntityFromID(evalContext, id);
+        } else {
+            return referenceMap.get(id);
         }
     }
 
@@ -254,10 +270,13 @@ public class EntityScreen extends CompoundScreenHost {
         Detail[] longDetailList = getLongDetailList(this.mCurrentSelection);
         TreeReference detailNodeset = longDetailList[index].getNodeset();
         if (detailNodeset != null) {
-            TreeReference contextualizedNodeset = detailNodeset.contextualize(this.mCurrentSelection);
-            this.mCurrentScreen = new EntityListSubscreen(longDetailList[index], subContext.expandReference(contextualizedNodeset), subContext, handleCaseIndex);
+            TreeReference contextualizedNodeset = detailNodeset.contextualize(
+                    this.mCurrentSelection);
+            this.mCurrentScreen = new EntityListSubscreen(longDetailList[index],
+                    subContext.expandReference(contextualizedNodeset), subContext, handleCaseIndex);
         } else {
-            this.mCurrentScreen = new EntityDetailSubscreen(index, longDetailList[index], subContext, getDetailListTitles(subContext, this.mCurrentSelection));
+            this.mCurrentScreen = new EntityDetailSubscreen(index, longDetailList[index],
+                    subContext, getDetailListTitles(subContext, this.mCurrentSelection));
         }
     }
 
@@ -344,20 +363,12 @@ public class EntityScreen extends CompoundScreenHost {
         if (referenceMap != null) {
             return referenceMap.containsKey(stepValue);
         }
-        for (TreeReference ref: references) {
+        for (TreeReference ref : references) {
             String id = getReturnValueFromSelection(ref, mNeededDatum, evalContext);
             if (id.equals(stepValue)) {
                 return true;
             }
         }
         return false;
-    }
-
-    public boolean isMultiSelect() {
-        return isMultiSelect;
-    }
-
-    public int getMaxSelectValue() {
-        return maxSelectValue;
     }
 }

@@ -37,6 +37,12 @@ public class SessionFrame implements Externalizable {
     public static final String STATE_DATUM_VAL = "CASE_ID";
 
     /**
+     * Similar to STATE_DATUM_VAL but allows for a reference to vector datum value to be stored
+     * against it
+     */
+    public static final String STATE_MULTIPLE_DATUM_VAL = "SELECTED_CASES";
+
+    /**
      * Signifies that the frame should be rewound to the last MARK, setting the
      * MARK's datum id (which is the next needed datum at that point in the frame)
      * to the value carried in the rewind.
