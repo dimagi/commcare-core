@@ -11,16 +11,16 @@ import java.io.IOException;
 /**
  * Special kind of EntityDatum that allows for selection of multiple entities in the session
  */
-public class MultiEntitiesDatum extends EntityDatum {
+public class MultiSelectEntityDatum extends EntityDatum {
 
     private int maxSelectValue = -1;
 
     @SuppressWarnings("unused")
-    public MultiEntitiesDatum() {
+    public MultiSelectEntityDatum() {
         // used in serialization
     }
 
-    public MultiEntitiesDatum(String id, String nodeset, String shortDetail, String longDetail,
+    public MultiSelectEntityDatum(String id, String nodeset, String shortDetail, String longDetail,
             String inlineDetail, String persistentDetail, String value, String autoselect,
             int maxSelectValue) {
         super(id, nodeset, shortDetail, longDetail, inlineDetail, persistentDetail, value,
