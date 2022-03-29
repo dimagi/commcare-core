@@ -8,7 +8,6 @@ import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
-import org.commcare.suite.model.MultiSelectEntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.DatumUtil;
@@ -127,7 +126,7 @@ public class EntityScreen extends CompoundScreenHost {
             evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56, -46.66));
 
             if (mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
-                this.setHighlightedEntity(references.firstElement());
+                this.setSelectedEntity(references.firstElement());
                 if (!this.setCurrentScreenToDetail()) {
                     this.updateSession(session);
                     readyToSkip = true;
@@ -222,12 +221,12 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     @Trace
-    public void setHighlightedEntity(TreeReference selection) {
+    public void setSelectedEntity(TreeReference selection) {
         this.mCurrentSelection = selection;
     }
 
     @Trace
-    public void setHighlightedEntity(String id) throws CommCareSessionException {
+    public void setSelectedEntity(String id) throws CommCareSessionException {
         mCurrentSelection = getEntityReference(id);
         if (this.mCurrentSelection == null) {
             throw new CommCareSessionException("Could not select case " + id + " on this screen. " +

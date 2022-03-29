@@ -37,7 +37,8 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     private boolean handleCaseIndex;
 
-    public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context, boolean handleCaseIndex) throws CommCareSessionException {
+    public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context,
+            boolean handleCaseIndex) throws CommCareSessionException {
         mHeader = createHeader(shortDetail, context);
         this.shortDetail = shortDetail;
         this.rootContext = context;
@@ -49,8 +50,8 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     }
 
     public static String[] getRows(TreeReference[] references,
-                                   EvaluationContext evaluationContext,
-                                   Detail detail) {
+            EvaluationContext evaluationContext,
+            Detail detail) {
         String[] rows = new String[references.length];
         int i = 0;
         for (TreeReference entity : references) {
@@ -65,9 +66,9 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     }
 
     private static String createRow(TreeReference entity,
-                                    boolean collectDebug,
-                                    EvaluationContext evaluationContext,
-                                    Detail detail) {
+            boolean collectDebug,
+            EvaluationContext evaluationContext,
+            Detail detail) {
         EvaluationContext context = new EvaluationContext(evaluationContext, entity);
         EvaluationTraceReporter reporter = new AccumulatingReporter();
 
@@ -175,7 +176,8 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     public void prompt(PrintStream out) {
         int maxLength = String.valueOf(mChoices.length).length();
         out.println(ScreenUtils.pad("", maxLength + 1) + mHeader);
-        out.println("==============================================================================================");
+        out.println(
+                "==============================================================================================");
 
         for (int i = 0; i < mChoices.length; ++i) {
             String d = rows[i];
@@ -198,7 +200,8 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     }
 
     @Override
-    public boolean handleInputAndUpdateHost(String input, EntityScreen host, boolean allowAutoLaunch) throws CommCareSessionException {
+    public boolean handleInputAndUpdateHost(String input, EntityScreen host, boolean allowAutoLaunch,
+            String[] selectedValues) throws CommCareSessionException {
         if (input.startsWith("action ") && actions != null) {
             int chosenActionIndex;
             try {
@@ -235,7 +238,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         if (handleCaseIndex) {
             try {
                 int index = Integer.parseInt(input);
-                host.setHighlightedEntity(mChoices[index]);
+                host.setSelectedEntity(mChoices[index]);
                 // Set entity screen to show detail and redraw
                 host.setCurrentScreenToDetail();
                 return true;
@@ -243,12 +246,21 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                 // This will result in things just executing again, which is fine.
             }
         } else {
-            host.setHighlightedEntity(input);
-            // Set entity screen to show detail and redraw
-            host.setCurrentScreenToDetail();
+            updateSelectedEntities(host, input, selectedValues);
             return true;
         }
         return false;
+    }
+
+    private void updateSelectedEntities(EntityScreen host, String input, String[] selectedValues)
+            throws CommCareSessionException {
+        if (host instanceof MultiSelectEntityScreen) {
+            ((MultiSelectEntityScreen)host).setSelectedEntities(input, selectedValues);
+        } else {
+            host.setSelectedEntity(input);
+            // Set entity screen to show detail and redraw
+            host.setCurrentScreenToDetail();
+        }
     }
 
     public Detail getShortDetail() {

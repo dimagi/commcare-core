@@ -165,7 +165,7 @@ public class StackFrameStepTests {
         screen.setClient(new MockQueryClient(response));
 
         // perform the query
-        boolean success = screen.handleInputAndUpdateSession(session, "", false);
+        boolean success = screen.handleInputAndUpdateSession(session, "", false, null);
         Assert.assertTrue(success);
 
         assertNull(session.getNeededDatum());

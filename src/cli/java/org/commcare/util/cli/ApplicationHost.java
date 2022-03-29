@@ -149,7 +149,7 @@ public class ApplicationHost {
             if (s instanceof SyncScreen) {
                 try {
                     s.init(mSession);
-                    s.handleInputAndUpdateSession(mSession, "", false);
+                    s.handleInputAndUpdateSession(mSession, "", false, null);
                 } catch (CommCareSessionException ccse) {
                     printErrorAndContinue("Error during session execution:", ccse);
                 }
@@ -309,7 +309,7 @@ public class ApplicationHost {
                         }
                     }
 
-                    screenIsRedrawing = !s.handleInputAndUpdateSession(mSession, input, false);
+                    screenIsRedrawing = !s.handleInputAndUpdateSession(mSession, input, false, null);
                     if (!screenIsRedrawing && !waitForCaseDetail) {
                         s = getNextScreen();
                     }

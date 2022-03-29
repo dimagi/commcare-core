@@ -135,7 +135,8 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
 
 
     @Override
-    public boolean handleInputAndUpdateHost(String input, EntityScreen host, boolean allowAutoLaunch) throws CommCareSessionException {
+    public boolean handleInputAndUpdateHost(String input, EntityScreen host,
+            boolean allowAutoLaunch, String[] selectedValues) throws CommCareSessionException {
         if (input.trim().equals("")) {
             return true;
         }

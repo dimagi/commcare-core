@@ -263,7 +263,8 @@ public class QueryScreen extends Screen {
 
     @Trace
     @Override
-    public boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch) {
+    public boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch,
+            String[] selectedValues) {
         String[] answers = input.split(",");
         Hashtable<String, String> userAnswers = new Hashtable<>();
         int count = 0;
