@@ -44,7 +44,7 @@ public abstract class Screen implements OptionsScreen {
      * @param input           the input provided by the user to the command line
      * @param allowAutoLaunch If this step is allowed to automatically launch an action,
      *                        assuming it has an autolaunch action specified.
-     * @param selectedValues
+     * @param selectedValues  Selected entities for a Multi Select Entity Screen
      * @return True if the session was updated and the app should proceed to the next phase, false
      * if the screen wants to continue being redrawn.
      */
