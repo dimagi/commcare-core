@@ -16,7 +16,7 @@ import java.sql.SQLException;
  */
 public class MultiSelectEntityScreen extends EntityScreen {
 
-    private static final CharSequence USE_SELECTED_VALUES = "use_selected_values";
+    public static final CharSequence USE_SELECTED_VALUES = "use_selected_values";
     private int maxSelectValue = -1;
 
     private final EntitiesSelectionCache entitiesSelectionCache;
@@ -89,5 +89,9 @@ public class MultiSelectEntityScreen extends EntityScreen {
 
     public int getMaxSelectValue() {
         return maxSelectValue;
+    }
+
+    public String getStorageReferenceId() {
+        return storageReferenceId;
     }
 }
