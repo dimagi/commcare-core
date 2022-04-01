@@ -35,7 +35,8 @@ public class VirtualInstances {
         for (String selectedValue : selectedValues) {
             nodes.add(SimpleNode.textNode(SELCTED_CASES_INSTANCE_NODE_NAME, selectedValue));
         }
-        TreeElement root = TreeBuilder.buildTree(instance.getInstanceId(), SELCTED_CASES_INSTANCE_ROOT_NAME, nodes);
+        TreeElement root = TreeBuilder.buildTree(instance.getInstanceId(), SELCTED_CASES_INSTANCE_ROOT_NAME,
+                nodes);
         return new VirtualDataInstance(SEARCH_INSTANCE_ID, root);
     }
 }
