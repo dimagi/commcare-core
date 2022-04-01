@@ -1,5 +1,6 @@
 package org.commcare.data.xml;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,10 @@ public class SimpleNode {
     private Map<String, String> attributes;
     private List<SimpleNode> children;
     private String value;
+
+    public static SimpleNode textNode(String name, String text) {
+        return textNode(name, Collections.emptyMap(), text);
+    }
 
     public static SimpleNode textNode(String name, Map<String, String> attributes, String text) {
         return new SimpleNode(name, attributes, text);
