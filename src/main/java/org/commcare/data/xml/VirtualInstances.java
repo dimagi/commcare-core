@@ -37,6 +37,6 @@ public class VirtualInstances {
         }
         TreeElement root = TreeBuilder.buildTree(instance.getInstanceId(), SELCTED_CASES_INSTANCE_ROOT_NAME,
                 nodes);
-        return new VirtualDataInstance(SEARCH_INSTANCE_ID, root);
+        return new VirtualDataInstance(instance.getInstanceId(), root);
     }
 }
