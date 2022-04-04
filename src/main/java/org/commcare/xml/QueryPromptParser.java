@@ -82,7 +82,8 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
                 itemsetBinding = parseItemset();
             }
         }
-        return new QueryPrompt(key, appearance, input, receive, hidden, display, itemsetBinding, defaultValue, allowBlankValue, exclude);
+        return new QueryPrompt(key, appearance, input, receive, hidden, display,
+                               itemsetBinding, defaultValue, allowBlankValue, exclude);
     }
 
     private ItemsetBinding parseItemset() throws IOException, XmlPullParserException, InvalidStructureException {
