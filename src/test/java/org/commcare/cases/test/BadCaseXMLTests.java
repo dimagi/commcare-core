@@ -1,8 +1,5 @@
 package org.commcare.cases.test;
 
-import org.commcare.cases.model.Case;
-import org.commcare.cases.model.CaseIndex;
-import org.commcare.core.parse.ParseUtils;
 import org.commcare.test.utilities.TestProfileConfiguration;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;

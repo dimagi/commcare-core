@@ -6,9 +6,6 @@ import org.junit.Test;
 
 import java.util.HashSet;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 /**
  * @author Clayton Sims (csims@dimagi.com)
  */

@@ -1,12 +1,10 @@
 package org.commcare.cases.query;
 
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.xpath.expr.XPathExpression;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 

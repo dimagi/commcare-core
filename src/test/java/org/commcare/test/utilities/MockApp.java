@@ -1,14 +1,12 @@
 package org.commcare.test.utilities;
 
-import org.commcare.modern.session.SessionWrapper;
+import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.commcare.core.parse.ParseUtils;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.util.engine.CommCareConfigEngine;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.services.storage.IStorageIndexedFactory;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.form.api.FormEntryController;
@@ -55,7 +53,7 @@ public class MockApp {
      * Loads the provided form and properly initializes external data instances,
      * such as the casedb and commcare session.
      */
-    public FormEntryController loadAndInitForm(String formFileInApp) {
+    public FormEntryController loadAndInitForm(String formFileInApp) throws RemoteInstanceFetcher.RemoteInstanceException {
         FormParseInit fpi = new FormParseInit(APP_BASE + formFileInApp);
         FormEntryController fec = fpi.getFormEntryController();
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());

@@ -1,12 +1,11 @@
 package org.commcare.backend.session.test;
 
 import org.commcare.modern.session.SessionWrapper;
+import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
-
-import org.commcare.session.SessionFrame;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

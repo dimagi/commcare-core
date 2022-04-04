@@ -1,5 +1,7 @@
 package org.commcare.session;
 
+import com.google.common.collect.Multimap;
+
 import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
@@ -461,7 +463,7 @@ public class CommCareSession {
         if (datum instanceof RemoteQueryDatum) {
             StackFrameStep step =
                     new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST,
-                            datum.getDataId(), datum.getValue(), queryResultInstance);
+                            datum.getDataId(), datum.getValue(), queryResultInstance.getSource());
             frame.pushStep(step);
             syncState();
         } else {
@@ -605,7 +607,8 @@ public class CommCareSession {
                                        InstanceInitializationFactory iif) {
         for (StackFrameStep step : frame.getSteps()) {
             if (step.hasXmlInstance()) {
-                instanceMap.put(step.getId(), step.getXmlInstance().initialize(iif, step.getId()));
+                ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(step.getId(), step.getXmlInstanceSource());
+                instanceMap.put(step.getId(), instance.initialize(iif, instance.getSource().getInstanceId()));
             }
         }
     }
@@ -941,8 +944,17 @@ public class CommCareSession {
         frame.addExtraTopStep(key, value);
     }
 
+    /**
+     * Get the 'extra' value for the given key.
+     * This method only supports keys that have a single value. For keys with multiple values
+     * use `getCurrentFrameStepExtras().get(key)` which returns a Collection of the values.
+     */
     public Object getCurrentFrameStepExtra(String key) {
-        return frame.getTopStepExtra(key);
+        return frame.getTopStep().getExtra(key);
+    }
+
+    public Multimap<String, Object> getCurrentFrameStepExtras() {
+        return frame.getTopStep().getExtras();
     }
 
     /**
@@ -966,7 +978,6 @@ public class CommCareSession {
         }
         restoredSession.setFrameStack(stackFrames);
         restoredSession.syncState();
-
         return restoredSession;
     }
 

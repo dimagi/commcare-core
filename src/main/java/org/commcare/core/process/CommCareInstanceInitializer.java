@@ -2,22 +2,27 @@ package org.commcare.core.process;
 
 import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
-import org.commcare.cases.instance.IndexedFixtureInstanceTreeElement;
 import org.commcare.cases.instance.LedgerInstanceTreeElement;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.sandbox.SandboxUtils;
+import org.commcare.session.CommCareSession;
+import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionInstanceBuilder;
+import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.User;
-import org.commcare.session.CommCareSession;
-import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.ConcreteInstanceRoot;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
+import org.javarosa.core.model.instance.InstanceRoot;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.CacheTable;
+
+import javax.annotation.Nonnull;
 
 /**
  * Initializes a CommCare DataInstance against a UserDataInterface and (sometimes) optional
@@ -69,7 +74,8 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
 
     @Override
-    public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
+    @Nonnull
+    public InstanceRoot generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
         if (ref.contains(LedgerInstanceTreeElement.MODEL_NAME)) {
             return setupLedgerData(instance);
@@ -84,32 +90,32 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         } else if (ref.contains("migration")) {
             return setupMigrationData(instance);
         }
-        return null;
+        return ConcreteInstanceRoot.NULL;
     }
 
-    protected AbstractTreeElement setupLedgerData(ExternalDataInstance instance) {
+    protected InstanceRoot setupLedgerData(ExternalDataInstance instance) {
         if (stockbase == null) {
             stockbase = new LedgerInstanceTreeElement(instance.getBase(), mSandbox.getLedgerStorage());
         } else {
             //re-use the existing model if it exists.
             stockbase.rebase(instance.getBase());
         }
-        return stockbase;
+        return new ConcreteInstanceRoot(stockbase);
     }
 
-    protected AbstractTreeElement setupCaseData(ExternalDataInstance instance) {
+    protected InstanceRoot setupCaseData(ExternalDataInstance instance) {
         if (casebase == null) {
             casebase = new CaseInstanceTreeElement(instance.getBase(), mSandbox.getCaseStorage());
         } else {
             //re-use the existing model if it exists.
             casebase.rebase(instance.getBase());
         }
-        return casebase;
+        return new ConcreteInstanceRoot(casebase);
     }
 
 
-    protected AbstractTreeElement setupFixtureData(ExternalDataInstance instance) {
-        return loadFixtureRoot(instance, instance.getReference());
+    protected InstanceRoot setupFixtureData(ExternalDataInstance instance) {
+        return new ConcreteInstanceRoot(loadFixtureRoot(instance, instance.getReference()));
     }
 
     protected static String getRefId(String reference) {
@@ -158,7 +164,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         }
     }
 
-    protected AbstractTreeElement setupSessionData(ExternalDataInstance instance) {
+    protected InstanceRoot setupSessionData(ExternalDataInstance instance) {
         if (this.mPlatform == null) {
             throw new RuntimeException("Cannot generate session instance with undeclared platform!");
         }
@@ -166,17 +172,23 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         TreeElement root =
                 SessionInstanceBuilder.getSessionInstance(session.getFrame(), getDeviceId(),
                         getVersionString(), getCurrentDrift(), u.getUsername(), u.getUniqueId(),
-                        u.getProperties()).getRoot();
+                        u.getProperties());
         root.setParent(instance.getBase());
-        return root;
+        return new ConcreteInstanceRoot(root);
     }
 
     protected long getCurrentDrift() {
         return 0;
     }
 
-    protected AbstractTreeElement setupRemoteData(ExternalDataInstance instance) {
-        return instance.getRoot();
+    protected InstanceRoot setupRemoteData(ExternalDataInstance instance) {
+        for (StackFrameStep step : session.getFrame().getSteps()) {
+            if (step.getId().equals(instance.getInstanceId()) && step.getType().equals(SessionFrame.STATE_QUERY_REQUEST)) {
+                ExternalDataInstanceSource source = step.getXmlInstanceSource();
+                return source;
+            }
+        }
+        return instance.getSource() == null ? ConcreteInstanceRoot.NULL : instance.getSource();
     }
 
     protected String getDeviceId() {
@@ -187,8 +199,8 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         return "CommCare Version: " + mPlatform.getMajorVersion() + "." + mPlatform.getMinorVersion();
     }
 
-    protected AbstractTreeElement setupMigrationData(ExternalDataInstance instance) {
-        return null;
+    protected InstanceRoot setupMigrationData(ExternalDataInstance instance) {
+        return ConcreteInstanceRoot.NULL;
     }
 
     public static class FixtureInitializationException extends RuntimeException {

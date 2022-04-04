@@ -241,7 +241,6 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                 return true;
             } catch (NumberFormatException e) {
                 // This will result in things just executing again, which is fine.
-                return false;
             }
         } else {
             host.setHighlightedEntity(input);
@@ -249,6 +248,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             host.setCurrentScreenToDetail();
             return true;
         }
+        return false;
     }
 
     public Detail getShortDetail() {

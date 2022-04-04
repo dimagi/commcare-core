@@ -1,6 +1,5 @@
 package org.commcare.util.screen;
 
-
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Entry;
@@ -14,6 +13,8 @@ import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.io.PrintStream;
 import java.util.Arrays;
+
+import datadog.trace.api.Trace;
 
 
 /**
@@ -49,10 +50,12 @@ public class MenuScreen extends Screen {
         }
     }
 
-    public void handleAutoMenuAdvance(SessionWrapper sessionWrapper) {
+    public boolean handleAutoMenuAdvance(SessionWrapper sessionWrapper) {
         if (mChoices.length == 1) {
             sessionWrapper.setCommand(mChoices[0].getCommandID());
+            return true;
         }
+        return false;
     }
 
     class ScreenLogger implements LoggerInterface {
@@ -95,11 +98,12 @@ public class MenuScreen extends Screen {
     }
 
     @Override
-    public void prompt(PrintStream out) {
+    public boolean prompt(PrintStream out) {
         for (int i = 0; i < mChoices.length; ++i) {
             MenuDisplayable d = mChoices[i];
             out.println(i + ") " + d.getDisplayText(mSession.getEvaluationContextWithAccumulatedInstances(d.getCommandID(), d.getRawText())));
         }
+        return true;
     }
 
     @Override
@@ -112,6 +116,7 @@ public class MenuScreen extends Screen {
         return ret;
     }
 
+    @Trace
     @Override
     public boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch) {
         try {
@@ -145,6 +150,6 @@ public class MenuScreen extends Screen {
 
     @Override
     public String toString() {
-        return "MenuScreen " + mTitle + " with choices " + Arrays.toString(mChoices);
+        return "MenuScreen['" + mTitle + "' with choices " + Arrays.toString(mChoices) + "]";
     }
 }

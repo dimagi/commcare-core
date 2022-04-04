@@ -1,5 +1,7 @@
 package org.commcare.util.screen;
 
+import com.google.common.collect.Multimap;
+
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Entry;
@@ -8,8 +10,8 @@ import org.commcare.suite.model.RemoteRequestEntry;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Hashtable;
 
+import datadog.trace.api.Trace;
 import okhttp3.Credentials;
 import okhttp3.HttpUrl;
 import okhttp3.MultipartBody;
@@ -83,19 +85,17 @@ public class SyncScreen extends Screen {
         return urlBuilder.build().toString();
     }
 
-    private static MultipartBody buildPostBody(Hashtable<String, String> params) {
+    private static MultipartBody buildPostBody(Multimap<String, String> params) {
         MultipartBody.Builder requestBodyBuilder = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM);
         // Add buffer param since this is necessary for some reason
         requestBodyBuilder.addFormDataPart("buffer", "buffer");
-        for (String key: params.keySet()) {
-            requestBodyBuilder.addFormDataPart(key, params.get(key));
-        }
+        params.forEach(requestBodyBuilder::addFormDataPart);
         return requestBodyBuilder.build();
     }
 
     private Response makeSyncRequest(PostRequest syncPost) throws CommCareSessionException, IOException {
-        Hashtable<String, String> params = syncPost.getEvaluatedParams(sessionWrapper.getEvaluationContext());
+        Multimap<String, String> params = syncPost.getEvaluatedParams(sessionWrapper.getEvaluationContext());
         String url = buildUrl(syncPost.getUrl().toString());
         printStream.println(String.format("Syncing with url %s and parameters %s", url, params));
         MultipartBody postBody = buildPostBody(params);
@@ -112,14 +112,16 @@ public class SyncScreen extends Screen {
     }
 
     @Override
-    public void prompt(PrintStream printStream) throws CommCareSessionException {
+    public boolean prompt(PrintStream printStream) throws CommCareSessionException {
         if (syncSuccessful) {
             printStream.println("Sync complete, press Enter to continue");
         } else {
             printStream.println("Sync failed, press Enter to retry");
         }
+        return true;
     }
 
+    @Trace
     @Override
     public boolean handleInputAndUpdateSession(CommCareSession commCareSession, String s, boolean allowAutoLaunch) throws CommCareSessionException {
         if (syncSuccessful) {

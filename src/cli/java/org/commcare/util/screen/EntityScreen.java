@@ -5,24 +5,23 @@ import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
-import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
+import org.commcare.suite.model.MultiSelectEntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.DatumUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
-import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.util.NoLocalizedTextException;
-import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.expr.XPathExpression;
 
 import java.util.Hashtable;
 import java.util.Vector;
+
+import datadog.trace.api.Trace;
 
 /**
  * Compound Screen to select an entity from a list and then display the one or more details that
@@ -59,6 +58,9 @@ public class EntityScreen extends CompoundScreenHost {
     private boolean initialized = false;
     private Action autoLaunchAction;
 
+    private boolean isMultiSelect = false;
+    private int maxSelectValue = -1;
+
     public EntityScreen(boolean handleCaseIndex) {
         this.handleCaseIndex = handleCaseIndex;
     }
@@ -94,6 +96,7 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
+    @Trace
     public void init(SessionWrapper session) throws CommCareSessionException {
         if (initialized) {
             return;
@@ -157,8 +160,14 @@ public class EntityScreen extends CompoundScreenHost {
         }
 
         evalContext = mSession.getEvaluationContext();
+
+        if (mNeededDatum instanceof MultiSelectEntityDatum) {
+            isMultiSelect = true;
+            maxSelectValue = ((MultiSelectEntityDatum)mNeededDatum).getMaxSelectValue();
+        }
     }
 
+    @Trace
     private Vector<TreeReference> expandEntityReferenceSet(EvaluationContext context) {
         return evalContext.expandReference(mNeededDatum.getNodeset());
     }
@@ -182,22 +191,13 @@ public class EntityScreen extends CompoundScreenHost {
         return mCurrentScreen;
     }
 
+    @Trace
     public static String getReturnValueFromSelection(TreeReference contextRef, EntityDatum needed, EvaluationContext context) {
-        // grab the session's (form) element reference, and load it.
-        TreeReference elementRef =
-                XPathReference.getPathExpr(needed.getValue()).getReference();
-
-        AbstractTreeElement element =
-                context.resolveReference(elementRef.contextualize(contextRef));
-
-        String value = "";
-        // get the case id and add it to the intent
-        if (element != null && element.getValue() != null) {
-            value = element.getValue().uncast().getString();
-        }
-        return value;
+        return DatumUtil.getReturnValueFromSelection(contextRef, needed, context);
     }
 
+
+    @Trace
     @Override
     protected void updateSession(CommCareSession session) {
         if (mPendingAction != null) {
@@ -210,10 +210,12 @@ public class EntityScreen extends CompoundScreenHost {
         session.setDatum(mNeededDatum.getDataId(), selectedValue);
     }
 
+    @Trace
     public void setHighlightedEntity(TreeReference selection) {
         this.mCurrentSelection = selection;
     }
 
+    @Trace
     public void setHighlightedEntity(String id) throws CommCareSessionException {
         if (referenceMap == null) {
             this.mCurrentSelection = mNeededDatum.getEntityFromID(evalContext, id);
@@ -221,7 +223,7 @@ public class EntityScreen extends CompoundScreenHost {
             this.mCurrentSelection = referenceMap.get(id);
         }
         if (this.mCurrentSelection == null) {
-            throw new CommCareSessionException("EntityScreen " + this.toString() + " could not select case " + id + "." +
+            throw new CommCareSessionException("Could not select case " + id + " on this screen. " +
                     " If this error persists please report a bug to CommCareHQ.");
         }
     }
@@ -337,5 +339,13 @@ public class EntityScreen extends CompoundScreenHost {
             }
         }
         return false;
+    }
+
+    public boolean isMultiSelect() {
+        return isMultiSelect;
+    }
+
+    public int getMaxSelectValue() {
+        return maxSelectValue;
     }
 }

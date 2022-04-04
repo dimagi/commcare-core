@@ -8,8 +8,8 @@ import org.commcare.core.parse.ParseUtils;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.resources.model.InstallCancelledException;
-import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.resources.model.ResourceInitializationException;
+import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Endpoint;
 import org.commcare.suite.model.FormIdDatum;
@@ -235,11 +235,13 @@ public class ApplicationHost {
                     printStream.println(s.getWrappedDisplaytitle(mSandbox, mPlatform));
 
                     printStream.println("====================");
-                    s.prompt(printStream);
-                    printStream.print("> ");
-
+                    boolean requiresInput = s.prompt(printStream);
                     screenIsRedrawing = false;
-                    String input = reader.readLine();
+                    String input = "";
+                    if (requiresInput) {
+                        printStream.print("> ");
+                        input = reader.readLine();
+                    }
 
                     //TODO: Command language
                     if (input.startsWith(":")) {

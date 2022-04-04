@@ -1,11 +1,9 @@
 package org.commcare.cases.util;
 
 import org.commcare.modern.util.Pair;
-import org.javarosa.core.util.ArrayUtilities;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Pattern;
 
 /**

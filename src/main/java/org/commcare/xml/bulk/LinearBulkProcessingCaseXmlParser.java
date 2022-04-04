@@ -1,7 +1,6 @@
 package org.commcare.xml.bulk;
 
 import org.commcare.cases.model.Case;
-import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.kxml2.io.KXmlParser;
 
@@ -10,7 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.SortedMap;
 
 /**
  * Reference implementation of BulkProcessingCaseXMLParser which can be used with no platform

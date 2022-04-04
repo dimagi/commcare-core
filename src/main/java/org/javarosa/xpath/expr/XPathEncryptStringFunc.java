@@ -1,13 +1,14 @@
 package org.javarosa.xpath.expr;
 
 
+import static org.commcare.util.EncryptionUtils.encrypt;
+
 import org.commcare.util.EncryptionUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-import static org.commcare.util.EncryptionUtils.encrypt;
 
 public class XPathEncryptStringFunc extends XPathFuncExpr {
     public static final String NAME = "encrypt-string";
@@ -30,9 +31,9 @@ public class XPathEncryptStringFunc extends XPathFuncExpr {
     /**
      * Encrypt a message with the given algorithm and key.
      *
-     * @param message   a message to be encrypted
-     * @param key       the key used for encryption
-     * @param algorithm the encryption algorithm to use
+     * @param o1   a message to be encrypted
+     * @param o2       the key used for encryption
+     * @param o3 the encryption algorithm to use
      */
     private static String encryptString(Object o1, Object o2, Object o3) {
         String message = FunctionUtils.toString(o1);

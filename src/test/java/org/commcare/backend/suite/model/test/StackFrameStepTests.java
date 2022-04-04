@@ -1,22 +1,27 @@
 package org.commcare.backend.suite.model.test;
 
+import com.google.common.collect.ImmutableMultimap;
+
 import org.commcare.modern.session.SessionWrapper;
+import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.test.utilities.PersistableSandbox;
-import org.commcare.session.SessionFrame;
-
+import org.commcare.util.mocks.MockQueryClient;
+import org.commcare.util.screen.QueryScreen;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.Vector;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -61,6 +66,7 @@ public class StackFrameStepTests {
         // or anything that implements Externalizable
         stepWithExtras = new StackFrameStep(SessionFrame.STATE_DATUM_COMPUTED, "datum_val_id", "datum_val2");
         stepWithExtras.addExtra("key", 123);
+        stepWithExtras.addExtra("key", 234);
 
         // Demonstrate how frame steps can't store non-externalizable data in extras
         stepWithBadExtras = new StackFrameStep(SessionFrame.STATE_DATUM_COMPUTED, "datum_val_id", "datum_val2");
@@ -132,5 +138,52 @@ public class StackFrameStepTests {
         assertEquals(5, session.getFrame().getSteps().size());
         session.stepBack();
         assertEquals(1, session.getFrame().getSteps().size());
+    }
+
+    /**
+     * Test that stacks with queries in them work and preserve all the data elements they contain
+     * even if they have duplicate keys.
+     */
+    @Test
+    public void stackWithQueries() throws Exception {
+        MockApp mApp = new MockApp("/queries_in_entry_and_stack/");
+        SessionWrapper session = mApp.getSession();
+        session.setCommand("m0-f0");
+
+        // check that session datum requirement is satisfied
+        assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        assertEquals("case_id", session.getNeededDatum().getDataId());
+        session.setDatum("case_id", "case_one");
+
+        assertEquals(SessionFrame.STATE_QUERY_REQUEST, session.getNeededData());
+        // construct the screen
+        QueryScreen screen = new QueryScreen("username", "password", System.out);
+        screen.init(session);
+
+        // mock the query response
+        InputStream response = this.getClass().getResourceAsStream("/case_claim_example/query_response.xml");
+        screen.setClient(new MockQueryClient(response));
+
+        // perform the query
+        boolean success = screen.handleInputAndUpdateSession(session, "", false);
+        Assert.assertTrue(success);
+
+        assertNull(session.getNeededDatum());
+
+        // execute entry stack
+        session.finishExecuteAndPop(session.getEvaluationContext());
+
+        // validate that the query step has all the correct entries (including 2 case_id entries)
+        Vector<StackFrameStep> steps = session.getFrame().getSteps();
+        assertEquals(4, steps.size());
+        StackFrameStep queryFrame = steps.get(2);
+        assertEquals(SessionFrame.STATE_QUERY_REQUEST, queryFrame.getElementType());
+
+        ImmutableMultimap.Builder<String, Object> builder = ImmutableMultimap.builder();
+        builder.put("case_type", "patient");
+        builder.put("x_commcare_data_registry", "test");
+        builder.put("case_id", "case_one");
+        builder.put("case_id", "dupe1");
+        assertEquals(builder.build(), queryFrame.getExtras());
     }
 }

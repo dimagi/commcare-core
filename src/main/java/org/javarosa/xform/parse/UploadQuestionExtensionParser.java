@@ -2,7 +2,6 @@ package org.javarosa.xform.parse;
 
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.UploadQuestionExtension;
-
 import org.kxml2.kdom.Element;
 
 /**

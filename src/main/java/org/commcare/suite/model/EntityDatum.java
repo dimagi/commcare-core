@@ -155,19 +155,4 @@ public class EntityDatum extends SessionDatum {
             return null;
         }
     }
-
-    public static String getCaseIdFromReference(TreeReference contextRef,
-                                                EntityDatum selectDatum,
-                                                EvaluationContext ec) {
-        // Grab the session's (form) element reference, and load it.
-        TreeReference elementRef =
-                XPathReference.getPathExpr(selectDatum.getValue()).getReference();
-        AbstractTreeElement element =
-                ec.resolveReference(elementRef.contextualize(contextRef));
-
-        if (element != null && element.getValue() != null) {
-            return element.getValue().uncast().getString();
-        }
-        return "";
-    }
 }

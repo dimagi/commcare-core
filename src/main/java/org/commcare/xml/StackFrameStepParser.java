@@ -1,7 +1,7 @@
 package org.commcare.xml;
 
-import org.commcare.suite.model.StackFrameStep;
 import org.commcare.session.SessionFrame;
+import org.commcare.suite.model.StackFrameStep;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathParseTool;
