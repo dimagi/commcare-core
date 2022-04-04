@@ -46,10 +46,21 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
         String hidden = parser.getAttributeValue(null, ATTR_HIDDEN);
         DisplayUnit display = null;
         ItemsetBinding itemsetBinding = null;
-        XPathExpression defaultValue = null;
-        boolean exclude = "true".equals(parser.getAttributeValue(null, ATTR_EXCLUDE));
-
         String defaultValueString = parser.getAttributeValue(null, ATTR_DEFAULT);
+        XPathExpression defaultValue = null;
+        String excludeValueString = parser.getAttributeValue(null, ATTR_EXCLUDE);
+        XPathExpression exclude = null;
+        if (excludeValueString != null) {
+            try {
+                exclude = XPathParseTool.parseXPath(excludeValueString);
+            } catch (XPathSyntaxException e) {
+                InvalidStructureException toThrow = new InvalidStructureException(String.format(
+                        "Invalid XPath Expression in QueryPrompt %s",
+                        e.getMessage()), parser);
+                toThrow.initCause(e);
+                throw toThrow;
+            }
+        }
         if(defaultValueString != null) {
             try {
                 defaultValue = XPathParseTool.parseXPath(defaultValueString);

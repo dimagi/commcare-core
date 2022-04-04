@@ -125,8 +125,8 @@ public class RemoteQuerySessionManager {
                 String key = (String)e.nextElement();
                 String value = userAnswers.get(key);
                 QueryPrompt prompt = queryDatum.getUserQueryPrompts().get(key);
-                boolean exclude = prompt.getExclude();
-                if (!StringUtils.isEmpty(value) && !exclude) {
+                XPathExpression excludeExpr = prompt.getExclude();
+                if (!StringUtils.isEmpty(value) && (excludeExpr == null || !(boolean) excludeExpr.eval(evaluationContext))) {
                     params.put(key, userAnswers.get(key));
                 }
             }

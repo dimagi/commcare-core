@@ -48,14 +48,15 @@ public class QueryPrompt implements Externalizable {
     @Nullable
     private ItemsetBinding itemsetBinding;
 
-    private boolean exclude;
+    @Nullable
+    private XPathExpression exclude;
 
     @SuppressWarnings("unused")
     public QueryPrompt() {
     }
 
     public QueryPrompt(String key, String appearance, String input, String receive,
-                       String hidden, DisplayUnit display, ItemsetBinding itemsetBinding, XPathExpression defaultValueExpr) {
+                       String hidden, DisplayUnit display, ItemsetBinding itemsetBinding, XPathExpression defaultValueExpr, XPathExpression exclude) {
         this.key = key;
         this.appearance = appearance;
         this.input = input;
@@ -77,7 +78,7 @@ public class QueryPrompt implements Externalizable {
         display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
         itemsetBinding = (ItemsetBinding)ExtUtil.read(in, new ExtWrapNullable(ItemsetBinding.class), pf);
         defaultValueExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
-        exclude = ExtUtil.readBool(in);
+        exclude = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
     }
 
     @Override
@@ -90,7 +91,7 @@ public class QueryPrompt implements Externalizable {
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapNullable(itemsetBinding));
         ExtUtil.write(out, new ExtWrapNullable(defaultValueExpr == null ? null : new ExtWrapTagged(defaultValueExpr)));
-        ExtUtil.writeBool(out, exclude);
+        ExtUtil.write(out, new ExtWrapNullable(exclude == null ? null : new ExtWrapTagged(exclude)));
     }
 
     public String getKey() {
@@ -131,7 +132,7 @@ public class QueryPrompt implements Externalizable {
         return defaultValueExpr;
     }
 
-    public boolean getExclude() {
+    public XPathExpression getExclude() {
         return exclude;
     }
 
