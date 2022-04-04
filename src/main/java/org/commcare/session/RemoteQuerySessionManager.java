@@ -124,7 +124,9 @@ public class RemoteQuerySessionManager {
             for (Enumeration e = userAnswers.keys(); e.hasMoreElements(); ) {
                 String key = (String)e.nextElement();
                 String value = userAnswers.get(key);
-                if (!StringUtils.isEmpty(value)) {
+                QueryPrompt prompt = queryDatum.getUserQueryPrompts().get(key);
+                boolean exclude = prompt.getExclude();
+                if (!StringUtils.isEmpty(value) && !exclude) {
                     params.put(key, userAnswers.get(key));
                 }
             }

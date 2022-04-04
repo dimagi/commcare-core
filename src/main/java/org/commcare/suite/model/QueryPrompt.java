@@ -48,6 +48,8 @@ public class QueryPrompt implements Externalizable {
     @Nullable
     private ItemsetBinding itemsetBinding;
 
+    private boolean exclude;
+
     @SuppressWarnings("unused")
     public QueryPrompt() {
     }
@@ -62,6 +64,7 @@ public class QueryPrompt implements Externalizable {
         this.display = display;
         this.itemsetBinding = itemsetBinding;
         this.defaultValueExpr = defaultValueExpr;
+        this.exclude = exclude;
     }
 
     @Override
@@ -74,6 +77,7 @@ public class QueryPrompt implements Externalizable {
         display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
         itemsetBinding = (ItemsetBinding)ExtUtil.read(in, new ExtWrapNullable(ItemsetBinding.class), pf);
         defaultValueExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
+        exclude = ExtUtil.readBool(in);
     }
 
     @Override
@@ -86,6 +90,7 @@ public class QueryPrompt implements Externalizable {
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapNullable(itemsetBinding));
         ExtUtil.write(out, new ExtWrapNullable(defaultValueExpr == null ? null : new ExtWrapTagged(defaultValueExpr)));
+        ExtUtil.writeBool(out, exclude);
     }
 
     public String getKey() {
@@ -124,6 +129,10 @@ public class QueryPrompt implements Externalizable {
     @Nullable
     public XPathExpression getDefaultValueExpr() {
         return defaultValueExpr;
+    }
+
+    public boolean getExclude() {
+        return exclude;
     }
 
     /**
