@@ -117,8 +117,7 @@ public class EntityScreen extends CompoundScreenHost {
             referenceMap = new Hashtable<>();
             EntityDatum needed = (EntityDatum)session.getNeededDatum();
             for (TreeReference reference : references) {
-                referenceMap.put(getReturnValueFromSelection(reference, needed, evalContext),
-                        reference);
+                referenceMap.put(getReturnValueFromSelection(reference, needed, evalContext), reference);
             }
 
             // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic
@@ -195,7 +194,8 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     @Trace
-    public static String getReturnValueFromSelection(TreeReference contextRef, EntityDatum needed, EvaluationContext context) {
+    public static String getReturnValueFromSelection(TreeReference contextRef, EntityDatum needed,
+            EvaluationContext context) {
         return DatumUtil.getReturnValueFromSelection(contextRef, needed, context);
     }
 
@@ -207,8 +207,7 @@ public class EntityScreen extends CompoundScreenHost {
             return;
         }
 
-        String selectedValue = getReturnValueFromSelection(this.mCurrentSelection,
-                mNeededDatum, evalContext);
+        String selectedValue = getReturnValueFromSelection(mCurrentSelection);
         session.setDatum(mNeededDatum.getDataId(), selectedValue);
     }
 
@@ -256,8 +255,7 @@ public class EntityScreen extends CompoundScreenHost {
         Detail[] longDetailList = getLongDetailList(this.mCurrentSelection);
         TreeReference detailNodeset = longDetailList[index].getNodeset();
         if (detailNodeset != null) {
-            TreeReference contextualizedNodeset = detailNodeset.contextualize(
-                    this.mCurrentSelection);
+            TreeReference contextualizedNodeset = detailNodeset.contextualize(this.mCurrentSelection);
             this.mCurrentScreen = new EntityListSubscreen(longDetailList[index],
                     subContext.expandReference(contextualizedNodeset), subContext, handleCaseIndex);
         } else {
@@ -350,7 +348,7 @@ public class EntityScreen extends CompoundScreenHost {
             return referenceMap.containsKey(stepValue);
         }
         for (TreeReference ref : references) {
-            String id = getReturnValueFromSelection(ref, mNeededDatum, evalContext);
+            String id = getReturnValueFromSelection(ref);
             if (id.equals(stepValue)) {
                 return true;
             }

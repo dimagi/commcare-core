@@ -36,8 +36,8 @@ public class MultiSelectEntityScreen extends EntityScreen {
             if (input.contentEquals(USE_SELECTED_VALUES)) {
                 processSelectedValues(selectedValues);
             } else {
-                String[] cachedSelction = entitiesSelectionCache.read(input);
-                if (cachedSelction == null) {
+                String[] cachedSelection = entitiesSelectionCache.read(input);
+                if (cachedSelection == null) {
                     throw new CommCareSessionException(
                             "Could not make selection with reference id " + input + " on this screen. " +
                                     " If this error persists please report a bug to CommCareHQ.");
