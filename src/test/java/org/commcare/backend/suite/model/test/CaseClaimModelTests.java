@@ -95,6 +95,14 @@ public class CaseClaimModelTests {
         testGetRawQueryParamsWithUserInput(Collections.emptyMap(), ImmutableList.of(""));
     }
 
+    @Test
+    public void testRemoteRequestSessionManager_getRawQueryParamsWithExclude() throws Exception {
+        testGetRawQueryParamsWithUserInputExcluded(
+                ImmutableMap.of("exclude_patient_id", "123"),
+                ImmutableList.of("")
+        );
+    }
+
     private void testGetRawQueryParamsWithUserInput(Map<String, String> userInput, List<String> expected)
             throws Exception {
         MockApp mApp = new MockApp("/case_claim_example/");
@@ -110,6 +118,23 @@ public class CaseClaimModelTests {
         Multimap<String, String> params = remoteQuerySessionManager.getRawQueryParams(true);
 
         Assert.assertEquals(expected, params.get("_xpath_query"));
+    }
+
+    private void testGetRawQueryParamsWithUserInputExcluded(Map<String, String> userInput, List<String> expected)
+            throws Exception {
+        MockApp mApp = new MockApp("/case_claim_example/");
+
+        SessionWrapper session = mApp.getSession();
+        session.setCommand("patient-search");
+
+        RemoteQuerySessionManager remoteQuerySessionManager = RemoteQuerySessionManager.buildQuerySessionManager(
+                session, session.getEvaluationContext(), new ArrayList<>());
+
+        userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
+
+        Multimap<String, String> params = remoteQuerySessionManager.getRawQueryParams(false);
+
+        Assert.assertEquals(expected, params.get("_xpath_query_exclude"));
     }
 
     private VirtualDataInstance buildDistrictInstance() {
