@@ -87,6 +87,17 @@ public class MultiSelectEntityScreen extends EntityScreen {
         }
     }
 
+    @Override
+    public boolean referencesContainStep(String stepValue) {
+        try {
+            String[] cachedSelection = entitiesSelectionCache.read(stepValue);
+            return cachedSelection != null;
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return false;
+    }
+
     public int getMaxSelectValue() {
         return maxSelectValue;
     }
