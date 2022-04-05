@@ -13,4 +13,6 @@ public interface EntitiesSelectionCache {
 
     @Nullable
     String[] read(String key) throws SQLException;
+
+    boolean contains(String key) throws SQLException;
 }

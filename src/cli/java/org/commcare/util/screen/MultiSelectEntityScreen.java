@@ -90,12 +90,10 @@ public class MultiSelectEntityScreen extends EntityScreen {
     @Override
     public boolean referencesContainStep(String stepValue) {
         try {
-            String[] cachedSelection = entitiesSelectionCache.read(stepValue);
-            return cachedSelection != null;
+            return entitiesSelectionCache.contains(stepValue);
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            throw new RuntimeException("An error occurred trying to read entity selections", throwables);
         }
-        return false;
     }
 
     public int getMaxSelectValue() {
