@@ -16,7 +16,7 @@ import java.sql.SQLException;
  */
 public class MultiSelectEntityScreen extends EntityScreen {
 
-    public static final CharSequence USE_SELECTED_VALUES = "use_selected_values";
+    public static final String USE_SELECTED_VALUES = "use_selected_values";
     private int maxSelectValue = -1;
 
     private final EntitiesSelectionCache entitiesSelectionCache;
@@ -32,22 +32,22 @@ public class MultiSelectEntityScreen extends EntityScreen {
 
     public void setSelectedEntities(String input, String[] selectedValues)
             throws CommCareSessionException {
-        if (input.contentEquals(USE_SELECTED_VALUES)) {
-            try {
+        try {
+            if (input.contentEquals(USE_SELECTED_VALUES)) {
                 processSelectedValues(selectedValues);
-            } catch (SQLException throwables) {
-                throw new CommCareSessionException(
-                        "An error occurred trying to process selections on this screen. " +
-                                " If this error persists please report a bug to CommCareHQ.", throwables);
+            } else {
+                String[] cachedSelection = entitiesSelectionCache.read(input);
+                if (cachedSelection == null) {
+                    throw new CommCareSessionException(
+                            "Could not make selection with reference id " + input + " on this screen. " +
+                                    " If this error persists please report a bug to CommCareHQ.");
+                }
+                storageReferenceId = input;
             }
-        } else {
-            String[] cachedSelection = entitiesSelectionCache.read(input);
-            if (cachedSelection == null) {
-                throw new CommCareSessionException(
-                        "Could not make selection with reference id " + input + " on this screen. " +
-                                " If this error persists please report a bug to CommCareHQ.");
-            }
-            storageReferenceId = input;
+        } catch (SQLException throwables) {
+            throw new CommCareSessionException(
+                    "An error occurred trying to process selections on this screen. " +
+                            " If this error persists please report a bug to CommCareHQ.", throwables);
         }
     }
 
@@ -84,6 +84,15 @@ public class MultiSelectEntityScreen extends EntityScreen {
         }
         if (storageReferenceId != null) {
             session.setDatum(STATE_MULTIPLE_DATUM_VAL, mNeededDatum.getDataId(), storageReferenceId);
+        }
+    }
+
+    @Override
+    public boolean referencesContainStep(String stepValue) {
+        try {
+            return entitiesSelectionCache.contains(stepValue);
+        } catch (SQLException throwables) {
+            throw new RuntimeException("An error occurred trying to read entity selections", throwables);
         }
     }
 
