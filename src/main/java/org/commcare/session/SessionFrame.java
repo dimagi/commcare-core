@@ -117,6 +117,10 @@ public class SessionFrame implements Externalizable {
         this.dead = oldSessionFrame.dead;
     }
 
+    public static boolean isEntitySelectionDatum(String datum) {
+        return SessionFrame.STATE_DATUM_VAL.equals(datum) || SessionFrame.STATE_MULTIPLE_DATUM_VAL.equals(datum);
+    }
+
 
     public Vector<StackFrameStep> getSteps() {
         return steps;
@@ -236,7 +240,8 @@ public class SessionFrame implements Externalizable {
     }
 
     @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
         steps = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class), pf);
         snapshot = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class), pf);
         dead = ExtUtil.readBool(in);
@@ -271,7 +276,7 @@ public class SessionFrame implements Externalizable {
     }
 
     private void prettyPrintSteps(Vector<StackFrameStep> stepsToPrint,
-                                    StringBuilder stringBuilder) {
+            StringBuilder stringBuilder) {
         if (!stepsToPrint.isEmpty()) {
             // prevent trailing '/' by intercalating all but last element
             for (int i = 0; i < stepsToPrint.size() - 1; i++) {

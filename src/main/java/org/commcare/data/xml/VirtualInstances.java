@@ -2,6 +2,7 @@ package org.commcare.data.xml;
 
 import com.google.common.collect.ImmutableMap;
 
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.VirtualDataInstance;
 
@@ -15,6 +16,9 @@ public class VirtualInstances {
     public static final String SEARCH_INSTANCE_NODE_NAME = "field";
     public static final String SEARCH_INPUT_NODE_NAME_ATTR = "name";
 
+    public static final String SELCTED_CASES_INSTANCE_ROOT_NAME = "results";
+    public static final String SELCTED_CASES_INSTANCE_NODE_NAME = "value";
+
     public static VirtualDataInstance buildSearchInputInstance(Map<String, String> userInputValues) {
         List<SimpleNode> nodes = new ArrayList<>();
         userInputValues.forEach((key, value) -> {
@@ -23,5 +27,16 @@ public class VirtualInstances {
         });
         TreeElement root = TreeBuilder.buildTree(SEARCH_INSTANCE_ID, SEARCH_INSTANCE_ROOT_NAME, nodes);
         return new VirtualDataInstance(SEARCH_INSTANCE_ID, root);
+    }
+
+    public static VirtualDataInstance buildSelectedValuesInstance(
+            ExternalDataInstance instance, String[] selectedValues) {
+        List<SimpleNode> nodes = new ArrayList<>();
+        for (String selectedValue : selectedValues) {
+            nodes.add(SimpleNode.textNode(SELCTED_CASES_INSTANCE_NODE_NAME, selectedValue));
+        }
+        TreeElement root = TreeBuilder.buildTree(instance.getInstanceId(), SELCTED_CASES_INSTANCE_ROOT_NAME,
+                nodes);
+        return new VirtualDataInstance(instance.getInstanceId(), root);
     }
 }

@@ -508,8 +508,7 @@ public class CommCareSession {
         this.popped = null;
 
         for (StackFrameStep step : frame.getSteps()) {
-            if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) ||
-                    SessionFrame.STATE_MULTIPLE_DATUM_VAL.equals(step.getType()) ||
+            if (SessionFrame.isEntitySelectionDatum(step.getType()) ||
                     SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType()) ||
                     SessionFrame.STATE_UNKNOWN.equals(step.getType()) &&
                             (guessUnknownType(step).equals(SessionFrame.STATE_DATUM_COMPUTED)
