@@ -14,7 +14,7 @@ public class SessionInstanceBuilder {
     public static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
     public static final String KEY_ENTITY_LIST_EXTRA_DATA = "entity-list-data";
 
-    public static FormInstance getSessionInstance(SessionFrame frame, String deviceId,
+    public static TreeElement getSessionInstance(SessionFrame frame, String deviceId,
                                                   String appversion, long drift,
                                                   String username, String userId,
                                                   Hashtable<String, String> userFields) {
@@ -24,7 +24,7 @@ public class SessionInstanceBuilder {
         addMetadata(sessionRoot, deviceId, appversion, username, userId, drift);
         addUserProperties(sessionRoot, userFields);
 
-        return new FormInstance(sessionRoot, "session");
+        return sessionRoot;
     }
 
     private static void addSessionNavData(TreeElement sessionRoot, SessionFrame frame) {
