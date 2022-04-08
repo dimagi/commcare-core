@@ -245,21 +245,10 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                 // This will result in things just executing again, which is fine.
             }
         } else {
-            updateSelectedEntities(host, input, selectedValues);
+            host.updateSelection(input, selectedValues);
             return true;
         }
         return false;
-    }
-
-    private void updateSelectedEntities(EntityScreen host, String input, String[] selectedValues)
-            throws CommCareSessionException {
-        if (host instanceof MultiSelectEntityScreen) {
-            ((MultiSelectEntityScreen)host).setSelectedEntities(input, selectedValues);
-        } else {
-            host.setSelectedEntity(input);
-            // Set entity screen to show detail and redraw
-            host.setCurrentScreenToDetail();
-        }
     }
 
     public Detail getShortDetail() {

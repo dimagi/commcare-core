@@ -11,6 +11,8 @@ import org.javarosa.core.util.PropertyUtils;
 
 import java.sql.SQLException;
 
+import javax.annotation.Nullable;
+
 /**
  * Variation of EntityScreen to allow for selection of multiple entities at once
  */
@@ -30,7 +32,19 @@ public class MultiSelectEntityScreen extends EntityScreen {
         this.entitiesSelectionCache = entitiesSelectionCache;
     }
 
-    public void setSelectedEntities(String input, String[] selectedValues)
+    /**
+     * Updates entities selection on the screen
+     *
+     * @param input          Either 'use_selected_values' or a guid unique to the selection made
+     * @param selectedValues Ids of the entities selected on the screen
+     * @throws CommCareSessionException
+     */
+    @Override
+    public void updateSelection(String input, @Nullable String[] selectedValues) throws CommCareSessionException {
+        setSelectedEntities(input, selectedValues);
+    }
+
+    private void setSelectedEntities(String input, @Nullable String[] selectedValues)
             throws CommCareSessionException {
         try {
             if (input.contentEquals(USE_SELECTED_VALUES)) {

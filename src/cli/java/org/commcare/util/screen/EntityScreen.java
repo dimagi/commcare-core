@@ -20,6 +20,8 @@ import org.javarosa.core.util.NoLocalizedTextException;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.annotation.Nullable;
+
 import datadog.trace.api.Trace;
 
 /**
@@ -219,13 +221,26 @@ public class EntityScreen extends CompoundScreenHost {
         return false;
     }
 
+    /**
+     * Updates entity selected on the screen
+     *
+     * @param input          id of the entity selected on the screen
+     * @param selectedValues should always be null for single-select entity screen
+     * @throws CommCareSessionException
+     */
+    public void updateSelection(String input, @Nullable String[] selectedValues) throws CommCareSessionException {
+        setSelectedEntity(input);
+        // Set entity screen to show detail and redraw
+        setCurrentScreenToDetail();
+    }
+
     @Trace
     public void setSelectedEntity(TreeReference selection) {
         this.mCurrentSelection = selection;
     }
 
     @Trace
-    public void setSelectedEntity(String id) throws CommCareSessionException {
+    private void setSelectedEntity(String id) throws CommCareSessionException {
         mCurrentSelection = getEntityReference(id);
         if (this.mCurrentSelection == null) {
             throw new CommCareSessionException("Could not select case " + id + " on this screen. " +
