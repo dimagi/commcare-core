@@ -79,8 +79,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
                 evaluatedValues[i] = getReturnValueFromSelection(currentReference);
             }
 
-            String guid = PropertyUtils.genGUID(10);
-            entitiesSelectionCache.cache(guid, evaluatedValues);
+            String guid = entitiesSelectionCache.cache(evaluatedValues);
             storageReferenceId = guid;
         }
     }
