@@ -7,9 +7,6 @@ import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.MultiSelectEntityDatum;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.util.PropertyUtils;
-
-import java.sql.SQLException;
 
 import javax.annotation.Nullable;
 
@@ -46,27 +43,21 @@ public class MultiSelectEntityScreen extends EntityScreen {
 
     private void setSelectedEntities(String input, @Nullable String[] selectedValues)
             throws CommCareSessionException {
-        try {
-            if (input.contentEquals(USE_SELECTED_VALUES)) {
-                processSelectedValues(selectedValues);
-            } else {
-                String[] cachedSelection = entitiesSelectionCache.read(input);
-                if (cachedSelection == null) {
-                    throw new CommCareSessionException(
-                            "Could not make selection with reference id " + input + " on this screen. " +
-                                    " If this error persists please report a bug to CommCareHQ.");
-                }
-                storageReferenceId = input;
+        if (input.contentEquals(USE_SELECTED_VALUES)) {
+            processSelectedValues(selectedValues);
+        } else {
+            String[] cachedSelection = entitiesSelectionCache.read(input);
+            if (cachedSelection == null) {
+                throw new CommCareSessionException(
+                        "Could not make selection with reference id " + input + " on this screen. " +
+                                " If this error persists please report a bug to CommCareHQ.");
             }
-        } catch (SQLException throwables) {
-            throw new CommCareSessionException(
-                    "An error occurred trying to process selections on this screen. " +
-                            " If this error persists please report a bug to CommCareHQ.", throwables);
+            storageReferenceId = input;
         }
     }
 
     private void processSelectedValues(String[] selectedValues)
-            throws SQLException, CommCareSessionException {
+            throws CommCareSessionException {
         if (selectedValues != null) {
             String[] evaluatedValues = new String[selectedValues.length];
             for (int i = 0; i < selectedValues.length; i++) {
@@ -79,7 +70,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
                 evaluatedValues[i] = getReturnValueFromSelection(currentReference);
             }
 
-            String guid = entitiesSelectionCache.cache(evaluatedValues);
+            String guid = entitiesSelectionCache.write(evaluatedValues);
             storageReferenceId = guid;
         }
     }
@@ -102,11 +93,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
 
     @Override
     public boolean referencesContainStep(String stepValue) {
-        try {
-            return entitiesSelectionCache.contains(stepValue);
-        } catch (SQLException throwables) {
-            throw new RuntimeException("An error occurred trying to read entity selections", throwables);
-        }
+        return entitiesSelectionCache.contains(stepValue);
     }
 
     public int getMaxSelectValue() {

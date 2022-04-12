@@ -9,10 +9,10 @@ import javax.annotation.Nullable;
  */
 public interface EntitiesSelectionCache {
 
-    String cache(String[] values) throws SQLException;
+    String write(String[] values);
 
     @Nullable
-    String[] read(String key) throws SQLException;
+    String[] read(String key);
 
-    boolean contains(String key) throws SQLException;
+    boolean contains(String key);
 }
