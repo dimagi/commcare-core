@@ -8,6 +8,8 @@ import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.MultiSelectEntityDatum;
 import org.javarosa.core.model.instance.TreeReference;
 
+import java.util.UUID;
+
 import javax.annotation.Nullable;
 
 /**
@@ -19,7 +21,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
     private int maxSelectValue = -1;
 
     private final EntitiesSelectionCache entitiesSelectionCache;
-    private String storageReferenceId;
+    private UUID storageReferenceId;
 
     public MultiSelectEntityScreen(boolean handleCaseIndex, boolean full,
             SessionWrapper session,
@@ -46,13 +48,14 @@ public class MultiSelectEntityScreen extends EntityScreen {
         if (input.contentEquals(USE_SELECTED_VALUES)) {
             processSelectedValues(selectedValues);
         } else {
-            String[] cachedSelection = entitiesSelectionCache.read(input);
+            UUID inputId = UUID.fromString(input);
+            String[] cachedSelection = entitiesSelectionCache.read(inputId);
             if (cachedSelection == null) {
                 throw new CommCareSessionException(
                         "Could not make selection with reference id " + input + " on this screen. " +
                                 " If this error persists please report a bug to CommCareHQ.");
             }
-            storageReferenceId = input;
+            storageReferenceId = inputId;
         }
     }
 
@@ -70,7 +73,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
                 evaluatedValues[i] = getReturnValueFromSelection(currentReference);
             }
 
-            String guid = entitiesSelectionCache.write(evaluatedValues);
+            UUID guid = entitiesSelectionCache.write(evaluatedValues);
             storageReferenceId = guid;
         }
     }
@@ -87,20 +90,20 @@ public class MultiSelectEntityScreen extends EntityScreen {
             return;
         }
         if (storageReferenceId != null) {
-            session.setDatum(STATE_MULTIPLE_DATUM_VAL, mNeededDatum.getDataId(), storageReferenceId);
+            session.setDatum(STATE_MULTIPLE_DATUM_VAL, mNeededDatum.getDataId(), storageReferenceId.toString());
         }
     }
 
     @Override
     public boolean referencesContainStep(String stepValue) {
-        return entitiesSelectionCache.contains(stepValue);
+        return entitiesSelectionCache.contains(UUID.fromString(stepValue));
     }
 
     public int getMaxSelectValue() {
         return maxSelectValue;
     }
 
-    public String getStorageReferenceId() {
+    public UUID getStorageReferenceId() {
         return storageReferenceId;
     }
 }

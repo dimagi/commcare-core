@@ -1,6 +1,7 @@
 package org.commcare.core.interfaces;
 
 import java.sql.SQLException;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -9,10 +10,10 @@ import javax.annotation.Nullable;
  */
 public interface EntitiesSelectionCache {
 
-    String write(String[] values);
+    UUID write(String[] values);
 
     @Nullable
-    String[] read(String key);
+    String[] read(UUID key);
 
-    boolean contains(String key);
+    boolean contains(UUID key);
 }
