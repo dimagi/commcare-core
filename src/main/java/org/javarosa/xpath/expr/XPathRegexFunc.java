@@ -38,7 +38,7 @@ public class XPathRegexFunc extends XPathFuncExpr {
         String re = FunctionUtils.toString(o2);
 
         try {
-            return Pattern.matches(re, str);
+            return Pattern.compile(re).matcher(str).find();
         } catch (PatternSyntaxException e) {
             throw new XPathException("The regular expression '" + re + "' is invalid.");
         }
