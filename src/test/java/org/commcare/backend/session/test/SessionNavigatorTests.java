@@ -168,7 +168,7 @@ public class SessionNavigatorTests {
 
         // Simulate pressing the "Continue" button on the case detail, by setting a value
         // for the needed datum. We should now be ready for form entry
-        session.setEntityDatum(nextNeededDatum.getDataId(), "case_one");
+        session.setEntityDatum(nextNeededDatum, "case_one");
         triggerSessionStepAndCheckResultCode(SessionNavigator.START_FORM_ENTRY);
 
         // Test that going back from here results in being back at the case detail screen (and

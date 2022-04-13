@@ -131,7 +131,7 @@ public class SessionNavigator {
                 // and proceed
                 String autoSelectedCaseId = DatumUtil.getReturnValueFromSelection(
                         currentAutoSelectedCase, entityDatum, ec);
-                currentSession.setEntityDatum(entityDatum.getDataId(), autoSelectedCaseId);
+                currentSession.setEntityDatum(entityDatum, autoSelectedCaseId);
                 startNextSessionStep();
             } else {
                 sendResponse(LAUNCH_CONFIRM_DETAIL);

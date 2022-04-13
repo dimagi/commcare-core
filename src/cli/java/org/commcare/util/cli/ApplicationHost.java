@@ -447,7 +447,7 @@ public class ApplicationHost {
             mSession.setEntityDatum("", "awful");
         } else {
             try {
-                mSession.setEntityDatum(datum.getDataId(), FunctionUtils.toString(form.eval(ec)));
+                mSession.setEntityDatum(datum, FunctionUtils.toString(form.eval(ec)));
             } catch (XPathException e) {
                 error(e);
             }

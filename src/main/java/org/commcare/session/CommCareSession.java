@@ -493,7 +493,7 @@ public class CommCareSession {
             setXmlns(FunctionUtils.toString(form.eval(ec)));
             setEntityDatum("", "awful");
         } else if (datum instanceof ComputedDatum) {
-            setEntityDatum(datum.getDataId(), FunctionUtils.toString(form.eval(ec)));
+            setEntityDatum(datum, FunctionUtils.toString(form.eval(ec)));
         }
     }
 
