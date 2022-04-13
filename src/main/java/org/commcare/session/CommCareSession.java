@@ -448,6 +448,12 @@ public class CommCareSession {
         smartLinkRedirect = url;
     }
 
+    public void setEntityDatum(SessionDatum datum, String value) {
+        String datumType = datum instanceof MultiSelectEntityDatum ? SessionFrame.STATE_MULTIPLE_DATUM_VAL
+                : SessionFrame.STATE_DATUM_VAL;
+        setDatum(datumType, datum.getDataId(), value);
+    }
+
     public void setEntityDatum(String keyId, String value) {
         setDatum(SessionFrame.STATE_DATUM_VAL, keyId, value);
     }
