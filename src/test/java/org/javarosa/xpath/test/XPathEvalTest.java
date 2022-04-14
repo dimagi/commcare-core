@@ -79,7 +79,7 @@ public class XPathEvalTest {
                     fail("Result was supposed to be NaN, but got " + o);
                 }
             } else if (!expected.equals(result)) {
-                fail("Expected " + expected + ", got " + result);
+                fail("Expected " + expected + ", got " + result + " (expr = '" + expr + "')");
             }
         } catch (XPathException xpex) {
             assertExceptionExpected(exceptionExpected, expected, xpex);
@@ -156,8 +156,16 @@ public class XPathEvalTest {
         testEval("regex('Is this right?', '^Is this right\\?$')", null, null, Boolean.TRUE);
         testEval("regex('Dollar sign\ndoes not match newlines', 'sign$')", null, null, Boolean.FALSE);
         testEval("regex('Dollar sign\ndoes not match newlines', 'newlines$')", null, null, Boolean.TRUE);
-        testEval("regex('cocotero', 'cocotero')", null, null,Boolean.TRUE);
-        testEval("regex('cocotero', 'te')", null, null,Boolean.TRUE);
+        testEval("regex('cocotero', 'cocotero')", null, null, Boolean.TRUE);
+        testEval("regex('cocotero', 'te')", null, null, Boolean.TRUE);
+        testEval(String.format("regex('%s', '%s')",
+                "1.1.1.1",
+                "^([1,2]{0,1}[0-9]{1,2}.){3}[1,2]{0,1}[0-9]{1,2}$"
+        ), null, null, Boolean.TRUE);
+        testEval(String.format("regex('%ss', '%s')",
+                "Andrew.weston-lewis@state,co.us",
+                "^([a-zA-Z0-9-]+\\.)*[a-zA-Z0-9-]+@([a-zA-Z0-9-]+\\.)+[a-zA-Z0-9-]+$"
+        ), null, null, Boolean.FALSE);
     }
 
     @Test
@@ -1220,5 +1228,3 @@ public class XPathEvalTest {
         }
     };
 }
-
-

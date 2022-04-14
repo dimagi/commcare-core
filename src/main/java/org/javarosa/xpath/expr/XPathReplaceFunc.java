@@ -1,11 +1,12 @@
 package org.javarosa.xpath.expr;
 
-import org.apache.regexp.RE;
-import org.apache.regexp.RESyntaxException;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+
+import java.util.regex.Matcher;
+import java.util.regex.PatternSyntaxException;
 
 
 public class XPathReplaceFunc extends XPathFuncExpr {
@@ -38,14 +39,12 @@ public class XPathReplaceFunc extends XPathFuncExpr {
     private static String replace(Object o1, Object o2, Object o3) {
         String source = FunctionUtils.toString(o1);
         String regexString = FunctionUtils.toString(o2);
-        RE pattern;
+        String replacement = FunctionUtils.toString(o3);
         try {
-            pattern = new RE(regexString);
-        } catch (RESyntaxException e) {
+            return source.replaceAll(regexString, Matcher.quoteReplacement(replacement));
+        } catch (PatternSyntaxException e) {
             throw new XPathException("The regular expression '" + regexString + "' is invalid.");
         }
-        String replacement = FunctionUtils.toString(o3);
-        return pattern.subst(source, replacement);
     }
 
 }
