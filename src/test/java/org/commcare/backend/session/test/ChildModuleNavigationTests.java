@@ -30,7 +30,7 @@ public class ChildModuleNavigationTests {
         // check that after choosing the entry we now need the correct case data
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         assertEquals("adolescent_case_id", session.getNeededDatum().getDataId());
-        session.setDatum("adolescent_case_id", "Al");
+        session.setEntityDatum("adolescent_case_id", "Al");
     }
 
 }

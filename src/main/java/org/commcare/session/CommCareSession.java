@@ -448,7 +448,13 @@ public class CommCareSession {
         smartLinkRedirect = url;
     }
 
-    public void setDatum(String keyId, String value) {
+    public void setEntityDatum(SessionDatum datum, String value) {
+        String datumType = datum instanceof MultiSelectEntityDatum ? SessionFrame.STATE_MULTIPLE_DATUM_VAL
+                : SessionFrame.STATE_DATUM_VAL;
+        setDatum(datumType, datum.getDataId(), value);
+    }
+
+    public void setEntityDatum(String keyId, String value) {
         setDatum(SessionFrame.STATE_DATUM_VAL, keyId, value);
     }
 
@@ -485,9 +491,9 @@ public class CommCareSession {
         }
         if (datum instanceof FormIdDatum) {
             setXmlns(FunctionUtils.toString(form.eval(ec)));
-            setDatum("", "awful");
+            setEntityDatum("", "awful");
         } else if (datum instanceof ComputedDatum) {
-            setDatum(datum.getDataId(), FunctionUtils.toString(form.eval(ec)));
+            setEntityDatum(datum, FunctionUtils.toString(form.eval(ec)));
         }
     }
 

@@ -210,7 +210,7 @@ public class EntityScreen extends CompoundScreenHost {
         }
 
         String selectedValue = getReturnValueFromSelection(mCurrentSelection);
-        session.setDatum(mNeededDatum.getDataId(), selectedValue);
+        session.setEntityDatum(mNeededDatum, selectedValue);
     }
 
     protected boolean executePendingAction(CommCareSession session) {

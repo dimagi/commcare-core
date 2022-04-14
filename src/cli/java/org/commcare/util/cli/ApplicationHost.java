@@ -444,10 +444,10 @@ public class ApplicationHost {
         EvaluationContext ec = mSession.getEvaluationContext();
         if (datum instanceof FormIdDatum) {
             mSession.setXmlns(FunctionUtils.toString(form.eval(ec)));
-            mSession.setDatum("", "awful");
+            mSession.setEntityDatum("", "awful");
         } else {
             try {
-                mSession.setDatum(datum.getDataId(), FunctionUtils.toString(form.eval(ec)));
+                mSession.setEntityDatum(datum, FunctionUtils.toString(form.eval(ec)));
             } catch (XPathException e) {
                 error(e);
             }

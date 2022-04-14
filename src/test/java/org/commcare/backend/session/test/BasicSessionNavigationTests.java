@@ -69,7 +69,7 @@ public class BasicSessionNavigationTests {
         Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
 
         // After setting case id, should need to choose a form
-        session.setDatum("case_id", "case_two");
+        session.setEntityDatum("case_id", "case_two");
         Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
         // Should be ready to go after choosing a form
@@ -85,7 +85,7 @@ public class BasicSessionNavigationTests {
         session.setCommand("m1-f3");
         Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
-        session.setDatum("case_id", "case_one");
+        session.setEntityDatum("case_id", "case_one");
         Assert.assertEquals(null, session.getNeededDatum());
 
         // Should result in needing a case_id again
@@ -102,9 +102,9 @@ public class BasicSessionNavigationTests {
         session.setCommand("m1-f3");
         Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
-        session.setDatum("case_id", "case_one");
+        session.setEntityDatum("case_id", "case_one");
         Assert.assertEquals(null, session.getNeededDatum());
-        session.setDatum("return_to", "m1");
+        session.setEntityDatum("return_to", "m1");
 
         // Should pop 2 values off of the session stack in order to return to the last place
         // where there was a user-inputted decision
@@ -142,7 +142,7 @@ public class BasicSessionNavigationTests {
         // case_id
         Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
-        session.setDatum("case_id", "123");
+        session.setEntityDatum("case_id", "123");
 
         // time to make sync request
         Assert.assertEquals(SessionFrame.STATE_SYNC_REQUEST, session.getNeededData());
@@ -165,7 +165,7 @@ public class BasicSessionNavigationTests {
         Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
         // select case present in user_restore
-        session.setDatum("case_id", "case_one");
+        session.setEntityDatum("case_id", "case_one");
 
         // assert that relevancy condition of post request is false
         Assert.assertEquals(null, session.getNeededData());
