@@ -67,72 +67,58 @@ sourceSets {
 }
 
 dependencies {
-    api 'com.github.stefanhaustein:kxml2:2.4.1'
-    implementation 'javax.ws.rs:javax.ws.rs-api:2.0.1'
-    implementation group: 'regexp', name: 'regexp', version: '1.3'
+    compile 'com.github.stefanhaustein:kxml2:2.4.1'
+    compile 'javax.ws.rs:javax.ws.rs-api:2.0.1'
     // Added so Android Studio recognizes libs in util jar projects
-    implementation 'org.json:json:20140107'
-    implementation 'commons-cli:commons-cli:1.3.1'
-    implementation 'joda-time:joda-time:2.9.4'
-    implementation 'com.carrotsearch:hppc:0.7.2'
-    api 'com.squareup.retrofit2:retrofit:2.3.0'
-    api 'com.squareup.okhttp3:okhttp:3.12.12'
-    implementation 'com.google.code.findbugs:jsr305:3.0.2'
-    implementation 'io.reactivex.rxjava2:rxjava:2.1.1'
-    implementation 'com.google.guava:guava:30.1.1-jre'
-    implementation 'io.opentracing:opentracing-api:0.33.0'
-    implementation 'io.opentracing:opentracing-util:0.33.0'
-    implementation 'com.datadoghq:dd-trace-api:0.64.0'
+    compile 'org.json:json:20140107'
+    compile 'commons-cli:commons-cli:1.3.1'
+    compile 'xpp3:xpp3:1.1.4c'
+    compile 'joda-time:joda-time:2.9.4'
+    compile 'com.carrotsearch:hppc:0.7.2'
+    compile 'com.squareup.retrofit2:retrofit:2.3.0'
+    compile 'com.squareup.okhttp3:okhttp:3.12.12'
+    compile 'com.google.code.findbugs:jsr305:3.0.2'
+    compile 'io.reactivex.rxjava2:rxjava:2.1.1'
 
-    cliImplementation 'org.json:json:20140107'
-    cliImplementation group: 'regexp', name: 'regexp', version: '1.3'
-    cliImplementation 'com.github.stefanhaustein:kxml2:2.4.1'
-    cliImplementation 'commons-cli:commons-cli:1.3.1'
-    cliImplementation 'joda-time:joda-time:2.9.4'
-    cliImplementation 'io.reactivex.rxjava2:rxjava:2.1.1'
-    cliImplementation 'com.squareup.retrofit2:retrofit:2.3.0'
-    cliImplementation 'com.squareup.okhttp3:okhttp:4.4.1'
-    cliImplementation 'com.google.guava:guava:30.1.1-jre'
-    cliImplementation 'com.datadoghq:dd-trace-api:0.64.0'
+    cliCompile 'org.json:json:20140107'
+    cliCompile 'com.github.stefanhaustein:kxml2:2.4.1'
+    cliCompile 'commons-cli:commons-cli:1.3.1'
+    cliCompile 'xpp3:xpp3:1.1.4c'
+    cliCompile 'joda-time:joda-time:2.9.4'
+    cliCompile 'io.reactivex.rxjava2:rxjava:2.1.1'
+    cliCompile 'com.squareup.retrofit2:retrofit:2.3.0'
+    cliCompile 'com.squareup.okhttp3:okhttp:4.4.1'
 
-    testImplementation sourceSets.main.output
-    testImplementation sourceSets.ccapi.output
-    testImplementation sourceSets.cli.output
-    testImplementation sourceSets.translate.output
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'org.json:json:20140107'
-    testImplementation 'org.xerial:sqlite-jdbc:3.28.0'
-    testImplementation 'joda-time:joda-time:2.9.4'
-    testImplementation 'com.squareup.retrofit2:retrofit:2.3.0'
-    testImplementation 'com.squareup.okhttp3:okhttp:4.4.1'
-    testImplementation 'com.google.guava:guava:30.1.1-jre'
+    testCompile sourceSets.main.output
+    testCompile sourceSets.api.output
+    testCompile sourceSets.cli.output
+    testCompile sourceSets.translate.output
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.json:json:20140107'
+    testCompile 'org.xerial:sqlite-jdbc:3.28.0'
+    testCompile 'joda-time:joda-time:2.9.4'
+    testCompile 'com.squareup.retrofit2:retrofit:2.3.0'
+    testCompile 'com.squareup.okhttp3:okhttp:4.4.1'
 
-    ccapiImplementation sourceSets.main.output
-    ccapiImplementation 'org.json:json:20140107'
-    ccapiImplementation 'org.xerial:sqlite-jdbc:3.28.0'
-    ccapiImplementation 'com.github.stefanhaustein:kxml2:2.4.1'
-    ccapiImplementation group: 'regexp', name: 'regexp', version: '1.3'
-    ccapiImplementation 'joda-time:joda-time:2.9.4'
-    ccapiImplementation 'com.carrotsearch:hppc:0.7.2'
-    ccapiImplementation 'io.reactivex.rxjava2:rxjava:2.1.1'
-    ccapiImplementation "com.squareup.retrofit2:retrofit:2.3.0"
-    ccapiImplementation 'com.squareup.okhttp3:okhttp:4.4.1'
-    ccapiImplementation 'com.google.guava:guava:30.1.1-jre'
-    ccapiImplementation 'io.opentracing:opentracing-api:0.33.0'
-    ccapiImplementation 'io.opentracing:opentracing-util:0.33.0'
-    ccapiImplementation 'com.datadoghq:dd-trace-api:0.64.0'
+    apiCompile sourceSets.main.output
+    apiCompile 'org.json:json:20140107'
+    apiCompile 'org.xerial:sqlite-jdbc:3.28.0'
+    apiCompile 'com.github.stefanhaustein:kxml2:2.4.1'
+    apiCompile 'joda-time:joda-time:2.9.4'
+    apiCompile 'com.carrotsearch:hppc:0.7.2'
+    apiCompile 'io.reactivex.rxjava2:rxjava:2.1.1'
+    apiCompile "com.squareup.retrofit2:retrofit:2.3.0"
+    apiCompile 'com.squareup.okhttp3:okhttp:4.4.1'
 
-    translateImplementation 'com.github.stefanhaustein:kxml2:2.4.1'
-    translateImplementation 'xpp3:xpp3:1.1.4c'
-    translateImplementation 'commons-cli:commons-cli:1.3.1'
-    translateImplementation group: 'regexp', name: 'regexp', version: '1.3'
-    translateImplementation files('lib/json-simple-1.1.1.jar')
-    translateImplementation 'joda-time:joda-time:2.9.4'
-    translateImplementation 'org.json:json:20140107'
-    translateImplementation 'io.reactivex.rxjava2:rxjava:2.1.1'
-    translateImplementation "com.squareup.retrofit2:retrofit:2.3.0"
-    translateImplementation 'com.squareup.okhttp3:okhttp:4.4.1'
-    translateImplementation 'com.google.guava:guava:30.1.1-jre'
+    translateCompile 'com.github.stefanhaustein:kxml2:2.4.1'
+    translateCompile 'xpp3:xpp3:1.1.4c'
+    translateCompile 'commons-cli:commons-cli:1.3.1'
+    translateCompile files('lib/json-simple-1.1.1.jar')
+    translateCompile 'joda-time:joda-time:2.9.4'
+    translateCompile 'org.json:json:20140107'
+    translateCompile 'io.reactivex.rxjava2:rxjava:2.1.1'
+    translateCompile "com.squareup.retrofit2:retrofit:2.3.0"
+    translateCompile 'com.squareup.okhttp3:okhttp:4.4.1'
 
     // 'compile' dependency is also needed to run 'gradle jmh' for some reason,
     // but leaving it in conflicts with apk builds, so only uncomment the
