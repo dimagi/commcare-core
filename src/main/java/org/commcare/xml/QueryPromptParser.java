@@ -32,6 +32,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
     private static final String NAME_SORT = "sort";
     private static final String ATTR_REF = "ref";
     private static final String ATTR_ALLOW_BLANK_VALUE = "allow_blank_value";
+    private static final String ATTR_EXCLUDE = "exclude";
 
     public QueryPromptParser(KXmlParser parser) {
         super(parser);
@@ -47,9 +48,21 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
         boolean allowBlankValue = "true".equals(parser.getAttributeValue(null, ATTR_ALLOW_BLANK_VALUE));
         DisplayUnit display = null;
         ItemsetBinding itemsetBinding = null;
-        XPathExpression defaultValue = null;
-
         String defaultValueString = parser.getAttributeValue(null, ATTR_DEFAULT);
+        XPathExpression defaultValue = null;
+        String excludeValueString = parser.getAttributeValue(null, ATTR_EXCLUDE);
+        XPathExpression exclude = null;
+        if (excludeValueString != null) {
+            try {
+                exclude = XPathParseTool.parseXPath(excludeValueString);
+            } catch (XPathSyntaxException e) {
+                InvalidStructureException toThrow = new InvalidStructureException(String.format(
+                        "Invalid XPath Expression in QueryPrompt %s",
+                        e.getMessage()), parser);
+                toThrow.initCause(e);
+                throw toThrow;
+            }
+        }
         if(defaultValueString != null) {
             try {
                 defaultValue = XPathParseTool.parseXPath(defaultValueString);
@@ -69,7 +82,8 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
                 itemsetBinding = parseItemset();
             }
         }
-        return new QueryPrompt(key, appearance, input, receive, hidden, display, itemsetBinding, defaultValue, allowBlankValue);
+        return new QueryPrompt(key, appearance, input, receive, hidden, display,
+                               itemsetBinding, defaultValue, allowBlankValue, exclude);
     }
 
     private ItemsetBinding parseItemset() throws IOException, XmlPullParserException, InvalidStructureException {
