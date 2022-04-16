@@ -186,5 +186,11 @@ public class BasicSessionNavigationTests {
 
         session.setCommand("relevant-remote-request");
         Assert.assertEquals(SessionFrame.STATE_SYNC_REQUEST, session.getNeededData());
+
+        session.setCommand("dynamic-relevancy-remote-request");
+        session.setEntityDatum("case_id","");
+        Assert.assertNull(session.getNeededData());
+        session.setEntityDatum("case_id","case_one");
+        Assert.assertEquals(SessionFrame.STATE_SYNC_REQUEST, session.getNeededData());
     }
 }
