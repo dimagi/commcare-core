@@ -88,12 +88,12 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
                 propertyValue = XPathParseTool.parseXPath(xpath);
             } catch (XPathSyntaxException e) {
                 InvalidStructureException toThrow = new InvalidStructureException(String.format(
-                    "Invalid XPath Expression in QueryPrompt %s",
-                    e.getMessage()), parser);
-                    toThrow.initCause(e);
-                    throw toThrow;
-                }
+                        "Invalid XPath Expression in QueryPrompt %s",
+                        e.getMessage()), parser);
+                toThrow.initCause(e);
+                throw toThrow;
             }
+        }
         return propertyValue;
     }
 }
