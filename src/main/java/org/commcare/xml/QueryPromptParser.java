@@ -49,31 +49,9 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
         DisplayUnit display = null;
         ItemsetBinding itemsetBinding = null;
         String defaultValueString = parser.getAttributeValue(null, ATTR_DEFAULT);
-        XPathExpression defaultValue = null;
+        XPathExpression defaultValue = xpathPropertyValue(defaultValueString);
         String excludeValueString = parser.getAttributeValue(null, ATTR_EXCLUDE);
-        XPathExpression exclude = null;
-        if (excludeValueString != null) {
-            try {
-                exclude = XPathParseTool.parseXPath(excludeValueString);
-            } catch (XPathSyntaxException e) {
-                InvalidStructureException toThrow = new InvalidStructureException(String.format(
-                        "Invalid XPath Expression in QueryPrompt %s",
-                        e.getMessage()), parser);
-                toThrow.initCause(e);
-                throw toThrow;
-            }
-        }
-        if(defaultValueString != null) {
-            try {
-                defaultValue = XPathParseTool.parseXPath(defaultValueString);
-            } catch (XPathSyntaxException e) {
-                InvalidStructureException toThrow = new InvalidStructureException(String.format(
-                        "Invalid XPath Expression in QueryPrompt %s",
-                        e.getMessage()), parser);
-                toThrow.initCause(e);
-                throw toThrow;
-            }
-        }
+        XPathExpression exclude = xpathPropertyValue(excludeValueString);
 
         while (nextTagInBlock(NAME_PROMPT)) {
             if (NAME_DISPLAY.equals(parser.getName().toLowerCase())) {
@@ -101,5 +79,21 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
             }
         }
         return itemset;
+    }
+
+    public XPathExpression xpathPropertyValue(String xpath) throws InvalidStructureException {
+        XPathExpression propertyValue = null;
+        if (xpath != null) {
+            try {
+                propertyValue = XPathParseTool.parseXPath(xpath);
+            } catch (XPathSyntaxException e) {
+                InvalidStructureException toThrow = new InvalidStructureException(String.format(
+                    "Invalid XPath Expression in QueryPrompt %s",
+                    e.getMessage()), parser);
+                    toThrow.initCause(e);
+                    throw toThrow;
+                }
+            }
+        return propertyValue;
     }
 }
