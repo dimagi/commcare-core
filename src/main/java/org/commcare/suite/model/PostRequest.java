@@ -65,7 +65,7 @@ public class PostRequest implements Externalizable {
             EvaluationContext localEvalContext = evalContext.spawnWithCleanLifecycle();
             Multimap<String, String> evaluatedParams = getEvaluatedParams(localEvalContext);
             evaluatedParams.keySet().forEach(key ->
-                    localEvalContext.setVariable(key, String.join(",", evaluatedParams.get(key)))
+                    localEvalContext.setVariable(key, String.join(" ", evaluatedParams.get(key)))
             );
             String result = RemoteQuerySessionManager.evalXpathExpression(relevantExpr, localEvalContext);
             return "true".equals(result);
