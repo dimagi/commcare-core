@@ -2,11 +2,13 @@ package org.commcare.util.screen;
 
 import static org.commcare.session.SessionFrame.STATE_MULTIPLE_DATUM_VAL;
 
-import org.commcare.core.interfaces.EntitiesSelectionCache;
+import org.commcare.core.interfaces.VirtualDataInstanceCache;
+import org.commcare.data.xml.VirtualInstances;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.MultiSelectEntityDatum;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.instance.VirtualDataInstance;
 
 import java.util.UUID;
 
@@ -20,15 +22,15 @@ public class MultiSelectEntityScreen extends EntityScreen {
     public static final String USE_SELECTED_VALUES = "use_selected_values";
     private int maxSelectValue = -1;
 
-    private final EntitiesSelectionCache entitiesSelectionCache;
+    private final VirtualDataInstanceCache virtualDataInstanceCache;
     private UUID storageReferenceId;
 
     public MultiSelectEntityScreen(boolean handleCaseIndex, boolean full,
             SessionWrapper session,
-            EntitiesSelectionCache entitiesSelectionCache)
+            VirtualDataInstanceCache virtualDataInstanceCache)
             throws CommCareSessionException {
         super(handleCaseIndex, full, session);
-        this.entitiesSelectionCache = entitiesSelectionCache;
+        this.virtualDataInstanceCache = virtualDataInstanceCache;
     }
 
     /**
@@ -49,8 +51,8 @@ public class MultiSelectEntityScreen extends EntityScreen {
             processSelectedValues(selectedValues);
         } else {
             UUID inputId = UUID.fromString(input);
-            String[] cachedSelection = entitiesSelectionCache.read(inputId);
-            if (cachedSelection == null) {
+            VirtualDataInstance cachedInstance = virtualDataInstanceCache.read(inputId);
+            if (cachedInstance == null) {
                 throw new CommCareSessionException(
                         "Could not make selection with reference id " + input + " on this screen. " +
                                 " If this error persists please report a bug to CommCareHQ.");
@@ -72,8 +74,10 @@ public class MultiSelectEntityScreen extends EntityScreen {
                 }
                 evaluatedValues[i] = getReturnValueFromSelection(currentReference);
             }
-
-            UUID guid = entitiesSelectionCache.write(evaluatedValues);
+            VirtualDataInstance selectedValuesInstance =
+                    VirtualInstances.buildSelectedValuesInstance(getSession().getNeededDatum().getDataId(),
+                            selectedValues);
+            UUID guid = virtualDataInstanceCache.write(selectedValuesInstance);
             storageReferenceId = guid;
         }
     }
@@ -96,7 +100,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
 
     @Override
     public boolean referencesContainStep(String stepValue) {
-        return entitiesSelectionCache.contains(UUID.fromString(stepValue));
+        return virtualDataInstanceCache.contains(UUID.fromString(stepValue));
     }
 
     public int getMaxSelectValue() {

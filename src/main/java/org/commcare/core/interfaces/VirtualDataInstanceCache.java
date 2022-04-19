@@ -1,5 +1,7 @@
 package org.commcare.core.interfaces;
 
+import org.javarosa.core.model.instance.VirtualDataInstance;
+
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -8,12 +10,11 @@ import javax.annotation.Nullable;
 /**
  * Read and write operations for entity selections made on a mult-select Entity Screen
  */
-public interface EntitiesSelectionCache {
+public interface VirtualDataInstanceCache {
 
-    UUID write(String[] values);
+    UUID write(VirtualDataInstance dataInstance);
 
-    @Nullable
-    String[] read(UUID key);
+    VirtualDataInstance read(UUID key);
 
     boolean contains(UUID key);
 }
