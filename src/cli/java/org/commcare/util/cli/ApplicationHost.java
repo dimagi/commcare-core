@@ -304,7 +304,8 @@ public class ApplicationHost {
                     // skipping the entity detail. To avoid this, flag that we want to force a redraw in this case.
                     boolean waitForCaseDetail = false;
                     if (s instanceof EntityScreen) {
-                        if (((EntityScreen) s).getCurrentScreen() instanceof EntityListSubscreen) {
+                        boolean isAction = input.startsWith("action "); // Don't wait for case detail if action
+                        if (!isAction && ((EntityScreen) s).getCurrentScreen() instanceof EntityListSubscreen) {
                             waitForCaseDetail = true;
                         }
                     }
