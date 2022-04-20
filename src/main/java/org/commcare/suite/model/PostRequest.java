@@ -45,10 +45,21 @@ public class PostRequest implements Externalizable {
         return url;
     }
 
-    public Multimap<String, String> getEvaluatedParams(EvaluationContext evalContext) {
+    /**
+     * Evalulates parameteres for post request
+     * @param evalContext Context params needs to be evaluated in
+     * @param includeBlankValues whether to include blank values in the return map
+     * @return Evaluated params
+     */
+    public Multimap<String, String> getEvaluatedParams(EvaluationContext evalContext, boolean includeBlankValues) {
         Multimap<String, String> evaluatedParams = ArrayListMultimap.create();
         for (QueryData queryData : params) {
-            evaluatedParams.putAll(queryData.getKey(), queryData.getValues(evalContext));
+            Iterable<String> val = queryData.getValues(evalContext);
+            if (val.iterator().hasNext()) {
+                evaluatedParams.putAll(queryData.getKey(), val);
+            } else if (includeBlankValues) {
+                evaluatedParams.put(queryData.getKey(), "");
+            }
         }
         return evaluatedParams;
     }
@@ -57,7 +68,12 @@ public class PostRequest implements Externalizable {
         if (relevantExpr == null) {
             return true;
         } else {
-            String result = RemoteQuerySessionManager.evalXpathExpression(relevantExpr, evalContext);
+            EvaluationContext localEvalContext = evalContext.spawnWithCleanLifecycle();
+            Multimap<String, String> evaluatedParams = getEvaluatedParams(localEvalContext, true);
+            evaluatedParams.keySet().forEach(key ->
+                    localEvalContext.setVariable(key, String.join(" ", evaluatedParams.get(key)))
+            );
+            String result = RemoteQuerySessionManager.evalXpathExpression(relevantExpr, localEvalContext);
             return "true".equals(result);
         }
     }

@@ -130,7 +130,9 @@ public class BasicSessionNavigationTests {
     }
 
     @Test
-    public void testStepToSyncRequest() throws UnfullfilledRequirementsException, XmlPullParserException, IOException, InvalidStructureException {
+    public void testStepToSyncRequest()
+            throws UnfullfilledRequirementsException, XmlPullParserException, IOException,
+            InvalidStructureException {
         session.setCommand("patient-case-search");
         Assert.assertEquals(SessionFrame.STATE_QUERY_REQUEST, session.getNeededData());
 
@@ -152,7 +154,9 @@ public class BasicSessionNavigationTests {
      * Try selecting case already in local case db
      */
     @Test
-    public void testStepToIrrelevantSyncRequest() throws UnfullfilledRequirementsException, XmlPullParserException, IOException, InvalidStructureException {
+    public void testStepToIrrelevantSyncRequest()
+            throws UnfullfilledRequirementsException, XmlPullParserException, IOException,
+            InvalidStructureException {
         session.setCommand("patient-case-search");
         Assert.assertEquals(SessionFrame.STATE_QUERY_REQUEST, session.getNeededData());
 
@@ -185,6 +189,12 @@ public class BasicSessionNavigationTests {
         Assert.assertEquals(null, session.getNeededData());
 
         session.setCommand("relevant-remote-request");
+        Assert.assertEquals(SessionFrame.STATE_SYNC_REQUEST, session.getNeededData());
+
+        session.setCommand("dynamic-relevancy-remote-request");
+        session.setEntityDatum("case_id", "");
+        Assert.assertNull(session.getNeededData());
+        session.setEntityDatum("case_id", "case_one");
         Assert.assertEquals(SessionFrame.STATE_SYNC_REQUEST, session.getNeededData());
     }
 }

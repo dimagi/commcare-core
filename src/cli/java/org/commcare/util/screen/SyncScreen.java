@@ -95,7 +95,7 @@ public class SyncScreen extends Screen {
     }
 
     private Response makeSyncRequest(PostRequest syncPost) throws CommCareSessionException, IOException {
-        Multimap<String, String> params = syncPost.getEvaluatedParams(sessionWrapper.getEvaluationContext());
+        Multimap<String, String> params = syncPost.getEvaluatedParams(sessionWrapper.getEvaluationContext(), false);
         String url = buildUrl(syncPost.getUrl().toString());
         printStream.println(String.format("Syncing with url %s and parameters %s", url, params));
         MultipartBody postBody = buildPostBody(params);
