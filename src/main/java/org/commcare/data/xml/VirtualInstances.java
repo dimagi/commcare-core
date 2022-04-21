@@ -30,13 +30,13 @@ public class VirtualInstances {
     }
 
     public static VirtualDataInstance buildSelectedValuesInstance(
-            ExternalDataInstance instance, String[] selectedValues) {
+            String instanceId, String[] selectedValues) {
         List<SimpleNode> nodes = new ArrayList<>();
         for (String selectedValue : selectedValues) {
             nodes.add(SimpleNode.textNode(SELCTED_CASES_INSTANCE_NODE_NAME, selectedValue));
         }
-        TreeElement root = TreeBuilder.buildTree(instance.getInstanceId(), SELCTED_CASES_INSTANCE_ROOT_NAME,
+        TreeElement root = TreeBuilder.buildTree(instanceId, SELCTED_CASES_INSTANCE_ROOT_NAME,
                 nodes);
-        return new VirtualDataInstance(instance.getInstanceId(), root);
+        return new VirtualDataInstance(instanceId, root);
     }
 }

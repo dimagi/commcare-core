@@ -39,4 +39,9 @@ public class ReferenceHandler {
             return staticManager;
         }
     }
+
+    public static void clearInstance() {
+        threadLocalManager.set(null);
+        staticManager = null;
+    }
 }
