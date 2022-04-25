@@ -31,7 +31,7 @@ public class ResourceReference implements Reference {
     public boolean doesBinaryExist() throws IOException {
         //Figure out if there's a file by trying to open
         //a stream to it and determining if it's null.
-        InputStream is = System.class.getResourceAsStream(URI);
+        InputStream is = this.getClass().getResourceAsStream(URI);
         if (is == null) {
             return false;
         } else {
@@ -42,7 +42,7 @@ public class ResourceReference implements Reference {
 
     @Override
     public InputStream getStream() throws IOException {
-        InputStream is = System.class.getResourceAsStream(URI);
+        InputStream is = this.getClass().getResourceAsStream(URI);
         if (is == null) {
             throw new FileNotFoundException("File not found when opening resource as stream");
         }

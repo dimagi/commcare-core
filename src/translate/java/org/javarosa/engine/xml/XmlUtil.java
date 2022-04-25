@@ -1,8 +1,5 @@
 package org.javarosa.engine.xml;
 
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
-
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -15,10 +12,16 @@ import java.io.Writer;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 /**
  * Basic static methods for manipulating raw XML
- * 
+ *
  * @author ctsims
  *
  */
@@ -28,17 +31,21 @@ public class XmlUtil {
         try {
             String unformattedXml = new String(xml);
             final Document document = parseXmlFile(unformattedXml);
+            document.setXmlStandalone(true);
 
-            OutputFormat format = new OutputFormat(document);
-            format.setLineWidth(65);
-            format.setIndenting(true);
-            format.setIndent(2);
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            transformerFactory.setAttribute("indent-number", 2);
+            Transformer transformer = transformerFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION,"no");
+            transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "");
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
             Writer out = new StringWriter();
-            XMLSerializer serializer = new XMLSerializer(out, format);
-            serializer.serialize(document);
-
+            transformer.transform(new DOMSource(document), new StreamResult(out));
             return out.toString();
-        } catch (IOException e) {
+        } catch (TransformerException e) {
             throw new RuntimeException(e);
         }
     }
