@@ -65,6 +65,10 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
         return false;
     }
 
+    public boolean hasForm() {
+        return false;
+    }
+
     /**
      * @return the ID of this entry command. Used by Menus to determine
      * where the command should be located.

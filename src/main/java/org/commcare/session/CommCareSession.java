@@ -539,7 +539,7 @@ public class CommCareSession {
         }
 
         Entry e = platform.getCommandToEntryMap().get(command);
-        if (e.isView() || e.isRemoteRequest()) {
+        if (!e.hasForm()) {
             return null;
         } else {
             return ((FormEntry)e).getXFormNamespace();
