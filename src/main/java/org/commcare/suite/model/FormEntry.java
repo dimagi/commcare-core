@@ -3,6 +3,7 @@ package org.commcare.suite.model;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.DataInputStream;
@@ -21,6 +22,7 @@ import java.util.Vector;
 public class FormEntry extends Entry {
 
     private String xFormNamespace;
+    private PostRequest post;
 
     /**
      * Serialization only!
@@ -32,10 +34,11 @@ public class FormEntry extends Entry {
     public FormEntry(String commandId, DisplayUnit display,
                      Vector<SessionDatum> data, String formNamespace,
                      Hashtable<String, DataInstance> instances,
-                     Vector<StackOperation> stackOperations, AssertionSet assertions) {
+                     Vector<StackOperation> stackOperations, AssertionSet assertions, PostRequest post) {
         super(commandId, display, data, instances, stackOperations, assertions);
 
         this.xFormNamespace = formNamespace;
+        this.post = post;
     }
 
     /**
@@ -51,11 +54,13 @@ public class FormEntry extends Entry {
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
         this.xFormNamespace = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        this.post = (PostRequest)ExtUtil.read(in, new ExtWrapNullable(PostRequest.class), pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(xFormNamespace));
+        ExtUtil.write(out, new ExtWrapNullable(post));
     }
 }
