@@ -41,19 +41,16 @@ public class FormEntry extends Entry {
         this.post = post;
     }
 
-    @Override
-    public boolean hasForm() {
-        return xFormNamespace != null;
-    }
-
     /**
      * @return The XForm Namespace of the form which should be filled out in
      * the form entry session triggered by this action.
      */
+    @Override
     public String getXFormNamespace() {
         return xFormNamespace;
     }
 
+    @Override
     public PostRequest getPostRequest() {
         return post;
     }

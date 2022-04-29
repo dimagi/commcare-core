@@ -6,7 +6,6 @@ import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.PostRequest;
-import org.commcare.suite.model.RemoteRequestEntry;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -50,12 +49,12 @@ public class SyncScreen extends Screen {
         String command = sessionWrapper.getCommand();
         Entry commandEntry = sessionWrapper.getPlatform().getEntry(command);
 
-        if (!(commandEntry instanceof RemoteRequestEntry)) {
+        PostRequest syncPost = commandEntry.getPostRequest();
+        if (syncPost == null) {
             // expected a sync entry; clear session and show vague 'session error' message to user
             throw new CommCareSessionException("Initialized sync request while not on sync screen");
         }
 
-        PostRequest syncPost = ((RemoteRequestEntry)commandEntry).getPostRequest();
         try {
             Response response = makeSyncRequest(syncPost);
             if (!response.isSuccessful()) {

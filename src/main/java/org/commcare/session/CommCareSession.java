@@ -10,7 +10,6 @@ import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.RemoteQueryDatum;
-import org.commcare.suite.model.RemoteRequestEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.StackOperation;
@@ -206,8 +205,8 @@ public class CommCareSession {
             // No entries available directly within the current command, so we must need to select another menu
             return SessionFrame.STATE_COMMAND_ID;
         } else if (entriesForCurrentCommand.size() == 1
-                && entriesForCurrentCommand.elementAt(0) instanceof RemoteRequestEntry
-                && ((RemoteRequestEntry)entriesForCurrentCommand.elementAt(0)).getPostRequest().isRelevant(evalContext)) {
+                && entriesForCurrentCommand.elementAt(0).getPostRequest() != null
+                && entriesForCurrentCommand.elementAt(0).getPostRequest().isRelevant(evalContext)) {
             return SessionFrame.STATE_SYNC_REQUEST;
         } else if (entriesForCurrentCommand.size() > 1 || !entriesForCurrentCommand.elementAt(0).getCommandId().equals(currentCmd)) {
             //the only other thing we can need is a form command. If there's
@@ -539,11 +538,7 @@ public class CommCareSession {
         }
 
         Entry e = platform.getCommandToEntryMap().get(command);
-        if (!e.hasForm()) {
-            return null;
-        } else {
-            return ((FormEntry)e).getXFormNamespace();
-        }
+        return e.getXFormNamespace();
     }
 
     public String getCommand() {
