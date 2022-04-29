@@ -69,6 +69,10 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
         return false;
     }
 
+    public PostRequest getPostRequest() {
+        return null;
+    }
+
     /**
      * @return the ID of this entry command. Used by Menus to determine
      * where the command should be located.

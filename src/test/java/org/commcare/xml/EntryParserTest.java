@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNull;
 
 import com.google.common.collect.Multimap;
 
-import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.PostRequest;
 import org.commcare.suite.model.QueryData;
@@ -15,13 +14,11 @@ import org.javarosa.test_utils.ReflectionUtils;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.junit.Test;
-import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Tests for {@link EntryParser} when parsing {@code <remote-request>} elements.
@@ -49,6 +46,43 @@ public class EntryParserTest {
         EvaluationContext evalContext = new EvaluationContext(null, TestInstances.getInstances());
         Multimap<String, String> evaluatedParams = post.getEvaluatedParams(evalContext);
         assertEquals(Arrays.asList("bang"), evaluatedParams.get("case_id"));
+    }
+
+    @Test
+    public void testParseEntry() throws IOException, UnfullfilledRequirementsException, InvalidStructureException,
+            XmlPullParserException, NoSuchFieldException, IllegalAccessException {
+        String xml = "<entry>\n"
+                + "  <form>http://openrosa.org/formdesigner/2f9</form>\n"
+                + "  <command id=\"search\">\n"
+                + "    <display>\n"
+                + "      <text>Search</text>\n"
+                + "    </display>\n"
+                + "  </command>\n"
+                + "</entry>";
+        EntryParser parser = ParserTestUtils.buildParser(xml, EntryParser::buildEntryParser);
+        FormEntry entry = (FormEntry) parser.parse();
+        assertEquals(entry.getXFormNamespace(), "http://openrosa.org/formdesigner/2f9");
+        assertNull(entry.getPostRequest());
+    }
+
+    @Test
+    public void testParseEntryWithPost() throws IOException, UnfullfilledRequirementsException, InvalidStructureException,
+            XmlPullParserException, NoSuchFieldException, IllegalAccessException {
+        String xml = "<entry>\n"
+                + "  <form>http://openrosa.org/formdesigner/2f9</form>\n"
+                + "  <post url=\"https://www.fake.com/claim_patient/\">\n"
+                + "    <data key=\"case_id\" ref=\"instance('session')/session/case_id\"/>\n"
+                + "  </post>\n"
+                + "  <command id=\"search\">\n"
+                + "    <display>\n"
+                + "      <text>Search</text>\n"
+                + "    </display>\n"
+                + "  </command>\n"
+                + "</entry>";
+        EntryParser parser = ParserTestUtils.buildParser(xml, EntryParser::buildEntryParser);
+        FormEntry entry = (FormEntry) parser.parse();
+        assertEquals(entry.getXFormNamespace(), "http://openrosa.org/formdesigner/2f9");
+        assertEquals(entry.getPostRequest().getUrl().toString(), "https://www.fake.com/claim_patient/");
     }
 
     private PostRequest getRemoteRequestPost(String xml)

@@ -47,11 +47,15 @@ public class FormEntry extends Entry {
     }
 
     /**
-     * @return The XForm Namespce of the form which should be filled out in
+     * @return The XForm Namespace of the form which should be filled out in
      * the form entry session triggered by this action.
      */
     public String getXFormNamespace() {
         return xFormNamespace;
+    }
+
+    public PostRequest getPostRequest() {
+        return post;
     }
 
     @Override
