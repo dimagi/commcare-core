@@ -1,6 +1,7 @@
 package org.commcare.xml;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.commcare.suite.model.QueryData;
@@ -55,7 +56,7 @@ public class QueryDataParserTest {
         QueryPrompt queryData = parser.parse();
 
         EvaluationContext evalContext = new EvaluationContext(null, TestInstances.getInstances());
-        assert (boolean) queryData.getRequired().eval(evalContext);
+        assertTrue((boolean) queryData.getRequired().eval(evalContext));
     }
 
     @Test
