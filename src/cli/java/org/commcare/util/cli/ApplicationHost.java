@@ -78,7 +78,7 @@ public class ApplicationHost {
     private String qualifiedUsername;
     private String password;
     private String mRestoreFile;
-    private boolean mRestoreStrategySet = false;
+    private String mRestoreStrategy = null;
 
     public ApplicationHost(CommCareConfigEngine engine,
                            PrototypeFactory prototypeFactory,
@@ -95,21 +95,27 @@ public class ApplicationHost {
         this(engine, prototypeFactory, new BufferedReader(new InputStreamReader(System.in)), System.out);
     }
 
-    public void setRestoreToRemoteUser(String username, String password) {
+    public void setRestoreToRemoteUser() {
+        mRestoreStrategy = "remote";
+        if (this.username == null || this.password == null) {
+            throw new RuntimeException("username and password required");
+        }
+    }
+
+    public void setUsernamePassword(String username, String password) {
         this.username = username;
         this.password = password;
         String domain = mPlatform.getPropertyManager().getSingularProperty("cc_user_domain");
         this.qualifiedUsername = username + "@" + domain;
-        mRestoreStrategySet = true;
     }
 
     public void setRestoreToLocalFile(String filename) {
         this.mRestoreFile = filename;
-        mRestoreStrategySet = true;
+        mRestoreStrategy = "file";
     }
 
     public void setRestoreToDemoUser() {
-        mRestoreStrategySet = true;
+        mRestoreStrategy = "demo";
     }
 
     public void advanceSessionWithEndpoint(String endpointId, String[] endpointArgs) {
@@ -159,7 +165,7 @@ public class ApplicationHost {
     }
 
     public void run(String endpointId, String[] endpointArgs) {
-        if (!mRestoreStrategySet) {
+        if (mRestoreStrategy == null) {
             throw new RuntimeException("You must set up an application host by calling " +
                     "one of the setRestore*() methods before running the app");
         }
@@ -469,12 +475,14 @@ public class ApplicationHost {
                 mPlatform.getStorageManager().getStorage(FormInstance.STORAGE_KEY));
 
         mSandbox = sandbox;
-        if (username != null && password != null) {
+        if (mRestoreStrategy == "remote") {
             SessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
-        } else if (mRestoreFile != null) {
+        } else if (mRestoreStrategy == "file" && mRestoreFile != null) {
             restoreFileToSandbox(mSandbox, mRestoreFile);
-        } else {
+        } else if (mRestoreStrategy == "demo"){
             restoreDemoUserToSandbox(mSandbox);
+        } else {
+            throw new RuntimeException("Unknown restore strategy " + mRestoreStrategy);
         }
     }
 
