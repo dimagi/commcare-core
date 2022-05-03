@@ -19,9 +19,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Basic static methods for manipulating raw XML
- * 
- * @author ctsims
  *
+ * @author ctsims
  */
 public class XmlUtil {
 
@@ -29,11 +28,10 @@ public class XmlUtil {
         try {
             String unformattedXml = new String(xml);
             final Document document = parseXmlFile(unformattedXml);
-            StringWriter stringWriter=new StringWriter();
+            StringWriter stringWriter = new StringWriter();
 
-
-            DOMImplementationRegistry registry =  DOMImplementationRegistry.newInstance();
-            DOMImplementationLS impls =  (DOMImplementationLS)registry.getDOMImplementation("LS");
+            DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+            DOMImplementationLS impls = (DOMImplementationLS)registry.getDOMImplementation("LS");
 
             LSOutput lsOutput = impls.createLSOutput();
             lsOutput.setEncoding("UTF-8");
