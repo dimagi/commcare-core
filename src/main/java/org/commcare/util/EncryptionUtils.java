@@ -53,6 +53,7 @@ public class EncryptionUtils {
         }
     }
 
+
     private static SecretKey getSecretKeySpec(String key) throws EncryptionException {
         final int KEY_LENGTH_BIT = 256;
         byte[] keyBytes;

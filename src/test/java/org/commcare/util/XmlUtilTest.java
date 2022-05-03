@@ -1,5 +1,6 @@
 package org.commcare.util;
 
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.engine.xml.XmlUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,9 +18,8 @@ public class XmlUtilTest {
     @Test
     public void testPrettifyXml() throws IOException {
         try (InputStream inputStream = getClass().getResourceAsStream("/minified_xml.xml")) {
-            byte[] bytes = inputStream.readAllBytes();
+            byte[] bytes = StreamsUtil.inputStreamToByteArray(inputStream);
             String actualOutput = XmlUtil.getPrettyXml(bytes);
-
             String expectedOutput = getPrettyXml();
             Assert.assertEquals(expectedOutput, actualOutput);
         }
