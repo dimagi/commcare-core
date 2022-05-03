@@ -72,7 +72,6 @@ dependencies {
     // Added so Android Studio recognizes libs in util jar projects
     implementation 'org.json:json:20140107'
     implementation 'commons-cli:commons-cli:1.3.1'
-    implementation 'xpp3:xpp3:1.1.4c'
     implementation 'joda-time:joda-time:2.9.4'
     implementation 'com.carrotsearch:hppc:0.7.2'
     api 'com.squareup.retrofit2:retrofit:2.3.0'
@@ -83,7 +82,6 @@ dependencies {
     cliImplementation 'org.json:json:20140107'
     cliImplementation 'com.github.stefanhaustein:kxml2:2.4.1'
     cliImplementation 'commons-cli:commons-cli:1.3.1'
-    cliImplementation 'xpp3:xpp3:1.1.4c'
     cliImplementation 'joda-time:joda-time:2.9.4'
     cliImplementation 'io.reactivex.rxjava2:rxjava:2.1.1'
     cliImplementation 'com.squareup.retrofit2:retrofit:2.3.0'
@@ -150,7 +148,10 @@ task cliJar(type: Jar, dependsOn: cliClasses) {
     manifest {
         attributes 'Main-Class': 'org.commcare.util.cli.CliMain'
     }
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+    filesMatching(["**/LICENSE.txt","**/NOTICE.txt"]) {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
 }
 
 task ccapiJar(type: Jar, dependsOn: ccapiClasses) {
@@ -161,6 +162,10 @@ task ccapiJar(type: Jar, dependsOn: ccapiClasses) {
         configurations.ccapi.collect {
             it.isDirectory() ? it : zipTree(it)
         }
+    }
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+    filesMatching(["**/LICENSE.txt","**/NOTICE.txt"]) {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 }
 
@@ -176,7 +181,10 @@ task harnessJar(type: Jar, dependsOn: translateClasses) {
     manifest {
         attributes 'Main-Class': 'org.javarosa.engine.Harness'
     }
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+    filesMatching(["**/LICENSE.txt","**/NOTICE.txt"]) {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
 }
 
 // used to provide the test source files to external projects, such as commcare-android,
@@ -185,7 +193,7 @@ task testsrcJar(type: Jar, dependsOn: testClasses) {
     classifier = 'tests'
     from files(sourceSets.test.output)
     from files(sourceSets.cli.output)
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    duplicatesStrategy = DuplicatesStrategy.FAIL
 }
 
 
@@ -201,7 +209,10 @@ task formTranslateJar(type: Jar, dependsOn: translateClasses) {
     manifest {
         attributes 'Main-Class': 'org.javarosa.xform.schema.Harness'
     }
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+    filesMatching(["**/LICENSE.txt","**/NOTICE.txt", "**/org.xmlpull.v1.XmlPullParserFactory","org/xmlpull/v1/*"]) {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
 }
 
 artifacts {
@@ -245,7 +256,7 @@ task jenkinsTest {
 check.dependsOn(jenkinsTest)
 
 jmh {
-    duplicateClassesStrategy = DuplicatesStrategy.WARN
+    duplicateClassesStrategy = DuplicatesStrategy.FAIL
     fork = 2
     iterations = 10
     warmupIterations = 20
