@@ -225,27 +225,27 @@ public class ApplicationHost {
     }
 
     private boolean loopSession() throws IOException {
-        Screen s = getNextScreen();
+        Screen screen = getNextScreen();
         boolean screenIsRedrawing = false;
 
         boolean sessionIsLive = true;
         while (sessionIsLive) {
-            while (s != null) {
+            while (screen != null) {
                 try {
                     if (!screenIsRedrawing) {
-                        s.init(mSession);
+                        screen.init(mSession);
 
-                        if (s.shouldBeSkipped()) {
-                            s = getNextScreen();
+                        if (screen.shouldBeSkipped()) {
+                            screen = getNextScreen();
                             continue;
                         }
                     }
 
                     printStream.println("\n\n\n\n\n\n");
-                    printStream.println(s.getWrappedDisplaytitle(mSandbox, mPlatform));
+                    printStream.println(screen.getWrappedDisplaytitle(mSandbox, mPlatform));
 
                     printStream.println("====================");
-                    boolean requiresInput = s.prompt(printStream);
+                    boolean requiresInput = screen.prompt(printStream);
                     screenIsRedrawing = false;
                     String input = "";
                     if (requiresInput) {
@@ -280,7 +280,7 @@ public class ApplicationHost {
 
                         if (input.equals(":back")) {
                             mSession.stepBack(mSession.getEvaluationContext());
-                            s = getNextScreen();
+                            screen = getNextScreen();
                             continue;
                         }
 
@@ -313,16 +313,16 @@ public class ApplicationHost {
                     // which ultimately updates the session, so getNextScreen will move onto the form list,
                     // skipping the entity detail. To avoid this, flag that we want to force a redraw in this case.
                     boolean waitForCaseDetail = false;
-                    if (s instanceof EntityScreen) {
+                    if (screen instanceof EntityScreen) {
                         boolean isAction = input.startsWith("action "); // Don't wait for case detail if action
-                        if (!isAction && ((EntityScreen) s).getCurrentScreen() instanceof EntityListSubscreen) {
+                        if (!isAction && ((EntityScreen) screen).getCurrentScreen() instanceof EntityListSubscreen) {
                             waitForCaseDetail = true;
                         }
                     }
 
-                    screenIsRedrawing = !s.handleInputAndUpdateSession(mSession, input, false);
+                    screenIsRedrawing = !screen.handleInputAndUpdateSession(mSession, input, false);
                     if (!screenIsRedrawing && !waitForCaseDetail) {
-                        s = getNextScreen();
+                        screen = getNextScreen();
                     }
                 } catch (CommCareSessionException ccse) {
                     printErrorAndContinue("Error during session execution:", ccse);
@@ -361,7 +361,7 @@ public class ApplicationHost {
                     return true;
                 } else if (player.getExecutionResult() == XFormPlayer.FormResult.Cancelled) {
                     mSession.stepBack(mSession.getEvaluationContext());
-                    s = getNextScreen();
+                    screen = getNextScreen();
                 } else {
                     //Handle this later
                     return true;
