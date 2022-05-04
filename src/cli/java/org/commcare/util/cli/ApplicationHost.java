@@ -78,7 +78,7 @@ public class ApplicationHost {
     private String qualifiedUsername;
     private String password;
     private String mRestoreFile;
-    private boolean mRestoreStrategySet = false;
+    private String mRestoreStrategy = null;
 
     public ApplicationHost(CommCareConfigEngine engine,
                            PrototypeFactory prototypeFactory,
@@ -95,21 +95,31 @@ public class ApplicationHost {
         this(engine, prototypeFactory, new BufferedReader(new InputStreamReader(System.in)), System.out);
     }
 
-    public void setRestoreToRemoteUser(String username, String password) {
+    public void setRestoreToRemoteUser() {
+        mRestoreStrategy = "remote";
+        checkUsernamePasswordValid();
+    }
+
+    private void checkUsernamePasswordValid() {
+        if (this.username == null || this.password == null) {
+            throw new RuntimeException("username and password required");
+        }
+    }
+
+    public void setUsernamePassword(String username, String password) {
         this.username = username;
         this.password = password;
         String domain = mPlatform.getPropertyManager().getSingularProperty("cc_user_domain");
         this.qualifiedUsername = username + "@" + domain;
-        mRestoreStrategySet = true;
     }
 
     public void setRestoreToLocalFile(String filename) {
         this.mRestoreFile = filename;
-        mRestoreStrategySet = true;
+        mRestoreStrategy = "file";
     }
 
     public void setRestoreToDemoUser() {
-        mRestoreStrategySet = true;
+        mRestoreStrategy = "demo";
     }
 
     public void advanceSessionWithEndpoint(String endpointId, String[] endpointArgs) {
@@ -159,7 +169,7 @@ public class ApplicationHost {
     }
 
     public void run(String endpointId, String[] endpointArgs) {
-        if (!mRestoreStrategySet) {
+        if (mRestoreStrategy == null) {
             throw new RuntimeException("You must set up an application host by calling " +
                     "one of the setRestore*() methods before running the app");
         }
@@ -215,27 +225,27 @@ public class ApplicationHost {
     }
 
     private boolean loopSession() throws IOException {
-        Screen s = getNextScreen();
+        Screen screen = getNextScreen();
         boolean screenIsRedrawing = false;
 
         boolean sessionIsLive = true;
         while (sessionIsLive) {
-            while (s != null) {
+            while (screen != null) {
                 try {
                     if (!screenIsRedrawing) {
-                        s.init(mSession);
+                        screen.init(mSession);
 
-                        if (s.shouldBeSkipped()) {
-                            s = getNextScreen();
+                        if (screen.shouldBeSkipped()) {
+                            screen = getNextScreen();
                             continue;
                         }
                     }
 
                     printStream.println("\n\n\n\n\n\n");
-                    printStream.println(s.getWrappedDisplaytitle(mSandbox, mPlatform));
+                    printStream.println(screen.getWrappedDisplaytitle(mSandbox, mPlatform));
 
                     printStream.println("====================");
-                    boolean requiresInput = s.prompt(printStream);
+                    boolean requiresInput = screen.prompt(printStream);
                     screenIsRedrawing = false;
                     String input = "";
                     if (requiresInput) {
@@ -270,7 +280,7 @@ public class ApplicationHost {
 
                         if (input.equals(":back")) {
                             mSession.stepBack(mSession.getEvaluationContext());
-                            s = getNextScreen();
+                            screen = getNextScreen();
                             continue;
                         }
 
@@ -303,16 +313,17 @@ public class ApplicationHost {
                     // which ultimately updates the session, so getNextScreen will move onto the form list,
                     // skipping the entity detail. To avoid this, flag that we want to force a redraw in this case.
                     boolean waitForCaseDetail = false;
-                    if (s instanceof EntityScreen) {
+                    if (screen instanceof EntityScreen) {
                         boolean isAction = input.startsWith("action "); // Don't wait for case detail if action
-                        if (!isAction && ((EntityScreen) s).getCurrentScreen() instanceof EntityListSubscreen) {
+                        EntityScreen eScreen = (EntityScreen)screen;
+                        if (!isAction && eScreen.getCurrentScreen() instanceof EntityListSubscreen) {
                             waitForCaseDetail = true;
                         }
                     }
 
-                    screenIsRedrawing = !s.handleInputAndUpdateSession(mSession, input, false);
+                    screenIsRedrawing = !screen.handleInputAndUpdateSession(mSession, input, false);
                     if (!screenIsRedrawing && !waitForCaseDetail) {
-                        s = getNextScreen();
+                        screen = getNextScreen();
                     }
                 } catch (CommCareSessionException ccse) {
                     printErrorAndContinue("Error during session execution:", ccse);
@@ -351,7 +362,7 @@ public class ApplicationHost {
                     return true;
                 } else if (player.getExecutionResult() == XFormPlayer.FormResult.Cancelled) {
                     mSession.stepBack(mSession.getEvaluationContext());
-                    s = getNextScreen();
+                    screen = getNextScreen();
                 } else {
                     //Handle this later
                     return true;
@@ -421,8 +432,10 @@ public class ApplicationHost {
         } else if (next.equals(SessionFrame.STATE_DATUM_VAL)) {
             return new EntityScreen(true);
         } else if (next.equals(SessionFrame.STATE_QUERY_REQUEST)) {
+            checkUsernamePasswordValid();
             return new QueryScreen(qualifiedUsername, password, System.out);
         } else if (next.equals(SessionFrame.STATE_SYNC_REQUEST)) {
+            checkUsernamePasswordValid();
             return new SyncScreen(qualifiedUsername, password, System.out);
         } else if (next.equalsIgnoreCase(SessionFrame.STATE_DATUM_COMPUTED)) {
             computeDatum();
@@ -469,12 +482,14 @@ public class ApplicationHost {
                 mPlatform.getStorageManager().getStorage(FormInstance.STORAGE_KEY));
 
         mSandbox = sandbox;
-        if (username != null && password != null) {
+        if (mRestoreStrategy == "remote") {
             SessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
-        } else if (mRestoreFile != null) {
+        } else if (mRestoreStrategy == "file" && mRestoreFile != null) {
             restoreFileToSandbox(mSandbox, mRestoreFile);
-        } else {
+        } else if (mRestoreStrategy == "demo") {
             restoreDemoUserToSandbox(mSandbox);
+        } else {
+            throw new RuntimeException("Unknown restore strategy " + mRestoreStrategy);
         }
     }
 
