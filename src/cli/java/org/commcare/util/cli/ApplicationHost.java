@@ -315,7 +315,8 @@ public class ApplicationHost {
                     boolean waitForCaseDetail = false;
                     if (screen instanceof EntityScreen) {
                         boolean isAction = input.startsWith("action "); // Don't wait for case detail if action
-                        if (!isAction && ((EntityScreen) screen).getCurrentScreen() instanceof EntityListSubscreen) {
+                        EntityScreen eScreen = (EntityScreen)screen;
+                        if (!isAction && eScreen.getCurrentScreen() instanceof EntityListSubscreen) {
                             waitForCaseDetail = true;
                         }
                     }
@@ -485,7 +486,7 @@ public class ApplicationHost {
             SessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
         } else if (mRestoreStrategy == "file" && mRestoreFile != null) {
             restoreFileToSandbox(mSandbox, mRestoreFile);
-        } else if (mRestoreStrategy == "demo"){
+        } else if (mRestoreStrategy == "demo") {
             restoreDemoUserToSandbox(mSandbox);
         } else {
             throw new RuntimeException("Unknown restore strategy " + mRestoreStrategy);
