@@ -220,12 +220,10 @@ public class CommCareSession {
             } else {
                 return null;
             }
-        } else if (entriesForCurrentCommand.size() > 1 || !entriesForCurrentCommand.elementAt(0).getCommandId().equals(currentCmd)) {
+        } else {
             //the only other thing we can need is a form command. If there's
             //still more than one applicable entry, we need to keep going
             return SessionFrame.STATE_COMMAND_ID;
-        } else {
-            return null;
         }
     }
 
