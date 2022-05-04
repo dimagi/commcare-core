@@ -39,7 +39,7 @@ public class CliTests {
                 String steps,
                 String endpointId,
                 String[] endpointArgs,
-                boolean debug) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+                boolean debug) throws InvocationTargetException, NoSuchMethodException,InstantiationException, IllegalAccessException {
             ApplicationHost host = buildApplicationHost(
                     applicationPath, restoreResource, cliTestReaderClass, steps, debug);
             boolean passed = false;
@@ -279,7 +279,7 @@ public class CliTests {
         }
 
         void processLine(int stepIndex, String output) {
-            switch(stepIndex) {
+            switch (stepIndex) {
                 case 0:
                     Assert.assertTrue(output.contains("test [36]"));
                     Assert.assertTrue(output.contains("2) Module 2"));
@@ -301,7 +301,8 @@ public class CliTests {
                     Assert.assertTrue(output.contains("Sync complete, press Enter to continue"));
                     throw new TestPassException();
                 default:
-                    throw new RuntimeException(String.format("Did not recognize output %s at stepIndex %s", output, stepIndex));
+                    throw new RuntimeException(
+                            String.format("Did not recognize output %s at stepIndex %s", output, stepIndex));
 
             }
         }

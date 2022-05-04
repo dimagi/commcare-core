@@ -52,7 +52,7 @@ public class SyncScreen extends Screen {
 
         try {
             int responseCode = sessionUtils.doPostRequest(
-                syncPost, sessionWrapper, username, password, printStream
+                    syncPost, sessionWrapper, username, password, printStream
             );
             syncSuccessful = true;
             if (responseCode != 204) {

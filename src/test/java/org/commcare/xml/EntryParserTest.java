@@ -26,8 +26,8 @@ import java.util.List;
 public class EntryParserTest {
 
     @Test
-    public void testParseRemoteRequest() throws IOException, UnfullfilledRequirementsException, InvalidStructureException,
-            XmlPullParserException, NoSuchFieldException, IllegalAccessException {
+    public void testParseRemoteRequest() throws IOException, UnfullfilledRequirementsException,
+            InvalidStructureException, XmlPullParserException, IllegalAccessException {
         String xml = "<remote-request>\n"
                 + "  <post url=\"https://www.fake.com/claim_patient/\">\n"
                 + "    <data key=\"case_id\" ref=\"instance('session')/session/case_id\"/>\n"
@@ -50,7 +50,7 @@ public class EntryParserTest {
 
     @Test
     public void testParseEntry() throws IOException, UnfullfilledRequirementsException, InvalidStructureException,
-            XmlPullParserException, NoSuchFieldException, IllegalAccessException {
+            XmlPullParserException {
         String xml = "<entry>\n"
                 + "  <form>http://openrosa.org/formdesigner/2f9</form>\n"
                 + "  <command id=\"search\">\n"
@@ -66,8 +66,8 @@ public class EntryParserTest {
     }
 
     @Test
-    public void testParseEntryWithPost() throws IOException, UnfullfilledRequirementsException, InvalidStructureException,
-            XmlPullParserException, NoSuchFieldException, IllegalAccessException {
+    public void testParseEntryWithPost() throws IOException, UnfullfilledRequirementsException,
+            InvalidStructureException, XmlPullParserException {
         String xml = "<entry>\n"
                 + "  <form>http://openrosa.org/formdesigner/2f9</form>\n"
                 + "  <post url=\"https://www.fake.com/claim_patient/\">\n"

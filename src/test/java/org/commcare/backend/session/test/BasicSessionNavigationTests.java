@@ -200,6 +200,7 @@ public class BasicSessionNavigationTests {
         // menu with single entry
         testStepToSyncRequestInEntry("m3");
     }
+
     public void testStepToSyncRequestInEntry(String menuCommand) {
         session.setCommand(menuCommand);
         Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
