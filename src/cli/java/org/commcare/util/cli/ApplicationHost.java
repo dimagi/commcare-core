@@ -97,6 +97,10 @@ public class ApplicationHost {
 
     public void setRestoreToRemoteUser() {
         mRestoreStrategy = "remote";
+        checkUsernamePasswordValid();
+    }
+
+    private void checkUsernamePasswordValid() {
         if (this.username == null || this.password == null) {
             throw new RuntimeException("username and password required");
         }
@@ -427,8 +431,10 @@ public class ApplicationHost {
         } else if (next.equals(SessionFrame.STATE_DATUM_VAL)) {
             return new EntityScreen(true);
         } else if (next.equals(SessionFrame.STATE_QUERY_REQUEST)) {
+            checkUsernamePasswordValid();
             return new QueryScreen(qualifiedUsername, password, System.out);
         } else if (next.equals(SessionFrame.STATE_SYNC_REQUEST)) {
+            checkUsernamePasswordValid();
             return new SyncScreen(qualifiedUsername, password, System.out);
         } else if (next.equalsIgnoreCase(SessionFrame.STATE_DATUM_COMPUTED)) {
             computeDatum();
