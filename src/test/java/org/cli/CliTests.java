@@ -71,6 +71,7 @@ public class CliTests {
             reader.setDebug(debug);
 
             ApplicationHost host = new ApplicationHost(engine, prototypeFactory, reader, outStream);
+            host.setUsernamePassword("test", "test");
             host.setSessionUtils(new MockSessionUtils());
             File restoreFile = new File(classLoader.getResource(restoreResource).getFile());
             String restorePath = restoreFile.getAbsolutePath();
