@@ -55,7 +55,12 @@ public class SessionUtils {
         String otaSyncUrl = otaFreshRestoreUrl + urlStateParams;
 
         String domain = propertyManager.getSingularProperty("cc_user_domain");
-        final String qualifiedUsername = username + "@" + domain;
+        final String qualifiedUsername;
+        if (username.contains("@")) {
+            qualifiedUsername = username;
+        } else {
+            qualifiedUsername = username + "@" + domain;
+        }
 
         Authenticator.setDefault(new Authenticator() {
             @Override
