@@ -32,8 +32,9 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class SessionUtils {
+    public SessionUtils() {}
 
-    public static void restoreUserToSandbox(UserSandbox sandbox,
+    public void restoreUserToSandbox(UserSandbox sandbox,
                                             SessionWrapper session,
                                             CommCarePlatform platform,
                                             String username,
@@ -124,7 +125,7 @@ public class SessionUtils {
         }
     }
 
-    public static int doPostRequest(
+    public int doPostRequest(
             PostRequest syncPost,
             SessionWrapper session,
             final String username,

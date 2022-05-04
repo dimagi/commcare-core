@@ -22,16 +22,18 @@ public class SyncScreen extends Screen {
     private String username;
     private String password;
     private PrintStream printStream;
+    private SessionUtils sessionUtils;
     private boolean syncSuccessful;
 
     public SyncScreen() {
     }
 
-    public SyncScreen(String username, String password, PrintStream printStream) {
+    public SyncScreen(String username, String password, PrintStream printStream, SessionUtils sessionUtils) {
         super();
         this.username = username;
         this.password = password;
         this.printStream = printStream;
+        this.sessionUtils = sessionUtils;
     }
 
     @Override
@@ -49,12 +51,12 @@ public class SyncScreen extends Screen {
         }
 
         try {
-            int responseCode = SessionUtils.doPostRequest(
+            int responseCode = sessionUtils.doPostRequest(
                 syncPost, sessionWrapper, username, password, printStream
             );
             syncSuccessful = true;
             if (responseCode != 204) {
-                SessionUtils.restoreUserToSandbox(sessionWrapper.getSandbox(),
+                sessionUtils.restoreUserToSandbox(sessionWrapper.getSandbox(),
                     sessionWrapper,
                     sessionWrapper.getPlatform(),
                     username,

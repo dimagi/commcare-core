@@ -1,0 +1,8 @@
+modules.m0=Module 0
+modules.m1=Module 1
+modules.m2=Module 2
+modules.m3=Module 3
+modules.parent=Parent Module
+cchq.case=Case
+m1.case_short.case_name_1.header=name
+m1.case_long.case_name_1.header=name
