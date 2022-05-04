@@ -1,5 +1,7 @@
 package org.commcare.session;
 
+import static org.javarosa.core.model.Constants.EXTRA_POST_SUCCESS;
+
 import com.google.common.collect.Multimap;
 
 import org.commcare.suite.model.ComputedDatum;
@@ -210,7 +212,10 @@ public class CommCareSession {
             if (entry == null) {
                 // command doesn't reference an entry directly so the user must still select one
                 return SessionFrame.STATE_COMMAND_ID;
-            } else if (entry.getPostRequest() != null && entry.getPostRequest().isRelevant(evalContext)) {
+            } else if (entry.getPostRequest() != null
+                    && getCurrentFrameStepExtra(EXTRA_POST_SUCCESS) == null
+                    && entry.getPostRequest().isRelevant(evalContext)
+            ) {
                 return SessionFrame.STATE_SYNC_REQUEST;
             } else {
                 return null;

@@ -1,5 +1,7 @@
 package org.commcare.util.screen;
 
+import static org.javarosa.core.model.Constants.EXTRA_POST_SUCCESS;
+
 import com.google.common.collect.Multimap;
 
 import org.commcare.modern.session.SessionWrapper;
@@ -128,6 +130,13 @@ public class SyncScreen extends Screen {
     @Override
     public boolean handleInputAndUpdateSession(CommCareSession commCareSession, String s, boolean allowAutoLaunch) throws CommCareSessionException {
         if (syncSuccessful) {
+            sessionWrapper.addExtraToCurrentFrameStep(EXTRA_POST_SUCCESS, true);
+            Entry commandEntry = sessionWrapper.getCurrentEntry();
+            if (commandEntry.getXFormNamespace() != null) {
+                // session is not complete, keep going
+                return true;
+            }
+
             commCareSession.syncState();
             if (commCareSession.finishExecuteAndPop(sessionWrapper.getEvaluationContext())) {
                 sessionWrapper.clearVolatiles();
