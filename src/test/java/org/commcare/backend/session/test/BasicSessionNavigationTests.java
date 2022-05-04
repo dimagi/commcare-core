@@ -3,6 +3,7 @@ package org.commcare.backend.session.test;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.SessionFrame;
 import org.commcare.test.utilities.MockApp;
+import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -186,5 +187,32 @@ public class BasicSessionNavigationTests {
 
         session.setCommand("relevant-remote-request");
         Assert.assertEquals(SessionFrame.STATE_SYNC_REQUEST, session.getNeededData());
+    }
+
+    @Test
+    public void testStepToSyncRequestInEntry_multiple() {
+        // menu with multiple entries
+        testStepToSyncRequestInEntry("m2");
+    }
+
+    @Test
+    public void testStepToSyncRequestInEntry_single() {
+        // menu with single entry
+        testStepToSyncRequestInEntry("m3");
+    }
+    public void testStepToSyncRequestInEntry(String menuCommand) {
+        session.setCommand(menuCommand);
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
+        session.setDatum("case_id", "case_one");
+
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        session.setCommand("m2-f2");
+
+        Assert.assertEquals(SessionFrame.STATE_SYNC_REQUEST, session.getNeededData());
+        // simulate sync request success
+        session.addExtraToCurrentFrameStep(Constants.EXTRA_POST_SUCCESS, true);
+
+        Assert.assertNull(session.getNeededData());
     }
 }
