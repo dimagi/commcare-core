@@ -58,7 +58,7 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
     }
 
     public boolean isView() {
-        return getXFormNamespace() == null && getPostRequest() == null;
+        return getXFormNamespace() == null && getPostRequest() == null && stackOperations.size() == 0;
     }
 
     public boolean isRemoteRequest() {
