@@ -31,6 +31,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
     private static final String NAME_VALUE = "value";
     private static final String NAME_SORT = "sort";
     private static final String ATTR_REF = "ref";
+    private static final String ATTR_EXCLUDE = "exclude";
 
     public QueryPromptParser(KXmlParser parser) {
         super(parser);
@@ -45,20 +46,10 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
         String hidden = parser.getAttributeValue(null, ATTR_HIDDEN);
         DisplayUnit display = null;
         ItemsetBinding itemsetBinding = null;
-        XPathExpression defaultValue = null;
-
         String defaultValueString = parser.getAttributeValue(null, ATTR_DEFAULT);
-        if(defaultValueString != null) {
-            try {
-                defaultValue = XPathParseTool.parseXPath(defaultValueString);
-            } catch (XPathSyntaxException e) {
-                InvalidStructureException toThrow = new InvalidStructureException(String.format(
-                        "Invalid XPath Expression in QueryPrompt %s",
-                        e.getMessage()), parser);
-                toThrow.initCause(e);
-                throw toThrow;
-            }
-        }
+        XPathExpression defaultValue = xpathPropertyValue(defaultValueString);
+        String excludeValueString = parser.getAttributeValue(null, ATTR_EXCLUDE);
+        XPathExpression exclude = xpathPropertyValue(excludeValueString);
 
         while (nextTagInBlock(NAME_PROMPT)) {
             if (NAME_DISPLAY.equals(parser.getName().toLowerCase())) {
@@ -67,7 +58,8 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
                 itemsetBinding = parseItemset();
             }
         }
-        return new QueryPrompt(key, appearance, input, receive, hidden, display, itemsetBinding, defaultValue);
+        return new QueryPrompt(key, appearance, input, receive, hidden, display,
+                               itemsetBinding, defaultValue, exclude);
     }
 
     private ItemsetBinding parseItemset() throws IOException, XmlPullParserException, InvalidStructureException {
@@ -85,5 +77,21 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
             }
         }
         return itemset;
+    }
+
+    public XPathExpression xpathPropertyValue(String xpath) throws InvalidStructureException {
+        XPathExpression propertyValue = null;
+        if (xpath != null) {
+            try {
+                propertyValue = XPathParseTool.parseXPath(xpath);
+            } catch (XPathSyntaxException e) {
+                InvalidStructureException toThrow = new InvalidStructureException(String.format(
+                        "Invalid XPath Expression in QueryPrompt %s",
+                        e.getMessage()), parser);
+                toThrow.initCause(e);
+                throw toThrow;
+            }
+        }
+        return propertyValue;
     }
 }
