@@ -7,6 +7,7 @@ import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,5 +36,23 @@ public class FixtureQueryTest {
                 MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);
         CaseTestUtils.xpathEvalAndAssert(ec, "count(instance('commtrack:products')/products/product[@heterogenous_attribute = 'present'])", 2.0);
         CaseTestUtils.xpathEvalAndAssert(ec, "instance('commtrack:products')/products/@last_sync", "2018-07-27T12:54:11.987997+00:00");
+    }
+
+    @Test(expected = XPathTypeMismatchException.class)
+    public void queryMissingLookups() throws XPathSyntaxException, UnfullfilledRequirementsException, XmlPullParserException, IOException, InvalidStructureException {
+        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/fixture_create.xml"), sandbox);
+
+        EvaluationContext ec =
+                MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);
+        CaseTestUtils.xpathEvalAndAssert(ec, "instance('commtrack:products')/products/product[@heterogenous_attribute = 'present']/missing_reference", "");
+    }
+
+    @Test(expected = XPathTypeMismatchException.class)
+    public void queryMissingPredicate() throws XPathSyntaxException, UnfullfilledRequirementsException, XmlPullParserException, IOException, InvalidStructureException {
+        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/fixture_create.xml"), sandbox);
+
+        EvaluationContext ec =
+                MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products", CaseTestUtils.FIXTURE_INSTANCE_PRODUCT);
+        CaseTestUtils.xpathEvalAndAssert(ec, "instance('commtrack:products')/products/product[@heterogenous_attribute = 'present'][missing_reference='test']", "");
     }
 }

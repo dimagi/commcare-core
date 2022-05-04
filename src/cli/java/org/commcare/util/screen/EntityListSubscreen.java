@@ -101,7 +101,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             } else {
                 s = (String)o;
             }
-            row.append(s);
+            row.append(ScreenUtils.pad(s, getWidthHint(fields, field)));
         }
 
         if (detailFieldException != null) {
@@ -114,7 +114,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         return row.toString();
     }
 
-    public static Pair<String[], int[]> getHeaders(Detail shortDetail, EvaluationContext context, int sortIndex){
+    public static Pair<String[], int[]> getHeaders(Detail shortDetail, EvaluationContext context, int sortIndex) {
         DetailField[] fields = shortDetail.getFields();
         String[] headers = new String[fields.length];
         int[] widthHints = new int[fields.length];
@@ -128,13 +128,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         for (DetailField field : fields) {
             String s = field.getHeader().evaluate(context);
 
-            int widthHint = SCREEN_WIDTH / fields.length;
-            try {
-                widthHint = Integer.parseInt(field.getHeaderWidthHint());
-            } catch (Exception e) {
-                //Really don't care if it didn't work
-            }
-
+            int widthHint = getWidthHint(fields, field);
             ScreenUtils.addPaddedStringToBuilder(row, s, widthHint);
 
             if (DataUtil.intArrayContains(sorts, i)) {
@@ -167,12 +161,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         for (DetailField field : fields) {
             String s = field.getHeader().evaluate(context);
 
-            int widthHint = SCREEN_WIDTH / fields.length;
-            try {
-                widthHint = Integer.parseInt(field.getHeaderWidthHint());
-            } catch (Exception e) {
-                //Really don't care if it didn't work
-            }
+            int widthHint = getWidthHint(fields, field);
             ScreenUtils.addPaddedStringToBuilder(row, s, widthHint);
             i++;
             if (i != fields.length) {
@@ -190,7 +179,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
         for (int i = 0; i < mChoices.length; ++i) {
             String d = rows[i];
-            out.println(ScreenUtils.pad(String.valueOf(i), maxLength) + ")" + d);
+            out.println(ScreenUtils.pad(String.valueOf(i), maxLength) + ") " + d);
         }
 
         if (actions != null) {
@@ -209,7 +198,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     }
 
     @Override
-    public boolean handleInputAndUpdateHost(String input, EntityScreen host) throws CommCareSessionException {
+    public boolean handleInputAndUpdateHost(String input, EntityScreen host, boolean allowAutoLaunch) throws CommCareSessionException {
         if (input.startsWith("action ") && actions != null) {
             int chosenActionIndex;
             try {
@@ -221,6 +210,9 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                 host.setPendingAction(actions.elementAt(chosenActionIndex));
                 return true;
             }
+        } else if (host.getAutoLaunchAction() != null && allowAutoLaunch) {
+            host.setPendingAction(host.getAutoLaunchAction());
+            return true;
         }
 
         if (input.startsWith("debug ")) {
@@ -244,18 +236,32 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             try {
                 int index = Integer.parseInt(input);
                 host.setHighlightedEntity(mChoices[index]);
+                // Set entity screen to show detail and redraw
+                host.setCurrentScreenToDetail();
                 return true;
             } catch (NumberFormatException e) {
-                //This will result in things just executing again, which is fine.
+                // This will result in things just executing again, which is fine.
+                return false;
             }
         } else {
             host.setHighlightedEntity(input);
+            // Set entity screen to show detail and redraw
+            host.setCurrentScreenToDetail();
             return true;
         }
-        return false;
     }
 
     public Detail getShortDetail() {
         return shortDetail;
+    }
+
+    private static int getWidthHint(DetailField[] fields, DetailField field) {
+        int widthHint = SCREEN_WIDTH / fields.length;
+        try {
+            widthHint = Integer.parseInt(field.getHeaderWidthHint());
+        } catch (Exception e) {
+            //Really don't care if it didn't work
+        }
+        return widthHint;
     }
 }

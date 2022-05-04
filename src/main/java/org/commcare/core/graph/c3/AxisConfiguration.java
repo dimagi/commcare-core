@@ -34,8 +34,7 @@ public class AxisConfiguration extends Configuration {
         mConfiguration.put("y2", y2);
 
         // Bar graphs may be rotated. C3 defaults to vertical bars.
-        if (mData.getType().equals(GraphUtil.TYPE_BAR)
-                && !mData.getConfiguration("bar-orientation", "horizontal").equalsIgnoreCase("vertical")) {
+        if (isRotatedBarGraph) {
             mConfiguration.put("rotated", true);
         }
     }
@@ -110,6 +109,7 @@ public class AxisConfiguration extends Configuration {
                     // and the value is text with which to label it
                     JSONObject labels = new JSONObject(labelString);
                     JSONArray values = new JSONArray();
+                    String largestLabel = "";
                     Iterator i = labels.keys();
                     while (i.hasNext()) {
                         String location = (String)i.next();
@@ -118,6 +118,12 @@ public class AxisConfiguration extends Configuration {
                         } else {
                             values.put(parseDouble(location, key));
                         }
+                        try {
+                            String current = labels.getString(location);
+                            if (current.length() > largestLabel.length()) {
+                                largestLabel = current;
+                            }
+                        } catch (JSONException e) { }
                     }
                     tick.put("values", values);
                     mVariables.put(varName, labels.toString());
@@ -148,6 +154,9 @@ public class AxisConfiguration extends Configuration {
             }
         }
 
+        if ((isX && !isRotatedBarGraph) || (isRotatedBarGraph && key.startsWith("y"))) {
+            tick.put("rotate", 75);
+        }
         if (tick.length() > 0) {
             axis.put("tick", tick);
         }
@@ -198,7 +207,12 @@ public class AxisConfiguration extends Configuration {
         // Undo C3's automatic axis padding
         config.put("padding", new JSONObject("{top: 0, right: 0, bottom: 0, left: 0}"));
 
-        addTitle(config, prefix + "-title", isX ? "outer-center" : "outer-middle");
+
+        if (isRotatedBarGraph && prefix.startsWith("y")) {
+            addTitle(config, prefix + "-title", "inner-right");
+        } else {
+            addTitle(config, prefix + "-title", isX ? "outer-center" : "outer-middle");
+        }
 
         addBounds(config, prefix);
 

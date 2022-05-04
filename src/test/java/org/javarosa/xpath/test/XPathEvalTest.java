@@ -1,5 +1,6 @@
 package org.javarosa.xpath.test;
 
+import org.commcare.util.EncryptionUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.data.IAnswerData;
@@ -26,8 +27,17 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
+
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.Date;
-import java.util.TimeZone;
 import java.util.Vector;
 
 import static org.junit.Assert.fail;
@@ -69,11 +79,27 @@ public class XPathEvalTest {
                     fail("Result was supposed to be NaN, but got " + o);
                 }
             } else if (!expected.equals(result)) {
-                fail("Expected " + expected + ", got " + result);
+                fail("Expected " + expected + ", got " + result + " (expr = '" + expr + "')");
             }
         } catch (XPathException xpex) {
             assertExceptionExpected(exceptionExpected, expected, xpex);
         }
+    }
+
+    private Object evalExpr(String expr, FormInstance model,
+                            EvaluationContext ec) throws Exception {
+        XPathExpression xpe = null;
+        if (ec == null) {
+            ec = new EvaluationContext(model);
+        }
+
+        xpe = XPathParseTool.parseXPath(expr);
+
+        if (xpe == null) {
+            fail("Null expression or syntax error " + expr);
+        }
+
+        return FunctionUtils.unpack(xpe.eval(model, ec));
     }
 
     private void assertExceptionExpected(boolean exceptionExpected, Object expected, Exception xpex) {
@@ -130,8 +156,16 @@ public class XPathEvalTest {
         testEval("regex('Is this right?', '^Is this right\\?$')", null, null, Boolean.TRUE);
         testEval("regex('Dollar sign\ndoes not match newlines', 'sign$')", null, null, Boolean.FALSE);
         testEval("regex('Dollar sign\ndoes not match newlines', 'newlines$')", null, null, Boolean.TRUE);
-        testEval("regex('cocotero', 'cocotero')", null, null,Boolean.TRUE);
-        testEval("regex('cocotero', 'te')", null, null,Boolean.TRUE);
+        testEval("regex('cocotero', 'cocotero')", null, null, Boolean.TRUE);
+        testEval("regex('cocotero', 'te')", null, null, Boolean.TRUE);
+        testEval(String.format("regex('%s', '%s')",
+                "1.1.1.1",
+                "^([1,2]{0,1}[0-9]{1,2}.){3}[1,2]{0,1}[0-9]{1,2}$"
+        ), null, null, Boolean.TRUE);
+        testEval(String.format("regex('%ss', '%s')",
+                "Andrew.weston-lewis@state,co.us",
+                "^([a-zA-Z0-9-]+\\.)*[a-zA-Z0-9-]+@([a-zA-Z0-9-]+\\.)+[a-zA-Z0-9-]+$"
+        ), null, null, Boolean.FALSE);
     }
 
     @Test
@@ -722,6 +756,71 @@ public class XPathEvalTest {
         testEval("now()", null, ec, "pass");
     }
 
+    // Utility methods for string encryption.
+    private SecretKey generateSecretKey(int keyLength) throws Exception {
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(keyLength, new SecureRandom());
+        return keyGen.generateKey();
+    }
+
+    public void encryptAndCompare(EvaluationContext ec, String algorithm,
+                                  int keyLength, String message,
+                                  Exception expectedException) throws UnsupportedEncodingException {
+        SecretKey secretKey = null;
+        try {
+            secretKey = generateSecretKey(keyLength);
+        } catch(Exception ex) {
+            fail("Unexpected exception generating secret key");
+        }
+
+        // The encrypted output contains a random initialization vector, so
+        // we can't know in advance what it will be. Instead decrypt the output
+        // and check for the input message.
+        String keyString =
+                new String(Base64.getEncoder().encode(secretKey.getEncoded()), "UTF-8");
+        try {
+            Object result = evalExpr("encrypt-string('" + message + "','" +
+                                     keyString + "','" + algorithm + "')",
+                                     null, ec);
+            String resultString = FunctionUtils.toString(result);
+
+            Object decryptedObject = evalExpr("decrypt-string('" + resultString + "','" +
+                            keyString + "','" + algorithm + "')",
+                    null, ec);
+            String decryptedMessage = FunctionUtils.toString(decryptedObject);
+            if (!message.equals(decryptedMessage)) {
+                fail("Expected decrypted message " + message + ", got " +
+                     decryptedMessage);
+            }
+        } catch(Exception ex) {
+            assertExceptionExpected(expectedException != null,
+                                    expectedException, ex);
+            return;
+        }
+    }
+
+    @Test
+    public void testEncryptString() throws UnsupportedEncodingException {
+        final int KEY_LENGTH_BIT = 256;
+        EvaluationContext ec = getFunctionHandlers();
+        // Valid inputs that should decrypt to themselves.
+        encryptAndCompare(ec, "AES", KEY_LENGTH_BIT, "49812057128", null);
+        encryptAndCompare(ec, "AES", KEY_LENGTH_BIT,
+                          "A short message to be encrypted", null);
+        encryptAndCompare(ec, "AES", KEY_LENGTH_BIT,
+                          "A longer message to be encrypted by the AES GCM " +
+                          "method, which will test that somewhat longer " +
+                          "messages can be correctly encrypted", null);
+
+        // Invalid inputs that should raise exceptions.
+        encryptAndCompare(ec, "DES", KEY_LENGTH_BIT,
+                          "A short message to be encrypted",
+                          new XPathException());
+        encryptAndCompare(ec, "AES", KEY_LENGTH_BIT/2,
+                          "A short message to be encrypted",
+                          new XPathException());
+    }
+
     protected void addDataRef(FormInstance dm, String ref, IAnswerData data) {
         TreeReference treeRef = XPathReference.getPathExpr(ref).getReference();
         treeRef = inlinePositionArgs(treeRef);
@@ -1133,5 +1232,3 @@ public class XPathEvalTest {
         }
     };
 }
-
-

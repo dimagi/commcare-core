@@ -167,8 +167,8 @@ public class FormController {
         return mFormEntryController.answerQuestion(index, data);
     }
 
-    public int checkCurrentQuestionConstraint() {
-        return mFormEntryController.checkQuestionConstraint(getQuestionPrompt().getAnswerValue());
+    public int checkCurrentQuestionConstraint(FormIndex index) {
+        return mFormEntryController.checkQuestionConstraint(index, getQuestionPrompt(index).getAnswerValue());
     }
 
     /**

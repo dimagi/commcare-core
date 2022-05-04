@@ -62,14 +62,18 @@ public class SyncScreen extends Screen {
                 return;
             }
             syncSuccessful = true;
-            SessionUtils.restoreUserToSandbox(sessionWrapper.getSandbox(),
+            if (response.code() != 204) {
+                SessionUtils.restoreUserToSandbox(sessionWrapper.getSandbox(),
                     sessionWrapper,
                     sessionWrapper.getPlatform(),
                     username,
                     password,
                     printStream);
 
-            printStream.println(String.format("Sync successful with response %s", response));
+                printStream.println(String.format("Sync successful with response %s", response));
+            } else {
+                printStream.println("Did not sync because case was already claimed.");
+            }
             printStream.println("Press 'enter' to continue.");
         } catch (IOException e) {
             e.printStackTrace();
@@ -121,16 +125,16 @@ public class SyncScreen extends Screen {
     }
 
     @Override
-    public boolean handleInputAndUpdateSession(CommCareSession commCareSession, String s) throws CommCareSessionException {
+    public boolean handleInputAndUpdateSession(CommCareSession commCareSession, String s, boolean allowAutoLaunch) throws CommCareSessionException {
         if (syncSuccessful) {
             commCareSession.syncState();
             if (commCareSession.finishExecuteAndPop(sessionWrapper.getEvaluationContext())) {
                 sessionWrapper.clearVolatiles();
             }
-            return false;
+            return true;
         } else {
             parseMakeRequest();
-            return true;
+            return false;
         }
     }
 

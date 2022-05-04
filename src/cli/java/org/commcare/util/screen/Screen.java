@@ -27,18 +27,21 @@ public abstract class Screen implements OptionsScreen {
      * for this screen.
      */
     public abstract void init(SessionWrapper session) throws CommCareSessionException;
+
     public abstract void prompt(PrintStream out) throws CommCareSessionException;
 
     /**
      * Based on the the input provided from the user to the command line, either update the session
      * and proceed to the next screen, or handle the input locally and ask to be redrawn
      *
-     * @param session The current session to be mutated
-     * @param input the input provided by the user to the command line
+     * @param session         The current session to be mutated
+     * @param input           the input provided by the user to the command line
+     * @param allowAutoLaunch If this step is allowed to automatically launch an action,
+     *                        assuming it has an autolaunch action specified.
      * @return True if the session was updated and the app should proceed to the next phase, false
      * if the screen wants to continue being redrawn.
      */
-    public abstract boolean handleInputAndUpdateSession(CommCareSession session, String input) throws CommCareSessionException;
+    public abstract boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch) throws CommCareSessionException;
 
 
     /**

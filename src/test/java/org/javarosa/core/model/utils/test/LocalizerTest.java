@@ -664,7 +664,7 @@ public class LocalizerTest {
 
         for(int i = 0 ; i < attempts ; ++i) {
             try {
-                t.join(50);
+                t.join(500);
                 break;
             } catch (InterruptedException e) {
 

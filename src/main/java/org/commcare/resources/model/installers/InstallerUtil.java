@@ -22,7 +22,8 @@ public class InstallerUtil {
             boolean successfulAdd;
             try {
                 if (!ref.doesBinaryExist()) {
-                    successfulAdd = problems.add(new MissingMediaException(r, "Missing external media: " + localName, filePath));
+                    successfulAdd = problems.add(new MissingMediaException(r, "Missing external media: " + localName, filePath,
+                            MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND));
                     if (successfulAdd) {
 
                         switch (mt) {
@@ -44,7 +45,8 @@ public class InstallerUtil {
                     }
                 }
             } catch (IOException e) {
-                problems.addElement(new MissingMediaException(r, "Problem reading external media: " + localName, filePath));
+                problems.addElement(new MissingMediaException(r, "Problem reading external media: " + localName, filePath,
+                        MissingMediaException.MissingMediaExceptionType.FILE_NOT_ACCESSIBLE));
             }
         } catch (InvalidReferenceException e) {
             //So the problem is that this might be a valid entry that depends on context

@@ -1,5 +1,6 @@
 package org.commcare.util;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 /**
@@ -27,5 +28,20 @@ public class CollectionUtils {
             result[i] = second.elementAt(i - first.size());
         }
         return result;
+    }
+
+    /**
+     * Checks if any element in {@code subList} is contained in {@code superList}
+     * @param superList
+     * @param subList
+     * @return true if {@code superList} contains any element of {@code subList}, false otherwise
+     */
+    public static boolean containsAny(ArrayList<String> superList, ArrayList<String> subList) {
+        for (String item : subList) {
+            if(superList.contains(item)){
+                return true;
+            }
+        }
+        return false;
     }
 }

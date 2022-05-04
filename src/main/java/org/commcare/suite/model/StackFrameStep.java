@@ -12,6 +12,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.FunctionUtils;
+import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -19,6 +20,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * @author ctsims
@@ -123,6 +125,10 @@ public class StackFrameStep implements Externalizable {
         return extras.get(key);
     }
 
+    public Map<String, Object> getExtras() {
+        return extras;
+    }
+
     /**
      * Get a performed step to pass on to an actual frame
      *
@@ -148,6 +154,14 @@ public class StackFrameStep implements Externalizable {
                 return new StackFrameStep(SessionFrame.STATE_MARK, neededDatum.getDataId(), null);
             case SessionFrame.STATE_FORM_XMLNS:
                 throw new RuntimeException("Form Definitions in Steps are not yet supported!");
+            case SessionFrame.STATE_QUERY_REQUEST:
+            case SessionFrame.STATE_SMART_LINK:
+                StackFrameStep defined = new StackFrameStep(elementType, id, evaluateValue(ec));
+                for (String key : extras.keySet()) {
+                    XPathExpression expr = (XPathExpression) getExtra(key);
+                    defined.addExtra(key, FunctionUtils.toString(expr.eval(ec)));
+                }
+                return defined;
             default:
                 throw new RuntimeException("Invalid step [" + elementType + "] declared when constructing a new frame step");
         }

@@ -1,5 +1,6 @@
 package org.commcare.resources.model.installers;
 
+import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
@@ -38,7 +39,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
                            ResourceTable table, CommCarePlatform platform,
-                           boolean upgrade, boolean recovery) throws UnresolvedResourceException {
+                           boolean upgrade, ResourceInstallContext resourceInstallContext) throws UnresolvedResourceException {
         InputStream incoming = null;
         try {
             if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_CACHE) {
@@ -72,7 +73,9 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
                 return true;
             }
         } catch (IOException e) {
-            throw new UnreliableSourceException(r, e.getMessage());
+            UnreliableSourceException exception = new UnreliableSourceException(r, e.getMessage());
+            exception.initCause(e);
+            throw exception;
         } catch (XFormParseException xpe) {
             throw new UnresolvedResourceException(r, xpe.getMessage(), true);
         } finally {
@@ -181,7 +184,8 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
         try {
             formDef = storage(platform).read(cacheLocation);
         } catch (Exception e) {
-            sizeBoundProblems.addElement(new MissingMediaException(r, "Form did not properly save into persistent storage"));
+            sizeBoundProblems.addElement(new MissingMediaException(r, "Form did not properly save into persistent storage",
+                    MissingMediaException.MissingMediaExceptionType.NONE));
             return true;
         }
         //Otherwise, we want to figure out if the form has media, and we need to see whether it's properly

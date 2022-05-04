@@ -213,6 +213,12 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
                 case "external_id":
                     caseForBlock.setExternalId(value);
                     break;
+                case "category":
+                    caseForBlock.setCategory(value);
+                    break;
+                case "state":
+                    caseForBlock.setState(value);
+                    break;
                 default:
                     caseForBlock.setProperty(key, value);
                     break;

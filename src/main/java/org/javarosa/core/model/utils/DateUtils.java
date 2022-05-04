@@ -20,6 +20,7 @@ public class DateUtils {
     private static final int MONTH_OFFSET = (1 - Calendar.JANUARY);
 
     public static final int FORMAT_ISO8601 = 1;
+    public static final int FORMAT_ISO8601_WALL_TIME = 10;
     public static final int FORMAT_HUMAN_READABLE_SHORT = 2;
     public static final int FORMAT_HUMAN_READABLE_DAYS_FROM_TODAY = 5;
     public static final int FORMAT_TIMESTAMP_SUFFIX = 7;
@@ -32,8 +33,10 @@ public class DateUtils {
     private static TimezoneProvider tzProvider = new TimezoneProvider();
 
     public static final long HOUR_IN_MS = TimeUnit.HOURS.toMillis(1);
-    public static final long DAY_IN_MS = TimeUnit.DAYS.toMillis(1);;
+    public static final long DAY_IN_MS = TimeUnit.DAYS.toMillis(1);
+
     private static final Date EPOCH_DATE = getDate(1970, 1, 1);
+
     private final static long EPOCH_TIME = roundDate(EPOCH_DATE).getTime();
 
     public static class CalendarStrings {
@@ -71,6 +74,7 @@ public class DateUtils {
             second = 0;
             secTicks = 0;
             dow = 0;
+            timezoneOffsetInMillis = 0;
 
             noValidation = false;
 
@@ -85,6 +89,7 @@ public class DateUtils {
         public int minute; //0-59
         public int second; //0-59
         public int secTicks; //0-999 (ms)
+        public int timezoneOffsetInMillis; //(ms)
         boolean noValidation = false; // true or false. Set to true when using foreign calendars
 
         /**
@@ -115,6 +120,10 @@ public class DateUtils {
         return tzProvider.getTimezoneOffsetMillis();
     }
 
+    private static TimeZone timezone() {
+        return tzProvider.getTimezone();
+    }
+
     public static DateFields getFieldsForNonGregorianCalendar(int year, int monthOfYear, int dayOfMonth) {
         DateFields nonGregorian = new DateFields();
         nonGregorian.year = year;
@@ -132,10 +141,12 @@ public class DateUtils {
         cd.setTime(d);
         if (timezone != null) {
             cd.setTimeZone(TimeZone.getTimeZone(timezone));
+        } else if (timezone() != null) {
+            cd.setTimeZone(timezone());
         } else if (timezoneOffset() != -1) {
             return getFields(d, timezoneOffset());
         }
-        return getFields(cd);
+        return getFields(cd, cd.getTimeZone().getOffset(d.getTime()));
     }
 
     private static DateFields getFields(Date d, int timezoneOffset) {
@@ -143,10 +154,10 @@ public class DateUtils {
         cd.setTimeZone(TimeZone.getTimeZone("UTC"));
         cd.setTime(d);
         cd.add(Calendar.MILLISECOND, timezoneOffset);
-        return getFields(cd);
+        return getFields(cd, timezoneOffset);
     }
 
-    private static DateFields getFields(Calendar cal) {
+    private static DateFields getFields(Calendar cal, int timezoneOffset) {
         DateFields fields = new DateFields();
         fields.year = cal.get(Calendar.YEAR);
         fields.month = cal.get(Calendar.MONTH) + MONTH_OFFSET;
@@ -156,6 +167,7 @@ public class DateUtils {
         fields.second = cal.get(Calendar.SECOND);
         fields.secTicks = cal.get(Calendar.MILLISECOND);
         fields.dow = cal.get(Calendar.DAY_OF_WEEK);
+        fields.timezoneOffsetInMillis = timezoneOffset;
         return fields;
     }
 
@@ -196,6 +208,8 @@ public class DateUtils {
 
         if (timezone != null) {
             cd.setTimeZone(TimeZone.getTimeZone(timezone));
+        } else if (timezone() != null) {
+            cd.setTimeZone(timezone());
         } else if (timezoneOffset() != -1) {
             return getDate(df, timezoneOffset());
         }
@@ -285,6 +299,8 @@ public class DateUtils {
         switch (format) {
             case FORMAT_ISO8601:
                 return formatTimeISO8601(f);
+            case FORMAT_ISO8601_WALL_TIME:
+                return formatTimeISO8601(f, true);
             case FORMAT_HUMAN_READABLE_SHORT:
                 return formatTimeColloquial(f);
             case FORMAT_TIMESTAMP_SUFFIX:
@@ -331,7 +347,14 @@ public class DateUtils {
     }
 
     private static String formatTimeISO8601(DateFields f) {
+        return formatTimeISO8601(f, false);
+    }
+
+    private static String formatTimeISO8601(DateFields f, boolean suppressTimezone) {
         String time = intPad(f.hour, 2) + ":" + intPad(f.minute, 2) + ":" + intPad(f.second, 2) + "." + intPad(f.secTicks, 3);
+        if (suppressTimezone) {
+            return time;
+        }
 
         int offset;
         if (timezoneOffset() != -1) {
@@ -423,7 +446,9 @@ public class DateUtils {
                     sb.append(stringsSource.dayNamesShort[f.dow - 1]);
                 } else if (c == 'w') {    //Day of the week (0 through 6), Sunday being 0.
                     sb.append(f.dow - 1);
-                } else if (Arrays.asList('c', 'C', 'D', 'F', 'g', 'G', 'I', 'j', 'k', 'l', 'p', 'P', 'r', 'R', 's', 't', 'T', 'u', 'U', 'V', 'W', 'x', 'X', 'z', 'Z').contains(c)) {
+                } else if (c == 'Z') {
+                    sb.append(getOffsetInStandardFormat(f.timezoneOffsetInMillis));
+                } else if (Arrays.asList('c', 'C', 'D', 'F', 'g', 'G', 'I', 'j', 'k', 'l', 'p', 'P', 'r', 'R', 's', 't', 'T', 'u', 'U', 'V', 'W', 'x', 'X', 'z').contains(c)) {
                     // Format specifiers supported by libc's strftime: https://www.gnu.org/software/libc/manual/html_node/Formatting-Calendar-Time.html
                     throw new RuntimeException("unsupported escape in date format string [%" + c + "]");
                 } else {
@@ -486,7 +511,11 @@ public class DateUtils {
     }
 
     public static Date parseTime(String str) {
-        if (timezoneOffset() != -1 && !str.contains("+") && !str.contains("-") && !str.contains("Z")) {
+        return parseTime(str, false);
+    }
+
+    public static Date parseTime(String str, boolean ignoreTimezone) {
+        if (!ignoreTimezone && (timezoneOffset() != -1 && !str.contains("+") && !str.contains("-") && !str.contains("Z"))) {
             str = str + getOffsetInStandardFormat(timezoneOffset());
         }
 
@@ -835,7 +864,12 @@ public class DateUtils {
 
 
     public static Double fractionalDaysSinceEpoch(Date a) {
-        return new Double((a.getTime() - EPOCH_DATE.getTime()) / (double)DAY_IN_MS);
+        //Even though EPOCH_DATE uses the device timezone, calendar Daylight savings time adjustments
+        //are based on the instant of evaluation (the epoch), not today, so we need to manually
+        //correct for any drift in the offsets. This can also present if timezone definitions
+        //have drifted over time
+        long timeZoneAdjust = (a.getTimezoneOffset() - EPOCH_DATE.getTimezoneOffset()) * 60* 1000;
+        return new Double(((a.getTime() - EPOCH_DATE.getTime()) - timeZoneAdjust) / (double)DAY_IN_MS);
     }
 
     /**
