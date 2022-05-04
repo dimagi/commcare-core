@@ -48,9 +48,7 @@ public class SyncScreen extends Screen {
     }
 
     private void parseMakeRequest() throws CommCareSessionException {
-        String command = sessionWrapper.getCommand();
-        Entry commandEntry = sessionWrapper.getPlatform().getEntry(command);
-
+        Entry commandEntry = sessionWrapper.getCurrentEntry();
         PostRequest syncPost = commandEntry.getPostRequest();
         if (syncPost == null) {
             // expected a sync entry; clear session and show vague 'session error' message to user
