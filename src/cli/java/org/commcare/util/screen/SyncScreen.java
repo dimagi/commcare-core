@@ -44,16 +44,10 @@ public class SyncScreen extends Screen {
     }
 
     private void parseMakeRequest() throws CommCareSessionException {
-        Entry commandEntry = sessionWrapper.getEntryForCommand(sessionWrapper.getCommand());
-        PostRequest syncPost = commandEntry.getPostRequest();
-        if (syncPost == null) {
-            // expected a sync entry; clear session and show vague 'session error' message to user
-            throw new CommCareSessionException("Initialized sync request while not on sync screen");
-        }
-
+        PostRequest postRequest = getPostRequest();
         try {
             int responseCode = sessionUtils.doPostRequest(
-                    syncPost, sessionWrapper, username, password, printStream
+                    postRequest, sessionWrapper, username, password, printStream
             );
             syncSuccessful = true;
             if (responseCode != 204) {
@@ -74,6 +68,25 @@ public class SyncScreen extends Screen {
             printStream.println(String.format("Sync failed with exception %s", e.getMessage()));
             printStream.println("Press 'enter' to retry.");
         }
+    }
+
+    /**
+     * Get the {@link PostRequest} for the current entry.
+     * @throws CommCareSessionException if there is no current entry or the post request is null
+     */
+    protected PostRequest getPostRequest() throws CommCareSessionException {
+        String command = sessionWrapper.getCommand();
+        Entry commandEntry = sessionWrapper.getEntryForCommand(command);
+        if (commandEntry == null) {
+            throw new CommCareSessionException(
+                    String.format("Initialized sync request outside of an entry: %s", command));
+        }
+        PostRequest syncPost = commandEntry.getPostRequest();
+        if (syncPost == null) {
+            // expected a sync entry; clear session and show vague 'session error' message to user
+            throw new CommCareSessionException("Initialized sync request while not on sync screen");
+        }
+        return syncPost;
     }
 
     @Override
