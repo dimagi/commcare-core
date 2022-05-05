@@ -136,7 +136,7 @@ public class SessionUtils {
             final String username,
             final String password,
             PrintStream printStream
-    ) throws Exception {
+    ) throws IOException {
         String url = buildUrl(syncPost.getUrl().toString());
         Multimap<String, String> params = syncPost.getEvaluatedParams(session.getEvaluationContext());
         printStream.println(String.format("Syncing with url %s and parameters %s", url, params));
@@ -155,7 +155,7 @@ public class SessionUtils {
                     response.code(), response.body());
             printStream.println(message);
             printStream.println("Press 'enter' to retry.");
-            throw new Exception(message);
+            throw new IOException(message);
         }
         return response.code();
     }

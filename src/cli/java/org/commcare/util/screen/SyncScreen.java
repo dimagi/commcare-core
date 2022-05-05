@@ -7,6 +7,7 @@ import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.PostRequest;
 
+import java.io.IOException;
 import java.io.PrintStream;
 
 import datadog.trace.api.Trace;
@@ -68,7 +69,7 @@ public class SyncScreen extends Screen {
                 printStream.println("Did not sync because case was already claimed.");
             }
             printStream.println("Press 'enter' to continue.");
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
             printStream.println(String.format("Sync failed with exception %s", e.getMessage()));
             printStream.println("Press 'enter' to retry.");

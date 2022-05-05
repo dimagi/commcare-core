@@ -6,6 +6,7 @@ import org.commcare.suite.model.PostRequest;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.screen.SessionUtils;
 
+import java.io.IOException;
 import java.io.PrintStream;
 
 /**
@@ -20,7 +21,7 @@ public class MockSessionUtils extends SessionUtils {
 
     @Override
     public int doPostRequest(PostRequest syncPost, SessionWrapper session, String username,
-            String password, PrintStream printStream) throws Exception {
+            String password, PrintStream printStream) throws IOException {
         return 201;
     }
 }
