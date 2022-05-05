@@ -166,6 +166,16 @@ public class CommCareSession {
         return null;
     }
 
+    /**
+     * Retrieve the single entry for the given command ID.
+     *
+     * @return The entry identified by the command or null if there is no entry with the given command.
+     */
+    @Nullable
+    public Entry getEntryForCommand(String commandID) {
+        return getPlatform().getEntry(commandID);
+    }
+
     private Vector<Entry> getStillValidEntriesFromMenu(Menu menu) {
         Hashtable<String, Entry> globalEntryMap = platform.getCommandToEntryMap();
         Vector<Entry> stillValid = new Vector<>();
@@ -208,7 +218,7 @@ public class CommCareSession {
             // No entries available directly within the current command, so we must need to select another menu
             return SessionFrame.STATE_COMMAND_ID;
         } else if (entriesForCurrentCommand.size() == 1) {
-            Entry entry = getPlatform().getEntry(currentCmd);
+            Entry entry = getEntryForCommand(currentCmd);
             if (entry == null) {
                 // command doesn't reference an entry directly so the user must still select one
                 return SessionFrame.STATE_COMMAND_ID;
