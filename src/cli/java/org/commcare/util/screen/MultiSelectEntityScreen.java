@@ -1,6 +1,7 @@
 package org.commcare.util.screen;
 
 import static org.commcare.session.SessionFrame.STATE_MULTIPLE_DATUM_VAL;
+import static org.javarosa.core.model.instance.ExternalDataInstanceSource.buildStorageBackedDataInstanceSource;
 
 import org.commcare.core.interfaces.VirtualDataInstanceCache;
 import org.commcare.data.xml.VirtualInstances;
@@ -77,11 +78,17 @@ public class MultiSelectEntityScreen extends EntityScreen {
                 }
                 evaluatedValues[i] = getReturnValueFromSelection(currentReference);
             }
-            selectedValuesInstance =
-                    VirtualInstances.buildSelectedValuesInstance(getSession().getNeededDatum().getDataId(),
-                            selectedValues);
-            UUID guid = virtualDataInstanceCache.write(selectedValuesInstance);
+            ExternalDataInstance instance = VirtualInstances.buildSelectedValuesInstance(
+                    getSession().getNeededDatum().getDataId(),
+                    selectedValues);
+            UUID guid = virtualDataInstanceCache.write(instance);
             storageReferenceId = guid;
+
+            // rebuild instance with the source
+            ExternalDataInstanceSource instanceSource = buildStorageBackedDataInstanceSource(
+                    instance.getInstanceId(), (TreeElement)instance.getRoot(),
+                    instance.getReference(), instance.useCaseTemplate(), storageReferenceId);
+            selectedValuesInstance = ExternalDataInstance.buildInstance(instanceSource);
         }
     }
 
@@ -100,15 +107,31 @@ public class MultiSelectEntityScreen extends EntityScreen {
             if (selectedValuesInstance == null) {
                 selectedValuesInstance = virtualDataInstanceCache.read(storageReferenceId);
             }
-            ExternalDataInstanceSource externalDataInstanceSource = ExternalDataInstanceSource.buildStorageBackedDataInstanceSource(
-                    selectedValuesInstance.getInstanceId(),
-                    (TreeElement)selectedValuesInstance.getRoot(),
-                    VirtualInstances.JR_SELECTED_VALUES_REFERENCE,
-                    selectedValuesInstance.useCaseTemplate(),
-                    storageReferenceId);
+            ExternalDataInstanceSource externalDataInstanceSource = buildSelectedValuesInstance(
+                    selectedValuesInstance, storageReferenceId);
             session.setDatum(STATE_MULTIPLE_DATUM_VAL, mNeededDatum.getDataId(),
                     storageReferenceId.toString(), externalDataInstanceSource);
         }
+    }
+
+    @Override
+    public void updateDatum(CommCareSession session, String input) {
+        storageReferenceId = UUID.fromString(input);
+        selectedValuesInstance = virtualDataInstanceCache.read(storageReferenceId);
+        ExternalDataInstanceSource externalDataInstanceSource = buildSelectedValuesInstance(
+                selectedValuesInstance, storageReferenceId);
+        session.setDatum(STATE_MULTIPLE_DATUM_VAL, session.getNeededDatum().getDataId(),
+                input, externalDataInstanceSource);
+    }
+
+    private static ExternalDataInstanceSource buildSelectedValuesInstance(
+            ExternalDataInstance selectedValuesInstance, UUID storageReferenceId){
+        return buildStorageBackedDataInstanceSource(
+                selectedValuesInstance.getInstanceId(),
+                (TreeElement)selectedValuesInstance.getRoot(),
+                VirtualInstances.JR_SELECTED_VALUES_REFERENCE,
+                selectedValuesInstance.useCaseTemplate(),
+                storageReferenceId);
     }
 
     @Override
