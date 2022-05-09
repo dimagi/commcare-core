@@ -23,7 +23,7 @@ public class VirtualInstances {
     public final static String JR_SEARCH_INPUT_REFERENCE = "jr://instance/search_input";
     public final static String JR_SELECTED_VALUES_REFERENCE = "jr://instance/selected_cases";
 
-    public static VirtualDataInstance buildSearchInputInstance(Map<String, String> userInputValues) {
+    public static ExternalDataInstance buildSearchInputInstance(Map<String, String> userInputValues) {
         List<SimpleNode> nodes = new ArrayList<>();
         userInputValues.forEach((key, value) -> {
             Map<String, String> attributes = ImmutableMap.of(SEARCH_INPUT_NODE_NAME_ATTR, key);
@@ -33,7 +33,7 @@ public class VirtualInstances {
         return new VirtualDataInstance(JR_SEARCH_INPUT_REFERENCE, SEARCH_INSTANCE_ID, root);
     }
 
-    public static VirtualDataInstance buildSelectedValuesInstance(
+    public static ExternalDataInstance buildSelectedValuesInstance(
             String instanceId, String[] selectedValues) {
         List<SimpleNode> nodes = new ArrayList<>();
         for (String selectedValue : selectedValues) {

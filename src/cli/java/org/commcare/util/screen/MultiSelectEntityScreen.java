@@ -7,10 +7,10 @@ import org.commcare.data.xml.VirtualInstances;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.MultiSelectEntityDatum;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.model.instance.VirtualDataInstance;
 
 import java.util.UUID;
 
@@ -26,7 +26,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
 
     private final VirtualDataInstanceCache virtualDataInstanceCache;
     private UUID storageReferenceId;
-    private VirtualDataInstance selectedValuesInstance;
+    private ExternalDataInstance selectedValuesInstance;
 
     public MultiSelectEntityScreen(boolean handleCaseIndex, boolean full,
             SessionWrapper session,
@@ -54,7 +54,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
             processSelectedValues(selectedValues);
         } else {
             UUID inputId = UUID.fromString(input);
-            VirtualDataInstance cachedInstance = virtualDataInstanceCache.read(inputId);
+            ExternalDataInstance cachedInstance = virtualDataInstanceCache.read(inputId);
             if (cachedInstance == null) {
                 throw new CommCareSessionException(
                         "Could not make selection with reference id " + input + " on this screen. " +
@@ -97,6 +97,9 @@ public class MultiSelectEntityScreen extends EntityScreen {
             return;
         }
         if (storageReferenceId != null) {
+            if (selectedValuesInstance == null) {
+                selectedValuesInstance = virtualDataInstanceCache.read(storageReferenceId);
+            }
             ExternalDataInstanceSource externalDataInstanceSource = ExternalDataInstanceSource.buildStorageBackedDataInstanceSource(
                     selectedValuesInstance.getInstanceId(),
                     (TreeElement)selectedValuesInstance.getRoot(),

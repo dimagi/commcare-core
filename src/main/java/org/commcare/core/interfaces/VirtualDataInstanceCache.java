@@ -1,5 +1,6 @@
 package org.commcare.core.interfaces;
 
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.VirtualDataInstance;
 
 import java.sql.SQLException;
@@ -12,9 +13,9 @@ import javax.annotation.Nullable;
  */
 public interface VirtualDataInstanceCache {
 
-    UUID write(VirtualDataInstance dataInstance);
+    UUID write(ExternalDataInstance dataInstance);
 
-    VirtualDataInstance read(UUID key);
+    ExternalDataInstance read(UUID key);
 
     boolean contains(UUID key);
 }

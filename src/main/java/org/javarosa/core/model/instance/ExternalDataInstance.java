@@ -1,9 +1,11 @@
 package org.javarosa.core.model.instance;
 
 import org.commcare.cases.instance.CaseInstanceTreeElement;
+import org.commcare.resources.model.ResourceInstaller;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
+import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.TreeElementParser;
@@ -123,6 +125,7 @@ public class ExternalDataInstance extends DataInstance {
         super.readExternal(in, pf);
         reference = ExtUtil.readString(in);
         source = (ExternalDataInstanceSource)ExtUtil.read(in, new ExtWrapNullable(ExternalDataInstanceSource.class), pf);
+        root = (AbstractTreeElement)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
     }
 
     @Override
@@ -130,6 +133,7 @@ public class ExternalDataInstance extends DataInstance {
         super.writeExternal(out);
         ExtUtil.writeString(out, reference);
         ExtUtil.write(out, new ExtWrapNullable(source));
+        ExtUtil.write(out, new ExtWrapNullable(root == null ? null : new ExtWrapTagged(root)));
     }
 
     @Override

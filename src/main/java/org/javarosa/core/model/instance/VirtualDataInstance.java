@@ -13,8 +13,6 @@ import java.io.IOException;
  */
 public class VirtualDataInstance extends ExternalDataInstance {
 
-    private TreeElement root = new TreeElement();
-
     public VirtualDataInstance() {
     }
 
@@ -31,19 +29,5 @@ public class VirtualDataInstance extends ExternalDataInstance {
 
     public VirtualDataInstance(String reference, String instanceId, TreeElement topLevel) {
         super(reference, instanceId, topLevel, null);
-        this.root = (TreeElement)getRoot();
-    }
-
-    @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf)
-            throws IOException, DeserializationException {
-        super.readExternal(in, pf);
-        root = (TreeElement)ExtUtil.read(in, TreeElement.class, pf);
-    }
-
-    @Override
-    public void writeExternal(DataOutputStream out) throws IOException {
-        super.writeExternal(out);
-        ExtUtil.write(out, getRoot());
     }
 }
