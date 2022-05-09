@@ -21,7 +21,7 @@ public class VirtualInstancesTest {
     public void testBuildSearchInputRoot()
             throws UnfullfilledRequirementsException, XmlPullParserException,
             InvalidStructureException, IOException {
-        VirtualDataInstance instance = VirtualInstances.buildSearchInputInstance(ImmutableMap.of(
+        ExternalDataInstance instance = VirtualInstances.buildSearchInputInstance(ImmutableMap.of(
                 "key0", "val0",
                 "key1", "val1",
                 "key2", "val2"

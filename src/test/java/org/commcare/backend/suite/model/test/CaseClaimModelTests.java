@@ -6,6 +6,7 @@ import com.google.common.collect.Multimap;
 
 import org.commcare.data.xml.SimpleNode;
 import org.commcare.data.xml.TreeBuilder;
+import org.commcare.data.xml.VirtualInstances;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.QueryPrompt;
@@ -128,6 +129,6 @@ public class CaseClaimModelTests {
         );
 
         TreeElement root = TreeBuilder.buildTree("district", "district_list", nodes);
-        return new VirtualDataInstance("district", root);
+        return new VirtualDataInstance(VirtualInstances.JR_SEARCH_INPUT_REFERENCE,"district", root);
     }
 }
