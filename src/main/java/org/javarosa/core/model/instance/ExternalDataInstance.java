@@ -23,16 +23,13 @@ import javax.annotation.Nullable;
  * @author ctsims
  */
 public class ExternalDataInstance extends DataInstance {
+
     private String reference;
-
-
     private AbstractTreeElement root;
     private InstanceBase base;
 
     @Nullable
     private ExternalDataInstanceSource source;
-
-    public final static String JR_REMOTE_REFERENCE = "jr://instance/remote";
 
     public ExternalDataInstance() {
     }
@@ -55,7 +52,7 @@ public class ExternalDataInstance extends DataInstance {
         this.source = instance.getSource();
     }
 
-    private ExternalDataInstance(String reference, String instanceId,
+    protected ExternalDataInstance(String reference, String instanceId,
                                  TreeElement topLevel, ExternalDataInstanceSource source) {
         this(reference, instanceId);
         base = new InstanceBase(instanceId);
@@ -66,15 +63,14 @@ public class ExternalDataInstance extends DataInstance {
         base.setChild(root);
     }
 
+    public static ExternalDataInstance buildInstance(ExternalDataInstanceSource source) {
+        return new ExternalDataInstance(source.getReference(), source.getInstanceId(), source.getRoot(), source);
+    }
+
     public static TreeElement parseExternalTree(InputStream stream, String instanceId) throws IOException, UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException {
         KXmlParser baseParser = ElementParser.instantiateParser(stream);
         TreeElement root = new TreeElementParser(baseParser, 0, instanceId).parse();
         return root;
-    }
-
-    public static ExternalDataInstance buildFromRemote(String instanceId,
-                                                       ExternalDataInstanceSource source) {
-        return new ExternalDataInstance(JR_REMOTE_REFERENCE, instanceId, source.getRoot(), source);
     }
 
     public boolean useCaseTemplate() {

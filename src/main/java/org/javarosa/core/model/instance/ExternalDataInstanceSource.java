@@ -1,21 +1,22 @@
 package org.javarosa.core.model.instance;
 
-import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMultiMap;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 /**
  * Wrapper class for remote data instances which will materialize the instance data
@@ -23,42 +24,63 @@ import java.io.IOException;
  */
 public class ExternalDataInstanceSource implements InstanceRoot, Externalizable {
 
-    TreeElement root;
-    private String sourceUri;
+    @Nullable
+    private TreeElement root;
     private String instanceId;
-    private Multimap<String, String> requestData;
     private boolean useCaseTemplate;
+    private String reference;
 
-    /**
-     * Externalizable constructor
-     */
-    public ExternalDataInstanceSource() {}
+    @Nullable
+    private String sourceUri;
+    private Multimap<String, String> requestData;
 
-    public ExternalDataInstanceSource(String instanceId, String sourceUri, Multimap<String, String> requestData, boolean useCaseTemplate) {
-        this(instanceId, null, sourceUri, requestData, useCaseTemplate);
+    @Nullable
+    private UUID storageReferenceId;
+
+    public final static String JR_REMOTE_REFERENCE = "jr://instance/remote";
+
+    public ExternalDataInstanceSource() {
     }
 
-    public ExternalDataInstanceSource(String instanceId, TreeElement root, String sourceUri, boolean useCaseTemplate) {
-        this(instanceId, root, sourceUri, ImmutableMultimap.of(), useCaseTemplate);
-    }
-
-    public ExternalDataInstanceSource(String instanceId, TreeElement root, String sourceUri, Multimap<String, String> requestData, boolean useCaseTemplate) {
+    private ExternalDataInstanceSource(String instanceId, TreeElement root, String reference, boolean useCaseTemplate,
+                                       String sourceUri, Multimap requestData, UUID storageReferenceId) {
         this.instanceId = instanceId;
+        this.root = root;
+        this.reference = reference;
+        this.useCaseTemplate = useCaseTemplate;
         this.sourceUri = sourceUri;
         this.requestData = requestData;
-        this.root = root;
-        this.useCaseTemplate = useCaseTemplate;
+        this.storageReferenceId = storageReferenceId;
     }
 
     /**
      * Copy constructor
      */
-    public ExternalDataInstanceSource(ExternalDataInstanceSource externalDataInstanceSource)  {
+    public ExternalDataInstanceSource(ExternalDataInstanceSource externalDataInstanceSource) {
         this.instanceId = externalDataInstanceSource.instanceId;
-        this.sourceUri = externalDataInstanceSource.sourceUri;
         this.root = externalDataInstanceSource.root;
+        this.reference = externalDataInstanceSource.reference;
         this.useCaseTemplate = externalDataInstanceSource.useCaseTemplate();
+        this.sourceUri = externalDataInstanceSource.sourceUri;
         this.requestData = externalDataInstanceSource.requestData;
+        this.storageReferenceId = externalDataInstanceSource.storageReferenceId;
+    }
+
+    public static ExternalDataInstanceSource buildRemoteDataInstanceSource(
+            String instanceId, @Nullable TreeElement root,
+            boolean useCaseTemplate, String sourceUri,
+            Multimap requestData) {
+        return new ExternalDataInstanceSource(instanceId,root, JR_REMOTE_REFERENCE,
+                useCaseTemplate, sourceUri, requestData, null);
+    }
+
+
+    public static ExternalDataInstanceSource buildStorageBackedDataInstanceSource(
+            String instanceId, @Nullable TreeElement root,
+            String reference, boolean useCaseTemplate,
+            UUID storageReferenceId) {
+        return new ExternalDataInstanceSource(instanceId, root, reference,
+                useCaseTemplate, null, ArrayListMultimap.create(), storageReferenceId);
     }
 
     public boolean needsInit() {
@@ -83,52 +105,54 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
     }
 
     public void remoteInit(RemoteInstanceFetcher remoteInstanceFetcher) throws RemoteInstanceFetcher.RemoteInstanceException {
-        try {
-            init(remoteInstanceFetcher.getExternalRoot(instanceId, this));
-            root.setInstanceName(instanceId);
-            root.setParent(new InstanceBase(instanceId));
-        } catch (IOException e) {
-            throw new RemoteInstanceFetcher.RemoteInstanceException(
-                    "Could not retrieve data for remote instance " + instanceId + ". Please try opening the form again.", e);
-        } catch (XmlPullParserException | UnfullfilledRequirementsException | InvalidStructureException e) {
-            throw new RemoteInstanceFetcher.RemoteInstanceException(
-                    "Invalid data retrieved from remote instance " + instanceId+ ". If the error persists please contact your help desk.", e);
-        }
+        String instanceId = getInstanceId();
+        TreeElement root = getRoot();
+        init(remoteInstanceFetcher.getExternalRoot(instanceId, this));
+        root.setInstanceName(instanceId);
+        root.setParent(new InstanceBase(instanceId));
+    }
+
+    public void setupNewCopy(ExternalDataInstance instance) {
+        instance.copyFromSource(this);
     }
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        sourceUri = ExtUtil.readString(in);
         instanceId = ExtUtil.readString(in);
         useCaseTemplate = ExtUtil.readBool(in);
+        sourceUri = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         requestData = (Multimap<String, String>)ExtUtil.read(in, new ExtWrapMultiMap(String.class), pf);
+        storageReferenceId = (UUID)ExtUtil.read(in, new ExtWrapNullable(UUID.class), pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.write(out, sourceUri);
         ExtUtil.write(out, instanceId);
         ExtUtil.writeBool(out, useCaseTemplate);
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(sourceUri));
         ExtUtil.write(out, new ExtWrapMultiMap(requestData));
-    }
-
-    public String getSourceUri() {
-        return sourceUri;
-    }
-
-    public boolean useCaseTemplate() {
-        return useCaseTemplate;
+        ExtUtil.write(out, new ExtWrapNullable(storageReferenceId));
     }
 
     public String getInstanceId() {
         return instanceId;
     }
 
-    public Multimap<String, String> getRequestData() {
-        return requestData;
+    public boolean useCaseTemplate() {
+        return useCaseTemplate;
     }
 
-    public void setupNewCopy(ExternalDataInstance instance) {
-        instance.copyFromSource(this);
+    public String getReference() {
+        return reference;
+    }
+
+    @Nullable
+    public String getSourceUri() {
+        return sourceUri;
+    }
+
+    @Nullable
+    public UUID getStorageReferenceId() {
+        return storageReferenceId;
     }
 }

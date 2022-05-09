@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class VirtualInstances {
+
     public static final String SEARCH_INSTANCE_ID = "search-input";
     public static final String SEARCH_INSTANCE_ROOT_NAME = "input";
     public static final String SEARCH_INSTANCE_NODE_NAME = "field";
@@ -19,6 +20,9 @@ public class VirtualInstances {
     public static final String SELCTED_CASES_INSTANCE_ROOT_NAME = "results";
     public static final String SELCTED_CASES_INSTANCE_NODE_NAME = "value";
 
+    public final static String JR_SEARCH_INPUT_REFERENCE = "jr://instance/search_input";
+    public final static String JR_SELECTED_VALUES_REFERENCE = "jr://instance/selected_cases";
+
     public static VirtualDataInstance buildSearchInputInstance(Map<String, String> userInputValues) {
         List<SimpleNode> nodes = new ArrayList<>();
         userInputValues.forEach((key, value) -> {
@@ -26,7 +30,7 @@ public class VirtualInstances {
             nodes.add(SimpleNode.textNode(SEARCH_INSTANCE_NODE_NAME, attributes, value));
         });
         TreeElement root = TreeBuilder.buildTree(SEARCH_INSTANCE_ID, SEARCH_INSTANCE_ROOT_NAME, nodes);
-        return new VirtualDataInstance(SEARCH_INSTANCE_ID, root);
+        return new VirtualDataInstance(JR_SEARCH_INPUT_REFERENCE, SEARCH_INSTANCE_ID, root);
     }
 
     public static VirtualDataInstance buildSelectedValuesInstance(
@@ -37,6 +41,6 @@ public class VirtualInstances {
         }
         TreeElement root = TreeBuilder.buildTree(instanceId, SELCTED_CASES_INSTANCE_ROOT_NAME,
                 nodes);
-        return new VirtualDataInstance(instanceId, root);
+        return new VirtualDataInstance(JR_SELECTED_VALUES_REFERENCE, instanceId, root);
     }
 }
