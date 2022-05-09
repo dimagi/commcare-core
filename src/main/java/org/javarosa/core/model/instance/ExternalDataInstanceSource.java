@@ -106,7 +106,6 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
 
     public void remoteInit(RemoteInstanceFetcher remoteInstanceFetcher) throws RemoteInstanceFetcher.RemoteInstanceException {
         String instanceId = getInstanceId();
-        TreeElement root = getRoot();
         init(remoteInstanceFetcher.getExternalRoot(instanceId, this));
         root.setInstanceName(instanceId);
         root.setParent(new InstanceBase(instanceId));
@@ -122,7 +121,9 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
         useCaseTemplate = ExtUtil.readBool(in);
         sourceUri = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         requestData = (Multimap<String, String>)ExtUtil.read(in, new ExtWrapMultiMap(String.class), pf);
-        storageReferenceId = (UUID)ExtUtil.read(in, new ExtWrapNullable(UUID.class), pf);
+        Object nullableRefId = ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        storageReferenceId = nullableRefId == null ? null : UUID.fromString((String)nullableRefId);
+        reference = ExtUtil.readString(in);
     }
 
     @Override
@@ -131,7 +132,8 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
         ExtUtil.writeBool(out, useCaseTemplate);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(sourceUri));
         ExtUtil.write(out, new ExtWrapMultiMap(requestData));
-        ExtUtil.write(out, new ExtWrapNullable(storageReferenceId));
+        ExtUtil.write(out, new ExtWrapNullable(storageReferenceId == null ? null : storageReferenceId.toString()));
+        ExtUtil.writeString(out, reference);
     }
 
     public String getInstanceId() {
@@ -149,6 +151,10 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
     @Nullable
     public String getSourceUri() {
         return sourceUri;
+    }
+
+    public Multimap<String, String> getRequestData() {
+        return requestData;
     }
 
     @Nullable
