@@ -1,11 +1,12 @@
 package org.javarosa.xpath.expr;
 
-import org.apache.regexp.RE;
-import org.apache.regexp.RESyntaxException;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 
 public class XPathRegexFunc extends XPathFuncExpr {
@@ -36,21 +37,11 @@ public class XPathRegexFunc extends XPathFuncExpr {
         String str = FunctionUtils.toString(o1);
         String re = FunctionUtils.toString(o2);
 
-        RE regexp;
         try {
-            regexp = new RE(re);
-        } catch (RESyntaxException e) {
-            throw new XPathException("The regular expression '" + str + "' is invalid.");
+            return Pattern.compile(re).matcher(str).find();
+        } catch (PatternSyntaxException e) {
+            throw new XPathException("The regular expression '" + re + "' is invalid.");
         }
-
-        boolean result;
-        try {
-            result = regexp.match(str);
-        } catch (java.lang.StackOverflowError e) {
-            throw new XPathException("The regular expression '" + str + "' took too long to process.");
-        }
-
-        return result;
     }
 
 

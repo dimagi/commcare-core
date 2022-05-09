@@ -65,7 +65,14 @@
             </text>
           </display>
         </prompt>
-        <prompt key="patient_id" hidden="false" allow_blank_value="true">
+        <prompt key="patient_id" hidden="false" allow_blank_value="true" exclude="false()">
+          <display>
+            <text>
+              <locale id="query.id"/>
+            </text>
+          </display>
+        </prompt>
+        <prompt key="exclude_patient_id" hidden="false" allow_blank_value="true" exclude="true()">
           <display>
             <text>
               <locale id="query.id"/>

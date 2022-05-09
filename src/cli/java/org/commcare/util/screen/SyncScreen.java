@@ -64,14 +64,18 @@ public class SyncScreen extends Screen {
                 return;
             }
             syncSuccessful = true;
-            SessionUtils.restoreUserToSandbox(sessionWrapper.getSandbox(),
+            if (response.code() != 204) {
+                SessionUtils.restoreUserToSandbox(sessionWrapper.getSandbox(),
                     sessionWrapper,
                     sessionWrapper.getPlatform(),
                     username,
                     password,
                     printStream);
 
-            printStream.println(String.format("Sync successful with response %s", response));
+                printStream.println(String.format("Sync successful with response %s", response));
+            } else {
+                printStream.println("Did not sync because case was already claimed.");
+            }
             printStream.println("Press 'enter' to continue.");
         } catch (IOException e) {
             e.printStackTrace();

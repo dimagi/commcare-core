@@ -139,6 +139,10 @@ public class MultiSelectEntityScreen extends EntityScreen {
         return virtualDataInstanceCache.contains(UUID.fromString(stepValue));
     }
 
+    public VirtualDataInstance getVirtualInstance() {
+        return virtualDataInstanceCache.read(getStorageReferenceId());
+    }
+
     public int getMaxSelectValue() {
         return maxSelectValue;
     }
