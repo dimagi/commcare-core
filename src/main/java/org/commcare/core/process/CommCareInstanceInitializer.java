@@ -12,8 +12,8 @@ import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.ConcreteInstanceRoot;
-import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.InstanceRoot;
@@ -23,7 +23,8 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.CacheTable;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+
+import static org.commcare.data.xml.VirtualInstances.JR_SELECTED_VALUES_REFERENCE;
 
 /**
  * Initializes a CommCare DataInstance against a UserDataInterface and (sometimes) optional
@@ -86,11 +87,11 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             return setupFixtureData(instance);
         } else if (instance.getReference().contains("session")) {
             return setupSessionData(instance);
-        } else if (instance.getReference().startsWith(ExternalDataInstance.JR_REMOTE_REFERENCE)) {
+        } else if (instance.getReference().startsWith(ExternalDataInstanceSource.JR_REMOTE_REFERENCE)) {
             return setupRemoteData(instance);
         } else if (ref.contains("migration")) {
             return setupMigrationData(instance);
-        } else if (ref.contains("selected_cases")) {
+        } else if (ref.startsWith(JR_SELECTED_VALUES_REFERENCE)) {
             return setupSelectedCases(instance);
         }
         return ConcreteInstanceRoot.NULL;
@@ -106,17 +107,6 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     protected InstanceRoot setupSelectedCases(ExternalDataInstance instance) {
         throw new RuntimeException(
                 "Instances with reference to 'selected_cases' are not supported on this platform");
-    }
-
-    @Nullable
-    protected String getGuidForSelectedCasesInstance(ExternalDataInstance instance) {
-        for (StackFrameStep step : session.getFrame().getSteps()) {
-            if (step.getId().equals(instance.getInstanceId()) && step.getType().equals(
-                    SessionFrame.STATE_MULTIPLE_DATUM_VAL)) {
-                return step.getValue();
-            }
-        }
-        return null;
     }
 
     protected InstanceRoot setupLedgerData(ExternalDataInstance instance) {
@@ -208,11 +198,13 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
 
     protected InstanceRoot setupRemoteData(ExternalDataInstance instance) {
+        return getExternalDataInstanceSource(instance, SessionFrame.STATE_QUERY_REQUEST);
+    }
+
+    protected InstanceRoot getExternalDataInstanceSource(ExternalDataInstance instance, String stepType) {
         for (StackFrameStep step : session.getFrame().getSteps()) {
-            if (step.getId().equals(instance.getInstanceId()) && step.getType().equals(
-                    SessionFrame.STATE_QUERY_REQUEST)) {
-                ExternalDataInstanceSource source = step.getXmlInstanceSource();
-                return source;
+            if (step.getId().equals(instance.getInstanceId()) && step.getType().equals(stepType)) {
+                return step.getXmlInstanceSource();
             }
         }
         return instance.getSource() == null ? ConcreteInstanceRoot.NULL : instance.getSource();
