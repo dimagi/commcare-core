@@ -10,6 +10,7 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
+import org.commcare.suite.model.Entry;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
@@ -20,6 +21,7 @@ import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
+import org.commcare.util.CommCarePlatform;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -109,7 +111,8 @@ public class QueryScreen extends Screen {
         }
 
         try {
-            mTitle = Localization.get("case.search.title");
+            CommCarePlatform platform = sessionWrapper.getPlatform();
+            mTitle = platform.getEntry(sessionWrapper.getCommand()).getText().evaluate();
         } catch (NoLocalizedTextException nlte) {
             mTitle = "Case Claim";
         }
