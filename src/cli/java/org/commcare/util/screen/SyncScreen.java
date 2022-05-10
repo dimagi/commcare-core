@@ -103,7 +103,7 @@ public class SyncScreen extends Screen {
     @Override
     public boolean handleInputAndUpdateSession(CommCareSession commCareSession, String s, boolean allowAutoLaunch) throws CommCareSessionException {
         if (syncSuccessful) {
-            sessionWrapper.addExtraToCurrentFrameStep(EXTRA_POST_SUCCESS, true);
+            updateSessionOnSuccess();
             Entry commandEntry = sessionWrapper.getCurrentEntry();
             if (commandEntry.getXFormNamespace() != null) {
                 // session is not complete, keep going
@@ -119,6 +119,10 @@ public class SyncScreen extends Screen {
             parseMakeRequest();
             return false;
         }
+    }
+
+    public void updateSessionOnSuccess() {
+        sessionWrapper.addExtraToCurrentFrameStep(EXTRA_POST_SUCCESS, true);
     }
 
     @Override
