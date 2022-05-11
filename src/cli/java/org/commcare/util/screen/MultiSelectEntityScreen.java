@@ -85,9 +85,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
             storageReferenceId = guid;
 
             // rebuild instance with the source
-            ExternalDataInstanceSource instanceSource = buildStorageBackedDataInstanceSource(
-                    instance.getInstanceId(), (TreeElement)instance.getRoot(),
-                    instance.getReference(), instance.useCaseTemplate(), storageReferenceId);
+            ExternalDataInstanceSource instanceSource = buildSelectedValuesInstance(instance, storageReferenceId);
             selectedValuesInstance = ExternalDataInstance.buildInstance(instanceSource);
         }
     }
@@ -129,7 +127,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
         return buildStorageBackedDataInstanceSource(
                 selectedValuesInstance.getInstanceId(),
                 (TreeElement)selectedValuesInstance.getRoot(),
-                VirtualInstances.JR_SELECTED_VALUES_REFERENCE,
+                selectedValuesInstance.getReference(),
                 selectedValuesInstance.useCaseTemplate(),
                 storageReferenceId);
     }

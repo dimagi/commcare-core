@@ -44,6 +44,10 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
 
     private ExternalDataInstanceSource(String instanceId, TreeElement root, String reference, boolean useCaseTemplate,
                                        String sourceUri, Multimap requestData, UUID storageReferenceId) {
+        if (sourceUri == null && storageReferenceId == null) {
+            throw new RuntimeException(getClass().getCanonicalName()
+                    + " must be initialised with one of sourceUri or storageReferenceId");
+        }
         this.instanceId = instanceId;
         this.root = root;
         this.reference = reference;
