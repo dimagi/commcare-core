@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.core.model.instance.VirtualDataInstance;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.junit.Test;

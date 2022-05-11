@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.core.model.instance.VirtualDataInstance;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,7 @@ public class VirtualInstances {
             nodes.add(SimpleNode.textNode(SEARCH_INSTANCE_NODE_NAME, attributes, value));
         });
         TreeElement root = TreeBuilder.buildTree(SEARCH_INSTANCE_ID, SEARCH_INSTANCE_ROOT_NAME, nodes);
-        return new VirtualDataInstance(JR_SEARCH_INPUT_REFERENCE, SEARCH_INSTANCE_ID, root);
+        return new ExternalDataInstance(JR_SEARCH_INPUT_REFERENCE, SEARCH_INSTANCE_ID, root);
     }
 
     public static ExternalDataInstance buildSelectedValuesInstance(
@@ -41,6 +40,6 @@ public class VirtualInstances {
         }
         TreeElement root = TreeBuilder.buildTree(instanceId, SELCTED_CASES_INSTANCE_ROOT_NAME,
                 nodes);
-        return new VirtualDataInstance(JR_SELECTED_VALUES_REFERENCE, instanceId, root);
+        return new ExternalDataInstance(JR_SELECTED_VALUES_REFERENCE, instanceId, root);
     }
 }

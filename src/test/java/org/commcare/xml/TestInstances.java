@@ -7,8 +7,8 @@ import org.commcare.data.xml.SimpleNode;
 import org.commcare.data.xml.TreeBuilder;
 import org.commcare.data.xml.VirtualInstances;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.core.model.instance.VirtualDataInstance;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,38 +32,38 @@ public class TestInstances {
         return instances;
     }
 
-    public static VirtualDataInstance buildSessionInstance() {
+    public static ExternalDataInstance buildSessionInstance() {
         List<SimpleNode> nodes = ImmutableList.of(
                 SimpleNode.textNode("case_id", Collections.emptyMap(), "bang")
         );
         TreeElement root = TreeBuilder.buildTree(SESSION, SESSION, nodes);
-        return new VirtualDataInstance("jr://instance/session", SESSION, root);
+        return new ExternalDataInstance("jr://instance/session", SESSION, root);
     }
 
-    public static VirtualDataInstance buildSelectedCases() {
+    public static ExternalDataInstance buildSelectedCases() {
         List<SimpleNode> nodes = ImmutableList.of(
                 SimpleNode.textNode("value", Collections.emptyMap(), "123"),
                 SimpleNode.textNode("value", Collections.emptyMap(), "456"),
                 SimpleNode.textNode("value", Collections.emptyMap(), "789")
         );
         TreeElement root = TreeBuilder.buildTree(SELECTED_CASES, "session-data", nodes);
-        return new VirtualDataInstance(VirtualInstances.JR_SELECTED_VALUES_REFERENCE, SELECTED_CASES, root);
+        return new ExternalDataInstance(VirtualInstances.JR_SELECTED_VALUES_REFERENCE, SELECTED_CASES, root);
     }
 
-    public static VirtualDataInstance buildCaseDb() {
+    public static ExternalDataInstance buildCaseDb() {
         List<SimpleNode> nodes = ImmutableList.of(
                 SimpleNode.textNode("case", ImmutableMap.of("case_id", "123"), "123")
         );
         TreeElement root = TreeBuilder.buildTree(CASEDB, CASEDB, nodes);
-        return new VirtualDataInstance("jr://instance/casedb", CASEDB, root);
+        return new ExternalDataInstance("jr://instance/casedb", CASEDB, root);
     }
 
-    public static VirtualDataInstance buildCaseDb(List<String> caseIds) {
+    public static ExternalDataInstance buildCaseDb(List<String> caseIds) {
         List<SimpleNode> nodes = new ArrayList<>();
         caseIds.forEach(caseId -> {
             nodes.add(SimpleNode.textNode("case", ImmutableMap.of("case_id", caseId), caseId));
         });
         TreeElement root = TreeBuilder.buildTree(CASEDB, CASEDB, nodes);
-        return new VirtualDataInstance("jr://instance/casedb", CASEDB, root);
+        return new ExternalDataInstance("jr://instance/casedb", CASEDB, root);
     }
 }

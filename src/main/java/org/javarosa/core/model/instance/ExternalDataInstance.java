@@ -54,7 +54,12 @@ public class ExternalDataInstance extends DataInstance {
         this.source = instance.getSource();
     }
 
-    protected ExternalDataInstance(String reference, String instanceId,
+    public ExternalDataInstance(String reference, String instanceId,
+            TreeElement topLevel) {
+        this(reference, instanceId, topLevel, null);
+    }
+
+    private ExternalDataInstance(String reference, String instanceId,
                                  TreeElement topLevel, ExternalDataInstanceSource source) {
         this(reference, instanceId);
         base = new InstanceBase(instanceId);

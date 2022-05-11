@@ -13,7 +13,6 @@ import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.VirtualDataInstance;
 import org.javarosa.core.model.utils.ItemSetUtils;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.XPathException;
