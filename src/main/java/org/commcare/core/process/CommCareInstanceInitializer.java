@@ -98,15 +98,13 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
 
     /**
-     * Initialises instances with reference to 'selected_cases'. Platforms that want to support these instances
-     * should extend this class to provide the implementation for this method
+     * Initialises instances with reference to 'selected_cases'
      *
      * @param instance Selected Cases Instance that needs to be initialised
      * @return Initialised instance root for the the given instance
      */
     protected InstanceRoot setupSelectedCases(ExternalDataInstance instance) {
-        throw new RuntimeException(
-                "Instances with reference to 'selected_cases' are not supported on this platform");
+        return getExternalDataInstanceSource(instance, SessionFrame.STATE_MULTIPLE_DATUM_VAL);
     }
 
     protected InstanceRoot setupLedgerData(ExternalDataInstance instance) {
