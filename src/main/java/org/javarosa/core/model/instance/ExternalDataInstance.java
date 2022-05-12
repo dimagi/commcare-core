@@ -26,6 +26,11 @@ import javax.annotation.Nullable;
  */
 public class ExternalDataInstance extends DataInstance {
 
+    public final static String JR_SESSION_REFERENCE = "jr://instance/session";
+    public final static String JR_CASE_DB_REFERENCE = "jr://instance/casedb";
+    public final static String JR_SEARCH_INPUT_REFERENCE = "jr://instance/search_input";
+    public final static String JR_SELECTED_VALUES_REFERENCE = "jr://instance/selected_cases";
+
     private String reference;
     private AbstractTreeElement root;
     private InstanceBase base;
@@ -59,7 +64,7 @@ public class ExternalDataInstance extends DataInstance {
         this(reference, instanceId, topLevel, null);
     }
 
-    private ExternalDataInstance(String reference, String instanceId,
+    public ExternalDataInstance(String reference, String instanceId,
                                  TreeElement topLevel, ExternalDataInstanceSource source) {
         this(reference, instanceId);
         base = new InstanceBase(instanceId);
@@ -68,10 +73,6 @@ public class ExternalDataInstance extends DataInstance {
         topLevel.setParent(base);
         this.root = topLevel;
         base.setChild(root);
-    }
-
-    public static ExternalDataInstance buildInstance(ExternalDataInstanceSource source) {
-        return new ExternalDataInstance(source.getReference(), source.getInstanceId(), source.getRoot(), source);
     }
 
     public static TreeElement parseExternalTree(InputStream stream, String instanceId) throws IOException, UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException {

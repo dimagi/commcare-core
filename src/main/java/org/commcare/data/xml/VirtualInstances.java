@@ -1,5 +1,8 @@
 package org.commcare.data.xml;
 
+import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SEARCH_INPUT_REFERENCE;
+import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SELECTED_VALUES_REFERENCE;
+
 import com.google.common.collect.ImmutableMap;
 
 import org.javarosa.core.model.instance.ExternalDataInstance;
@@ -19,8 +22,6 @@ public class VirtualInstances {
     public static final String SELCTED_CASES_INSTANCE_ROOT_NAME = "results";
     public static final String SELCTED_CASES_INSTANCE_NODE_NAME = "value";
 
-    public final static String JR_SEARCH_INPUT_REFERENCE = "jr://instance/search_input";
-    public final static String JR_SELECTED_VALUES_REFERENCE = "jr://instance/selected_cases";
 
     public static ExternalDataInstance buildSearchInputInstance(Map<String, String> userInputValues) {
         List<SimpleNode> nodes = new ArrayList<>();

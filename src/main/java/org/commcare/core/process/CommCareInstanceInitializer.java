@@ -1,5 +1,7 @@
 package org.commcare.core.process;
 
+import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SELECTED_VALUES_REFERENCE;
+
 import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.instance.LedgerInstanceTreeElement;
@@ -23,8 +25,6 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.CacheTable;
 
 import javax.annotation.Nonnull;
-
-import static org.commcare.data.xml.VirtualInstances.JR_SELECTED_VALUES_REFERENCE;
 
 /**
  * Initializes a CommCare DataInstance against a UserDataInterface and (sometimes) optional

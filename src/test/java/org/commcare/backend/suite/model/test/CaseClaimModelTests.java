@@ -153,6 +153,6 @@ public class CaseClaimModelTests {
         );
 
         TreeElement root = TreeBuilder.buildTree("district", "district_list", nodes);
-        return new ExternalDataInstance(VirtualInstances.JR_SEARCH_INPUT_REFERENCE, "district", root);
+        return new ExternalDataInstance(ExternalDataInstance.JR_SEARCH_INPUT_REFERENCE, "district", root);
     }
 }

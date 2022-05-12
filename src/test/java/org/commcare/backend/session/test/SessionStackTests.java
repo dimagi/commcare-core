@@ -373,11 +373,11 @@ public class SessionStackTests {
         InputStream is = cls.getResourceAsStream(resourcePath);
         RemoteQueryDatum queryDatum = remoteQuerySessionManager.getQueryDatum();
         TreeElement root = ExternalDataInstance.parseExternalTree(is, queryDatum.getDataId());
-        ExternalDataInstanceSource source = ExternalDataInstanceSource.buildRemoteDataInstanceSource(
+        ExternalDataInstanceSource source = ExternalDataInstanceSource.buildRemote(
                 queryDatum.getDataId(), root, queryDatum.useCaseTemplate(),
                 resourcePath, ArrayListMultimap.create()
         );
-        ExternalDataInstance instance = ExternalDataInstance.buildInstance(source);
+        ExternalDataInstance instance = source.toInstance();
         assertNotNull(instance);
         return instance;
     }

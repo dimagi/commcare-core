@@ -1,5 +1,9 @@
 package org.commcare.xml;
 
+import static org.javarosa.core.model.instance.ExternalDataInstance.JR_CASE_DB_REFERENCE;
+import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SELECTED_VALUES_REFERENCE;
+import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SESSION_REFERENCE;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -37,7 +41,7 @@ public class TestInstances {
                 SimpleNode.textNode("case_id", Collections.emptyMap(), "bang")
         );
         TreeElement root = TreeBuilder.buildTree(SESSION, SESSION, nodes);
-        return new ExternalDataInstance("jr://instance/session", SESSION, root);
+        return new ExternalDataInstance(JR_SESSION_REFERENCE, SESSION, root);
     }
 
     public static ExternalDataInstance buildSelectedCases() {
@@ -47,7 +51,7 @@ public class TestInstances {
                 SimpleNode.textNode("value", Collections.emptyMap(), "789")
         );
         TreeElement root = TreeBuilder.buildTree(SELECTED_CASES, "session-data", nodes);
-        return new ExternalDataInstance(VirtualInstances.JR_SELECTED_VALUES_REFERENCE, SELECTED_CASES, root);
+        return new ExternalDataInstance(JR_SELECTED_VALUES_REFERENCE, SELECTED_CASES, root);
     }
 
     public static ExternalDataInstance buildCaseDb() {
@@ -55,7 +59,7 @@ public class TestInstances {
                 SimpleNode.textNode("case", ImmutableMap.of("case_id", "123"), "123")
         );
         TreeElement root = TreeBuilder.buildTree(CASEDB, CASEDB, nodes);
-        return new ExternalDataInstance("jr://instance/casedb", CASEDB, root);
+        return new ExternalDataInstance(JR_CASE_DB_REFERENCE, CASEDB, root);
     }
 
     public static ExternalDataInstance buildCaseDb(List<String> caseIds) {
@@ -64,6 +68,6 @@ public class TestInstances {
             nodes.add(SimpleNode.textNode("case", ImmutableMap.of("case_id", caseId), caseId));
         });
         TreeElement root = TreeBuilder.buildTree(CASEDB, CASEDB, nodes);
-        return new ExternalDataInstance("jr://instance/casedb", CASEDB, root);
+        return new ExternalDataInstance(JR_CASE_DB_REFERENCE, CASEDB, root);
     }
 }

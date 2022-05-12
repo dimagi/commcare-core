@@ -623,7 +623,7 @@ public class CommCareSession {
         for (StackFrameStep step : frame.getSteps()) {
             if (step.hasXmlInstance()) {
                 ExternalDataInstanceSource instanceSource = step.getXmlInstanceSource();
-                ExternalDataInstance instance = ExternalDataInstance.buildInstance(instanceSource);
+                ExternalDataInstance instance = instanceSource.toInstance();
                 instanceMap.put(step.getId(), instance.initialize(iif, instanceSource.getInstanceId()));
             }
         }

@@ -174,9 +174,9 @@ public class QueryScreen extends Screen {
         try {
             String instanceID = getQueryDatum().getDataId();
             TreeElement root = ExternalDataInstance.parseExternalTree(responseData, instanceID);
-            ExternalDataInstanceSource instanceSource = ExternalDataInstanceSource.buildRemoteDataInstanceSource(
+            ExternalDataInstanceSource instanceSource = ExternalDataInstanceSource.buildRemote(
                     instanceID, root, getQueryDatum().useCaseTemplate(), url.toString(), requestData);
-            ExternalDataInstance instance = ExternalDataInstance.buildInstance(instanceSource);
+            ExternalDataInstance instance = instanceSource.toInstance();
             instanceOrError = new Pair<>(instance, "");
         } catch (InvalidStructureException | IOException
                 | XmlPullParserException | UnfullfilledRequirementsException e) {

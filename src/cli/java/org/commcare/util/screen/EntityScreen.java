@@ -36,7 +36,7 @@ public class EntityScreen extends CompoundScreenHost {
 
     private TreeReference mCurrentSelection;
 
-    private SessionWrapper mSession;
+    private SessionWrapper smSession;
     private CommCarePlatform mPlatform;
 
     private Detail mShortDetail;

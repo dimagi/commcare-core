@@ -1,6 +1,7 @@
 package org.javarosa.core.model.instance;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.core.interfaces.RemoteInstanceFetcher;
@@ -43,7 +44,7 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
     }
 
     private ExternalDataInstanceSource(String instanceId, TreeElement root, String reference, boolean useCaseTemplate,
-                                       String sourceUri, Multimap requestData, UUID storageReferenceId) {
+                                       String sourceUri, Multimap<String, String> requestData, UUID storageReferenceId) {
         if (sourceUri == null && storageReferenceId == null) {
             throw new RuntimeException(getClass().getCanonicalName()
                     + " must be initialised with one of sourceUri or storageReferenceId");
@@ -70,21 +71,21 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
         this.storageReferenceId = externalDataInstanceSource.storageReferenceId;
     }
 
-    public static ExternalDataInstanceSource buildRemoteDataInstanceSource(
+    public static ExternalDataInstanceSource buildRemote(
             String instanceId, @Nullable TreeElement root,
             boolean useCaseTemplate, String sourceUri,
-            Multimap requestData) {
+            Multimap<String, String> requestData) {
         return new ExternalDataInstanceSource(instanceId,root, JR_REMOTE_REFERENCE,
                 useCaseTemplate, sourceUri, requestData, null);
     }
 
 
-    public static ExternalDataInstanceSource buildStorageBackedDataInstanceSource(
+    public static ExternalDataInstanceSource buildVirtual(
             String instanceId, @Nullable TreeElement root,
             String reference, boolean useCaseTemplate,
             UUID storageReferenceId) {
         return new ExternalDataInstanceSource(instanceId, root, reference,
-                useCaseTemplate, null, ArrayListMultimap.create(), storageReferenceId);
+                useCaseTemplate, null, ImmutableMultimap.of(), storageReferenceId);
     }
 
     public boolean needsInit() {
@@ -117,6 +118,10 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
 
     public void setupNewCopy(ExternalDataInstance instance) {
         instance.copyFromSource(this);
+    }
+
+    public ExternalDataInstance toInstance() {
+        return new ExternalDataInstance(getReference(), getInstanceId(), getRoot(), this);
     }
 
     @Override
