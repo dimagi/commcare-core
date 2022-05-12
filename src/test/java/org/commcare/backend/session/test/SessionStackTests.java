@@ -1,5 +1,11 @@
 package org.commcare.backend.session.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import com.google.common.collect.ArrayListMultimap;
 
 import org.commcare.modern.session.SessionWrapper;
@@ -11,8 +17,8 @@ import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -28,12 +34,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Vector;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * This is a super basic test just to make sure the test infrastructure is working correctly
@@ -60,7 +60,8 @@ public class SessionStackTests {
         EntityDatum entityDatum = (EntityDatum)session.getNeededDatum();
         assertEquals("case_id", entityDatum.getDataId());
 
-        Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(session.getEvaluationContext());
+        Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(
+                session.getEvaluationContext());
 
         if (actions == null || actions.isEmpty()) {
             fail("Detail screen stack action was missing from app!");
@@ -338,7 +339,7 @@ public class SessionStackTests {
         assertTrue(actionToInspect.hasActionBarIcon());
         assertEquals("Jump to Menu 2 Form 1, with icon", actionToInspect.getDisplay().getText().evaluate(ec));
         assertEquals(1, actionToInspect.getStackOperations().size());
-        assertTrue(actionToInspect.getAutoLaunchExpr()==null);
+        assertTrue(actionToInspect.getAutoLaunchExpr() == null);
 
         assertTrue(FunctionUtils.toString(actions.get(0).getAutoLaunchExpr().eval(ec)).contentEquals("true"));
     }
@@ -365,8 +366,10 @@ public class SessionStackTests {
     }
 
     static ExternalDataInstance buildRemoteExternalDataInstance(Class cls,
-                                                                SessionWrapper sessionWrapper,
-                                                                String resourcePath) throws UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException, IOException {
+            SessionWrapper sessionWrapper,
+            String resourcePath)
+            throws UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException,
+            IOException {
         RemoteQuerySessionManager remoteQuerySessionManager =
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper,
                         sessionWrapper.getEvaluationContext(), new ArrayList<>());

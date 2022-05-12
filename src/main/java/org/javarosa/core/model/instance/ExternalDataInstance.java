@@ -1,11 +1,9 @@
 package org.javarosa.core.model.instance;
 
 import org.commcare.cases.instance.CaseInstanceTreeElement;
-import org.commcare.resources.model.ResourceInstaller;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
-import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.TreeElementParser;
@@ -26,14 +24,14 @@ import javax.annotation.Nullable;
  */
 public class ExternalDataInstance extends DataInstance {
 
+    private String reference;
+    private AbstractTreeElement root;
+    private InstanceBase base;
+
     public final static String JR_SESSION_REFERENCE = "jr://instance/session";
     public final static String JR_CASE_DB_REFERENCE = "jr://instance/casedb";
     public final static String JR_SEARCH_INPUT_REFERENCE = "jr://instance/search_input";
     public final static String JR_SELECTED_VALUES_REFERENCE = "jr://instance/selected_cases";
-
-    private String reference;
-    private AbstractTreeElement root;
-    private InstanceBase base;
 
     @Nullable
     private ExternalDataInstanceSource source;
@@ -65,7 +63,7 @@ public class ExternalDataInstance extends DataInstance {
     }
 
     public ExternalDataInstance(String reference, String instanceId,
-                                 TreeElement topLevel, ExternalDataInstanceSource source) {
+            TreeElement topLevel, ExternalDataInstanceSource source) {
         this(reference, instanceId);
         base = new InstanceBase(instanceId);
         this.source = source;
@@ -75,7 +73,9 @@ public class ExternalDataInstance extends DataInstance {
         base.setChild(root);
     }
 
-    public static TreeElement parseExternalTree(InputStream stream, String instanceId) throws IOException, UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException {
+    public static TreeElement parseExternalTree(InputStream stream, String instanceId)
+            throws IOException, UnfullfilledRequirementsException, XmlPullParserException,
+            InvalidStructureException {
         KXmlParser baseParser = ElementParser.instantiateParser(stream);
         TreeElement root = new TreeElementParser(baseParser, 0, instanceId).parse();
         return root;
@@ -130,7 +130,8 @@ public class ExternalDataInstance extends DataInstance {
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
         reference = ExtUtil.readString(in);
-        source = (ExternalDataInstanceSource)ExtUtil.read(in, new ExtWrapNullable(ExternalDataInstanceSource.class), pf);
+        source = (ExternalDataInstanceSource)ExtUtil.read(in,
+                new ExtWrapNullable(ExternalDataInstanceSource.class), pf);
     }
 
     @Override

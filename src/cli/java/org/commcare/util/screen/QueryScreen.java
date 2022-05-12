@@ -1,5 +1,10 @@
 package org.commcare.util.screen;
 
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_ADDRESS;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
+
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
 
@@ -11,8 +16,8 @@ import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.javarosa.core.model.SelectChoice;
-import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
@@ -37,11 +42,6 @@ import okhttp3.FormBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_ADDRESS;
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT;
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
 /**
  * Screen that displays user configurable entry texts and makes
@@ -105,7 +105,8 @@ public class QueryScreen extends Screen {
         int count = 0;
         fields = new String[userInputDisplays.keySet().size()];
         for (Map.Entry<String, QueryPrompt> queryPromptEntry : userInputDisplays.entrySet()) {
-            fields[count] = queryPromptEntry.getValue().getDisplay().getText().evaluate(sessionWrapper.getEvaluationContext());
+            fields[count] = queryPromptEntry.getValue().getDisplay().getText().evaluate(
+                    sessionWrapper.getEvaluationContext());
         }
 
         try {
@@ -165,7 +166,8 @@ public class QueryScreen extends Screen {
         return client.makeRequest(request);
     }
 
-    public Pair<ExternalDataInstance, String> processResponse(InputStream responseData, URL url, Multimap<String, String> requestData) {
+    public Pair<ExternalDataInstance, String> processResponse(InputStream responseData, URL url,
+            Multimap<String, String> requestData) {
         if (responseData == null) {
             currentMessage = "Query result null.";
             return new Pair<>(null, currentMessage);

@@ -1,6 +1,5 @@
 package org.javarosa.core.model.instance;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
@@ -43,8 +42,9 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
     public ExternalDataInstanceSource() {
     }
 
-    private ExternalDataInstanceSource(String instanceId, TreeElement root, String reference, boolean useCaseTemplate,
-                                       String sourceUri, Multimap<String, String> requestData, UUID storageReferenceId) {
+    private ExternalDataInstanceSource(String instanceId, TreeElement root, String reference,
+            boolean useCaseTemplate,
+            String sourceUri, Multimap<String, String> requestData, UUID storageReferenceId) {
         if (sourceUri == null && storageReferenceId == null) {
             throw new RuntimeException(getClass().getCanonicalName()
                     + " must be initialised with one of sourceUri or storageReferenceId");
@@ -75,7 +75,7 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
             String instanceId, @Nullable TreeElement root,
             boolean useCaseTemplate, String sourceUri,
             Multimap<String, String> requestData) {
-        return new ExternalDataInstanceSource(instanceId,root, JR_REMOTE_REFERENCE,
+        return new ExternalDataInstanceSource(instanceId, root, JR_REMOTE_REFERENCE,
                 useCaseTemplate, sourceUri, requestData, null);
     }
 
@@ -104,12 +104,14 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
 
     public void init(TreeElement root) {
         if (this.root != null) {
-            throw new RuntimeException("Initializing an already instantiated external instance source is not permitted");
+            throw new RuntimeException(
+                    "Initializing an already instantiated external instance source is not permitted");
         }
         this.root = root;
     }
 
-    public void remoteInit(RemoteInstanceFetcher remoteInstanceFetcher) throws RemoteInstanceFetcher.RemoteInstanceException {
+    public void remoteInit(RemoteInstanceFetcher remoteInstanceFetcher)
+            throws RemoteInstanceFetcher.RemoteInstanceException {
         String instanceId = getInstanceId();
         init(remoteInstanceFetcher.getExternalRoot(instanceId, this));
         root.setInstanceName(instanceId);
@@ -125,7 +127,8 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
     }
 
     @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
         instanceId = ExtUtil.readString(in);
         useCaseTemplate = ExtUtil.readBool(in);
         sourceUri = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
