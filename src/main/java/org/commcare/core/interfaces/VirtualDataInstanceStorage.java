@@ -7,7 +7,7 @@ import java.util.UUID;
 /**
  * Read and write operations for entity selections made on a mult-select Entity Screen
  */
-public interface VirtualDataInstanceCache {
+public interface VirtualDataInstanceStorage {
 
     UUID write(ExternalDataInstance dataInstance);
 

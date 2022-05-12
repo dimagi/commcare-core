@@ -2,7 +2,7 @@ package org.commcare.util.screen;
 
 import static org.commcare.session.SessionFrame.STATE_MULTIPLE_DATUM_VAL;
 
-import org.commcare.core.interfaces.VirtualDataInstanceCache;
+import org.commcare.core.interfaces.VirtualDataInstanceStorage;
 import org.commcare.data.xml.VirtualInstances;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
@@ -24,16 +24,16 @@ public class MultiSelectEntityScreen extends EntityScreen {
     public static final String USE_SELECTED_VALUES = "use_selected_values";
     private int maxSelectValue = -1;
 
-    private final VirtualDataInstanceCache virtualDataInstanceCache;
+    private final VirtualDataInstanceStorage virtualDataInstanceStorage;
     private UUID storageReferenceId;
     private ExternalDataInstance selectedValuesInstance;
 
     public MultiSelectEntityScreen(boolean handleCaseIndex, boolean full,
             SessionWrapper session,
-            VirtualDataInstanceCache virtualDataInstanceCache)
+            VirtualDataInstanceStorage virtualDataInstanceStorage)
             throws CommCareSessionException {
         super(handleCaseIndex, full, session);
-        this.virtualDataInstanceCache = virtualDataInstanceCache;
+        this.virtualDataInstanceStorage = virtualDataInstanceStorage;
     }
 
     /**
@@ -54,7 +54,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
             processSelectedValues(selectedValues);
         } else {
             UUID inputId = UUID.fromString(input);
-            ExternalDataInstance cachedInstance = virtualDataInstanceCache.read(inputId);
+            ExternalDataInstance cachedInstance = virtualDataInstanceStorage.read(inputId);
             if (cachedInstance == null) {
                 throw new CommCareSessionException(
                         "Could not make selection with reference id " + input + " on this screen. " +
@@ -80,7 +80,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
             ExternalDataInstance instance = VirtualInstances.buildSelectedValuesInstance(
                     getSession().getNeededDatum().getDataId(),
                     selectedValues);
-            UUID guid = virtualDataInstanceCache.write(instance);
+            UUID guid = virtualDataInstanceStorage.write(instance);
             storageReferenceId = guid;
 
             // rebuild instance with the source
@@ -103,7 +103,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
         }
         if (storageReferenceId != null) {
             if (selectedValuesInstance == null) {
-                selectedValuesInstance = virtualDataInstanceCache.read(storageReferenceId);
+                selectedValuesInstance = virtualDataInstanceStorage.read(storageReferenceId);
             }
             ExternalDataInstanceSource externalDataInstanceSource = buildSelectedValuesInstanceSource(
                     selectedValuesInstance, storageReferenceId);
@@ -115,7 +115,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
     @Override
     public void updateDatum(CommCareSession session, String input) {
         storageReferenceId = UUID.fromString(input);
-        selectedValuesInstance = virtualDataInstanceCache.read(storageReferenceId);
+        selectedValuesInstance = virtualDataInstanceStorage.read(storageReferenceId);
         ExternalDataInstanceSource externalDataInstanceSource = buildSelectedValuesInstanceSource(
                 selectedValuesInstance, storageReferenceId);
         session.setDatum(STATE_MULTIPLE_DATUM_VAL, session.getNeededDatum().getDataId(),
@@ -134,7 +134,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
 
     @Override
     public boolean referencesContainStep(String stepValue) {
-        return virtualDataInstanceCache.contains(UUID.fromString(stepValue));
+        return virtualDataInstanceStorage.contains(UUID.fromString(stepValue));
     }
 
     public ExternalDataInstance getSelectedValuesInstance() {
