@@ -30,8 +30,10 @@ public class ExternalDataInstance extends DataInstance {
 
     public final static String JR_SESSION_REFERENCE = "jr://instance/session";
     public final static String JR_CASE_DB_REFERENCE = "jr://instance/casedb";
+    public final static String JR_LEDGER_DB_REFERENCE = "jr://instance/ledgerdb";
     public final static String JR_SEARCH_INPUT_REFERENCE = "jr://instance/search_input";
     public final static String JR_SELECTED_VALUES_REFERENCE = "jr://instance/selected_cases";
+    public final static String JR_REMOTE_REFERENCE = "jr://instance/remote";
 
     @Nullable
     private ExternalDataInstanceSource source;

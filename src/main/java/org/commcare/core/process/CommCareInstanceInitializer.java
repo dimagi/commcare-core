@@ -15,7 +15,6 @@ import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.ConcreteInstanceRoot;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.InstanceRoot;
@@ -79,19 +78,19 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     @Nonnull
     public InstanceRoot generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
-        if (ref.contains(LedgerInstanceTreeElement.MODEL_NAME)) {
+        if (ref.contentEquals(ExternalDataInstance.JR_LEDGER_DB_REFERENCE)) {
             return setupLedgerData(instance);
-        } else if (ref.contains(CaseInstanceTreeElement.MODEL_NAME)) {
+        } else if (ref.contentEquals(ExternalDataInstance.JR_CASE_DB_REFERENCE)) {
             return setupCaseData(instance);
-        } else if (instance.getReference().contains("fixture")) {
+        } else if (ref.contains("fixture")) {
             return setupFixtureData(instance);
-        } else if (instance.getReference().contains("session")) {
+        } else if (ref.contentEquals(ExternalDataInstance.JR_SESSION_REFERENCE)) {
             return setupSessionData(instance);
-        } else if (instance.getReference().startsWith(ExternalDataInstanceSource.JR_REMOTE_REFERENCE)) {
+        } else if (ref.contentEquals(ExternalDataInstance.JR_REMOTE_REFERENCE)) {
             return setupRemoteData(instance);
         } else if (ref.contains("migration")) {
             return setupMigrationData(instance);
-        } else if (ref.startsWith(JR_SELECTED_VALUES_REFERENCE)) {
+        } else if (ref.contentEquals(JR_SELECTED_VALUES_REFERENCE)) {
             return setupSelectedCases(instance);
         }
         return ConcreteInstanceRoot.NULL;

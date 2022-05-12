@@ -1,7 +1,6 @@
 package org.commcare.util.screen;
 
 import static org.commcare.session.SessionFrame.STATE_MULTIPLE_DATUM_VAL;
-import static org.javarosa.core.model.instance.ExternalDataInstanceSource.buildVirtual;
 
 import org.commcare.core.interfaces.VirtualDataInstanceCache;
 import org.commcare.data.xml.VirtualInstances;
@@ -125,7 +124,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
 
     private static ExternalDataInstanceSource buildSelectedValuesInstanceSource(
             ExternalDataInstance selectedValuesInstance, UUID storageReferenceId) {
-        return buildVirtual(
+        return ExternalDataInstanceSource.buildVirtual(
                 selectedValuesInstance.getInstanceId(),
                 (TreeElement)selectedValuesInstance.getRoot(),
                 selectedValuesInstance.getReference(),

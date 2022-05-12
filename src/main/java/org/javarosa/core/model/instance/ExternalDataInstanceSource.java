@@ -1,5 +1,7 @@
 package org.javarosa.core.model.instance;
 
+import static org.javarosa.core.model.instance.ExternalDataInstance.JR_REMOTE_REFERENCE;
+
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
@@ -36,8 +38,6 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
 
     @Nullable
     private UUID storageReferenceId;
-
-    public final static String JR_REMOTE_REFERENCE = "jr://instance/remote";
 
     public ExternalDataInstanceSource() {
     }
