@@ -1,12 +1,15 @@
 package org.commcare.xml;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.commcare.suite.model.QueryData;
+import org.commcare.suite.model.QueryPrompt;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.junit.Test;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -42,6 +45,18 @@ public class QueryDataParserTest {
 
         EvaluationContext evalContext = new EvaluationContext(null, TestInstances.getInstances());
         assertEquals(Collections.emptyList(), queryData.getValues(evalContext));
+    }
+
+    @Test
+    public void testParseValueData_withRequired() throws InvalidStructureException, XmlPullParserException,
+            IOException, UnfullfilledRequirementsException {
+        String query = "<data key=\"device_id\" ref=\"instance('session')/session/case_id\""
+                + "required=\"true()\"/>";
+        QueryPromptParser parser = ParserTestUtils.buildParser(query, QueryPromptParser.class);
+        QueryPrompt queryData = parser.parse();
+
+        EvaluationContext evalContext = new EvaluationContext(null, TestInstances.getInstances());
+        assertTrue((boolean) queryData.getRequired().eval(evalContext));
     }
 
     @Test
