@@ -12,8 +12,6 @@ import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 
-import java.util.UUID;
-
 import javax.annotation.Nullable;
 
 /**
@@ -53,14 +51,18 @@ public class MultiSelectEntityScreen extends EntityScreen {
         if (input.contentEquals(USE_SELECTED_VALUES)) {
             processSelectedValues(selectedValues);
         } else {
-            ExternalDataInstance cachedInstance = virtualDataInstanceStorage.read(input);
-            if (cachedInstance == null) {
-                throw new CommCareSessionException(
-                        "Could not make selection with reference id " + input + " on this screen. " +
-                                " If this error persists please report a bug to CommCareHQ.");
-            }
-            storageReferenceId = input;
+            prcessSelectionAsGuid(input);
         }
+    }
+
+    private void prcessSelectionAsGuid(String guid) throws CommCareSessionException {
+        ExternalDataInstance cachedInstance = virtualDataInstanceStorage.read(guid);
+        if (cachedInstance == null) {
+            throw new CommCareSessionException(
+                    "Could not make selection with reference id " + guid + " on this screen. " +
+                            " If this error persists please report a bug to CommCareHQ.");
+        }
+        storageReferenceId = guid;
     }
 
     private void processSelectedValues(String[] selectedValues)
