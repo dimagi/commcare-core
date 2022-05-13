@@ -37,14 +37,14 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
     private Multimap<String, String> requestData;
 
     @Nullable
-    private UUID storageReferenceId;
+    private String storageReferenceId;
 
     public ExternalDataInstanceSource() {
     }
 
     private ExternalDataInstanceSource(String instanceId, TreeElement root, String reference,
             boolean useCaseTemplate,
-            String sourceUri, Multimap<String, String> requestData, UUID storageReferenceId) {
+            String sourceUri, Multimap<String, String> requestData, String storageReferenceId) {
         if (sourceUri == null && storageReferenceId == null) {
             throw new RuntimeException(getClass().getCanonicalName()
                     + " must be initialised with one of sourceUri or storageReferenceId");
@@ -83,7 +83,7 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
     public static ExternalDataInstanceSource buildVirtual(
             String instanceId, @Nullable TreeElement root,
             String reference, boolean useCaseTemplate,
-            UUID storageReferenceId) {
+            String storageReferenceId) {
         return new ExternalDataInstanceSource(instanceId, root, reference,
                 useCaseTemplate, null, ImmutableMultimap.of(), storageReferenceId);
     }
@@ -133,8 +133,7 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
         useCaseTemplate = ExtUtil.readBool(in);
         sourceUri = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         requestData = (Multimap<String, String>)ExtUtil.read(in, new ExtWrapMultiMap(String.class), pf);
-        Object nullableRefId = ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
-        storageReferenceId = nullableRefId == null ? null : UUID.fromString((String)nullableRefId);
+        storageReferenceId = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         reference = ExtUtil.readString(in);
     }
 
@@ -170,7 +169,7 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
     }
 
     @Nullable
-    public UUID getStorageReferenceId() {
+    public String getStorageReferenceId() {
         return storageReferenceId;
     }
 }

@@ -9,9 +9,9 @@ import java.util.UUID;
  */
 public interface VirtualDataInstanceStorage {
 
-    UUID write(ExternalDataInstance dataInstance);
+    String write(ExternalDataInstance dataInstance);
 
-    ExternalDataInstance read(UUID key);
+    ExternalDataInstance read(String key);
 
-    boolean contains(UUID key);
+    boolean contains(String key);
 }
