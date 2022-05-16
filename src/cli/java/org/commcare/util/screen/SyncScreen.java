@@ -41,7 +41,7 @@ public class SyncScreen extends Screen {
     }
 
     @Override
-    public void init (SessionWrapper sessionWrapper) throws CommCareSessionException {
+    public void init(SessionWrapper sessionWrapper) throws CommCareSessionException {
         this.sessionWrapper = sessionWrapper;
         parseMakeRequest();
     }
@@ -59,18 +59,20 @@ public class SyncScreen extends Screen {
         try {
             Response response = makeSyncRequest(syncPost);
             if (!response.isSuccessful()) {
-                printStream.println(String.format("Sync request failed with response code %s and message %s", response.code(), response.body()));
+                printStream.println(
+                        String.format("Sync request failed with response code %s and message %s", response.code(),
+                                response.body()));
                 printStream.println("Press 'enter' to retry.");
                 return;
             }
             syncSuccessful = true;
             if (response.code() != 204) {
                 SessionUtils.restoreUserToSandbox(sessionWrapper.getSandbox(),
-                    sessionWrapper,
-                    sessionWrapper.getPlatform(),
-                    username,
-                    password,
-                    printStream);
+                        sessionWrapper,
+                        sessionWrapper.getPlatform(),
+                        username,
+                        password,
+                        printStream);
 
                 printStream.println(String.format("Sync successful with response %s", response));
             } else {
@@ -99,7 +101,8 @@ public class SyncScreen extends Screen {
     }
 
     private Response makeSyncRequest(PostRequest syncPost) throws CommCareSessionException, IOException {
-        Multimap<String, String> params = syncPost.getEvaluatedParams(sessionWrapper.getEvaluationContext(), false);
+        Multimap<String, String> params = syncPost.getEvaluatedParams(sessionWrapper.getEvaluationContext(),
+                false);
         String url = buildUrl(syncPost.getUrl().toString());
         printStream.println(String.format("Syncing with url %s and parameters %s", url, params));
         MultipartBody postBody = buildPostBody(params);

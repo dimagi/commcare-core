@@ -47,7 +47,8 @@ public class PostRequest implements Externalizable {
 
     /**
      * Evalulates parameteres for post request
-     * @param evalContext Context params needs to be evaluated in
+     *
+     * @param evalContext        Context params needs to be evaluated in
      * @param includeBlankValues whether to include blank values in the return map
      * @return Evaluated params
      */
@@ -81,7 +82,7 @@ public class PostRequest implements Externalizable {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
-        params = (List<QueryData>) ExtUtil.read(in, new ExtWrapList(new ExtWrapTagged()), pf);
+        params = (List<QueryData>)ExtUtil.read(in, new ExtWrapList(new ExtWrapTagged()), pf);
         url = new URL(ExtUtil.readString(in));
         relevantExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
     }

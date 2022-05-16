@@ -46,7 +46,7 @@ public class RemoteRequestEntryParserTest {
                 + "  </command>\n"
                 + "</remote-request>";
         PostRequest post = getRemoteRequestPost(query);
-        List<QueryData> params = (List<QueryData>) ReflectionUtils.getField(post, "params");
+        List<QueryData> params = (List<QueryData>)ReflectionUtils.getField(post, "params");
         assertEquals(2, params.size());
         assertEquals("case_id", params.get(0).getKey());
         assertEquals("case_id_list", params.get(1).getKey());
