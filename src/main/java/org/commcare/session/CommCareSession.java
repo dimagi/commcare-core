@@ -20,6 +20,7 @@ import org.commcare.suite.model.Text;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.services.locale.Localizer;
@@ -463,6 +464,11 @@ public class CommCareSession {
         syncState();
     }
 
+    public void setDatum(String action, String keyId, String value, ExternalDataInstanceSource source) {
+        frame.pushStep(new StackFrameStep(action, keyId, value, source));
+        syncState();
+    }
+
     /**
      * Set a (xml) data instance as the result to a session query datum.
      * The instance is available in session's evaluation context until the corresponding query frame is removed
@@ -616,8 +622,9 @@ public class CommCareSession {
                                        InstanceInitializationFactory iif) {
         for (StackFrameStep step : frame.getSteps()) {
             if (step.hasXmlInstance()) {
-                ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(step.getId(), step.getXmlInstanceSource());
-                instanceMap.put(step.getId(), instance.initialize(iif, instance.getSource().getInstanceId()));
+                ExternalDataInstanceSource instanceSource = step.getXmlInstanceSource();
+                ExternalDataInstance instance = instanceSource.toInstance();
+                instanceMap.put(step.getId(), instance.initialize(iif, instanceSource.getInstanceId()));
             }
         }
     }

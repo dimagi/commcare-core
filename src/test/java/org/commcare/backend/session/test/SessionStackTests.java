@@ -1,5 +1,13 @@
 package org.commcare.backend.session.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import com.google.common.collect.ArrayListMultimap;
+
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.session.SessionFrame;
@@ -27,12 +35,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 /**
  * This is a super basic test just to make sure the test infrastructure is working correctly
  * and to act as an example of how to build template app tests.
@@ -58,7 +60,8 @@ public class SessionStackTests {
         EntityDatum entityDatum = (EntityDatum)session.getNeededDatum();
         assertEquals("case_id", entityDatum.getDataId());
 
-        Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(session.getEvaluationContext());
+        Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(
+                session.getEvaluationContext());
 
         if (actions == null || actions.isEmpty()) {
             fail("Detail screen stack action was missing from app!");
@@ -336,7 +339,7 @@ public class SessionStackTests {
         assertTrue(actionToInspect.hasActionBarIcon());
         assertEquals("Jump to Menu 2 Form 1, with icon", actionToInspect.getDisplay().getText().evaluate(ec));
         assertEquals(1, actionToInspect.getStackOperations().size());
-        assertTrue(actionToInspect.getAutoLaunchExpr()==null);
+        assertTrue(actionToInspect.getAutoLaunchExpr() == null);
 
         assertTrue(FunctionUtils.toString(actions.get(0).getAutoLaunchExpr().eval(ec)).contentEquals("true"));
     }
@@ -363,18 +366,21 @@ public class SessionStackTests {
     }
 
     static ExternalDataInstance buildRemoteExternalDataInstance(Class cls,
-                                                                SessionWrapper sessionWrapper,
-                                                                String resourcePath) throws UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException, IOException {
+            SessionWrapper sessionWrapper,
+            String resourcePath)
+            throws UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException,
+            IOException {
         RemoteQuerySessionManager remoteQuerySessionManager =
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper,
                         sessionWrapper.getEvaluationContext(), new ArrayList<>());
         InputStream is = cls.getResourceAsStream(resourcePath);
         RemoteQueryDatum queryDatum = remoteQuerySessionManager.getQueryDatum();
         TreeElement root = ExternalDataInstance.parseExternalTree(is, queryDatum.getDataId());
-        ExternalDataInstanceSource source = new ExternalDataInstanceSource(
-                queryDatum.getDataId(), root, resourcePath, queryDatum.useCaseTemplate()
+        ExternalDataInstanceSource source = ExternalDataInstanceSource.buildRemote(
+                queryDatum.getDataId(), root, queryDatum.useCaseTemplate(),
+                resourcePath, ArrayListMultimap.create()
         );
-        ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(queryDatum.getDataId(), source);
+        ExternalDataInstance instance = source.toInstance();
         assertNotNull(instance);
         return instance;
     }

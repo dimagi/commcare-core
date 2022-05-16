@@ -370,4 +370,8 @@ public class EntityScreen extends CompoundScreenHost {
         }
         return false;
     }
+
+    public void updateDatum(CommCareSession session, String input) {
+        session.setEntityDatum(session.getNeededDatum(), input);
+    }
 }

@@ -1,5 +1,10 @@
 package org.commcare.util.screen;
 
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_ADDRESS;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
+
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
 
@@ -37,11 +42,6 @@ import okhttp3.FormBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_ADDRESS;
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT;
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
 /**
  * Screen that displays user configurable entry texts and makes
@@ -105,7 +105,8 @@ public class QueryScreen extends Screen {
         int count = 0;
         fields = new String[userInputDisplays.keySet().size()];
         for (Map.Entry<String, QueryPrompt> queryPromptEntry : userInputDisplays.entrySet()) {
-            fields[count] = queryPromptEntry.getValue().getDisplay().getText().evaluate(sessionWrapper.getEvaluationContext());
+            fields[count] = queryPromptEntry.getValue().getDisplay().getText().evaluate(
+                    sessionWrapper.getEvaluationContext());
         }
 
         try {
@@ -165,7 +166,8 @@ public class QueryScreen extends Screen {
         return client.makeRequest(request);
     }
 
-    public Pair<ExternalDataInstance, String> processResponse(InputStream responseData, URL url, Multimap<String, String> requestData) {
+    public Pair<ExternalDataInstance, String> processResponse(InputStream responseData, URL url,
+            Multimap<String, String> requestData) {
         if (responseData == null) {
             currentMessage = "Query result null.";
             return new Pair<>(null, currentMessage);
@@ -174,10 +176,9 @@ public class QueryScreen extends Screen {
         try {
             String instanceID = getQueryDatum().getDataId();
             TreeElement root = ExternalDataInstance.parseExternalTree(responseData, instanceID);
-            ExternalDataInstanceSource instanceSource = new ExternalDataInstanceSource(
-                    instanceID, root, url.toString(), requestData, getQueryDatum().useCaseTemplate()
-            );
-            ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(getQueryDatum().getDataId(), instanceSource);
+            ExternalDataInstanceSource instanceSource = ExternalDataInstanceSource.buildRemote(
+                    instanceID, root, getQueryDatum().useCaseTemplate(), url.toString(), requestData);
+            ExternalDataInstance instance = instanceSource.toInstance();
             instanceOrError = new Pair<>(instance, "");
         } catch (InvalidStructureException | IOException
                 | XmlPullParserException | UnfullfilledRequirementsException e) {

@@ -2,15 +2,15 @@ package org.commcare.util.screen;
 
 import static org.commcare.session.SessionFrame.STATE_MULTIPLE_DATUM_VAL;
 
-import org.commcare.core.interfaces.VirtualDataInstanceCache;
+import org.commcare.core.interfaces.VirtualDataInstanceStorage;
 import org.commcare.data.xml.VirtualInstances;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.MultiSelectEntityDatum;
+import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.model.instance.VirtualDataInstance;
-
-import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -22,15 +22,16 @@ public class MultiSelectEntityScreen extends EntityScreen {
     public static final String USE_SELECTED_VALUES = "use_selected_values";
     private int maxSelectValue = -1;
 
-    private final VirtualDataInstanceCache virtualDataInstanceCache;
-    private UUID storageReferenceId;
+    private final VirtualDataInstanceStorage virtualDataInstanceStorage;
+    private String storageReferenceId;
+    private ExternalDataInstance selectedValuesInstance;
 
     public MultiSelectEntityScreen(boolean handleCaseIndex, boolean full,
             SessionWrapper session,
-            VirtualDataInstanceCache virtualDataInstanceCache)
+            VirtualDataInstanceStorage virtualDataInstanceStorage)
             throws CommCareSessionException {
         super(handleCaseIndex, full, session);
-        this.virtualDataInstanceCache = virtualDataInstanceCache;
+        this.virtualDataInstanceStorage = virtualDataInstanceStorage;
     }
 
     /**
@@ -50,15 +51,18 @@ public class MultiSelectEntityScreen extends EntityScreen {
         if (input.contentEquals(USE_SELECTED_VALUES)) {
             processSelectedValues(selectedValues);
         } else {
-            UUID inputId = UUID.fromString(input);
-            VirtualDataInstance cachedInstance = virtualDataInstanceCache.read(inputId);
-            if (cachedInstance == null) {
-                throw new CommCareSessionException(
-                        "Could not make selection with reference id " + input + " on this screen. " +
-                                " If this error persists please report a bug to CommCareHQ.");
-            }
-            storageReferenceId = inputId;
+            prcessSelectionAsGuid(input);
         }
+    }
+
+    private void prcessSelectionAsGuid(String guid) throws CommCareSessionException {
+        ExternalDataInstance cachedInstance = virtualDataInstanceStorage.read(guid);
+        if (cachedInstance == null) {
+            throw new CommCareSessionException(
+                    "Could not make selection with reference id " + guid + " on this screen. " +
+                            " If this error persists please report a bug to CommCareHQ.");
+        }
+        storageReferenceId = guid;
     }
 
     private void processSelectedValues(String[] selectedValues)
@@ -74,11 +78,16 @@ public class MultiSelectEntityScreen extends EntityScreen {
                 }
                 evaluatedValues[i] = getReturnValueFromSelection(currentReference);
             }
-            VirtualDataInstance selectedValuesInstance =
-                    VirtualInstances.buildSelectedValuesInstance(getSession().getNeededDatum().getDataId(),
-                            selectedValues);
-            UUID guid = virtualDataInstanceCache.write(selectedValuesInstance);
+            ExternalDataInstance instance = VirtualInstances.buildSelectedValuesInstance(
+                    getSession().getNeededDatum().getDataId(),
+                    selectedValues);
+            String guid = virtualDataInstanceStorage.write(instance);
             storageReferenceId = guid;
+
+            // rebuild instance with the source
+            ExternalDataInstanceSource instanceSource = buildSelectedValuesInstanceSource(instance,
+                    storageReferenceId);
+            selectedValuesInstance = instanceSource.toInstance();
         }
     }
 
@@ -94,24 +103,50 @@ public class MultiSelectEntityScreen extends EntityScreen {
             return;
         }
         if (storageReferenceId != null) {
-            session.setDatum(STATE_MULTIPLE_DATUM_VAL, mNeededDatum.getDataId(), storageReferenceId.toString());
+            if (selectedValuesInstance == null) {
+                selectedValuesInstance = virtualDataInstanceStorage.read(storageReferenceId);
+            }
+            ExternalDataInstanceSource externalDataInstanceSource = buildSelectedValuesInstanceSource(
+                    selectedValuesInstance, storageReferenceId);
+            session.setDatum(STATE_MULTIPLE_DATUM_VAL, mNeededDatum.getDataId(),
+                    storageReferenceId.toString(), externalDataInstanceSource);
         }
     }
 
     @Override
-    public boolean referencesContainStep(String stepValue) {
-        return virtualDataInstanceCache.contains(UUID.fromString(stepValue));
+    public void updateDatum(CommCareSession session, String input) {
+        storageReferenceId = input;
+        selectedValuesInstance = virtualDataInstanceStorage.read(storageReferenceId);
+        ExternalDataInstanceSource externalDataInstanceSource = buildSelectedValuesInstanceSource(
+                selectedValuesInstance, storageReferenceId);
+        session.setDatum(STATE_MULTIPLE_DATUM_VAL, session.getNeededDatum().getDataId(),
+                input, externalDataInstanceSource);
     }
 
-    public VirtualDataInstance getVirtualInstance() {
-        return virtualDataInstanceCache.read(getStorageReferenceId());
+    private static ExternalDataInstanceSource buildSelectedValuesInstanceSource(
+            ExternalDataInstance selectedValuesInstance, String storageReferenceId) {
+        return ExternalDataInstanceSource.buildVirtual(
+                selectedValuesInstance.getInstanceId(),
+                (TreeElement)selectedValuesInstance.getRoot(),
+                selectedValuesInstance.getReference(),
+                selectedValuesInstance.useCaseTemplate(),
+                storageReferenceId);
+    }
+
+    @Override
+    public boolean referencesContainStep(String stepValue) {
+        return virtualDataInstanceStorage.contains(stepValue);
+    }
+
+    public ExternalDataInstance getSelectedValuesInstance() {
+        return selectedValuesInstance;
     }
 
     public int getMaxSelectValue() {
         return maxSelectValue;
     }
 
-    public UUID getStorageReferenceId() {
+    public String getStorageReferenceId() {
         return storageReferenceId;
     }
 }
