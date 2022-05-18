@@ -49,7 +49,7 @@ public class StorageManager {
             if (storageRegistry.get(key).getClass() == type) {
                 return;
             } else {
-                Logger.log("Warning", "Overwriting storage type " + storageRegistry.get(key).getClass() + " with type " + type + " for key " + key + ".");
+                throw new RuntimeException("Attempting to change storage type for key " + key + " from type " + storageRegistry.get(key).getClass() + " to type " + type + ".");
             }
         } 
 
