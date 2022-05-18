@@ -111,6 +111,7 @@ public class QueryScreen extends Screen {
         for (Map.Entry<String, QueryPrompt> queryPromptEntry : userInputDisplays.entrySet()) {
             fields[count] = queryPromptEntry.getValue().getDisplay().getText().evaluate(
                     sessionWrapper.getEvaluationContext());
+            count++;
         }
 
         try {
