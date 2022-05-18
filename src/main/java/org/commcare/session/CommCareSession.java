@@ -465,7 +465,9 @@ public class CommCareSession {
     }
 
     public void setDatum(String action, String keyId, String value, ExternalDataInstanceSource source) {
-        frame.pushStep(new StackFrameStep(action, keyId, value, source));
+        StackFrameStep step = new StackFrameStep(action, keyId, value);
+        step.addDataInstanceSources(source);
+        frame.pushStep(step);
         syncState();
     }
 
@@ -476,9 +478,9 @@ public class CommCareSession {
     public void setQueryDatum(ExternalDataInstance queryResultInstance) {
         SessionDatum datum = getNeededDatum();
         if (datum instanceof RemoteQueryDatum) {
-            StackFrameStep step =
-                    new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST,
-                            datum.getDataId(), datum.getValue(), queryResultInstance.getSource());
+            StackFrameStep step = new StackFrameStep(
+                    SessionFrame.STATE_QUERY_REQUEST, datum.getDataId(), datum.getValue());
+            step.addDataInstanceSources(queryResultInstance.getSource());
             frame.pushStep(step);
             syncState();
         } else {
@@ -621,11 +623,7 @@ public class CommCareSession {
     private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap,
                                        InstanceInitializationFactory iif) {
         for (StackFrameStep step : frame.getSteps()) {
-            if (step.hasXmlInstance()) {
-                ExternalDataInstanceSource instanceSource = step.getXmlInstanceSource();
-                ExternalDataInstance instance = instanceSource.toInstance();
-                instanceMap.put(step.getId(), instance.initialize(iif, instanceSource.getInstanceId()));
-            }
+            instanceMap.putAll(step.getInstances(iif));
         }
     }
 

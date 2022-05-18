@@ -200,8 +200,8 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
     protected InstanceRoot getExternalDataInstanceSource(ExternalDataInstance instance, String stepType) {
         for (StackFrameStep step : session.getFrame().getSteps()) {
-            if (step.getId().equals(instance.getInstanceId()) && step.getType().equals(stepType)) {
-                return step.getXmlInstanceSource();
+            if (step.getType().equals(stepType) && step.hasDataInstanceSource(instance.getInstanceId())) {
+                return step.getDataInstanceSource(instance.getInstanceId());
             }
         }
         return instance.getSource() == null ? ConcreteInstanceRoot.NULL : instance.getSource();
