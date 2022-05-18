@@ -196,7 +196,8 @@ public class QueryScreen extends Screen {
         }
     }
 
-    public void answerPrompts(Hashtable<String, String> answers) {
+    public boolean answerPrompts(Hashtable<String, String> answers) {
+        boolean updated = false;
         for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
             QueryPrompt queryPrompt = userInputDisplays.get(key);
@@ -220,8 +221,9 @@ public class QueryScreen extends Screen {
                 }
                 answer = String.join(RemoteQuerySessionManager.ANSWER_DELIMITER, selectedChoices);
             }
-            remoteQuerySessionManager.answerUserPrompt(key, answer);
+            updated |= remoteQuerySessionManager.answerUserPrompt(key, answer);
         }
+        return updated;
     }
 
     public void refreshItemSetChoices() {

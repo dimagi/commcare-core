@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.annotation.Nullable;
 
@@ -99,14 +100,19 @@ public class RemoteQuerySessionManager {
 
     /**
      * Register a non-null value as an answer for the given key.
-     * If value is null, removes the corresponding answer
+     * If value is null, removes the corresponding answer.
+     *
+     * Returns true if the data was updated.
      */
-    public void answerUserPrompt(String key, @Nullable String value) {
-        if (value == null) {
+    public boolean answerUserPrompt(String key, @Nullable String value) {
+        if (value == null && userAnswers.containsKey(key)) {
             userAnswers.remove(key);
-        } else {
+            return true;
+        } else if (value != null && !Objects.equals(userAnswers.get(key), value)) {
             userAnswers.put(key, value);
+            return true;
         }
+        return false;
     }
 
     public URL getBaseUrl() {
