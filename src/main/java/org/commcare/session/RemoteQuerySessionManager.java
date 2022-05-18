@@ -143,11 +143,15 @@ public class RemoteQuerySessionManager {
     }
 
     private EvaluationContext getEvaluationContextWithUserInputInstance() {
-        Map<String, String> userQueryValues = getUserQueryValues(false);
-        ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(userQueryValues);
+        ExternalDataInstance userInputInstance = getUserInputInstance();
         return evaluationContext.spawnWithCleanLifecycle(
                 ImmutableMap.of(userInputInstance.getInstanceId(), userInputInstance)
         );
+    }
+
+    public ExternalDataInstance getUserInputInstance() {
+        Map<String, String> userQueryValues = getUserQueryValues(false);
+        return VirtualInstances.buildSearchInputInstance(userQueryValues);
     }
 
     public static String evalXpathExpression(XPathExpression expr,

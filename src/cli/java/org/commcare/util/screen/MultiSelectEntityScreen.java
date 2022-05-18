@@ -85,7 +85,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
             storageReferenceId = guid;
 
             // rebuild instance with the source
-            ExternalDataInstanceSource instanceSource = buildSelectedValuesInstanceSource(instance,
+            ExternalDataInstanceSource instanceSource = ExternalDataInstanceSource.buildVirtual(instance,
                     storageReferenceId);
             selectedValuesInstance = instanceSource.toInstance();
         }
@@ -106,7 +106,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
             if (selectedValuesInstance == null) {
                 selectedValuesInstance = virtualDataInstanceStorage.read(storageReferenceId);
             }
-            ExternalDataInstanceSource externalDataInstanceSource = buildSelectedValuesInstanceSource(
+            ExternalDataInstanceSource externalDataInstanceSource = ExternalDataInstanceSource.buildVirtual(
                     selectedValuesInstance, storageReferenceId);
             session.setDatum(STATE_MULTIPLE_DATUM_VAL, mNeededDatum.getDataId(),
                     storageReferenceId.toString(), externalDataInstanceSource);
@@ -117,20 +117,10 @@ public class MultiSelectEntityScreen extends EntityScreen {
     public void updateDatum(CommCareSession session, String input) {
         storageReferenceId = input;
         selectedValuesInstance = virtualDataInstanceStorage.read(storageReferenceId);
-        ExternalDataInstanceSource externalDataInstanceSource = buildSelectedValuesInstanceSource(
+        ExternalDataInstanceSource externalDataInstanceSource = ExternalDataInstanceSource.buildVirtual(
                 selectedValuesInstance, storageReferenceId);
         session.setDatum(STATE_MULTIPLE_DATUM_VAL, session.getNeededDatum().getDataId(),
                 input, externalDataInstanceSource);
-    }
-
-    private static ExternalDataInstanceSource buildSelectedValuesInstanceSource(
-            ExternalDataInstance selectedValuesInstance, String storageReferenceId) {
-        return ExternalDataInstanceSource.buildVirtual(
-                selectedValuesInstance.getInstanceId(),
-                (TreeElement)selectedValuesInstance.getRoot(),
-                selectedValuesInstance.getReference(),
-                selectedValuesInstance.useCaseTemplate(),
-                storageReferenceId);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package org.commcare.backend.suite.model.test;
 
+import org.commcare.core.interfaces.MemoryVirtualDataInstanceStorage;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
@@ -28,7 +29,9 @@ public class QueryModelTests {
         Assert.assertEquals("registry1", datum.getDataId());
 
         // construct the screen
-        QueryScreen screen = new QueryScreen("username", "password", System.out);
+        QueryScreen screen = new QueryScreen(
+                "username", "password",
+                System.out, new MemoryVirtualDataInstanceStorage());
         screen.init(session);
 
         // mock the query response

@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.cases.util.StringUtils;
+import org.commcare.core.interfaces.VirtualDataInstanceStorage;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.CommCareSession;
@@ -79,14 +80,17 @@ public class QueryScreen extends Screen {
     private String password;
 
     private PrintStream out;
+    private VirtualDataInstanceStorage instanceStorage;
 
     private boolean defaultSearch;
     private QueryClient client = new OkHttpQueryClient();
 
-    public QueryScreen(String domainedUsername, String password, PrintStream out) {
+    public QueryScreen(String domainedUsername, String password, PrintStream out,
+            VirtualDataInstanceStorage instanceStorage) {
         this.domainedUsername = domainedUsername;
         this.password = password;
         this.out = out;
+        this.instanceStorage = instanceStorage;
     }
 
     @Override
@@ -193,8 +197,19 @@ public class QueryScreen extends Screen {
 
     public void updateSession(ExternalDataInstance dataInstance) {
         if (dataInstance != null) {
-            sessionWrapper.setQueryDatum(dataInstance);
+            ExternalDataInstance userInputInstance = getUserInputInstance();
+            sessionWrapper.setQueryDatum(dataInstance, userInputInstance);
         }
+    }
+
+    private ExternalDataInstance getUserInputInstance() {
+        ExternalDataInstance userInputInstance = remoteQuerySessionManager.getUserInputInstance();
+        String guid = instanceStorage.write(userInputInstance);
+
+        // rebuild the instance with source
+        return ExternalDataInstanceSource.buildVirtual(
+                userInputInstance, guid
+        ).toInstance();
     }
 
     public void answerPrompts(Hashtable<String, String> answers) {

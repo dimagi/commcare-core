@@ -2,7 +2,9 @@ package org.commcare.util.cli;
 
 import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.cases.util.InvalidCaseGraphException;
+import org.commcare.core.interfaces.MemoryVirtualDataInstanceStorage;
 import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.core.interfaces.VirtualDataInstanceStorage;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.core.sandbox.SandboxUtils;
@@ -79,6 +81,8 @@ public class ApplicationHost {
     private String password;
     private String mRestoreFile;
     private String mRestoreStrategy = null;
+
+    private VirtualDataInstanceStorage virtualInstanceStorage = new MemoryVirtualDataInstanceStorage();
 
     public ApplicationHost(CommCareConfigEngine engine,
                            PrototypeFactory prototypeFactory,
@@ -433,7 +437,7 @@ public class ApplicationHost {
             return new EntityScreen(true);
         } else if (next.equals(SessionFrame.STATE_QUERY_REQUEST)) {
             checkUsernamePasswordValid();
-            return new QueryScreen(qualifiedUsername, password, System.out);
+            return new QueryScreen(qualifiedUsername, password, System.out, virtualInstanceStorage);
         } else if (next.equals(SessionFrame.STATE_SYNC_REQUEST)) {
             checkUsernamePasswordValid();
             return new SyncScreen(qualifiedUsername, password, System.out);
