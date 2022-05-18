@@ -191,7 +191,7 @@ public class QueryScreen extends Screen {
         return instanceOrError;
     }
 
-    public void setQueryDatum(ExternalDataInstance dataInstance) {
+    public void updateSession(ExternalDataInstance dataInstance) {
         if (dataInstance != null) {
             sessionWrapper.setQueryDatum(dataInstance);
         }
@@ -278,7 +278,7 @@ public class QueryScreen extends Screen {
         Multimap<String, String> requestData = getRequestData(false);
         InputStream response = makeQueryRequestReturnStream(url, requestData);
         Pair<ExternalDataInstance, String> instanceOrError = processResponse(response, url, requestData);
-        setQueryDatum(instanceOrError.first);
+        updateSession(instanceOrError.first);
         if (currentMessage != null) {
             out.println(currentMessage);
         }
