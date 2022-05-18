@@ -49,7 +49,11 @@ public class StorageManager {
             if (storageRegistry.get(key).getPrototype() == type) {
                 return;
             } else {
-                throw new RuntimeException("Attempting to change storage type for key " + key + " from type " + storageRegistry.get(key).getClass() + " to type " + type + ".");
+                throw new RuntimeException(
+                        String.format("Attempting to change storage type for key %s from type %s to type %s.",
+                                key, storageRegistry.get(key).getPrototype().getName(), type.getName()
+                        )
+                );
             }
         } 
 
