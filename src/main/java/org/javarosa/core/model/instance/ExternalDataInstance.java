@@ -27,7 +27,7 @@ public class ExternalDataInstance extends DataInstance {
     public static final String JR_SESSION_REFERENCE = "jr://instance/session";
     public static final String JR_CASE_DB_REFERENCE = "jr://instance/casedb";
     public static final String JR_LEDGER_DB_REFERENCE = "jr://instance/ledgerdb";
-    public static final String JR_SEARCH_INPUT_REFERENCE = "jr://instance/search_input";
+    public static final String JR_SEARCH_INPUT_REFERENCE = "jr://instance/search-input";
     public static final String JR_SELECTED_VALUES_REFERENCE = "jr://instance/selected_cases";
     public static final String JR_REMOTE_REFERENCE = "jr://instance/remote";
 
