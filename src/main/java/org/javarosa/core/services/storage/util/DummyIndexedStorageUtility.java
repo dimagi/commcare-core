@@ -367,4 +367,9 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
             metadataMap.put(i, getMetaDataForRecord(i, metaDataIds));
         }
     }
+
+    @Override
+    public Class<?> getPrototype() {
+        return prototype;
+    }
 }
