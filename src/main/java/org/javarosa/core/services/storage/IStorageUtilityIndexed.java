@@ -267,4 +267,9 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      * required for the fields to be retrieved from storage again.
      */
     void bulkReadMetadata(LinkedHashSet<Integer> recordIds, String[] metaFieldNames, HashMap<Integer, String[]> metadataMap);
+
+    /**
+     * Provide public accessor to the inner class that is stored
+     */
+    Class<?> getPrototype();
 }
