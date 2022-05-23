@@ -206,20 +206,23 @@ public class QueryScreen extends Screen {
     }
 
     private ExternalDataInstance getUserInputInstance() {
+        String instanceID = VirtualInstances.makeSearchInputInstanceID(getQueryDatum().getDataId());
         Map<String, String> userQueryValues = remoteQuerySessionManager.getUserQueryValues(false);
-        String key = getInstanceKey(userQueryValues);
+        String key = getInstanceKey(instanceID, userQueryValues);
         if (instanceStorage.contains(key)) {
             return instanceStorage.read(key);
         }
 
-        ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(userQueryValues);
+        ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(
+                instanceID, userQueryValues);
         instanceStorage.write(key, userInputInstance);
         // rebuild the instance with source
         return ExternalDataInstanceSource.buildVirtual(userInputInstance, key).toInstance();
     }
 
-    private String getInstanceKey(Map<String, String> values) {
-        StringBuilder builder = new StringBuilder();
+    private String getInstanceKey(String instanceId, Map<String, String> values) {
+        StringBuilder builder = new StringBuilder(instanceId);
+        builder.append("/");
         for (Map.Entry<String, String> entry : values.entrySet()) {
             builder.append(entry.getKey()).append("=").append(entry.getValue()).append("|");
         }

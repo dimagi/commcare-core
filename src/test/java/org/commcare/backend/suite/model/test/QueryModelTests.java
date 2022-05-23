@@ -53,7 +53,8 @@ public class QueryModelTests {
         SessionWrapper session = mApp.getSession();
         QueryScreen screen = setupQueryScreen(session);
 
-        String expectedInstanceStorageKey = CryptUtil.sha256("name=bob|age=23|");
+        String instanceID = "search-input:registry1";
+        String expectedInstanceStorageKey = CryptUtil.sha256(instanceID + "/name=bob|age=23|");
         Assert.assertFalse(virtualDataInstanceStorage.contains(expectedInstanceStorageKey));
 
         // perform the query
@@ -64,7 +65,7 @@ public class QueryModelTests {
         Assert.assertTrue(virtualDataInstanceStorage.contains(expectedInstanceStorageKey));
         Map<String, String> input = ImmutableMap.of("name", "bob", "age", "23");
         Assert.assertEquals(
-                VirtualInstances.buildSearchInputInstance(input).getRoot(),
+                VirtualInstances.buildSearchInputInstance(instanceID, input).getRoot(),
                 virtualDataInstanceStorage.read(expectedInstanceStorageKey).getRoot());
     }
 
