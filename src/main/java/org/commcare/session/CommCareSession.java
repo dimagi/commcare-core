@@ -482,9 +482,9 @@ public class CommCareSession {
             StackFrameStep step = new StackFrameStep(
                     SessionFrame.STATE_QUERY_REQUEST, datum.getDataId(), datum.getValue());
             step.addDataInstanceSources(queryResultInstance.getSource());
-            Arrays.stream(extras).forEach((instance) -> {
+            for (ExternalDataInstance instance : extras) {
                 step.addDataInstanceSources(instance.getSource());
-            });
+            }
             frame.pushStep(step);
             syncState();
         } else {

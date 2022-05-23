@@ -102,7 +102,8 @@ public class StackFrameStep implements Externalizable {
 
     public void addDataInstanceSources(ExternalDataInstanceSource source) {
         if (source == null) {
-            return;
+            throw new RuntimeException(String.format(
+                    "Unable to add null instance data source to stack frame step '%s'", getId()));
         }
         String instanceId = source.getInstanceId();
         if (dataInstanceSources.containsKey(instanceId)) {
