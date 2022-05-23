@@ -4,6 +4,7 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -22,6 +23,15 @@ public class MemoryVirtualDataInstanceStorage implements
     }
 
     @Override
+    public String write(String key, ExternalDataInstance dataInstance) {
+        if (contains(key)) {
+            throw new RuntimeException(key);
+        }
+        storage.put(key, dataInstance);
+        return key;
+    }
+
+    @Override
     public ExternalDataInstance read(String key) {
         return storage.get(key);
     }
@@ -29,5 +39,13 @@ public class MemoryVirtualDataInstanceStorage implements
     @Override
     public boolean contains(String key) {
         return storage.containsKey(key);
+    }
+
+    public Set<String> getKeys() {
+        return storage.keySet();
+    }
+
+    public void clear() {
+        storage.clear();
     }
 }

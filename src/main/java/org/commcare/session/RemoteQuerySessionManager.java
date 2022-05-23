@@ -143,15 +143,11 @@ public class RemoteQuerySessionManager {
     }
 
     private EvaluationContext getEvaluationContextWithUserInputInstance() {
-        ExternalDataInstance userInputInstance = getUserInputInstance();
+        Map<String, String> userQueryValues = getUserQueryValues(false);
+        ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(userQueryValues);
         return evaluationContext.spawnWithCleanLifecycle(
                 ImmutableMap.of(userInputInstance.getInstanceId(), userInputInstance)
         );
-    }
-
-    public ExternalDataInstance getUserInputInstance() {
-        Map<String, String> userQueryValues = getUserQueryValues(false);
-        return VirtualInstances.buildSearchInputInstance(userQueryValues);
     }
 
     public static String evalXpathExpression(XPathExpression expr,
@@ -169,7 +165,7 @@ public class RemoteQuerySessionManager {
         ItemSetUtils.populateDynamicChoices(queryPrompt.getItemsetBinding(), evalContextWithAnswers);
     }
 
-    private Map<String, String> getUserQueryValues(boolean includeNulls) {
+    public Map<String, String> getUserQueryValues(boolean includeNulls) {
         Map<String, String> values = new HashMap<>();
         OrderedHashtable<String, QueryPrompt> queryPrompts = queryDatum.getUserQueryPrompts();
         for (Enumeration en = queryPrompts.keys(); en.hasMoreElements(); ) {

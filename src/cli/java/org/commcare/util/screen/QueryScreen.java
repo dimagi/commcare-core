@@ -9,7 +9,9 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.cases.util.StringUtils;
+import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.interfaces.VirtualDataInstanceStorage;
+import org.commcare.data.xml.VirtualInstances;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.CommCareSession;
@@ -204,13 +206,24 @@ public class QueryScreen extends Screen {
     }
 
     private ExternalDataInstance getUserInputInstance() {
-        ExternalDataInstance userInputInstance = remoteQuerySessionManager.getUserInputInstance();
-        String guid = instanceStorage.write(userInputInstance);
+        Map<String, String> userQueryValues = remoteQuerySessionManager.getUserQueryValues(false);
+        String key = getInstanceKey(userQueryValues);
+        if (instanceStorage.contains(key)) {
+            return instanceStorage.read(key);
+        }
 
+        ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(userQueryValues);
+        instanceStorage.write(key, userInputInstance);
         // rebuild the instance with source
-        return ExternalDataInstanceSource.buildVirtual(
-                userInputInstance, guid
-        ).toInstance();
+        return ExternalDataInstanceSource.buildVirtual(userInputInstance, key).toInstance();
+    }
+
+    private String getInstanceKey(Map<String, String> values) {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, String> entry : values.entrySet()) {
+            builder.append(entry.getKey()).append("=").append(entry.getValue()).append("|");
+        }
+        return CryptUtil.sha256(builder.toString());
     }
 
     public void answerPrompts(Hashtable<String, String> answers) {

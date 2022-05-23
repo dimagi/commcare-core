@@ -1,0 +1,2 @@
+query.name=name
+query.age=age
