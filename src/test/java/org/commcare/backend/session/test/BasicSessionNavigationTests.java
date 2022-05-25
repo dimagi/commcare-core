@@ -215,7 +215,7 @@ public class BasicSessionNavigationTests {
         session.setCommand(menuCommand);
         Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
-        session.setDatum("case_id", "case_one");
+        session.setEntityDatum("case_id", "case_one");
 
         Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
         session.setCommand("m2-f2");
