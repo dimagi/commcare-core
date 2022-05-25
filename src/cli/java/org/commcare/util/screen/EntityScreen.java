@@ -8,15 +8,15 @@ import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
+import org.commcare.suite.model.MultiSelectEntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.DatumUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.util.NoLocalizedTextException;
-import org.javarosa.model.xform.XPathReference;
 
 import java.util.Hashtable;
 import java.util.Vector;
@@ -57,6 +57,9 @@ public class EntityScreen extends CompoundScreenHost {
 
     private boolean initialized = false;
     private Action autoLaunchAction;
+
+    private boolean isMultiSelect = false;
+    private int maxSelectValue = -1;
 
     public EntityScreen(boolean handleCaseIndex) {
         this.handleCaseIndex = handleCaseIndex;
@@ -157,6 +160,11 @@ public class EntityScreen extends CompoundScreenHost {
         }
 
         evalContext = mSession.getEvaluationContext();
+
+        if (mNeededDatum instanceof MultiSelectEntityDatum) {
+            isMultiSelect = true;
+            maxSelectValue = ((MultiSelectEntityDatum)mNeededDatum).getMaxSelectValue();
+        }
     }
 
     @Trace
@@ -185,20 +193,9 @@ public class EntityScreen extends CompoundScreenHost {
 
     @Trace
     public static String getReturnValueFromSelection(TreeReference contextRef, EntityDatum needed, EvaluationContext context) {
-        // grab the session's (form) element reference, and load it.
-        TreeReference elementRef =
-                XPathReference.getPathExpr(needed.getValue()).getReference();
-
-        AbstractTreeElement element =
-                context.resolveReference(elementRef.contextualize(contextRef));
-
-        String value = "";
-        // get the case id and add it to the intent
-        if (element != null && element.getValue() != null) {
-            value = element.getValue().uncast().getString();
-        }
-        return value;
+        return DatumUtil.getReturnValueFromSelection(contextRef, needed, context);
     }
+
 
     @Trace
     @Override
@@ -342,5 +339,13 @@ public class EntityScreen extends CompoundScreenHost {
             }
         }
         return false;
+    }
+
+    public boolean isMultiSelect() {
+        return isMultiSelect;
+    }
+
+    public int getMaxSelectValue() {
+        return maxSelectValue;
     }
 }

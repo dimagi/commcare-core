@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 
@@ -744,7 +745,18 @@ public class EvaluationContext {
      * capacity to abandon requests
      */
     public EvaluationContext spawnWithCleanLifecycle() {
+        return spawnWithCleanLifecycle(null);
+    }
+
+    public EvaluationContext spawnWithCleanLifecycle(Map<String, DataInstance> additionalInstances) {
         EvaluationContext ec = new EvaluationContext(this, this.getContextRef());
+        if (additionalInstances != null) {
+            additionalInstances.forEach((name, instance) -> {
+                if (!ec.formInstances.containsKey(name)) {
+                    ec.formInstances.put(name, instance);
+                }
+            });
+        }
         QueryContext qc = ec.getCurrentQueryContext().forceNewChildContext();
         ec.setQueryContext(qc);
         return ec;

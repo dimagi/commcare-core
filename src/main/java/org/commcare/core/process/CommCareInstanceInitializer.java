@@ -172,7 +172,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         TreeElement root =
                 SessionInstanceBuilder.getSessionInstance(session.getFrame(), getDeviceId(),
                         getVersionString(), getCurrentDrift(), u.getUsername(), u.getUniqueId(),
-                        u.getProperties()).getRoot();
+                        u.getProperties());
         root.setParent(instance.getBase());
         return new ConcreteInstanceRoot(root);
     }

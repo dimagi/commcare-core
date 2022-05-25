@@ -35,7 +35,23 @@ public class CliPlayCommand extends CliCommand {
                 .required(false)
                 .optionalArg(false)
                 .build();
-        options.addOption(restoreFile).addOption(demoUser);
+        Option endpointId = Option.builder("e")
+                .argName("ENDPOINT")
+                .hasArg()
+                .desc("Begin session from given endpoint")
+                .longOpt("endpoint-id")
+                .required(false)
+                .optionalArg(false)
+                .build();
+        Option endpointArgs = Option.builder("a")
+                .argName("ENDPOINT_ARG")
+                .hasArg()
+                .desc("Arguments for endpoint")
+                .longOpt("endpoint-arg")
+                .required(false)
+                .optionalArg(false)
+                .build();
+        options.addOption(restoreFile).addOption(demoUser).addOption(endpointId).addOption(endpointArgs);
 
         return options;
     }
@@ -43,9 +59,8 @@ public class CliPlayCommand extends CliCommand {
     @Override
     public void parseArguments(String[] args) throws ParseException {
         super.parseArguments(args);
-
         resourcePath = this.args[0];
-        if (!cmd.hasOption("r") && !cmd.hasOption("d")) {
+        if (this.args.length == 3) {
             username = this.args[1];
             password = this.args[2];
         }
@@ -59,16 +74,25 @@ public class CliPlayCommand extends CliCommand {
             CommCareConfigEngine engine = configureApp(resourcePath, prototypeFactory);
             ApplicationHost host = new ApplicationHost(engine, prototypeFactory);
 
+            if (username != null && password != null) {
+                host.setUsernamePassword(username, password);
+            }
+
             if (cmd.hasOption("r")) {
                 host.setRestoreToLocalFile(cmd.getOptionValue("r"));
             } else if (cmd.hasOption("d")) {
                 host.setRestoreToDemoUser();
             } else {
-                username = username.trim().toLowerCase();
-                host.setRestoreToRemoteUser(username, password);
+                host.setRestoreToRemoteUser();
             }
 
-            host.run();
+            String endpointId = null;
+            String[] endpointArgs = null;
+            if (cmd.hasOption("e")) {
+                endpointId = cmd.getOptionValue("e");
+                endpointArgs = cmd.getOptionValues("a");
+            }
+            host.run(endpointId, endpointArgs);
             System.exit(-1);
         } catch (RuntimeException re) {
             System.out.print("Unhandled Fatal Error executing CommCare app");

@@ -225,7 +225,7 @@ public class QueryScreen extends Screen {
     }
 
     public void refreshItemSetChoices() {
-        remoteQuerySessionManager.refreshItemSetChoices(remoteQuerySessionManager.getUserAnswers());
+        remoteQuerySessionManager.refreshItemSetChoices();
     }
 
     public URL getBaseUrl() {

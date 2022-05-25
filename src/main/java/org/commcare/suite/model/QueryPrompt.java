@@ -45,6 +45,12 @@ public class QueryPrompt implements Externalizable {
     @Nullable
     private ItemsetBinding itemsetBinding;
 
+    @Nullable
+    private XPathExpression exclude;
+
+    @Nullable
+    private XPathExpression required;
+
     private boolean allowBlankValue;
 
     @SuppressWarnings("unused")
@@ -52,8 +58,10 @@ public class QueryPrompt implements Externalizable {
     }
 
     public QueryPrompt(String key, String appearance, String input, String receive,
-                       String hidden, DisplayUnit display, ItemsetBinding itemsetBinding,
-                       XPathExpression defaultValueExpr, boolean allowBlankValue) {
+                       String hidden, DisplayUnit display, ItemsetBinding itemsetBinding, 
+                       XPathExpression defaultValueExpr, boolean allowBlankValue, XPathExpression exclude,
+                       XPathExpression required) {
+
         this.key = key;
         this.appearance = appearance;
         this.input = input;
@@ -63,6 +71,8 @@ public class QueryPrompt implements Externalizable {
         this.itemsetBinding = itemsetBinding;
         this.defaultValueExpr = defaultValueExpr;
         this.allowBlankValue = allowBlankValue;
+        this.exclude = exclude;
+        this.required = required;
     }
 
     @Override
@@ -76,6 +86,8 @@ public class QueryPrompt implements Externalizable {
         itemsetBinding = (ItemsetBinding)ExtUtil.read(in, new ExtWrapNullable(ItemsetBinding.class), pf);
         defaultValueExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
         allowBlankValue = ExtUtil.readBool(in);
+        exclude = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
+        required = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
     }
 
     @Override
@@ -89,6 +101,8 @@ public class QueryPrompt implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(itemsetBinding));
         ExtUtil.write(out, new ExtWrapNullable(defaultValueExpr == null ? null : new ExtWrapTagged(defaultValueExpr)));
         ExtUtil.writeBool(out, allowBlankValue);
+        ExtUtil.write(out, new ExtWrapNullable(exclude == null ? null : new ExtWrapTagged(exclude)));
+        ExtUtil.write(out, new ExtWrapNullable(required == null ? null : new ExtWrapTagged(required)));
     }
 
     public String getKey() {
@@ -131,6 +145,14 @@ public class QueryPrompt implements Externalizable {
     @Nullable
     public XPathExpression getDefaultValueExpr() {
         return defaultValueExpr;
+    }
+
+    public XPathExpression getExclude() {
+        return exclude;
+    }
+
+    public XPathExpression getRequired() {
+        return required;
     }
 
     /**
