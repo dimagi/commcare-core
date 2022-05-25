@@ -1,7 +1,7 @@
 package org.commcare.data.xml;
 
 import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SEARCH_INPUT_REFERENCE;
-import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SELECTED_VALUES_REFERENCE;
+import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SELECTED_ENTITIES_REFERENCE;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -43,6 +43,6 @@ public class VirtualInstances {
         }
         TreeElement root = TreeBuilder.buildTree(instanceId, SELCTED_CASES_INSTANCE_ROOT_NAME,
                 nodes);
-        return new ExternalDataInstance(JR_SELECTED_VALUES_REFERENCE, instanceId, root);
+        return new ExternalDataInstance(JR_SELECTED_ENTITIES_REFERENCE, instanceId, root);
     }
 }

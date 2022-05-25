@@ -40,7 +40,7 @@ public class SessionFrame implements Externalizable {
      * Similar to STATE_DATUM_VAL but allows for a reference to vector datum value to be stored
      * against it
      */
-    public static final String STATE_MULTIPLE_DATUM_VAL = "SELECTED_CASES";
+    public static final String STATE_MULTIPLE_DATUM_VAL = "SELECTED_ENTITIES";
 
     /**
      * Signifies that the frame should be rewound to the last MARK, setting the

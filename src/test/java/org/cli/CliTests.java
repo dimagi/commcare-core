@@ -34,12 +34,14 @@ public class CliTests {
     private class CliTestRun<E extends CliTestReader> {
 
         CliTestRun(String applicationPath,
-                          String restoreResource,
-                          Class<E> cliTestReaderClass,
-                          String steps,
-                          String endpointId,
-                          String[] endpointArgs) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-            ApplicationHost host = buildApplicationHost(applicationPath, restoreResource, cliTestReaderClass, steps);
+                String restoreResource,
+                Class<E> cliTestReaderClass,
+                String steps,
+                String endpointId,
+                String[] endpointArgs,
+                boolean debug) throws InvocationTargetException, NoSuchMethodException,InstantiationException, IllegalAccessException {
+            ApplicationHost host = buildApplicationHost(
+                    applicationPath, restoreResource, cliTestReaderClass, steps, debug);
             boolean passed = false;
             try {
                 host.run(endpointId, endpointArgs);
@@ -49,10 +51,13 @@ public class CliTests {
             assertTrue(passed);
         }
 
-        private ApplicationHost buildApplicationHost(String applicationResource,
-                                                     String restoreResource,
-                                                     Class<E> cliTestReaderClass,
-                                                     String steps) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        private ApplicationHost buildApplicationHost(
+                String applicationResource,
+                String restoreResource,
+                Class<E> cliTestReaderClass,
+                String steps,
+                boolean debug
+        ) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
             ClassLoader classLoader = getClass().getClassLoader();
             String applicationPath = new File(classLoader.getResource(applicationResource).getFile()).getAbsolutePath();
             PrototypeFactory prototypeFactory = new LivePrototypeFactory();
@@ -63,8 +68,11 @@ public class CliTests {
 
             Constructor<E> ctor = cliTestReaderClass.getConstructor(String.class, ByteArrayOutputStream.class);
             CliTestReader reader = ctor.newInstance(steps, baos);
+            reader.setDebug(debug);
 
             ApplicationHost host = new ApplicationHost(engine, prototypeFactory, reader, outStream);
+            host.setUsernamePassword("test", "test");
+            host.setSessionUtils(new MockSessionUtils());
             File restoreFile = new File(classLoader.getResource(restoreResource).getFile());
             String restorePath = restoreFile.getAbsolutePath();
             host.setRestoreToLocalFile(restorePath);
@@ -80,7 +88,7 @@ public class CliTests {
                 BasicTestReader.class,
                 "1 0 \n",
                 null,
-                null);
+                null, false);
     }
 
     @Test
@@ -91,7 +99,7 @@ public class CliTests {
                 CaseTestReader.class,
                 "2 1 5 1 \n \n",
                 null,
-                null);
+                null, false);
     }
 
     @Test
@@ -102,7 +110,29 @@ public class CliTests {
                 SessionEndpointTestReader.class,
                 "\n",
                 "m5_endpoint",
-                new String[] {"124938b2-c228-4107-b7e6-31a905c3f4ff"});
+                new String[] {"124938b2-c228-4107-b7e6-31a905c3f4ff"}, false);
+    }
+
+    @Test
+    public void testEntryWithPost_multipleEntriesInMenu() throws Exception {
+        // Run CLI with session endpoint arg
+        new CliTestRun<>("session-tests-template/profile.ccpr",
+                "session-tests-template/user_restore.xml",
+                PostTestReader.class,
+                "2 0 \n 2",
+                null,
+                null, false);
+    }
+
+    @Test
+    public void testEntryWithPost_singleEntriesInMenu() throws Exception {
+        // Run CLI with session endpoint arg
+        new CliTestRun<>("session-tests-template/profile.ccpr",
+                "session-tests-template/user_restore.xml",
+                PostTestReader.class,
+                "3 0 \n 0",
+                null,
+                null, false);
     }
 
 
@@ -118,6 +148,8 @@ public class CliTests {
         private int stepIndex;
         private ByteArrayOutputStream outStream;
 
+        private boolean debug = false;
+
         CliTestReader(String steps, ByteArrayOutputStream outStream) {
             super(new StringReader("Unused dummy reader"));
             this.steps = steps.split(" ");
@@ -127,11 +159,24 @@ public class CliTests {
         @Override
         public String readLine() throws IOException {
             String output = new String(outStream.toByteArray(), StandardCharsets.UTF_8);
+            if (debug) {
+                System.out.println(output);
+            }
             processLine(stepIndex, output);
+            if (stepIndex >= steps.length) {
+                throw new RuntimeException("Insufficient steps");
+            }
             String ret = steps[stepIndex++];
+            if (debug) {
+                System.out.println("Input: " + (ret.equals("\n") ? "[enter]" : ret));
+            }
             outStream.reset();
             // Return the next input for the CLI to process
             return ret;
+        }
+
+        public void setDebug(boolean debug) {
+            this.debug = debug;
         }
 
         abstract void processLine(int stepIndex, String output);
@@ -222,6 +267,42 @@ public class CliTests {
                     throw new TestPassException();
                 default:
                     throw new RuntimeException(String.format("Did not recognize output %s at stepIndex %s", output, stepIndex));
+
+            }
+        }
+    }
+
+    static class PostTestReader extends CliTestReader {
+
+        public PostTestReader(String args, ByteArrayOutputStream outStream) {
+            super(args, outStream);
+        }
+
+        void processLine(int stepIndex, String output) {
+            switch (stepIndex) {
+                case 0:
+                    Assert.assertTrue(output.contains("test [36]"));
+                    Assert.assertTrue(output.contains("2) Module 2"));
+                    break;
+                case 1:
+                    // Tab 0 of case_short
+                    Assert.assertTrue(output.contains("0) Test Case 1"));
+                    break;
+                case 2:
+                    // Tab 0 of case_long
+                    Assert.assertTrue(output.contains("Case | test"));
+                    Assert.assertTrue(output.contains("name"));
+                    Assert.assertTrue(output.contains("Test Case 1"));
+                    break;
+                case 3:
+                    Assert.assertTrue(output.contains("Module 2 Form 2"));
+                    break;
+                case 4:
+                    Assert.assertTrue(output.contains("Sync complete, press Enter to continue"));
+                    throw new TestPassException();
+                default:
+                    throw new RuntimeException(
+                            String.format("Did not recognize output %s at stepIndex %s", output, stepIndex));
 
             }
         }
