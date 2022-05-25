@@ -9,6 +9,7 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.MultiSelectEntityDatum;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.RemoteRequestEntry;
 import org.commcare.suite.model.SessionDatum;
@@ -19,6 +20,7 @@ import org.commcare.suite.model.Text;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.services.locale.Localizer;
@@ -232,7 +234,9 @@ public class CommCareSession {
             if (datumNeededForThisEntry != null) {
                 if (neededDatumId == null) {
                     neededDatumId = datumNeededForThisEntry.getDataId();
-                    if (datumNeededForThisEntry instanceof EntityDatum) {
+                    if (datumNeededForThisEntry instanceof MultiSelectEntityDatum) {
+                        datumNeededByAllEntriesSoFar = SessionFrame.STATE_MULTIPLE_DATUM_VAL;
+                    } else if (datumNeededForThisEntry instanceof EntityDatum) {
                         datumNeededByAllEntriesSoFar = SessionFrame.STATE_DATUM_VAL;
                     } else if (datumNeededForThisEntry instanceof ComputedDatum) {
                         datumNeededByAllEntriesSoFar = SessionFrame.STATE_DATUM_COMPUTED;
@@ -445,12 +449,23 @@ public class CommCareSession {
         smartLinkRedirect = url;
     }
 
-    public void setDatum(String keyId, String value) {
+    public void setEntityDatum(SessionDatum datum, String value) {
+        String datumType = datum instanceof MultiSelectEntityDatum ? SessionFrame.STATE_MULTIPLE_DATUM_VAL
+                : SessionFrame.STATE_DATUM_VAL;
+        setDatum(datumType, datum.getDataId(), value);
+    }
+
+    public void setEntityDatum(String keyId, String value) {
         setDatum(SessionFrame.STATE_DATUM_VAL, keyId, value);
     }
 
     public void setDatum(String action, String keyId, String value) {
         frame.pushStep(new StackFrameStep(action, keyId, value));
+        syncState();
+    }
+
+    public void setDatum(String action, String keyId, String value, ExternalDataInstanceSource source) {
+        frame.pushStep(new StackFrameStep(action, keyId, value, source));
         syncState();
     }
 
@@ -482,9 +497,9 @@ public class CommCareSession {
         }
         if (datum instanceof FormIdDatum) {
             setXmlns(FunctionUtils.toString(form.eval(ec)));
-            setDatum("", "awful");
+            setEntityDatum("", "awful");
         } else if (datum instanceof ComputedDatum) {
-            setDatum(datum.getDataId(), FunctionUtils.toString(form.eval(ec)));
+            setEntityDatum(datum, FunctionUtils.toString(form.eval(ec)));
         }
     }
 
@@ -505,7 +520,7 @@ public class CommCareSession {
         this.popped = null;
 
         for (StackFrameStep step : frame.getSteps()) {
-            if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) ||
+            if (SessionFrame.isEntitySelectionDatum(step.getType()) ||
                     SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType()) ||
                     SessionFrame.STATE_UNKNOWN.equals(step.getType()) &&
                             (guessUnknownType(step).equals(SessionFrame.STATE_DATUM_COMPUTED)
@@ -607,8 +622,9 @@ public class CommCareSession {
                                        InstanceInitializationFactory iif) {
         for (StackFrameStep step : frame.getSteps()) {
             if (step.hasXmlInstance()) {
-                ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(step.getId(), step.getXmlInstanceSource());
-                instanceMap.put(step.getId(), instance.initialize(iif, instance.getSource().getInstanceId()));
+                ExternalDataInstanceSource instanceSource = step.getXmlInstanceSource();
+                ExternalDataInstance instance = instanceSource.toInstance();
+                instanceMap.put(step.getId(), instance.initialize(iif, instanceSource.getInstanceId()));
             }
         }
     }

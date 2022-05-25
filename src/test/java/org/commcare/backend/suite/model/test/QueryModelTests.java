@@ -36,7 +36,7 @@ public class QueryModelTests {
         screen.setClient(new MockQueryClient(response));
 
         // perform the query
-        boolean success = screen.handleInputAndUpdateSession(session, "", false);
+        boolean success = screen.handleInputAndUpdateSession(session, "", false, null);
         Assert.assertTrue(success);
 
         // check that session datum requirement is satisfied

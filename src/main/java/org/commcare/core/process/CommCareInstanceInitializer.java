@@ -1,5 +1,7 @@
 package org.commcare.core.process;
 
+import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SELECTED_ENTITIES_REFERENCE;
+
 import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.instance.LedgerInstanceTreeElement;
@@ -13,7 +15,6 @@ import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.ConcreteInstanceRoot;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.InstanceRoot;
@@ -77,20 +78,32 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     @Nonnull
     public InstanceRoot generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
-        if (ref.contains(LedgerInstanceTreeElement.MODEL_NAME)) {
+        if (ref.contentEquals(ExternalDataInstance.JR_LEDGER_DB_REFERENCE)) {
             return setupLedgerData(instance);
-        } else if (ref.contains(CaseInstanceTreeElement.MODEL_NAME)) {
+        } else if (ref.contentEquals(ExternalDataInstance.JR_CASE_DB_REFERENCE)) {
             return setupCaseData(instance);
-        } else if (instance.getReference().contains("fixture")) {
+        } else if (ref.contains("fixture")) {
             return setupFixtureData(instance);
-        } else if (instance.getReference().contains("session")) {
+        } else if (ref.contentEquals(ExternalDataInstance.JR_SESSION_REFERENCE)) {
             return setupSessionData(instance);
-        } else if (instance.getReference().startsWith(ExternalDataInstance.JR_REMOTE_REFERENCE)) {
+        } else if (ref.contentEquals(ExternalDataInstance.JR_REMOTE_REFERENCE)) {
             return setupRemoteData(instance);
         } else if (ref.contains("migration")) {
             return setupMigrationData(instance);
+        } else if (ref.contentEquals(JR_SELECTED_ENTITIES_REFERENCE)) {
+            return setupSelectedEntities(instance);
         }
         return ConcreteInstanceRoot.NULL;
+    }
+
+    /**
+     * Initialises instances with reference to 'selected_cases'
+     *
+     * @param instance Selected Cases Instance that needs to be initialised
+     * @return Initialised instance root for the the given instance
+     */
+    protected InstanceRoot setupSelectedEntities(ExternalDataInstance instance) {
+        return getExternalDataInstanceSource(instance, SessionFrame.STATE_MULTIPLE_DATUM_VAL);
     }
 
     protected InstanceRoot setupLedgerData(ExternalDataInstance instance) {
@@ -123,7 +136,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
 
     protected TreeElement loadFixtureRoot(ExternalDataInstance instance,
-                                          String reference) {
+            String reference) {
         String refId = getRefId(reference);
         String instanceBase = instance.getBase().getInstanceName();
 
@@ -182,10 +195,13 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
 
     protected InstanceRoot setupRemoteData(ExternalDataInstance instance) {
+        return getExternalDataInstanceSource(instance, SessionFrame.STATE_QUERY_REQUEST);
+    }
+
+    protected InstanceRoot getExternalDataInstanceSource(ExternalDataInstance instance, String stepType) {
         for (StackFrameStep step : session.getFrame().getSteps()) {
-            if (step.getId().equals(instance.getInstanceId()) && step.getType().equals(SessionFrame.STATE_QUERY_REQUEST)) {
-                ExternalDataInstanceSource source = step.getXmlInstanceSource();
-                return source;
+            if (step.getId().equals(instance.getInstanceId()) && step.getType().equals(stepType)) {
+                return step.getXmlInstanceSource();
             }
         }
         return instance.getSource() == null ? ConcreteInstanceRoot.NULL : instance.getSource();

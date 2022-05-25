@@ -6,6 +6,7 @@ import com.google.common.collect.Multimap;
 
 import org.commcare.data.xml.SimpleNode;
 import org.commcare.data.xml.TreeBuilder;
+import org.commcare.data.xml.VirtualInstances;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.QueryPrompt;
@@ -14,8 +15,8 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.test.utilities.MockApp;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.core.model.instance.VirtualDataInstance;
 import org.javarosa.core.util.OrderedHashtable;
 import org.junit.Assert;
 import org.junit.Test;
@@ -62,7 +63,7 @@ public class CaseClaimModelTests {
         SessionWrapper session = mApp.getSession();
         session.setCommand("patient-search");
 
-        VirtualDataInstance districtInstance = buildDistrictInstance();
+        ExternalDataInstance districtInstance = buildDistrictInstance();
         EvaluationContext context = session.getEvaluationContext().spawnWithCleanLifecycle(ImmutableMap.of(
                 districtInstance.getInstanceId(), districtInstance
         ));
@@ -136,7 +137,7 @@ public class CaseClaimModelTests {
         Assert.assertFalse(params.containsKey("exclude_patient_id"));
     }
 
-    private VirtualDataInstance buildDistrictInstance() {
+    private ExternalDataInstance buildDistrictInstance() {
         Map<String, String> noAttrs = Collections.emptyMap();
         List<SimpleNode> nodes = ImmutableList.of(
                 SimpleNode.parentNode("district", noAttrs, ImmutableList.of(
@@ -152,6 +153,6 @@ public class CaseClaimModelTests {
         );
 
         TreeElement root = TreeBuilder.buildTree("district", "district_list", nodes);
-        return new VirtualDataInstance("district", root);
+        return new ExternalDataInstance(ExternalDataInstance.JR_SEARCH_INPUT_REFERENCE, "district", root);
     }
 }

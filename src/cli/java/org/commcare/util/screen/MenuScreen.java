@@ -118,7 +118,8 @@ public class MenuScreen extends Screen {
 
     @Trace
     @Override
-    public boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch) {
+    public boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch,
+            String[] selectedValues) {
         try {
             int i = Integer.parseInt(input);
             String commandId;
