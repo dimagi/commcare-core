@@ -109,7 +109,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
             ExternalDataInstanceSource externalDataInstanceSource = buildSelectedValuesInstanceSource(
                     selectedValuesInstance, storageReferenceId);
             session.setDatum(STATE_MULTIPLE_DATUM_VAL, mNeededDatum.getDataId(),
-                    storageReferenceId.toString(), externalDataInstanceSource);
+                    storageReferenceId, externalDataInstanceSource);
         }
     }
 
