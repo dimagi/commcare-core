@@ -334,6 +334,19 @@
     <session/>
   </remote-request>
 
+  <remote-request>
+    <post url="http://fake.com/claim_patient/" relevant="$selected_case_id != ''">
+      <data key="selected_case_id" ref="instance('session')/session/data/case_id"/>
+    </post>
+    <instance id="session" src="jr://instance/session"/>
+    <command id="dynamic-relevancy-remote-request">
+      <display>
+        <text>Global search for person</text>
+      </display>
+    </command>
+    <session/>
+  </remote-request>
+
   <menu id="m0">
     <text>
       <locale id="modules.m0"/>

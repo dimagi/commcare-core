@@ -45,6 +45,17 @@ public class StorageManager {
         if (storageFactory == null) {
             throw new RuntimeException("No storage factory has been set; I don't know what kind of storage utility to create. Either set a storage factory, or register your StorageUtilitys directly.");
         }
+        if (storageRegistry.containsKey(key)) {
+            if (storageRegistry.get(key).getPrototype() == type) {
+                return;
+            } else {
+                throw new RuntimeException(
+                        String.format("Attempting to change storage type for key %s from type %s to type %s.",
+                                key, storageRegistry.get(key).getPrototype().getName(), type.getName()
+                        )
+                );
+            }
+        } 
 
         storageRegistry.put(key, storageFactory.newStorage(key, type));
     }

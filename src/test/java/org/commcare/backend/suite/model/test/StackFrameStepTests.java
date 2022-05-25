@@ -153,7 +153,7 @@ public class StackFrameStepTests {
         // check that session datum requirement is satisfied
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         assertEquals("case_id", session.getNeededDatum().getDataId());
-        session.setDatum("case_id", "case_one");
+        session.setEntityDatum("case_id", "case_one");
 
         assertEquals(SessionFrame.STATE_QUERY_REQUEST, session.getNeededData());
         // construct the screen
@@ -165,7 +165,7 @@ public class StackFrameStepTests {
         screen.setClient(new MockQueryClient(response));
 
         // perform the query
-        boolean success = screen.handleInputAndUpdateSession(session, "", false);
+        boolean success = screen.handleInputAndUpdateSession(session, "", false, null);
         Assert.assertTrue(success);
 
         assertNull(session.getNeededDatum());

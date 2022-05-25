@@ -38,7 +38,7 @@ public class SyncScreen extends Screen {
     }
 
     @Override
-    public void init (SessionWrapper sessionWrapper) throws CommCareSessionException {
+    public void init(SessionWrapper sessionWrapper) throws CommCareSessionException {
         this.sessionWrapper = sessionWrapper;
         parseMakeRequest();
     }
@@ -101,7 +101,8 @@ public class SyncScreen extends Screen {
 
     @Trace
     @Override
-    public boolean handleInputAndUpdateSession(CommCareSession commCareSession, String s, boolean allowAutoLaunch) throws CommCareSessionException {
+    public boolean handleInputAndUpdateSession(CommCareSession commCareSession, String s, boolean allowAutoLaunch,
+            String[] selectedValues) throws CommCareSessionException {
         if (syncSuccessful) {
             updateSessionOnSuccess();
             Entry commandEntry = sessionWrapper.getCurrentEntry();

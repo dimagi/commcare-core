@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.core.model.instance.VirtualDataInstance;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.junit.Test;
@@ -21,7 +20,7 @@ public class VirtualInstancesTest {
     public void testBuildSearchInputRoot()
             throws UnfullfilledRequirementsException, XmlPullParserException,
             InvalidStructureException, IOException {
-        VirtualDataInstance instance = VirtualInstances.buildSearchInputInstance(ImmutableMap.of(
+        ExternalDataInstance instance = VirtualInstances.buildSearchInputInstance(ImmutableMap.of(
                 "key0", "val0",
                 "key1", "val1",
                 "key2", "val2"
