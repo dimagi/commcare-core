@@ -1,6 +1,6 @@
 package org.commcare.core.process;
 
-import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SELECTED_VALUES_REFERENCE;
+import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SELECTED_ENTITIES_REFERENCE;
 
 import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
@@ -90,8 +90,8 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             return setupRemoteData(instance);
         } else if (ref.contains("migration")) {
             return setupMigrationData(instance);
-        } else if (ref.contentEquals(JR_SELECTED_VALUES_REFERENCE)) {
-            return setupSelectedCases(instance);
+        } else if (ref.contentEquals(JR_SELECTED_ENTITIES_REFERENCE)) {
+            return setupSelectedEntities(instance);
         }
         return ConcreteInstanceRoot.NULL;
     }
@@ -102,7 +102,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
      * @param instance Selected Cases Instance that needs to be initialised
      * @return Initialised instance root for the the given instance
      */
-    protected InstanceRoot setupSelectedCases(ExternalDataInstance instance) {
+    protected InstanceRoot setupSelectedEntities(ExternalDataInstance instance) {
         return getExternalDataInstanceSource(instance, SessionFrame.STATE_MULTIPLE_DATUM_VAL);
     }
 
