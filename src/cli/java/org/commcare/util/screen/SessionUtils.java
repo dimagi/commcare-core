@@ -138,7 +138,8 @@ public class SessionUtils {
             PrintStream printStream
     ) throws IOException {
         String url = buildUrl(syncPost.getUrl().toString());
-        Multimap<String, String> params = syncPost.getEvaluatedParams(session.getEvaluationContext(), true);
+        Multimap<String, String> params = syncPost.getEvaluatedParams(
+                session.getEvaluationContext(), false);
         printStream.println(String.format("Syncing with url %s and parameters %s", url, params));
         MultipartBody postBody = buildPostBody(params);
         String credential = Credentials.basic(username, password);
