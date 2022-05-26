@@ -39,7 +39,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
@@ -486,7 +485,7 @@ public class CommCareSession {
 
     public void setDatum(String action, String keyId, String value, ExternalDataInstanceSource source) {
         StackFrameStep step = new StackFrameStep(action, keyId, value);
-        step.addDataInstanceSources(source);
+        step.addDataInstanceSource(source);
         frame.pushStep(step);
         syncState();
     }
@@ -500,9 +499,9 @@ public class CommCareSession {
         if (datum instanceof RemoteQueryDatum) {
             StackFrameStep step = new StackFrameStep(
                     SessionFrame.STATE_QUERY_REQUEST, datum.getDataId(), datum.getValue());
-            step.addDataInstanceSources(queryResultInstance.getSource());
+            step.addDataInstanceSource(queryResultInstance.getSource());
             for (ExternalDataInstance instance : extras) {
-                step.addDataInstanceSources(instance.getSource());
+                step.addDataInstanceSource(instance.getSource());
             }
             frame.pushStep(step);
             syncState();

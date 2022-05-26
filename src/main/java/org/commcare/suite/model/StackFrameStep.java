@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -100,11 +101,9 @@ public class StackFrameStep implements Externalizable {
         return value;
     }
 
-    public void addDataInstanceSources(ExternalDataInstanceSource source) {
-        if (source == null) {
-            throw new RuntimeException(String.format(
-                    "Unable to add null instance data source to stack frame step '%s'", getId()));
-        }
+    public void addDataInstanceSource(ExternalDataInstanceSource source) {
+        Objects.requireNonNull(source, String.format(
+                "Unable to add null instance data source to stack frame step '%s'", getId()));
         String instanceId = source.getInstanceId();
         if (dataInstanceSources.containsKey(instanceId)) {
             throw new RuntimeException(String.format(
