@@ -92,8 +92,7 @@ public class FormDataUtil {
         }
     }
 
-
-    private static String getCaseName(UserSandbox userSandbox, String caseId) {
+    public static String getCaseName(UserSandbox userSandbox, String caseId) {
         try {
             Case ourCase = userSandbox.getCaseStorage().getRecordForValue(Case.INDEX_CASE_ID, caseId);
             if (ourCase != null) {
