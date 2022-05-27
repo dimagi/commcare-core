@@ -2,11 +2,14 @@ package org.commcare.util.screen;
 
 import static org.commcare.session.SessionFrame.STATE_MULTIPLE_DATUM_VAL;
 
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.interfaces.VirtualDataInstanceStorage;
 import org.commcare.data.xml.VirtualInstances;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.MultiSelectEntityDatum;
+import org.commcare.util.FormDataUtil;
+import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeElement;
@@ -124,12 +127,28 @@ public class MultiSelectEntityScreen extends EntityScreen {
     }
 
     @Override
-    public boolean referencesContainStep(String stepValue) {
-        return virtualDataInstanceStorage.contains(stepValue);
+    public String getBreadcrumb(String input, UserSandbox sandbox, SessionWrapper session) {
+        if (selectedValuesInstance != null) {
+            AbstractTreeElement root = selectedValuesInstance.getRoot();
+            int caseCount = root.getNumChildren();
+            if (caseCount > 0) {
+                String caseId = root.getChildAt(0).getValue().getDisplayText();
+                String caseName = FormDataUtil.getCaseName(sandbox, caseId);
+                if (caseName != null) {
+                    if (caseCount > 1) {
+                        return "(" + caseCount + ") " + caseName + ", ...";
+                    } else {
+                       return caseName;
+                    }
+                }
+            }
+        }
+        return ScreenUtils.getBestTitle(session);
     }
 
-    public ExternalDataInstance getSelectedValuesInstance() {
-        return selectedValuesInstance;
+    @Override
+    public boolean referencesContainStep(String stepValue) {
+        return virtualDataInstanceStorage.contains(stepValue);
     }
 
     public int getMaxSelectValue() {

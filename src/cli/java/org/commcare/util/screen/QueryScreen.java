@@ -1,6 +1,7 @@
 package org.commcare.util.screen;
 
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_ADDRESS;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATE;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
@@ -132,6 +133,7 @@ public class QueryScreen extends Screen {
         ArrayList<String> supportedPrompts = new ArrayList<>();
         supportedPrompts.add(INPUT_TYPE_SELECT1);
         supportedPrompts.add(INPUT_TYPE_SELECT);
+        supportedPrompts.add(INPUT_TYPE_DATE);
         supportedPrompts.add(INPUT_TYPE_DATERANGE);
         supportedPrompts.add(INPUT_TYPE_ADDRESS);
         return supportedPrompts;
