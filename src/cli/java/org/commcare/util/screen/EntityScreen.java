@@ -3,6 +3,7 @@ package org.commcare.util.screen;
 import org.commcare.cases.entity.EntityUtil;
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Action;
@@ -11,6 +12,7 @@ import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.DatumUtil;
+import org.commcare.util.FormDataUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
@@ -184,6 +186,12 @@ public class EntityScreen extends CompoundScreenHost {
         } catch (NoLocalizedTextException nlte) {
             return "Select (error with title string)";
         }
+    }
+
+    @Override
+    public String getBreadcrumb(String input, UserSandbox sandbox, SessionWrapper session) {
+        String caseName = FormDataUtil.getCaseName(sandbox, input);
+        return caseName == null ? ScreenUtils.getBestTitle(session) : caseName;
     }
 
     @Override
