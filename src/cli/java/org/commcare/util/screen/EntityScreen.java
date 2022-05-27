@@ -371,6 +371,13 @@ public class EntityScreen extends CompoundScreenHost {
         return false;
     }
 
+    /**
+     * Updates the datum required by the given CommCare Session. It's generally used during session replays when
+     * we want to update the datum directly with the pre-validated input wihout doing any other input handling
+     *
+     * @param session Current Commcare Session that we need to update with given input
+     * @param input   Value of the datum required by the given CommCare Session
+     */
     public void updateDatum(CommCareSession session, String input) {
         session.setEntityDatum(session.getNeededDatum(), input);
     }
