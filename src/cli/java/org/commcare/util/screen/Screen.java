@@ -4,8 +4,6 @@ import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.util.CommCarePlatform;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.io.PrintStream;
 
@@ -58,12 +56,7 @@ public abstract class Screen implements OptionsScreen {
     public String getWrappedDisplaytitle(UserSandbox sandbox, CommCarePlatform platform) {
         String title = getScreenTitle();
         if (title == null) {
-            try {
-                title = Localization.get("app.display.name");
-            } catch (NoLocalizedTextException e) {
-                //swallow. Unimportant
-                title = "CommCare";
-            }
+            title = ScreenUtils.getAppTitle();
         }
 
         String userSuffix = sandbox.getLoggedInUser() != null ? " | " + sandbox.getLoggedInUser().getUsername() : "";
@@ -87,5 +80,9 @@ public abstract class Screen implements OptionsScreen {
      */
     public boolean shouldBeSkipped() {
         return false;
+    }
+
+    public String getBreadcrumb(String input, UserSandbox sandbox, SessionWrapper session) {
+        return ScreenUtils.getBestTitle(session);
     }
 }
