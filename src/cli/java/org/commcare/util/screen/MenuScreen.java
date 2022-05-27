@@ -142,11 +142,7 @@ public class MenuScreen extends Screen {
     }
 
     private String getBestTitle() {
-        try {
-            return Localization.get("app.display.name");
-        } catch (NoLocalizedTextException nlte) {
-            return "CommCare";
-        }
+        return ScreenUtils.getAppTitle();
     }
 
     @Override

@@ -21,6 +21,7 @@ public class QueryPrompt implements Externalizable {
     public static final String INPUT_TYPE_SELECT1 = "select1";
     public static final String INPUT_TYPE_SELECT = "select";
     public static final String INPUT_TYPE_DATERANGE = "daterange";
+    public static final String INPUT_TYPE_DATE = "date";
     public static final String INPUT_TYPE_ADDRESS = "address";
 
     private String key;

@@ -1,5 +1,6 @@
 package org.commcare.core.process;
 
+import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SEARCH_INPUT_REFERENCE;
 import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SELECTED_ENTITIES_REFERENCE;
 
 import org.commcare.cases.instance.CaseDataInstance;
@@ -92,6 +93,8 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             return setupMigrationData(instance);
         } else if (ref.contentEquals(JR_SELECTED_ENTITIES_REFERENCE)) {
             return setupSelectedEntities(instance);
+        } else if (ref.contentEquals(JR_SEARCH_INPUT_REFERENCE)) {
+            return getExternalDataInstanceSource(instance, SessionFrame.STATE_QUERY_REQUEST);
         }
         return ConcreteInstanceRoot.NULL;
     }
