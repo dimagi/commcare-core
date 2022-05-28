@@ -51,4 +51,9 @@ public class LocalizerManager {
     public static void setUseThreadLocalStrategy(boolean useThreadLocal) {
         LocalizerManager.useThreadLocal = useThreadLocal;
     }
+
+    public static void clearInstance() {
+        threadLocalLocalizer.set(null);
+        staticLocalizer = null;
+    }
 }

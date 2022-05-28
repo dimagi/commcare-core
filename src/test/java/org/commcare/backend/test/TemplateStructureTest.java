@@ -31,7 +31,7 @@ public class TemplateStructureTest {
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
         Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
 
-        session.setDatum("case_id", "case_one");
+        session.setEntityDatum("case_id", "case_one");
 
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
 

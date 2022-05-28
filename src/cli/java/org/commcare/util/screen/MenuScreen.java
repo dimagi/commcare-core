@@ -118,7 +118,8 @@ public class MenuScreen extends Screen {
 
     @Trace
     @Override
-    public boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch) {
+    public boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch,
+            String[] selectedValues) {
         try {
             int i = Integer.parseInt(input);
             String commandId;
@@ -141,11 +142,7 @@ public class MenuScreen extends Screen {
     }
 
     private String getBestTitle() {
-        try {
-            return Localization.get("app.display.name");
-        } catch (NoLocalizedTextException nlte) {
-            return "CommCare";
-        }
+        return ScreenUtils.getAppTitle();
     }
 
     @Override
