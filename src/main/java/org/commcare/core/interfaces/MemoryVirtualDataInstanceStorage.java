@@ -41,10 +41,6 @@ public class MemoryVirtualDataInstanceStorage implements
         return storage.containsKey(key);
     }
 
-    public Set<String> getKeys() {
-        return storage.keySet();
-    }
-
     public void clear() {
         storage.clear();
     }
