@@ -25,7 +25,7 @@ public class MemoryVirtualDataInstanceStorage implements
     @Override
     public String write(String key, ExternalDataInstance dataInstance) {
         if (contains(key)) {
-            throw new RuntimeException(key);
+            throw new RuntimeException(String.format("Virtual instance with key '%s' already exists", key));
         }
         storage.put(key, dataInstance);
         return key;
