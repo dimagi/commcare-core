@@ -12,6 +12,7 @@ import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -132,6 +133,13 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
             } else if ("prompt".equals(tagName)) {
                 String key = parser.getAttributeValue(null, "key");
                 userQueryPrompts.put(key, new QueryPromptParser(parser).parse());
+            } else if ("title".equals(tagName)) {
+                // while (nextTagInBlock("title")) {
+                //     if ("locale".equals(tagName)) {
+                //         String title_id = parser.getAttributeValue(null, "id");
+                //         System.out.println("title_id: " + title_id);
+                //     }
+                // }
             }
         }
 
