@@ -29,11 +29,11 @@ public class MultiSelectEntityScreen extends EntityScreen {
     private String storageReferenceId;
     private ExternalDataInstance selectedValuesInstance;
 
-    public MultiSelectEntityScreen(boolean handleCaseIndex, boolean full,
+    public MultiSelectEntityScreen(boolean handleCaseIndex, boolean needsFullInit,
             SessionWrapper session,
             VirtualDataInstanceStorage virtualDataInstanceStorage)
             throws CommCareSessionException {
-        super(handleCaseIndex, full, session);
+        super(handleCaseIndex, needsFullInit, session);
         this.virtualDataInstanceStorage = virtualDataInstanceStorage;
     }
 
