@@ -55,6 +55,7 @@ public class EntityScreen extends CompoundScreenHost {
 
     private boolean handleCaseIndex;
     private boolean needsFullInit = true;
+    private boolean isDetailScreen = false;
 
     private Vector<TreeReference> references;
 
@@ -78,11 +79,13 @@ public class EntityScreen extends CompoundScreenHost {
         this.needsFullInit = needsFullInit;
     }
 
-    public EntityScreen(boolean handleCaseIndex, boolean needsFullInit, SessionWrapper session)
+    public EntityScreen(boolean handleCaseIndex, boolean needsFullInit, SessionWrapper session,
+            boolean isDetailScreen)
             throws CommCareSessionException {
         this.handleCaseIndex = handleCaseIndex;
         this.needsFullInit = needsFullInit;
         this.setSession(session);
+        this.isDetailScreen = isDetailScreen;
     }
 
     public void evaluateAutoLaunch(String nextInput) throws CommCareSessionException {
@@ -238,8 +241,11 @@ public class EntityScreen extends CompoundScreenHost {
      */
     public void updateSelection(String input, @Nullable String[] selectedValues) throws CommCareSessionException {
         setSelectedEntity(input);
-        // Set entity screen to show detail and redraw
-        setCurrentScreenToDetail();
+
+        if (isDetailScreen) {
+            // Set entity screen to show detail and redraw
+            setCurrentScreenToDetail();
+        }
     }
 
     @Trace
