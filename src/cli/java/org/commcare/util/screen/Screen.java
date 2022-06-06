@@ -4,8 +4,6 @@ import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.util.CommCarePlatform;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.io.PrintStream;
 
@@ -44,10 +42,12 @@ public abstract class Screen implements OptionsScreen {
      * @param input           the input provided by the user to the command line
      * @param allowAutoLaunch If this step is allowed to automatically launch an action,
      *                        assuming it has an autolaunch action specified.
+     * @param selectedValues  Selected entities for a Multi Select Entity Screen
      * @return True if the session was updated and the app should proceed to the next phase, false
      * if the screen wants to continue being redrawn.
      */
-    public abstract boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch) throws CommCareSessionException;
+    public abstract boolean handleInputAndUpdateSession(CommCareSession session, String input,
+            boolean allowAutoLaunch, String[] selectedValues) throws CommCareSessionException;
 
 
     /**
@@ -56,12 +56,7 @@ public abstract class Screen implements OptionsScreen {
     public String getWrappedDisplaytitle(UserSandbox sandbox, CommCarePlatform platform) {
         String title = getScreenTitle();
         if (title == null) {
-            try {
-                title = Localization.get("app.display.name");
-            } catch (NoLocalizedTextException e) {
-                //swallow. Unimportant
-                title = "CommCare";
-            }
+            title = ScreenUtils.getAppTitle();
         }
 
         String userSuffix = sandbox.getLoggedInUser() != null ? " | " + sandbox.getLoggedInUser().getUsername() : "";
@@ -85,5 +80,9 @@ public abstract class Screen implements OptionsScreen {
      */
     public boolean shouldBeSkipped() {
         return false;
+    }
+
+    public String getBreadcrumb(String input, UserSandbox sandbox, SessionWrapper session) {
+        return ScreenUtils.getBestTitle(session);
     }
 }

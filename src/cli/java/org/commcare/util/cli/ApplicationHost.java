@@ -159,7 +159,7 @@ public class ApplicationHost {
             if (s instanceof SyncScreen) {
                 try {
                     s.init(mSession);
-                    s.handleInputAndUpdateSession(mSession, "", false);
+                    s.handleInputAndUpdateSession(mSession, "", false, null);
                 } catch (CommCareSessionException ccse) {
                     printErrorAndContinue("Error during session execution:", ccse);
                 }
@@ -321,7 +321,7 @@ public class ApplicationHost {
                         }
                     }
 
-                    screenIsRedrawing = !screen.handleInputAndUpdateSession(mSession, input, false);
+                    screenIsRedrawing = !screen.handleInputAndUpdateSession(mSession, input, false, null);
                     if (!screenIsRedrawing && !waitForCaseDetail) {
                         screen = getNextScreen();
                     }
@@ -458,10 +458,10 @@ public class ApplicationHost {
         EvaluationContext ec = mSession.getEvaluationContext();
         if (datum instanceof FormIdDatum) {
             mSession.setXmlns(FunctionUtils.toString(form.eval(ec)));
-            mSession.setDatum("", "awful");
+            mSession.setEntityDatum("", "awful");
         } else {
             try {
-                mSession.setDatum(datum.getDataId(), FunctionUtils.toString(form.eval(ec)));
+                mSession.setEntityDatum(datum, FunctionUtils.toString(form.eval(ec)));
             } catch (XPathException e) {
                 error(e);
             }

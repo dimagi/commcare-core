@@ -39,7 +39,7 @@ public class SessionInstanceBuilder {
      */
     private static void addDatums(TreeElement sessionData, SessionFrame frame) {
         for (StackFrameStep step : frame.getSteps()) {
-            if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) ||
+            if (SessionFrame.isEntitySelectionDatum(step.getType()) ||
                     SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType())) {
                 Vector<TreeElement> matchingElements =
                         sessionData.getChildrenWithName(step.getId());

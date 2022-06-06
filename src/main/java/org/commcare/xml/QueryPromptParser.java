@@ -33,6 +33,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
     private static final String ATTR_REF = "ref";
     private static final String ATTR_ALLOW_BLANK_VALUE = "allow_blank_value";
     private static final String ATTR_EXCLUDE = "exclude";
+    private static final String ATTR_REQUIRED = "required";
 
     public QueryPromptParser(KXmlParser parser) {
         super(parser);
@@ -52,6 +53,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
         XPathExpression defaultValue = xpathPropertyValue(defaultValueString);
         String excludeValueString = parser.getAttributeValue(null, ATTR_EXCLUDE);
         XPathExpression exclude = xpathPropertyValue(excludeValueString);
+        XPathExpression required = xpathPropertyValue(parser.getAttributeValue(null, ATTR_REQUIRED));
 
         while (nextTagInBlock(NAME_PROMPT)) {
             if (NAME_DISPLAY.equals(parser.getName().toLowerCase())) {
@@ -61,7 +63,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
             }
         }
         return new QueryPrompt(key, appearance, input, receive, hidden, display,
-                               itemsetBinding, defaultValue, allowBlankValue, exclude);
+                               itemsetBinding, defaultValue, allowBlankValue, exclude, required);
     }
 
     private ItemsetBinding parseItemset() throws IOException, XmlPullParserException, InvalidStructureException {
