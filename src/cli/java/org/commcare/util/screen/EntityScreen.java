@@ -54,7 +54,8 @@ public class EntityScreen extends CompoundScreenHost {
     protected Hashtable<String, TreeReference> referenceMap;
 
     private boolean handleCaseIndex;
-    private boolean full = true;
+    private boolean needsFullInit = true;
+    private boolean isDetailScreen = false;
 
     private Vector<TreeReference> references;
 
@@ -69,20 +70,22 @@ public class EntityScreen extends CompoundScreenHost {
      * This constructor allows specifying whether to use the complete init or a minimal one
      *
      * @param handleCaseIndex Allow specifying entity by list index rather than unique ID
-     * @param full            If set to false, the subscreen and referenceMap, used for
+     * @param needsFullInit            If set to false, the subscreen and referenceMap, used for
      *                        selecting and rendering entity details, will not be created.
      *                        This speeds up initialization but makes further selection impossible.
      */
-    public EntityScreen(boolean handleCaseIndex, boolean full) {
+    public EntityScreen(boolean handleCaseIndex, boolean needsFullInit) {
         this.handleCaseIndex = handleCaseIndex;
-        this.full = full;
+        this.needsFullInit = needsFullInit;
     }
 
-    public EntityScreen(boolean handleCaseIndex, boolean full, SessionWrapper session)
+    public EntityScreen(boolean handleCaseIndex, boolean needsFullInit, SessionWrapper session,
+            boolean isDetailScreen)
             throws CommCareSessionException {
         this.handleCaseIndex = handleCaseIndex;
-        this.full = full;
+        this.needsFullInit = needsFullInit;
         this.setSession(session);
+        this.isDetailScreen = isDetailScreen;
     }
 
     public void evaluateAutoLaunch(String nextInput) throws CommCareSessionException {
@@ -117,7 +120,7 @@ public class EntityScreen extends CompoundScreenHost {
 
         evalContext.setQueryContext(newContext);
 
-        if (full || references.size() == 1) {
+        if (needsFullInit || references.size() == 1) {
             referenceMap = new Hashtable<>();
             EntityDatum needed = (EntityDatum)session.getNeededDatum();
             for (TreeReference reference : references) {
@@ -238,8 +241,11 @@ public class EntityScreen extends CompoundScreenHost {
      */
     public void updateSelection(String input, @Nullable String[] selectedValues) throws CommCareSessionException {
         setSelectedEntity(input);
-        // Set entity screen to show detail and redraw
-        setCurrentScreenToDetail();
+
+        if (isDetailScreen) {
+            // Set entity screen to show detail and redraw
+            setCurrentScreenToDetail();
+        }
     }
 
     @Trace
