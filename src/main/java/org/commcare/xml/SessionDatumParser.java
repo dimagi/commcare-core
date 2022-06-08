@@ -12,7 +12,6 @@ import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
