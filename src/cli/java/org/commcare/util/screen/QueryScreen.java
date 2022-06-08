@@ -16,10 +16,12 @@ import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Text;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.services.locale.LocaleTextException;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.core.util.OrderedHashtable;
@@ -112,8 +114,8 @@ public class QueryScreen extends Screen {
         }
 
         try {
-            CommCarePlatform platform = sessionWrapper.getPlatform();
-            mTitle = platform.getEntry(sessionWrapper.getCommand()).getText().evaluate();
+            mTitle = Localization.get(getQueryDatum().getTitleLocaleId());
+            
         } catch (NoLocalizedTextException nlte) {
             mTitle = "Case Claim";
         }

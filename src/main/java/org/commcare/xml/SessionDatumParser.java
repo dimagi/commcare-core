@@ -124,6 +124,7 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
         }
 
         boolean defaultSearch = "true".equals(parser.getAttributeValue(null, "default_search"));
+        String titleLocaleId = "";
 
         ArrayList<QueryData> hiddenQueryValues = new ArrayList<QueryData>();
         while (nextTagInBlock("query")) {
@@ -133,17 +134,11 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
             } else if ("prompt".equals(tagName)) {
                 String key = parser.getAttributeValue(null, "key");
                 userQueryPrompts.put(key, new QueryPromptParser(parser).parse());
-            } else if ("title".equals(tagName)) {
-                // while (nextTagInBlock("title")) {
-                //     if ("locale".equals(tagName)) {
-                //         String title_id = parser.getAttributeValue(null, "id");
-                //         System.out.println("title_id: " + title_id);
-                //     }
-                // }
+            } else if ("locale".equals(tagName)) {
+                titleLocaleId = parser.getAttributeValue(null, "id");
             }
         }
-
         return new RemoteQueryDatum(queryUrl, queryResultStorageInstance,
-                hiddenQueryValues, userQueryPrompts, useCaseTemplate, defaultSearch);
+                hiddenQueryValues, userQueryPrompts, useCaseTemplate, defaultSearch, titleLocaleId);
     }
 }

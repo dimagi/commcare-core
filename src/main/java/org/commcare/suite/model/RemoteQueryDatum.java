@@ -26,6 +26,7 @@ public class RemoteQueryDatum extends SessionDatum {
     private OrderedHashtable<String, QueryPrompt> userQueryPrompts;
     private boolean useCaseTemplate;
     private boolean defaultSearch;
+    private String titleLocaleId;
 
     @SuppressWarnings("unused")
     public RemoteQueryDatum() {
@@ -39,12 +40,13 @@ public class RemoteQueryDatum extends SessionDatum {
     public RemoteQueryDatum(URL url, String storageInstance,
             List<QueryData> hiddenQueryValues,
                             OrderedHashtable<String, QueryPrompt> userQueryPrompts,
-                            boolean useCaseTemplate, boolean defaultSearch) {
+                            boolean useCaseTemplate, boolean defaultSearch, String titleLocaleId) {
         super(storageInstance, url.toString());
         this.hiddenQueryValues = hiddenQueryValues;
         this.userQueryPrompts = userQueryPrompts;
         this.useCaseTemplate = useCaseTemplate;
         this.defaultSearch = defaultSearch;
+        this.titleLocaleId = titleLocaleId;
     }
 
     public OrderedHashtable<String, QueryPrompt> getUserQueryPrompts() {
@@ -73,6 +75,10 @@ public class RemoteQueryDatum extends SessionDatum {
         return defaultSearch;
     }
 
+    public String getTitleLocaleId() {
+        return titleLocaleId;
+    }
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
@@ -85,6 +91,7 @@ public class RemoteQueryDatum extends SessionDatum {
                         new ExtWrapMap(String.class, QueryPrompt.class, ExtWrapMap.TYPE_ORDERED), pf);
         useCaseTemplate = ExtUtil.readBool(in);
         defaultSearch = ExtUtil.readBool(in);
+        titleLocaleId = ExtUtil.readString(in);
     }
 
     @Override
@@ -94,5 +101,6 @@ public class RemoteQueryDatum extends SessionDatum {
         ExtUtil.write(out, new ExtWrapMap(userQueryPrompts));
         ExtUtil.writeBool(out, useCaseTemplate);
         ExtUtil.writeBool(out, defaultSearch);
+        ExtUtil.writeString(out, titleLocaleId);
     }
 }
