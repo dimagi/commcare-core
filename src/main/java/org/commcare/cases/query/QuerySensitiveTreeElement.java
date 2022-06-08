@@ -1,7 +1,6 @@
 package org.commcare.cases.query;
 
 import org.javarosa.core.model.instance.AbstractTreeElement;
-import org.javarosa.core.model.instance.TreeReference;
 
 /**
  * NOTE: Each time a method is implemented here, it should be added to QuerySensitiveTreeElementWrapper

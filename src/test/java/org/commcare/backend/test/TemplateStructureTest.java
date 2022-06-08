@@ -1,10 +1,9 @@
 package org.commcare.backend.test;
 
 import org.commcare.modern.session.SessionWrapper;
+import org.commcare.session.SessionFrame;
 import org.commcare.test.utilities.MockApp;
 import org.junit.Assert;
-
-import org.commcare.session.SessionFrame;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,7 +31,7 @@ public class TemplateStructureTest {
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
         Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
 
-        session.setDatum("case_id", "case_one");
+        session.setEntityDatum("case_id", "case_one");
 
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
 

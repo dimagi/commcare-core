@@ -1,12 +1,11 @@
 package org.commcare.backend.session.test;
 
 import org.commcare.modern.session.SessionWrapper;
+import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
-
-import org.commcare.session.SessionFrame;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -30,7 +29,7 @@ public class MarkRewindSessionTests {
         session.setCommand("child-visit");
         assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         assertEquals("mother_case_1", session.getNeededDatum().getDataId());
-        session.setDatum("mother_case_1", "nancy");
+        session.setEntityDatum("mother_case_1", "nancy");
 
         // perform 'claim' action
         Detail shortDetail = session.getPlatform().getDetail("case-list");
@@ -111,7 +110,7 @@ public class MarkRewindSessionTests {
         assertEquals("mother_case_1", session.getNeededDatum().getDataId());
 
         // manually set the needed datum instead of computing it
-        session.setDatum("mother_case_1", "nancy");
+        session.setEntityDatum("mother_case_1", "nancy");
 
         // execute the stack ops for the m0-f0 entry
         session.setCommand("m0-f0");

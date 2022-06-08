@@ -17,13 +17,13 @@ import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.xform.parse.XFormParser;
 
 import java.util.Vector;
 
+import datadog.trace.api.Trace;
 
 /**
  * This class gives you all the information you need to display a question when
@@ -200,6 +200,8 @@ public class FormEntryPrompt extends FormEntryCaption {
     }
 
     public Vector<SelectChoice> getSelectChoices() { return getSelectChoices(true); }
+
+    @Trace
     public Vector<SelectChoice> getSelectChoices(boolean shouldAttemptDynamicPopulation) {
         QuestionDef q = getQuestion();
         ItemsetBinding itemset = q.getDynamicChoices();

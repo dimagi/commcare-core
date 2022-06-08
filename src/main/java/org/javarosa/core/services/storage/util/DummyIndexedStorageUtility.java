@@ -24,7 +24,6 @@ import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -366,5 +365,10 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         for (int i : ((LinkedHashSet<Integer>)cuedCases)) {
             metadataMap.put(i, getMetaDataForRecord(i, metaDataIds));
         }
+    }
+
+    @Override
+    public Class<?> getPrototype() {
+        return prototype;
     }
 }

@@ -2,7 +2,10 @@ package org.commcare.modern.engine.cases;
 
 import org.commcare.cases.query.queryset.DualTableSingleMatchModelQuerySet;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Vector;
 
 /**
  * Created by willpride on 2/21/17.

@@ -1,9 +1,9 @@
 package org.commcare.modern.session;
 
+import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
-import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.analysis.XPathAnalyzable;
 
@@ -21,4 +21,6 @@ public interface SessionWrapperInterface {
     EvaluationContext getEvaluationContext();
     EvaluationContext getRestrictedEvaluationContext(String commandId, Set<String> instancesToInclude);
     EvaluationContext getEvaluationContextWithAccumulatedInstances(String commandID, XPathAnalyzable xPathAnalyzable);
+
+    void prepareExternalSources(RemoteInstanceFetcher fetcher) throws RemoteInstanceFetcher.RemoteInstanceException;
 }

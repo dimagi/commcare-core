@@ -4,7 +4,6 @@ import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.QuerySensitiveTreeElementWrapper;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.cases.util.QueryUtils;
-import org.commcare.util.LogTypes;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -16,7 +15,6 @@ import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.IExprDataType;
-import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xpath.expr.ExpressionCacher;
@@ -29,6 +27,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 
@@ -746,7 +745,18 @@ public class EvaluationContext {
      * capacity to abandon requests
      */
     public EvaluationContext spawnWithCleanLifecycle() {
+        return spawnWithCleanLifecycle(null);
+    }
+
+    public EvaluationContext spawnWithCleanLifecycle(Map<String, DataInstance> additionalInstances) {
         EvaluationContext ec = new EvaluationContext(this, this.getContextRef());
+        if (additionalInstances != null) {
+            additionalInstances.forEach((name, instance) -> {
+                if (!ec.formInstances.containsKey(name)) {
+                    ec.formInstances.put(name, instance);
+                }
+            });
+        }
         QueryContext qc = ec.getCurrentQueryContext().forceNewChildContext();
         ec.setQueryContext(qc);
         return ec;

@@ -4,6 +4,8 @@ import org.commcare.session.CommCareSession;
 
 import java.io.PrintStream;
 
+import datadog.trace.api.Trace;
+
 /**
  * A compound screen is a controller for screens with internal state that requires navigation.
  *
@@ -21,8 +23,9 @@ public abstract class CompoundScreenHost extends Screen {
     public abstract Subscreen getCurrentScreen();
 
     @Override
-    public void prompt(PrintStream out) throws CommCareSessionException {
+    public boolean prompt(PrintStream out) throws CommCareSessionException {
         getCurrentScreen().prompt(out);
+        return true;
     }
 
     @Override
@@ -30,9 +33,11 @@ public abstract class CompoundScreenHost extends Screen {
         return getCurrentScreen().getOptions();
     }
 
+    @Trace
     @Override
-    public final boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch) throws CommCareSessionException {
-        if (getCurrentScreen().handleInputAndUpdateHost(input, this, allowAutoLaunch)) {
+    public final boolean handleInputAndUpdateSession(CommCareSession session, String input,
+            boolean allowAutoLaunch, String[] selectedValues) throws CommCareSessionException {
+        if (getCurrentScreen().handleInputAndUpdateHost(input, this, allowAutoLaunch, selectedValues)) {
             this.updateSession(session);
             return true;
         }

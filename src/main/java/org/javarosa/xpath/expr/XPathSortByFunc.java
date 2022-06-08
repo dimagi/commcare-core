@@ -11,7 +11,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**

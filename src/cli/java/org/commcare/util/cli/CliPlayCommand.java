@@ -59,9 +59,8 @@ public class CliPlayCommand extends CliCommand {
     @Override
     public void parseArguments(String[] args) throws ParseException {
         super.parseArguments(args);
-
         resourcePath = this.args[0];
-        if (!cmd.hasOption("r") && !cmd.hasOption("d")) {
+        if (this.args.length == 3) {
             username = this.args[1];
             password = this.args[2];
         }
@@ -75,13 +74,16 @@ public class CliPlayCommand extends CliCommand {
             CommCareConfigEngine engine = configureApp(resourcePath, prototypeFactory);
             ApplicationHost host = new ApplicationHost(engine, prototypeFactory);
 
+            if (username != null && password != null) {
+                host.setUsernamePassword(username, password);
+            }
+
             if (cmd.hasOption("r")) {
                 host.setRestoreToLocalFile(cmd.getOptionValue("r"));
             } else if (cmd.hasOption("d")) {
                 host.setRestoreToDemoUser();
             } else {
-                username = username.trim().toLowerCase();
-                host.setRestoreToRemoteUser(username, password);
+                host.setRestoreToRemoteUser();
             }
 
             String endpointId = null;

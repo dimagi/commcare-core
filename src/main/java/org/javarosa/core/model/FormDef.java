@@ -1,7 +1,5 @@
 package org.javarosa.core.model;
 
-import org.commcare.cases.query.QueryContext;
-import org.commcare.cases.query.ScopeLimitedReferenceRequestCache;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.actions.Action;
@@ -28,9 +26,7 @@ import org.javarosa.core.model.instance.InvalidReferenceException;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
-import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
-import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.model.utils.ItemSetUtils;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
@@ -46,10 +42,7 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
-import org.javarosa.xpath.analysis.AnalysisInvalidException;
-import org.javarosa.xpath.analysis.TreeReferenceAccumulatingAnalyzer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -57,16 +50,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.Vector;
 
-import javax.annotation.Nullable;
+import datadog.trace.api.Trace;
+import io.opentracing.Span;
+import io.opentracing.util.GlobalTracer;
 
 /**
  * Definition of a form. This has some meta data about the form definition and a
@@ -197,7 +190,7 @@ public class FormDef implements IFormElement, IMetaData,
         return formInstances.get(name);
     }
 
-    public Enumeration getNonMainInstances() {
+    public Enumeration<DataInstance> getNonMainInstances() {
         return formInstances.elements();
     }
 
@@ -996,6 +989,7 @@ public class FormDef implements IFormElement, IMetaData,
         return debugInfo;
     }
 
+    @Trace
     private void initAllTriggerables() {
         // Use all triggerables because we can assume they are rooted by rootRef
         TreeReference rootRef = TreeReference.rootRef();
@@ -1017,6 +1011,7 @@ public class FormDef implements IFormElement, IMetaData,
      * @param triggeredDuringInsert Triggerables that don't need to be fired
      *                              because they have already been fired while processing insert events
      */
+    @Trace
     private void initTriggerablesRootedBy(TreeReference rootRef,
                                           Vector<Triggerable> triggeredDuringInsert) {
         TreeReference genericRoot = rootRef.genericize();
@@ -1042,6 +1037,7 @@ public class FormDef implements IFormElement, IMetaData,
      * @param ref The full contextualized unambiguous reference of the value that was
      *            changed.
      */
+    @Trace
     public void triggerTriggerables(TreeReference ref) {
         // turn unambiguous ref into a generic ref to identify what nodes
         // should be triggered by this reference changing
@@ -1072,6 +1068,7 @@ public class FormDef implements IFormElement, IMetaData,
      *                          children have already been queued to be
      *                          triggered.
      */
+    @Trace
     private void evaluateTriggerables(List<Triggerable> tv,
                                       TreeReference anchorRef,
                                       boolean isRepeatEntryInit) {
@@ -1101,9 +1098,14 @@ public class FormDef implements IFormElement, IMetaData,
      * @param triggerable The triggerable to be updated
      * @param anchorRef   The reference to the value which was changed.
      */
+    @Trace
     private void evaluateTriggerable(Triggerable triggerable, TreeReference anchorRef) {
         // Contextualize the reference used by the triggerable against the anchor
         TreeReference contextRef = triggerable.narrowContextBy(anchorRef);
+        if (isTracingEnabled()) {
+            final Span span = GlobalTracer.get().activeSpan();
+            span.setTag("triggerable", triggerable.toString());
+        }
 
         // Now identify all of the fully qualified nodes which this triggerable
         // updates. (Multiple nodes can be updated by the same trigger)
@@ -1347,8 +1349,18 @@ public class FormDef implements IFormElement, IMetaData,
         return template;
     }
 
-    public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef){
+    @Trace
+    public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef) {
+        if (isTracingEnabled()) {
+            final Span span = GlobalTracer.get().activeSpan();
+            span.setTag("itemset", itemset.nodesetRef.toString());
+            span.setTag("treeReference", curQRef.toString());
+        }
         ItemSetUtils.populateDynamicChoices(itemset, curQRef, exprEvalContext, getMainInstance(), mProfilingEnabled);
+    }
+
+    private boolean isTracingEnabled() {
+        return "true".equals(System.getProperty("src.main.java.org.javarosa.enableOpenTracing"));
     }
 
     public String toString() {
@@ -1367,6 +1379,7 @@ public class FormDef implements IFormElement, IMetaData,
      * Requires that the instance has been set to a prototype of the instance that
      * should be used for deserialization.
      */
+    @Trace
     @Override
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         setID(ExtUtil.readInt(dis));
@@ -1428,9 +1441,11 @@ public class FormDef implements IFormElement, IMetaData,
      *                    false if it is using an existing IDataModel
      * @param locale      The default locale in the current environment, if provided. Can be null
      *                    to rely on the form's internal default.
+     * @param isReadOnly  If we are in read only mode and only wants to view form
      */
-    public void initialize(boolean newInstance, boolean isCompletedInstance,
-                           InstanceInitializationFactory factory, String locale, boolean isReadOnly) {
+    @Trace
+    public void initialize(boolean newInstance, boolean isCompletedInstance, InstanceInitializationFactory factory,
+                           String locale, boolean isReadOnly) {
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);

@@ -1,5 +1,6 @@
 package org.javarosa.core.model.test;
 
+import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
@@ -30,7 +31,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -74,7 +78,7 @@ public class FormDefTest {
      * contextualized.
      */
     @Test
-    public void testRelativeRefInTriggers() {
+    public void testRelativeRefInTriggers() throws RemoteInstanceFetcher.RemoteInstanceException {
         FormParseInit fpi = new FormParseInit("/test_nested_preds_with_rel_refs.xml");
         FormEntryController fec = fpi.getFormEntryController();
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
@@ -374,10 +378,10 @@ public class FormDefTest {
         fec.stepToNextEvent();
 
         fec.answerQuestion(new IntegerData(2));
-        while(fec.stepToNextEvent() != FormEntryController.EVENT_QUESTION);
+        while (fec.stepToNextEvent() != FormEntryController.EVENT_QUESTION) ;
 
         fec.answerQuestion(new UncastData("yes"));
-        while(fec.stepToNextEvent() != FormEntryController.EVENT_QUESTION) ;
+        while (fec.stepToNextEvent() != FormEntryController.EVENT_QUESTION) ;
 
         fec.getNextIndex(fec.getModel().getFormIndex(), true);
         fec.answerQuestion(new IntegerData(2));
@@ -396,7 +400,7 @@ public class FormDefTest {
     @Test
     public void testModelIterationLookahead() throws XPathSyntaxException {
         FormParseInit fpi = new FormParseInit("/xform_tests/model_iteration_lookahead.xml");
-        FormEntryController fec =  initFormEntry(fpi);
+        FormEntryController fec = initFormEntry(fpi);
         stepThroughEntireForm(fec);
 
         EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
@@ -416,7 +420,7 @@ public class FormDefTest {
     public void testSimilarBindConditionsAreDistinguished() throws Exception {
         FormParseInit fpi =
                 new FormParseInit("/xform_tests/test_display_conditions_regression.xml");
-        FormEntryController fec =  initFormEntry(fpi);
+        FormEntryController fec = initFormEntry(fpi);
 
         boolean visibleLabelWasPresent = false;
         do {
@@ -497,31 +501,33 @@ public class FormDefTest {
     public void testITextXPathFunction() throws XPathSyntaxException {
         FormParseInit fpi = new FormParseInit("/xform_tests/itext_function.xml");
         // init form with the 'new' locale instead of the default 'old' locale
-        FormEntryController fec =  initFormEntry(fpi, "new");
+        FormEntryController fec = initFormEntry(fpi, "new");
 
         boolean inlinePassed = false;
         boolean nestedPassed = false;
 
         do {
             TreeReference currentRef = fec.getModel().getFormIndex().getReference();
-            if(currentRef == null) { continue; }
-            if(currentRef.genericize().toString().equals("/data/inline")) {
+            if (currentRef == null) {
+                continue;
+            }
+            if (currentRef.genericize().toString().equals("/data/inline")) {
                 assertEquals("Inline IText Method Callout", "right",
                         fec.getModel().getCaptionPrompt().getQuestionText());
                 inlinePassed = true;
             }
 
-            if(currentRef.genericize().toString().equals("/data/nested")) {
+            if (currentRef.genericize().toString().equals("/data/nested")) {
                 assertEquals("Nexted IText Method Callout", "right",
                         fec.getModel().getCaptionPrompt().getQuestionText());
                 nestedPassed = true;
             }
         } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
 
-        if(!inlinePassed) {
+        if (!inlinePassed) {
             Assert.fail("Inline itext callout did not occur");
         }
-        if(!nestedPassed) {
+        if (!nestedPassed) {
             Assert.fail("Nested itext callout did not occur");
         }
 
@@ -538,7 +544,7 @@ public class FormDefTest {
     @Test
     public void testGroupRelevancyInsideRepeat() throws XPathSyntaxException {
         FormParseInit fpi = new FormParseInit("/xform_tests/group_relevancy_in_repeat.xml");
-        FormEntryController fec =  initFormEntry(fpi);
+        FormEntryController fec = initFormEntry(fpi);
 
         do {
             QuestionDef q = fpi.getCurrentQuestion();
@@ -565,7 +571,9 @@ public class FormDefTest {
 
     private static FormEntryController initFormEntry(FormParseInit fpi, String locale) {
         FormEntryController fec = fpi.getFormEntryController();
+
         fpi.getFormDef().initialize(true, null, locale, false);
+
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
         return fec;
     }
@@ -627,13 +635,15 @@ public class FormDefTest {
                 continue;
             }
             TreeReference currentRef = fec.getModel().getFormIndex().getReference();
-            if(currentRef == null) { continue; }
+            if (currentRef == null) {
+                continue;
+            }
 
-            if(currentRef.genericize().toString().equals("/data/filter")) {
+            if (currentRef.genericize().toString().equals("/data/filter")) {
                 fec.answerQuestion(new SelectOneData(new Selection("a")));
             }
 
-            if(currentRef.genericize().toString().equals("/data/question")) {
+            if (currentRef.genericize().toString().equals("/data/question")) {
                 assertEquals("Itemset Filter returned the wrong size",
                         fec.getModel().getQuestionPrompt().getSelectChoices().size(),
                         3);

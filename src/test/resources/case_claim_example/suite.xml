@@ -57,6 +57,7 @@
     <session>
       <query url="https://www.fake.com/patient_search/" storage-instance="patients">
         <data key="device_id" ref="instance('session')/session/context/deviceid"/>
+        <data key="_xpath_query" ref="if(count(instance('search-input')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('search-input')/input/field[@name='patient_id']), '')"/>
         <prompt key="name" default="instance('session')/session/context/deviceid">
           <display>
             <text>
@@ -64,12 +65,48 @@
             </text>
           </display>
         </prompt>
-        <prompt key="patient_id" hidden="false">
+        <prompt key="patient_id" hidden="false" allow_blank_value="true" exclude="false()">
           <display>
             <text>
               <locale id="query.id"/>
             </text>
           </display>
+        </prompt>
+        <prompt key="exclude_patient_id" hidden="false" allow_blank_value="true" exclude="true()">
+          <display>
+            <text>
+              <locale id="query.id"/>
+            </text>
+          </display>
+        </prompt>
+        <prompt key="state" input="select1" allow_blank_value="true">
+          <display>
+            <text>
+              <locale id="search_property.m1.state"/>
+            </text>
+            <hint>
+              <text>
+                <locale id="search_property.m1.hint"/>
+              </text>
+            </hint>
+          </display>
+          <itemset nodeset="instance('state')/state_list/state">
+            <label ref="name"/>
+            <value ref="id"/>
+            <sort ref="id"/>
+          </itemset>
+        </prompt>
+        <prompt key="district" input="select">
+          <display>
+            <text>
+              <locale id="search_property.m1.district"/>
+            </text>
+          </display>
+          <itemset nodeset="instance('district')/district_list/district[state_id = $state]">
+            <label ref="name"/>
+            <value ref="id"/>
+            <sort ref="id"/>
+          </itemset>
         </prompt>
       </query>
       <datum id="case_id" nodeset="instance('patients')/patients/patient" value="./id" detail-select="patient_short" detail-confirm="patient_long"/>
@@ -87,9 +124,10 @@
     <command id="m0-f0">
       <text>Form</text>
     </command>
-    <instance id="casedb" src="jr://instance/casedb"/>
     <session>
-      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+      <query url="http://www.example.com/a/domain/phone/get_case/" storage-instance="registry1" template="case" default_search="true">
+        <data key="case_type" ref="'case'"/>
+      </query>
     </session>
   </entry>
   <menu id="root">

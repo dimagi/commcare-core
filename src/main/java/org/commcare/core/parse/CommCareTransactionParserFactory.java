@@ -1,7 +1,6 @@
 package org.commcare.core.parse;
 
 import org.commcare.cases.instance.FixtureIndexSchema;
-import org.commcare.cases.ledger.Ledger;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -11,8 +10,6 @@ import org.commcare.xml.FixtureXmlParser;
 import org.commcare.xml.IndexedFixtureXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
 import org.commcare.xml.bulk.LinearBulkProcessingCaseXmlParser;
-import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;

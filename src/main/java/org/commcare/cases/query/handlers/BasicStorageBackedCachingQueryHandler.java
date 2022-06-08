@@ -1,8 +1,9 @@
 package org.commcare.cases.query.handlers;
 
-import org.commcare.cases.query.*;
 import org.commcare.cases.query.IndexedValueLookup;
 import org.commcare.cases.query.PredicateProfile;
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.QueryHandler;
 import org.commcare.cases.util.LruCache;
 import org.commcare.cases.util.QueryUtils;
 import org.javarosa.core.model.condition.EvaluationContext;

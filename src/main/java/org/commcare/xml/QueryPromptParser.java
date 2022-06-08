@@ -31,7 +31,9 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
     private static final String NAME_VALUE = "value";
     private static final String NAME_SORT = "sort";
     private static final String ATTR_REF = "ref";
+    private static final String ATTR_ALLOW_BLANK_VALUE = "allow_blank_value";
     private static final String ATTR_EXCLUDE = "exclude";
+    private static final String ATTR_REQUIRED = "required";
 
     public QueryPromptParser(KXmlParser parser) {
         super(parser);
@@ -44,12 +46,14 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
         String input = parser.getAttributeValue(null, ATTR_INPUT);
         String receive = parser.getAttributeValue(null, ATTR_RECEIVE);
         String hidden = parser.getAttributeValue(null, ATTR_HIDDEN);
+        boolean allowBlankValue = "true".equals(parser.getAttributeValue(null, ATTR_ALLOW_BLANK_VALUE));
         DisplayUnit display = null;
         ItemsetBinding itemsetBinding = null;
         String defaultValueString = parser.getAttributeValue(null, ATTR_DEFAULT);
         XPathExpression defaultValue = xpathPropertyValue(defaultValueString);
         String excludeValueString = parser.getAttributeValue(null, ATTR_EXCLUDE);
         XPathExpression exclude = xpathPropertyValue(excludeValueString);
+        XPathExpression required = xpathPropertyValue(parser.getAttributeValue(null, ATTR_REQUIRED));
 
         while (nextTagInBlock(NAME_PROMPT)) {
             if (NAME_DISPLAY.equals(parser.getName().toLowerCase())) {
@@ -59,7 +63,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
             }
         }
         return new QueryPrompt(key, appearance, input, receive, hidden, display,
-                               itemsetBinding, defaultValue, exclude);
+                               itemsetBinding, defaultValue, allowBlankValue, exclude, required);
     }
 
     private ItemsetBinding parseItemset() throws IOException, XmlPullParserException, InvalidStructureException {
