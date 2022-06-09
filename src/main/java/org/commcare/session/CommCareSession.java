@@ -478,13 +478,13 @@ public class CommCareSession {
         setDatum(SessionFrame.STATE_DATUM_VAL, keyId, value);
     }
 
-    public void setDatum(String action, String keyId, String value) {
-        frame.pushStep(new StackFrameStep(action, keyId, value));
+    public void setDatum(String type, String keyId, String value) {
+        frame.pushStep(new StackFrameStep(type, keyId, value));
         syncState();
     }
 
-    public void setDatum(String action, String keyId, String value, ExternalDataInstanceSource source) {
-        frame.pushStep(new StackFrameStep(action, keyId, value, source));
+    public void setDatum(String type, String keyId, String value, ExternalDataInstanceSource source) {
+        frame.pushStep(new StackFrameStep(type, keyId, value, source));
         syncState();
     }
 

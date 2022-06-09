@@ -3,6 +3,7 @@ package org.commcare.util.screen;
 import org.commcare.cases.entity.EntityUtil;
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Action;
@@ -11,6 +12,7 @@ import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.DatumUtil;
+import org.commcare.util.FormDataUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
@@ -52,7 +54,8 @@ public class EntityScreen extends CompoundScreenHost {
     protected Hashtable<String, TreeReference> referenceMap;
 
     private boolean handleCaseIndex;
-    private boolean full = true;
+    private boolean needsFullInit = true;
+    private boolean isDetailScreen = false;
 
     private Vector<TreeReference> references;
 
@@ -67,20 +70,22 @@ public class EntityScreen extends CompoundScreenHost {
      * This constructor allows specifying whether to use the complete init or a minimal one
      *
      * @param handleCaseIndex Allow specifying entity by list index rather than unique ID
-     * @param full            If set to false, the subscreen and referenceMap, used for
+     * @param needsFullInit            If set to false, the subscreen and referenceMap, used for
      *                        selecting and rendering entity details, will not be created.
      *                        This speeds up initialization but makes further selection impossible.
      */
-    public EntityScreen(boolean handleCaseIndex, boolean full) {
+    public EntityScreen(boolean handleCaseIndex, boolean needsFullInit) {
         this.handleCaseIndex = handleCaseIndex;
-        this.full = full;
+        this.needsFullInit = needsFullInit;
     }
 
-    public EntityScreen(boolean handleCaseIndex, boolean full, SessionWrapper session)
+    public EntityScreen(boolean handleCaseIndex, boolean needsFullInit, SessionWrapper session,
+            boolean isDetailScreen)
             throws CommCareSessionException {
         this.handleCaseIndex = handleCaseIndex;
-        this.full = full;
+        this.needsFullInit = needsFullInit;
         this.setSession(session);
+        this.isDetailScreen = isDetailScreen;
     }
 
     public void evaluateAutoLaunch(String nextInput) throws CommCareSessionException {
@@ -115,7 +120,7 @@ public class EntityScreen extends CompoundScreenHost {
 
         evalContext.setQueryContext(newContext);
 
-        if (full || references.size() == 1) {
+        if (needsFullInit || references.size() == 1) {
             referenceMap = new Hashtable<>();
             EntityDatum needed = (EntityDatum)session.getNeededDatum();
             for (TreeReference reference : references) {
@@ -187,6 +192,12 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     @Override
+    public String getBreadcrumb(String input, UserSandbox sandbox, SessionWrapper session) {
+        String caseName = FormDataUtil.getCaseName(sandbox, input);
+        return caseName == null ? ScreenUtils.getBestTitle(session) : caseName;
+    }
+
+    @Override
     public Subscreen getCurrentScreen() {
         return mCurrentScreen;
     }
@@ -230,8 +241,11 @@ public class EntityScreen extends CompoundScreenHost {
      */
     public void updateSelection(String input, @Nullable String[] selectedValues) throws CommCareSessionException {
         setSelectedEntity(input);
-        // Set entity screen to show detail and redraw
-        setCurrentScreenToDetail();
+
+        if (isDetailScreen) {
+            // Set entity screen to show detail and redraw
+            setCurrentScreenToDetail();
+        }
     }
 
     @Trace
@@ -371,6 +385,13 @@ public class EntityScreen extends CompoundScreenHost {
         return false;
     }
 
+    /**
+     * Updates the datum required by the given CommCare Session. It's generally used during session replays when
+     * we want to update the datum directly with the pre-validated input wihout doing any other input handling
+     *
+     * @param session Current Commcare Session that we need to update with given input
+     * @param input   Value of the datum required by the given CommCare Session
+     */
     public void updateDatum(CommCareSession session, String input) {
         session.setEntityDatum(session.getNeededDatum(), input);
     }
