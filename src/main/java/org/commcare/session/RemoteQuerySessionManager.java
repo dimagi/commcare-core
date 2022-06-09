@@ -148,7 +148,11 @@ public class RemoteQuerySessionManager {
         ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(
                 instanceID, userQueryValues);
         return evaluationContext.spawnWithCleanLifecycle(
-                ImmutableMap.of(userInputInstance.getInstanceId(), userInputInstance)
+                ImmutableMap.of(
+                        userInputInstance.getInstanceId(), userInputInstance,
+                        // Temporary method to make the 'search-input' instance available using the legacy ID
+                        "search-input", userInputInstance
+                )
         );
     }
 

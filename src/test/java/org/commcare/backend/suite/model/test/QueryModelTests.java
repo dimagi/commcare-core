@@ -8,6 +8,7 @@ import org.commcare.data.xml.VirtualInstances;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.util.mocks.MockQueryClient;
 import org.commcare.util.screen.CommCareSessionException;
@@ -67,6 +68,11 @@ public class QueryModelTests {
         Assert.assertEquals(
                 VirtualInstances.buildSearchInputInstance(instanceID, input).getRoot(),
                 virtualDataInstanceStorage.read(expectedInstanceStorageKey).getRoot());
+
+        CaseTestUtils.xpathEvalAndAssert(
+                session.getEvaluationContext(),
+                "instance('search-input:registry1')/input/field[@name='age']",
+                "23");
     }
 
     @NotNull

@@ -87,13 +87,28 @@ public class CaseClaimModelTests {
     public void testRemoteRequestSessionManager_getRawQueryParamsWithUserInput() throws Exception {
         testGetRawQueryParamsWithUserInput(
                 ImmutableMap.of("patient_id", "123"),
-                ImmutableList.of("external_id = 123")
+                ImmutableList.of("external_id = 123"),
+                "patient_id"
         );
     }
 
     @Test
     public void testRemoteRequestSessionManager_getRawQueryParamsWithUserInput_missing() throws Exception {
-        testGetRawQueryParamsWithUserInput(Collections.emptyMap(), ImmutableList.of(""));
+        testGetRawQueryParamsWithUserInput(Collections.emptyMap(), ImmutableList.of(""), "patient_id");
+    }
+
+    @Test
+    public void testRemoteRequestSessionManager_getRawQueryParamsWithUserInput_legacy() throws Exception {
+        testGetRawQueryParamsWithUserInput(
+                ImmutableMap.of("patient_id", "123"),
+                ImmutableList.of("external_id = 123"),
+                "patient_id_legacy"
+        );
+    }
+
+    @Test
+    public void testRemoteRequestSessionManager_getRawQueryParamsWithUserInput_missing_legacy() throws Exception {
+        testGetRawQueryParamsWithUserInput(Collections.emptyMap(), ImmutableList.of(""), "patient_id_legacy");
     }
 
     @Test
@@ -103,7 +118,7 @@ public class CaseClaimModelTests {
         );
     }
 
-    private void testGetRawQueryParamsWithUserInput(Map<String, String> userInput, List<String> expected)
+    private void testGetRawQueryParamsWithUserInput(Map<String, String> userInput, List<String> expected, String key)
             throws Exception {
         MockApp mApp = new MockApp("/case_claim_example/");
 
@@ -117,7 +132,7 @@ public class CaseClaimModelTests {
 
         Multimap<String, String> params = remoteQuerySessionManager.getRawQueryParams(true);
 
-        Assert.assertEquals(expected, params.get("_xpath_query"));
+        Assert.assertEquals(expected, params.get(key));
     }
 
     private void testGetRawQueryParamsWithUserInputExcluded(Map<String, String> userInput)
