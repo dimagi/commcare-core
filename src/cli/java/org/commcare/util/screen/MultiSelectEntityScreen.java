@@ -59,6 +59,16 @@ public class MultiSelectEntityScreen extends EntityScreen {
         }
     }
 
+    @Override
+    public void updateSelection(String input, @Nullable TreeReference[] selectedRefs)
+            throws CommCareSessionException {
+        if (input.contentEquals(USE_SELECTED_VALUES)) {
+            processSelectedReferences(selectedRefs);
+        } else {
+            prcessSelectionAsGuid(input);
+        }
+    }
+
     private void prcessSelectionAsGuid(String guid) throws CommCareSessionException {
         ExternalDataInstance cachedInstance = virtualDataInstanceStorage.read(guid);
         if (cachedInstance == null) {
@@ -67,6 +77,16 @@ public class MultiSelectEntityScreen extends EntityScreen {
                             " If this error persists please report a bug to CommCareHQ.");
         }
         storageReferenceId = guid;
+    }
+
+    private void processSelectedReferences(TreeReference[] selectedRefs) {
+        if (selectedRefs != null) {
+            String[] evaluatedValues = new String[selectedRefs.length];
+            for (int i = 0; i < selectedRefs.length; i++) {
+                evaluatedValues[i] = getReturnValueFromSelection(selectedRefs[i]);
+            }
+            processSelectionIntoInstance(evaluatedValues);
+        }
     }
 
     private void processSelectedValues(String[] selectedValues)
