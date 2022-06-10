@@ -50,20 +50,20 @@ public class MultiSelectEntityScreen extends EntityScreen {
         setSelectedEntities(input, selectedValues);
     }
 
-    private void setSelectedEntities(String input, @Nullable String[] selectedValues)
-            throws CommCareSessionException {
-        if (input.contentEquals(USE_SELECTED_VALUES)) {
-            processSelectedValues(selectedValues);
-        } else {
-            prcessSelectionAsGuid(input);
-        }
-    }
-
     @Override
     public void updateSelection(String input, TreeReference[] selectedRefs)
             throws CommCareSessionException {
         if (input.contentEquals(USE_SELECTED_VALUES)) {
             processSelectedReferences(selectedRefs);
+        } else {
+            prcessSelectionAsGuid(input);
+        }
+    }
+
+    private void setSelectedEntities(String input, @Nullable String[] selectedValues)
+            throws CommCareSessionException {
+        if (input.contentEquals(USE_SELECTED_VALUES)) {
+            processSelectedValues(selectedValues);
         } else {
             prcessSelectionAsGuid(input);
         }
