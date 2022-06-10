@@ -247,12 +247,17 @@ public class EntityScreen extends CompoundScreenHost {
     /**
      * Updates entity selected on the screen
      *
-     * @param input          reference of the entity selected on the screen
-     * @param selectedValues should always be null for single-select entity screen
+     * @param input          input to the entity selected on the screen
+     * @param selectedRefs   references for the selected entity, only contains a single element for the
+     *                       single-select entity screen
      * @throws CommCareSessionException
      */
-    public void updateSelection(TreeReference input, @Nullable String[] selectedValues) throws CommCareSessionException {
-        setSelectedEntity(input);
+    public void updateSelection(String input, @Nullable TreeReference[] selectedRefs) throws CommCareSessionException {
+        if (selectedRefs.length != 1) {
+            throw new IllegalArgumentException(
+                    "selectedRefs should only contain one element for the single select Entity Screen");
+        }
+        setSelectedEntity(selectedRefs[0]);
         showDetailScreen();
     }
 

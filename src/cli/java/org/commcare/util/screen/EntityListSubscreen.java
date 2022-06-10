@@ -237,7 +237,9 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         if (handleCaseIndex) {
             try {
                 int index = Integer.parseInt(input);
-                host.updateSelection(mChoices[index], selectedValues);
+                TreeReference[] selectedRefs = new TreeReference[1];
+                selectedRefs[0] = mChoices[index];
+                host.updateSelection(input, selectedRefs);
                 return true;
             } catch (NumberFormatException e) {
                 // This will result in things just executing again, which is fine.
