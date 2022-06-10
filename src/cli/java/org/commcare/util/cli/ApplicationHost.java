@@ -80,6 +80,8 @@ public class ApplicationHost {
     private String mRestoreFile;
     private String mRestoreStrategy = null;
 
+    private SessionUtils mSessionUtils = new SessionUtils();
+
     public ApplicationHost(CommCareConfigEngine engine,
                            PrototypeFactory prototypeFactory,
                            BufferedReader reader,
@@ -436,7 +438,7 @@ public class ApplicationHost {
             return new QueryScreen(qualifiedUsername, password, System.out);
         } else if (next.equals(SessionFrame.STATE_SYNC_REQUEST)) {
             checkUsernamePasswordValid();
-            return new SyncScreen(qualifiedUsername, password, System.out);
+            return new SyncScreen(qualifiedUsername, password, System.out, mSessionUtils);
         } else if (next.equalsIgnoreCase(SessionFrame.STATE_DATUM_COMPUTED)) {
             computeDatum();
             return getNextScreen();
@@ -483,7 +485,7 @@ public class ApplicationHost {
 
         mSandbox = sandbox;
         if (mRestoreStrategy == "remote") {
-            SessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
+            mSessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
         } else if (mRestoreStrategy == "file" && mRestoreFile != null) {
             restoreFileToSandbox(mSandbox, mRestoreFile);
         } else if (mRestoreStrategy == "demo") {
@@ -554,7 +556,7 @@ public class ApplicationHost {
         performCasePurge(mSandbox);
         if (username != null && password != null) {
             System.out.println("Requesting sync...");
-            SessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
+            mSessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
         } else {
             printStream.println("Syncing is only available when using raw user credentials");
         }
@@ -590,4 +592,7 @@ public class ApplicationHost {
         }
     }
 
+    public void setSessionUtils(SessionUtils sessionUtils) {
+        mSessionUtils = sessionUtils;
+    }
 }
