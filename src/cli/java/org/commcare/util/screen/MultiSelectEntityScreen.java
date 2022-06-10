@@ -60,7 +60,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
     }
 
     @Override
-    public void updateSelection(String input, @Nullable TreeReference[] selectedRefs)
+    public void updateSelection(String input, TreeReference[] selectedRefs)
             throws CommCareSessionException {
         if (input.contentEquals(USE_SELECTED_VALUES)) {
             processSelectedReferences(selectedRefs);
@@ -80,13 +80,11 @@ public class MultiSelectEntityScreen extends EntityScreen {
     }
 
     private void processSelectedReferences(TreeReference[] selectedRefs) {
-        if (selectedRefs != null) {
-            String[] evaluatedValues = new String[selectedRefs.length];
-            for (int i = 0; i < selectedRefs.length; i++) {
-                evaluatedValues[i] = getReturnValueFromSelection(selectedRefs[i]);
-            }
-            processSelectionIntoInstance(evaluatedValues);
+        String[] evaluatedValues = new String[selectedRefs.length];
+        for (int i = 0; i < selectedRefs.length; i++) {
+            evaluatedValues[i] = getReturnValueFromSelection(selectedRefs[i]);
         }
+        processSelectionIntoInstance(evaluatedValues);
     }
 
     private void processSelectedValues(String[] selectedValues)
@@ -163,7 +161,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
                     if (caseCount > 1) {
                         return "(" + caseCount + ") " + caseName + ", ...";
                     } else {
-                       return caseName;
+                        return caseName;
                     }
                 }
             }

@@ -252,7 +252,7 @@ public class EntityScreen extends CompoundScreenHost {
      *                       single-select entity screen
      * @throws CommCareSessionException
      */
-    public void updateSelection(String input, @Nullable TreeReference[] selectedRefs) throws CommCareSessionException {
+    public void updateSelection(String input, TreeReference[] selectedRefs) throws CommCareSessionException {
         if (selectedRefs.length != 1) {
             throw new IllegalArgumentException(
                     "selectedRefs should only contain one element for the single select Entity Screen");
