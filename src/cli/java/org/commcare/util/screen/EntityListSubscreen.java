@@ -237,9 +237,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         if (handleCaseIndex) {
             try {
                 int index = Integer.parseInt(input);
-                host.setSelectedEntity(mChoices[index]);
-                // Set entity screen to show detail and redraw
-                host.setCurrentScreenToDetail();
+                host.updateSelection(mChoices[index], selectedValues);
                 return true;
             } catch (NumberFormatException e) {
                 // This will result in things just executing again, which is fine.

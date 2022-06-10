@@ -248,6 +248,21 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
+    /**
+     * Updates entity selected on the screen
+     *
+     * @param input          reference of the entity selected on the screen
+     * @param selectedValues should always be null for single-select entity screen
+     * @throws CommCareSessionException
+     */
+    public void updateSelection(TreeReference input, @Nullable String[] selectedValues) throws CommCareSessionException {
+        setSelectedEntity(input);
+        if (isDetailScreen) {
+            // Set entity screen to show detail and redraw
+            setCurrentScreenToDetail();
+        }
+    }
+
     @Trace
     public void setSelectedEntity(TreeReference selection) {
         this.mCurrentSelection = selection;
