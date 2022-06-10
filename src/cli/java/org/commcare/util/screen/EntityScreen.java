@@ -241,11 +241,7 @@ public class EntityScreen extends CompoundScreenHost {
      */
     public void updateSelection(String input, @Nullable String[] selectedValues) throws CommCareSessionException {
         setSelectedEntity(input);
-
-        if (isDetailScreen) {
-            // Set entity screen to show detail and redraw
-            setCurrentScreenToDetail();
-        }
+        showDetailScreen();
     }
 
     /**
@@ -257,6 +253,10 @@ public class EntityScreen extends CompoundScreenHost {
      */
     public void updateSelection(TreeReference input, @Nullable String[] selectedValues) throws CommCareSessionException {
         setSelectedEntity(input);
+        showDetailScreen();
+    }
+
+    private void showDetailScreen() throws CommCareSessionException {
         if (isDetailScreen) {
             // Set entity screen to show detail and redraw
             setCurrentScreenToDetail();
