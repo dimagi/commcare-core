@@ -82,18 +82,21 @@ public class MultiSelectEntityScreen extends EntityScreen {
                 }
                 evaluatedValues[i] = getReturnValueFromSelection(currentReference);
             }
-
-            ExternalDataInstance instance = VirtualInstances.buildSelectedValuesInstance(
-                    getSession().getNeededDatum().getDataId(),
-                    evaluatedValues);
-            String guid = virtualDataInstanceStorage.write(instance);
-            storageReferenceId = guid;
-
-            // rebuild instance with the source
-            ExternalDataInstanceSource instanceSource = buildSelectedValuesInstanceSource(instance,
-                    storageReferenceId);
-            selectedValuesInstance = instanceSource.toInstance();
+            processSelectionIntoInstance(evaluatedValues);
         }
+    }
+
+    private void processSelectionIntoInstance(String[] evaluatedValues) {
+        ExternalDataInstance instance = VirtualInstances.buildSelectedValuesInstance(
+                getSession().getNeededDatum().getDataId(),
+                evaluatedValues);
+        String guid = virtualDataInstanceStorage.write(instance);
+        storageReferenceId = guid;
+
+        // rebuild instance with the source
+        ExternalDataInstanceSource instanceSource = buildSelectedValuesInstanceSource(instance,
+                storageReferenceId);
+        selectedValuesInstance = instanceSource.toInstance();
     }
 
     @Override
