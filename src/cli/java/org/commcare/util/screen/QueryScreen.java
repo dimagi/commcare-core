@@ -10,6 +10,9 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.cases.util.StringUtils;
+import org.commcare.core.encryption.CryptUtil;
+import org.commcare.core.interfaces.VirtualDataInstanceStorage;
+import org.commcare.data.xml.VirtualInstances;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.CommCareSession;
@@ -80,14 +83,17 @@ public class QueryScreen extends Screen {
     private String password;
 
     private PrintStream out;
+    private VirtualDataInstanceStorage instanceStorage;
 
     private boolean defaultSearch;
     private QueryClient client = new OkHttpQueryClient();
 
-    public QueryScreen(String domainedUsername, String password, PrintStream out) {
+    public QueryScreen(String domainedUsername, String password, PrintStream out,
+            VirtualDataInstanceStorage instanceStorage) {
         this.domainedUsername = domainedUsername;
         this.password = password;
         this.out = out;
+        this.instanceStorage = instanceStorage;
     }
 
     @Override
@@ -108,6 +114,7 @@ public class QueryScreen extends Screen {
         for (Map.Entry<String, QueryPrompt> queryPromptEntry : userInputDisplays.entrySet()) {
             fields[count] = queryPromptEntry.getValue().getDisplay().getText().evaluate(
                     sessionWrapper.getEvaluationContext());
+            count++;
         }
 
         try {
@@ -193,10 +200,35 @@ public class QueryScreen extends Screen {
         return instanceOrError;
     }
 
-    public void setQueryDatum(ExternalDataInstance dataInstance) {
+    public void updateSession(ExternalDataInstance dataInstance) {
         if (dataInstance != null) {
-            sessionWrapper.setQueryDatum(dataInstance);
+            ExternalDataInstance userInputInstance = getUserInputInstance();
+            sessionWrapper.setQueryDatum(dataInstance, userInputInstance);
         }
+    }
+
+    private ExternalDataInstance getUserInputInstance() {
+        String instanceID = VirtualInstances.makeSearchInputInstanceID(getQueryDatum().getDataId());
+        Map<String, String> userQueryValues = remoteQuerySessionManager.getUserQueryValues(false);
+        String key = getInstanceKey(instanceID, userQueryValues);
+        if (instanceStorage.contains(key)) {
+            return instanceStorage.read(key);
+        }
+
+        ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(
+                instanceID, userQueryValues);
+        instanceStorage.write(key, userInputInstance);
+        // rebuild the instance with source
+        return ExternalDataInstanceSource.buildVirtual(userInputInstance, key).toInstance();
+    }
+
+    private String getInstanceKey(String instanceId, Map<String, String> values) {
+        StringBuilder builder = new StringBuilder(instanceId);
+        builder.append("/");
+        for (Map.Entry<String, String> entry : values.entrySet()) {
+            builder.append(entry.getKey()).append("=").append(entry.getValue()).append("|");
+        }
+        return CryptUtil.sha256(builder.toString());
     }
 
     public void answerPrompts(Hashtable<String, String> answers) {
@@ -280,7 +312,7 @@ public class QueryScreen extends Screen {
         Multimap<String, String> requestData = getRequestData(false);
         InputStream response = makeQueryRequestReturnStream(url, requestData);
         Pair<ExternalDataInstance, String> instanceOrError = processResponse(response, url, requestData);
-        setQueryDatum(instanceOrError.first);
+        updateSession(instanceOrError.first);
         if (currentMessage != null) {
             out.println(currentMessage);
         }

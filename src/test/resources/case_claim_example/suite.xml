@@ -5,6 +5,11 @@
       <location authority="local">./form_placeholder.xml</location>
     </resource>
   </xform>
+  <locale language="default">
+    <resource id="default" version="1399" descriptor="Default">
+      <location authority="local">./app_strings.txt</location>
+    </resource>
+  </locale>
 
   <detail id="m0_case_short">
     <title>
@@ -57,7 +62,8 @@
     <session>
       <query url="https://www.fake.com/patient_search/" storage-instance="patients">
         <data key="device_id" ref="instance('session')/session/context/deviceid"/>
-        <data key="_xpath_query" ref="if(count(instance('search-input')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('search-input')/input/field[@name='patient_id']), '')"/>
+        <data key="patient_id" ref="if(count(instance('search-input:patients')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('search-input:patients')/input/field[@name='patient_id']), '')"/>
+        <data key="patient_id_legacy" ref="if(count(instance('search-input')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('search-input')/input/field[@name='patient_id']), '')"/>
         <prompt key="name" default="instance('session')/session/context/deviceid">
           <display>
             <text>
@@ -127,6 +133,20 @@
     <session>
       <query url="http://www.example.com/a/domain/phone/get_case/" storage-instance="registry1" template="case" default_search="true">
         <data key="case_type" ref="'case'"/>
+        <prompt key="name">
+          <display>
+            <text>
+              <locale id="query.name"/>
+            </text>
+          </display>
+        </prompt>
+        <prompt key="age">
+          <display>
+            <text>
+              <locale id="query.age"/>
+            </text>
+          </display>
+        </prompt>
       </query>
     </session>
   </entry>

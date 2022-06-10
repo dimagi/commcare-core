@@ -484,7 +484,9 @@ public class CommCareSession {
     }
 
     public void setDatum(String type, String keyId, String value, ExternalDataInstanceSource source) {
-        frame.pushStep(new StackFrameStep(type, keyId, value, source));
+        StackFrameStep step = new StackFrameStep(type, keyId, value);
+        step.addDataInstanceSource(source);
+        frame.pushStep(step);
         syncState();
     }
 
@@ -492,12 +494,15 @@ public class CommCareSession {
      * Set a (xml) data instance as the result to a session query datum.
      * The instance is available in session's evaluation context until the corresponding query frame is removed
      */
-    public void setQueryDatum(ExternalDataInstance queryResultInstance) {
+    public void setQueryDatum(ExternalDataInstance queryResultInstance, ExternalDataInstance... extras) {
         SessionDatum datum = getNeededDatum();
         if (datum instanceof RemoteQueryDatum) {
-            StackFrameStep step =
-                    new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST,
-                            datum.getDataId(), datum.getValue(), queryResultInstance.getSource());
+            StackFrameStep step = new StackFrameStep(
+                    SessionFrame.STATE_QUERY_REQUEST, datum.getDataId(), datum.getValue());
+            step.addDataInstanceSource(queryResultInstance.getSource());
+            for (ExternalDataInstance instance : extras) {
+                step.addDataInstanceSource(instance.getSource());
+            }
             frame.pushStep(step);
             syncState();
         } else {
@@ -636,11 +641,7 @@ public class CommCareSession {
     private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap,
                                        InstanceInitializationFactory iif) {
         for (StackFrameStep step : frame.getSteps()) {
-            if (step.hasXmlInstance()) {
-                ExternalDataInstanceSource instanceSource = step.getXmlInstanceSource();
-                ExternalDataInstance instance = instanceSource.toInstance();
-                instanceMap.put(step.getId(), instance.initialize(iif, instanceSource.getInstanceId()));
-            }
+            instanceMap.putAll(step.getInstances(iif));
         }
     }
 

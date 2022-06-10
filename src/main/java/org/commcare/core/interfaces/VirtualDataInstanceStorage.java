@@ -8,8 +8,9 @@ import java.util.UUID;
  * Read and write operations for entity selections made on a mult-select Entity Screen
  */
 public interface VirtualDataInstanceStorage {
-
     String write(ExternalDataInstance dataInstance);
+
+    String write(String key, ExternalDataInstance dataInstance);
 
     ExternalDataInstance read(String key);
 

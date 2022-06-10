@@ -144,9 +144,15 @@ public class RemoteQuerySessionManager {
 
     private EvaluationContext getEvaluationContextWithUserInputInstance() {
         Map<String, String> userQueryValues = getUserQueryValues(false);
-        ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(userQueryValues);
+        String instanceID = VirtualInstances.makeSearchInputInstanceID(queryDatum.getDataId());
+        ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(
+                instanceID, userQueryValues);
         return evaluationContext.spawnWithCleanLifecycle(
-                ImmutableMap.of(userInputInstance.getInstanceId(), userInputInstance)
+                ImmutableMap.of(
+                        userInputInstance.getInstanceId(), userInputInstance,
+                        // Temporary method to make the 'search-input' instance available using the legacy ID
+                        "search-input", userInputInstance
+                )
         );
     }
 
@@ -165,7 +171,7 @@ public class RemoteQuerySessionManager {
         ItemSetUtils.populateDynamicChoices(queryPrompt.getItemsetBinding(), evalContextWithAnswers);
     }
 
-    private Map<String, String> getUserQueryValues(boolean includeNulls) {
+    public Map<String, String> getUserQueryValues(boolean includeNulls) {
         Map<String, String> values = new HashMap<>();
         OrderedHashtable<String, QueryPrompt> queryPrompts = queryDatum.getUserQueryPrompts();
         for (Enumeration en = queryPrompts.keys(); en.hasMoreElements(); ) {
