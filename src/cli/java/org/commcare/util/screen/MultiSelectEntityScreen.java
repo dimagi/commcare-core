@@ -82,9 +82,10 @@ public class MultiSelectEntityScreen extends EntityScreen {
                 }
                 evaluatedValues[i] = getReturnValueFromSelection(currentReference);
             }
+
             ExternalDataInstance instance = VirtualInstances.buildSelectedValuesInstance(
                     getSession().getNeededDatum().getDataId(),
-                    selectedValues);
+                    evaluatedValues);
             String guid = virtualDataInstanceStorage.write(instance);
             storageReferenceId = guid;
 
