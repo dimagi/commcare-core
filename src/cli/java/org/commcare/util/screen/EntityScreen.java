@@ -258,7 +258,7 @@ public class EntityScreen extends CompoundScreenHost {
                     "selectedRefs should only contain one element for the single select Entity Screen");
         }
         setSelectedEntity(selectedRefs[0]);
-        showDetailScreen();
+        setCurrentScreenToDetail();
     }
 
     private void showDetailScreen() throws CommCareSessionException {
@@ -290,7 +290,7 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
-    public boolean setCurrentScreenToDetail() throws CommCareSessionException {
+    private boolean setCurrentScreenToDetail() throws CommCareSessionException {
         Detail[] longDetailList = getLongDetailList(mCurrentSelection);
         if (longDetailList == null) {
             return false;
