@@ -1,9 +1,12 @@
 package org.commcare.util.screen;
 
+import static org.commcare.util.screen.MultiSelectEntityScreen.USE_SELECTED_VALUES;
+
 import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
+import org.commcare.util.screen.MultiSelectEntityScreen;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.AccumulatingReporter;
@@ -236,10 +239,24 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
         if (handleCaseIndex) {
             try {
-                int index = Integer.parseInt(input);
-                TreeReference[] selectedRefs = new TreeReference[1];
-                selectedRefs[0] = mChoices[index];
-                host.updateSelection(input, selectedRefs);
+                if (input.contains(",")) {
+                    String[] inputArray = input.split(",");
+                    String[] inputValues = new String[inputArray.length];
+                    for (int i = 0; i < inputArray.length; i++) {
+                        int currentIndex = Integer.parseInt(inputArray[i]);
+                        inputValues[i] = host.getReturnValueFromSelection(mChoices[currentIndex]);
+                    }
+                    host.updateSelection(USE_SELECTED_VALUES, inputValues);
+                } else {
+                    int index = Integer.parseInt(input);
+                    TreeReference[] selectedRefs = new TreeReference[1];
+                    selectedRefs[0] = mChoices[index];
+                    if (host instanceof MultiSelectEntityScreen) {
+                        host.updateSelection(USE_SELECTED_VALUES, selectedRefs);
+                    } else {
+                        host.updateSelection(input, selectedRefs);
+                    }
+                }
                 return true;
             } catch (NumberFormatException e) {
                 // This will result in things just executing again, which is fine.
