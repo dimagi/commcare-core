@@ -7,7 +7,6 @@ import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.instance.LedgerInstanceTreeElement;
 import org.commcare.core.interfaces.UserSandbox;
-import org.commcare.core.interfaces.VirtualDataInstanceStorage;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
@@ -42,7 +41,6 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     private final CacheTable<String, TreeElement> fixtureBases = new CacheTable<>();
     protected final UserSandbox mSandbox;
     protected final CommCarePlatform mPlatform;
-    private VirtualDataInstanceStorage virtualDataInstanceStorage;
 
 
     // default constructor because Jython is annoying
