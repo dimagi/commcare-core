@@ -56,6 +56,8 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.*;
 
+import static org.commcare.util.screen.MultiSelectEntityScreen.USE_SELECTED_VALUES;
+
 /**
  * CLI host for running a commcare application which has been configured and instatiated
  * for the provided user.
@@ -322,7 +324,9 @@ public class ApplicationHost {
                     boolean waitForCaseDetail = false;
                     if (screen instanceof MultiSelectEntityScreen) {
                         String[] selectedValues = input.split(",");
-                        screen.handleInputAndUpdateSession(mSession, input, false, selectedValues);
+                        System.out.println("selectedValues");
+                        System.out.println(selectedValues);
+                        screen.handleInputAndUpdateSession(mSession, USE_SELECTED_VALUES, false, selectedValues);
                     } else {
                         if (screen instanceof EntityScreen) {
                             boolean isAction = input.startsWith("action "); // Don't wait for case detail if action

@@ -239,24 +239,22 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
         if (handleCaseIndex) {
             try {
-                if (input.contains(",")) {
-                    String[] inputArray = input.split(",");
-                    String[] inputValues = new String[inputArray.length];
-                    for (int i = 0; i < inputArray.length; i++) {
-                        int currentIndex = Integer.parseInt(inputArray[i]);
-                        inputValues[i] = host.getReturnValueFromSelection(mChoices[currentIndex]);
+                TreeReference[] selectedRefs;
+                if (input.contentEquals(USE_SELECTED_VALUES)) {
+                    if (selectedValues == null) {
+                        throw new IllegalArgumentException("selected values can't be null");
                     }
-                    host.updateSelection(USE_SELECTED_VALUES, inputValues);
+                    selectedRefs = new TreeReference[selectedValues.length];
+                    for (int i = 0; i < selectedValues.length; i++) {
+                        int index = Integer.parseInt(selectedValues[i]);
+                        selectedRefs[i] = mChoices[index];
+                    }
                 } else {
                     int index = Integer.parseInt(input);
-                    TreeReference[] selectedRefs = new TreeReference[1];
+                    selectedRefs = new TreeReference[1];
                     selectedRefs[0] = mChoices[index];
-                    if (host instanceof MultiSelectEntityScreen) {
-                        host.updateSelection(USE_SELECTED_VALUES, selectedRefs);
-                    } else {
-                        host.updateSelection(input, selectedRefs);
-                    }
                 }
+                host.updateSelection(input, selectedRefs);
                 return true;
             } catch (NumberFormatException e) {
                 // This will result in things just executing again, which is fine.
