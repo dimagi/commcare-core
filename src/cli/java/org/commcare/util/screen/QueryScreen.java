@@ -22,13 +22,9 @@ import org.commcare.suite.model.RemoteQueryDatum;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
-import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.core.util.OrderedHashtable;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -181,19 +177,8 @@ public class QueryScreen extends Screen {
             currentMessage = "Query result null.";
             return new Pair<>(null, currentMessage);
         }
-        Pair<ExternalDataInstance, String> instanceOrError;
-        try {
-            String instanceID = getQueryDatum().getDataId();
-            TreeElement root = ExternalDataInstance.parseExternalTree(responseData, instanceID);
-            ExternalDataInstanceSource instanceSource = ExternalDataInstanceSource.buildRemote(
-                    instanceID, root, getQueryDatum().useCaseTemplate(), url.toString(), requestData);
-            ExternalDataInstance instance = instanceSource.toInstance();
-            instanceOrError = new Pair<>(instance, "");
-        } catch (InvalidStructureException | IOException
-                | XmlPullParserException | UnfullfilledRequirementsException e) {
-            instanceOrError = new Pair<>(null, e.getMessage());
-        }
-
+        Pair<ExternalDataInstance, String> instanceOrError = remoteQuerySessionManager.buildExternalDataInstance(
+                responseData, url.toString(), requestData);
         if (instanceOrError.first == null) {
             currentMessage = "Query response format error: " + instanceOrError.second;
         }

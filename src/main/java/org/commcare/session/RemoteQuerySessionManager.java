@@ -6,6 +6,7 @@ import com.google.common.collect.Multimap;
 
 import org.commcare.cases.util.StringUtils;
 import org.commcare.data.xml.VirtualInstances;
+import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.QueryData;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
@@ -13,12 +14,19 @@ import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.utils.ItemSetUtils;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -257,5 +265,20 @@ public class RemoteQuerySessionManager {
 
     public RemoteQueryDatum getQueryDatum() {
         return queryDatum;
+    }
+
+    public Pair<ExternalDataInstance, String> buildExternalDataInstance(InputStream responseData, String url,
+            Multimap<String, String> requestData) {
+        try {
+            String instanceID = getQueryDatum().getDataId();
+            TreeElement root = ExternalDataInstance.parseExternalTree(responseData, instanceID);
+            ExternalDataInstanceSource instanceSource = ExternalDataInstanceSource.buildRemote(
+                    instanceID, root, getQueryDatum().useCaseTemplate(), url, requestData);
+            ExternalDataInstance instance = instanceSource.toInstance();
+            return new Pair<>(instance, "");
+        } catch (InvalidStructureException | IOException
+                | XmlPullParserException | UnfullfilledRequirementsException e) {
+            return new Pair<>(null, e.getMessage());
+        }
     }
 }
