@@ -79,13 +79,13 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     @Nonnull
     public InstanceRoot generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
-        if (ref.contentEquals(ExternalDataInstance.JR_LEDGER_DB_REFERENCE)) {
+        if (ref.contains(LedgerInstanceTreeElement.MODEL_NAME)) {
             return setupLedgerData(instance);
-        } else if (ref.contentEquals(ExternalDataInstance.JR_CASE_DB_REFERENCE)) {
+        } else if (ref.contains(CaseInstanceTreeElement.MODEL_NAME)) {
             return setupCaseData(instance);
         } else if (ref.contains("fixture")) {
             return setupFixtureData(instance);
-        } else if (ref.contentEquals(ExternalDataInstance.JR_SESSION_REFERENCE)) {
+        } else if (instance.getReference().contains("session")) {
             return setupSessionData(instance);
         } else if (ref.contentEquals(ExternalDataInstance.JR_REMOTE_REFERENCE)) {
             return setupRemoteData(instance);
