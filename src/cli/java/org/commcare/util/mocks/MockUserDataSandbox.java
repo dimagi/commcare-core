@@ -3,12 +3,9 @@ package org.commcare.util.mocks;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
-import org.commcare.core.interfaces.MemoryVirtualDataInstanceStorage;
 import org.commcare.core.interfaces.UserSandbox;
-import org.commcare.core.interfaces.VirtualDataInstanceStorage;
 import org.javarosa.core.model.IndexedFixtureIdentifier;
 import org.javarosa.core.model.User;
-import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -37,7 +34,6 @@ public class MockUserDataSandbox extends UserSandbox {
     private final HashMap<String, IndexedFixtureIdentifier> indexedFixtureBaseMap;
     private final IStorageUtilityIndexed<FormInstance> userFixtureStorage;
     private IStorageUtilityIndexed<FormInstance> appFixtureStorage;
-    private final VirtualDataInstanceStorage externalInstanceStorage;
 
     private User mUser;
     private String mSyncToken;
@@ -57,7 +53,6 @@ public class MockUserDataSandbox extends UserSandbox {
         indexedFixtureBaseMap = new HashMap<>();
         userFixtureStorage = new DummyIndexedStorageUtility<>(FormInstance.class, factory);
         appFixtureStorage = new DummyIndexedStorageUtility<>(FormInstance.class, factory);
-        externalInstanceStorage = new MemoryVirtualDataInstanceStorage();
 
         this.factory = factory;
     }
@@ -108,10 +103,6 @@ public class MockUserDataSandbox extends UserSandbox {
     public IStorageUtilityIndexed<FormInstance> getAppFixtureStorage() {
         return appFixtureStorage;
     }
-
-    public VirtualDataInstanceStorage getExternalInstanceStorage() {
-        return externalInstanceStorage;
-     }
 
     @Override
     public void setSyncToken(String syncToken) {
