@@ -323,8 +323,7 @@ public class ApplicationHost {
                     if (screen instanceof MultiSelectEntityScreen) {
                         String[] selectedValues = input.split(",");
                         screen.handleInputAndUpdateSession(mSession, input, false, selectedValues);
-                    }
-                    else {
+                    } else {
                         if (screen instanceof EntityScreen) {
                             boolean isAction = input.startsWith("action "); // Don't wait for case detail if action
                             EntityScreen eScreen = (EntityScreen)screen;
@@ -456,7 +455,7 @@ public class ApplicationHost {
             try {
                 return new MultiSelectEntityScreen(true, true, mSession, virtualInstanceStorage, false);
             } catch (CommCareSessionException ccse) {
-                ccse.printStackTrace();
+                printErrorAndContinue("Error during session execution:", ccse);
             }
         }
         throw new RuntimeException("Unexpected Frame Request: " + next);
