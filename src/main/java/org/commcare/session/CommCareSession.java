@@ -1,5 +1,7 @@
 package org.commcare.session;
 
+import static org.javarosa.core.model.Constants.EXTRA_POST_SUCCESS;
+
 import com.google.common.collect.Multimap;
 
 import org.commcare.suite.model.ComputedDatum;
@@ -166,6 +168,16 @@ public class CommCareSession {
         return null;
     }
 
+    /**
+     * Retrieve the single entry for the given command ID.
+     *
+     * @return The entry identified by the command or null if there is no entry with the given command.
+     */
+    @Nullable
+    public Entry getEntryForCommand(String commandID) {
+        return getPlatform().getEntry(commandID);
+    }
+
     private Vector<Entry> getStillValidEntriesFromMenu(Menu menu) {
         Hashtable<String, Entry> globalEntryMap = platform.getCommandToEntryMap();
         Vector<Entry> stillValid = new Vector<>();
@@ -207,16 +219,23 @@ public class CommCareSession {
         } else if (entriesForCurrentCommand.isEmpty()) {
             // No entries available directly within the current command, so we must need to select another menu
             return SessionFrame.STATE_COMMAND_ID;
-        } else if (entriesForCurrentCommand.size() == 1
-                && entriesForCurrentCommand.elementAt(0) instanceof RemoteRequestEntry
-                && ((RemoteRequestEntry)entriesForCurrentCommand.elementAt(0)).getPostRequest().isRelevant(evalContext)) {
-            return SessionFrame.STATE_SYNC_REQUEST;
-        } else if (entriesForCurrentCommand.size() > 1 || !entriesForCurrentCommand.elementAt(0).getCommandId().equals(currentCmd)) {
+        } else if (entriesForCurrentCommand.size() == 1) {
+            Entry entry = getEntryForCommand(currentCmd);
+            if (entry == null) {
+                // command doesn't reference an entry directly so the user must still select one
+                return SessionFrame.STATE_COMMAND_ID;
+            } else if (entry.getPostRequest() != null
+                    && getCurrentFrameStepExtra(EXTRA_POST_SUCCESS) == null
+                    && entry.getPostRequest().isRelevant(evalContext)
+            ) {
+                return SessionFrame.STATE_SYNC_REQUEST;
+            } else {
+                return null;
+            }
+        } else {
             //the only other thing we can need is a form command. If there's
             //still more than one applicable entry, we need to keep going
             return SessionFrame.STATE_COMMAND_ID;
-        } else {
-            return null;
         }
     }
 
@@ -465,7 +484,9 @@ public class CommCareSession {
     }
 
     public void setDatum(String type, String keyId, String value, ExternalDataInstanceSource source) {
-        frame.pushStep(new StackFrameStep(type, keyId, value, source));
+        StackFrameStep step = new StackFrameStep(type, keyId, value);
+        step.addDataInstanceSource(source);
+        frame.pushStep(step);
         syncState();
     }
 
@@ -473,12 +494,15 @@ public class CommCareSession {
      * Set a (xml) data instance as the result to a session query datum.
      * The instance is available in session's evaluation context until the corresponding query frame is removed
      */
-    public void setQueryDatum(ExternalDataInstance queryResultInstance) {
+    public void setQueryDatum(ExternalDataInstance queryResultInstance, ExternalDataInstance... extras) {
         SessionDatum datum = getNeededDatum();
         if (datum instanceof RemoteQueryDatum) {
-            StackFrameStep step =
-                    new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST,
-                            datum.getDataId(), datum.getValue(), queryResultInstance.getSource());
+            StackFrameStep step = new StackFrameStep(
+                    SessionFrame.STATE_QUERY_REQUEST, datum.getDataId(), datum.getValue());
+            step.addDataInstanceSource(queryResultInstance.getSource());
+            for (ExternalDataInstance instance : extras) {
+                step.addDataInstanceSource(instance.getSource());
+            }
             frame.pushStep(step);
             syncState();
         } else {
@@ -554,11 +578,7 @@ public class CommCareSession {
         }
 
         Entry e = platform.getCommandToEntryMap().get(command);
-        if (e.isView() || e.isRemoteRequest()) {
-            return null;
-        } else {
-            return ((FormEntry)e).getXFormNamespace();
-        }
+        return e.getXFormNamespace();
     }
 
     public String getCommand() {
@@ -621,11 +641,7 @@ public class CommCareSession {
     private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap,
                                        InstanceInitializationFactory iif) {
         for (StackFrameStep step : frame.getSteps()) {
-            if (step.hasXmlInstance()) {
-                ExternalDataInstanceSource instanceSource = step.getXmlInstanceSource();
-                ExternalDataInstance instance = instanceSource.toInstance();
-                instanceMap.put(step.getId(), instance.initialize(iif, instanceSource.getInstanceId()));
-            }
+            instanceMap.putAll(step.getInstances(iif));
         }
     }
 

@@ -70,7 +70,7 @@ public class EntityScreen extends CompoundScreenHost {
      * This constructor allows specifying whether to use the complete init or a minimal one
      *
      * @param handleCaseIndex Allow specifying entity by list index rather than unique ID
-     * @param needsFullInit            If set to false, the subscreen and referenceMap, used for
+     * @param needsFullInit   If set to false, the subscreen and referenceMap, used for
      *                        selecting and rendering entity details, will not be created.
      *                        This speeds up initialization but makes further selection impossible.
      */
@@ -104,6 +104,9 @@ public class EntityScreen extends CompoundScreenHost {
     @Trace
     public void init(SessionWrapper session) throws CommCareSessionException {
         if (initialized) {
+            if (session != this.mSession) {
+                throw new CommCareSessionException("Entity screen initialized with two different session wrappers");
+            }
             return;
         }
 
@@ -241,7 +244,27 @@ public class EntityScreen extends CompoundScreenHost {
      */
     public void updateSelection(String input, @Nullable String[] selectedValues) throws CommCareSessionException {
         setSelectedEntity(input);
+        showDetailScreen();
+    }
 
+    /**
+     * Updates entity selected on the screen
+     *
+     * @param input        input to the entity selected on the screen
+     * @param selectedRefs references for the selected entity, only contains a single element for the
+     *                     single-select entity screen
+     * @throws CommCareSessionException
+     */
+    public void updateSelection(String input, TreeReference[] selectedRefs) throws CommCareSessionException {
+        if (selectedRefs.length != 1) {
+            throw new IllegalArgumentException(
+                    "selectedRefs should only contain one element for the single select Entity Screen");
+        }
+        setSelectedEntity(selectedRefs[0]);
+        setCurrentScreenToDetail();
+    }
+
+    private void showDetailScreen() throws CommCareSessionException {
         if (isDetailScreen) {
             // Set entity screen to show detail and redraw
             setCurrentScreenToDetail();
@@ -270,7 +293,7 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
-    public boolean setCurrentScreenToDetail() throws CommCareSessionException {
+    private boolean setCurrentScreenToDetail() throws CommCareSessionException {
         Detail[] longDetailList = getLongDetailList(mCurrentSelection);
         if (longDetailList == null) {
             return false;

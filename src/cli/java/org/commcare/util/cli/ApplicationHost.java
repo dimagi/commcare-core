@@ -2,7 +2,9 @@ package org.commcare.util.cli;
 
 import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.cases.util.InvalidCaseGraphException;
+import org.commcare.core.interfaces.MemoryVirtualDataInstanceStorage;
 import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.core.interfaces.VirtualDataInstanceStorage;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.core.sandbox.SandboxUtils;
@@ -79,6 +81,10 @@ public class ApplicationHost {
     private String password;
     private String mRestoreFile;
     private String mRestoreStrategy = null;
+
+    private SessionUtils mSessionUtils = new SessionUtils();
+
+    private VirtualDataInstanceStorage virtualInstanceStorage = new MemoryVirtualDataInstanceStorage();
 
     public ApplicationHost(CommCareConfigEngine engine,
                            PrototypeFactory prototypeFactory,
@@ -433,10 +439,10 @@ public class ApplicationHost {
             return new EntityScreen(true);
         } else if (next.equals(SessionFrame.STATE_QUERY_REQUEST)) {
             checkUsernamePasswordValid();
-            return new QueryScreen(qualifiedUsername, password, System.out);
+            return new QueryScreen(qualifiedUsername, password, System.out, virtualInstanceStorage);
         } else if (next.equals(SessionFrame.STATE_SYNC_REQUEST)) {
             checkUsernamePasswordValid();
-            return new SyncScreen(qualifiedUsername, password, System.out);
+            return new SyncScreen(qualifiedUsername, password, System.out, mSessionUtils);
         } else if (next.equalsIgnoreCase(SessionFrame.STATE_DATUM_COMPUTED)) {
             computeDatum();
             return getNextScreen();
@@ -483,7 +489,7 @@ public class ApplicationHost {
 
         mSandbox = sandbox;
         if (mRestoreStrategy == "remote") {
-            SessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
+            mSessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
         } else if (mRestoreStrategy == "file" && mRestoreFile != null) {
             restoreFileToSandbox(mSandbox, mRestoreFile);
         } else if (mRestoreStrategy == "demo") {
@@ -554,7 +560,7 @@ public class ApplicationHost {
         performCasePurge(mSandbox);
         if (username != null && password != null) {
             System.out.println("Requesting sync...");
-            SessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
+            mSessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
         } else {
             printStream.println("Syncing is only available when using raw user credentials");
         }
@@ -590,4 +596,7 @@ public class ApplicationHost {
         }
     }
 
+    public void setSessionUtils(SessionUtils sessionUtils) {
+        mSessionUtils = sessionUtils;
+    }
 }

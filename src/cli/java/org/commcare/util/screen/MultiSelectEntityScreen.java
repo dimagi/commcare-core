@@ -50,6 +50,16 @@ public class MultiSelectEntityScreen extends EntityScreen {
         setSelectedEntities(input, selectedValues);
     }
 
+    @Override
+    public void updateSelection(String input, TreeReference[] selectedRefs)
+            throws CommCareSessionException {
+        if (input.contentEquals(USE_SELECTED_VALUES)) {
+            processSelectedReferences(selectedRefs);
+        } else {
+            prcessSelectionAsGuid(input);
+        }
+    }
+
     private void setSelectedEntities(String input, @Nullable String[] selectedValues)
             throws CommCareSessionException {
         if (input.contentEquals(USE_SELECTED_VALUES)) {
@@ -69,6 +79,14 @@ public class MultiSelectEntityScreen extends EntityScreen {
         storageReferenceId = guid;
     }
 
+    private void processSelectedReferences(TreeReference[] selectedRefs) {
+        String[] evaluatedValues = new String[selectedRefs.length];
+        for (int i = 0; i < selectedRefs.length; i++) {
+            evaluatedValues[i] = getReturnValueFromSelection(selectedRefs[i]);
+        }
+        processSelectionIntoInstance(evaluatedValues);
+    }
+
     private void processSelectedValues(String[] selectedValues)
             throws CommCareSessionException {
         if (selectedValues != null) {
@@ -82,17 +100,21 @@ public class MultiSelectEntityScreen extends EntityScreen {
                 }
                 evaluatedValues[i] = getReturnValueFromSelection(currentReference);
             }
-            ExternalDataInstance instance = VirtualInstances.buildSelectedValuesInstance(
-                    getSession().getNeededDatum().getDataId(),
-                    selectedValues);
-            String guid = virtualDataInstanceStorage.write(instance);
-            storageReferenceId = guid;
-
-            // rebuild instance with the source
-            ExternalDataInstanceSource instanceSource = buildSelectedValuesInstanceSource(instance,
-                    storageReferenceId);
-            selectedValuesInstance = instanceSource.toInstance();
+            processSelectionIntoInstance(evaluatedValues);
         }
+    }
+
+    private void processSelectionIntoInstance(String[] evaluatedValues) {
+        ExternalDataInstance instance = VirtualInstances.buildSelectedValuesInstance(
+                getSession().getNeededDatum().getDataId(),
+                evaluatedValues);
+        String guid = virtualDataInstanceStorage.write(instance);
+        storageReferenceId = guid;
+
+        // rebuild instance with the source
+        ExternalDataInstanceSource instanceSource = ExternalDataInstanceSource.buildVirtual(instance,
+                storageReferenceId);
+        selectedValuesInstance = instanceSource.toInstance();
     }
 
     @Override
@@ -110,7 +132,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
             if (selectedValuesInstance == null) {
                 selectedValuesInstance = virtualDataInstanceStorage.read(storageReferenceId);
             }
-            ExternalDataInstanceSource externalDataInstanceSource = buildSelectedValuesInstanceSource(
+            ExternalDataInstanceSource externalDataInstanceSource = ExternalDataInstanceSource.buildVirtual(
                     selectedValuesInstance, storageReferenceId);
             session.setDatum(STATE_MULTIPLE_DATUM_VAL, mNeededDatum.getDataId(),
                     storageReferenceId, externalDataInstanceSource);
@@ -121,7 +143,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
     public void updateDatum(CommCareSession session, String input) {
         storageReferenceId = input;
         selectedValuesInstance = virtualDataInstanceStorage.read(storageReferenceId);
-        ExternalDataInstanceSource externalDataInstanceSource = buildSelectedValuesInstanceSource(
+        ExternalDataInstanceSource externalDataInstanceSource = ExternalDataInstanceSource.buildVirtual(
                 selectedValuesInstance, storageReferenceId);
         session.setDatum(STATE_MULTIPLE_DATUM_VAL, session.getNeededDatum().getDataId(),
                 input, externalDataInstanceSource);
@@ -139,22 +161,12 @@ public class MultiSelectEntityScreen extends EntityScreen {
                     if (caseCount > 1) {
                         return "(" + caseCount + ") " + caseName + ", ...";
                     } else {
-                       return caseName;
+                        return caseName;
                     }
                 }
             }
         }
         return ScreenUtils.getBestTitle(session);
-    }
-
-    private static ExternalDataInstanceSource buildSelectedValuesInstanceSource(
-            ExternalDataInstance selectedValuesInstance, String storageReferenceId) {
-        return ExternalDataInstanceSource.buildVirtual(
-                selectedValuesInstance.getInstanceId(),
-                (TreeElement)selectedValuesInstance.getRoot(),
-                selectedValuesInstance.getReference(),
-                selectedValuesInstance.useCaseTemplate(),
-                storageReferenceId);
     }
 
     @Override

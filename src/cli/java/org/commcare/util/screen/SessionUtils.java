@@ -1,9 +1,12 @@
 package org.commcare.util.screen;
 
+import com.google.common.collect.Multimap;
+
 import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.modern.session.SessionWrapper;
+import org.commcare.suite.model.PostRequest;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.PropertyManager;
@@ -20,9 +23,18 @@ import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 
-public class SessionUtils {
+import okhttp3.Credentials;
+import okhttp3.HttpUrl;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
-    public static void restoreUserToSandbox(UserSandbox sandbox,
+public class SessionUtils {
+    public SessionUtils() {}
+
+    public void restoreUserToSandbox(UserSandbox sandbox,
                                             SessionWrapper session,
                                             CommCarePlatform platform,
                                             String username,
@@ -116,5 +128,50 @@ public class SessionUtils {
             // old session data is now no longer valid
             session.clearVolatiles();
         }
+    }
+
+    public int doPostRequest(
+            PostRequest syncPost,
+            SessionWrapper session,
+            final String username,
+            final String password,
+            PrintStream printStream
+    ) throws IOException {
+        String url = buildUrl(syncPost.getUrl().toString());
+        Multimap<String, String> params = syncPost.getEvaluatedParams(
+                session.getEvaluationContext(), false);
+        printStream.println(String.format("Syncing with url %s and parameters %s", url, params));
+        MultipartBody postBody = buildPostBody(params);
+        String credential = Credentials.basic(username, password);
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", RequestBody.create(new byte[0]))
+                .header("Authorization", credential)
+                .post(postBody)
+                .build();
+        OkHttpClient client = new OkHttpClient();
+        Response response = client.newCall(request).execute();
+        if (!response.isSuccessful()) {
+            String message = String.format("Post request failed with response code %s and message %s",
+                    response.code(), response.body());
+            printStream.println(message);
+            printStream.println("Press 'enter' to retry.");
+            throw new IOException(message);
+        }
+        return response.code();
+    }
+
+    private static String buildUrl(String baseUrl) {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
+        return urlBuilder.build().toString();
+    }
+
+    private static MultipartBody buildPostBody(Multimap<String, String> params) {
+        MultipartBody.Builder requestBodyBuilder = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM);
+        // Add buffer param since this is necessary for some reason
+        requestBodyBuilder.addFormDataPart("buffer", "buffer");
+        params.forEach(requestBodyBuilder::addFormDataPart);
+        return requestBodyBuilder.build();
     }
 }

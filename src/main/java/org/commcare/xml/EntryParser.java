@@ -112,7 +112,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
         if (isViewEntry) {
             return new ViewEntry(commandId, display, data, instances, stackOps, assertions);
         } else if (FORM_ENTRY_TAG.equals(parserBlockTag)) {
-            return new FormEntry(commandId, display, data, xFormNamespace, instances, stackOps, assertions);
+            return new FormEntry(commandId, display, data, xFormNamespace, instances, stackOps, assertions, post);
         } else if (REMOTE_REQUEST_TAG.equals(parserBlockTag)) {
             if (post == null) {
                 throw new RuntimeException(REMOTE_REQUEST_TAG + " must contain a <post> element");

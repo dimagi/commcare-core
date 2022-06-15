@@ -1,24 +1,16 @@
 package org.commcare.util.screen;
 
-import com.google.common.collect.Multimap;
+import static org.javarosa.core.model.Constants.EXTRA_POST_SUCCESS;
 
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.PostRequest;
-import org.commcare.suite.model.RemoteRequestEntry;
 
 import java.io.IOException;
 import java.io.PrintStream;
 
 import datadog.trace.api.Trace;
-import okhttp3.Credentials;
-import okhttp3.HttpUrl;
-import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 /**
  * Screen to make a sync request to HQ after a case claim. Unlike other all other screens,
@@ -31,13 +23,18 @@ public class SyncScreen extends Screen {
     private String username;
     private String password;
     private PrintStream printStream;
+    private SessionUtils sessionUtils;
     private boolean syncSuccessful;
 
-    public SyncScreen(String username, String password, PrintStream printStream) {
+    public SyncScreen() {
+    }
+
+    public SyncScreen(String username, String password, PrintStream printStream, SessionUtils sessionUtils) {
         super();
         this.username = username;
         this.password = password;
         this.printStream = printStream;
+        this.sessionUtils = sessionUtils;
     }
 
     @Override
@@ -47,34 +44,20 @@ public class SyncScreen extends Screen {
     }
 
     private void parseMakeRequest() throws CommCareSessionException {
-        String command = sessionWrapper.getCommand();
-        Entry commandEntry = sessionWrapper.getPlatform().getEntry(command);
-
-        if (!(commandEntry instanceof RemoteRequestEntry)) {
-            // expected a sync entry; clear session and show vague 'session error' message to user
-            throw new CommCareSessionException("Initialized sync request while not on sync screen");
-        }
-
-        PostRequest syncPost = ((RemoteRequestEntry)commandEntry).getPostRequest();
+        PostRequest postRequest = getPostRequest();
         try {
-            Response response = makeSyncRequest(syncPost);
-            if (!response.isSuccessful()) {
-                printStream.println(
-                        String.format("Sync request failed with response code %s and message %s", response.code(),
-                                response.body()));
-                printStream.println("Press 'enter' to retry.");
-                return;
-            }
+            int responseCode = sessionUtils.doPostRequest(
+                    postRequest, sessionWrapper, username, password, printStream
+            );
             syncSuccessful = true;
-            if (response.code() != 204) {
-                SessionUtils.restoreUserToSandbox(sessionWrapper.getSandbox(),
+            if (responseCode != 204) {
+                sessionUtils.restoreUserToSandbox(sessionWrapper.getSandbox(),
                     sessionWrapper,
                     sessionWrapper.getPlatform(),
                     username,
                     password,
                     printStream);
-
-                printStream.println(String.format("Sync successful with response %s", response));
+                printStream.println("Sync successful with response");
             } else {
                 printStream.println("Did not sync because case was already claimed.");
             }
@@ -86,36 +69,23 @@ public class SyncScreen extends Screen {
         }
     }
 
-    private static String buildUrl(String baseUrl) {
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
-        return urlBuilder.build().toString();
-    }
-
-    private static MultipartBody buildPostBody(Multimap<String, String> params) {
-        MultipartBody.Builder requestBodyBuilder = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM);
-        // Add buffer param since this is necessary for some reason
-        requestBodyBuilder.addFormDataPart("buffer", "buffer");
-        params.forEach(requestBodyBuilder::addFormDataPart);
-        return requestBodyBuilder.build();
-    }
-
-    private Response makeSyncRequest(PostRequest syncPost) throws CommCareSessionException, IOException {
-        Multimap<String, String> params = syncPost.getEvaluatedParams(sessionWrapper.getEvaluationContext(),
-                false);
-        String url = buildUrl(syncPost.getUrl().toString());
-        printStream.println(String.format("Syncing with url %s and parameters %s", url, params));
-        MultipartBody postBody = buildPostBody(params);
-        String credential = Credentials.basic(username, password);
-
-        Request request = new Request.Builder()
-                .url(url)
-                .method("POST", RequestBody.create(null, new byte[0]))
-                .header("Authorization", credential)
-                .post(postBody)
-                .build();
-        OkHttpClient client = new OkHttpClient();
-        return client.newCall(request).execute();
+    /**
+     * Get the {@link PostRequest} for the current entry.
+     * @throws CommCareSessionException if there is no current entry or the post request is null
+     */
+    protected PostRequest getPostRequest() throws CommCareSessionException {
+        String command = sessionWrapper.getCommand();
+        Entry commandEntry = sessionWrapper.getEntryForCommand(command);
+        if (commandEntry == null) {
+            throw new CommCareSessionException(
+                    String.format("Initialized sync request outside of an entry: %s", command));
+        }
+        PostRequest syncPost = commandEntry.getPostRequest();
+        if (syncPost == null) {
+            // expected a sync entry; clear session and show vague 'session error' message to user
+            throw new CommCareSessionException("Initialized sync request while not on sync screen");
+        }
+        return syncPost;
     }
 
     @Override
@@ -133,6 +103,13 @@ public class SyncScreen extends Screen {
     public boolean handleInputAndUpdateSession(CommCareSession commCareSession, String s, boolean allowAutoLaunch,
             String[] selectedValues) throws CommCareSessionException {
         if (syncSuccessful) {
+            updateSessionOnSuccess();
+            Entry commandEntry = sessionWrapper.getCurrentEntry();
+            if (commandEntry.getXFormNamespace() != null) {
+                // session is not complete, keep going
+                return true;
+            }
+
             commCareSession.syncState();
             if (commCareSession.finishExecuteAndPop(sessionWrapper.getEvaluationContext())) {
                 sessionWrapper.clearVolatiles();
@@ -142,6 +119,10 @@ public class SyncScreen extends Screen {
             parseMakeRequest();
             return false;
         }
+    }
+
+    public void updateSessionOnSuccess() {
+        sessionWrapper.addExtraToCurrentFrameStep(EXTRA_POST_SUCCESS, true);
     }
 
     @Override

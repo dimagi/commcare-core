@@ -2,6 +2,7 @@ package org.commcare.backend.suite.model.test;
 
 import com.google.common.collect.ImmutableMultimap;
 
+import org.commcare.core.interfaces.MemoryVirtualDataInstanceStorage;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Action;
@@ -157,7 +158,9 @@ public class StackFrameStepTests {
 
         assertEquals(SessionFrame.STATE_QUERY_REQUEST, session.getNeededData());
         // construct the screen
-        QueryScreen screen = new QueryScreen("username", "password", System.out);
+        QueryScreen screen = new QueryScreen(
+                "username", "password",
+                System.out, new MemoryVirtualDataInstanceStorage());
         screen.init(session);
 
         // mock the query response

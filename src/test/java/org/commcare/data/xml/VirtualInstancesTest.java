@@ -20,7 +20,8 @@ public class VirtualInstancesTest {
     public void testBuildSearchInputRoot()
             throws UnfullfilledRequirementsException, XmlPullParserException,
             InvalidStructureException, IOException {
-        ExternalDataInstance instance = VirtualInstances.buildSearchInputInstance(ImmutableMap.of(
+        String instanceID = "search-input";
+        ExternalDataInstance instance = VirtualInstances.buildSearchInputInstance(instanceID, ImmutableMap.of(
                 "key0", "val0",
                 "key1", "val1",
                 "key2", "val2"
@@ -35,7 +36,7 @@ public class VirtualInstancesTest {
         );
         TreeElement expected = ExternalDataInstance.parseExternalTree(
                 new ByteArrayInputStream(expectedXml.getBytes(StandardCharsets.UTF_8)),
-                VirtualInstances.SEARCH_INSTANCE_ID
+                instanceID
         );
         assertEquals(expected, instance.getRoot());
     }

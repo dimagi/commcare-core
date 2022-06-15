@@ -81,6 +81,17 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
 
 
     public static ExternalDataInstanceSource buildVirtual(
+            ExternalDataInstance instance, String storageReferenceId) {
+        return buildVirtual(
+                instance.getInstanceId(),
+                (TreeElement)instance.getRoot(),
+                instance.getReference(),
+                instance.useCaseTemplate(),
+                storageReferenceId
+        );
+    }
+
+    public static ExternalDataInstanceSource buildVirtual(
             String instanceId, @Nullable TreeElement root,
             String reference, boolean useCaseTemplate,
             String storageReferenceId) {
