@@ -324,8 +324,6 @@ public class ApplicationHost {
                     boolean waitForCaseDetail = false;
                     if (screen instanceof MultiSelectEntityScreen) {
                         String[] selectedValues = input.split(",");
-                        System.out.println("selectedValues");
-                        System.out.println(selectedValues);
                         screen.handleInputAndUpdateSession(mSession, USE_SELECTED_VALUES, false, selectedValues);
                     } else {
                         if (screen instanceof EntityScreen) {
