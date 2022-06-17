@@ -5,8 +5,8 @@ import org.junit.Test;
 
 /**
  *
- * Tests for the GetJsonProperty
- * <p>
+ * <p>Tests for the GetJsonProperty
+ *
  * @author rcostello
  */
 
