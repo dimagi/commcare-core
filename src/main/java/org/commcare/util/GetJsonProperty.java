@@ -1,10 +1,9 @@
 package org.commcare.util;
 
-import org.json.JSONObject;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 /** 
- * 
  * @author rcostello
  * @return A String value for the property name passed in if that property exists else a blank String
  */
