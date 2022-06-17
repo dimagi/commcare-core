@@ -3,13 +3,6 @@ package org.commcare.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- *
- * Tests for the GetJsonProperty
- *
- * @author rcostello
- */
-
 public class GetJsonPropertyTest {
 
     @Test
