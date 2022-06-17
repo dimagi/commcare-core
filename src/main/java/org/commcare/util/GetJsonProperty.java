@@ -11,8 +11,8 @@ import org.json.JSONObject;
 
 public class GetJsonProperty {
 
-    public static String getJsonProperty(String stringifiedJsonOblect, String propertyName) {
-        JSONObject parsedObject = new JSONObject(stringifiedJsonOblect);
+    public static String getJsonProperty(String stringifiedJsonObject, String propertyName) {
+        JSONObject parsedObject = new JSONObject(stringifiedJsonObject);
         String value = "";
         try {
             value = parsedObject.getString(propertyName);
