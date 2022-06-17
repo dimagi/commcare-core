@@ -162,13 +162,8 @@ public class RemoteQuerySessionManager {
     }
 
     public void populateItemSetChoices(QueryPrompt queryPrompt) {
-        EvaluationContext evalContextWithAnswers = evaluationContext.spawnWithCleanLifecycle();
-        Map<String, String> userQueryValues = getUserQueryValues(true);
-        userQueryValues.forEach((promptId, value) -> {
-            evalContextWithAnswers.setVariable(promptId, userAnswers.get(promptId));
-        });
-
-        ItemSetUtils.populateDynamicChoices(queryPrompt.getItemsetBinding(), evalContextWithAnswers);
+        ItemSetUtils.populateDynamicChoices(queryPrompt.getItemsetBinding(),
+                getEvaluationContextWithUserInputInstance());
     }
 
     public Map<String, String> getUserQueryValues(boolean includeNulls) {
