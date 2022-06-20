@@ -324,7 +324,10 @@ public class ApplicationHost {
                     boolean waitForCaseDetail = false;
                     if (screen instanceof MultiSelectEntityScreen) {
                         String[] selectedValues = input.split(",");
-                        screenIsRedrawing = screen.handleInputAndUpdateSession(mSession, USE_SELECTED_VALUES, false, selectedValues);
+                        screenIsRedrawing = screen.handleInputAndUpdateSession(mSession,
+                                                                               USE_SELECTED_VALUES,
+                                                                               false,
+                                                                               selectedValues);
                     } else {
                         if (screen instanceof EntityScreen) {
                             boolean isAction = input.startsWith("action "); // Don't wait for case detail if action
