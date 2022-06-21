@@ -114,6 +114,10 @@ public class StackFrameStep implements Externalizable {
         dataInstanceSources.put(instanceId, source);
     }
 
+    public Hashtable<String, ExternalDataInstanceSource> getDataInstanceSources() {
+        return dataInstanceSources;
+    }
+
     public boolean hasDataInstanceSource(String instanceId) {
         return dataInstanceSources.containsKey(instanceId);
     }

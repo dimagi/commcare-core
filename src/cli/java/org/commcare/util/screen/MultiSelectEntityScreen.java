@@ -199,6 +199,13 @@ public class MultiSelectEntityScreen extends EntityScreen {
     }
 
     @Override
+    public boolean handleInputAndUpdateSession(CommCareSession session, String input,
+            boolean allowAutoLaunch, String[] selectedValues) throws CommCareSessionException {
+        super.handleInputAndUpdateSession(session, input, allowAutoLaunch, selectedValues);
+        return false;
+    }
+
+    @Override
     public String toString() {
         return "MultiSelectEntityScreen [id=" + mNeededDatum.getDataId() + ", selection=" + storageReferenceId + "]";
     }
