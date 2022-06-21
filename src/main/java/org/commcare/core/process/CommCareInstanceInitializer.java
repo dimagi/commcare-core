@@ -91,10 +91,10 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             return setupRemoteData(instance);
         } else if (ref.contains("migration")) {
             return setupMigrationData(instance);
-        } else if (ref.contentEquals(JR_SELECTED_ENTITIES_REFERENCE)) {
-            return setupSelectedEntities(instance);
-        } else if (ref.contentEquals(JR_SEARCH_INPUT_REFERENCE)) {
-            return getExternalDataInstanceSource(instance, SessionFrame.STATE_QUERY_REQUEST);
+        } else if (ref.startsWith(JR_SELECTED_ENTITIES_REFERENCE)) {
+            return setupExternalDataInstance(instance, ref, SessionFrame.STATE_MULTIPLE_DATUM_VAL);
+        } else if (ref.startsWith(JR_SEARCH_INPUT_REFERENCE)) {
+            return setupExternalDataInstance(instance, ref, SessionFrame.STATE_QUERY_REQUEST);
         }
         return ConcreteInstanceRoot.NULL;
     }
@@ -103,10 +103,19 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
      * Initialises instances with reference to 'selected_cases'
      *
      * @param instance Selected Cases Instance that needs to be initialised
+     * @param reference instance source reference
      * @return Initialised instance root for the the given instance
      */
-    protected InstanceRoot setupSelectedEntities(ExternalDataInstance instance) {
-        return getExternalDataInstanceSource(instance, SessionFrame.STATE_MULTIPLE_DATUM_VAL);
+    protected InstanceRoot setupExternalDataInstance(ExternalDataInstance instance, String reference, String stepType) {
+        String referenceId = getRefId(reference);
+        InstanceRoot instanceRoot = getExternalDataInstanceSource(instance, referenceId, stepType);
+
+        if (instanceRoot == null) {
+            // Maintain backward compatibility with instance references that don't have a id in reference
+            // should be removed once we move all external data references to jr://instance/<schema>/<id>
+            instanceRoot = getExternalDataInstanceSource(instance, instance.getInstanceId(), stepType);
+        }
+        return instanceRoot;
     }
 
     protected InstanceRoot setupLedgerData(ExternalDataInstance instance) {
@@ -135,7 +144,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
 
     protected static String getRefId(String reference) {
-        return reference.substring(reference.lastIndexOf('/') + 1, reference.length());
+        return reference.substring(reference.lastIndexOf('/') + 1);
     }
 
     protected TreeElement loadFixtureRoot(ExternalDataInstance instance,
@@ -198,13 +207,15 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
 
     protected InstanceRoot setupRemoteData(ExternalDataInstance instance) {
-        return getExternalDataInstanceSource(instance, SessionFrame.STATE_QUERY_REQUEST);
+        return getExternalDataInstanceSource(instance, instance.getInstanceId(),
+                SessionFrame.STATE_QUERY_REQUEST);
     }
 
-    protected InstanceRoot getExternalDataInstanceSource(ExternalDataInstance instance, String stepType) {
+    protected InstanceRoot getExternalDataInstanceSource(
+            ExternalDataInstance instance, String instanceId, String stepType) {
         for (StackFrameStep step : session.getFrame().getSteps()) {
-            if (step.getType().equals(stepType) && step.hasDataInstanceSource(instance.getInstanceId())) {
-                return step.getDataInstanceSource(instance.getInstanceId());
+            if (step.getType().equals(stepType) && step.hasDataInstanceSource(instanceId)) {
+                return step.getDataInstanceSource(instanceId);
             }
         }
         return instance.getSource() == null ? ConcreteInstanceRoot.NULL : instance.getSource();
