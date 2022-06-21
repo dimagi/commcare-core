@@ -340,6 +340,14 @@ public class ApplicationHost {
                     }
                     if (!screenIsRedrawing && !waitForCaseDetail) {
                         screen = getNextScreen();
+                        if (screen instanceof EntityScreen) {
+                            EntityScreen entityScreen = (EntityScreen)screen;
+                            entityScreen.evaluateAutoLaunch("");
+                            if (entityScreen.getAutoLaunchAction() != null) {
+                                screen.handleInputAndUpdateSession(mSession, input, true, null);
+                                screen = getNextScreen();
+                            }
+                        }
                     }
                 } catch (CommCareSessionException ccse) {
                     printErrorAndContinue("Error during session execution:", ccse);
