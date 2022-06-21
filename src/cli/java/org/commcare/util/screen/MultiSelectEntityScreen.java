@@ -197,4 +197,9 @@ public class MultiSelectEntityScreen extends EntityScreen {
     public String getStorageReferenceId() {
         return storageReferenceId;
     }
+
+    @Override
+    public String toString() {
+        return "MultiSelectEntityScreen [id=" + mNeededDatum.getDataId() + ", selection=" + storageReferenceId + "]";
+    }
 }

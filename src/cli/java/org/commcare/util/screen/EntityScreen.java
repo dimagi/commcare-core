@@ -393,7 +393,7 @@ public class EntityScreen extends CompoundScreenHost {
 
     @Override
     public String toString() {
-        return "EntityScreen [Detail=" + mShortDetail + ", selection=" + mCurrentSelection + "]";
+        return "EntityScreen [id=" + mNeededDatum.getDataId() + ", selection=" + mCurrentSelection + "]";
     }
 
     // Used by Formplayer
