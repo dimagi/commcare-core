@@ -2,6 +2,8 @@ package org.commcare.util.screen;
 
 import static org.commcare.session.SessionFrame.STATE_MULTIPLE_DATUM_VAL;
 
+import com.google.common.collect.ImmutableMap;
+
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.interfaces.VirtualDataInstanceStorage;
 import org.commcare.data.xml.VirtualInstances;
@@ -9,12 +11,13 @@ import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.MultiSelectEntityDatum;
 import org.commcare.util.FormDataUtil;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
-import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -167,6 +170,19 @@ public class MultiSelectEntityScreen extends EntityScreen {
             }
         }
         return ScreenUtils.getBestTitle(session);
+    }
+
+    @Nonnull
+    @Override
+    protected EvaluationContext getAutoLaunchEvaluationContext(String nextInput) {
+        if (!referencesContainStep(nextInput)) {
+                return super.getAutoLaunchEvaluationContext(nextInput);
+        }
+
+        ExternalDataInstance instance = virtualDataInstanceStorage.read(nextInput);
+        return getEvalContext().spawnWithCleanLifecycle(ImmutableMap.of(
+                "next_input", instance
+        ));
     }
 
     @Override

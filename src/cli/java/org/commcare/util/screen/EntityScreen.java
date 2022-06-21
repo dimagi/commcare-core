@@ -22,6 +22,7 @@ import org.javarosa.core.util.NoLocalizedTextException;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import datadog.trace.api.Trace;
@@ -89,8 +90,7 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     public void evaluateAutoLaunch(String nextInput) throws CommCareSessionException {
-        EvaluationContext subContext = evalContext.spawnWithCleanLifecycle();
-        subContext.setVariable("next_input", nextInput);
+        EvaluationContext subContext = getAutoLaunchEvaluationContext(nextInput);
         for (Action action : mShortDetail.getCustomActions(evalContext)) {
             if (action.isAutoLaunchAction(subContext)) {
                 // Supply an empty case list so we can "select" from it later using getEntityFromID
@@ -99,6 +99,13 @@ public class EntityScreen extends CompoundScreenHost {
                 this.autoLaunchAction = action;
             }
         }
+    }
+
+    @Nonnull
+    protected EvaluationContext getAutoLaunchEvaluationContext(String nextInput) {
+        EvaluationContext subContext = evalContext.spawnWithCleanLifecycle();
+        subContext.setVariable("next_input", nextInput);
+        return subContext;
     }
 
     @Trace
