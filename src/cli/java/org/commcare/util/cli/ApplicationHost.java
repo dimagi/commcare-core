@@ -449,7 +449,7 @@ public class ApplicationHost {
             return new EntityScreen(true);
         } else if (next.equals(SessionFrame.STATE_QUERY_REQUEST)) {
             checkUsernamePasswordValid();
-            return new QueryScreen(qualifiedUsername, password, System.out, virtualInstanceStorage);
+            return new QueryScreen(qualifiedUsername, password, System.out, virtualInstanceStorage, mSessionUtils);
         } else if (next.equals(SessionFrame.STATE_SYNC_REQUEST)) {
             checkUsernamePasswordValid();
             return new SyncScreen(qualifiedUsername, password, System.out, mSessionUtils);
