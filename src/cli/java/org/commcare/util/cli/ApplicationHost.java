@@ -341,6 +341,7 @@ public class ApplicationHost {
                     if (!screenIsRedrawing && !waitForCaseDetail) {
                         screen = getNextScreen();
                         if (screen instanceof EntityScreen) {
+                            screen.init(mSession);
                             EntityScreen entityScreen = (EntityScreen)screen;
                             entityScreen.evaluateAutoLaunch("");
                             if (entityScreen.getAutoLaunchAction() != null) {
