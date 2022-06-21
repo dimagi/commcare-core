@@ -102,11 +102,12 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     /**
      * Initialises instances with reference to 'selected_cases'
      *
-     * @param instance Selected Cases Instance that needs to be initialised
+     * @param instance  Selected Cases Instance that needs to be initialised
      * @param reference instance source reference
      * @return Initialised instance root for the the given instance
      */
-    protected InstanceRoot setupExternalDataInstance(ExternalDataInstance instance, String reference, String stepType) {
+    protected InstanceRoot setupExternalDataInstance(ExternalDataInstance instance, String reference,
+            String stepType) {
         String referenceId = getRefId(reference);
         InstanceRoot instanceRoot = getExternalDataInstanceSource(instance, referenceId, stepType);
 
