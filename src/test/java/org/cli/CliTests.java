@@ -3,6 +3,7 @@ package org.cli;
 import org.commcare.util.cli.ApplicationHost;
 import org.commcare.util.cli.CliCommand;
 import org.commcare.util.engine.CommCareConfigEngine;
+import org.commcare.util.screen.SessionUtils;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.junit.Assert;
@@ -12,10 +13,9 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.StringReader;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 
 import static junit.framework.TestCase.assertTrue;
@@ -39,9 +39,9 @@ public class CliTests {
                 String steps,
                 String endpointId,
                 String[] endpointArgs,
-                boolean debug) {
+                boolean debug, SessionUtils sessionUtils) {
             ApplicationHost host = buildApplicationHost(
-                    applicationPath, restoreResource, processor, steps, debug);
+                    applicationPath, restoreResource, processor, steps, debug, sessionUtils);
             boolean passed = false;
             try {
                 host.run(endpointId, endpointArgs);
@@ -56,8 +56,8 @@ public class CliTests {
                 String restoreResource,
                 CliStepProcessor processor,
                 String steps,
-                boolean debug
-        ) {
+                boolean debug,
+                SessionUtils sessionUtils) {
             ClassLoader classLoader = getClass().getClassLoader();
             String applicationPath = new File(classLoader.getResource(applicationResource).getFile()).getAbsolutePath();
             PrototypeFactory prototypeFactory = new LivePrototypeFactory();
@@ -71,7 +71,10 @@ public class CliTests {
 
             ApplicationHost host = new ApplicationHost(engine, prototypeFactory, reader, outStream);
             host.setUsernamePassword("test", "test");
-            host.setSessionUtils(new MockSessionUtils());
+            if (sessionUtils == null) {
+                sessionUtils = new MockSessionUtils();
+            }
+            host.setSessionUtils(sessionUtils);
             File restoreFile = new File(classLoader.getResource(restoreResource).getFile());
             String restorePath = restoreFile.getAbsolutePath();
             host.setRestoreToLocalFile(restorePath);
@@ -87,7 +90,7 @@ public class CliTests {
                 new BasicTestReader(),
                 "1 0 \n",
                 null,
-                null, false);
+                null, false, null);
     }
 
     @Test
@@ -98,7 +101,7 @@ public class CliTests {
                 new CaseTestReader(),
                 "2 1 5 1 \n \n",
                 null,
-                null, false);
+                null, false, null);
     }
 
     @Test
@@ -109,7 +112,7 @@ public class CliTests {
                 new SessionEndpointTestReader(),
                 "\n",
                 "m5_endpoint",
-                new String[] {"124938b2-c228-4107-b7e6-31a905c3f4ff"}, false);
+                new String[] {"124938b2-c228-4107-b7e6-31a905c3f4ff"}, false, null);
     }
 
     @Test
@@ -120,7 +123,7 @@ public class CliTests {
                 new PostTestReader(),
                 "2 0 \n 2",
                 null,
-                null, false);
+                null, false, null);
     }
 
     @Test
@@ -131,10 +134,38 @@ public class CliTests {
                 new PostTestReader(),
                 "3 0 \n 0",
                 null,
-                null, false);
+                null, false, null);
     }
 
-    public interface CliStepProcessor {
+    @Test
+    public void testMultiSelectCaseList() throws Exception {
+        CliStepProcessor processor = (stepIndex, output) -> {
+            switch(stepIndex) {
+                case 0:
+                    Assert.assertTrue(output.contains("4) Multi select case list"));
+                    break;
+                case 1:
+                    Assert.assertTrue(output.contains("0) Name"));
+                    break;
+                case 2:
+                    Assert.assertTrue(output.contains("0) Lucy"));
+                    Assert.assertTrue(output.contains("1) Jack"));
+                    break;
+                case 3:
+                    Assert.assertTrue(output.contains("0) multi-select form with auto-launch case list"));
+                    throw new TestPassException();
+            }
+        };
+        MockSessionUtils sessionUtils = new MockSessionUtils(this.getClass().getResourceAsStream("/session-tests-template/query_response.xml"));
+        new CliTestRun<>("session-tests-template/profile.ccpr",
+                "session-tests-template/user_restore.xml",
+                processor,
+                "4 name 0,1",
+                null,
+                null, true, sessionUtils);
+    }
+
+    static interface CliStepProcessor {
         void processLine(int stepIndex, String output);
     }
 
