@@ -175,11 +175,15 @@ public class MultiSelectEntityScreen extends EntityScreen {
     @Nonnull
     @Override
     protected EvaluationContext getAutoLaunchEvaluationContext(String nextInput) {
-        if (!referencesContainStep(nextInput)) {
-                return super.getAutoLaunchEvaluationContext(nextInput);
+        ExternalDataInstance instance;
+        if (referencesContainStep(nextInput)) {
+            instance = virtualDataInstanceStorage.read(nextInput);
+        } else {
+            // empty instance
+            instance = VirtualInstances.buildSelectedValuesInstance(
+                    getSession().getNeededDatum().getDataId(), new String[0]);
         }
 
-        ExternalDataInstance instance = virtualDataInstanceStorage.read(nextInput);
         return getEvalContext().spawnWithCleanLifecycle(ImmutableMap.of(
                 "next_input", instance
         ));
