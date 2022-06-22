@@ -1,10 +1,11 @@
 package org.javarosa.xpath.expr;
 
-import org.json.JSONObject;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
-import org.json.JSONException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+
+import org.json.JSONObject;
+import org.json.JSONException;
 
 /** Utility for hidden values as geocoder receivers
  *

@@ -1,16 +1,14 @@
 package org.javarosa.xpath.expr.test;
 
 import org.javarosa.xpath.expr.XPathJsonPropertyFunc;
-import org.junit.Test;
-import org.junit.Assert;
 import org.json.JSONException;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**Tests for the XPathJsonProperty
  *
  * @author rcostello
  */
-
-import static org.junit.Assert.assertTrue;
 
 public class XPathJsonPropertyFuncTest {
 
