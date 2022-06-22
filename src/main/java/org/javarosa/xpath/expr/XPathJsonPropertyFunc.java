@@ -13,7 +13,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  */
 
 public class XPathJsonPropertyFunc extends XPathFuncExpr {
-    public static final String NAME = "getJsonProperty";
+    public static final String NAME = "json-property";
     private static final int EXPECTED_ARG_COUNT = 2;
 
     public XPathJsonPropertyFunc() {
@@ -35,9 +35,9 @@ public class XPathJsonPropertyFunc extends XPathFuncExpr {
      * Returns a blank string if the property does not exist on the stringified json object.
      */
     public static String getJsonProperty(String stringifiedJsonObject, String propertyName) throws JSONException {
-        JSONObject parsedObject = new JSONObject(stringifiedJsonObject);
         String value = "";
         try {
+            JSONObject parsedObject = new JSONObject(stringifiedJsonObject);
             value = parsedObject.getString(propertyName);
         } catch (JSONException e) {
             return value;

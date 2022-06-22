@@ -29,10 +29,11 @@ public class XPathJsonPropertyFuncTest {
         Assert.assertEquals(testVal4, "");
 
         String testInvalidObj = "{\"name\"}: \"Sam\"}";
-        try {
-            String testVal5 = XPathJsonPropertyFunc.getJsonProperty(testInvalidObj, "name");  
-        } catch (Exception e) {
-            assertTrue(e instanceof JSONException);
-        }
+        String testVal5 = XPathJsonPropertyFunc.getJsonProperty(testInvalidObj, "name");  
+        Assert.assertEquals(testVal5, "");
+        
+        String testEmptyStrObj = "";
+        String testVal6 = XPathJsonPropertyFunc.getJsonProperty(testEmptyStrObj, "name");  
+        Assert.assertEquals(testVal6, "");
     }
 }
