@@ -73,7 +73,8 @@ public class MultiSelectEntityScreen extends EntityScreen {
     }
 
     private void prcessSelectionAsGuid(String guid) throws CommCareSessionException {
-        ExternalDataInstance cachedInstance = virtualDataInstanceStorage.read(guid);
+        ExternalDataInstance cachedInstance = virtualDataInstanceStorage.read(
+                guid, getSession().getNeededDatum().getDataId());
         if (cachedInstance == null) {
             throw new CommCareSessionException(
                     "Could not make selection with reference id " + guid + " on this screen. " +
@@ -133,7 +134,8 @@ public class MultiSelectEntityScreen extends EntityScreen {
         }
         if (storageReferenceId != null) {
             if (selectedValuesInstance == null) {
-                selectedValuesInstance = virtualDataInstanceStorage.read(storageReferenceId);
+                selectedValuesInstance = virtualDataInstanceStorage.read(
+                        storageReferenceId, getSession().getNeededDatum().getDataId());
             }
             ExternalDataInstanceSource externalDataInstanceSource = ExternalDataInstanceSource.buildVirtual(
                     selectedValuesInstance, storageReferenceId);
@@ -145,11 +147,11 @@ public class MultiSelectEntityScreen extends EntityScreen {
     @Override
     public void updateDatum(CommCareSession session, String input) {
         storageReferenceId = input;
-        selectedValuesInstance = virtualDataInstanceStorage.read(storageReferenceId);
+        String dataId = session.getNeededDatum().getDataId();
+        selectedValuesInstance = virtualDataInstanceStorage.read(storageReferenceId, dataId);
         ExternalDataInstanceSource externalDataInstanceSource = ExternalDataInstanceSource.buildVirtual(
                 selectedValuesInstance, storageReferenceId);
-        session.setDatum(STATE_MULTIPLE_DATUM_VAL, session.getNeededDatum().getDataId(),
-                input, externalDataInstanceSource);
+        session.setDatum(STATE_MULTIPLE_DATUM_VAL, dataId, input, externalDataInstanceSource);
     }
 
     @Override
@@ -177,13 +179,11 @@ public class MultiSelectEntityScreen extends EntityScreen {
     protected EvaluationContext getAutoLaunchEvaluationContext(String nextInput) {
         ExternalDataInstance instance;
         if (referencesContainStep(nextInput)) {
-            instance = virtualDataInstanceStorage.read(nextInput);
+            instance = virtualDataInstanceStorage.read(nextInput, "next_input");
         } else {
             // empty instance
-            instance = VirtualInstances.buildSelectedValuesInstance(
-                    getSession().getNeededDatum().getDataId(), new String[0]);
+            instance = VirtualInstances.buildSelectedValuesInstance("next_input", new String[0]);
         }
-
         return getEvalContext().spawnWithCleanLifecycle(ImmutableMap.of(
                 "next_input", instance
         ));

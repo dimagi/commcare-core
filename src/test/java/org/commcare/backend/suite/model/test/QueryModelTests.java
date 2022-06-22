@@ -66,7 +66,7 @@ public class QueryModelTests {
         Map<String, String> input = ImmutableMap.of("name", "bob", "age", "23");
         Assert.assertEquals(
                 VirtualInstances.buildSearchInputInstance(instanceID, input).getRoot(),
-                virtualDataInstanceStorage.read(expectedInstanceStorageKey).getRoot());
+                virtualDataInstanceStorage.read(expectedInstanceStorageKey, instanceID).getRoot());
 
         CaseTestUtils.xpathEvalAndAssert(
                 session.getEvaluationContext(),

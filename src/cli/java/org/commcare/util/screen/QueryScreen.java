@@ -41,11 +41,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import datadog.trace.api.Trace;
-import okhttp3.Credentials;
-import okhttp3.FormBody;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 /**
  * Screen that displays user configurable entry texts and makes
@@ -175,7 +170,7 @@ public class QueryScreen extends Screen {
         Map<String, String> userQueryValues = remoteQuerySessionManager.getUserQueryValues(false);
         String key = getInstanceKey(instanceID, userQueryValues);
         if (instanceStorage.contains(key)) {
-            return instanceStorage.read(key);
+            return instanceStorage.read(key, instanceID);
         }
 
         ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(
