@@ -3,9 +3,8 @@ package org.javarosa.xpath.expr;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.parser.XPathSyntaxException;
-
-import org.json.JSONObject;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 /** Utility for hidden values as geocoder receivers
  *
