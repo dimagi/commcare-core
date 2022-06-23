@@ -41,11 +41,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import datadog.trace.api.Trace;
-import okhttp3.Credentials;
-import okhttp3.FormBody;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 /**
  * Screen that displays user configurable entry texts and makes
@@ -54,23 +49,6 @@ import okhttp3.Response;
  * @author wspride
  */
 public class QueryScreen extends Screen {
-
-    public interface QueryClient {
-        public InputStream makeRequest(Request request);
-    }
-
-    private class OkHttpQueryClient implements QueryClient {
-        @Override
-        public InputStream makeRequest(Request request) {
-            try {
-                Response response = new okhttp3.OkHttpClient().newCall(request).execute();
-                return response.body().byteStream();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-    }
 
     private RemoteQuerySessionManager remoteQuerySessionManager;
     protected OrderedHashtable<String, QueryPrompt> userInputDisplays;
@@ -84,16 +62,17 @@ public class QueryScreen extends Screen {
 
     private PrintStream out;
     private VirtualDataInstanceStorage instanceStorage;
+    private SessionUtils sessionUtils;
 
     private boolean defaultSearch;
-    private QueryClient client = new OkHttpQueryClient();
 
     public QueryScreen(String domainedUsername, String password, PrintStream out,
-            VirtualDataInstanceStorage instanceStorage) {
+            VirtualDataInstanceStorage instanceStorage, SessionUtils sessionUtils) {
         this.domainedUsername = domainedUsername;
         this.password = password;
         this.out = out;
         this.instanceStorage = instanceStorage;
+        this.sessionUtils = sessionUtils;
     }
 
     @Override
@@ -124,10 +103,6 @@ public class QueryScreen extends Screen {
         }
     }
 
-    public void setClient(QueryClient client) {
-        this.client = client;
-    }
-
     // Formplayer List of Supported prompts
     private ArrayList<String> getSupportedPrompts() {
         ArrayList<String> supportedPrompts = new ArrayList<>();
@@ -156,23 +131,6 @@ public class QueryScreen extends Screen {
             }
         }
         return dataBuilder.build();
-    }
-
-    private RequestBody makeRequestBody(Multimap<String, String> requestData) {
-        FormBody.Builder formBodyBuilder = new FormBody.Builder();
-        requestData.forEach(formBodyBuilder::add);
-        return formBodyBuilder.build();
-    }
-
-    private InputStream makeQueryRequestReturnStream(URL url, Multimap<String, String> requestData) {
-        String credential = Credentials.basic(domainedUsername, password);
-
-        Request request = new Request.Builder()
-                .url(url)
-                .method("POST", makeRequestBody(requestData))
-                .header("Authorization", credential)
-                .build();
-        return client.makeRequest(request);
     }
 
     public Pair<ExternalDataInstance, String> processResponse(InputStream responseData, URL url,
@@ -212,7 +170,7 @@ public class QueryScreen extends Screen {
         Map<String, String> userQueryValues = remoteQuerySessionManager.getUserQueryValues(false);
         String key = getInstanceKey(instanceID, userQueryValues);
         if (instanceStorage.contains(key)) {
-            return instanceStorage.read(key);
+            return instanceStorage.read(key, instanceID);
         }
 
         ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(
@@ -310,7 +268,7 @@ public class QueryScreen extends Screen {
         answerPrompts(userAnswers);
         URL url = getBaseUrl();
         Multimap<String, String> requestData = getRequestData(false);
-        InputStream response = makeQueryRequestReturnStream(url, requestData);
+        InputStream response = sessionUtils.makeQueryRequest(url, requestData, domainedUsername, password);
         Pair<ExternalDataInstance, String> instanceOrError = processResponse(response, url, requestData);
         updateSession(instanceOrError.first);
         if (currentMessage != null) {

@@ -1,0 +1,12 @@
+<results id="case">
+	<case case_id="case_one" case_type="person" owner_id="owner1" status="open">
+		<case_name>Lucy</case_name>
+		<date_opened>2014-08-04T21:09:07.000000Z</date_opened>
+		<last_modified>2014-08-04T21:09:07.000000Z</last_modified>
+	</case>
+	<case case_id="case_two" case_type="person" owner_id="owner1" status="open">
+		<case_name>Jack</case_name>
+		<date_opened>2014-08-04T21:09:07.000000Z</date_opened>
+		<last_modified>2014-08-04T21:09:07.000000Z</last_modified>
+	</case>
+</results>

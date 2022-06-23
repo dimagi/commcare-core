@@ -54,6 +54,38 @@
       </template>
     </field>
   </detail>
+
+  <detail id="m3_case_short">
+    <title>
+      <text>
+        <locale id="cchq.case"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+    <action auto_launch="count(instance('next_input')/results/value) = 0 or count(instance('next_input')/results/value[count(instance('casedb')/casedb/case[@case_id = current()/.]) =0 ]) > 0">
+      <display>
+        <text>Jump to Menu 1 Form 0</text>
+      </display>
+      <stack>
+        <push>
+          <mark/>
+          <command value="'search_command.m3'"/>
+        </push>
+      </stack>
+    </action>
+  </detail>
+
   <entry>
     <form>http://commcarehq.org/test/placeholder</form>
     <command id="m0-f0">
@@ -183,6 +215,18 @@
     <instance id="commcaresession" src="jr://instance/session"/>
     <session>
       <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long" />
+    </session>
+  </entry>
+
+  <entry>
+    <!-- test multi-select detail action autolaunch -->
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="multi-select-auto-launch">
+      <text>multi-select form with auto-launch case list</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <instance-datum id="selected_cases" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m3_case_short" detail-confirm="m1_case_long" max-select-value="10"/>
     </session>
   </entry>
 
@@ -378,6 +422,11 @@
     <command id="m2-f2"/>
   </menu>
 
+  <menu id="m4">
+    <text>Multi select case list</text>
+    <command id="multi-select-auto-launch"/>
+  </menu>
+
   <!-- testing child modules and needed case id logic -->
   <!-- NOTE: order of menu entries is important here -->
   <menu id="parent-module">
@@ -468,4 +517,37 @@
       </create>
     </stack>
   </entry>
+  <remote-request>
+    <post url="https://www.example.com/a/multiple-referrals/phone/claim-case/"
+          relevant="$case_id != ''">
+      <data key="case_id"
+            nodeset="instance('search_selected_cases')/results/value"
+            exclude="count(instance('casedb')/casedb/case[@case_id=current()/.]) = 1"
+            ref="."/>
+    </post>
+    <command id="search_command.m3">
+      <display>
+        <text>Multi-select case search</text>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <instance id="search_selected_cases" src="jr://instance/selected-entities"/>
+    <session>
+      <query default_search="false" storage-instance="results" template="case" url="https://www.example.com/a/multiple-referrals/phone/search/123/">
+        <data key="case_type" ref="'person'"/>
+        <prompt key="name">
+          <display>
+            <text>Name</text>
+          </display>
+        </prompt>
+      </query>
+      <instance-datum detail-confirm="m1_case_long" detail-select="m1_case_short" id="search_selected_cases" nodeset="instance('results')/results/case[@case_type='person'][not(commcare_is_related_case=true())]" value="./@case_id"/>
+    </session>
+    <stack>
+      <push>
+        <rewind value="instance('commcaresession')/session/data/search_selected_cases"/>
+      </push>
+    </stack>
+  </remote-request>
 </suite>

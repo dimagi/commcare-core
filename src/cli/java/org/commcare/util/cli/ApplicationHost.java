@@ -340,6 +340,15 @@ public class ApplicationHost {
                     }
                     if (!screenIsRedrawing && !waitForCaseDetail) {
                         screen = getNextScreen();
+                        if (screen instanceof EntityScreen) {
+                            screen.init(mSession);
+                            EntityScreen entityScreen = (EntityScreen)screen;
+                            entityScreen.evaluateAutoLaunch("");
+                            if (entityScreen.getAutoLaunchAction() != null) {
+                                screen.handleInputAndUpdateSession(mSession, input, true, null);
+                                screen = getNextScreen();
+                            }
+                        }
                     }
                 } catch (CommCareSessionException ccse) {
                     printErrorAndContinue("Error during session execution:", ccse);
@@ -449,7 +458,7 @@ public class ApplicationHost {
             return new EntityScreen(true);
         } else if (next.equals(SessionFrame.STATE_QUERY_REQUEST)) {
             checkUsernamePasswordValid();
-            return new QueryScreen(qualifiedUsername, password, System.out, virtualInstanceStorage);
+            return new QueryScreen(qualifiedUsername, password, System.out, virtualInstanceStorage, mSessionUtils);
         } else if (next.equals(SessionFrame.STATE_SYNC_REQUEST)) {
             checkUsernamePasswordValid();
             return new SyncScreen(qualifiedUsername, password, System.out, mSessionUtils);

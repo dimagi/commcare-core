@@ -2,6 +2,8 @@ package org.commcare.util.screen;
 
 import static org.commcare.session.SessionFrame.STATE_MULTIPLE_DATUM_VAL;
 
+import com.google.common.collect.ImmutableMap;
+
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.interfaces.VirtualDataInstanceStorage;
 import org.commcare.data.xml.VirtualInstances;
@@ -9,12 +11,13 @@ import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.MultiSelectEntityDatum;
 import org.commcare.util.FormDataUtil;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
-import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -70,7 +73,8 @@ public class MultiSelectEntityScreen extends EntityScreen {
     }
 
     private void prcessSelectionAsGuid(String guid) throws CommCareSessionException {
-        ExternalDataInstance cachedInstance = virtualDataInstanceStorage.read(guid);
+        ExternalDataInstance cachedInstance = virtualDataInstanceStorage.read(
+                guid, getSession().getNeededDatum().getDataId());
         if (cachedInstance == null) {
             throw new CommCareSessionException(
                     "Could not make selection with reference id " + guid + " on this screen. " +
@@ -130,7 +134,8 @@ public class MultiSelectEntityScreen extends EntityScreen {
         }
         if (storageReferenceId != null) {
             if (selectedValuesInstance == null) {
-                selectedValuesInstance = virtualDataInstanceStorage.read(storageReferenceId);
+                selectedValuesInstance = virtualDataInstanceStorage.read(
+                        storageReferenceId, getSession().getNeededDatum().getDataId());
             }
             ExternalDataInstanceSource externalDataInstanceSource = ExternalDataInstanceSource.buildVirtual(
                     selectedValuesInstance, storageReferenceId);
@@ -142,11 +147,11 @@ public class MultiSelectEntityScreen extends EntityScreen {
     @Override
     public void updateDatum(CommCareSession session, String input) {
         storageReferenceId = input;
-        selectedValuesInstance = virtualDataInstanceStorage.read(storageReferenceId);
+        String dataId = session.getNeededDatum().getDataId();
+        selectedValuesInstance = virtualDataInstanceStorage.read(storageReferenceId, dataId);
         ExternalDataInstanceSource externalDataInstanceSource = ExternalDataInstanceSource.buildVirtual(
                 selectedValuesInstance, storageReferenceId);
-        session.setDatum(STATE_MULTIPLE_DATUM_VAL, session.getNeededDatum().getDataId(),
-                input, externalDataInstanceSource);
+        session.setDatum(STATE_MULTIPLE_DATUM_VAL, dataId, input, externalDataInstanceSource);
     }
 
     @Override
@@ -169,6 +174,21 @@ public class MultiSelectEntityScreen extends EntityScreen {
         return ScreenUtils.getBestTitle(session);
     }
 
+    @Nonnull
+    @Override
+    protected EvaluationContext getAutoLaunchEvaluationContext(String nextInput) {
+        ExternalDataInstance instance;
+        if (referencesContainStep(nextInput)) {
+            instance = virtualDataInstanceStorage.read(nextInput, "next_input");
+        } else {
+            // empty instance
+            instance = VirtualInstances.buildSelectedValuesInstance("next_input", new String[0]);
+        }
+        return getEvalContext().spawnWithCleanLifecycle(ImmutableMap.of(
+                "next_input", instance
+        ));
+    }
+
     @Override
     public boolean referencesContainStep(String stepValue) {
         return virtualDataInstanceStorage.contains(stepValue);
@@ -187,5 +207,10 @@ public class MultiSelectEntityScreen extends EntityScreen {
             boolean allowAutoLaunch, String[] selectedValues) throws CommCareSessionException {
         super.handleInputAndUpdateSession(session, input, allowAutoLaunch, selectedValues);
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "MultiSelectEntityScreen [id=" + mNeededDatum.getDataId() + ", selection=" + storageReferenceId + "]";
     }
 }
