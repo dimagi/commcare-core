@@ -4,7 +4,6 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -32,7 +31,7 @@ public class MemoryVirtualDataInstanceStorage implements
     }
 
     @Override
-    public ExternalDataInstance read(String key) {
+    public ExternalDataInstance read(String key, String instanceId) {
         return storage.get(key);
     }
 

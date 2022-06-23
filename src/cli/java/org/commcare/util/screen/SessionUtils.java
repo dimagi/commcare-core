@@ -17,6 +17,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
@@ -24,6 +25,7 @@ import java.net.PasswordAuthentication;
 import java.net.URL;
 
 import okhttp3.Credentials;
+import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -128,6 +130,32 @@ public class SessionUtils {
             // old session data is now no longer valid
             session.clearVolatiles();
         }
+    }
+
+    public InputStream makeQueryRequest(
+            URL url, Multimap<String, String> requestData,
+            String username, final String password) {
+        String credential = Credentials.basic(username, password);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", makeRequestBody(requestData))
+                .header("Authorization", credential)
+                .build();
+
+        try {
+            Response response = new okhttp3.OkHttpClient().newCall(request).execute();
+            return response.body().byteStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private RequestBody makeRequestBody(Multimap<String, String> requestData) {
+        FormBody.Builder formBodyBuilder = new FormBody.Builder();
+        requestData.forEach(formBodyBuilder::add);
+        return formBodyBuilder.build();
     }
 
     public int doPostRequest(

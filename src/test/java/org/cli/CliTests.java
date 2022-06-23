@@ -3,6 +3,7 @@ package org.cli;
 import org.commcare.util.cli.ApplicationHost;
 import org.commcare.util.cli.CliCommand;
 import org.commcare.util.engine.CommCareConfigEngine;
+import org.commcare.util.screen.SessionUtils;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.junit.Assert;
@@ -12,10 +13,9 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.StringReader;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 
 import static junit.framework.TestCase.assertTrue;
@@ -35,13 +35,13 @@ public class CliTests {
 
         CliTestRun(String applicationPath,
                 String restoreResource,
-                Class<E> cliTestReaderClass,
+                CliStepProcessor processor,
                 String steps,
                 String endpointId,
                 String[] endpointArgs,
-                boolean debug) throws InvocationTargetException, NoSuchMethodException,InstantiationException, IllegalAccessException {
+                boolean debug, SessionUtils sessionUtils) {
             ApplicationHost host = buildApplicationHost(
-                    applicationPath, restoreResource, cliTestReaderClass, steps, debug);
+                    applicationPath, restoreResource, processor, steps, debug, sessionUtils);
             boolean passed = false;
             try {
                 host.run(endpointId, endpointArgs);
@@ -54,10 +54,10 @@ public class CliTests {
         private ApplicationHost buildApplicationHost(
                 String applicationResource,
                 String restoreResource,
-                Class<E> cliTestReaderClass,
+                CliStepProcessor processor,
                 String steps,
-                boolean debug
-        ) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+                boolean debug,
+                SessionUtils sessionUtils) {
             ClassLoader classLoader = getClass().getClassLoader();
             String applicationPath = new File(classLoader.getResource(applicationResource).getFile()).getAbsolutePath();
             PrototypeFactory prototypeFactory = new LivePrototypeFactory();
@@ -66,13 +66,15 @@ public class CliTests {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PrintStream outStream = new PrintStream(baos);
 
-            Constructor<E> ctor = cliTestReaderClass.getConstructor(String.class, ByteArrayOutputStream.class);
-            CliTestReader reader = ctor.newInstance(steps, baos);
+            CliTestReader reader = new CliTestReader(steps, baos, processor);
             reader.setDebug(debug);
 
             ApplicationHost host = new ApplicationHost(engine, prototypeFactory, reader, outStream);
             host.setUsernamePassword("test", "test");
-            host.setSessionUtils(new MockSessionUtils());
+            if (sessionUtils == null) {
+                sessionUtils = new MockSessionUtils();
+            }
+            host.setSessionUtils(sessionUtils);
             File restoreFile = new File(classLoader.getResource(restoreResource).getFile());
             String restorePath = restoreFile.getAbsolutePath();
             host.setRestoreToLocalFile(restorePath);
@@ -85,10 +87,10 @@ public class CliTests {
         // Start a basic form
         new CliTestRun<>("basic_app/basic.ccz",
                 "case_create_basic.xml",
-                BasicTestReader.class,
+                new BasicTestReader(),
                 "1 0 \n",
                 null,
-                null, false);
+                null, false, null);
     }
 
     @Test
@@ -96,10 +98,10 @@ public class CliTests {
         // Perform case selection
         new CliTestRun<>("basic_app/basic.ccz",
                 "basic_app/restore.xml",
-                CaseTestReader.class,
+                new CaseTestReader(),
                 "2 1 5 1 \n \n",
                 null,
-                null, false);
+                null, false, null);
     }
 
     @Test
@@ -107,10 +109,10 @@ public class CliTests {
         // Run CLI with session endpoint arg
         new CliTestRun<>("basic_app/basic.ccz",
                 "basic_app/restore.xml",
-                SessionEndpointTestReader.class,
+                new SessionEndpointTestReader(),
                 "\n",
                 "m5_endpoint",
-                new String[] {"124938b2-c228-4107-b7e6-31a905c3f4ff"}, false);
+                new String[] {"124938b2-c228-4107-b7e6-31a905c3f4ff"}, false, null);
     }
 
     @Test
@@ -118,10 +120,10 @@ public class CliTests {
         // Run CLI with session endpoint arg
         new CliTestRun<>("session-tests-template/profile.ccpr",
                 "session-tests-template/user_restore.xml",
-                PostTestReader.class,
+                new PostTestReader(),
                 "2 0 \n 2",
                 null,
-                null, false);
+                null, false, null);
     }
 
     @Test
@@ -129,10 +131,42 @@ public class CliTests {
         // Run CLI with session endpoint arg
         new CliTestRun<>("session-tests-template/profile.ccpr",
                 "session-tests-template/user_restore.xml",
-                PostTestReader.class,
+                new PostTestReader(),
                 "3 0 \n 0",
                 null,
-                null, false);
+                null, false, null);
+    }
+
+    @Test
+    public void testMultiSelectCaseList() throws Exception {
+        CliStepProcessor processor = (stepIndex, output) -> {
+            switch(stepIndex) {
+                case 0:
+                    Assert.assertTrue(output.contains("4) Multi select case list"));
+                    break;
+                case 1:
+                    Assert.assertTrue(output.contains("0) Name"));
+                    break;
+                case 2:
+                    Assert.assertTrue(output.contains("0) Lucy"));
+                    Assert.assertTrue(output.contains("1) Jack"));
+                    break;
+                case 3:
+                    Assert.assertTrue(output.contains("0) multi-select form with auto-launch case list"));
+                    throw new TestPassException();
+            }
+        };
+        MockSessionUtils sessionUtils = new MockSessionUtils(this.getClass().getResourceAsStream("/session-tests-template/query_response.xml"));
+        new CliTestRun<>("session-tests-template/profile.ccpr",
+                "session-tests-template/user_restore.xml",
+                processor,
+                "4 name 0,1",
+                null,
+                null, true, sessionUtils);
+    }
+
+    static interface CliStepProcessor {
+        void processLine(int stepIndex, String output);
     }
 
 
@@ -142,18 +176,20 @@ public class CliTests {
      * reads from. We are also able to get the output at this point and make assertions
      * about its content.
      */
-    static abstract class CliTestReader extends BufferedReader {
+    static class CliTestReader extends BufferedReader {
 
+        private final CliStepProcessor processor;
         private String[] steps;
         private int stepIndex;
         private ByteArrayOutputStream outStream;
 
         private boolean debug = false;
 
-        CliTestReader(String steps, ByteArrayOutputStream outStream) {
+        CliTestReader(String steps, ByteArrayOutputStream outStream, CliStepProcessor processor) {
             super(new StringReader("Unused dummy reader"));
             this.steps = steps.split(" ");
             this.outStream = outStream;
+            this.processor = processor;
         }
 
         @Override
@@ -178,17 +214,13 @@ public class CliTests {
         public void setDebug(boolean debug) {
             this.debug = debug;
         }
-
-        abstract void processLine(int stepIndex, String output);
+        private void processLine(int stepIndex, String output) {
+            this.processor.processLine(stepIndex, output);
+        }
     }
 
-    static class BasicTestReader extends CliTestReader {
-
-        public BasicTestReader(String args, ByteArrayOutputStream outStream) {
-            super(args, outStream);
-        }
-
-        void processLine(int stepIndex, String output) {
+    static class BasicTestReader implements CliStepProcessor {
+        public void processLine(int stepIndex, String output) {
             switch(stepIndex) {
                 case 0:
                     Assert.assertTrue(output.contains("Basic Tests"));
@@ -209,13 +241,8 @@ public class CliTests {
         }
     }
 
-    static class CaseTestReader extends CliTestReader {
-
-        public CaseTestReader(String args, ByteArrayOutputStream outStream) {
-            super(args, outStream);
-        }
-
-        void processLine(int stepIndex, String output) {
+    static class CaseTestReader implements CliStepProcessor {
+        public void processLine(int stepIndex, String output) {
             switch(stepIndex) {
                 case 0:
                     Assert.assertTrue(output.contains("Basic Tests"));
@@ -253,13 +280,8 @@ public class CliTests {
         }
     }
 
-    static class SessionEndpointTestReader extends CliTestReader {
-
-        public SessionEndpointTestReader(String args, ByteArrayOutputStream outStream) {
-            super(args, outStream);
-        }
-
-        void processLine(int stepIndex, String output) {
+    static class SessionEndpointTestReader implements CliStepProcessor {
+        public void processLine(int stepIndex, String output) {
             switch(stepIndex) {
                 case 0:
                     Assert.assertTrue(output.contains("0) Update a Case"));
@@ -272,13 +294,8 @@ public class CliTests {
         }
     }
 
-    static class PostTestReader extends CliTestReader {
-
-        public PostTestReader(String args, ByteArrayOutputStream outStream) {
-            super(args, outStream);
-        }
-
-        void processLine(int stepIndex, String output) {
+    static class PostTestReader implements CliStepProcessor {
+        public void processLine(int stepIndex, String output) {
             switch (stepIndex) {
                 case 0:
                     Assert.assertTrue(output.contains("test [36]"));
