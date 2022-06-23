@@ -32,7 +32,7 @@ public class VirtualInstances {
             nodes.add(SimpleNode.textNode(SEARCH_INSTANCE_NODE_NAME, attributes, value));
         });
         TreeElement root = TreeBuilder.buildTree(instanceID, SEARCH_INSTANCE_ROOT_NAME, nodes);
-        return new ExternalDataInstance(JR_SEARCH_INPUT_REFERENCE, instanceID, root);
+        return new ExternalDataInstance(getSearchInputReference(instanceID), instanceID, root);
     }
 
     public static ExternalDataInstance buildSelectedValuesInstance(
@@ -43,6 +43,15 @@ public class VirtualInstances {
         }
         TreeElement root = TreeBuilder.buildTree(instanceId, SELCTED_CASES_INSTANCE_ROOT_NAME,
                 nodes);
-        return new ExternalDataInstance(JR_SELECTED_ENTITIES_REFERENCE, instanceId, root);
+        return new ExternalDataInstance(getSelectedEntitiesReference(instanceId), instanceId, root);
+    }
+
+
+    private static String getSelectedEntitiesReference(String referenceId) {
+        return JR_SELECTED_ENTITIES_REFERENCE.concat("/").concat(referenceId);
+    }
+
+    private static String getSearchInputReference(String referenceId) {
+        return JR_SEARCH_INPUT_REFERENCE.concat("/").concat(referenceId);
     }
 }
