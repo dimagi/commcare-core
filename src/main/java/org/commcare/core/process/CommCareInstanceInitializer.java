@@ -110,14 +110,19 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     protected InstanceRoot setupExternalDataInstance(ExternalDataInstance instance, String reference,
             String stepType) {
         String referenceId = VirtualInstances.getReferenceId(reference);
-        InstanceRoot instanceRoot = getExternalDataInstanceSource(instance, referenceId, stepType);
+        InstanceRoot instanceRoot = getExternalDataInstanceSource(referenceId, stepType);
 
         if (instanceRoot == null) {
             // Maintain backward compatibility with instance references that don't have a id in reference
             // should be removed once we move all external data references to jr://instance/<schema>/<id>
-            instanceRoot = getExternalDataInstanceSource(instance, instance.getInstanceId(), stepType);
+            instanceRoot = getExternalDataInstanceSource(instance.getInstanceId(), stepType);
         }
-        return instanceRoot;
+
+        if (instanceRoot == null) {
+            instanceRoot = instance.getSource();
+        }
+
+        return instanceRoot == null ? ConcreteInstanceRoot.NULL : instanceRoot;
     }
 
     protected InstanceRoot setupLedgerData(ExternalDataInstance instance) {
@@ -204,14 +209,13 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         return 0;
     }
 
-    protected InstanceRoot getExternalDataInstanceSource(
-            ExternalDataInstance instance, String instanceId, String stepType) {
+    protected InstanceRoot getExternalDataInstanceSource(String instanceId, String stepType) {
         for (StackFrameStep step : session.getFrame().getSteps()) {
             if (step.getType().equals(stepType) && step.hasDataInstanceSource(instanceId)) {
                 return step.getDataInstanceSource(instanceId);
             }
         }
-        return instance.getSource() == null ? ConcreteInstanceRoot.NULL : instance.getSource();
+        return null;
     }
 
     protected String getDeviceId() {
