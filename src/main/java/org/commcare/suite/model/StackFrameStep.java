@@ -4,6 +4,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.core.interfaces.RemoteInstanceFetcher;
+import org.commcare.data.xml.VirtualInstances;
 import org.commcare.session.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
@@ -104,26 +105,27 @@ public class StackFrameStep implements Externalizable {
     public void addDataInstanceSource(ExternalDataInstanceSource source) {
         Objects.requireNonNull(source, String.format(
                 "Unable to add null instance data source to stack frame step '%s'", getId()));
-        String instanceId = source.getInstanceId();
-        if (dataInstanceSources.containsKey(instanceId)) {
+        String reference = source.getReference();
+        String referenceId = VirtualInstances.getReferenceId(reference);
+        if (dataInstanceSources.containsKey(referenceId)) {
             throw new RuntimeException(String.format(
-                    "Stack frame step '%s' already contains an instance with the instance ID '%s'",
-                    getId(), instanceId
+                    "Stack frame step '%s' already contains an instance with the reference '%s'",
+                    getId(), reference
             ));
         }
-        dataInstanceSources.put(instanceId, source);
+        dataInstanceSources.put(referenceId, source);
     }
 
     public Hashtable<String, ExternalDataInstanceSource> getDataInstanceSources() {
         return dataInstanceSources;
     }
 
-    public boolean hasDataInstanceSource(String instanceId) {
-        return dataInstanceSources.containsKey(instanceId);
+    public boolean hasDataInstanceSource(String referenceId) {
+        return dataInstanceSources.containsKey(referenceId);
     }
 
-    public ExternalDataInstanceSource getDataInstanceSource(String instanceId) {
-        return dataInstanceSources.get(instanceId);
+    public ExternalDataInstanceSource getDataInstanceSource(String referenceId) {
+        return dataInstanceSources.get(referenceId);
     }
 
     public void initDataInstanceSources(RemoteInstanceFetcher remoteInstanceFetcher)
