@@ -59,7 +59,7 @@
     </command>
     <instance id="session" src="jr://instance/session"/>
     <instance id="casedb" src="jr://instance/casedb"/>
-    <instance id="my-search-input" src="jr://instance/search-input/search-input:patients"/>
+    <instance id="my-search-input" src="jr://instance/search-input/patients"/>
     <session>
       <query url="https://www.fake.com/patient_search/" storage-instance="patients">
         <data key="device_id" ref="instance('session')/session/context/deviceid"/>
