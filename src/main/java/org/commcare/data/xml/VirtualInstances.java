@@ -54,4 +54,8 @@ public class VirtualInstances {
     private static String getSearchInputReference(String referenceId) {
         return JR_SEARCH_INPUT_REFERENCE.concat("/").concat(referenceId);
     }
+
+    public static String getReferenceId(String reference) {
+        return reference.substring(reference.lastIndexOf('/') + 1);
+    }
 }

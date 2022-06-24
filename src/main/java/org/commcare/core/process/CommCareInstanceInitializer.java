@@ -8,6 +8,7 @@ import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.instance.LedgerInstanceTreeElement;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.sandbox.SandboxUtils;
+import org.commcare.data.xml.VirtualInstances;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionInstanceBuilder;
@@ -108,7 +109,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
      */
     protected InstanceRoot setupExternalDataInstance(ExternalDataInstance instance, String reference,
             String stepType) {
-        String referenceId = getRefId(reference);
+        String referenceId = VirtualInstances.getReferenceId(reference);
         InstanceRoot instanceRoot = getExternalDataInstanceSource(instance, referenceId, stepType);
 
         if (instanceRoot == null) {
@@ -144,13 +145,9 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         return new ConcreteInstanceRoot(loadFixtureRoot(instance, instance.getReference()));
     }
 
-    protected static String getRefId(String reference) {
-        return reference.substring(reference.lastIndexOf('/') + 1);
-    }
-
     protected TreeElement loadFixtureRoot(ExternalDataInstance instance,
             String reference) {
-        String refId = getRefId(reference);
+        String refId = VirtualInstances.getReferenceId(reference);
         String instanceBase = instance.getBase().getInstanceName();
 
         String userId = "";
