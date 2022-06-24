@@ -87,8 +87,8 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             return setupFixtureData(instance);
         } else if (instance.getReference().contains("session")) {
             return setupSessionData(instance);
-        } else if (ref.contentEquals(ExternalDataInstance.JR_REMOTE_REFERENCE)) {
-            return setupRemoteData(instance);
+        } else if (ref.startsWith(ExternalDataInstance.JR_REMOTE_REFERENCE)) {
+            return setupExternalDataInstance(instance, ref, SessionFrame.STATE_QUERY_REQUEST);
         } else if (ref.contains("migration")) {
             return setupMigrationData(instance);
         } else if (ref.startsWith(JR_SELECTED_ENTITIES_REFERENCE)) {
@@ -205,11 +205,6 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
     protected long getCurrentDrift() {
         return 0;
-    }
-
-    protected InstanceRoot setupRemoteData(ExternalDataInstance instance) {
-        return getExternalDataInstanceSource(instance, instance.getInstanceId(),
-                SessionFrame.STATE_QUERY_REQUEST);
     }
 
     protected InstanceRoot getExternalDataInstanceSource(
