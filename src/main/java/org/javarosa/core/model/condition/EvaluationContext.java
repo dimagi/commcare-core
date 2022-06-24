@@ -1,5 +1,8 @@
 package org.javarosa.core.model.condition;
 
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.Multimap;
+
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.QuerySensitiveTreeElementWrapper;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
@@ -760,10 +763,36 @@ public class EvaluationContext {
     }
 
     private void updateInstances(Map<String, ExternalDataInstance> instances) {
+        Multimap<String, ExternalDataInstance> byRef = getInstancesByRef();
         instances.forEach((name, instance) -> {
-            if (!formInstances.containsKey(name)) {
+            String ref = instance.getReference();
+            if (!byRef.containsKey(ref)) {
+                if (formInstances.containsKey(name)) {
+                    throw new RuntimeException(String.format(
+                            "EvaluationContext already contains an instance with ID %s with a different ref", name));
+                }
+                formInstances.put(name, instance);
+            } else {
+                for (ExternalDataInstance existing : byRef.get(ref)) {
+                    if (existing.getRoot() == null) {
+                        formInstances.put(existing.getInstanceId(), instance);
+                    }
+                }
+            }
+            if (!formInstances.containsKey(name) || formInstances.get(name).getRoot() == null) {
                 formInstances.put(name, instance);
             }
         });
+    }
+
+    private Multimap<String, ExternalDataInstance> getInstancesByRef() {
+        ImmutableListMultimap.Builder<String, ExternalDataInstance> builder = ImmutableListMultimap.builder();
+        formInstances.values().forEach((instance) -> {
+            if (instance instanceof ExternalDataInstance) {
+                ExternalDataInstance di = (ExternalDataInstance)instance;
+                builder.put(di.getReference(), di);
+            }
+        });
+        return builder.build();
     }
 }
