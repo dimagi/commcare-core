@@ -113,8 +113,12 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
         if (instanceRoot == null) {
             // Maintain backward compatibility with instance references that don't have a id in reference
-            // should be removed once we move all external data references to jr://instance/<schema>/<id>
-            instanceRoot = getExternalDataInstanceSource(instance.getInstanceId(), stepType);
+            // should be removed once we move all external data instance connectors in existing apps to new
+            // reference style jr://instance/<schema>/<id>
+            if (isNonUniqueReference(reference)) {
+                String referenceWithId = reference.concat("/").concat(instance.getInstanceId());
+                instanceRoot = getExternalDataInstanceSource(referenceWithId, stepType);
+            }
         }
 
         if (instanceRoot == null) {
@@ -122,6 +126,12 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         }
 
         return instanceRoot == null ? ConcreteInstanceRoot.NULL : instanceRoot;
+    }
+
+    private boolean isNonUniqueReference(String reference) {
+        return reference.contentEquals(ExternalDataInstance.JR_REMOTE_REFERENCE) ||
+                reference.contentEquals(ExternalDataInstance.JR_SELECTED_ENTITIES_REFERENCE) ||
+                reference.contentEquals(ExternalDataInstance.JR_SEARCH_INPUT_REFERENCE);
     }
 
     protected InstanceRoot setupLedgerData(ExternalDataInstance instance) {
