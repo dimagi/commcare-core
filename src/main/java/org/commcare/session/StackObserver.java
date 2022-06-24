@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class StackObserver {
     public enum EventType {
-        FRAME_PUSHED, FRAME_DROPPED, STEP_PUSHED, STEPS_REWOUND, SMART_LINK_SET
+        PUSHED, DROPPED, SMART_LINK_SET
     }
     public abstract class StackEvent {
         private final EventType type;
@@ -85,22 +85,22 @@ public class StackObserver {
     /**
      * Called when a new frame is pushed onto the stack
      */
-    public void framePushed(SessionFrame frame) {
-        events.add(new FrameEvent(EventType.FRAME_PUSHED, frame));
+    public void pushed(SessionFrame frame) {
+        events.add(new FrameEvent(EventType.PUSHED, frame));
     }
 
     /**
      * Called when a frame is removed or cleared
      */
-    public void frameDropped(SessionFrame frame) {
-        events.add(new FrameEvent(EventType.FRAME_DROPPED, frame));
+    public void dropped(SessionFrame frame) {
+        events.add(new FrameEvent(EventType.DROPPED, frame));
     }
 
     /**
      * Step pushed onto the current frame
      */
-    public void stepPushed(StackFrameStep step) {
-        events.add(new StepEvent(EventType.STEP_PUSHED, step));
+    public void pushed(StackFrameStep step) {
+        events.add(new StepEvent(EventType.PUSHED, step));
     }
 
     /**
@@ -113,8 +113,8 @@ public class StackObserver {
     /**
      * Steps were rewound
      */
-    public void stepsRewound(List<StackFrameStep> steps) {
-        events.add(new StepEvent(EventType.STEPS_REWOUND, steps));
+    public void dropped(List<StackFrameStep> steps) {
+        events.add(new StepEvent(EventType.DROPPED, steps));
     }
 
     public List<StackEvent> getEvents() {
@@ -125,8 +125,7 @@ public class StackObserver {
         List<StackFrameStep> removed = new ArrayList<>();
         for (StackEvent event : events) {
             switch (event.type) {
-                case FRAME_DROPPED:
-                case STEPS_REWOUND:
+                case DROPPED:
                     removed.addAll(event.getSteps());
                     break;
             }
