@@ -18,6 +18,9 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.FunctionUtils;
+import org.javarosa.xpath.expr.XPathExpression;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -118,6 +121,29 @@ public class CaseClaimModelTests {
                 ImmutableList.of("external_id = 123"),
                 "patient_id_custom_id"
         );
+    }
+
+    /**
+     * Test that using 'current()' works with the lazy initialized instances
+     */
+    @Test
+    public void testRemoteRequestSessionManager_getRawQueryParamsWithUserInput_current() throws Exception {
+        MockApp mApp = new MockApp("/case_claim_example/");
+
+        SessionWrapper session = mApp.getSession();
+        session.setCommand("patient-search");
+
+        Map<String, String> input = ImmutableMap.of("name", "bob", "age", "23");
+        ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance("patients", input);
+
+        // make sure the evaluation context doesn't get an instance with ID=userInputInstance.instanceID
+        // After this there should this instance should be registered under 2 IDs: 'anything' and 'my-search-input'
+        ImmutableMap<String, ExternalDataInstance> instances = ImmutableMap.of("anything", userInputInstance);
+        EvaluationContext evaluationContext = session.getEvaluationContext().spawnWithCleanLifecycle(instances);
+
+        XPathExpression xpe = XPathParseTool.parseXPath("count(instance('my-search-input')/input/field[current()/@name = 'name'])");
+        Object eval = xpe.eval(evaluationContext);
+        Assert.assertEquals("1", FunctionUtils.toString(eval));
     }
 
     @Test
