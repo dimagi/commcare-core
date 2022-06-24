@@ -12,7 +12,9 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.instance.utils.TreeUtilities;
 import org.javarosa.core.model.trace.BulkEvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
@@ -775,11 +777,19 @@ public class EvaluationContext {
             } else {
                 for (ExternalDataInstance existing : byRef.get(ref)) {
                     if (existing.getRoot() == null) {
-                        formInstances.put(existing.getInstanceId(), instance);
+                        // just in time initializing of the instance
+                        String instanceId = existing.getInstanceId();
+                        TreeElement root = (TreeElement)instance.getRoot();
+                        if (instanceId != name) {
+                            TreeUtilities.renameInstance(root, instanceId);
+                        }
+                        root.setParent(existing.getBase());
+                        formInstances.put(instanceId, instance);
                     }
                 }
             }
             if (!formInstances.containsKey(name) || formInstances.get(name).getRoot() == null) {
+                // instance name is the same so no need to rename it
                 formInstances.put(name, instance);
             }
         });
