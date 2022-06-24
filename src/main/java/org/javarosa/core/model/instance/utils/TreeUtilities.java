@@ -242,8 +242,9 @@ public class TreeUtilities {
         return cached;
     }
 
-    public static void renameInstance(TreeElement root, String instanceId) {
-        root.accept(new ITreeVisitor() {
+    public static TreeElement renameInstance(TreeElement root, String instanceId) {
+        TreeElement copy = root.deepCopy(false);
+        copy.accept(new ITreeVisitor() {
             @Override
             public void visit(FormInstance tree) {
                 throw new RuntimeException("Not implemented");
@@ -254,5 +255,6 @@ public class TreeUtilities {
                 ((TreeElement) element).setInstanceName(instanceId);
             }
         });
+        return copy;
     }
 }

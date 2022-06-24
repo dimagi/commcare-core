@@ -9,6 +9,7 @@ import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.cases.util.QueryUtils;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.ConcreteInstanceRoot;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
@@ -781,10 +782,10 @@ public class EvaluationContext {
                         String instanceId = existing.getInstanceId();
                         TreeElement root = (TreeElement)instance.getRoot();
                         if (instanceId != name) {
-                            TreeUtilities.renameInstance(root, instanceId);
+                            root = TreeUtilities.renameInstance(root, instanceId);
                         }
                         root.setParent(existing.getBase());
-                        formInstances.put(instanceId, instance);
+                        existing.copyFromSource(new ConcreteInstanceRoot(root));
                     }
                 }
             }
