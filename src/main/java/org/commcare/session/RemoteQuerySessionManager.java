@@ -151,6 +151,8 @@ public class RemoteQuerySessionManager {
                 ImmutableMap.of(
                         userInputInstance.getInstanceId(), userInputInstance,
                         // Temporary method to make the 'search-input' instance available using the legacy ID
+                        // Technically this instance elements should get renamed to match the instance ID, but
+                        // it's OK here since the other instance is always going to be in the eval context.
                         "search-input", userInputInstance
                 )
         );
