@@ -142,8 +142,12 @@ public class CaseClaimModelTests {
         EvaluationContext evaluationContext = session.getEvaluationContext().spawnWithCleanLifecycle(instances);
 
         XPathExpression xpe = XPathParseTool.parseXPath("count(instance('my-search-input')/input/field[current()/@name = 'name'])");
-        Object eval = xpe.eval(evaluationContext);
-        Assert.assertEquals("1", FunctionUtils.toString(eval));
+        String result = FunctionUtils.toString(xpe.eval(evaluationContext));
+        Assert.assertEquals("1", result);
+
+        XPathExpression xpe1 = XPathParseTool.parseXPath("count(instance('anything')/input/field[current()/@name = 'name'])");
+        String result1 = FunctionUtils.toString(xpe1.eval(evaluationContext));
+        Assert.assertEquals("1", result1);
     }
 
     @Test
