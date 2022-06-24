@@ -18,6 +18,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -137,17 +138,23 @@ public class CaseClaimModelTests {
         ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance("patients", input);
 
         // make sure the evaluation context doesn't get an instance with ID=userInputInstance.instanceID
-        // After this there should this instance should be registered under 2 IDs: 'anything' and 'my-search-input'
-        ImmutableMap<String, ExternalDataInstance> instances = ImmutableMap.of("anything", userInputInstance);
+        // After this there should this instance should be registered under 2 IDs: 'bad-id' and 'my-search-input'
+        ImmutableMap<String, ExternalDataInstance> instances = ImmutableMap.of("bad-id", userInputInstance);
         EvaluationContext evaluationContext = session.getEvaluationContext().spawnWithCleanLifecycle(instances);
 
         XPathExpression xpe = XPathParseTool.parseXPath("count(instance('my-search-input')/input/field[current()/@name = 'name'])");
         String result = FunctionUtils.toString(xpe.eval(evaluationContext));
         Assert.assertEquals("1", result);
 
-        XPathExpression xpe1 = XPathParseTool.parseXPath("count(instance('anything')/input/field[current()/@name = 'name'])");
-        String result1 = FunctionUtils.toString(xpe1.eval(evaluationContext));
-        Assert.assertEquals("1", result1);
+        try {
+            XPathExpression xpe1 = XPathParseTool.parseXPath(
+                    "count(instance('bad-id')/input/field[current()/@name = 'name'])");
+            FunctionUtils.toString(xpe1.eval(evaluationContext));
+            Assert.fail("Expected exception");
+        } catch (XPathMissingInstanceException e) {
+            // this fails because we added this instance to the eval context with a different ID ('bad-id')
+            Assert.assertTrue(e.getMessage().contains("search-input:patients"));
+        }
     }
 
     @Test
