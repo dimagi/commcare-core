@@ -1,5 +1,6 @@
 package org.commcare.data.xml;
 
+import static org.javarosa.core.model.instance.ExternalDataInstance.JR_REMOTE_REFERENCE;
 import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SEARCH_INPUT_REFERENCE;
 import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SELECTED_ENTITIES_REFERENCE;
 
@@ -47,12 +48,16 @@ public class VirtualInstances {
     }
 
 
-    private static String getSelectedEntitiesReference(String referenceId) {
+    public static String getSelectedEntitiesReference(String referenceId) {
         return JR_SELECTED_ENTITIES_REFERENCE.concat("/").concat(referenceId);
     }
 
-    private static String getSearchInputReference(String referenceId) {
+    public static String getSearchInputReference(String referenceId) {
         return JR_SEARCH_INPUT_REFERENCE.concat("/").concat(referenceId);
+    }
+
+    public static String getRemoteReference(String referenceId) {
+        return JR_REMOTE_REFERENCE.concat("/").concat(referenceId);
     }
 
     public static String getReferenceId(String reference) {

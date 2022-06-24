@@ -106,26 +106,25 @@ public class StackFrameStep implements Externalizable {
         Objects.requireNonNull(source, String.format(
                 "Unable to add null instance data source to stack frame step '%s'", getId()));
         String reference = source.getReference();
-        String referenceId = VirtualInstances.getReferenceId(reference);
-        if (dataInstanceSources.containsKey(referenceId)) {
+        if (dataInstanceSources.containsKey(reference)) {
             throw new RuntimeException(String.format(
                     "Stack frame step '%s' already contains an instance with the reference '%s'",
                     getId(), reference
             ));
         }
-        dataInstanceSources.put(referenceId, source);
+        dataInstanceSources.put(reference, source);
     }
 
     public Hashtable<String, ExternalDataInstanceSource> getDataInstanceSources() {
         return dataInstanceSources;
     }
 
-    public boolean hasDataInstanceSource(String referenceId) {
-        return dataInstanceSources.containsKey(referenceId);
+    public boolean hasDataInstanceSource(String reference) {
+        return dataInstanceSources.containsKey(reference);
     }
 
-    public ExternalDataInstanceSource getDataInstanceSource(String referenceId) {
-        return dataInstanceSources.get(referenceId);
+    public ExternalDataInstanceSource getDataInstanceSource(String reference) {
+        return dataInstanceSources.get(reference);
     }
 
     public void initDataInstanceSources(RemoteInstanceFetcher remoteInstanceFetcher)

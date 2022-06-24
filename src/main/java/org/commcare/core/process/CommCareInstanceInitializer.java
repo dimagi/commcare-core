@@ -109,8 +109,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
      */
     protected InstanceRoot setupExternalDataInstance(ExternalDataInstance instance, String reference,
             String stepType) {
-        String referenceId = VirtualInstances.getReferenceId(reference);
-        InstanceRoot instanceRoot = getExternalDataInstanceSource(referenceId, stepType);
+        InstanceRoot instanceRoot = getExternalDataInstanceSource(reference, stepType);
 
         if (instanceRoot == null) {
             // Maintain backward compatibility with instance references that don't have a id in reference
@@ -209,10 +208,10 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         return 0;
     }
 
-    protected InstanceRoot getExternalDataInstanceSource(String instanceId, String stepType) {
+    protected InstanceRoot getExternalDataInstanceSource(String reference, String stepType) {
         for (StackFrameStep step : session.getFrame().getSteps()) {
-            if (step.getType().equals(stepType) && step.hasDataInstanceSource(instanceId)) {
-                return step.getDataInstanceSource(instanceId);
+            if (step.getType().equals(stepType) && step.hasDataInstanceSource(reference)) {
+                return step.getDataInstanceSource(reference);
             }
         }
         return null;
