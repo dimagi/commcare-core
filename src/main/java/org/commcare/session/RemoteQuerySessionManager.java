@@ -144,9 +144,9 @@ public class RemoteQuerySessionManager {
 
     private EvaluationContext getEvaluationContextWithUserInputInstance() {
         Map<String, String> userQueryValues = getUserQueryValues(false);
-        String instanceID = VirtualInstances.makeSearchInputInstanceID(queryDatum.getDataId());
+        String refId = queryDatum.getDataId();
         ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(
-                instanceID, userQueryValues);
+                refId, userQueryValues);
         return evaluationContext.spawnWithCleanLifecycle(
                 ImmutableMap.of(
                         userInputInstance.getInstanceId(), userInputInstance,
