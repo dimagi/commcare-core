@@ -112,6 +112,15 @@ public class CaseClaimModelTests {
     }
 
     @Test
+    public void testRemoteRequestSessionManager_getRawQueryParamsWithUserInput_customInstanceId() throws Exception {
+        testGetRawQueryParamsWithUserInput(
+                ImmutableMap.of("patient_id", "123"),
+                ImmutableList.of("external_id = 123"),
+                "patient_id_custom_id"
+        );
+    }
+
+    @Test
     public void testRemoteRequestSessionManager_getRawQueryParamsWithExclude() throws Exception {
         testGetRawQueryParamsWithUserInputExcluded(
                 ImmutableMap.of("exclude_patient_id", "123")
