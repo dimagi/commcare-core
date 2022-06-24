@@ -750,15 +750,19 @@ public class EvaluationContext {
 
     public EvaluationContext spawnWithCleanLifecycle(Map<String, DataInstance> additionalInstances) {
         EvaluationContext ec = new EvaluationContext(this, this.getContextRef());
-        if (additionalInstances != null) {
-            additionalInstances.forEach((name, instance) -> {
-                if (!ec.formInstances.containsKey(name)) {
-                    ec.formInstances.put(name, instance);
-                }
-            });
-        }
         QueryContext qc = ec.getCurrentQueryContext().forceNewChildContext();
         ec.setQueryContext(qc);
+        if (additionalInstances != null) {
+            ec.updateInstances(additionalInstances);
+        }
         return ec;
+    }
+
+    private void updateInstances(Map<String, DataInstance> instances) {
+        instances.forEach((name, instance) -> {
+            if (!formInstances.containsKey(name)) {
+                formInstances.put(name, instance);
+            }
+        });
     }
 }
