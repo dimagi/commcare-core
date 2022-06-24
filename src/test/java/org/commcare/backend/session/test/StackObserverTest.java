@@ -1,25 +1,14 @@
 package org.commcare.backend.session.test;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import com.google.common.collect.ImmutableList;
 
 import org.commcare.modern.session.SessionWrapper;
-import org.commcare.session.SessionFrame;
+import org.commcare.modern.util.Pair;
 import org.commcare.session.StackObserver;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.StackFrameStep;
-import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class StackObserverTest {
 
@@ -38,20 +27,40 @@ public class StackObserverTest {
         session.executeStackOperations(action.getStackOperations(), session.getEvaluationContext(),
                 observer);
 
-        assertEvents(observer, StackObserver.EventType.STEP_PUSHED, StackObserver.EventType.STEP_PUSHED);
+        assertEvents(
+                observer,
+                StackObserver.StepEvent.class, StackObserver.EventType.PUSHED,
+                StackObserver.StepEvent.class, StackObserver.EventType.PUSHED);
 
         observer.reset();
         session.finishExecuteAndPop(session.getEvaluationContext(), observer);
 
-        assertEvents(observer, StackObserver.EventType.STEPS_REWOUND, StackObserver.EventType.STEP_PUSHED);
+        assertEvents(
+                observer,
+                StackObserver.StepEvent.class, StackObserver.EventType.DROPPED,
+                StackObserver.StepEvent.class, StackObserver.EventType.PUSHED);
 
         observer.reset();
         session.finishExecuteAndPop(session.getEvaluationContext(), observer);
-        assertEvents(observer, StackObserver.EventType.FRAME_DROPPED);
+        assertEvents(observer, StackObserver.FrameEvent.class, StackObserver.EventType.DROPPED);
     }
 
-    private void assertEvents(StackObserver observer, StackObserver.EventType... expectedEvents) {
-        Object[] actual = observer.getEvents().stream().map(StackObserver.StackEvent::getType).toArray();
-        assertArrayEquals(actual, expectedEvents);
+    private void assertEvents(StackObserver observer,
+            Class<? extends StackObserver.StackEvent> event1, StackObserver.EventType type1
+    ) {
+        Object[] expected = new Object[] {new Pair<>(event1, type1)};
+        assertEvents(observer, expected);
+    }
+
+    private void assertEvents(StackObserver observer,
+            Class<? extends StackObserver.StackEvent> event1, StackObserver.EventType type1,
+            Class<? extends StackObserver.StackEvent> event2, StackObserver.EventType type2
+    ) {
+        Object[] expected = new Object[] {new Pair<>(event1, type1), new Pair<>(event2, type2)};
+        assertEvents(observer, expected);
+    }
+    private void assertEvents(StackObserver observer, Object[] expected) {
+        Object[] actual = observer.getEvents().stream().map((e) -> new Pair<>(e.getClass(), e.getType())).toArray();
+        assertArrayEquals(actual, expected);
     }
 }

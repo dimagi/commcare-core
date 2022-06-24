@@ -756,7 +756,7 @@ public class CommCareSession {
         }
         StackFrameStep pushStep = step.defineStep(ec, neededDatum);
         frame.pushStep(pushStep);
-        observer.stepPushed(pushStep);
+        observer.pushed(pushStep);
     }
 
     private static SessionDatum getNeededDatumForFrame(CommCareSession session,
@@ -789,14 +789,14 @@ public class CommCareSession {
         cleanStack();
 
         frameStack.push(matchingFrame);
-        observer.framePushed(matchingFrame);
+        observer.pushed(matchingFrame);
     }
 
     private void performClearOperation(StackOperation op,
                                        EvaluationContext ec, StackObserver observer) {
         if (op.isOperationTriggered(ec)) {
             frameStack.removeElement(frame);
-            observer.frameDropped(frame);
+            observer.dropped(frame);
         }
     }
 
@@ -875,11 +875,11 @@ public class CommCareSession {
 
         if (frameStack.empty()) {
             if (!didRewind) {
-                observer.frameDropped(frame);
+                observer.dropped(frame);
             }
             return didRewind;
         } else {
-            observer.frameDropped(frame);
+            observer.dropped(frame);
             frame = frameStack.pop();
             //Ok, so if _after_ popping from the stack, we still have
             //stack members, we need to be careful about making sure

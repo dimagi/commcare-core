@@ -142,13 +142,13 @@ public class SessionFrame implements Externalizable {
 
         if (markIndex >= 0) {
             String markDatumId = steps.get(markIndex).getId();
-            observer.stepsRewound(steps.subList(markIndex, steps.size()));
+            observer.dropped(steps.subList(markIndex, steps.size()));
             steps = new Vector<>(steps.subList(0, markIndex));
             if (step.getValue() != null) {
                 String evaluatedStepValue = step.evaluateValue(evalContext);
                 StackFrameStep rewindStep = new StackFrameStep(SessionFrame.STATE_UNKNOWN, markDatumId, evaluatedStepValue);
                 steps.addElement(rewindStep);
-                observer.stepPushed(rewindStep);
+                observer.pushed(rewindStep);
             }
             return true;
         } else {
