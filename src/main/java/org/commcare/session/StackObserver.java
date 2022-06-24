@@ -34,7 +34,7 @@ public class StackObserver {
         }
     }
 
-    class FrameEvent extends StackEvent {
+    public class FrameEvent extends StackEvent {
         private final SessionFrame frame;
 
         FrameEvent(EventType type, SessionFrame frame) {
@@ -48,7 +48,7 @@ public class StackObserver {
         }
     }
 
-    class StepEvent extends StackEvent {
+    public class StepEvent extends StackEvent {
         private final List<StackFrameStep> steps;
 
         StepEvent(EventType type, StackFrameStep step) {
