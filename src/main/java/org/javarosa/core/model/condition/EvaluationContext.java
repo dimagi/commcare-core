@@ -7,6 +7,7 @@ import org.commcare.cases.util.QueryUtils;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.BulkEvaluationTrace;
@@ -748,7 +749,7 @@ public class EvaluationContext {
         return spawnWithCleanLifecycle(null);
     }
 
-    public EvaluationContext spawnWithCleanLifecycle(Map<String, DataInstance> additionalInstances) {
+    public EvaluationContext spawnWithCleanLifecycle(Map<String, ExternalDataInstance> additionalInstances) {
         EvaluationContext ec = new EvaluationContext(this, this.getContextRef());
         QueryContext qc = ec.getCurrentQueryContext().forceNewChildContext();
         ec.setQueryContext(qc);
@@ -758,7 +759,7 @@ public class EvaluationContext {
         return ec;
     }
 
-    private void updateInstances(Map<String, DataInstance> instances) {
+    private void updateInstances(Map<String, ExternalDataInstance> instances) {
         instances.forEach((name, instance) -> {
             if (!formInstances.containsKey(name)) {
                 formInstances.put(name, instance);
