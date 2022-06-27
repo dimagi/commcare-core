@@ -136,15 +136,19 @@ public class SessionFrame implements Externalizable {
         return recentPop;
     }
 
-    protected boolean rewindToMarkAndSet(StackFrameStep step, EvaluationContext evalContext) {
+    protected boolean rewindToMarkAndSet(StackFrameStep step, EvaluationContext evalContext,
+            StackObserver observer) {
         int markIndex = getLatestMarkPosition(steps);
 
         if (markIndex >= 0) {
             String markDatumId = steps.get(markIndex).getId();
+            observer.dropped(steps.subList(markIndex, steps.size()));
             steps = new Vector<>(steps.subList(0, markIndex));
             if (step.getValue() != null) {
                 String evaluatedStepValue = step.evaluateValue(evalContext);
-                steps.addElement(new StackFrameStep(SessionFrame.STATE_UNKNOWN, markDatumId, evaluatedStepValue));
+                StackFrameStep rewindStep = new StackFrameStep(SessionFrame.STATE_UNKNOWN, markDatumId, evaluatedStepValue);
+                steps.addElement(rewindStep);
+                observer.pushed(rewindStep);
             }
             return true;
         } else {

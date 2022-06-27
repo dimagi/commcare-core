@@ -141,6 +141,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     }
 
     public void setInstanceName(String instanceName) {
+        expireReferenceCache();
         this.instanceName = instanceName;
     }
 
