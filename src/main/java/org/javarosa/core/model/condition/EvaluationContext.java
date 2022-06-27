@@ -1,14 +1,21 @@
 package org.javarosa.core.model.condition;
 
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.Multimap;
+
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.QuerySensitiveTreeElementWrapper;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.cases.util.QueryUtils;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.ConcreteInstanceRoot;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.instance.utils.TreeUtilities;
 import org.javarosa.core.model.trace.BulkEvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
@@ -748,17 +755,56 @@ public class EvaluationContext {
         return spawnWithCleanLifecycle(null);
     }
 
-    public EvaluationContext spawnWithCleanLifecycle(Map<String, DataInstance> additionalInstances) {
+    public EvaluationContext spawnWithCleanLifecycle(Map<String, ExternalDataInstance> additionalInstances) {
         EvaluationContext ec = new EvaluationContext(this, this.getContextRef());
-        if (additionalInstances != null) {
-            additionalInstances.forEach((name, instance) -> {
-                if (!ec.formInstances.containsKey(name)) {
-                    ec.formInstances.put(name, instance);
-                }
-            });
-        }
         QueryContext qc = ec.getCurrentQueryContext().forceNewChildContext();
         ec.setQueryContext(qc);
+        if (additionalInstances != null) {
+            ec.updateInstances(additionalInstances);
+        }
         return ec;
+    }
+
+    private void updateInstances(Map<String, ExternalDataInstance> instances) {
+        Multimap<String, ExternalDataInstance> byRef = getInstancesByRef();
+        instances.forEach((name, instance) -> {
+            String ref = instance.getReference();
+            if (!byRef.containsKey(ref)) {
+                if (formInstances.containsKey(name)) {
+                    throw new RuntimeException(String.format(
+                            "EvaluationContext already contains an instance with ID %s with a different ref", name));
+                }
+                formInstances.put(name, instance);
+            } else {
+                for (ExternalDataInstance existing : byRef.get(ref)) {
+                    if (existing.getRoot() == null) {
+                        // just in time initializing of the instance
+                        String instanceId = existing.getInstanceId();
+                        TreeElement root = (TreeElement)instance.getRoot();
+                        if (instanceId != name) {
+                            root = TreeUtilities.renameInstance(root, instanceId);
+                        }
+                        root.setParent(existing.getBase());
+                        existing.copyFromSource(new ConcreteInstanceRoot(root));
+                    }
+                }
+            }
+            if (!formInstances.containsKey(name) || formInstances.get(name).getRoot() == null) {
+                // instance name is the same so no need to rename it
+                formInstances.put(name, instance);
+            }
+        });
+    }
+
+    private Multimap<String, ExternalDataInstance> getInstancesByRef() {
+        ImmutableListMultimap.Builder<String, ExternalDataInstance> builder = ImmutableListMultimap.builder();
+        formInstances.values().forEach((instance) -> {
+            if (instance instanceof ExternalDataInstance) {
+                ExternalDataInstance di = (ExternalDataInstance)instance;
+                builder.put(di.getReference(), di);
+            }
+        });
+        ImmutableListMultimap<String, ExternalDataInstance> byRef = builder.build();
+        return byRef;
     }
 }

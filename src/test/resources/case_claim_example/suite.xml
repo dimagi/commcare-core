@@ -59,11 +59,13 @@
     </command>
     <instance id="session" src="jr://instance/session"/>
     <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="my-search-input" src="jr://instance/search-input/patients"/>
     <session>
       <query url="https://www.fake.com/patient_search/" storage-instance="patients">
         <data key="device_id" ref="instance('session')/session/context/deviceid"/>
         <data key="patient_id" ref="if(count(instance('search-input:patients')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('search-input:patients')/input/field[@name='patient_id']), '')"/>
         <data key="patient_id_legacy" ref="if(count(instance('search-input')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('search-input')/input/field[@name='patient_id']), '')"/>
+        <data key="patient_id_custom_id" ref="if(count(instance('my-search-input')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('my-search-input')/input/field[@name='patient_id']), '')"/>
         <prompt key="name" default="instance('session')/session/context/deviceid">
           <display>
             <text>

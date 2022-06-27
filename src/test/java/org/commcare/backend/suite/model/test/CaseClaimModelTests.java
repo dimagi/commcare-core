@@ -18,6 +18,10 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.xpath.XPathMissingInstanceException;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.FunctionUtils;
+import org.javarosa.xpath.expr.XPathExpression;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -109,6 +113,48 @@ public class CaseClaimModelTests {
     @Test
     public void testRemoteRequestSessionManager_getRawQueryParamsWithUserInput_missing_legacy() throws Exception {
         testGetRawQueryParamsWithUserInput(Collections.emptyMap(), ImmutableList.of(""), "patient_id_legacy");
+    }
+
+    @Test
+    public void testRemoteRequestSessionManager_getRawQueryParamsWithUserInput_customInstanceId() throws Exception {
+        testGetRawQueryParamsWithUserInput(
+                ImmutableMap.of("patient_id", "123"),
+                ImmutableList.of("external_id = 123"),
+                "patient_id_custom_id"
+        );
+    }
+
+    /**
+     * Test that using 'current()' works with the lazy initialized instances
+     */
+    @Test
+    public void testRemoteRequestSessionManager_getRawQueryParamsWithUserInput_current() throws Exception {
+        MockApp mApp = new MockApp("/case_claim_example/");
+
+        SessionWrapper session = mApp.getSession();
+        session.setCommand("patient-search");
+
+        Map<String, String> input = ImmutableMap.of("name", "bob", "age", "23");
+        ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance("patients", input);
+
+        // make sure the evaluation context doesn't get an instance with ID=userInputInstance.instanceID
+        // After this there should this instance should be registered under 2 IDs: 'bad-id' and 'my-search-input'
+        ImmutableMap<String, ExternalDataInstance> instances = ImmutableMap.of("bad-id", userInputInstance);
+        EvaluationContext evaluationContext = session.getEvaluationContext().spawnWithCleanLifecycle(instances);
+
+        XPathExpression xpe = XPathParseTool.parseXPath("count(instance('my-search-input')/input/field[current()/@name = 'name'])");
+        String result = FunctionUtils.toString(xpe.eval(evaluationContext));
+        Assert.assertEquals("1", result);
+
+        try {
+            XPathExpression xpe1 = XPathParseTool.parseXPath(
+                    "count(instance('bad-id')/input/field[current()/@name = 'name'])");
+            FunctionUtils.toString(xpe1.eval(evaluationContext));
+            Assert.fail("Expected exception");
+        } catch (XPathMissingInstanceException e) {
+            // this fails because we added this instance to the eval context with a different ID ('bad-id')
+            Assert.assertTrue(e.getMessage().contains("search-input:patients"));
+        }
     }
 
     @Test
