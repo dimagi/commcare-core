@@ -239,7 +239,7 @@ public class EvaluationContext {
             for (Map.Entry<String, DataInstance> entry : formInstances.entrySet()) {
                 DataInstance inst = entry.getValue();
                 if (inst instanceof ExternalDataInstance) {
-                    inst = new ExternalDataInstance((ExternalDataInstance)inst);
+                    inst = ((ExternalDataInstance)inst).copy();
                 }
                 this.formInstances.put(entry.getKey(), inst);
             }

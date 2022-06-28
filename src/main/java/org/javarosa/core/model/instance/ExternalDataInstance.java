@@ -163,4 +163,12 @@ public class ExternalDataInstance extends DataInstance {
         copyFromSource((InstanceRoot)source);
         this.source = source;
     }
+
+    /**
+     * Copy method to allow creating copies of this instance without having to know
+     * what the instance class is.
+     */
+    public ExternalDataInstance copy() {
+        return new ExternalDataInstance(this);
+    }
 }
