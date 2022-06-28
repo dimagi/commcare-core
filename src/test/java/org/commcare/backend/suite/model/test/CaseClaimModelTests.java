@@ -52,28 +52,25 @@ public class CaseClaimModelTests {
 
     @Test
     public void testPopulateItemsetChoices__inputReference() throws Exception {
-        testPopulateItemsetChoices(ImmutableMap.of("state", "ka"), ImmutableList.of("bang"));
+        RemoteQuerySessionManager remoteQuerySessionManager = testPopulateItemsetChoices(
+                ImmutableMap.of("state", "ka"), ImmutableList.of("bang"), null);
+
+        // test updating input updates the dependent itemset
+        testPopulateItemsetChoices(
+                ImmutableMap.of("state", "rj"), ImmutableList.of("kota"), remoteQuerySessionManager);
     }
 
     @Test
     public void testPopulateItemsetChoices__emptyInput() throws Exception {
-        testPopulateItemsetChoices(Collections.emptyMap(), Collections.emptyList());
+        testPopulateItemsetChoices(Collections.emptyMap(), Collections.emptyList(), null);
     }
 
-    private void testPopulateItemsetChoices(Map<String, String> userInput, List<String> expected)
+    private RemoteQuerySessionManager testPopulateItemsetChoices(Map<String, String> userInput, List<String> expected,
+            RemoteQuerySessionManager existingQuerySessionManager)
             throws Exception {
-        MockApp mApp = new MockApp("/case_claim_example/");
-
-        SessionWrapper session = mApp.getSession();
-        session.setCommand("patient-search");
-
-        ExternalDataInstance districtInstance = buildDistrictInstance();
-        EvaluationContext context = session.getEvaluationContext().spawnWithCleanLifecycle(ImmutableMap.of(
-                districtInstance.getInstanceId(), districtInstance
-        ));
-
-        RemoteQuerySessionManager remoteQuerySessionManager = RemoteQuerySessionManager.buildQuerySessionManager(
-                session, context, ImmutableList.of(QueryPrompt.INPUT_TYPE_SELECT1));
+        RemoteQuerySessionManager remoteQuerySessionManager =
+                existingQuerySessionManager == null ? buildRemoteQuerySessionManager()
+                        : existingQuerySessionManager;
 
         userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
 
@@ -85,6 +82,22 @@ public class CaseClaimModelTests {
         List<String> choices = districtPrompt.getItemsetBinding().getChoices().stream().map(
                 SelectChoice::getValue).collect(Collectors.toList());
         Assert.assertEquals(expected, choices);
+        return remoteQuerySessionManager;
+    }
+
+    private RemoteQuerySessionManager buildRemoteQuerySessionManager() throws Exception {
+        MockApp mApp = new MockApp("/case_claim_example/");
+
+        SessionWrapper session = mApp.getSession();
+        session.setCommand("patient-search");
+
+        ExternalDataInstance districtInstance = buildDistrictInstance();
+        EvaluationContext context = session.getEvaluationContext().spawnWithCleanLifecycle(ImmutableMap.of(
+                districtInstance.getInstanceId(), districtInstance
+        ));
+
+        return RemoteQuerySessionManager.buildQuerySessionManager(
+                session, context, ImmutableList.of(QueryPrompt.INPUT_TYPE_SELECT1));
     }
 
     @Test
