@@ -141,9 +141,11 @@ public class EvaluationContext {
                               Hashtable<String, DataInstance> formInstances) {
         //TODO: These should be deep, not shallow
         this.functionHandlers = base.functionHandlers;
-        this.formInstances = formInstances;
-        this.variables = new Hashtable<>();
 
+        this.formInstances = new Hashtable<>();
+        this.copyInstances(formInstances);
+
+        this.variables = new Hashtable<>();
         //TODO: this is actually potentially much slower than
         //our old strategy (but is needed for this object to
         //be threadsafe). We should evaluate the potential impact.
@@ -224,6 +226,23 @@ public class EvaluationContext {
         for (Enumeration e = variablesToCopy.keys(); e.hasMoreElements(); ) {
             String key = (String)e.nextElement();
             variables.put(key, variablesToCopy.get(key));
+        }
+    }
+
+    /**
+     * This is not a true deep copy since it does not copy the underlying data structures,
+     * but it does isolate some changes to the instances which happen when spawning new contexts
+     * e.g. replacing the root.
+     */
+    private void copyInstances(Hashtable<String, DataInstance> formInstances) {
+        if (formInstances != null) {
+            for (Map.Entry<String, DataInstance> entry : formInstances.entrySet()) {
+                DataInstance inst = entry.getValue();
+                if (inst instanceof ExternalDataInstance) {
+                    inst = new ExternalDataInstance((ExternalDataInstance)inst);
+                }
+                this.formInstances.put(entry.getKey(), inst);
+            }
         }
     }
 
