@@ -126,7 +126,8 @@ public class CaseClaimModelTests {
     }
 
     @Test
-    public void testRemoteRequestSessionManager_getRawQueryParamsWithUserInput_customInstanceId() throws Exception {
+    public void testRemoteRequestSessionManager_getRawQueryParamsWithUserInput_customInstanceId()
+            throws Exception {
         testGetRawQueryParamsWithUserInput(
                 ImmutableMap.of("patient_id", "123"),
                 ImmutableList.of("external_id = 123"),
@@ -152,7 +153,8 @@ public class CaseClaimModelTests {
         ImmutableMap<String, ExternalDataInstance> instances = ImmutableMap.of("bad-id", userInputInstance);
         EvaluationContext evaluationContext = session.getEvaluationContext().spawnWithCleanLifecycle(instances);
 
-        XPathExpression xpe = XPathParseTool.parseXPath("count(instance('my-search-input')/input/field[current()/@name = 'name'])");
+        XPathExpression xpe = XPathParseTool.parseXPath(
+                "count(instance('my-search-input')/input/field[current()/@name = 'name'])");
         String result = FunctionUtils.toString(xpe.eval(evaluationContext));
         Assert.assertEquals("1", result);
 
@@ -199,7 +201,7 @@ public class CaseClaimModelTests {
         SessionWrapper session = mApp.getSession();
         session.setCommand("patient-search");
 
-         return RemoteQuerySessionManager.buildQuerySessionManager(
+        return RemoteQuerySessionManager.buildQuerySessionManager(
                 session, session.getEvaluationContext(), new ArrayList<>());
     }
 
