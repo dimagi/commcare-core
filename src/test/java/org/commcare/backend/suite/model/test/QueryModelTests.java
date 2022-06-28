@@ -13,6 +13,7 @@ import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.util.screen.CommCareSessionException;
 import org.commcare.util.screen.QueryScreen;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Before;
@@ -53,7 +54,8 @@ public class QueryModelTests {
         SessionWrapper session = mApp.getSession();
         QueryScreen screen = setupQueryScreen(session);
 
-        String instanceID = "search-input:registry1";
+        String refId = "registry1";
+        String instanceID = VirtualInstances.makeSearchInputInstanceID(refId);
         String expectedInstanceStorageKey = CryptUtil.sha256(instanceID + "/name=bob|age=23|");
         Assert.assertFalse(virtualDataInstanceStorage.contains(expectedInstanceStorageKey));
 
@@ -65,7 +67,7 @@ public class QueryModelTests {
         Assert.assertTrue(virtualDataInstanceStorage.contains(expectedInstanceStorageKey));
         Map<String, String> input = ImmutableMap.of("name", "bob", "age", "23");
         Assert.assertEquals(
-                VirtualInstances.buildSearchInputInstance(instanceID, input).getRoot(),
+                VirtualInstances.buildSearchInputInstance(refId, input).getRoot(),
                 virtualDataInstanceStorage.read(expectedInstanceStorageKey, instanceID).getRoot());
 
         CaseTestUtils.xpathEvalAndAssert(

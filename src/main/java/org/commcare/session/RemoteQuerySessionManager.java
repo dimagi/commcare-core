@@ -144,13 +144,15 @@ public class RemoteQuerySessionManager {
 
     private EvaluationContext getEvaluationContextWithUserInputInstance() {
         Map<String, String> userQueryValues = getUserQueryValues(false);
-        String instanceID = VirtualInstances.makeSearchInputInstanceID(queryDatum.getDataId());
+        String refId = queryDatum.getDataId();
         ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(
-                instanceID, userQueryValues);
+                refId, userQueryValues);
         return evaluationContext.spawnWithCleanLifecycle(
                 ImmutableMap.of(
                         userInputInstance.getInstanceId(), userInputInstance,
                         // Temporary method to make the 'search-input' instance available using the legacy ID
+                        // Technically this instance elements should get renamed to match the instance ID, but
+                        // it's OK here since the other instance is always going to be in the eval context.
                         "search-input", userInputInstance
                 )
         );
