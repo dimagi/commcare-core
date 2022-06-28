@@ -167,11 +167,11 @@ public class QueryScreen extends Screen {
 
     private ExternalDataInstance getUserInputInstance() {
         String refId = getQueryDatum().getDataId();
-        String instanceID = VirtualInstances.makeSearchInputInstanceID(refId);
+        String instanceId = VirtualInstances.makeSearchInputInstanceID(refId);
         Map<String, String> userQueryValues = remoteQuerySessionManager.getUserQueryValues(false);
-        String key = getInstanceKey(instanceID, userQueryValues);
+        String key = getInstanceKey(instanceId, userQueryValues);
         if (instanceStorage.contains(key)) {
-            return instanceStorage.read(key, instanceID);
+            return instanceStorage.read(key, instanceId);
         }
 
         ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(

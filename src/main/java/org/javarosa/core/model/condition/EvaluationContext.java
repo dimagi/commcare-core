@@ -790,8 +790,9 @@ public class EvaluationContext {
             String ref = instance.getReference();
             if (!byRef.containsKey(ref)) {
                 if (formInstances.containsKey(name)) {
-                    throw new RuntimeException(String.format(
-                            "EvaluationContext already contains an instance with ID %s with a different ref", name));
+                    throw new RuntimeException(
+                            String.format("EvaluationContext already contains an instance with "
+                                    + "ID %s with a different ref", name));
                 }
                 formInstances.put(name, instance);
             } else {
