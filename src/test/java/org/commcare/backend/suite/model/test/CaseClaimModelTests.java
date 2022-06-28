@@ -95,6 +95,7 @@ public class CaseClaimModelTests {
                 "patient_id"
         );
 
+        // test that updating the input results in an updated output
         testGetRawQueryParamsWithUserInput(
                 ImmutableMap.of("patient_id", "124"),
                 ImmutableList.of("external_id = 124"),
