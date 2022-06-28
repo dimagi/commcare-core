@@ -89,11 +89,20 @@ public class CaseClaimModelTests {
 
     @Test
     public void testRemoteRequestSessionManager_getRawQueryParamsWithUserInput() throws Exception {
-        testGetRawQueryParamsWithUserInput(
+        RemoteQuerySessionManager remoteQuerySessionManager = testGetRawQueryParamsWithUserInput(
                 ImmutableMap.of("patient_id", "123"),
                 ImmutableList.of("external_id = 123"),
                 "patient_id"
         );
+
+        testGetRawQueryParamsWithUserInput(
+                ImmutableMap.of("patient_id", "124"),
+                ImmutableList.of("external_id = 124"),
+                "patient_id",
+                remoteQuerySessionManager
+        );
+
+
     }
 
     @Test
@@ -164,21 +173,33 @@ public class CaseClaimModelTests {
         );
     }
 
-    private void testGetRawQueryParamsWithUserInput(Map<String, String> userInput, List<String> expected, String key)
+    private RemoteQuerySessionManager testGetRawQueryParamsWithUserInput(Map<String, String> userInput,
+            List<String> expected, String key) throws Exception {
+        return testGetRawQueryParamsWithUserInput(userInput, expected, key, null);
+    }
+
+    private RemoteQuerySessionManager testGetRawQueryParamsWithUserInput(Map<String, String> userInput,
+            List<String> expected, String key, RemoteQuerySessionManager existingManager)
             throws Exception {
-        MockApp mApp = new MockApp("/case_claim_example/");
-
-        SessionWrapper session = mApp.getSession();
-        session.setCommand("patient-search");
-
-        RemoteQuerySessionManager remoteQuerySessionManager = RemoteQuerySessionManager.buildQuerySessionManager(
-                session, session.getEvaluationContext(), new ArrayList<>());
+        RemoteQuerySessionManager remoteQuerySessionManager =
+                existingManager == null ? buildRemoteQuerySessionManager() : existingManager;
 
         userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
 
         Multimap<String, String> params = remoteQuerySessionManager.getRawQueryParams(true);
 
         Assert.assertEquals(expected, params.get(key));
+        return remoteQuerySessionManager;
+    }
+
+    private RemoteQuerySessionManager buildRemoteQuerySessionManager() throws Exception {
+        MockApp mApp = new MockApp("/case_claim_example/");
+
+        SessionWrapper session = mApp.getSession();
+        session.setCommand("patient-search");
+
+         return RemoteQuerySessionManager.buildQuerySessionManager(
+                session, session.getEvaluationContext(), new ArrayList<>());
     }
 
     private void testGetRawQueryParamsWithUserInputExcluded(Map<String, String> userInput)
