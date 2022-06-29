@@ -208,16 +208,6 @@ public class CaseClaimModelTests {
         return remoteQuerySessionManager;
     }
 
-    private RemoteQuerySessionManager buildRemoteQuerySessionManager() throws Exception {
-        MockApp mApp = new MockApp("/case_claim_example/");
-
-        SessionWrapper session = mApp.getSession();
-        session.setCommand("patient-search");
-
-        return RemoteQuerySessionManager.buildQuerySessionManager(
-                session, session.getEvaluationContext(), new ArrayList<>());
-    }
-
     private void testGetRawQueryParamsWithUserInputExcluded(Map<String, String> userInput)
             throws Exception {
         MockApp mApp = new MockApp("/case_claim_example/");
