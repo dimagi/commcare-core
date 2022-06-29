@@ -37,4 +37,12 @@ public class QueryPromptValidation implements Externalizable {
         ExtUtil.write(out, new ExtWrapTagged(xpath));
         ExtUtil.write(out, message);
     }
+
+    public XPathExpression getXpath() {
+        return xpath;
+    }
+
+    public String getMessage() {
+        return message;
+    }
 }

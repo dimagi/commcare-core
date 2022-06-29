@@ -8,6 +8,7 @@ import org.commcare.cases.util.StringUtils;
 import org.commcare.data.xml.VirtualInstances;
 import org.commcare.suite.model.QueryData;
 import org.commcare.suite.model.QueryPrompt;
+import org.commcare.suite.model.QueryPromptValidation;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.ItemsetBinding;
@@ -41,8 +42,8 @@ public class RemoteQuerySessionManager {
 
     private final RemoteQueryDatum queryDatum;
     private final EvaluationContext evaluationContext;
-    private final Hashtable<String, String> userAnswers =
-            new Hashtable<>();
+    private final Hashtable<String, String> userAnswers = new Hashtable<>();
+    private final Hashtable<String, String> errors = new Hashtable<>();
     private final List<String> supportedPrompts;
 
     private RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
@@ -223,6 +224,20 @@ public class RemoteQuerySessionManager {
                 }
             }
             index++;
+        }
+    }
+
+
+    public void validateUserAnswers() {
+        OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
+        EvaluationContext ec = getEvaluationContextWithUserInputInstance();
+        for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
+            String key = (String)en.nextElement();
+            QueryPrompt queryPrompt = userInputDisplays.get(key);
+            QueryPromptValidation validation = queryPrompt.getValidation();
+            if (validation != null && !((Boolean)validation.getXpath().eval(ec))) {
+                errors.put(key, validation.getMessage());
+            }
         }
     }
 
