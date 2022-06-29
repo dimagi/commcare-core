@@ -94,6 +94,10 @@ public class RemoteQuerySessionManager {
         return userAnswers;
     }
 
+    public Hashtable<String, String> getErrors() {
+        return errors;
+    }
+
     public void clearAnswers() {
         userAnswers.clear();
     }
