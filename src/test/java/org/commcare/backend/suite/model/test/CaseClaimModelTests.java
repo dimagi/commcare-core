@@ -27,9 +27,12 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
 
 /**
  * Tests for basic app models for case claim
@@ -242,5 +245,51 @@ public class CaseClaimModelTests {
 
         TreeElement root = TreeBuilder.buildTree("district", "district_list", nodes);
         return new ExternalDataInstance(ExternalDataInstance.JR_SEARCH_INPUT_REFERENCE, "district", root);
+    }
+
+    @Test
+    public void testErrorsWithUserInput_invalidInput() throws Exception {
+        testErrorsWithUserInput(
+                ImmutableMap.of("name", "", "age", "15"),
+                ImmutableMap.of("name", "name can't be empty", "age", "age should be greater than 18"),
+                null
+        );
+    }
+
+    @Test
+    public void testErrorsWithUserInput_noInput() throws Exception {
+        testErrorsWithUserInput(
+                ImmutableMap.of(),
+                ImmutableMap.of("age", "age should be greater than 18"), null
+        );
+    }
+
+    @Test
+    public void testErrorsWithUserInput_validInput() throws Exception {
+        testErrorsWithUserInput(
+                ImmutableMap.of("name", "Ruth", "age", "21"),
+                ImmutableMap.of(), null
+        );
+    }
+
+    private RemoteQuerySessionManager testErrorsWithUserInput(Map<String, String> userInput,
+            Map<String, String> expectedErrors, @Nullable RemoteQuerySessionManager existingManager)
+            throws Exception {
+        RemoteQuerySessionManager remoteQuerySessionManager =
+                existingManager == null ? buildRemoteQuerySessionManager() : existingManager;
+
+        userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
+        remoteQuerySessionManager.validateUserAnswers();
+        Hashtable<String, String> errors = remoteQuerySessionManager.getErrors();
+
+        if(expectedErrors.isEmpty()){
+           Assert.assertTrue(errors.isEmpty());
+        }
+
+        expectedErrors.forEach((key, expectedError) -> {
+            Assert.assertEquals(expectedError, errors.get(key));
+        });
+
+        return remoteQuerySessionManager;
     }
 }

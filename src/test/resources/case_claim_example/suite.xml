@@ -74,6 +74,14 @@
             </text>
           </display>
         </prompt>
+        <prompt key="age">
+          <validation xpath="int(instance('my-search-input')/input/field[@name='age'])>18" message="age should be greater than 18"/>
+          <display>
+            <text>
+              <locale id="query.name"/>
+            </text>
+          </display>
+        </prompt>
         <prompt key="patient_id" hidden="false" allow_blank_value="true" exclude="false()">
           <display>
             <text>
