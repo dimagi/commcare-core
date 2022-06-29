@@ -67,6 +67,7 @@
         <data key="patient_id_legacy" ref="if(count(instance('search-input')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('search-input')/input/field[@name='patient_id']), '')"/>
         <data key="patient_id_custom_id" ref="if(count(instance('my-search-input')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('my-search-input')/input/field[@name='patient_id']), '')"/>
         <prompt key="name" default="instance('session')/session/context/deviceid">
+          <validation xpath="instance('my-search-input')/input/field[@name='name']!=''" message="name can't be empty"/>
           <display>
             <text>
               <locale id="query.name"/>

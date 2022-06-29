@@ -54,6 +54,9 @@ public class QueryPrompt implements Externalizable {
 
     private boolean allowBlankValue;
 
+    @Nullable
+    private QueryPromptValidation validation;
+
     @SuppressWarnings("unused")
     public QueryPrompt() {
     }
@@ -61,7 +64,7 @@ public class QueryPrompt implements Externalizable {
     public QueryPrompt(String key, String appearance, String input, String receive,
                        String hidden, DisplayUnit display, ItemsetBinding itemsetBinding, 
                        XPathExpression defaultValueExpr, boolean allowBlankValue, XPathExpression exclude,
-                       XPathExpression required) {
+                       XPathExpression required, QueryPromptValidation validation) {
 
         this.key = key;
         this.appearance = appearance;
@@ -74,6 +77,7 @@ public class QueryPrompt implements Externalizable {
         this.allowBlankValue = allowBlankValue;
         this.exclude = exclude;
         this.required = required;
+        this.validation = validation;
     }
 
     @Override
@@ -89,6 +93,7 @@ public class QueryPrompt implements Externalizable {
         allowBlankValue = ExtUtil.readBool(in);
         exclude = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
         required = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
+        validation = (QueryPromptValidation)ExtUtil.read(in, new ExtWrapNullable(QueryPromptValidation.class), pf);
     }
 
     @Override
@@ -104,6 +109,7 @@ public class QueryPrompt implements Externalizable {
         ExtUtil.writeBool(out, allowBlankValue);
         ExtUtil.write(out, new ExtWrapNullable(exclude == null ? null : new ExtWrapTagged(exclude)));
         ExtUtil.write(out, new ExtWrapNullable(required == null ? null : new ExtWrapTagged(required)));
+        ExtUtil.write(out, new ExtWrapNullable(validation));
     }
 
     public String getKey() {
@@ -154,6 +160,11 @@ public class QueryPrompt implements Externalizable {
 
     public XPathExpression getRequired() {
         return required;
+    }
+
+    @Nullable
+    public QueryPromptValidation getValidation() {
+        return validation;
     }
 
     /**
