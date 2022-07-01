@@ -37,6 +37,7 @@ import org.javarosa.xpath.expr.XPathIndexOfFunc;
 import org.javarosa.xpath.expr.XPathIntFunc;
 import org.javarosa.xpath.expr.XPathJoinChunkFunc;
 import org.javarosa.xpath.expr.XPathJoinFunc;
+import org.javarosa.xpath.expr.XPathJsonPropertyFunc;
 import org.javarosa.xpath.expr.XPathLogFunc;
 import org.javarosa.xpath.expr.XPathLogTenFunc;
 import org.javarosa.xpath.expr.XPathLowerCaseFunc;
@@ -75,7 +76,6 @@ import org.javarosa.xpath.expr.XPathUpperCaseFunc;
 import org.javarosa.xpath.expr.XPathUuidFunc;
 import org.javarosa.xpath.expr.XPathWeightedChecklistFunc;
 import org.javarosa.xpath.expr.XpathCoalesceFunc;
-import org.javarosa.xpath.expr.XPathJsonPropertyFunc;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.ArrayList;
