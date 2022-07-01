@@ -37,6 +37,7 @@ import org.javarosa.xpath.expr.XPathIndexOfFunc;
 import org.javarosa.xpath.expr.XPathIntFunc;
 import org.javarosa.xpath.expr.XPathJoinChunkFunc;
 import org.javarosa.xpath.expr.XPathJoinFunc;
+import org.javarosa.xpath.expr.XPathJsonPropertyFunc;
 import org.javarosa.xpath.expr.XPathLogFunc;
 import org.javarosa.xpath.expr.XPathLogTenFunc;
 import org.javarosa.xpath.expr.XPathLowerCaseFunc;
@@ -251,6 +252,8 @@ public class ASTNodeFunctionCall extends ASTNode {
                 return new XPathIndexOfFunc(args);
             case "encrypt-string":
                 return new XPathEncryptStringFunc(args);
+            case "json-property":
+                return new XPathJsonPropertyFunc(args);
             default:
                 return new XPathCustomRuntimeFunc(name, args);
         }
