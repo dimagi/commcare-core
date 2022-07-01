@@ -119,14 +119,14 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             if (isNonUniqueReference(reference)) {
                 String referenceWithId = reference.concat("/").concat(instance.getInstanceId());
                 instanceRoot = getExternalDataInstanceSource(referenceWithId, stepType);
-            }
 
-            // last attempt to find the instance
-            // this is necessary for 'sesarch-input' instances which do not follow the convention
-            // of instance ref = base + instance Id:
-            //    <instance id="search-input:results" ref="jr://instance/search-input/results />
-            if (instanceRoot == null) {
-                instanceRoot = getExternalDataInstanceSourceById(instance.getInstanceId(), stepType);
+                // last attempt to find the instance
+                // this is necessary for 'sesarch-input' instances which do not follow the convention
+                // of instance ref = base + instance Id:
+                //    <instance id="search-input:results" ref="jr://instance/search-input/results />
+                if (instanceRoot == null) {
+                    instanceRoot = getExternalDataInstanceSourceById(instance.getInstanceId(), stepType);
+                }
             }
         }
 
