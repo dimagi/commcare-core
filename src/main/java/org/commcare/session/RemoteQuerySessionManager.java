@@ -46,6 +46,7 @@ public class RemoteQuerySessionManager {
     private final EvaluationContext evaluationContext;
     private final Hashtable<String, String> userAnswers = new Hashtable<>();
     private Hashtable<String, String> errors = new Hashtable<>();
+    private final Hashtable<String, Boolean> requiredPrompts = new Hashtable<>();
     private final List<String> supportedPrompts;
 
     private RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
@@ -98,6 +99,10 @@ public class RemoteQuerySessionManager {
 
     public Hashtable<String, String> getErrors() {
         return errors;
+    }
+
+    public Hashtable<String, Boolean> getRequiredPrompts() {
+        return requiredPrompts;
     }
 
     public void clearAnswers() {
@@ -242,6 +247,19 @@ public class RemoteQuerySessionManager {
     public void refreshInputDependentState() {
         refreshItemSetChoices();
         validateUserAnswers();
+        recalculateRequired();
+    }
+
+    private void recalculateRequired() {
+        OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
+        EvaluationContext ec = getEvaluationContextWithUserInputInstance();
+        for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
+            String key = (String)en.nextElement();
+            QueryPrompt queryPrompt = userInputDisplays.get(key);
+            XPathExpression requiredCondition = queryPrompt.getRequired();
+            boolean isRequired = requiredCondition != null && (Boolean)requiredCondition.eval(ec);
+            requiredPrompts.put(key, isRequired);
+        }
     }
 
     private void validateUserAnswers() {
