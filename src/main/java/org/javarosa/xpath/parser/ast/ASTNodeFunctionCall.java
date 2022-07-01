@@ -75,6 +75,7 @@ import org.javarosa.xpath.expr.XPathUpperCaseFunc;
 import org.javarosa.xpath.expr.XPathUuidFunc;
 import org.javarosa.xpath.expr.XPathWeightedChecklistFunc;
 import org.javarosa.xpath.expr.XpathCoalesceFunc;
+import org.javarosa.xpath.expr.XPathJsonPropertyFunc;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.ArrayList;
@@ -251,6 +252,8 @@ public class ASTNodeFunctionCall extends ASTNode {
                 return new XPathIndexOfFunc(args);
             case "encrypt-string":
                 return new XPathEncryptStringFunc(args);
+            case "json-property":
+                return new XPathJsonPropertyFunc(args);
             default:
                 return new XPathCustomRuntimeFunc(name, args);
         }
