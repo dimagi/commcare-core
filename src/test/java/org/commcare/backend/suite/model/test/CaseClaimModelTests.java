@@ -95,7 +95,9 @@ public class CaseClaimModelTests {
         session.setCommand("patient-search");
 
         ExternalDataInstance districtInstance = buildDistrictInstance();
+        ExternalDataInstance stateInstance = buildStateInstance();
         EvaluationContext context = session.getEvaluationContext().spawnWithCleanLifecycle(ImmutableMap.of(
+                stateInstance.getInstanceId(), stateInstance,
                 districtInstance.getInstanceId(), districtInstance
         ));
 
@@ -226,6 +228,23 @@ public class CaseClaimModelTests {
         Multimap<String, String> params = remoteQuerySessionManager.getRawQueryParams(false);
 
         Assert.assertFalse(params.containsKey("exclude_patient_id"));
+    }
+
+    private ExternalDataInstance buildStateInstance() {
+        Map<String, String> noAttrs = Collections.emptyMap();
+        List<SimpleNode> nodes = ImmutableList.of(
+                SimpleNode.parentNode("state", noAttrs, ImmutableList.of(
+                        SimpleNode.textNode("id", noAttrs, "ka"),
+                        SimpleNode.textNode("name", noAttrs, "Karnataka")
+                )),
+                SimpleNode.parentNode("state", noAttrs, ImmutableList.of(
+                        SimpleNode.textNode("id", noAttrs, "rj"),
+                        SimpleNode.textNode("name", noAttrs, "Rajasthan")
+                ))
+        );
+
+        TreeElement root = TreeBuilder.buildTree("state", "state_list", nodes);
+        return new ExternalDataInstance(ExternalDataInstance.JR_SEARCH_INPUT_REFERENCE, "state", root);
     }
 
     private ExternalDataInstance buildDistrictInstance() {
