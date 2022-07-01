@@ -216,13 +216,7 @@ public class QueryScreen extends Screen {
             }
             remoteQuerySessionManager.answerUserPrompt(key, answer);
         }
-        refresh();
-    }
-
-    // Recalculates screen properties that are dependent on user input
-    public void refresh() {
-        refreshItemSetChoices();
-        remoteQuerySessionManager.validateUserAnswers();
+        remoteQuerySessionManager.refresh();
     }
 
     public void refreshItemSetChoices() {

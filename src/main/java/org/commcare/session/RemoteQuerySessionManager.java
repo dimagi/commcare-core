@@ -231,8 +231,13 @@ public class RemoteQuerySessionManager {
         }
     }
 
+    // Recalculates screen properties that are dependent on user input
+    public void refresh() {
+        refreshItemSetChoices();
+        validateUserAnswers();
+    }
 
-    public void validateUserAnswers() {
+    private void validateUserAnswers() {
         OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
         EvaluationContext ec = getEvaluationContextWithUserInputInstance();
         for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
