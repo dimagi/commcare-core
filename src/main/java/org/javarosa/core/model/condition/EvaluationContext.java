@@ -239,7 +239,7 @@ public class EvaluationContext {
             for (Map.Entry<String, DataInstance> entry : formInstances.entrySet()) {
                 DataInstance inst = entry.getValue();
                 if (inst instanceof ExternalDataInstance) {
-                    inst = new ExternalDataInstance((ExternalDataInstance)inst);
+                    inst = ((ExternalDataInstance)inst).copy();
                 }
                 this.formInstances.put(entry.getKey(), inst);
             }
@@ -790,8 +790,9 @@ public class EvaluationContext {
             String ref = instance.getReference();
             if (!byRef.containsKey(ref)) {
                 if (formInstances.containsKey(name)) {
-                    throw new RuntimeException(String.format(
-                            "EvaluationContext already contains an instance with ID %s with a different ref", name));
+                    throw new RuntimeException(
+                            String.format("EvaluationContext already contains an instance with "
+                                    + "ID %s with a different ref", name));
                 }
                 formInstances.put(name, instance);
             } else {
@@ -823,7 +824,6 @@ public class EvaluationContext {
                 builder.put(di.getReference(), di);
             }
         });
-        ImmutableListMultimap<String, ExternalDataInstance> byRef = builder.build();
-        return byRef;
+        return builder.build();
     }
 }

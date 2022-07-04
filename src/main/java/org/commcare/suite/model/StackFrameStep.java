@@ -127,6 +127,15 @@ public class StackFrameStep implements Externalizable {
         return dataInstanceSources.get(reference);
     }
 
+    public ExternalDataInstanceSource getDataInstanceSourceById(String instanceId) {
+        for (ExternalDataInstanceSource source : dataInstanceSources.values()) {
+            if (source.getInstanceId().equals(instanceId)) {
+                return source;
+            }
+        }
+        return null;
+    }
+
     public void initDataInstanceSources(RemoteInstanceFetcher remoteInstanceFetcher)
             throws RemoteInstanceFetcher.RemoteInstanceException {
         for (ExternalDataInstanceSource source : dataInstanceSources.values()) {

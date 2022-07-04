@@ -26,15 +26,16 @@ public class VirtualInstances {
         return String.format("search-input:%s", suffix);
     }
 
-    public static ExternalDataInstance buildSearchInputInstance(String refId, Map<String, String> userInputValues) {
+    public static ExternalDataInstance buildSearchInputInstance(
+            String refId, Map<String, String> userInputValues) {
         List<SimpleNode> nodes = new ArrayList<>();
         userInputValues.forEach((key, value) -> {
             Map<String, String> attributes = ImmutableMap.of(SEARCH_INPUT_NODE_NAME_ATTR, key);
             nodes.add(SimpleNode.textNode(SEARCH_INSTANCE_NODE_NAME, attributes, value));
         });
-        String instanceID = makeSearchInputInstanceID(refId);
-        TreeElement root = TreeBuilder.buildTree(instanceID, SEARCH_INSTANCE_ROOT_NAME, nodes);
-        return new ExternalDataInstance(getSearchInputReference(refId), instanceID, root);
+        String instanceId = makeSearchInputInstanceID(refId);
+        TreeElement root = TreeBuilder.buildTree(instanceId, SEARCH_INSTANCE_ROOT_NAME, nodes);
+        return new ExternalDataInstance(getSearchInputReference(refId), instanceId, root);
     }
 
     public static ExternalDataInstance buildSelectedValuesInstance(
