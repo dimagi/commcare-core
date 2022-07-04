@@ -17,6 +17,7 @@ import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.ConcreteInstanceRoot;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.InstanceRoot;
@@ -118,8 +119,17 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             if (isNonUniqueReference(reference)) {
                 String referenceWithId = reference.concat("/").concat(instance.getInstanceId());
                 instanceRoot = getExternalDataInstanceSource(referenceWithId, stepType);
+
+                // last attempt to find the instance
+                // this is necessary for 'sesarch-input' instances which do not follow the convention
+                // of instance ref = base + instance Id:
+                //    <instance id="search-input:results" ref="jr://instance/search-input/results />
+                if (instanceRoot == null) {
+                    instanceRoot = getExternalDataInstanceSourceById(instance.getInstanceId(), stepType);
+                }
             }
         }
+
 
         if (instanceRoot == null) {
             instanceRoot = instance.getSource();
@@ -222,6 +232,21 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         for (StackFrameStep step : session.getFrame().getSteps()) {
             if (step.getType().equals(stepType) && step.hasDataInstanceSource(reference)) {
                 return step.getDataInstanceSource(reference);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Required for legacy instance support
+     */
+    protected InstanceRoot getExternalDataInstanceSourceById(String instanceId, String stepType) {
+        for (StackFrameStep step : session.getFrame().getSteps()) {
+            if (step.getType().equals(stepType)) {
+                ExternalDataInstanceSource source = step.getDataInstanceSourceById(instanceId);
+                if (source != null) {
+                    return source;
+                }
             }
         }
         return null;

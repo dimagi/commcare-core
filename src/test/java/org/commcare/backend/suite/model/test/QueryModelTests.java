@@ -14,6 +14,7 @@ import org.commcare.test.utilities.MockApp;
 import org.commcare.util.screen.CommCareSessionException;
 import org.commcare.util.screen.QueryScreen;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.InstanceRoot;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Before;
@@ -74,6 +75,16 @@ public class QueryModelTests {
                 session.getEvaluationContext(),
                 "instance('search-input:registry1')/input/field[@name='age']",
                 "23");
+
+        // test loading instance with new ref
+        ExternalDataInstance instance = new ExternalDataInstance("jr://instance/search-input/registry1",
+                "custom-id");
+        Assert.assertNotNull(session.getIIF().generateRoot(instance).getRoot());
+
+        // test that we can still load instances using the legacy ref
+        ExternalDataInstance legacyInstance = new ExternalDataInstance("jr://instance/search-input",
+                "search-input:registry1");
+        Assert.assertNotNull(session.getIIF().generateRoot(legacyInstance).getRoot());
     }
 
     @NotNull
