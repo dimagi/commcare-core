@@ -110,7 +110,7 @@
               <locale id="search_property.m1.district"/>
             </text>
           </display>
-          <itemset nodeset="instance('district')/district_list/district[state_id = $state]">
+          <itemset nodeset="instance('district')/district_list/district[state_id = instance('search-input:patients')/input/field[@name='state']]">
             <label ref="name"/>
             <value ref="id"/>
             <sort ref="id"/>
