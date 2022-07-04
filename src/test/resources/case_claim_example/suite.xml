@@ -78,7 +78,7 @@
             </text>
           </display>
         </prompt>
-        <prompt key="age">
+        <prompt key="age" required="count(instance('my-search-input')/input/field[@name='dob']) = 0 or instance('my-search-input')/input/field[@name='dob']=''" required_msg="One of age or DOB is required">
           <validation test="int(instance('my-search-input')/input/field[@name='age'])>18">
             <text>
               <locale id="query.age.validation.message"/>
@@ -99,6 +99,13 @@
           <display>
             <text>
               <locale id="query.age"/>
+            </text>
+          </display>
+        </prompt>
+        <prompt key="dob" required="count(instance('my-search-input')/input/field[@name='age']) = 0 or instance('my-search-input')/input/field[@name='age']=''" required_msg="One of age or DOB is required">
+          <display>
+            <text>
+              <locale id="query.name"/>
             </text>
           </display>
         </prompt>
