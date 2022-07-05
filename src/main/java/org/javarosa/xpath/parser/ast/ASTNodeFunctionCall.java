@@ -179,6 +179,8 @@ public class ASTNodeFunctionCall extends ASTNode {
                 return new XPathEncryptStringFunc(args);
             case "decrypt-string":
                 return new XPathDecryptStringFunc(args);
+            case "json-property":
+                return new XPathJsonPropertyFunc(args);
             default:
                 return new XPathCustomRuntimeFunc(name, args);
         }
