@@ -45,7 +45,7 @@ public class RemoteQuerySessionManager {
     private final RemoteQueryDatum queryDatum;
     private final EvaluationContext evaluationContext;
     private final Hashtable<String, String> userAnswers = new Hashtable<>();
-    private final Hashtable<String, String> errors = new Hashtable<>();
+    private Hashtable<String, String> errors = new Hashtable<>();
     private final List<String> supportedPrompts;
 
     private RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
@@ -244,6 +244,7 @@ public class RemoteQuerySessionManager {
     }
 
     private void validateUserAnswers() {
+        errors = new Hashtable<>();
         OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
         String instanceId = VirtualInstances.makeSearchInputInstanceID(getSearchInstanceReferenceId());
         EvaluationContext ec = getEvaluationContextWithUserInputInstance();

@@ -267,16 +267,6 @@ public class CaseClaimModelTests {
     }
 
     @Test
-    public void testErrorsWithUserInput_invalidInput() throws Exception {
-        testErrorsWithUserInput(
-                ImmutableMap.of("name", "", "age", "15", "another_age", "12"),
-                ImmutableMap.of("name", "name can't be empty", "age", "age should be greater than 18",
-                        "another_age", "another age should be greater than 18"),
-                null
-        );
-    }
-
-    @Test
     public void testErrorsWithUserInput_noInput() throws Exception {
         testErrorsWithUserInput(
                 ImmutableMap.of(),
@@ -287,10 +277,17 @@ public class CaseClaimModelTests {
     }
 
     @Test
-    public void testErrorsWithUserInput_validInput() throws Exception {
+    public void testErrorsWithUserInput_errorsClearWithValidInput() throws Exception {
+        RemoteQuerySessionManager remoteQuerySessionManager = testErrorsWithUserInput(
+                ImmutableMap.of("name", "", "age", "15", "another_age", "12"),
+                ImmutableMap.of("name", "name can't be empty", "age", "age should be greater than 18",
+                        "another_age", "another age should be greater than 18"),
+                null
+        );
+
         testErrorsWithUserInput(
                 ImmutableMap.of("name", "Ruth", "age", "21", "another_age", "20"),
-                ImmutableMap.of(), null
+                ImmutableMap.of(), remoteQuerySessionManager
         );
     }
 
