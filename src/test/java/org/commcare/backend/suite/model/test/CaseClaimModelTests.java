@@ -68,7 +68,8 @@ public class CaseClaimModelTests {
         testPopulateItemsetChoices(Collections.emptyMap(), Collections.emptyList(), null);
     }
 
-    private RemoteQuerySessionManager testPopulateItemsetChoices(Map<String, String> userInput, List<String> expected,
+    private RemoteQuerySessionManager testPopulateItemsetChoices(Map<String, String> userInput,
+            List<String> expected,
             RemoteQuerySessionManager existingQuerySessionManager)
             throws Exception {
         RemoteQuerySessionManager remoteQuerySessionManager =
@@ -301,8 +302,8 @@ public class CaseClaimModelTests {
         remoteQuerySessionManager.refresh();
         Hashtable<String, String> errors = remoteQuerySessionManager.getErrors();
 
-        if(expectedErrors.isEmpty()){
-           Assert.assertTrue(errors.isEmpty());
+        if (expectedErrors.isEmpty()) {
+            Assert.assertTrue(errors.isEmpty());
         }
 
         expectedErrors.forEach((key, expectedError) -> {

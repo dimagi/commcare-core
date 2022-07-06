@@ -11,6 +11,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+/**
+ * Model for <validation> node in {@link QueryPrompt}
+ */
 public class QueryPromptValidation implements Externalizable {
 
     private XPathExpression test;

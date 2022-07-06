@@ -45,7 +45,8 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
     }
 
     @Override
-    public QueryPrompt parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+    public QueryPrompt parse() throws InvalidStructureException, IOException, XmlPullParserException,
+            UnfullfilledRequirementsException {
         String appearance = parser.getAttributeValue(null, ATTR_APPEARANCE);
         String key = parser.getAttributeValue(null, ATTR_KEY);
         String input = parser.getAttributeValue(null, ATTR_INPUT);
@@ -85,12 +86,14 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
         while (nextTagInBlock(NAME_VALIDATION)) {
             if (parser.getName().equals(NAME_TEXT)) {
                 message = new TextParser(parser).parse();
-            }else {
-                throw new InvalidStructureException("Unrecognised node " + parser.getName() + "in validation for key " + key);
+            } else {
+                throw new InvalidStructureException(
+                        "Unrecognised node " + parser.getName() + "in validation for key " + key);
             }
         }
         if (message == null) {
-            throw new InvalidStructureException("No validation message defined in the validation block for key " + key);
+            throw new InvalidStructureException(
+                    "No validation message defined in the validation block for key " + key);
         }
         return new QueryPromptValidation(test, message);
     }

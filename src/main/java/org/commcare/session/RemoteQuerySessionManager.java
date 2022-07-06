@@ -140,7 +140,7 @@ public class RemoteQuerySessionManager {
                 QueryPrompt prompt = queryDatum.getUserQueryPrompts().get(key);
                 XPathExpression excludeExpr = prompt.getExclude();
                 if (!(params.containsKey(key) && params.get(key).contains(value))) {
-                    if (value != null && (excludeExpr == null || !(boolean) excludeExpr.eval(evaluationContext))) {
+                    if (value != null && (excludeExpr == null || !(boolean)excludeExpr.eval(evaluationContext))) {
                         params.put(key, userAnswers.get(key));
                     }
                 }
@@ -206,7 +206,8 @@ public class RemoteQuerySessionManager {
         while (dirty) {
             if (index == userInputDisplays.size()) {
                 // loop has already run as many times as no of questions and we are still dirty
-                throw new RuntimeException("Invalid itemset state encountered while trying to refresh itemset choices");
+                throw new RuntimeException(
+                        "Invalid itemset state encountered while trying to refresh itemset choices");
             }
             dirty = false;
             for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
@@ -253,7 +254,8 @@ public class RemoteQuerySessionManager {
             QueryPrompt queryPrompt = userInputDisplays.get(key);
             QueryPromptValidation validation = queryPrompt.getValidation();
             TreeReference currentRef = getReferenceToInstanceNode(instanceId, key);
-            if (validation != null && !((Boolean)validation.getTest().eval(new EvaluationContext(ec, currentRef)))) {
+            if (validation != null && !((Boolean)validation.getTest().eval(
+                    new EvaluationContext(ec, currentRef)))) {
                 errors.put(key, validation.getMessage().evaluate(ec));
             }
         }
