@@ -14,8 +14,10 @@ import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.ItemSetUtils;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -149,7 +151,7 @@ public class RemoteQuerySessionManager {
 
     private EvaluationContext getEvaluationContextWithUserInputInstance() {
         Map<String, String> userQueryValues = getUserQueryValues(false);
-        String refId = queryDatum.getDataId();
+        String refId = getSearchInstanceReferenceId();
         ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(
                 refId, userQueryValues);
         return evaluationContext.spawnWithCleanLifecycle(
@@ -161,6 +163,10 @@ public class RemoteQuerySessionManager {
                         "search-input", userInputInstance
                 )
         );
+    }
+
+    private String getSearchInstanceReferenceId() {
+        return queryDatum.getDataId();
     }
 
     public static String evalXpathExpression(XPathExpression expr,
@@ -239,15 +245,22 @@ public class RemoteQuerySessionManager {
 
     private void validateUserAnswers() {
         OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
+        String instanceId = VirtualInstances.makeSearchInputInstanceID(getSearchInstanceReferenceId());
         EvaluationContext ec = getEvaluationContextWithUserInputInstance();
         for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
             QueryPrompt queryPrompt = userInputDisplays.get(key);
             QueryPromptValidation validation = queryPrompt.getValidation();
-            if (validation != null && !((Boolean)validation.getXpath().eval(ec))) {
+            TreeReference currentRef = getReferenceToInstanceNode(instanceId, key);
+            if (validation != null && !((Boolean)validation.getXpath().eval(new EvaluationContext(ec, currentRef)))) {
                 errors.put(key, validation.getMessage());
             }
         }
+    }
+
+    private TreeReference getReferenceToInstanceNode(String instanceId, String key) {
+        String keyPath = "instance('" + instanceId + "')/input/field[@name='" + key + "']";
+        return XPathReference.getPathExpr(keyPath).getReference();
     }
 
     public boolean isPromptSupported(QueryPrompt queryPrompt) {

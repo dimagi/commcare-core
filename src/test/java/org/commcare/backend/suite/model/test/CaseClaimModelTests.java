@@ -269,8 +269,9 @@ public class CaseClaimModelTests {
     @Test
     public void testErrorsWithUserInput_invalidInput() throws Exception {
         testErrorsWithUserInput(
-                ImmutableMap.of("name", "", "age", "15"),
-                ImmutableMap.of("name", "name can't be empty", "age", "age should be greater than 18"),
+                ImmutableMap.of("name", "", "age", "15", "another_age", "12"),
+                ImmutableMap.of("name", "name can't be empty", "age", "age should be greater than 18",
+                        "another_age", "another age should be greater than 18"),
                 null
         );
     }
@@ -279,14 +280,16 @@ public class CaseClaimModelTests {
     public void testErrorsWithUserInput_noInput() throws Exception {
         testErrorsWithUserInput(
                 ImmutableMap.of(),
-                ImmutableMap.of("age", "age should be greater than 18"), null
+                ImmutableMap.of("age", "age should be greater than 18",
+                        "another_age", "another age should be greater than 18"),
+                null
         );
     }
 
     @Test
     public void testErrorsWithUserInput_validInput() throws Exception {
         testErrorsWithUserInput(
-                ImmutableMap.of("name", "Ruth", "age", "21"),
+                ImmutableMap.of("name", "Ruth", "age", "21", "another_age", "20"),
                 ImmutableMap.of(), null
         );
     }

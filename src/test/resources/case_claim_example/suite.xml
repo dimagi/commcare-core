@@ -82,6 +82,14 @@
             </text>
           </display>
         </prompt>
+        <prompt key="another_age">
+          <validation xpath="int(.)>18" message="another age should be greater than 18"/>
+          <display>
+            <text>
+              <locale id="query.name"/>
+            </text>
+          </display>
+        </prompt>
         <prompt key="patient_id" hidden="false" allow_blank_value="true" exclude="false()">
           <display>
             <text>
