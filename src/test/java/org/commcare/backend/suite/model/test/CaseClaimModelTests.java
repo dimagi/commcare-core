@@ -121,8 +121,6 @@ public class CaseClaimModelTests {
                 "patient_id",
                 remoteQuerySessionManager
         );
-
-
     }
 
     @Test
@@ -333,6 +331,15 @@ public class CaseClaimModelTests {
         testRequiredWithUserInput(
                 ImmutableMap.of(),
                 ImmutableMap.of("age", true, "dob", true),
+                null
+        );
+    }
+
+    @Test
+    public void testRequiredWithUserInput_oldRequiredSyntax() throws Exception {
+        testRequiredWithUserInput(
+                ImmutableMap.of("age", "15"),
+                ImmutableMap.of("name", true),
                 null
         );
     }

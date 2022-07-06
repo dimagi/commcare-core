@@ -50,15 +50,15 @@ public class QueryPrompt implements Externalizable {
     private XPathExpression exclude;
 
     @Nullable
-    private XPathExpression required;
+    private XPathExpression oldRequired;
 
     @Nullable
-    private String requiredMsg;
+    private QueryPromptCondition required;
 
     private boolean allowBlankValue;
 
     @Nullable
-    private QueryPromptValidation validation;
+    private QueryPromptCondition validation;
 
     @SuppressWarnings("unused")
     public QueryPrompt() {
@@ -67,7 +67,7 @@ public class QueryPrompt implements Externalizable {
     public QueryPrompt(String key, String appearance, String input, String receive,
                        String hidden, DisplayUnit display, ItemsetBinding itemsetBinding, 
                        XPathExpression defaultValueExpr, boolean allowBlankValue, XPathExpression exclude,
-                       XPathExpression required, String requiredMsg, QueryPromptValidation validation) {
+                       XPathExpression oldRequired, QueryPromptCondition required, QueryPromptCondition validation) {
 
         this.key = key;
         this.appearance = appearance;
@@ -79,9 +79,9 @@ public class QueryPrompt implements Externalizable {
         this.defaultValueExpr = defaultValueExpr;
         this.allowBlankValue = allowBlankValue;
         this.exclude = exclude;
+        this.oldRequired = oldRequired;
         this.required = required;
         this.validation = validation;
-        this.requiredMsg = requiredMsg;
     }
 
     @Override
@@ -96,9 +96,9 @@ public class QueryPrompt implements Externalizable {
         defaultValueExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
         allowBlankValue = ExtUtil.readBool(in);
         exclude = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
-        required = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
-        requiredMsg = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
-        validation = (QueryPromptValidation)ExtUtil.read(in, new ExtWrapNullable(QueryPromptValidation.class), pf);
+        oldRequired = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
+        validation = (QueryPromptCondition)ExtUtil.read(in, new ExtWrapNullable(QueryPromptCondition.class), pf);
+        required = (QueryPromptCondition)ExtUtil.read(in, new ExtWrapNullable(QueryPromptCondition.class), pf);
     }
 
     @Override
@@ -113,9 +113,9 @@ public class QueryPrompt implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(defaultValueExpr == null ? null : new ExtWrapTagged(defaultValueExpr)));
         ExtUtil.writeBool(out, allowBlankValue);
         ExtUtil.write(out, new ExtWrapNullable(exclude == null ? null : new ExtWrapTagged(exclude)));
-        ExtUtil.write(out, new ExtWrapNullable(required == null ? null : new ExtWrapTagged(required)));
-        ExtUtil.write(out, new ExtWrapNullable(requiredMsg));
+        ExtUtil.write(out, new ExtWrapNullable(oldRequired == null ? null : new ExtWrapTagged(oldRequired)));
         ExtUtil.write(out, new ExtWrapNullable(validation));
+        ExtUtil.write(out, new ExtWrapNullable(required));
     }
 
     public String getKey() {
@@ -165,17 +165,17 @@ public class QueryPrompt implements Externalizable {
     }
 
     @Nullable
-    public XPathExpression getRequired() {
+    public XPathExpression getOldRequired() {
+        return oldRequired;
+    }
+
+    @Nullable
+    public QueryPromptCondition getRequired() {
         return required;
     }
 
     @Nullable
-    public String getRequiredMsg() {
-        return requiredMsg;
-    }
-
-    @Nullable
-    public QueryPromptValidation getValidation() {
+    public QueryPromptCondition getValidation() {
         return validation;
     }
 

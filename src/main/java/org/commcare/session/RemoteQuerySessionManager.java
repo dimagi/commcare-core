@@ -8,7 +8,7 @@ import org.commcare.cases.util.StringUtils;
 import org.commcare.data.xml.VirtualInstances;
 import org.commcare.suite.model.QueryData;
 import org.commcare.suite.model.QueryPrompt;
-import org.commcare.suite.model.QueryPromptValidation;
+import org.commcare.suite.model.QueryPromptCondition;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.ItemsetBinding;
@@ -46,7 +46,7 @@ public class RemoteQuerySessionManager {
     private final EvaluationContext evaluationContext;
     private final Hashtable<String, String> userAnswers = new Hashtable<>();
     private Hashtable<String, String> errors = new Hashtable<>();
-    private final Hashtable<String, Boolean> requiredPrompts = new Hashtable<>();
+    private Hashtable<String, Boolean> requiredPrompts = new Hashtable<>();
     private final List<String> supportedPrompts;
 
     private RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
@@ -251,13 +251,21 @@ public class RemoteQuerySessionManager {
     }
 
     private void recalculateRequired() {
+        requiredPrompts = new Hashtable<>();
         OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
         EvaluationContext ec = getEvaluationContextWithUserInputInstance();
         for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
             QueryPrompt queryPrompt = userInputDisplays.get(key);
-            XPathExpression requiredCondition = queryPrompt.getRequired();
-            boolean isRequired = requiredCondition != null && (Boolean)requiredCondition.eval(ec);
+            XPathExpression oldRequired = queryPrompt.getOldRequired();
+            XPathExpression requiredCondition =
+                    queryPrompt.getRequired() != null ? queryPrompt.getRequired().getTest() : null;
+            boolean isRequired = false;
+            if (requiredCondition != null) {
+                isRequired = (Boolean)requiredCondition.eval(ec);
+            } else if (oldRequired != null) {
+                isRequired = (Boolean)oldRequired.eval(ec);
+            }
             requiredPrompts.put(key, isRequired);
         }
     }
@@ -270,7 +278,7 @@ public class RemoteQuerySessionManager {
         for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
             QueryPrompt queryPrompt = userInputDisplays.get(key);
-            QueryPromptValidation validation = queryPrompt.getValidation();
+            QueryPromptCondition validation = queryPrompt.getValidation();
             TreeReference currentRef = getReferenceToInstanceNode(instanceId, key);
             if (validation != null && !((Boolean)validation.getTest().eval(
                     new EvaluationContext(ec, currentRef)))) {

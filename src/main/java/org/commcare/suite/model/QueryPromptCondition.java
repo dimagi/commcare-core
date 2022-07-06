@@ -14,16 +14,16 @@ import java.io.IOException;
 /**
  * Model for <validation> node in {@link QueryPrompt}
  */
-public class QueryPromptValidation implements Externalizable {
+public class QueryPromptCondition implements Externalizable {
 
     private XPathExpression test;
     private Text message;
 
     @SuppressWarnings("unused")
-    public QueryPromptValidation() {
+    public QueryPromptCondition() {
     }
 
-    public QueryPromptValidation(XPathExpression test, Text message) {
+    public QueryPromptCondition(XPathExpression test, Text message) {
         this.test = test;
         this.message = message;
     }
