@@ -3,6 +3,7 @@ package org.commcare.xml;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.QueryPromptValidation;
+import org.commcare.suite.model.Text;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xform.parse.ItemSetParsingUtils;
@@ -36,8 +37,8 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
     private static final String ATTR_ALLOW_BLANK_VALUE = "allow_blank_value";
     private static final String ATTR_EXCLUDE = "exclude";
     private static final String ATTR_REQUIRED = "required";
-    private static final String ATTR_VALIDATION_XPATH = "xpath";
-    private static final String ATTR_VALIDATION_MESSAGE = "message";
+    private static final String ATTR_VALIDATION_TEST = "test";
+    private static final String NAME_TEXT = "text";
 
     public QueryPromptParser(KXmlParser parser) {
         super(parser);
@@ -66,18 +67,32 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
             } else if (NAME_ITEMSET.equalsIgnoreCase(parser.getName())) {
                 itemsetBinding = parseItemset();
             } else if (NAME_VALIDATION.equalsIgnoreCase(parser.getName())) {
-                validation = parseValidationBlock();
+                validation = parseValidationBlock(key);
             }
         }
         return new QueryPrompt(key, appearance, input, receive, hidden, display,
                 itemsetBinding, defaultValue, allowBlankValue, exclude, required, validation);
     }
 
-    private QueryPromptValidation parseValidationBlock() throws InvalidStructureException {
-        String xpathStr = parser.getAttributeValue(null, ATTR_VALIDATION_XPATH);
-        XPathExpression xpath = xpathPropertyValue(xpathStr);
-        String message = parser.getAttributeValue(null, ATTR_VALIDATION_MESSAGE);
-        return new QueryPromptValidation(xpath, message);
+    private QueryPromptValidation parseValidationBlock(String key)
+            throws InvalidStructureException, XmlPullParserException, IOException {
+        String testStr = parser.getAttributeValue(null, ATTR_VALIDATION_TEST);
+        if (testStr == null) {
+            throw new InvalidStructureException("No test condition defined in validation for key " + key);
+        }
+        XPathExpression test = xpathPropertyValue(testStr);
+        Text message = null;
+        while (nextTagInBlock(NAME_VALIDATION)) {
+            if (parser.getName().equals(NAME_TEXT)) {
+                message = new TextParser(parser).parse();
+            }else {
+                throw new InvalidStructureException("Unrecognised node " + parser.getName() + "in validation for key " + key);
+            }
+        }
+        if (message == null) {
+            throw new InvalidStructureException("No validation message defined in the validation block for key " + key);
+        }
+        return new QueryPromptValidation(test, message);
     }
 
     private ItemsetBinding parseItemset() throws IOException, XmlPullParserException, InvalidStructureException {

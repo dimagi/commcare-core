@@ -67,7 +67,11 @@
         <data key="patient_id_legacy" ref="if(count(instance('search-input')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('search-input')/input/field[@name='patient_id']), '')"/>
         <data key="patient_id_custom_id" ref="if(count(instance('my-search-input')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('my-search-input')/input/field[@name='patient_id']), '')"/>
         <prompt key="name" default="instance('session')/session/context/deviceid">
-          <validation xpath="instance('my-search-input')/input/field[@name='name']!=''" message="name can't be empty"/>
+          <validation test="instance('my-search-input')/input/field[@name='name']!=''">
+            <text>
+              <locale id="query.name.validation.message"/>
+            </text>
+          </validation>
           <display>
             <text>
               <locale id="query.name"/>
@@ -75,18 +79,26 @@
           </display>
         </prompt>
         <prompt key="age">
-          <validation xpath="int(instance('my-search-input')/input/field[@name='age'])>18" message="age should be greater than 18"/>
+          <validation test="int(instance('my-search-input')/input/field[@name='age'])>18">
+            <text>
+              <locale id="query.age.validation.message"/>
+            </text>
+          </validation>
           <display>
             <text>
-              <locale id="query.name"/>
+              <locale id="query.age"/>
             </text>
           </display>
         </prompt>
         <prompt key="another_age">
-          <validation xpath="int(.)>18" message="another age should be greater than 18"/>
+          <validation test="int(.)>18">
+            <text>
+              <locale id="query.another_age.validation.message"/>
+            </text>
+          </validation>
           <display>
             <text>
-              <locale id="query.name"/>
+              <locale id="query.age"/>
             </text>
           </display>
         </prompt>

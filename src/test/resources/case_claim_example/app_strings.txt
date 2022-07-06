@@ -1,2 +1,6 @@
 query.name=name
 query.age=age
+query.name.validation.message=name can't be empty
+query.age.validation.message=age should be greater than 18
+query.another_age.validation.message=another age should be greater than 18
+

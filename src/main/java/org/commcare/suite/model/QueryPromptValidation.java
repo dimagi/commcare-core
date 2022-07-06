@@ -13,36 +13,36 @@ import java.io.IOException;
 
 public class QueryPromptValidation implements Externalizable {
 
-    private XPathExpression xpath;
-    private String message;
+    private XPathExpression test;
+    private Text message;
 
     @SuppressWarnings("unused")
     public QueryPromptValidation() {
     }
 
-    public QueryPromptValidation(XPathExpression xpath, String message) {
-        this.xpath = xpath;
+    public QueryPromptValidation(XPathExpression test, Text message) {
+        this.test = test;
         this.message = message;
     }
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
-        xpath = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged(), pf);
-        message = (String)ExtUtil.read(in, String.class, pf);
+        test = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged(), pf);
+        message = (Text)ExtUtil.read(in, Text.class, pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.write(out, new ExtWrapTagged(xpath));
+        ExtUtil.write(out, new ExtWrapTagged(test));
         ExtUtil.write(out, message);
     }
 
-    public XPathExpression getXpath() {
-        return xpath;
+    public XPathExpression getTest() {
+        return test;
     }
 
-    public String getMessage() {
+    public Text getMessage() {
         return message;
     }
 }
