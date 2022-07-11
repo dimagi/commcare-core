@@ -239,7 +239,7 @@ public class RemoteQuerySessionManager {
     }
 
     // Recalculates screen properties that are dependent on user input
-    public void refresh() {
+    public void refreshInputDependentState() {
         refreshItemSetChoices();
         validateUserAnswers();
     }

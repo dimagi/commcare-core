@@ -79,7 +79,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
             throws InvalidStructureException, XmlPullParserException, IOException {
         String testStr = parser.getAttributeValue(null, ATTR_VALIDATION_TEST);
         if (testStr == null) {
-            throw new InvalidStructureException("No test condition defined in validation for key " + key);
+            throw new InvalidStructureException("No test condition defined in validation for prompt " + key);
         }
         XPathExpression test = xpathPropertyValue(testStr);
         Text message = null;
@@ -88,12 +88,12 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
                 message = new TextParser(parser).parse();
             } else {
                 throw new InvalidStructureException(
-                        "Unrecognised node " + parser.getName() + "in validation for key " + key);
+                        "Unrecognised node " + parser.getName() + "in validation for prompt " + key);
             }
         }
         if (message == null) {
             throw new InvalidStructureException(
-                    "No validation message defined in the validation block for key " + key);
+                    "No validation message defined in the validation block for prompt " + key);
         }
         return new QueryPromptValidation(test, message);
     }

@@ -299,7 +299,7 @@ public class CaseClaimModelTests {
                 existingManager == null ? buildRemoteQuerySessionManager() : existingManager;
 
         userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
-        remoteQuerySessionManager.refresh();
+        remoteQuerySessionManager.refreshInputDependentState();
         Hashtable<String, String> errors = remoteQuerySessionManager.getErrors();
 
         if (expectedErrors.isEmpty()) {

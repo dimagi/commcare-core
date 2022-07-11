@@ -216,7 +216,7 @@ public class QueryScreen extends Screen {
             }
             remoteQuerySessionManager.answerUserPrompt(key, answer);
         }
-        remoteQuerySessionManager.refresh();
+        remoteQuerySessionManager.refreshInputDependentState();
     }
 
     public void refreshItemSetChoices() {
