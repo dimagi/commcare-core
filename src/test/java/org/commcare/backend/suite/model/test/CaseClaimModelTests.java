@@ -351,7 +351,7 @@ public class CaseClaimModelTests {
                 existingManager == null ? buildRemoteQuerySessionManager() : existingManager;
 
         userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
-        remoteQuerySessionManager.refresh();
+        remoteQuerySessionManager.refreshInputDependentState();
         Hashtable<String, Boolean> requiredPrompts = remoteQuerySessionManager.getRequiredPrompts();
 
         if(expectedRequired.isEmpty()){
