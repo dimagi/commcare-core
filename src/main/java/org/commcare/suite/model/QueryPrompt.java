@@ -1,6 +1,7 @@
 package org.commcare.suite.model;
 
 import org.javarosa.core.model.ItemsetBinding;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
@@ -175,4 +176,12 @@ public class QueryPrompt implements Externalizable {
         return getItemsetBinding() != null;
     }
 
+    // Evaluates required in the given eval context
+    public boolean isRequired(EvaluationContext ec) {
+        XPathExpression requiredCondition = getRequired() != null ? getRequired().getTest() : null;
+        if (requiredCondition != null) {
+            return (Boolean)requiredCondition.eval(ec);
+        }
+        return false;
+    }
 }
