@@ -78,7 +78,7 @@
             </text>
           </display>
         </prompt>
-        <prompt key="age" required="true()">
+        <prompt key="age">
           <validation test="int(instance('my-search-input')/input/field[@name='age'])>18">
             <text>
               <locale id="query.age.validation.message"/>
@@ -107,7 +107,7 @@
             </text>
           </display>
         </prompt>
-        <prompt key="dob" required="false()">
+        <prompt key="dob">
           <display>
             <text>
               <locale id="query.name"/>

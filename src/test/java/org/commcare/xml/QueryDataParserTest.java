@@ -56,7 +56,7 @@ public class QueryDataParserTest {
         QueryPrompt queryData = parser.parse();
 
         EvaluationContext evalContext = new EvaluationContext(null, TestInstances.getInstances());
-        assertTrue((boolean) queryData.getOldRequired().eval(evalContext));
+        assertTrue((boolean) queryData.getRequired().getTest().eval(evalContext));
     }
 
     @Test

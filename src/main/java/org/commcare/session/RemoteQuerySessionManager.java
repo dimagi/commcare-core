@@ -257,14 +257,11 @@ public class RemoteQuerySessionManager {
         for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
             QueryPrompt queryPrompt = userInputDisplays.get(key);
-            XPathExpression oldRequired = queryPrompt.getOldRequired();
             XPathExpression requiredCondition =
                     queryPrompt.getRequired() != null ? queryPrompt.getRequired().getTest() : null;
             boolean isRequired = false;
             if (requiredCondition != null) {
                 isRequired = (Boolean)requiredCondition.eval(ec);
-            } else if (oldRequired != null) {
-                isRequired = (Boolean)oldRequired.eval(ec);
             }
             requiredPrompts.put(key, isRequired);
         }

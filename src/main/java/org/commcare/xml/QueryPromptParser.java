@@ -72,11 +72,19 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
             } else if (NAME_VALIDATION.equalsIgnoreCase(parser.getName())) {
                 validation = parseValidationBlock(key);
             } else if (NAME_REQUIRED.equalsIgnoreCase(parser.getName())) {
+                if (oldRequired != null) {
+                    throw new InvalidStructureException("Both required attribute and <required> node present for prompt " + key);
+                }
                 required = parseRequiredBlock(key);
             }
         }
+
+        if (oldRequired != null) {
+            required = new QueryPromptCondition(oldRequired, null);
+        }
+
         return new QueryPrompt(key, appearance, input, receive, hidden, display,
-                itemsetBinding, defaultValue, allowBlankValue, exclude, oldRequired,
+                itemsetBinding, defaultValue, allowBlankValue, exclude,
                 required, validation);
     }
 
