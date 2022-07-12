@@ -73,7 +73,8 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
                 validation = parseValidationBlock(key);
             } else if (NAME_REQUIRED.equalsIgnoreCase(parser.getName())) {
                 if (oldRequired != null) {
-                    throw new InvalidStructureException("Both required attribute and <required> node present for prompt " + key);
+                    throw new InvalidStructureException(
+                            "Both required attribute and <required> node present for prompt " + key);
                 }
                 required = parseRequiredBlock(key);
             }

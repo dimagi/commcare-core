@@ -354,7 +354,7 @@ public class CaseClaimModelTests {
         remoteQuerySessionManager.refreshInputDependentState();
         Hashtable<String, Boolean> requiredPrompts = remoteQuerySessionManager.getRequiredPrompts();
 
-        if(expectedRequired.isEmpty()){
+        if (expectedRequired.isEmpty()) {
             Assert.assertTrue(requiredPrompts.isEmpty());
         }
 

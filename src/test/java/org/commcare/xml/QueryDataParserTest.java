@@ -49,7 +49,8 @@ public class QueryDataParserTest {
     }
 
     @Test
-    public void testParseValueData_withRequiredAttribute() throws InvalidStructureException, XmlPullParserException,
+    public void testParseValueData_withRequiredAttribute()
+            throws InvalidStructureException, XmlPullParserException,
             IOException, UnfullfilledRequirementsException {
         String query = "<data key=\"device_id\" ref=\"instance('session')/session/case_id\""
                 + "required=\"true()\"/>";
@@ -57,7 +58,7 @@ public class QueryDataParserTest {
         QueryPrompt queryData = parser.parse();
 
         EvaluationContext evalContext = new EvaluationContext(null, TestInstances.getInstances());
-        assertTrue((boolean) queryData.getRequired().getTest().eval(evalContext));
+        assertTrue((boolean)queryData.getRequired().getTest().eval(evalContext));
         assertNull(queryData.getRequired().getMessage());
     }
 
@@ -72,12 +73,13 @@ public class QueryDataParserTest {
         QueryPromptParser parser = ParserTestUtils.buildParser(query, QueryPromptParser.class);
         QueryPrompt queryData = parser.parse();
         EvaluationContext evalContext = new EvaluationContext(null, TestInstances.getInstances());
-        assertTrue((boolean) queryData.getRequired().getTest().eval(evalContext));
+        assertTrue((boolean)queryData.getRequired().getTest().eval(evalContext));
         assertTrue(queryData.getRequiredMessage(evalContext).contentEquals("This field can't be empty"));
     }
 
     @Test(expected = InvalidStructureException.class)
-    public void testParseValueData_withRequiredAttributeAndNode() throws InvalidStructureException, XmlPullParserException,
+    public void testParseValueData_withRequiredAttributeAndNode()
+            throws InvalidStructureException, XmlPullParserException,
             IOException, UnfullfilledRequirementsException {
         String query = "<prompt key=\"name\" required=\"true()\">"
                 + "          <required test=\"true()\">"
@@ -125,7 +127,8 @@ public class QueryDataParserTest {
         try {
             parser.parse();
             fail("Expected InvalidStructureException");
-        } catch (InvalidStructureException ignored) {}
+        } catch (InvalidStructureException ignored) {
+        }
     }
 
     @Test
@@ -137,6 +140,7 @@ public class QueryDataParserTest {
         try {
             parser.parse();
             fail("Expected InvalidStructureException");
-        } catch (InvalidStructureException ignored) {}
+        } catch (InvalidStructureException ignored) {
+        }
     }
 }
