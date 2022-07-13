@@ -254,9 +254,8 @@ public class RemoteQuerySessionManager {
             QueryPrompt queryPrompt = userInputDisplays.get(key);
             QueryPromptValidation validation = queryPrompt.getValidation();
             TreeReference currentRef = getReferenceToInstanceNode(instanceId, key);
-            if (validation != null && !((Boolean)validation.getTest().eval(
-                    new EvaluationContext(ec, currentRef)))) {
-                errors.put(key, validation.getMessage().evaluate(ec));
+            if (queryPrompt.isInvalidInput(new EvaluationContext(ec, currentRef))) {
+                errors.put(key, queryPrompt.getValidationMessage(ec));
             }
         }
     }

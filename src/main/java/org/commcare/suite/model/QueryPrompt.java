@@ -1,6 +1,7 @@
 package org.commcare.suite.model;
 
 import org.javarosa.core.model.ItemsetBinding;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
@@ -174,4 +175,24 @@ public class QueryPrompt implements Externalizable {
         return getItemsetBinding() != null;
     }
 
+    /**
+     * Evalualtes validation message against given eval context
+     * @param ec eval context to evaluate the validation message
+     * @return evaluated validation message or empty string if no validation message defined
+     */
+    public String getValidationMessage(EvaluationContext ec) {
+        if (validation != null && validation.getMessage() != null) {
+            return validation.getMessage().evaluate(ec);
+        }
+        return "";
+    }
+
+    /**
+     * Evaluates the validation condition for the prompts
+     * @param ec eval context to evaluate the validation condition
+     * @return whether the input is invalid
+     */
+    public boolean isInvalidInput(EvaluationContext ec) {
+        return validation != null && !((Boolean)validation.getTest().eval(ec));
+    }
 }
