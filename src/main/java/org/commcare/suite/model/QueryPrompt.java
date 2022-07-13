@@ -63,9 +63,9 @@ public class QueryPrompt implements Externalizable {
     }
 
     public QueryPrompt(String key, String appearance, String input, String receive,
-                       String hidden, DisplayUnit display, ItemsetBinding itemsetBinding, 
-                       XPathExpression defaultValueExpr, boolean allowBlankValue, XPathExpression exclude,
-                       XPathExpression required, QueryPromptValidation validation) {
+            String hidden, DisplayUnit display, ItemsetBinding itemsetBinding,
+            XPathExpression defaultValueExpr, boolean allowBlankValue, XPathExpression exclude,
+            XPathExpression required, QueryPromptValidation validation) {
 
         this.key = key;
         this.appearance = appearance;
@@ -82,7 +82,8 @@ public class QueryPrompt implements Externalizable {
     }
 
     @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
         key = (String)ExtUtil.read(in, String.class, pf);
         appearance = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         input = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
@@ -106,7 +107,8 @@ public class QueryPrompt implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(hidden));
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapNullable(itemsetBinding));
-        ExtUtil.write(out, new ExtWrapNullable(defaultValueExpr == null ? null : new ExtWrapTagged(defaultValueExpr)));
+        ExtUtil.write(out,
+                new ExtWrapNullable(defaultValueExpr == null ? null : new ExtWrapTagged(defaultValueExpr)));
         ExtUtil.writeBool(out, allowBlankValue);
         ExtUtil.write(out, new ExtWrapNullable(exclude == null ? null : new ExtWrapTagged(exclude)));
         ExtUtil.write(out, new ExtWrapNullable(required == null ? null : new ExtWrapTagged(required)));
@@ -177,6 +179,7 @@ public class QueryPrompt implements Externalizable {
 
     /**
      * Evalualtes validation message against given eval context
+     *
      * @param ec eval context to evaluate the validation message
      * @return evaluated validation message or empty string if no validation message defined
      */
@@ -189,6 +192,7 @@ public class QueryPrompt implements Externalizable {
 
     /**
      * Evaluates the validation condition for the prompts
+     *
      * @param ec eval context to evaluate the validation condition
      * @return whether the input is invalid
      */
