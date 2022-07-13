@@ -26,7 +26,7 @@ public class QueryPrompt implements Externalizable {
     public static final String INPUT_TYPE_DATERANGE = "daterange";
     public static final String INPUT_TYPE_DATE = "date";
     public static final String INPUT_TYPE_ADDRESS = "address";
-    public static final String DEFAULT_VALIDATION_ERROR = "This answer is outside the allowed range";
+    public static final String DEFAULT_VALIDATION_ERROR = "Sorry, this response is invalid!";
 
     private String key;
 
@@ -192,7 +192,7 @@ public class QueryPrompt implements Externalizable {
         }
 
         try {
-            return Localization.get("invalid_answer_error");
+            return Localization.get("case.search.answer.invalid");
         } catch (NoLocalizedTextException nlte) {
             return DEFAULT_VALIDATION_ERROR;
         }
