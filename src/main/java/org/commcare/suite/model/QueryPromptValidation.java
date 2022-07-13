@@ -2,6 +2,7 @@ package org.commcare.suite.model;
 
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -32,13 +33,13 @@ public class QueryPromptValidation implements Externalizable {
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         test = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged(), pf);
-        message = (Text)ExtUtil.read(in, Text.class, pf);
+        message = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapTagged(test));
-        ExtUtil.write(out, message);
+        ExtUtil.write(out, new ExtWrapNullable(message));
     }
 
     public XPathExpression getTest() {
