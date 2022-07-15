@@ -2,6 +2,8 @@ package org.commcare.suite.model;
 
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
@@ -24,6 +26,7 @@ public class QueryPrompt implements Externalizable {
     public static final String INPUT_TYPE_DATERANGE = "daterange";
     public static final String INPUT_TYPE_DATE = "date";
     public static final String INPUT_TYPE_ADDRESS = "address";
+    public static final String DEFAULT_REQUIRED_ERROR = "Sorry, this response is required!";
 
     private String key;
 
@@ -190,6 +193,11 @@ public class QueryPrompt implements Externalizable {
         if (required != null && required.getMessage() !=null) {
             return required.getMessage().evaluate(ec);
         }
-        return null;
+
+        try {
+            return Localization.get("case.search.answer.required");
+        } catch (NoLocalizedTextException nlte) {
+            return DEFAULT_REQUIRED_ERROR;
+        }
     }
 }

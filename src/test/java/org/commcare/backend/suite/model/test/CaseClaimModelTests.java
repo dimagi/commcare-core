@@ -41,6 +41,8 @@ import javax.annotation.Nullable;
  */
 public class CaseClaimModelTests {
 
+    private MockApp mApp;
+
     @Test
     public void testRemoteQueryDatum() throws Exception {
         MockApp mApp = new MockApp("/case_claim_example/");
@@ -90,7 +92,7 @@ public class CaseClaimModelTests {
     }
 
     private RemoteQuerySessionManager buildRemoteQuerySessionManager() throws Exception {
-        MockApp mApp = new MockApp("/case_claim_example/");
+        mApp = new MockApp("/case_claim_example/");
 
         SessionWrapper session = mApp.getSession();
         session.setCommand("patient-search");
@@ -337,11 +339,14 @@ public class CaseClaimModelTests {
 
     @Test
     public void testRequiredWithUserInput_oldRequiredSyntax() throws Exception {
-        testRequiredWithUserInput(
+        RemoteQuerySessionManager remoteQuerySessionManager = testRequiredWithUserInput(
                 ImmutableMap.of("age", "15"),
                 ImmutableMap.of("name", true),
                 null
         );
+        QueryPrompt namePrompt = remoteQuerySessionManager.getNeededUserInputDisplays().get("name");
+        Assert.assertEquals(QueryPrompt.DEFAULT_REQUIRED_ERROR,
+                namePrompt.getRequiredMessage(mApp.getSession().getEvaluationContext()));
     }
 
     private RemoteQuerySessionManager testRequiredWithUserInput(Map<String, String> userInput,
