@@ -273,6 +273,15 @@ public class CaseClaimModelTests {
     public void testErrorsWithUserInput_noInput() throws Exception {
         testErrorsWithUserInput(
                 ImmutableMap.of(),
+                ImmutableMap.of(),
+                null
+        );
+    }
+
+    @Test
+    public void testErrorsWithUserInput_EmptyInput() throws Exception {
+        testErrorsWithUserInput(
+                ImmutableMap.of("age", "", "another_age", ""),
                 ImmutableMap.of("age", "age should be greater than 18",
                         "another_age", DEFAULT_VALIDATION_ERROR),
                 null
