@@ -178,9 +178,8 @@ public class QueryPrompt implements Externalizable {
 
     // Evaluates required in the given eval context
     public boolean isRequired(EvaluationContext ec) {
-        XPathExpression requiredCondition = required != null ? required.getTest() : null;
-        if (requiredCondition != null) {
-            return (Boolean)requiredCondition.eval(ec);
+        if (required != null && required.getTest() != null) {
+            return (Boolean)required.getTest().eval(ec);
         }
         return false;
     }
