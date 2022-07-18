@@ -36,6 +36,7 @@ public class Profile implements Persistable {
     private String authRef;
     private Vector<PropertySetter> properties;
     private Vector<RootTranslator> roots;
+    private Vector<AppDependency> dependencies;
     private Hashtable<String, Boolean> featureStatus;
 
     private String uniqueId;
@@ -75,6 +76,7 @@ public class Profile implements Persistable {
         this.fromOld = fromOld;
         properties = new Vector<>();
         roots = new Vector<>();
+        dependencies = new Vector<>();
         featureStatus = new Hashtable<>();
         //turn on default features
         featureStatus.put("users", true);
@@ -181,6 +183,14 @@ public class Profile implements Persistable {
         this.featureStatus.put(feature, active);
     }
 
+    public Vector<AppDependency> getDependencies() {
+        return dependencies;
+    }
+
+    public void setDependencies(Vector<AppDependency> dependencies) {
+        this.dependencies = dependencies;
+    }
+
     /**
      * A helper method which initializes the properties specified
      * by this profile definition.
@@ -216,6 +226,7 @@ public class Profile implements Persistable {
         roots = (Vector<RootTranslator>)ExtUtil.read(in, new ExtWrapList(RootTranslator.class), pf);
         featureStatus = (Hashtable<String, Boolean>)ExtUtil.read(in, new ExtWrapMap(String.class, Boolean.class), pf);
         buildProfileId = ExtUtil.readString(in);
+        dependencies = (Vector<AppDependency>)ExtUtil.read(in, new ExtWrapList(AppDependency.class), pf);
     }
 
     @Override
@@ -231,5 +242,6 @@ public class Profile implements Persistable {
         ExtUtil.write(out, new ExtWrapList(roots));
         ExtUtil.write(out, new ExtWrapMap(featureStatus));
         ExtUtil.writeString(out, buildProfileId);
+        ExtUtil.write(out, new ExtWrapList(dependencies));
     }
 }

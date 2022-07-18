@@ -85,6 +85,13 @@
         <users active="true">
             
         </users>
+
+        <dependencies active="true">
+            <app id ="com.spotify.music" force="true"/>
+            <app id ="org.commcare.reminders" force="false"/>
+            <app id ="org.commcare.test"/>
+        </dependencies>
+
     </features>
 
     <suite><resource id="suite" version="102">
