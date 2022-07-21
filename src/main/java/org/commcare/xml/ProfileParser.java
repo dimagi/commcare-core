@@ -5,7 +5,7 @@ package org.commcare.xml;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
-import org.commcare.suite.model.AppDependency;
+import org.commcare.suite.model.AndroidPackageDependency;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.reference.RootTranslator;
@@ -26,7 +26,7 @@ import java.util.Vector;
 public class ProfileParser extends ElementParser<Profile> {
 
     private static final String NAME_DEPENDENCIES = "dependencies";
-    private static final String NAME_APP = "app";
+    private static final String NAME_ANDROID_PACKAGE = "android_package";
     private static final String ATTR_ID = "id";
     private static final String ATTR_NAME = "name";
 
@@ -253,12 +253,12 @@ public class ProfileParser extends ElementParser<Profile> {
         }
     }
 
-    private Vector<AppDependency> parseDependencies()
+    private Vector<AndroidPackageDependency> parseDependencies()
             throws InvalidStructureException, XmlPullParserException, IOException {
-        Vector<AppDependency> appDependencies = new Vector<>();
+        Vector<AndroidPackageDependency> appDependencies = new Vector<>();
         while (nextTagInBlock(NAME_DEPENDENCIES)) {
             String tag = parser.getName().toLowerCase();
-            if (tag.equals(NAME_APP)) {
+            if (tag.equals(NAME_ANDROID_PACKAGE)) {
                 String appId = parser.getAttributeValue(null, ATTR_ID);
                 if (appId == null) {
                     throw new InvalidStructureException("No id defined for app dependency");
@@ -267,7 +267,7 @@ public class ProfileParser extends ElementParser<Profile> {
                 if (appName == null) {
                     throw new InvalidStructureException("No name defined for app dependency");
                 }
-                appDependencies.add(new AppDependency(appId, appName));
+                appDependencies.add(new AndroidPackageDependency(appId, appName));
             }
         }
         return appDependencies;

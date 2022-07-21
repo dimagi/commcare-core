@@ -9,7 +9,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class AppDependency implements Externalizable {
+public class AndroidPackageDependency implements Externalizable {
     private String id;
     private String name;
 
@@ -19,10 +19,10 @@ public class AppDependency implements Externalizable {
     /**
      * Serialization Only!!!
      */
-    public AppDependency() {
+    public AndroidPackageDependency() {
     }
 
-    public AppDependency(String id, String name) {
+    public AndroidPackageDependency(String id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -51,8 +51,9 @@ public class AppDependency implements Externalizable {
 
     @Override
     public String toString() {
-        return "AppDependency{" +
+        return "AndroidPackageDependency{" +
                 "id='" + id + '\'' +
+                ", name='" + name + '\'' +
                 '}';
     }
 

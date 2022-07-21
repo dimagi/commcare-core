@@ -8,7 +8,7 @@ import static org.junit.Assert.fail;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
-import org.commcare.suite.model.AppDependency;
+import org.commcare.suite.model.AndroidPackageDependency;
 import org.commcare.suite.model.Profile;
 import org.commcare.test.utilities.PersistableSandbox;
 import org.commcare.util.engine.CommCareConfigEngine;
@@ -86,9 +86,9 @@ public class ProfileTests {
     public void testDependenciesParse() {
         Profile p = getProfile(BASIC_PROFILE_PATH);
         assertTrue(p.isFeatureActive("dependencies"));
-        AppDependency[] expectedDependencies = new AppDependency[2];
-        expectedDependencies[1] = new AppDependency("org.commcare.reminders", "Reminders");
-        expectedDependencies[2] = new AppDependency("org.commcare.test", "Test");
+        AndroidPackageDependency[] expectedDependencies = new AndroidPackageDependency[2];
+        expectedDependencies[0] = new AndroidPackageDependency("org.commcare.reminders", "Reminders");
+        expectedDependencies[1] = new AndroidPackageDependency("org.commcare.test", "Test");
         assertEquals(Arrays.toString(expectedDependencies),Arrays.toString(p.getDependencies().toArray()));
     }
 

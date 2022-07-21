@@ -36,7 +36,7 @@ public class Profile implements Persistable {
     private String authRef;
     private Vector<PropertySetter> properties;
     private Vector<RootTranslator> roots;
-    private Vector<AppDependency> dependencies;
+    private Vector<AndroidPackageDependency> dependencies;
     private Hashtable<String, Boolean> featureStatus;
 
     private String uniqueId;
@@ -183,11 +183,11 @@ public class Profile implements Persistable {
         this.featureStatus.put(feature, active);
     }
 
-    public Vector<AppDependency> getDependencies() {
+    public Vector<AndroidPackageDependency> getDependencies() {
         return dependencies;
     }
 
-    public void setDependencies(Vector<AppDependency> dependencies) {
+    public void setDependencies(Vector<AndroidPackageDependency> dependencies) {
         this.dependencies = dependencies;
     }
 
@@ -226,7 +226,7 @@ public class Profile implements Persistable {
         roots = (Vector<RootTranslator>)ExtUtil.read(in, new ExtWrapList(RootTranslator.class), pf);
         featureStatus = (Hashtable<String, Boolean>)ExtUtil.read(in, new ExtWrapMap(String.class, Boolean.class), pf);
         buildProfileId = ExtUtil.readString(in);
-        dependencies = (Vector<AppDependency>)ExtUtil.read(in, new ExtWrapList(AppDependency.class), pf);
+        dependencies = (Vector<AndroidPackageDependency>)ExtUtil.read(in, new ExtWrapList(AndroidPackageDependency.class), pf);
     }
 
     @Override
