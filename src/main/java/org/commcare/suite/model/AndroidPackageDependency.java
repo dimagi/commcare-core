@@ -13,9 +13,6 @@ public class AndroidPackageDependency implements Externalizable {
     private String id;
     private String name;
 
-    // Set later during dependency check
-    private boolean installed = false;
-
     /**
      * Serialization Only!!!
      */
@@ -55,13 +52,5 @@ public class AndroidPackageDependency implements Externalizable {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 '}';
-    }
-
-    public boolean isInstalled() {
-        return installed;
-    }
-
-    public void setInstalled(boolean installed) {
-        this.installed = installed;
     }
 }
