@@ -29,7 +29,6 @@ public class ProfileParser extends ElementParser<Profile> {
     private static final String NAME_APP = "app";
     private static final String ATTR_ID = "id";
     private static final String ATTR_NAME = "name";
-    private static final String ATTR_FORCE = "force";
 
 
     ResourceTable table;
@@ -268,8 +267,7 @@ public class ProfileParser extends ElementParser<Profile> {
                 if (appName == null) {
                     throw new InvalidStructureException("No name defined for app dependency");
                 }
-                boolean force = Boolean.parseBoolean(parser.getAttributeValue(null, ATTR_FORCE));
-                appDependencies.add(new AppDependency(appId, appName, force));
+                appDependencies.add(new AppDependency(appId, appName));
             }
         }
         return appDependencies;

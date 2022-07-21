@@ -86,10 +86,9 @@ public class ProfileTests {
     public void testDependenciesParse() {
         Profile p = getProfile(BASIC_PROFILE_PATH);
         assertTrue(p.isFeatureActive("dependencies"));
-        AppDependency[] expectedDependencies = new AppDependency[3];
-        expectedDependencies[0] = new AppDependency("com.spotify.music", "Spotify", true);
-        expectedDependencies[1] = new AppDependency("org.commcare.reminders", "Reminders", false);
-        expectedDependencies[2] = new AppDependency("org.commcare.test", "Test", false);
+        AppDependency[] expectedDependencies = new AppDependency[2];
+        expectedDependencies[1] = new AppDependency("org.commcare.reminders", "Reminders");
+        expectedDependencies[2] = new AppDependency("org.commcare.test", "Test");
         assertEquals(Arrays.toString(expectedDependencies),Arrays.toString(p.getDependencies().toArray()));
     }
 

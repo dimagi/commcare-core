@@ -87,8 +87,7 @@
         </users>
 
         <dependencies active="true">
-            <app id="com.spotify.music" name="Spotify" force="true"/>
-            <app id="org.commcare.reminders" name="Reminders" force="false"/>
+            <app id="org.commcare.reminders" name="Reminders"/>
             <app id="org.commcare.test" name="Test"/>
         </dependencies>
 

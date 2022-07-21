@@ -12,7 +12,6 @@ import java.io.IOException;
 public class AppDependency implements Externalizable {
     private String id;
     private String name;
-    private boolean force;
 
     // Set later during dependency check
     private boolean installed = false;
@@ -23,10 +22,9 @@ public class AppDependency implements Externalizable {
     public AppDependency() {
     }
 
-    public AppDependency(String id, String name, boolean force) {
+    public AppDependency(String id, String name) {
         this.id = id;
         this.name = name;
-        this.force = force;
     }
 
     @Override
@@ -34,23 +32,18 @@ public class AppDependency implements Externalizable {
             throws IOException, DeserializationException {
         id = ExtUtil.readString(in);
         name = ExtUtil.readString(in);
-        force = ExtUtil.readBool(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, id);
         ExtUtil.writeString(out, name);
-        ExtUtil.writeBool(out, force);
     }
 
     public String getId() {
         return id;
     }
 
-    public boolean isForce() {
-        return force;
-    }
 
     public String getName() {
         return name;
@@ -60,7 +53,6 @@ public class AppDependency implements Externalizable {
     public String toString() {
         return "AppDependency{" +
                 "id='" + id + '\'' +
-                ", force=" + force +
                 '}';
     }
 
