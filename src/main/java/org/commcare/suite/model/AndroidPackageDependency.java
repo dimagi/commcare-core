@@ -9,6 +9,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+/**
+ * Model for defining a CommCare app dependencies on other Android apps
+ */
 public class AndroidPackageDependency implements Externalizable {
     private String id;
     private String name;

@@ -226,7 +226,8 @@ public class Profile implements Persistable {
         roots = (Vector<RootTranslator>)ExtUtil.read(in, new ExtWrapList(RootTranslator.class), pf);
         featureStatus = (Hashtable<String, Boolean>)ExtUtil.read(in, new ExtWrapMap(String.class, Boolean.class), pf);
         buildProfileId = ExtUtil.readString(in);
-        dependencies = (Vector<AndroidPackageDependency>)ExtUtil.read(in, new ExtWrapList(AndroidPackageDependency.class), pf);
+        dependencies = (Vector<AndroidPackageDependency>)ExtUtil.read(in,
+                new ExtWrapList(AndroidPackageDependency.class), pf);
     }
 
     @Override
