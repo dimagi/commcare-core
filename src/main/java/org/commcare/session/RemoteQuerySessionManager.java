@@ -13,8 +13,10 @@ import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.ItemSetUtils;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -41,8 +43,8 @@ public class RemoteQuerySessionManager {
 
     private final RemoteQueryDatum queryDatum;
     private final EvaluationContext evaluationContext;
-    private final Hashtable<String, String> userAnswers =
-            new Hashtable<>();
+    private final Hashtable<String, String> userAnswers = new Hashtable<>();
+    private Hashtable<String, String> errors = new Hashtable<>();
     private final List<String> supportedPrompts;
 
     private RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
@@ -93,6 +95,10 @@ public class RemoteQuerySessionManager {
         return userAnswers;
     }
 
+    public Hashtable<String, String> getErrors() {
+        return errors;
+    }
+
     public void clearAnswers() {
         userAnswers.clear();
     }
@@ -133,7 +139,7 @@ public class RemoteQuerySessionManager {
                 QueryPrompt prompt = queryDatum.getUserQueryPrompts().get(key);
                 XPathExpression excludeExpr = prompt.getExclude();
                 if (!(params.containsKey(key) && params.get(key).contains(value))) {
-                    if (value != null && (excludeExpr == null || !(boolean) excludeExpr.eval(evaluationContext))) {
+                    if (value != null && (excludeExpr == null || !(boolean)excludeExpr.eval(evaluationContext))) {
                         params.put(key, userAnswers.get(key));
                     }
                 }
@@ -144,7 +150,7 @@ public class RemoteQuerySessionManager {
 
     private EvaluationContext getEvaluationContextWithUserInputInstance() {
         Map<String, String> userQueryValues = getUserQueryValues(false);
-        String refId = queryDatum.getDataId();
+        String refId = getSearchInstanceReferenceId();
         ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(
                 refId, userQueryValues);
         return evaluationContext.spawnWithCleanLifecycle(
@@ -156,6 +162,10 @@ public class RemoteQuerySessionManager {
                         "search-input", userInputInstance
                 )
         );
+    }
+
+    private String getSearchInstanceReferenceId() {
+        return queryDatum.getDataId();
     }
 
     public static String evalXpathExpression(XPathExpression expr,
@@ -195,7 +205,8 @@ public class RemoteQuerySessionManager {
         while (dirty) {
             if (index == userInputDisplays.size()) {
                 // loop has already run as many times as no of questions and we are still dirty
-                throw new RuntimeException("Invalid itemset state encountered while trying to refresh itemset choices");
+                throw new RuntimeException(
+                        "Invalid itemset state encountered while trying to refresh itemset choices");
             }
             dirty = false;
             for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
@@ -224,6 +235,33 @@ public class RemoteQuerySessionManager {
             }
             index++;
         }
+    }
+
+    // Recalculates screen properties that are dependent on user input
+    public void refreshInputDependentState() {
+        refreshItemSetChoices();
+        validateUserAnswers();
+    }
+
+    private void validateUserAnswers() {
+        errors = new Hashtable<>();
+        OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
+        String instanceId = VirtualInstances.makeSearchInputInstanceID(getSearchInstanceReferenceId());
+        EvaluationContext ec = getEvaluationContextWithUserInputInstance();
+        for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
+            String key = (String)en.nextElement();
+            QueryPrompt queryPrompt = userInputDisplays.get(key);
+            String value = userAnswers.get(key);
+            TreeReference currentRef = getReferenceToInstanceNode(instanceId, key);
+            if (!StringUtils.isEmpty(value) && queryPrompt.isInvalidInput(new EvaluationContext(ec, currentRef))) {
+                errors.put(key, queryPrompt.getValidationMessage(ec));
+            }
+        }
+    }
+
+    private TreeReference getReferenceToInstanceNode(String instanceId, String key) {
+        String keyPath = "instance('" + instanceId + "')/input/field[@name='" + key + "']";
+        return XPathReference.getPathExpr(keyPath).getReference();
     }
 
     public boolean isPromptSupported(QueryPrompt queryPrompt) {

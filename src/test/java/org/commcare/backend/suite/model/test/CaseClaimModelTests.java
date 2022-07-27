@@ -1,5 +1,7 @@
 package org.commcare.backend.suite.model.test;
 
+import static org.commcare.suite.model.QueryPrompt.DEFAULT_VALIDATION_ERROR;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
@@ -27,9 +29,12 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
 
 /**
  * Tests for basic app models for case claim
@@ -65,7 +70,8 @@ public class CaseClaimModelTests {
         testPopulateItemsetChoices(Collections.emptyMap(), Collections.emptyList(), null);
     }
 
-    private RemoteQuerySessionManager testPopulateItemsetChoices(Map<String, String> userInput, List<String> expected,
+    private RemoteQuerySessionManager testPopulateItemsetChoices(Map<String, String> userInput,
+            List<String> expected,
             RemoteQuerySessionManager existingQuerySessionManager)
             throws Exception {
         RemoteQuerySessionManager remoteQuerySessionManager =
@@ -92,7 +98,9 @@ public class CaseClaimModelTests {
         session.setCommand("patient-search");
 
         ExternalDataInstance districtInstance = buildDistrictInstance();
+        ExternalDataInstance stateInstance = buildStateInstance();
         EvaluationContext context = session.getEvaluationContext().spawnWithCleanLifecycle(ImmutableMap.of(
+                stateInstance.getInstanceId(), stateInstance,
                 districtInstance.getInstanceId(), districtInstance
         ));
 
@@ -225,6 +233,23 @@ public class CaseClaimModelTests {
         Assert.assertFalse(params.containsKey("exclude_patient_id"));
     }
 
+    private ExternalDataInstance buildStateInstance() {
+        Map<String, String> noAttrs = Collections.emptyMap();
+        List<SimpleNode> nodes = ImmutableList.of(
+                SimpleNode.parentNode("state", noAttrs, ImmutableList.of(
+                        SimpleNode.textNode("id", noAttrs, "ka"),
+                        SimpleNode.textNode("name", noAttrs, "Karnataka")
+                )),
+                SimpleNode.parentNode("state", noAttrs, ImmutableList.of(
+                        SimpleNode.textNode("id", noAttrs, "rj"),
+                        SimpleNode.textNode("name", noAttrs, "Rajasthan")
+                ))
+        );
+
+        TreeElement root = TreeBuilder.buildTree("state", "state_list", nodes);
+        return new ExternalDataInstance(ExternalDataInstance.JR_SEARCH_INPUT_REFERENCE, "state", root);
+    }
+
     private ExternalDataInstance buildDistrictInstance() {
         Map<String, String> noAttrs = Collections.emptyMap();
         List<SimpleNode> nodes = ImmutableList.of(
@@ -242,5 +267,59 @@ public class CaseClaimModelTests {
 
         TreeElement root = TreeBuilder.buildTree("district", "district_list", nodes);
         return new ExternalDataInstance(ExternalDataInstance.JR_SEARCH_INPUT_REFERENCE, "district", root);
+    }
+
+    @Test
+    public void testErrorsWithUserInput_noInput() throws Exception {
+        testErrorsWithUserInput(
+                ImmutableMap.of(),
+                ImmutableMap.of(),
+                null
+        );
+    }
+
+    @Test
+    public void testErrorsWithUserInput_EmptyInput() throws Exception {
+        testErrorsWithUserInput(
+                ImmutableMap.of("age", "", "another_age", ""),
+                ImmutableMap.of(),
+                null
+        );
+    }
+
+    @Test
+    public void testErrorsWithUserInput_errorsClearWithValidInput() throws Exception {
+        RemoteQuerySessionManager remoteQuerySessionManager = testErrorsWithUserInput(
+                ImmutableMap.of("name", "", "age", "15", "another_age", "12"),
+                ImmutableMap.of( "age", "age should be greater than 18",
+                        "another_age", DEFAULT_VALIDATION_ERROR),
+                null
+        );
+
+        testErrorsWithUserInput(
+                ImmutableMap.of("name", "Ruth", "age", "21", "another_age", "20"),
+                ImmutableMap.of(), remoteQuerySessionManager
+        );
+    }
+
+    private RemoteQuerySessionManager testErrorsWithUserInput(Map<String, String> userInput,
+            Map<String, String> expectedErrors, @Nullable RemoteQuerySessionManager existingManager)
+            throws Exception {
+        RemoteQuerySessionManager remoteQuerySessionManager =
+                existingManager == null ? buildRemoteQuerySessionManager() : existingManager;
+
+        userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
+        remoteQuerySessionManager.refreshInputDependentState();
+        Hashtable<String, String> errors = remoteQuerySessionManager.getErrors();
+
+        if (expectedErrors.isEmpty()) {
+            Assert.assertTrue(errors.isEmpty());
+        }
+
+        expectedErrors.forEach((key, expectedError) -> {
+            Assert.assertEquals(expectedError, errors.get(key));
+        });
+
+        return remoteQuerySessionManager;
     }
 }

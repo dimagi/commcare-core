@@ -2,6 +2,8 @@ package org.commcare.xml;
 
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.QueryPrompt;
+import org.commcare.suite.model.QueryPromptValidation;
+import org.commcare.suite.model.Text;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xform.parse.ItemSetParsingUtils;
@@ -20,6 +22,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
     private static final String NAME_PROMPT = "prompt";
     private static final String NAME_DISPLAY = "display";
     private static final String NAME_ITEMSET = "itemset";
+    private static final String NAME_VALIDATION = "validation";
     private static final String ATTR_APPEARANCE = "appearance";
     private static final String ATTR_KEY = "key";
     private static final String ATTR_INPUT = "input";
@@ -34,13 +37,16 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
     private static final String ATTR_ALLOW_BLANK_VALUE = "allow_blank_value";
     private static final String ATTR_EXCLUDE = "exclude";
     private static final String ATTR_REQUIRED = "required";
+    private static final String ATTR_VALIDATION_TEST = "test";
+    private static final String NAME_TEXT = "text";
 
     public QueryPromptParser(KXmlParser parser) {
         super(parser);
     }
 
     @Override
-    public QueryPrompt parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+    public QueryPrompt parse() throws InvalidStructureException, IOException, XmlPullParserException,
+            UnfullfilledRequirementsException {
         String appearance = parser.getAttributeValue(null, ATTR_APPEARANCE);
         String key = parser.getAttributeValue(null, ATTR_KEY);
         String input = parser.getAttributeValue(null, ATTR_INPUT);
@@ -55,15 +61,37 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
         XPathExpression exclude = xpathPropertyValue(excludeValueString);
         XPathExpression required = xpathPropertyValue(parser.getAttributeValue(null, ATTR_REQUIRED));
 
+        QueryPromptValidation validation = null;
         while (nextTagInBlock(NAME_PROMPT)) {
-            if (NAME_DISPLAY.equals(parser.getName().toLowerCase())) {
+            if (NAME_DISPLAY.equalsIgnoreCase(parser.getName())) {
                 display = parseDisplayBlock();
-            } else if (NAME_ITEMSET.equals(parser.getName().toLowerCase())) {
+            } else if (NAME_ITEMSET.equalsIgnoreCase(parser.getName())) {
                 itemsetBinding = parseItemset();
+            } else if (NAME_VALIDATION.equalsIgnoreCase(parser.getName())) {
+                validation = parseValidationBlock(key);
             }
         }
         return new QueryPrompt(key, appearance, input, receive, hidden, display,
-                               itemsetBinding, defaultValue, allowBlankValue, exclude, required);
+                itemsetBinding, defaultValue, allowBlankValue, exclude, required, validation);
+    }
+
+    private QueryPromptValidation parseValidationBlock(String key)
+            throws InvalidStructureException, XmlPullParserException, IOException {
+        String testStr = parser.getAttributeValue(null, ATTR_VALIDATION_TEST);
+        if (testStr == null) {
+            throw new InvalidStructureException("No test condition defined in validation for prompt " + key);
+        }
+        XPathExpression test = xpathPropertyValue(testStr);
+        Text message = null;
+        while (nextTagInBlock(NAME_VALIDATION)) {
+            if (parser.getName().equals(NAME_TEXT)) {
+                message = new TextParser(parser).parse();
+            } else {
+                throw new InvalidStructureException(
+                        "Unrecognised node " + parser.getName() + "in validation for prompt " + key);
+            }
+        }
+        return new QueryPromptValidation(test, message);
     }
 
     private ItemsetBinding parseItemset() throws IOException, XmlPullParserException, InvalidStructureException {

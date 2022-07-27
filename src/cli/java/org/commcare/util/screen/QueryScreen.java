@@ -216,6 +216,7 @@ public class QueryScreen extends Screen {
             }
             remoteQuerySessionManager.answerUserPrompt(key, answer);
         }
+        remoteQuerySessionManager.refreshInputDependentState();
     }
 
     public void refreshItemSetChoices() {
@@ -278,7 +279,6 @@ public class QueryScreen extends Screen {
         return instanceOrError.first != null;
     }
 
-
     public OrderedHashtable<String, QueryPrompt> getUserInputDisplays() {
         return userInputDisplays;
     }
@@ -289,6 +289,10 @@ public class QueryScreen extends Screen {
 
     public Hashtable<String, String> getCurrentAnswers() {
         return remoteQuerySessionManager.getUserAnswers();
+    }
+
+    public Hashtable<String, String> getErrors() {
+        return remoteQuerySessionManager.getErrors();
     }
 
     public boolean doDefaultSearch() {

@@ -73,6 +73,27 @@
             </text>
           </display>
         </prompt>
+        <prompt key="age">
+          <validation test="int(instance('my-search-input')/input/field[@name='age'])>18">
+            <text>
+              <locale id="query.age.validation.message"/>
+            </text>
+          </validation>
+          <display>
+            <text>
+              <locale id="query.age"/>
+            </text>
+          </display>
+        </prompt>
+        <prompt key="another_age">
+          <validation test="int(.)>18">
+          </validation>
+          <display>
+            <text>
+              <locale id="query.age"/>
+            </text>
+          </display>
+        </prompt>
         <prompt key="patient_id" hidden="false" allow_blank_value="true" exclude="false()">
           <display>
             <text>
