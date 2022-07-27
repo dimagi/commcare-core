@@ -124,10 +124,6 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
                         "Unrecognised node " + parser.getName() + "in validation for prompt " + key);
             }
         }
-        if (message == null) {
-            throw new InvalidStructureException(
-                    "No validation message defined in the validation block for prompt " + key);
-        }
         return new QueryPromptCondition(test, message);
     }
 

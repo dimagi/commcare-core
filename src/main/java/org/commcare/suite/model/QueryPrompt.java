@@ -27,6 +27,7 @@ public class QueryPrompt implements Externalizable {
     public static final String INPUT_TYPE_DATE = "date";
     public static final String INPUT_TYPE_ADDRESS = "address";
     public static final String DEFAULT_REQUIRED_ERROR = "Sorry, this response is required!";
+    public static final String DEFAULT_VALIDATION_ERROR = "Sorry, this response is invalid!";
 
     private String key;
 
@@ -85,7 +86,8 @@ public class QueryPrompt implements Externalizable {
     }
 
     @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
         key = (String)ExtUtil.read(in, String.class, pf);
         appearance = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         input = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
@@ -109,7 +111,8 @@ public class QueryPrompt implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(hidden));
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapNullable(itemsetBinding));
-        ExtUtil.write(out, new ExtWrapNullable(defaultValueExpr == null ? null : new ExtWrapTagged(defaultValueExpr)));
+        ExtUtil.write(out,
+                new ExtWrapNullable(defaultValueExpr == null ? null : new ExtWrapTagged(defaultValueExpr)));
         ExtUtil.writeBool(out, allowBlankValue);
         ExtUtil.write(out, new ExtWrapNullable(exclude == null ? null : new ExtWrapTagged(exclude)));
         ExtUtil.write(out, new ExtWrapNullable(validation));
@@ -199,5 +202,33 @@ public class QueryPrompt implements Externalizable {
         } catch (NoLocalizedTextException nlte) {
             return DEFAULT_REQUIRED_ERROR;
         }
+    }
+
+    /**
+     * Evalualtes validation message against given eval context
+     *
+     * @param ec eval context to evaluate the validation message
+     * @return evaluated validation message or a default text if no validation message is defined
+     */
+    public String getValidationMessage(EvaluationContext ec) {
+        if (validation != null && validation.getMessage() != null) {
+            return validation.getMessage().evaluate(ec);
+        }
+
+        try {
+            return Localization.get("case.search.answer.invalid");
+        } catch (NoLocalizedTextException nlte) {
+            return DEFAULT_VALIDATION_ERROR;
+        }
+    }
+
+    /**
+     * Evaluates the validation condition for the prompts
+     *
+     * @param ec eval context to evaluate the validation condition
+     * @return whether the input is invalid
+     */
+    public boolean isInvalidInput(EvaluationContext ec) {
+        return validation != null && !((Boolean)validation.getTest().eval(ec));
     }
 }

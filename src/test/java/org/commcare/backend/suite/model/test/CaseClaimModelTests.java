@@ -1,5 +1,7 @@
 package org.commcare.backend.suite.model.test;
 
+import static org.commcare.suite.model.QueryPrompt.DEFAULT_VALIDATION_ERROR;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
@@ -271,8 +273,16 @@ public class CaseClaimModelTests {
     public void testErrorsWithUserInput_noInput() throws Exception {
         testErrorsWithUserInput(
                 ImmutableMap.of(),
-                ImmutableMap.of("age", "age should be greater than 18",
-                        "another_age", "another age should be greater than 18"),
+                ImmutableMap.of(),
+                null
+        );
+    }
+
+    @Test
+    public void testErrorsWithUserInput_EmptyInput() throws Exception {
+        testErrorsWithUserInput(
+                ImmutableMap.of("age", "", "another_age", ""),
+                ImmutableMap.of(),
                 null
         );
     }
@@ -281,8 +291,8 @@ public class CaseClaimModelTests {
     public void testErrorsWithUserInput_errorsClearWithValidInput() throws Exception {
         RemoteQuerySessionManager remoteQuerySessionManager = testErrorsWithUserInput(
                 ImmutableMap.of("name", "", "age", "15", "another_age", "12"),
-                ImmutableMap.of("name", "name can't be empty", "age", "age should be greater than 18",
-                        "another_age", "another age should be greater than 18"),
+                ImmutableMap.of( "age", "age should be greater than 18",
+                        "another_age", DEFAULT_VALIDATION_ERROR),
                 null
         );
 

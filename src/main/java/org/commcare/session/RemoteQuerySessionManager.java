@@ -8,7 +8,6 @@ import org.commcare.cases.util.StringUtils;
 import org.commcare.data.xml.VirtualInstances;
 import org.commcare.suite.model.QueryData;
 import org.commcare.suite.model.QueryPrompt;
-import org.commcare.suite.model.QueryPromptCondition;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.ItemsetBinding;
@@ -270,11 +269,10 @@ public class RemoteQuerySessionManager {
         for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
             QueryPrompt queryPrompt = userInputDisplays.get(key);
-            QueryPromptCondition validation = queryPrompt.getValidation();
+            String value = userAnswers.get(key);
             TreeReference currentRef = getReferenceToInstanceNode(instanceId, key);
-            if (validation != null && !((Boolean)validation.getTest().eval(
-                    new EvaluationContext(ec, currentRef)))) {
-                errors.put(key, validation.getMessage().evaluate(ec));
+            if (!StringUtils.isEmpty(value) && queryPrompt.isInvalidInput(new EvaluationContext(ec, currentRef))) {
+                errors.put(key, queryPrompt.getValidationMessage(ec));
             }
         }
     }

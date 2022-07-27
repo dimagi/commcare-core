@@ -97,9 +97,6 @@
         </prompt>
         <prompt key="another_age">
           <validation test="int(.)>18">
-            <text>
-              <locale id="query.another_age.validation.message"/>
-            </text>
           </validation>
           <display>
             <text>
