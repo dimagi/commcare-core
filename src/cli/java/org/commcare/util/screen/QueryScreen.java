@@ -191,7 +191,6 @@ public class QueryScreen extends Screen {
     }
 
     public void answerPrompts(Hashtable<String, String> answers) {
-        remoteQuerySessionManager.refreshInputDependentState();
         for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
             QueryPrompt queryPrompt = userInputDisplays.get(key);
