@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/**
+ * Common file operations
+ */
 public class FileUtils {
 
     /**
@@ -17,7 +20,9 @@ public class FileUtils {
      * @param dstFile     destination File where we need to copy the inputStream
      */
     public static void copyFile(InputStream inputStream, File dstFile) throws IOException {
-        if (inputStream == null) return;
+        if (inputStream == null) {
+            return;
+        }
         try (OutputStream outputStream = new FileOutputStream(dstFile)) {
             StreamsUtil.writeFromInputToOutputUnmanaged(inputStream, outputStream);
         } finally {
