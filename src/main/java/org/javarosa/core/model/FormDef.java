@@ -1451,6 +1451,7 @@ public class FormDef implements IFormElement, IMetaData,
             DataInstance instance = formInstances.get(instanceId);
             formInstances.put(instanceId, instance.initialize(factory, instanceId));
         }
+        setEvaluationContext(this.exprEvalContext);
 
         initLocale(locale);
 

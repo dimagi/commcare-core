@@ -2,6 +2,8 @@ package org.commcare.backend.suite.model.test;
 
 import com.google.common.collect.ImmutableMultimap;
 
+import org.cli.MockSessionUtils;
+import org.commcare.core.interfaces.MemoryVirtualDataInstanceStorage;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Action;
@@ -9,7 +11,6 @@ import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.test.utilities.PersistableSandbox;
-import org.commcare.util.mocks.MockQueryClient;
 import org.commcare.util.screen.QueryScreen;
 import org.junit.Assert;
 import org.junit.Before;
@@ -157,12 +158,12 @@ public class StackFrameStepTests {
 
         assertEquals(SessionFrame.STATE_QUERY_REQUEST, session.getNeededData());
         // construct the screen
-        QueryScreen screen = new QueryScreen("username", "password", System.out);
-        screen.init(session);
-
         // mock the query response
         InputStream response = this.getClass().getResourceAsStream("/case_claim_example/query_response.xml");
-        screen.setClient(new MockQueryClient(response));
+        QueryScreen screen = new QueryScreen(
+                "username", "password",
+                System.out, new MemoryVirtualDataInstanceStorage(), new MockSessionUtils(response));
+        screen.init(session);
 
         // perform the query
         boolean success = screen.handleInputAndUpdateSession(session, "", false, null);
