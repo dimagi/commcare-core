@@ -98,7 +98,9 @@ public class QueryScreen extends Screen {
 
         try {
             mTitle = Localization.get(getQueryDatum().getTitleLocaleId());
-            
+            if (mTitle == null) {
+                Localization.get("case.search.title");
+            }
         } catch (NoLocalizedTextException nlte) {
             mTitle = "Case Claim";
         }
