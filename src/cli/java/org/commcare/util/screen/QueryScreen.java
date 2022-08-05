@@ -96,14 +96,26 @@ public class QueryScreen extends Screen {
             count++;
         }
 
+        mTitle = getTitleLocaleString();
+        
+    }
+
+    private String getTitleLocaleString() {
         try {
             mTitle = Localization.get(getQueryDatum().getTitleLocaleId());
-            if (mTitle == null) {
-                mTitle = Localization.get("case.search.title");
-            }
+        } catch (NoLocalizedTextException nlte) {
+            mTitle = getTitleLocaleStringLegacy();
+        }
+        return mTitle;
+    }
+
+    private String getTitleLocaleStringLegacy() {
+        try {
+            mTitle = Localization.get("case.search.title");
         } catch (NoLocalizedTextException nlte) {
             mTitle = "Case Claim";
         }
+        return mTitle;  
     }
 
     // Formplayer List of Supported prompts
