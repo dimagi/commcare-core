@@ -218,13 +218,7 @@ public class CaseClaimModelTests {
 
     private void testGetRawQueryParamsWithUserInputExcluded(Map<String, String> userInput)
             throws Exception {
-        MockApp mApp = new MockApp("/case_claim_example/");
-
-        SessionWrapper session = mApp.getSession();
-        session.setCommand("patient-search");
-
-        RemoteQuerySessionManager remoteQuerySessionManager = RemoteQuerySessionManager.buildQuerySessionManager(
-                session, session.getEvaluationContext(), new ArrayList<>());
+        RemoteQuerySessionManager remoteQuerySessionManager = buildRemoteQuerySessionManager();
 
         userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
 
