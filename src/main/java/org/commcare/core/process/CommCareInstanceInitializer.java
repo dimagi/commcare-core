@@ -24,7 +24,7 @@ import org.javarosa.core.model.instance.InstanceRoot;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.util.CacheTable;
+import org.javarosa.core.util.LocalCacheTable;
 
 import javax.annotation.Nonnull;
 
@@ -40,7 +40,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     protected final CommCareSession session;
     protected CaseInstanceTreeElement casebase;
     protected LedgerInstanceTreeElement stockbase;
-    private final CacheTable<String, TreeElement> fixtureBases = new CacheTable<>();
+    private final LocalCacheTable<String, TreeElement> fixtureBases = new LocalCacheTable<>();
     protected final UserSandbox mSandbox;
     protected final CommCarePlatform mPlatform;
 

@@ -199,6 +199,7 @@ public class QueryScreen extends Screen {
             // If select question, we should have got an index as the answer which should
             // be converted to the corresponding value
             if (queryPrompt.isSelect() && !StringUtils.isEmpty(answer)) {
+                remoteQuerySessionManager.populateItemSetChoices(queryPrompt);
                 Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
                 String[] indicesOfSelectedChoices = RemoteQuerySessionManager.extractMultipleChoices(answer);
                 ArrayList<String> selectedChoices = new ArrayList<>(indicesOfSelectedChoices.length);
