@@ -67,9 +67,9 @@ public class QueryPrompt implements Externalizable {
     }
 
     public QueryPrompt(String key, String appearance, String input, String receive,
-                       String hidden, DisplayUnit display, ItemsetBinding itemsetBinding, 
-                       XPathExpression defaultValueExpr, boolean allowBlankValue, XPathExpression exclude,
-                       QueryPromptCondition required, QueryPromptCondition validation) {
+            String hidden, DisplayUnit display, ItemsetBinding itemsetBinding,
+            XPathExpression defaultValueExpr, boolean allowBlankValue, XPathExpression exclude,
+            QueryPromptCondition required, QueryPromptCondition validation) {
 
         this.key = key;
         this.appearance = appearance;
@@ -193,7 +193,7 @@ public class QueryPrompt implements Externalizable {
     // Evaluates required message in the given eval context
     @Nullable
     public String getRequiredMessage(EvaluationContext ec) {
-        if (required != null && required.getMessage() !=null) {
+        if (required != null && required.getMessage() != null) {
             return required.getMessage().evaluate(ec);
         }
 
