@@ -55,6 +55,7 @@ public class RemoteQuerySessionManager {
         this.evaluationContext = evaluationContext;
         this.supportedPrompts = supportedPrompts;
         initUserAnswers();
+        refreshInputDependentState();
     }
 
     private void initUserAnswers() throws XPathException {
@@ -67,7 +68,6 @@ public class RemoteQuerySessionManager {
                 userAnswers.put(prompt.getKey(),
                         FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext)));
             }
-
         }
     }
 
