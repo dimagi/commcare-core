@@ -14,7 +14,6 @@ import java.io.IOException;
  */
 public class AndroidPackageDependency implements Externalizable {
     private String id;
-    private String name;
 
     /**
      * Serialization Only!!!
@@ -22,38 +21,29 @@ public class AndroidPackageDependency implements Externalizable {
     public AndroidPackageDependency() {
     }
 
-    public AndroidPackageDependency(String id, String name) {
+    public AndroidPackageDependency(String id) {
         this.id = id;
-        this.name = name;
     }
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         id = ExtUtil.readString(in);
-        name = ExtUtil.readString(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, id);
-        ExtUtil.writeString(out, name);
     }
 
     public String getId() {
         return id;
     }
 
-
-    public String getName() {
-        return name;
-    }
-
     @Override
     public String toString() {
         return "AndroidPackageDependency{" +
                 "id='" + id + '\'' +
-                ", name='" + name + '\'' +
                 '}';
     }
 }

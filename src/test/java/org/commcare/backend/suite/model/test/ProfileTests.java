@@ -87,8 +87,8 @@ public class ProfileTests {
         Profile p = getProfile(BASIC_PROFILE_PATH);
         assertTrue(p.isFeatureActive("dependencies"));
         AndroidPackageDependency[] expectedDependencies = new AndroidPackageDependency[2];
-        expectedDependencies[0] = new AndroidPackageDependency("org.commcare.reminders", "Reminders");
-        expectedDependencies[1] = new AndroidPackageDependency("org.commcare.test", "Test");
+        expectedDependencies[0] = new AndroidPackageDependency("org.commcare.reminders");
+        expectedDependencies[1] = new AndroidPackageDependency("org.commcare.test");
         assertEquals(Arrays.toString(expectedDependencies),Arrays.toString(p.getDependencies().toArray()));
     }
 

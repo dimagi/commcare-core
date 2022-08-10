@@ -28,8 +28,6 @@ public class ProfileParser extends ElementParser<Profile> {
     private static final String NAME_DEPENDENCIES = "dependencies";
     private static final String NAME_ANDROID_PACKAGE = "android_package";
     private static final String ATTR_ID = "id";
-    private static final String ATTR_NAME = "name";
-
 
     ResourceTable table;
     String resourceId;
@@ -263,11 +261,7 @@ public class ProfileParser extends ElementParser<Profile> {
                 if (appId == null) {
                     throw new InvalidStructureException("No id defined for app dependency");
                 }
-                String appName = parser.getAttributeValue(null, ATTR_NAME);
-                if (appName == null) {
-                    throw new InvalidStructureException("No name defined for app dependency");
-                }
-                appDependencies.add(new AndroidPackageDependency(appId, appName));
+                appDependencies.add(new AndroidPackageDependency(appId));
             }
         }
         return appDependencies;

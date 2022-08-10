@@ -87,8 +87,8 @@
         </users>
 
         <dependencies active="true">
-            <android_package id="org.commcare.reminders" name="Reminders"/>
-            <android_package id="org.commcare.test" name="Test"/>
+            <android_package id="org.commcare.reminders"/>
+            <android_package id="org.commcare.test"/>
         </dependencies>
 
     </features>
