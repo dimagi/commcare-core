@@ -30,11 +30,11 @@ In particular consider how existing data may be impacted by this change.
 - Link to QA Ticket
 -->
 
-### Cross-request instructions
+### Special deploy instructions
 <!--
-If this PR does not depend on any cross-request PRs, check the box below.
+If this PR does not require any special deploy considerations, check the box below.
 Otherwise, replace it with:
-- links to the other coupled request(s).
+- links to related items (cross-request PRs, etc).
 - detailed instructions including deploy sequence and/or other constraints.
 
 and verify that the **Rollback instructions** section below takes these
