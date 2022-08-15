@@ -1,12 +1,17 @@
 package org.commcare.util;
 
+import org.commcare.cases.util.StringUtils;
 import org.javarosa.core.io.StreamsUtil;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLConnection;
+
+import javax.annotation.Nullable;
 
 /**
  * Common file operations
@@ -28,5 +33,25 @@ public class FileUtils {
         } finally {
             inputStream.close();
         }
+    }
+
+    /**
+     * Tries to get content type of a file
+     *
+     * @param file File we need to know the content type for
+     * @return content type for the given file or null
+     */
+    @Nullable
+    public static String getContentType(File file) {
+        try {
+            InputStream fis = new FileInputStream(file);
+            String contentType = URLConnection.guessContentTypeFromStream(fis);
+            if (!StringUtils.isEmpty(contentType)) {
+                return contentType;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return URLConnection.guessContentTypeFromName(file.getName());
     }
 }
