@@ -3,13 +3,16 @@ package org.commcare.suite.model;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapBase;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.Externalizable;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -26,7 +29,7 @@ public class RemoteQueryDatum extends SessionDatum {
     private OrderedHashtable<String, QueryPrompt> userQueryPrompts;
     private boolean useCaseTemplate;
     private boolean defaultSearch;
-    private String titleLocaleId;
+    private Text titleLocaleId;
 
     @SuppressWarnings("unused")
     public RemoteQueryDatum() {
@@ -40,7 +43,7 @@ public class RemoteQueryDatum extends SessionDatum {
     public RemoteQueryDatum(URL url, String storageInstance,
             List<QueryData> hiddenQueryValues,
                             OrderedHashtable<String, QueryPrompt> userQueryPrompts,
-                            boolean useCaseTemplate, boolean defaultSearch, String titleLocaleId) {
+                            boolean useCaseTemplate, boolean defaultSearch, Text titleLocaleId) {
         super(storageInstance, url.toString());
         this.hiddenQueryValues = hiddenQueryValues;
         this.userQueryPrompts = userQueryPrompts;
@@ -75,7 +78,7 @@ public class RemoteQueryDatum extends SessionDatum {
         return defaultSearch;
     }
 
-    public String getTitleLocaleId() {
+    public Text getTitleLocaleId() {
         return titleLocaleId;
     }
 
@@ -83,15 +86,15 @@ public class RemoteQueryDatum extends SessionDatum {
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
-
         hiddenQueryValues =
                 (List<QueryData>) ExtUtil.read(in, new ExtWrapList(new ExtWrapTagged()), pf);
         userQueryPrompts =
                 (OrderedHashtable<String, QueryPrompt>)ExtUtil.read(in,
                         new ExtWrapMap(String.class, QueryPrompt.class, ExtWrapMap.TYPE_ORDERED), pf);
+        titleLocaleId = (Text) ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
         useCaseTemplate = ExtUtil.readBool(in);
         defaultSearch = ExtUtil.readBool(in);
-        titleLocaleId = ExtUtil.readString(in);
+        
     }
 
     @Override
@@ -99,8 +102,9 @@ public class RemoteQueryDatum extends SessionDatum {
         super.writeExternal(out);
         ExtUtil.write(out, new ExtWrapList(hiddenQueryValues, new ExtWrapTagged()));
         ExtUtil.write(out, new ExtWrapMap(userQueryPrompts));
+        ExtUtil.write(out, new ExtWrapNullable(titleLocaleId));
         ExtUtil.writeBool(out, useCaseTemplate);
         ExtUtil.writeBool(out, defaultSearch);
-        ExtUtil.writeString(out, titleLocaleId);
+
     }
 }

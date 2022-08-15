@@ -9,6 +9,7 @@ import org.commcare.suite.model.QueryData;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.Text;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -123,7 +124,13 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
         }
 
         boolean defaultSearch = "true".equals(parser.getAttributeValue(null, "default_search"));
-        String titleLocaleId = "";
+        Text titleLocaleId = null;
+
+        getNextTagInBlock("title");
+        if ("title".equals(parser.getName())) {
+            nextTagInBlock();
+            titleLocaleId = new TextParser(parser).parse(); 
+        }
 
         ArrayList<QueryData> hiddenQueryValues = new ArrayList<QueryData>();
         while (nextTagInBlock("query")) {
@@ -132,10 +139,7 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
                 hiddenQueryValues.add(new QueryDataParser(parser).parse());
             } else if ("prompt".equals(tagName)) {
                 String key = parser.getAttributeValue(null, "key");
-                userQueryPrompts.put(key, new QueryPromptParser(parser).parse());
-            } else if ("locale".equals(tagName)) {
-                titleLocaleId = parser.getAttributeValue(null, "id");
-            }
+                userQueryPrompts.put(key, new QueryPromptParser(parser).parse()); }
         }
         return new RemoteQueryDatum(queryUrl, queryResultStorageInstance,
                 hiddenQueryValues, userQueryPrompts, useCaseTemplate, defaultSearch, titleLocaleId);
