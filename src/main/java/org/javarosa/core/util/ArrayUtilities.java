@@ -73,4 +73,11 @@ public class ArrayUtilities {
         }
         return v;
     }
+
+    /**
+     * Get the last element of a String array.
+     */
+    public static String last(String[] strings) {
+        return strings[strings.length - 1];
+    }
 }

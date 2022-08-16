@@ -2,6 +2,7 @@ package org.commcare.util;
 
 import org.commcare.cases.util.StringUtils;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.util.ArrayUtilities;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLConnection;
+import java.util.Arrays;
 
 import javax.annotation.Nullable;
 
@@ -53,5 +55,17 @@ public class FileUtils {
             e.printStackTrace();
         }
         return URLConnection.guessContentTypeFromName(file.getName());
+    }
+
+    /**
+     * Extracts extension of a file from it's name
+     * @param file name or path for the file
+     * @return extension of given file
+     */
+    public static String getExtension(String file) {
+        if (file != null && file.contains(".")) {
+            return ArrayUtilities.last(file.split("\\."));
+        }
+        return "";
     }
 }
