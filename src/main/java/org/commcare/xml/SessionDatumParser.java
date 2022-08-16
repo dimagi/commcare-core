@@ -139,7 +139,8 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
                 hiddenQueryValues.add(new QueryDataParser(parser).parse());
             } else if ("prompt".equals(tagName)) {
                 String key = parser.getAttributeValue(null, "key");
-                userQueryPrompts.put(key, new QueryPromptParser(parser).parse()); }
+                userQueryPrompts.put(key, new QueryPromptParser(parser).parse());
+            }
         }
         return new RemoteQueryDatum(queryUrl, queryResultStorageInstance,
                 hiddenQueryValues, userQueryPrompts, useCaseTemplate, defaultSearch, title);
