@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLConnection;
-import java.util.Arrays;
 
 import javax.annotation.Nullable;
 
@@ -59,6 +58,7 @@ public class FileUtils {
 
     /**
      * Extracts extension of a file from it's name
+     *
      * @param file name or path for the file
      * @return extension of given file
      */
