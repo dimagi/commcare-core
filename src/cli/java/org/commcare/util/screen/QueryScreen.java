@@ -102,10 +102,8 @@ public class QueryScreen extends Screen {
 
     private String getTitleLocaleString() {
         try {
-            mTitle = getQueryDatum().getTitleLocaleId().evaluate();
-        } catch (NoLocalizedTextException nlte) {
-            mTitle = getTitleLocaleStringLegacy();
-        } catch (NullPointerException npe) {
+            mTitle = getQueryDatum().getTitleText().evaluate();
+        } catch (NoLocalizedTextException | NullPointerException e) {
             mTitle = getTitleLocaleStringLegacy();
         }
         return mTitle;
@@ -114,9 +112,7 @@ public class QueryScreen extends Screen {
     private String getTitleLocaleStringLegacy() {
         try {
             mTitle = Localization.get("case.search.title");
-        } catch (NoLocalizedTextException nlte) {
-            mTitle = "Case Claim";
-        } catch (NullPointerException npe) {
+        } catch (NoLocalizedTextException | NullPointerException e) {
             mTitle = "Case Claim";
         }
         return mTitle;  

@@ -32,7 +32,7 @@ public class SessionDatumParserTest {
                 + "</query>";
         SessionDatumParser parser = ParserTestUtils.buildParser(query, SessionDatumParser.class);
         RemoteQueryDatum datum = (RemoteQueryDatum) parser.parse();
-        String title = datum.getTitleLocaleId().getArgument();
+        String title = datum.getTitleText().getArgument();
         List<QueryData> hiddenQueryValues = datum.getHiddenQueryValues();
 
         assertEquals(1, hiddenQueryValues.size());

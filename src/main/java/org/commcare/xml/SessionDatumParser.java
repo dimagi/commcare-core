@@ -124,12 +124,12 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
         }
 
         boolean defaultSearch = "true".equals(parser.getAttributeValue(null, "default_search"));
-        Text titleLocaleId = null;
+        Text title = null;
 
         getNextTagInBlock("title");
         if ("title".equals(parser.getName())) {
             nextTagInBlock();
-            titleLocaleId = new TextParser(parser).parse(); 
+            title = new TextParser(parser).parse(); 
         }
 
         ArrayList<QueryData> hiddenQueryValues = new ArrayList<QueryData>();
@@ -142,6 +142,6 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
                 userQueryPrompts.put(key, new QueryPromptParser(parser).parse()); }
         }
         return new RemoteQueryDatum(queryUrl, queryResultStorageInstance,
-                hiddenQueryValues, userQueryPrompts, useCaseTemplate, defaultSearch, titleLocaleId);
+                hiddenQueryValues, userQueryPrompts, useCaseTemplate, defaultSearch, title);
     }
 }
