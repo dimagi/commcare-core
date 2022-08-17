@@ -124,14 +124,8 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
         }
 
         boolean defaultSearch = "true".equals(parser.getAttributeValue(null, "default_search"));
+
         Text title = null;
-
-        getNextTagInBlock("title");
-        if ("title".equals(parser.getName())) {
-            nextTagInBlock();
-            title = new TextParser(parser).parse(); 
-        }
-
         ArrayList<QueryData> hiddenQueryValues = new ArrayList<QueryData>();
         while (nextTagInBlock("query")) {
             String tagName = parser.getName();
@@ -140,6 +134,9 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
             } else if ("prompt".equals(tagName)) {
                 String key = parser.getAttributeValue(null, "key");
                 userQueryPrompts.put(key, new QueryPromptParser(parser).parse());
+            } else if ("title".equals(tagName)) {
+                nextTagInBlock("title");
+                title = new TextParser(parser).parse();
             }
         }
         return new RemoteQueryDatum(queryUrl, queryResultStorageInstance,
