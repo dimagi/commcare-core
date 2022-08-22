@@ -66,7 +66,12 @@
         <data key="patient_id" ref="if(count(instance('search-input:patients')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('search-input:patients')/input/field[@name='patient_id']), '')"/>
         <data key="patient_id_legacy" ref="if(count(instance('search-input')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('search-input')/input/field[@name='patient_id']), '')"/>
         <data key="patient_id_custom_id" ref="if(count(instance('my-search-input')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('my-search-input')/input/field[@name='patient_id']), '')"/>
-        <prompt key="name" default="instance('session')/session/context/deviceid">
+        <prompt key="name" required="true()" default="instance('session')/session/context/deviceid">
+          <validation test="instance('my-search-input')/input/field[@name='name']!=''">
+            <text>
+              <locale id="query.name.validation.message"/>
+            </text>
+          </validation>
           <display>
             <text>
               <locale id="query.name"/>
@@ -79,6 +84,11 @@
               <locale id="query.age.validation.message"/>
             </text>
           </validation>
+          <required test="count(instance('my-search-input')/input/field[@name='dob']) = 0 or instance('my-search-input')/input/field[@name='dob']=''">
+            <text>
+              <locale id="query.age.required.message"/>
+            </text>
+          </required>
           <display>
             <text>
               <locale id="query.age"/>
@@ -93,6 +103,18 @@
               <locale id="query.age"/>
             </text>
           </display>
+        </prompt>
+        <prompt key="dob">
+          <display>
+            <text>
+              <locale id="query.name"/>
+            </text>
+          </display>
+          <required test="count(instance('my-search-input')/input/field[@name='age']) = 0 or instance('my-search-input')/input/field[@name='age']=''">
+            <text>
+              <locale id="query.dob.required.message"/>
+            </text>
+          </required>
         </prompt>
         <prompt key="patient_id" hidden="false" allow_blank_value="true" exclude="false()">
           <display>

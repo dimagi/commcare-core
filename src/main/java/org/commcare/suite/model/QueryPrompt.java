@@ -26,6 +26,7 @@ public class QueryPrompt implements Externalizable {
     public static final String INPUT_TYPE_DATERANGE = "daterange";
     public static final String INPUT_TYPE_DATE = "date";
     public static final String INPUT_TYPE_ADDRESS = "address";
+    public static final String DEFAULT_REQUIRED_ERROR = "Sorry, this response is required!";
     public static final String DEFAULT_VALIDATION_ERROR = "Sorry, this response is invalid!";
 
     private String key;
@@ -54,12 +55,12 @@ public class QueryPrompt implements Externalizable {
     private XPathExpression exclude;
 
     @Nullable
-    private XPathExpression required;
+    private QueryPromptCondition required;
 
     private boolean allowBlankValue;
 
     @Nullable
-    private QueryPromptValidation validation;
+    private QueryPromptCondition validation;
 
     @SuppressWarnings("unused")
     public QueryPrompt() {
@@ -68,7 +69,7 @@ public class QueryPrompt implements Externalizable {
     public QueryPrompt(String key, String appearance, String input, String receive,
             String hidden, DisplayUnit display, ItemsetBinding itemsetBinding,
             XPathExpression defaultValueExpr, boolean allowBlankValue, XPathExpression exclude,
-            XPathExpression required, QueryPromptValidation validation) {
+            QueryPromptCondition required, QueryPromptCondition validation) {
 
         this.key = key;
         this.appearance = appearance;
@@ -97,8 +98,8 @@ public class QueryPrompt implements Externalizable {
         defaultValueExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
         allowBlankValue = ExtUtil.readBool(in);
         exclude = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
-        required = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
-        validation = (QueryPromptValidation)ExtUtil.read(in, new ExtWrapNullable(QueryPromptValidation.class), pf);
+        validation = (QueryPromptCondition)ExtUtil.read(in, new ExtWrapNullable(QueryPromptCondition.class), pf);
+        required = (QueryPromptCondition)ExtUtil.read(in, new ExtWrapNullable(QueryPromptCondition.class), pf);
     }
 
     @Override
@@ -114,8 +115,8 @@ public class QueryPrompt implements Externalizable {
                 new ExtWrapNullable(defaultValueExpr == null ? null : new ExtWrapTagged(defaultValueExpr)));
         ExtUtil.writeBool(out, allowBlankValue);
         ExtUtil.write(out, new ExtWrapNullable(exclude == null ? null : new ExtWrapTagged(exclude)));
-        ExtUtil.write(out, new ExtWrapNullable(required == null ? null : new ExtWrapTagged(required)));
         ExtUtil.write(out, new ExtWrapNullable(validation));
+        ExtUtil.write(out, new ExtWrapNullable(required));
     }
 
     public String getKey() {
@@ -164,12 +165,13 @@ public class QueryPrompt implements Externalizable {
         return exclude;
     }
 
-    public XPathExpression getRequired() {
+    @Nullable
+    public QueryPromptCondition getRequired() {
         return required;
     }
 
     @Nullable
-    public QueryPromptValidation getValidation() {
+    public QueryPromptCondition getValidation() {
         return validation;
     }
 
@@ -178,6 +180,28 @@ public class QueryPrompt implements Externalizable {
      */
     public boolean isSelect() {
         return getItemsetBinding() != null;
+    }
+
+    // Evaluates required in the given eval context
+    public boolean isRequired(EvaluationContext ec) {
+        if (required != null && required.getTest() != null) {
+            return (Boolean)required.getTest().eval(ec);
+        }
+        return false;
+    }
+
+    // Evaluates required message in the given eval context
+    @Nullable
+    public String getRequiredMessage(EvaluationContext ec) {
+        if (required != null && required.getMessage() != null) {
+            return required.getMessage().evaluate(ec);
+        }
+
+        try {
+            return Localization.get("case.search.answer.required");
+        } catch (NoLocalizedTextException nlte) {
+            return DEFAULT_REQUIRED_ERROR;
+        }
     }
 
     /**

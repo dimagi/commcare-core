@@ -296,6 +296,10 @@ public class QueryScreen extends Screen {
         return remoteQuerySessionManager.getErrors();
     }
 
+    public Hashtable<String, Boolean> getRequiredPrompts() {
+        return remoteQuerySessionManager.getRequiredPrompts();
+    }
+
     public boolean doDefaultSearch() {
         return remoteQuerySessionManager.doDefaultSearch();
     }

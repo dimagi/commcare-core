@@ -2,7 +2,7 @@ package org.commcare.xml;
 
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.QueryPrompt;
-import org.commcare.suite.model.QueryPromptValidation;
+import org.commcare.suite.model.QueryPromptCondition;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.instance.TreeReference;
@@ -23,6 +23,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
     private static final String NAME_DISPLAY = "display";
     private static final String NAME_ITEMSET = "itemset";
     private static final String NAME_VALIDATION = "validation";
+    private static final String NAME_REQUIRED = "required";
     private static final String ATTR_APPEARANCE = "appearance";
     private static final String ATTR_KEY = "key";
     private static final String ATTR_INPUT = "input";
@@ -59,9 +60,10 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
         XPathExpression defaultValue = xpathPropertyValue(defaultValueString);
         String excludeValueString = parser.getAttributeValue(null, ATTR_EXCLUDE);
         XPathExpression exclude = xpathPropertyValue(excludeValueString);
-        XPathExpression required = xpathPropertyValue(parser.getAttributeValue(null, ATTR_REQUIRED));
+        XPathExpression oldRequired = xpathPropertyValue(parser.getAttributeValue(null, ATTR_REQUIRED));
 
-        QueryPromptValidation validation = null;
+        QueryPromptCondition validation = null;
+        QueryPromptCondition required = null;
         while (nextTagInBlock(NAME_PROMPT)) {
             if (NAME_DISPLAY.equalsIgnoreCase(parser.getName())) {
                 display = parseDisplayBlock();
@@ -69,13 +71,44 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
                 itemsetBinding = parseItemset();
             } else if (NAME_VALIDATION.equalsIgnoreCase(parser.getName())) {
                 validation = parseValidationBlock(key);
+            } else if (NAME_REQUIRED.equalsIgnoreCase(parser.getName())) {
+                if (oldRequired != null) {
+                    throw new InvalidStructureException(
+                            "Both required attribute and <required> node present for prompt " + key);
+                }
+                required = parseRequiredBlock(key);
             }
         }
+
+        if (oldRequired != null) {
+            required = new QueryPromptCondition(oldRequired, null);
+        }
+
         return new QueryPrompt(key, appearance, input, receive, hidden, display,
-                itemsetBinding, defaultValue, allowBlankValue, exclude, required, validation);
+                itemsetBinding, defaultValue, allowBlankValue, exclude,
+                required, validation);
     }
 
-    private QueryPromptValidation parseValidationBlock(String key)
+    private QueryPromptCondition parseRequiredBlock(String key)
+            throws InvalidStructureException, XmlPullParserException, IOException {
+        String testStr = parser.getAttributeValue(null, ATTR_VALIDATION_TEST);
+        if (testStr == null) {
+            throw new InvalidStructureException("No test condition defined in <required> for prompt " + key);
+        }
+        XPathExpression test = xpathPropertyValue(testStr);
+        Text message = null;
+        while (nextTagInBlock(NAME_REQUIRED)) {
+            if (parser.getName().equals(NAME_TEXT)) {
+                message = new TextParser(parser).parse();
+            } else {
+                throw new InvalidStructureException(
+                        "Unrecognised node " + parser.getName() + " in <required> for prompt " + key);
+            }
+        }
+        return new QueryPromptCondition(test, message);
+    }
+
+    private QueryPromptCondition parseValidationBlock(String key)
             throws InvalidStructureException, XmlPullParserException, IOException {
         String testStr = parser.getAttributeValue(null, ATTR_VALIDATION_TEST);
         if (testStr == null) {
@@ -91,7 +124,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
                         "Unrecognised node " + parser.getName() + "in validation for prompt " + key);
             }
         }
-        return new QueryPromptValidation(test, message);
+        return new QueryPromptCondition(test, message);
     }
 
     private ItemsetBinding parseItemset() throws IOException, XmlPullParserException, InvalidStructureException {

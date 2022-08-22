@@ -43,6 +43,8 @@ import javax.annotation.Nullable;
  */
 public class CaseClaimModelTests {
 
+    private MockApp mApp;
+
     @Test
     public void testRemoteQueryDatum() throws Exception {
         MockApp mApp = new MockApp("/case_claim_example/");
@@ -92,7 +94,7 @@ public class CaseClaimModelTests {
     }
 
     private RemoteQuerySessionManager buildRemoteQuerySessionManager() throws Exception {
-        MockApp mApp = new MockApp("/case_claim_example/");
+        mApp = new MockApp("/case_claim_example/");
 
         SessionWrapper session = mApp.getSession();
         session.setCommand("patient-search");
@@ -123,8 +125,6 @@ public class CaseClaimModelTests {
                 "patient_id",
                 remoteQuerySessionManager
         );
-
-
     }
 
     @Test
@@ -218,13 +218,7 @@ public class CaseClaimModelTests {
 
     private void testGetRawQueryParamsWithUserInputExcluded(Map<String, String> userInput)
             throws Exception {
-        MockApp mApp = new MockApp("/case_claim_example/");
-
-        SessionWrapper session = mApp.getSession();
-        session.setCommand("patient-search");
-
-        RemoteQuerySessionManager remoteQuerySessionManager = RemoteQuerySessionManager.buildQuerySessionManager(
-                session, session.getEvaluationContext(), new ArrayList<>());
+        RemoteQuerySessionManager remoteQuerySessionManager = buildRemoteQuerySessionManager();
 
         userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
 
@@ -318,6 +312,63 @@ public class CaseClaimModelTests {
 
         expectedErrors.forEach((key, expectedError) -> {
             Assert.assertEquals(expectedError, errors.get(key));
+        });
+
+        return remoteQuerySessionManager;
+    }
+
+    @Test
+    public void testRequiredWithUserInput_dependentConditions() throws Exception {
+        // when age, dob is not required
+        testRequiredWithUserInput(
+                ImmutableMap.of("age", "15"),
+                ImmutableMap.of("age", true, "dob", false),
+                null
+        );
+
+        // when dob, age is not required
+        testRequiredWithUserInput(
+                ImmutableMap.of("dob", "30-02-1000"),
+                ImmutableMap.of("age", false, "dob", true),
+                null
+        );
+
+        // when none, both age and dob is required
+        testRequiredWithUserInput(
+                ImmutableMap.of(),
+                ImmutableMap.of("age", true, "dob", true),
+                null
+        );
+    }
+
+    @Test
+    public void testRequiredWithUserInput_oldRequiredSyntax() throws Exception {
+        RemoteQuerySessionManager remoteQuerySessionManager = testRequiredWithUserInput(
+                ImmutableMap.of("age", "15"),
+                ImmutableMap.of("name", true),
+                null
+        );
+        QueryPrompt namePrompt = remoteQuerySessionManager.getNeededUserInputDisplays().get("name");
+        Assert.assertEquals(QueryPrompt.DEFAULT_REQUIRED_ERROR,
+                namePrompt.getRequiredMessage(mApp.getSession().getEvaluationContext()));
+    }
+
+    private RemoteQuerySessionManager testRequiredWithUserInput(Map<String, String> userInput,
+            Map<String, Boolean> expectedRequired, @Nullable RemoteQuerySessionManager existingManager)
+            throws Exception {
+        RemoteQuerySessionManager remoteQuerySessionManager =
+                existingManager == null ? buildRemoteQuerySessionManager() : existingManager;
+
+        userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
+        remoteQuerySessionManager.refreshInputDependentState();
+        Hashtable<String, Boolean> requiredPrompts = remoteQuerySessionManager.getRequiredPrompts();
+
+        if (expectedRequired.isEmpty()) {
+            Assert.assertTrue(requiredPrompts.isEmpty());
+        }
+
+        expectedRequired.forEach((key, isRequired) -> {
+            Assert.assertEquals(isRequired, requiredPrompts.get(key));
         });
 
         return remoteQuerySessionManager;

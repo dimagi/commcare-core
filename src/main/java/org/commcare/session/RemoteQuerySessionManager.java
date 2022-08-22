@@ -45,6 +45,7 @@ public class RemoteQuerySessionManager {
     private final EvaluationContext evaluationContext;
     private final Hashtable<String, String> userAnswers = new Hashtable<>();
     private Hashtable<String, String> errors = new Hashtable<>();
+    private Hashtable<String, Boolean> requiredPrompts = new Hashtable<>();
     private final List<String> supportedPrompts;
 
     private RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
@@ -54,6 +55,7 @@ public class RemoteQuerySessionManager {
         this.evaluationContext = evaluationContext;
         this.supportedPrompts = supportedPrompts;
         initUserAnswers();
+        refreshInputDependentState();
     }
 
     private void initUserAnswers() throws XPathException {
@@ -66,7 +68,6 @@ public class RemoteQuerySessionManager {
                 userAnswers.put(prompt.getKey(),
                         FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext)));
             }
-
         }
     }
 
@@ -97,6 +98,10 @@ public class RemoteQuerySessionManager {
 
     public Hashtable<String, String> getErrors() {
         return errors;
+    }
+
+    public Hashtable<String, Boolean> getRequiredPrompts() {
+        return requiredPrompts;
     }
 
     public void clearAnswers() {
@@ -241,6 +246,19 @@ public class RemoteQuerySessionManager {
     public void refreshInputDependentState() {
         refreshItemSetChoices();
         validateUserAnswers();
+        recalculateRequired();
+    }
+
+    private void recalculateRequired() {
+        requiredPrompts = new Hashtable<>();
+        OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
+        EvaluationContext ec = getEvaluationContextWithUserInputInstance();
+        for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
+            String key = (String)en.nextElement();
+            QueryPrompt queryPrompt = userInputDisplays.get(key);
+            boolean isRequired = queryPrompt.isRequired(ec);
+            requiredPrompts.put(key, isRequired);
+        }
     }
 
     private void validateUserAnswers() {

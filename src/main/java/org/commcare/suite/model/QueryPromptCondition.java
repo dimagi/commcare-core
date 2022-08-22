@@ -12,19 +12,23 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import javax.annotation.Nullable;
+
 /**
  * Model for <validation> node in {@link QueryPrompt}
  */
-public class QueryPromptValidation implements Externalizable {
+public class QueryPromptCondition implements Externalizable {
 
     private XPathExpression test;
+
+    @Nullable
     private Text message;
 
     @SuppressWarnings("unused")
-    public QueryPromptValidation() {
+    public QueryPromptCondition() {
     }
 
-    public QueryPromptValidation(XPathExpression test, Text message) {
+    public QueryPromptCondition(XPathExpression test, Text message) {
         this.test = test;
         this.message = message;
     }
@@ -46,6 +50,7 @@ public class QueryPromptValidation implements Externalizable {
         return test;
     }
 
+    @Nullable
     public Text getMessage() {
         return message;
     }
