@@ -4,6 +4,7 @@ import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
+import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.QueryPrompt;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
@@ -165,6 +166,10 @@ public class QueryScreen extends Screen {
         if (dataInstance != null) {
             sessionWrapper.setQueryDatum(dataInstance);
         }
+    }
+
+    public RemoteQueryDatum getQueryDatum() {
+        return remoteQuerySessionManager.getQueryDatum();
     }
 
     public ExternalDataInstance buildExternalDataInstance(TreeElement root) {
