@@ -3,17 +3,17 @@ package org.commcare.xml;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.Text;
+import org.commcare.suite.model.RemoteQueryDatum;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xpath.expr.XPathExpression;
 import org.junit.Test;
 import org.xmlpull.v1.XmlPullParserException;
-import org.javarosa.xpath.expr.XPathExpression;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Hashtable;
+import java.util.List;
 
 /**
  * Low level tests for session parsing
