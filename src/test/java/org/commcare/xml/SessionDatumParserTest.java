@@ -3,8 +3,8 @@ package org.commcare.xml;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.commcare.suite.model.Text;
 import org.commcare.suite.model.RemoteQueryDatum;
+import org.commcare.suite.model.Text;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.expr.XPathExpression;
