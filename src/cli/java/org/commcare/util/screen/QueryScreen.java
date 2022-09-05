@@ -4,6 +4,7 @@ import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
+import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.QueryPrompt;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
@@ -77,12 +78,26 @@ public class QueryScreen extends Screen {
         for (Map.Entry<String, QueryPrompt> queryPromptEntry : userInputDisplays.entrySet()) {
             fields[count] = queryPromptEntry.getValue().getDisplay().getText().evaluate(sessionWrapper.getEvaluationContext());
         }
+        
+        mTitle = getTitleLocaleString();
+    }
 
+    private String getTitleLocaleString() {
+        try {
+            mTitle = getQueryDatum().getTitleText().evaluate();
+        } catch (NoLocalizedTextException | NullPointerException e) {
+            mTitle = getTitleLocaleStringLegacy();
+        }
+        return mTitle;
+    }
+
+    private String getTitleLocaleStringLegacy() {
         try {
             mTitle = Localization.get("case.search.title");
-        } catch (NoLocalizedTextException nlte) {
+        } catch (NoLocalizedTextException | NullPointerException e) {
             mTitle = "Case Claim";
         }
+        return mTitle;  
     }
 
     // Formplayer List of Supported prompts
@@ -151,6 +166,10 @@ public class QueryScreen extends Screen {
         if (dataInstance != null) {
             sessionWrapper.setQueryDatum(dataInstance);
         }
+    }
+
+    public RemoteQueryDatum getQueryDatum() {
+        return remoteQuerySessionManager.getQueryDatum();
     }
 
     public ExternalDataInstance buildExternalDataInstance(TreeElement root) {

@@ -87,6 +87,10 @@ public class RemoteQuerySessionManager {
         }
     }
 
+    public RemoteQueryDatum getQueryDatum() {
+        return queryDatum;
+    }
+
     public OrderedHashtable<String, QueryPrompt> getNeededUserInputDisplays() {
         return queryDatum.getUserQueryPrompts();
     }
