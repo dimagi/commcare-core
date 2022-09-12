@@ -42,6 +42,9 @@ public class XPathFuncExprTest {
 
         // out of bounds selection should raise an XPathException
         ExprEvalUtils.testEval("selected-at('hello there', 2)", instance, null, new XPathException());
+
+        // quotes
+        ExprEvalUtils.testEval("selected-at('texas \"new mexico\" utah', 1)", instance, null, "new mexico");
     }
 
     @Test

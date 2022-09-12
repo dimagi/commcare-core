@@ -64,7 +64,43 @@ public class DataUtil {
         if ("".equals(s)) {
             return new String[0];
         }
-        return s.split("[ ]+");
+
+        Vector<String> items = new Vector<String>();
+        StringBuilder item = new StringBuilder();
+        char quote = '\u0000';
+
+        for (int i = 0; i < s.length(); i++) {
+            char current = s.charAt(i);
+            if (current == ' ' && quote == '\u0000') {
+                if (i == 0 || s.charAt(i - 1) != ' ') {     // allow to delimit with multiple spaces
+                    items.add(item.toString());
+                    item = new StringBuilder();
+                }
+            } else if (current == quote && s.charAt(i - 1) != '\\') {
+                quote = '\u0000';
+            } else if (quote == '\u0000' && (current == '\'' || current == '"') && (i == 0 || s.charAt(i - 1) != '\\')) {
+                quote = current;
+            } else {
+                item.append(current);
+            }
+        }
+
+        if (item.length() > 0) {
+            items.add(item.toString());
+        }
+
+        return items.toArray(new String[0]);
+    }
+
+    public static String joinWithSpaces(String[] items) {
+        int index = 0;
+        for (String item : items) {
+            if (item.indexOf(" ") != -1) {
+                items[index] = "\"" + item.replace("\"", "\\\"") + "\"";
+            }
+            index++;
+        }
+        return String.join(" ", items);
     }
 
     public static boolean intArrayContains(int[] source, int target) {
