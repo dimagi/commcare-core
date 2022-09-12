@@ -15,6 +15,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.ItemSetUtils;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathException;
@@ -38,9 +39,6 @@ import javax.annotation.Nullable;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class RemoteQuerySessionManager {
-    // used to parse multi-select choices
-    public static final String ANSWER_DELIMITER = "#,#";
-
     private final RemoteQueryDatum queryDatum;
     private final EvaluationContext evaluationContext;
     private final Hashtable<String, String> userAnswers = new Hashtable<>();
@@ -225,8 +223,7 @@ public class RemoteQuerySessionManager {
                         }
                     }
                     if (validSelectedChoices.size() > 0) {
-                        userAnswers.put(promptId,
-                                String.join(RemoteQuerySessionManager.ANSWER_DELIMITER, validSelectedChoices));
+                        userAnswers.put(promptId, DataUtil.joinWithSpaces(validSelectedChoices.toArray(new String[0])));
                     } else {
                         // no value
                         userAnswers.remove(promptId);
@@ -287,7 +284,7 @@ public class RemoteQuerySessionManager {
         if (answer == null) {
             return new String[]{};
         }
-        return answer.split(ANSWER_DELIMITER);
+        return DataUtil.splitOnSpaces(answer);
     }
 
     public RemoteQueryDatum getQueryDatum() {
