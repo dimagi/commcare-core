@@ -47,7 +47,7 @@ public class DataUtilTest {
     @Test
     public void splitOnSpacesTest() {
         assertEquals(DataUtil.splitOnSpaces("a b c"), new String[]{"a", "b", "c"});
-        assertEquals(DataUtil.splitOnSpaces(""), new String[0]);
+        assertEquals(DataUtil.splitOnSpaces(""), new String[]{""});
         assertEquals(DataUtil.splitOnSpaces("texas \"new mexico\" utah"), new String[]{"texas", "new mexico", "utah"});
         assertEquals(DataUtil.splitOnSpaces("'things' 'other things'"), new String[]{"things", "other things"});
         assertEquals(DataUtil.splitOnSpaces("\"Jenny\'s teapot\" \"Ethan\'s mug\""), new String[]{"Jenny's teapot", "Ethan's mug"});

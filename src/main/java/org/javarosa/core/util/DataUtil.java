@@ -62,7 +62,7 @@ public class DataUtil {
 
     public static String[] splitOnSpaces(String s) {
         if ("".equals(s)) {
-            return new String[0];
+            return new String[]{""};
         }
 
         Vector<String> items = new Vector<String>();
