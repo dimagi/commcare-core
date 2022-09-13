@@ -24,6 +24,7 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -213,7 +214,7 @@ public class QueryScreen extends Screen {
                         }
                     }
                 }
-                answer = String.join(RemoteQuerySessionManager.ANSWER_DELIMITER, selectedChoices);
+                answer = DataUtil.joinWithSpaces(selectedChoices.toArray(new String[0]));
             }
             remoteQuerySessionManager.answerUserPrompt(key, answer);
         }
