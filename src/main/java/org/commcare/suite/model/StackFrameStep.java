@@ -4,6 +4,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.core.interfaces.RemoteInstanceFetcher;
+import org.commcare.data.xml.VirtualInstances;
 import org.commcare.session.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
@@ -104,22 +105,35 @@ public class StackFrameStep implements Externalizable {
     public void addDataInstanceSource(ExternalDataInstanceSource source) {
         Objects.requireNonNull(source, String.format(
                 "Unable to add null instance data source to stack frame step '%s'", getId()));
-        String instanceId = source.getInstanceId();
-        if (dataInstanceSources.containsKey(instanceId)) {
+        String reference = source.getReference();
+        if (dataInstanceSources.containsKey(reference)) {
             throw new RuntimeException(String.format(
-                    "Stack frame step '%s' already contains an instance with the instance ID '%s'",
-                    getId(), instanceId
+                    "Stack frame step '%s' already contains an instance with the reference '%s'",
+                    getId(), reference
             ));
         }
-        dataInstanceSources.put(instanceId, source);
+        dataInstanceSources.put(reference, source);
     }
 
-    public boolean hasDataInstanceSource(String instanceId) {
-        return dataInstanceSources.containsKey(instanceId);
+    public Hashtable<String, ExternalDataInstanceSource> getDataInstanceSources() {
+        return dataInstanceSources;
     }
 
-    public ExternalDataInstanceSource getDataInstanceSource(String instanceId) {
-        return dataInstanceSources.get(instanceId);
+    public boolean hasDataInstanceSource(String reference) {
+        return dataInstanceSources.containsKey(reference);
+    }
+
+    public ExternalDataInstanceSource getDataInstanceSource(String reference) {
+        return dataInstanceSources.get(reference);
+    }
+
+    public ExternalDataInstanceSource getDataInstanceSourceById(String instanceId) {
+        for (ExternalDataInstanceSource source : dataInstanceSources.values()) {
+            if (source.getInstanceId().equals(instanceId)) {
+                return source;
+            }
+        }
+        return null;
     }
 
     public void initDataInstanceSources(RemoteInstanceFetcher remoteInstanceFetcher)

@@ -2,6 +2,7 @@ package org.commcare.backend.suite.model.test;
 
 import com.google.common.collect.ImmutableMap;
 
+import org.cli.MockSessionUtils;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.interfaces.MemoryVirtualDataInstanceStorage;
 import org.commcare.data.xml.VirtualInstances;
@@ -10,10 +11,10 @@ import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
-import org.commcare.util.mocks.MockQueryClient;
 import org.commcare.util.screen.CommCareSessionException;
 import org.commcare.util.screen.QueryScreen;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.InstanceRoot;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Before;
@@ -54,7 +55,8 @@ public class QueryModelTests {
         SessionWrapper session = mApp.getSession();
         QueryScreen screen = setupQueryScreen(session);
 
-        String instanceID = "search-input:registry1";
+        String refId = "registry1";
+        String instanceID = VirtualInstances.makeSearchInputInstanceID(refId);
         String expectedInstanceStorageKey = CryptUtil.sha256(instanceID + "/name=bob|age=23|");
         Assert.assertFalse(virtualDataInstanceStorage.contains(expectedInstanceStorageKey));
 
@@ -66,13 +68,23 @@ public class QueryModelTests {
         Assert.assertTrue(virtualDataInstanceStorage.contains(expectedInstanceStorageKey));
         Map<String, String> input = ImmutableMap.of("name", "bob", "age", "23");
         Assert.assertEquals(
-                VirtualInstances.buildSearchInputInstance(instanceID, input).getRoot(),
-                virtualDataInstanceStorage.read(expectedInstanceStorageKey).getRoot());
+                VirtualInstances.buildSearchInputInstance(refId, input).getRoot(),
+                virtualDataInstanceStorage.read(expectedInstanceStorageKey, instanceID).getRoot());
 
         CaseTestUtils.xpathEvalAndAssert(
                 session.getEvaluationContext(),
                 "instance('search-input:registry1')/input/field[@name='age']",
                 "23");
+
+        // test loading instance with new ref
+        ExternalDataInstance instance = new ExternalDataInstance("jr://instance/search-input/registry1",
+                "custom-id");
+        Assert.assertNotNull(session.getIIF().generateRoot(instance).getRoot());
+
+        // test that we can still load instances using the legacy ref
+        ExternalDataInstance legacyInstance = new ExternalDataInstance("jr://instance/search-input",
+                "search-input:registry1");
+        Assert.assertNotNull(session.getIIF().generateRoot(legacyInstance).getRoot());
     }
 
     @NotNull
@@ -84,16 +96,12 @@ public class QueryModelTests {
         Assert.assertEquals("registry1", datum.getDataId());
 
         // construct the screen
-
-        QueryScreen screen = new QueryScreen(
-                "username", "password",
-                System.out, virtualDataInstanceStorage);
-        screen.init(session);
-
-
         // mock the query response
         InputStream response = this.getClass().getResourceAsStream("/case_claim_example/query_response.xml");
-        screen.setClient(new MockQueryClient(response));
+        QueryScreen screen = new QueryScreen(
+                "username", "password",
+                System.out, virtualDataInstanceStorage, new MockSessionUtils(response));
+        screen.init(session);
         return screen;
     }
 }

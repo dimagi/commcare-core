@@ -1,6 +1,9 @@
 package org.commcare.suite.model;
 
 import org.javarosa.core.model.ItemsetBinding;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
@@ -23,6 +26,8 @@ public class QueryPrompt implements Externalizable {
     public static final String INPUT_TYPE_DATERANGE = "daterange";
     public static final String INPUT_TYPE_DATE = "date";
     public static final String INPUT_TYPE_ADDRESS = "address";
+    public static final String DEFAULT_REQUIRED_ERROR = "Sorry, this response is required!";
+    public static final String DEFAULT_VALIDATION_ERROR = "Sorry, this response is invalid!";
 
     private String key;
 
@@ -50,18 +55,21 @@ public class QueryPrompt implements Externalizable {
     private XPathExpression exclude;
 
     @Nullable
-    private XPathExpression required;
+    private QueryPromptCondition required;
 
     private boolean allowBlankValue;
+
+    @Nullable
+    private QueryPromptCondition validation;
 
     @SuppressWarnings("unused")
     public QueryPrompt() {
     }
 
     public QueryPrompt(String key, String appearance, String input, String receive,
-                       String hidden, DisplayUnit display, ItemsetBinding itemsetBinding,
-                       XPathExpression defaultValueExpr, boolean allowBlankValue, XPathExpression exclude,
-                       XPathExpression required) {
+            String hidden, DisplayUnit display, ItemsetBinding itemsetBinding,
+            XPathExpression defaultValueExpr, boolean allowBlankValue, XPathExpression exclude,
+            QueryPromptCondition required, QueryPromptCondition validation) {
         this.key = key;
         this.appearance = appearance;
         this.input = input;
@@ -73,10 +81,12 @@ public class QueryPrompt implements Externalizable {
         this.allowBlankValue = allowBlankValue;
         this.exclude = exclude;
         this.required = required;
+        this.validation = validation;
     }
 
     @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
         key = (String)ExtUtil.read(in, String.class, pf);
         appearance = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         input = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
@@ -87,7 +97,8 @@ public class QueryPrompt implements Externalizable {
         defaultValueExpr = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
         allowBlankValue = ExtUtil.readBool(in);
         exclude = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
-        required = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
+        validation = (QueryPromptCondition)ExtUtil.read(in, new ExtWrapNullable(QueryPromptCondition.class), pf);
+        required = (QueryPromptCondition)ExtUtil.read(in, new ExtWrapNullable(QueryPromptCondition.class), pf);
     }
 
     @Override
@@ -99,10 +110,12 @@ public class QueryPrompt implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(hidden));
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapNullable(itemsetBinding));
-        ExtUtil.write(out, new ExtWrapNullable(defaultValueExpr == null ? null : new ExtWrapTagged(defaultValueExpr)));
+        ExtUtil.write(out,
+                new ExtWrapNullable(defaultValueExpr == null ? null : new ExtWrapTagged(defaultValueExpr)));
         ExtUtil.writeBool(out, allowBlankValue);
         ExtUtil.write(out, new ExtWrapNullable(exclude == null ? null : new ExtWrapTagged(exclude)));
-        ExtUtil.write(out, new ExtWrapNullable(required == null ? null : new ExtWrapTagged(required)));
+        ExtUtil.write(out, new ExtWrapNullable(validation));
+        ExtUtil.write(out, new ExtWrapNullable(required));
     }
 
     public String getKey() {
@@ -147,8 +160,18 @@ public class QueryPrompt implements Externalizable {
         return defaultValueExpr;
     }
 
-    public XPathExpression getRequired() {
+    public XPathExpression getExclude() {
+        return exclude;
+    }
+
+    @Nullable
+    public QueryPromptCondition getRequired() {
         return required;
+    }
+
+    @Nullable
+    public QueryPromptCondition getValidation() {
+        return validation;
     }
 
     /**
@@ -158,8 +181,53 @@ public class QueryPrompt implements Externalizable {
         return getItemsetBinding() != null;
     }
 
-    public XPathExpression getExclude() {
-        return exclude;
+    // Evaluates required in the given eval context
+    public boolean isRequired(EvaluationContext ec) {
+        if (required != null && required.getTest() != null) {
+            return (Boolean)required.getTest().eval(ec);
+        }
+        return false;
     }
 
+    // Evaluates required message in the given eval context
+    @Nullable
+    public String getRequiredMessage(EvaluationContext ec) {
+        if (required != null && required.getMessage() != null) {
+            return required.getMessage().evaluate(ec);
+        }
+
+        try {
+            return Localization.get("case.search.answer.required");
+        } catch (NoLocalizedTextException nlte) {
+            return DEFAULT_REQUIRED_ERROR;
+        }
+    }
+
+    /**
+     * Evalualtes validation message against given eval context
+     *
+     * @param ec eval context to evaluate the validation message
+     * @return evaluated validation message or a default text if no validation message is defined
+     */
+    public String getValidationMessage(EvaluationContext ec) {
+        if (validation != null && validation.getMessage() != null) {
+            return validation.getMessage().evaluate(ec);
+        }
+
+        try {
+            return Localization.get("case.search.answer.invalid");
+        } catch (NoLocalizedTextException nlte) {
+            return DEFAULT_VALIDATION_ERROR;
+        }
+    }
+
+    /**
+     * Evaluates the validation condition for the prompts
+     *
+     * @param ec eval context to evaluate the validation condition
+     * @return whether the input is invalid
+     */
+    public boolean isInvalidInput(EvaluationContext ec) {
+        return validation != null && !((Boolean)validation.getTest().eval(ec));
+    }
 }

@@ -125,7 +125,6 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
 
         boolean defaultSearch = "true".equals(parser.getAttributeValue(null, "default_search"));
         Text title = null;
-
         ArrayList<QueryData> hiddenQueryValues = new ArrayList<QueryData>();
         while (nextTagInBlock("query")) {
             String tagName = parser.getName();
@@ -139,7 +138,6 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
                 title = new TextParser(parser).parse();
             }
         }
-
         return new RemoteQueryDatum(queryUrl, queryResultStorageInstance,
                 hiddenQueryValues, userQueryPrompts, useCaseTemplate, defaultSearch, title);
     }
