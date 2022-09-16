@@ -7,7 +7,6 @@
          name="trivial_test_resources"
          descriptor="Profile">
 
-
     <suite><resource id="suite" version="1">
             <location authority="local">./suite.xml</location>
     </resource></suite>

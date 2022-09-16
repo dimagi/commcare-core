@@ -1,7 +1,14 @@
 package org.commcare.backend.suite.model.test;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.suite.model.AndroidPackageDependency;
 import org.commcare.suite.model.Profile;
 import org.commcare.test.utilities.PersistableSandbox;
 import org.commcare.util.engine.CommCareConfigEngine;
@@ -13,10 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.InputStream;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import java.util.Arrays;
 
 /**
  * Regressions and unit tests for the profile model.
@@ -76,6 +80,16 @@ public class ProfileTests {
         Profile p = getProfile(BASIC_PROFILE_PATH);
         assertNotNull("Profile uniqueId was null", p.getUniqueId());
         assertNotNull("Profile display name was null", p.getDisplayName());
+    }
+
+    @Test
+    public void testDependenciesParse() {
+        Profile p = getProfile(BASIC_PROFILE_PATH);
+        assertTrue(p.isFeatureActive("dependencies"));
+        AndroidPackageDependency[] expectedDependencies = new AndroidPackageDependency[2];
+        expectedDependencies[0] = new AndroidPackageDependency("org.commcare.reminders");
+        expectedDependencies[1] = new AndroidPackageDependency("org.commcare.test");
+        assertEquals(Arrays.toString(expectedDependencies),Arrays.toString(p.getDependencies().toArray()));
     }
 
     private void compareProfiles(Profile a, Profile b) {

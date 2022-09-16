@@ -17,6 +17,7 @@ import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
+import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.javarosa.core.model.SelectChoice;
@@ -112,12 +113,26 @@ public class QueryScreen extends Screen {
                     sessionWrapper.getEvaluationContext());
             count++;
         }
+        
+        mTitle = getTitleLocaleString();
+    }
 
+    private String getTitleLocaleString() {
+        try {
+            mTitle = getQueryDatum().getTitleText().evaluate();
+        } catch (NoLocalizedTextException | NullPointerException e) {
+            mTitle = getTitleLocaleStringLegacy();
+        }
+        return mTitle;
+    }
+
+    private String getTitleLocaleStringLegacy() {
         try {
             mTitle = Localization.get("case.search.title");
-        } catch (NoLocalizedTextException nlte) {
+        } catch (NoLocalizedTextException | NullPointerException e) {
             mTitle = "Case Claim";
         }
+        return mTitle;  
     }
 
     public void setClient(QueryClient client) {

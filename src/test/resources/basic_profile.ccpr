@@ -85,6 +85,12 @@
         <users active="true">
             
         </users>
+
+        <dependencies active="true">
+            <android_package id="org.commcare.reminders"/>
+            <android_package id="org.commcare.test"/>
+        </dependencies>
+
     </features>
 
     <suite><resource id="suite" version="102">
