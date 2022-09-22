@@ -58,7 +58,7 @@ public class EntityScreen extends CompoundScreenHost {
     private boolean needsFullInit = true;
     private boolean isDetailScreen = false;
 
-    private Vector<TreeReference> references;
+    protected Vector<TreeReference> references;
 
     private boolean initialized = false;
     private Action autoLaunchAction;
@@ -130,7 +130,7 @@ public class EntityScreen extends CompoundScreenHost {
 
         evalContext.setQueryContext(newContext);
 
-        if (needsFullInit || references.size() == 1) {
+        if (needsFullInit || references.size() == 1 || shouldAutoSelect()) {
             referenceMap = new Hashtable<>();
             EntityDatum needed = (EntityDatum)session.getNeededDatum();
             for (TreeReference reference : references) {
@@ -141,8 +141,8 @@ public class EntityScreen extends CompoundScreenHost {
             // setting
             evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56, -46.66));
 
-            if (mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
-                this.setSelectedEntity(references.firstElement());
+            if (shouldAutoSelect()) {
+                autoSelectEntities();
                 if (!this.setCurrentScreenToDetail()) {
                     this.updateSession(session);
                     readyToSkip = true;
@@ -153,6 +153,14 @@ public class EntityScreen extends CompoundScreenHost {
             }
         }
         initialized = true;
+    }
+
+    protected boolean shouldAutoSelect() {
+        return mNeededDatum.isAutoSelectEnabled() && references.size() == 1;
+    }
+
+    protected void autoSelectEntities() {
+        this.setSelectedEntity(references.firstElement());
     }
 
     protected void setSession(SessionWrapper session) throws CommCareSessionException {
