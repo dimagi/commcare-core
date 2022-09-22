@@ -16,6 +16,8 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -60,6 +62,45 @@ public class MultiSelectEntityScreen extends EntityScreen {
             processSelectedReferences(selectedRefs);
         } else {
             prcessSelectionAsGuid(input);
+        }
+    }
+
+    @Override
+    protected boolean shouldAutoSelect() {
+        return mNeededDatum.isAutoSelectEnabled();
+    }
+
+    @Override
+    protected void autoSelectEntities() {
+        int selectionSize = references.size();
+        if (selectionSize == 0) {
+            throw new RuntimeException(getNoEntitiesError());
+        } else if (selectionSize > maxSelectValue) {
+            throw new RuntimeException(getMaxSelectError(selectionSize));
+        } else {
+            String[] evaluatedValues = new String[selectionSize];
+            for (int i = 0; i < selectionSize; i++) {
+                evaluatedValues[i] = getReturnValueFromSelection(references.elementAt(i));
+            }
+            processSelectionIntoInstance(evaluatedValues);
+        }
+    }
+
+    private String getMaxSelectError(int selectionSize) {
+        try {
+            return Localization.get("max.entity.selection.error",
+                    new String[]{String.valueOf(selectionSize), String.valueOf(maxSelectValue)});
+        } catch (NoLocalizedTextException | NullPointerException e) {
+            return String.format("Number of selected cases %d is greater than the maximum limit of %d",
+                    selectionSize, maxSelectValue);
+        }
+    }
+
+    private String getNoEntitiesError() {
+        try {
+            return Localization.get("no.entity.selection.error");
+        } catch (NoLocalizedTextException | NullPointerException e) {
+            return String.format("No cases found");
         }
     }
 
