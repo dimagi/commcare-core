@@ -309,6 +309,10 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     private boolean setCurrentScreenToDetail() throws CommCareSessionException {
+        if (mCurrentSelection == null) {
+            return false;
+        }
+
         Detail[] longDetailList = getLongDetailList(mCurrentSelection);
         if (longDetailList == null) {
             return false;
