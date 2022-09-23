@@ -1,5 +1,7 @@
 package org.javarosa.core.model;
 
+import com.google.common.collect.Multimap;
+
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.actions.Action;
@@ -1844,7 +1846,7 @@ public class FormDef implements IFormElement, IMetaData,
         this.sendCalloutHandler = sendCalloutHandler;
     }
 
-    public String dispatchSendCallout(String url, Map<String, String> paramMap) {
+    public String dispatchSendCallout(String url, Multimap<String, String> paramMap) {
         if (sendCalloutHandler == null) {
             return null;
         } else {

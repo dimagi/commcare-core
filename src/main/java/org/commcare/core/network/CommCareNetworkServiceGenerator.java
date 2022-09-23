@@ -3,6 +3,7 @@ package org.commcare.core.network;
 import static org.javarosa.core.model.utils.DateUtils.HOUR_IN_MS;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.core.services.CommCarePreferenceManagerFactory;
@@ -130,7 +131,7 @@ public class CommCareNetworkServiceGenerator {
     }
 
     public static CommCareNetworkService createNoAuthCommCareNetworkService() {
-        return createCommCareNetworkService(null, false, true, ArrayListMultimap.create());
+        return createCommCareNetworkService(null, false, true, ImmutableMultimap.of());
     }
 
     private static boolean isValidRedirect(HttpUrl url, HttpUrl newUrl) {
