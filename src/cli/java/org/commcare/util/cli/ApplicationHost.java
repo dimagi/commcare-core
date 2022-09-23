@@ -26,6 +26,7 @@ import org.commcare.util.screen.CommCareSessionException;
 import org.commcare.util.screen.EntityListSubscreen;
 import org.commcare.util.screen.EntityScreen;
 import org.commcare.util.screen.MenuScreen;
+import org.commcare.util.screen.MultiSelectEntityScreen;
 import org.commcare.util.screen.QueryScreen;
 import org.commcare.util.screen.Screen;
 import org.commcare.util.screen.SessionUtils;
@@ -55,6 +56,8 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.*;
 
+import static org.commcare.util.screen.MultiSelectEntityScreen.USE_SELECTED_VALUES;
+
 /**
  * CLI host for running a commcare application which has been configured and instatiated
  * for the provided user.
@@ -64,7 +67,7 @@ import java.util.*;
 public class ApplicationHost {
     private final CommCareConfigEngine mEngine;
     private final CommCarePlatform mPlatform;
-    private UserSandbox mSandbox;
+    private MockUserDataSandbox mSandbox;
     private CLISessionWrapper mSession;
 
     private boolean mUpdatePending = false;
@@ -319,17 +322,33 @@ public class ApplicationHost {
                     // which ultimately updates the session, so getNextScreen will move onto the form list,
                     // skipping the entity detail. To avoid this, flag that we want to force a redraw in this case.
                     boolean waitForCaseDetail = false;
-                    if (screen instanceof EntityScreen) {
-                        boolean isAction = input.startsWith("action "); // Don't wait for case detail if action
-                        EntityScreen eScreen = (EntityScreen)screen;
-                        if (!isAction && eScreen.getCurrentScreen() instanceof EntityListSubscreen) {
-                            waitForCaseDetail = true;
+                    if (screen instanceof MultiSelectEntityScreen) {
+                        String[] selectedValues = input.split(",");
+                        screenIsRedrawing = screen.handleInputAndUpdateSession(mSession,
+                                                                               USE_SELECTED_VALUES,
+                                                                               false,
+                                                                               selectedValues);
+                    } else {
+                        if (screen instanceof EntityScreen) {
+                            boolean isAction = input.startsWith("action "); // Don't wait for case detail if action
+                            EntityScreen eScreen = (EntityScreen)screen;
+                            if (!isAction && eScreen.getCurrentScreen() instanceof EntityListSubscreen) {
+                                waitForCaseDetail = true;
+                            }
                         }
+                        screenIsRedrawing = !screen.handleInputAndUpdateSession(mSession, input, false, null);
                     }
-
-                    screenIsRedrawing = !screen.handleInputAndUpdateSession(mSession, input, false, null);
                     if (!screenIsRedrawing && !waitForCaseDetail) {
                         screen = getNextScreen();
+                        if (screen instanceof EntityScreen) {
+                            screen.init(mSession);
+                            EntityScreen entityScreen = (EntityScreen)screen;
+                            entityScreen.evaluateAutoLaunch("");
+                            if (entityScreen.getAutoLaunchAction() != null) {
+                                screen.handleInputAndUpdateSession(mSession, input, true, null);
+                                screen = getNextScreen();
+                            }
+                        }
                     }
                 } catch (CommCareSessionException ccse) {
                     printErrorAndContinue("Error during session execution:", ccse);
@@ -439,13 +458,19 @@ public class ApplicationHost {
             return new EntityScreen(true);
         } else if (next.equals(SessionFrame.STATE_QUERY_REQUEST)) {
             checkUsernamePasswordValid();
-            return new QueryScreen(qualifiedUsername, password, System.out, virtualInstanceStorage);
+            return new QueryScreen(qualifiedUsername, password, System.out, virtualInstanceStorage, mSessionUtils);
         } else if (next.equals(SessionFrame.STATE_SYNC_REQUEST)) {
             checkUsernamePasswordValid();
             return new SyncScreen(qualifiedUsername, password, System.out, mSessionUtils);
         } else if (next.equalsIgnoreCase(SessionFrame.STATE_DATUM_COMPUTED)) {
             computeDatum();
             return getNextScreen();
+        } else if (next.equals(SessionFrame.STATE_MULTIPLE_DATUM_VAL)) {
+            try {
+                return new MultiSelectEntityScreen(true, true, mSession, virtualInstanceStorage, false);
+            } catch (CommCareSessionException ccse) {
+                printErrorAndContinue("Error during session execution:", ccse);
+            }
         }
         throw new RuntimeException("Unexpected Frame Request: " + next);
     }

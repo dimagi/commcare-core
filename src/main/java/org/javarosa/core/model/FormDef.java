@@ -32,7 +32,7 @@ import org.javarosa.core.model.util.restorable.RestoreUtils;
 import org.javarosa.core.model.utils.ItemSetUtils;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
-import org.javarosa.core.util.CacheTable;
+import org.javarosa.core.util.LocalCacheTable;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.ShortestCycleAlgorithm;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -152,8 +152,8 @@ public class FormDef implements IFormElement, IMetaData,
      * calculations that determine what needs to be triggered when a value
      * changes.
      */
-    private final CacheTable<TreeReference, ArrayList<TreeReference>> cachedCascadingChildren =
-            new CacheTable<>();
+    private final LocalCacheTable<TreeReference, ArrayList<TreeReference>> cachedCascadingChildren =
+            new LocalCacheTable<>();
 
     public FormDef() {
         this(false);
@@ -1453,6 +1453,7 @@ public class FormDef implements IFormElement, IMetaData,
             DataInstance instance = formInstances.get(instanceId);
             formInstances.put(instanceId, instance.initialize(factory, instanceId));
         }
+        setEvaluationContext(this.exprEvalContext);
 
         initLocale(locale);
 

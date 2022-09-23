@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.commcare.suite.model.QueryData;
 import org.commcare.suite.model.RemoteQueryDatum;
+import org.commcare.suite.model.Text;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.junit.Test;
@@ -47,13 +48,12 @@ public class SessionDatumParserTest {
                 + "</query>";
         SessionDatumParser parser = ParserTestUtils.buildParser(query, SessionDatumParser.class);
         RemoteQueryDatum datum = (RemoteQueryDatum) parser.parse();
-
         String title = datum.getTitleText().getArgument();
-        assertEquals("locale_id", title);
-
         List<QueryData> hiddenQueryValues = datum.getHiddenQueryValues();
+
         assertEquals(1, hiddenQueryValues.size());
         QueryData queryData = hiddenQueryValues.get(0);
         assertEquals("device_id", queryData.getKey());
+        assertEquals("locale_id", title);
     }
 }

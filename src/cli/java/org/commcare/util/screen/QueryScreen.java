@@ -38,11 +38,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import datadog.trace.api.Trace;
-import okhttp3.Credentials;
-import okhttp3.FormBody;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 /**
  * Screen that displays user configurable entry texts and makes
@@ -51,23 +46,6 @@ import okhttp3.Response;
  * @author wspride
  */
 public class QueryScreen extends Screen {
-
-    public interface QueryClient {
-        public InputStream makeRequest(Request request);
-    }
-
-    private class OkHttpQueryClient implements QueryClient {
-        @Override
-        public InputStream makeRequest(Request request) {
-            try {
-                Response response = new okhttp3.OkHttpClient().newCall(request).execute();
-                return response.body().byteStream();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-    }
 
     private RemoteQuerySessionManager remoteQuerySessionManager;
     protected OrderedHashtable<String, QueryPrompt> userInputDisplays;
@@ -81,16 +59,17 @@ public class QueryScreen extends Screen {
 
     private PrintStream out;
     private VirtualDataInstanceStorage instanceStorage;
+    private SessionUtils sessionUtils;
 
     private boolean defaultSearch;
-    private QueryClient client = new OkHttpQueryClient();
 
     public QueryScreen(String domainedUsername, String password, PrintStream out,
-            VirtualDataInstanceStorage instanceStorage) {
+            VirtualDataInstanceStorage instanceStorage, SessionUtils sessionUtils) {
         this.domainedUsername = domainedUsername;
         this.password = password;
         this.out = out;
         this.instanceStorage = instanceStorage;
+        this.sessionUtils = sessionUtils;
     }
 
     @Override
@@ -135,10 +114,6 @@ public class QueryScreen extends Screen {
         return mTitle;  
     }
 
-    public void setClient(QueryClient client) {
-        this.client = client;
-    }
-
     // Formplayer List of Supported prompts
     private ArrayList<String> getSupportedPrompts() {
         ArrayList<String> supportedPrompts = new ArrayList<>();
@@ -169,23 +144,6 @@ public class QueryScreen extends Screen {
         return dataBuilder.build();
     }
 
-    private RequestBody makeRequestBody(Multimap<String, String> requestData) {
-        FormBody.Builder formBodyBuilder = new FormBody.Builder();
-        requestData.forEach(formBodyBuilder::add);
-        return formBodyBuilder.build();
-    }
-
-    private InputStream makeQueryRequestReturnStream(URL url, Multimap<String, String> requestData) {
-        String credential = Credentials.basic(domainedUsername, password);
-
-        Request request = new Request.Builder()
-                .url(url)
-                .method("POST", makeRequestBody(requestData))
-                .header("Authorization", credential)
-                .build();
-        return client.makeRequest(request);
-    }
-
     public Pair<ExternalDataInstance, String> processResponse(InputStream responseData, URL url,
             Multimap<String, String> requestData) {
         if (responseData == null) {
@@ -208,15 +166,16 @@ public class QueryScreen extends Screen {
     }
 
     private ExternalDataInstance getUserInputInstance() {
-        String instanceID = VirtualInstances.makeSearchInputInstanceID(getQueryDatum().getDataId());
+        String refId = getQueryDatum().getDataId();
+        String instanceId = VirtualInstances.makeSearchInputInstanceID(refId);
         Map<String, String> userQueryValues = remoteQuerySessionManager.getUserQueryValues(false);
-        String key = getInstanceKey(instanceID, userQueryValues);
+        String key = getInstanceKey(instanceId, userQueryValues);
         if (instanceStorage.contains(key)) {
-            return instanceStorage.read(key);
+            return instanceStorage.read(key, instanceId);
         }
 
         ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(
-                instanceID, userQueryValues);
+                refId, userQueryValues);
         instanceStorage.write(key, userInputInstance);
         // rebuild the instance with source
         return ExternalDataInstanceSource.buildVirtual(userInputInstance, key).toInstance();
@@ -240,6 +199,7 @@ public class QueryScreen extends Screen {
             // If select question, we should have got an index as the answer which should
             // be converted to the corresponding value
             if (queryPrompt.isSelect() && !StringUtils.isEmpty(answer)) {
+                remoteQuerySessionManager.populateItemSetChoices(queryPrompt);
                 Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
                 String[] indicesOfSelectedChoices = RemoteQuerySessionManager.extractMultipleChoices(answer);
                 ArrayList<String> selectedChoices = new ArrayList<>(indicesOfSelectedChoices.length);
@@ -257,6 +217,7 @@ public class QueryScreen extends Screen {
             }
             remoteQuerySessionManager.answerUserPrompt(key, answer);
         }
+        remoteQuerySessionManager.refreshInputDependentState();
     }
 
     public void refreshItemSetChoices() {
@@ -310,7 +271,7 @@ public class QueryScreen extends Screen {
         answerPrompts(userAnswers);
         URL url = getBaseUrl();
         Multimap<String, String> requestData = getRequestData(false);
-        InputStream response = makeQueryRequestReturnStream(url, requestData);
+        InputStream response = sessionUtils.makeQueryRequest(url, requestData, domainedUsername, password);
         Pair<ExternalDataInstance, String> instanceOrError = processResponse(response, url, requestData);
         updateSession(instanceOrError.first);
         if (currentMessage != null) {
@@ -318,7 +279,6 @@ public class QueryScreen extends Screen {
         }
         return instanceOrError.first != null;
     }
-
 
     public OrderedHashtable<String, QueryPrompt> getUserInputDisplays() {
         return userInputDisplays;
@@ -330,6 +290,14 @@ public class QueryScreen extends Screen {
 
     public Hashtable<String, String> getCurrentAnswers() {
         return remoteQuerySessionManager.getUserAnswers();
+    }
+
+    public Hashtable<String, String> getErrors() {
+        return remoteQuerySessionManager.getErrors();
+    }
+
+    public Hashtable<String, Boolean> getRequiredPrompts() {
+        return remoteQuerySessionManager.getRequiredPrompts();
     }
 
     public boolean doDefaultSearch() {
