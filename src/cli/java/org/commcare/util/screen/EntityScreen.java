@@ -142,9 +142,7 @@ public class EntityScreen extends CompoundScreenHost {
             evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56, -46.66));
 
             if (shouldAutoSelect()) {
-                autoSelectEntities();
                 if (!this.setCurrentScreenToDetail()) {
-                    this.updateSession(session);
                     readyToSkip = true;
                 }
             } else {
@@ -159,8 +157,16 @@ public class EntityScreen extends CompoundScreenHost {
         return mNeededDatum.isAutoSelectEnabled() && references.size() == 1;
     }
 
-    protected void autoSelectEntities() {
+    /**
+     * Auto selects entities for the screen and advances the session
+     * @param session Current CommCare Session
+     * @throws CommCareSessionException
+     */
+    public void autoSelectEntities(SessionWrapper session) throws CommCareSessionException {
         this.setSelectedEntity(references.firstElement());
+        if (!setCurrentScreenToDetail()) {
+            updateSession(session);
+        }
     }
 
     protected void setSession(SessionWrapper session) throws CommCareSessionException {

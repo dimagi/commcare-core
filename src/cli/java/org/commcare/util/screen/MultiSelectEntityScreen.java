@@ -71,7 +71,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
     }
 
     @Override
-    protected void autoSelectEntities() {
+    public void autoSelectEntities(SessionWrapper session) throws CommCareSessionException {
         int selectionSize = references.size();
         if (selectionSize == 0) {
             throw new RuntimeException(getNoEntitiesError());
@@ -84,6 +84,8 @@ public class MultiSelectEntityScreen extends EntityScreen {
             }
             processSelectionIntoInstance(evaluatedValues);
         }
+
+        updateSession(session);
     }
 
     private String getMaxSelectError(int selectionSize) {
