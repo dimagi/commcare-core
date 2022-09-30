@@ -11,6 +11,7 @@ import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.MultiSelectEntityDatum;
 import org.commcare.util.FormDataUtil;
+import org.commcare.util.exception.InvalidEntitiesSelectionException;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
@@ -74,9 +75,9 @@ public class MultiSelectEntityScreen extends EntityScreen {
     public void autoSelectEntities(SessionWrapper session) throws CommCareSessionException {
         int selectionSize = references.size();
         if (selectionSize == 0) {
-            throw new RuntimeException(getNoEntitiesError());
+            throw new InvalidEntitiesSelectionException(getNoEntitiesError());
         } else if (selectionSize > maxSelectValue) {
-            throw new RuntimeException(getMaxSelectError(selectionSize));
+            throw new InvalidEntitiesSelectionException(getMaxSelectError(selectionSize));
         } else {
             String[] evaluatedValues = new String[selectionSize];
             for (int i = 0; i < selectionSize; i++) {
