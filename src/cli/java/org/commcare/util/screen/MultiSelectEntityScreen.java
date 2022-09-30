@@ -90,7 +90,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
 
     private String getMaxSelectError(int selectionSize) {
         try {
-            return Localization.get("max.entity.selection.error",
+            return Localization.get("case.list.max.selection.error",
                     new String[]{String.valueOf(selectionSize), String.valueOf(maxSelectValue)});
         } catch (NoLocalizedTextException | NullPointerException e) {
             return String.format("Number of selected cases %d is greater than the maximum limit of %d",
@@ -100,7 +100,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
 
     private String getNoEntitiesError() {
         try {
-            return Localization.get("no.entity.selection.error");
+            return Localization.get("case.list.no.selection.error");
         } catch (NoLocalizedTextException | NullPointerException e) {
             return String.format("No cases found");
         }
