@@ -63,6 +63,9 @@ public class EntityScreen extends CompoundScreenHost {
     private boolean initialized = false;
     private Action autoLaunchAction;
 
+    // Whether the input to the entity screen is going to be an action
+    private boolean inActionMode = false;
+
     public EntityScreen(boolean handleCaseIndex) {
         this.handleCaseIndex = handleCaseIndex;
     }
@@ -148,7 +151,9 @@ public class EntityScreen extends CompoundScreenHost {
                     readyToSkip = true;
                 }
             } else {
-                mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext,
+                // if the input to this screen is going to be an action, we can skip evaluating the references
+                Vector<TreeReference> entityListReferences = inActionMode ? new Vector<>() : references;
+                mCurrentScreen = new EntityListSubscreen(mShortDetail, entityListReferences, evalContext,
                         handleCaseIndex);
             }
         }
@@ -424,5 +429,9 @@ public class EntityScreen extends CompoundScreenHost {
      */
     public void updateDatum(CommCareSession session, String input) {
         session.setEntityDatum(session.getNeededDatum(), input);
+    }
+
+    public void enableActionMode(boolean enable) {
+        inActionMode = enable;
     }
 }
