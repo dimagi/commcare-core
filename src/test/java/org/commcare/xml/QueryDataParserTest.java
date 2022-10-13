@@ -1,6 +1,7 @@
 package org.commcare.xml;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -48,7 +49,8 @@ public class QueryDataParserTest {
     }
 
     @Test
-    public void testParseValueData_withRequired() throws InvalidStructureException, XmlPullParserException,
+    public void testParseValueData_withRequiredAttribute()
+            throws InvalidStructureException, XmlPullParserException,
             IOException, UnfullfilledRequirementsException {
         String query = "<data key=\"device_id\" ref=\"instance('session')/session/case_id\""
                 + "required=\"true()\"/>";
@@ -56,7 +58,36 @@ public class QueryDataParserTest {
         QueryPrompt queryData = parser.parse();
 
         EvaluationContext evalContext = new EvaluationContext(null, TestInstances.getInstances());
-        assertTrue((boolean) queryData.getRequired().eval(evalContext));
+        assertTrue((boolean)queryData.getRequired().getTest().eval(evalContext));
+        assertNull(queryData.getRequired().getMessage());
+    }
+
+    @Test
+    public void testParseValueData_withRequiredNode() throws InvalidStructureException, XmlPullParserException,
+            IOException, UnfullfilledRequirementsException {
+        String query = "<prompt key=\"name\">"
+                + "          <required test=\"true()\">"
+                + "            <text>This field can't be empty</text>"
+                + "          </required>"
+                + "</prompt>";
+        QueryPromptParser parser = ParserTestUtils.buildParser(query, QueryPromptParser.class);
+        QueryPrompt queryData = parser.parse();
+        EvaluationContext evalContext = new EvaluationContext(null, TestInstances.getInstances());
+        assertTrue((boolean)queryData.getRequired().getTest().eval(evalContext));
+        assertTrue(queryData.getRequiredMessage(evalContext).contentEquals("This field can't be empty"));
+    }
+
+    @Test(expected = InvalidStructureException.class)
+    public void testParseValueData_withRequiredAttributeAndNode()
+            throws InvalidStructureException, XmlPullParserException,
+            IOException, UnfullfilledRequirementsException {
+        String query = "<prompt key=\"name\" required=\"true()\">"
+                + "          <required test=\"true()\">"
+                + "            <text>This field can't be empty</text>"
+                + "          </required>"
+                + "</prompt>";
+        QueryPromptParser parser = ParserTestUtils.buildParser(query, QueryPromptParser.class);
+        parser.parse();
     }
 
     @Test
@@ -96,7 +127,8 @@ public class QueryDataParserTest {
         try {
             parser.parse();
             fail("Expected InvalidStructureException");
-        } catch (InvalidStructureException ignored) {}
+        } catch (InvalidStructureException ignored) {
+        }
     }
 
     @Test
@@ -108,6 +140,7 @@ public class QueryDataParserTest {
         try {
             parser.parse();
             fail("Expected InvalidStructureException");
-        } catch (InvalidStructureException ignored) {}
+        } catch (InvalidStructureException ignored) {
+        }
     }
 }

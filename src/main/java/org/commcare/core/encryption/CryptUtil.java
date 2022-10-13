@@ -5,6 +5,7 @@ import org.javarosa.core.io.StreamsUtil;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
@@ -83,6 +84,21 @@ public class CryptUtil {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static String sha256(String value) {
+        MessageDigest digest = null;
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        byte[] hash = digest.digest(value.getBytes(StandardCharsets.UTF_8));
+        StringBuilder sb = new StringBuilder();
+        for (byte b : hash) {
+            sb.append(String.format("%x", b));
+        }
+        return sb.toString();
     }
 
     private static byte[] append(byte[] one, byte[] two) {

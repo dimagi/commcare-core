@@ -75,10 +75,24 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
             String instanceId, @Nullable TreeElement root,
             boolean useCaseTemplate, String sourceUri,
             Multimap<String, String> requestData) {
-        return new ExternalDataInstanceSource(instanceId, root, JR_REMOTE_REFERENCE,
+        return new ExternalDataInstanceSource(instanceId, root, getRemoteReference(instanceId),
                 useCaseTemplate, sourceUri, requestData, null);
     }
 
+    private static String getRemoteReference(String instanceId) {
+        return JR_REMOTE_REFERENCE.concat("/").concat(instanceId);
+    }
+
+    public static ExternalDataInstanceSource buildVirtual(
+            ExternalDataInstance instance, String storageReferenceId) {
+        return buildVirtual(
+                instance.getInstanceId(),
+                (TreeElement)instance.getRoot(),
+                instance.getReference(),
+                instance.useCaseTemplate(),
+                storageReferenceId
+        );
+    }
 
     public static ExternalDataInstanceSource buildVirtual(
             String instanceId, @Nullable TreeElement root,

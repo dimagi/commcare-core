@@ -81,4 +81,8 @@ public class CaseDataInstance extends ExternalDataInstance {
     public boolean useCaseTemplate() {
         return true;
     }
+
+    public CaseDataInstance copy() {
+        return new CaseDataInstance(this);
+    }
 }
