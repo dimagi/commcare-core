@@ -215,9 +215,6 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                 host.setPendingAction(actions.elementAt(chosenActionIndex));
                 return true;
             }
-        } else if (host.getAutoLaunchAction() != null && allowAutoLaunch) {
-            host.setPendingAction(host.getAutoLaunchAction());
-            return true;
         }
 
         if (input.startsWith("debug ")) {
