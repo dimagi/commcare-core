@@ -234,7 +234,7 @@ public class EntityScreen extends CompoundScreenHost {
         session.setEntityDatum(mNeededDatum, selectedValue);
     }
 
-    protected boolean executePendingAction(CommCareSession session) {
+    public boolean executePendingAction(CommCareSession session) {
         if (mPendingAction != null) {
             session.executeStackOperations(mPendingAction.getStackOperations(), evalContext);
             return true;
