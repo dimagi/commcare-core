@@ -425,4 +425,21 @@ public class EntityScreen extends CompoundScreenHost {
     public void updateDatum(CommCareSession session, String input) {
         session.setEntityDatum(session.getNeededDatum(), input);
     }
+
+    /**
+     * Handle auto-launch actions for EntityScreens
+     *
+     * @return true if the session was advanced
+     * @throws CommCareSessionException
+     */
+    public boolean evalAndExecuteAutoLaunchAction(String nextInput, CommCareSession session)
+            throws CommCareSessionException {
+        evaluateAutoLaunch(nextInput);
+        if (getAutoLaunchAction() != null) {
+           setPendingAction(getAutoLaunchAction());
+           executePendingAction(session);
+            return true;
+        }
+        return false;
+    }
 }
