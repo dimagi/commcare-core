@@ -343,9 +343,7 @@ public class ApplicationHost {
                         if (screen instanceof EntityScreen) {
                             screen.init(mSession);
                             EntityScreen entityScreen = (EntityScreen)screen;
-                            entityScreen.evaluateAutoLaunch("");
-                            if (entityScreen.getAutoLaunchAction() != null) {
-                                screen.handleInputAndUpdateSession(mSession, input, true, null);
+                            if (entityScreen.evalAndExecuteAutoLaunchAction("", mSession)) {
                                 screen = getNextScreen();
                             }
                         }
