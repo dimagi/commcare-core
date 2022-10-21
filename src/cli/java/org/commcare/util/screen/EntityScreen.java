@@ -149,7 +149,9 @@ public class EntityScreen extends CompoundScreenHost {
                     readyToSkip = true;
                 }
             } else {
-                mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext,
+                // We can simply skip evaluating Detail for entities for a detail screen
+                Vector<TreeReference> entityListReferences = isDetailScreen ? new Vector<>() : references;
+                mCurrentScreen = new EntityListSubscreen(mShortDetail, entityListReferences, evalContext,
                         handleCaseIndex);
             }
         }
