@@ -91,8 +91,6 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             return setupSessionData(instance);
         } else if (ref.startsWith(ExternalDataInstance.JR_REMOTE_REFERENCE)) {
             return setupExternalDataInstance(instance, ref, SessionFrame.STATE_QUERY_REQUEST);
-        } else if (ref.contains("migration")) {
-            return setupMigrationData(instance);
         } else if (ref.startsWith(JR_SELECTED_ENTITIES_REFERENCE)) {
             return setupExternalDataInstance(instance, ref, SessionFrame.STATE_MULTIPLE_DATUM_VAL);
         } else if (ref.startsWith(JR_SEARCH_INPUT_REFERENCE)) {
@@ -259,10 +257,6 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
     public String getVersionString() {
         return "CommCare Version: " + mPlatform.getMajorVersion() + "." + mPlatform.getMinorVersion();
-    }
-
-    protected InstanceRoot setupMigrationData(ExternalDataInstance instance) {
-        return ConcreteInstanceRoot.NULL;
     }
 
     public static class FixtureInitializationException extends RuntimeException {
