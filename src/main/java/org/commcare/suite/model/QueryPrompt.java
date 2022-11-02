@@ -25,6 +25,7 @@ public class QueryPrompt implements Externalizable {
     public static final String INPUT_TYPE_SELECT = "select";
     public static final String INPUT_TYPE_DATERANGE = "daterange";
     public static final String INPUT_TYPE_DATE = "date";
+    public static final String INPUT_TYPE_CHECKBOX = "checkbox";
     public static final String INPUT_TYPE_ADDRESS = "address";
     public static final String DEFAULT_REQUIRED_ERROR = "Sorry, this response is required!";
     public static final String DEFAULT_VALIDATION_ERROR = "Sorry, this response is invalid!";
