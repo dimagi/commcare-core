@@ -112,7 +112,8 @@ public class EntityScreen extends CompoundScreenHost {
     public void init(SessionWrapper session) throws CommCareSessionException {
         if (initialized) {
             if (session != this.mSession) {
-                throw new CommCareSessionException("Entity screen initialized with two different session wrappers");
+                throw new CommCareSessionException(
+                        "Entity screen initialized with two different session wrappers");
             }
             return;
         }
@@ -146,7 +147,9 @@ public class EntityScreen extends CompoundScreenHost {
                     readyToSkip = true;
                 }
             } else {
-                mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext,
+                // We can simply skip evaluating Detail for entities for a detail screen
+                Vector<TreeReference> entityListReferences = isDetailScreen ? new Vector<>() : references;
+                mCurrentScreen = new EntityListSubscreen(mShortDetail, entityListReferences, evalContext,
                         handleCaseIndex);
             }
         }
@@ -248,7 +251,7 @@ public class EntityScreen extends CompoundScreenHost {
         session.setEntityDatum(mNeededDatum, selectedValue);
     }
 
-    protected boolean executePendingAction(CommCareSession session) {
+    public boolean executePendingAction(CommCareSession session) {
         if (mPendingAction != null) {
             session.executeStackOperations(mPendingAction.getStackOperations(), evalContext);
             return true;
@@ -442,5 +445,22 @@ public class EntityScreen extends CompoundScreenHost {
      */
     public void updateDatum(CommCareSession session, String input) {
         session.setEntityDatum(session.getNeededDatum(), input);
+    }
+
+    /**
+     * Handle auto-launch actions for EntityScreens
+     *
+     * @return true if the session was advanced
+     * @throws CommCareSessionException if there was an error during evaluation of auto launch action
+     */
+    public boolean evalAndExecuteAutoLaunchAction(String nextInput, CommCareSession session)
+            throws CommCareSessionException {
+        evaluateAutoLaunch(nextInput);
+        if (getAutoLaunchAction() != null) {
+            setPendingAction(getAutoLaunchAction());
+            executePendingAction(session);
+            return true;
+        }
+        return false;
     }
 }
