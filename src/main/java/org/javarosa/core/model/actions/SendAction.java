@@ -1,5 +1,8 @@
 package org.javarosa.core.model.actions;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.SubmissionProfile;
@@ -56,7 +59,7 @@ public class SendAction extends Action {
         String url = profile.getResource();
 
         TreeReference ref = profile.getRef();
-        Map<String, String> map = null;
+        Multimap<String, String> map = null;
         if(ref != null) {
             map = getKeyValueMapping(model, ref);
         }
@@ -76,8 +79,8 @@ public class SendAction extends Action {
         }
     }
 
-    private Map<String, String> getKeyValueMapping(FormDef model, TreeReference ref) {
-        Map<String, String> map = new HashMap<>();
+    private Multimap<String, String> getKeyValueMapping(FormDef model, TreeReference ref) {
+        Multimap<String, String> map = ArrayListMultimap.create();
         AbstractTreeElement element = model.getEvaluationContext().resolveReference(ref);
         for(int i = 0 ; i < element.getNumChildren() ; ++i) {
             AbstractTreeElement child = element.getChildAt(i);

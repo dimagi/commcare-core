@@ -1,5 +1,7 @@
 package org.javarosa.core.model.actions;
 
+import com.google.common.collect.Multimap;
+
 import java.util.Map;
 
 /**
@@ -22,5 +24,5 @@ public interface FormSendCalloutHandler {
      *
      * @return
      */
-    String performHttpCalloutForResponse(String url, Map<String, String> paramMap);
+    String performHttpCalloutForResponse(String url, Multimap<String, String> paramMap);
 }
