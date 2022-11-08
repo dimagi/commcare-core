@@ -14,6 +14,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
+import static org.javarosa.core.model.utils.DateUtils.getFields;
+
 public class CalendarUtils {
 
     private static ArrayDataSource arrayDataSource = new LocaleArrayDataSource(
@@ -49,9 +51,8 @@ public class CalendarUtils {
             format = "%e %B %Y";
         }
 
-        Calendar c = Calendar.getInstance();
-        c.setTime(d);
-        return ConvertToEthiopian(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH), format);
+        DateUtils.DateFields fields = getFields(d);
+        return ConvertToEthiopian(fields.year, fields.month, fields.day, format);
     }
 
     private static final HashMap<Integer, int[]> NEPALI_YEAR_MONTHS = new HashMap<>();
