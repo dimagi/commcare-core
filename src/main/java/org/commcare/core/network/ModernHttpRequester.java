@@ -184,9 +184,9 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         return getResponseStream(response);
     }
 
-    public static RequestBody getPostBody(HashMap<String, String> inputs) {
+    public static RequestBody getPostBody(Multimap<String, String> inputs) {
         FormBody.Builder formBodyBuilder = new FormBody.Builder();
-        for (Map.Entry<String, String> param : inputs.entrySet()) {
+        for (Map.Entry<String, String> param : inputs.entries()) {
             formBodyBuilder.add(param.getKey(), param.getValue());
         }
         return formBodyBuilder.build();
