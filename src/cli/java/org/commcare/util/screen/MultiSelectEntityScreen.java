@@ -73,21 +73,25 @@ public class MultiSelectEntityScreen extends EntityScreen {
     }
 
     @Override
-    public void autoSelectEntities(SessionWrapper session) throws CommCareSessionException {
+    public void autoSelectEntities(SessionWrapper session) {
         int selectionSize = references.size();
-        if (selectionSize == 0) {
-            throw new InvalidEntitiesSelectionException(getNoEntitiesError());
-        } else if (selectionSize > maxSelectValue) {
-            throw new InvalidEntitiesSelectionException(getMaxSelectError(selectionSize));
-        } else {
+        if (validateSelectionSize(selectionSize)) {
             String[] evaluatedValues = new String[selectionSize];
             for (int i = 0; i < selectionSize; i++) {
                 evaluatedValues[i] = getReturnValueFromSelection(references.elementAt(i));
             }
             processSelectionIntoInstance(evaluatedValues);
         }
-
         updateSession(session);
+    }
+
+    private boolean validateSelectionSize(int selectionSize) {
+        if (selectionSize == 0) {
+            throw new InvalidEntitiesSelectionException(getNoEntitiesError());
+        } else if (selectionSize > maxSelectValue) {
+            throw new InvalidEntitiesSelectionException(getMaxSelectError(selectionSize));
+        }
+        return true;
     }
 
     private String getMaxSelectError(int selectionSize) {
