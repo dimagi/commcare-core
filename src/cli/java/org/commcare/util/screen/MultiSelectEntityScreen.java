@@ -29,7 +29,8 @@ import javax.annotation.Nullable;
 public class MultiSelectEntityScreen extends EntityScreen {
 
     public static final String USE_SELECTED_VALUES = "use_selected_values";
-    private int maxSelectValue = -1;
+    private static final int DEFAULT_MAX_SELECT_VAL = 100;
+    private int maxSelectValue = DEFAULT_MAX_SELECT_VAL;
 
     private final VirtualDataInstanceStorage virtualDataInstanceStorage;
     private String storageReferenceId;
