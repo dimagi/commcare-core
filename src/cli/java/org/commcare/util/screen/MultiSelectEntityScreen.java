@@ -133,16 +133,18 @@ public class MultiSelectEntityScreen extends EntityScreen {
     }
 
     private void processSelectedReferences(TreeReference[] selectedRefs) {
-        String[] evaluatedValues = new String[selectedRefs.length];
-        for (int i = 0; i < selectedRefs.length; i++) {
-            evaluatedValues[i] = getReturnValueFromSelection(selectedRefs[i]);
+        if (validateSelectionSize(selectedRefs.length)) {
+            String[] evaluatedValues = new String[selectedRefs.length];
+            for (int i = 0; i < selectedRefs.length; i++) {
+                evaluatedValues[i] = getReturnValueFromSelection(selectedRefs[i]);
+            }
+            processSelectionIntoInstance(evaluatedValues);
         }
-        processSelectionIntoInstance(evaluatedValues);
     }
 
     private void processSelectedValues(String[] selectedValues)
             throws CommCareSessionException {
-        if (selectedValues != null) {
+        if (selectedValues != null && validateSelectionSize(selectedValues.length)) {
             String[] evaluatedValues = new String[selectedValues.length];
             for (int i = 0; i < selectedValues.length; i++) {
                 TreeReference currentReference = getEntityReference(selectedValues[i]);
