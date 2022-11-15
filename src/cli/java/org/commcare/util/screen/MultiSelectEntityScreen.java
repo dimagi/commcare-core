@@ -1,6 +1,7 @@
 package org.commcare.util.screen;
 
 import static org.commcare.session.SessionFrame.STATE_MULTIPLE_DATUM_VAL;
+import static org.commcare.xml.SessionDatumParser.DEFAULT_MAX_SELECT_VAL;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -29,7 +30,6 @@ import javax.annotation.Nullable;
 public class MultiSelectEntityScreen extends EntityScreen {
 
     public static final String USE_SELECTED_VALUES = "use_selected_values";
-    private static final int DEFAULT_MAX_SELECT_VAL = 100;
     private int maxSelectValue = DEFAULT_MAX_SELECT_VAL;
 
     private final VirtualDataInstanceStorage virtualDataInstanceStorage;
