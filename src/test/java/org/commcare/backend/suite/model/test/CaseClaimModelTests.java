@@ -62,7 +62,7 @@ public class CaseClaimModelTests {
 
         Text description = ((RemoteQueryDatum) datum).getDescriptionText();
         Assert.assertEquals("Description text", description.evaluate());
-}
+    }
 
     @Test
     public void testPopulateItemsetChoices__inputReference() throws Exception {
