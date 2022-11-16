@@ -97,13 +97,24 @@ public class MultiSelectEntityScreen extends EntityScreen {
     }
 
     private String getMaxSelectError(int selectionSize) {
+        String error;
         try {
-            return Localization.get("case.list.max.selection.error",
-                    new String[]{String.valueOf(selectionSize), String.valueOf(maxSelectValue)});
+            if (maxSelectValue == 1) {
+                error = Localization.get("case.list.max.selection.error.singular",
+                        new String[]{String.valueOf(selectionSize)});
+            } else {
+                error = Localization.get("case.list.max.selection.error",
+                        new String[]{String.valueOf(selectionSize), String.valueOf(maxSelectValue)});
+            }
         } catch (NoLocalizedTextException | NullPointerException e) {
-            return String.format("Too many cases(%d) to proceed. Only %d are allowed",
-                    selectionSize, maxSelectValue);
+            if (maxSelectValue == 1) {
+                error = String.format("Too many cases(%d) to proceed. Only 1 is allowed", selectionSize);
+            } else {
+                error = String.format("Too many cases(%d) to proceed. Only %d are allowed",
+                        selectionSize, maxSelectValue);
+            }
         }
+        return error;
     }
 
     private String getNoEntitiesError() {
