@@ -164,13 +164,16 @@ public class EntityScreen extends CompoundScreenHost {
      * Auto selects entities for the screen and advances the session
      *
      * @param session Current CommCare Session
+     * @return whether the session was advanced by this call
      * @throws CommCareSessionException errors while auto selecting entities
      */
-    public void autoSelectEntities(SessionWrapper session) throws CommCareSessionException {
+    public boolean autoSelectEntities(SessionWrapper session) throws CommCareSessionException {
         this.setSelectedEntity(references.firstElement());
         if (!setCurrentScreenToDetail()) {
             updateSession(session);
+            return true;
         }
+        return false;
     }
 
     protected void setSession(SessionWrapper session) throws CommCareSessionException {

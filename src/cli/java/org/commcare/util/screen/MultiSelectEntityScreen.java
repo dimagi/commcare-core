@@ -73,7 +73,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
     }
 
     @Override
-    public void autoSelectEntities(SessionWrapper session) {
+    public boolean autoSelectEntities(SessionWrapper session) {
         int selectionSize = references.size();
         if (validateSelectionSize(selectionSize)) {
             String[] evaluatedValues = new String[selectionSize];
@@ -82,7 +82,9 @@ public class MultiSelectEntityScreen extends EntityScreen {
             }
             processSelectionIntoInstance(evaluatedValues);
             updateSession(session);
+            return true;
         }
+        return false;
     }
 
     private boolean validateSelectionSize(int selectionSize) {
