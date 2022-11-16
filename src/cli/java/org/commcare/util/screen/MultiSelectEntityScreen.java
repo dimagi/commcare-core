@@ -81,8 +81,8 @@ public class MultiSelectEntityScreen extends EntityScreen {
                 evaluatedValues[i] = getReturnValueFromSelection(references.elementAt(i));
             }
             processSelectionIntoInstance(evaluatedValues);
+            updateSession(session);
         }
-        updateSession(session);
     }
 
     private boolean validateSelectionSize(int selectionSize) {
