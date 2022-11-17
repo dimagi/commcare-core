@@ -1,7 +1,6 @@
 package org.commcare.util.screen;
 
 import static org.commcare.session.SessionFrame.STATE_MULTIPLE_DATUM_VAL;
-import static org.commcare.xml.SessionDatumParser.DEFAULT_MAX_SELECT_VAL;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -12,14 +11,11 @@ import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.MultiSelectEntityDatum;
 import org.commcare.util.FormDataUtil;
-import org.commcare.util.exception.InvalidEntitiesSelectionException;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.NoLocalizedTextException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,7 +26,7 @@ import javax.annotation.Nullable;
 public class MultiSelectEntityScreen extends EntityScreen {
 
     public static final String USE_SELECTED_VALUES = "use_selected_values";
-    private int maxSelectValue = DEFAULT_MAX_SELECT_VAL;
+    private int maxSelectValue = -1;
 
     private final VirtualDataInstanceStorage virtualDataInstanceStorage;
     private String storageReferenceId;
@@ -67,64 +63,6 @@ public class MultiSelectEntityScreen extends EntityScreen {
         }
     }
 
-    @Override
-    protected boolean shouldAutoSelect() {
-        return mNeededDatum.isAutoSelectEnabled();
-    }
-
-    @Override
-    public boolean autoSelectEntities(SessionWrapper session) {
-        int selectionSize = references.size();
-        if (validateSelectionSize(selectionSize)) {
-            String[] evaluatedValues = new String[selectionSize];
-            for (int i = 0; i < selectionSize; i++) {
-                evaluatedValues[i] = getReturnValueFromSelection(references.elementAt(i));
-            }
-            processSelectionIntoInstance(evaluatedValues);
-            updateSession(session);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean validateSelectionSize(int selectionSize) {
-        if (selectionSize == 0) {
-            throw new InvalidEntitiesSelectionException(getNoEntitiesError());
-        } else if (selectionSize > maxSelectValue) {
-            throw new InvalidEntitiesSelectionException(getMaxSelectError(selectionSize));
-        }
-        return true;
-    }
-
-    private String getMaxSelectError(int selectionSize) {
-        String error;
-        try {
-            if (maxSelectValue == 1) {
-                error = Localization.get("case.list.max.selection.error.singular",
-                        new String[]{String.valueOf(selectionSize)});
-            } else {
-                error = Localization.get("case.list.max.selection.error",
-                        new String[]{String.valueOf(selectionSize), String.valueOf(maxSelectValue)});
-            }
-        } catch (NoLocalizedTextException | NullPointerException e) {
-            if (maxSelectValue == 1) {
-                error = String.format("Too many cases(%d) to proceed. Only 1 is allowed", selectionSize);
-            } else {
-                error = String.format("Too many cases(%d) to proceed. Only %d are allowed",
-                        selectionSize, maxSelectValue);
-            }
-        }
-        return error;
-    }
-
-    private String getNoEntitiesError() {
-        try {
-            return Localization.get("case.list.no.selection.error");
-        } catch (NoLocalizedTextException | NullPointerException e) {
-            return String.format("No cases found");
-        }
-    }
-
     private void setSelectedEntities(String input, @Nullable String[] selectedValues)
             throws CommCareSessionException {
         if (input.contentEquals(USE_SELECTED_VALUES)) {
@@ -146,18 +84,16 @@ public class MultiSelectEntityScreen extends EntityScreen {
     }
 
     private void processSelectedReferences(TreeReference[] selectedRefs) {
-        if (validateSelectionSize(selectedRefs.length)) {
-            String[] evaluatedValues = new String[selectedRefs.length];
-            for (int i = 0; i < selectedRefs.length; i++) {
-                evaluatedValues[i] = getReturnValueFromSelection(selectedRefs[i]);
-            }
-            processSelectionIntoInstance(evaluatedValues);
+        String[] evaluatedValues = new String[selectedRefs.length];
+        for (int i = 0; i < selectedRefs.length; i++) {
+            evaluatedValues[i] = getReturnValueFromSelection(selectedRefs[i]);
         }
+        processSelectionIntoInstance(evaluatedValues);
     }
 
     private void processSelectedValues(String[] selectedValues)
             throws CommCareSessionException {
-        if (selectedValues != null && validateSelectionSize(selectedValues.length)) {
+        if (selectedValues != null) {
             String[] evaluatedValues = new String[selectedValues.length];
             for (int i = 0; i < selectedValues.length; i++) {
                 TreeReference currentReference = getEntityReference(selectedValues[i]);
