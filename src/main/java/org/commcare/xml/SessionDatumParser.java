@@ -26,8 +26,6 @@ import java.util.ArrayList;
  */
 public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
 
-    public static final int DEFAULT_MAX_SELECT_VAL = 100;
-
     public SessionDatumParser(KXmlParser parser) {
         super(parser);
     }
@@ -62,7 +60,7 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
             String value = parser.getAttributeValue(null, "value");
             String autoselect = parser.getAttributeValue(null, "autoselect");
             String maxSelectValueStr = parser.getAttributeValue(null, "max-select-value");
-            int maxSelectValue = DEFAULT_MAX_SELECT_VAL;
+            int maxSelectValue = -1;
             if (!StringUtils.isEmpty(maxSelectValueStr)) {
                 try {
                     maxSelectValue = Integer.parseInt(maxSelectValueStr);
