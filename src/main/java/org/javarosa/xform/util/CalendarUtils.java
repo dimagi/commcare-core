@@ -13,6 +13,9 @@ import org.joda.time.chrono.GregorianChronology;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.TimeZone;
+
+import static org.javarosa.core.model.utils.DateUtils.timezone;
 
 public class CalendarUtils {
 
@@ -245,7 +248,7 @@ public class CalendarUtils {
             format = "%e %B %Y";
         }
 
-        UniversalDate dateUniv = CalendarUtils.fromMillis(date.getTime());
+        UniversalDate dateUniv = CalendarUtils.fromMillis(date);
         DateUtils.DateFields df = DateUtils.getFieldsForNonGregorianCalendar(dateUniv.year,
                 dateUniv.month, dateUniv.day);
 
@@ -345,8 +348,19 @@ public class CalendarUtils {
         throw new RuntimeException("Date out of bounds");
     }
 
-    public static UniversalDate fromMillis(long millisFromJavaEpoch) {
-        return fromMillis(millisFromJavaEpoch, DateTimeZone.getDefault());
+    public static UniversalDate fromMillis(Date date, String timezone){
+        Calendar cd = Calendar.getInstance();
+        cd.setTime(date);
+        if (timezone != null) {
+            cd.setTimeZone(TimeZone.getTimeZone(timezone));
+        } else if (timezone() != null) {
+            cd.setTimeZone(timezone());
+        }
+        return fromMillis(cd.getTime().getTime(), DateTimeZone.forID(cd.getTimeZone().getID()));
+    }
+
+    public static UniversalDate fromMillis(Date date) {
+        return fromMillis(date, null);
     }
 
     public static UniversalDate incrementMonth(UniversalDate date) {
