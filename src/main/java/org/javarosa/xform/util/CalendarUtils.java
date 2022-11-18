@@ -13,8 +13,7 @@ import org.joda.time.chrono.GregorianChronology;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-
-import static org.javarosa.core.model.utils.DateUtils.getFields;
+import java.util.TimeZone;
 
 public class CalendarUtils {
 
@@ -51,7 +50,7 @@ public class CalendarUtils {
             format = "%e %B %Y";
         }
 
-        DateUtils.DateFields fields = getFields(d);
+        DateUtils.DateFields fields = DateUtils.getFields(d);
         return ConvertToEthiopian(fields.year, fields.month, fields.day, format);
     }
 
@@ -246,7 +245,7 @@ public class CalendarUtils {
             format = "%e %B %Y";
         }
 
-        UniversalDate dateUniv = CalendarUtils.fromMillis(date.getTime());
+        UniversalDate dateUniv = CalendarUtils.fromMillis(date);
         DateUtils.DateFields df = DateUtils.getFieldsForNonGregorianCalendar(dateUniv.year,
                 dateUniv.month, dateUniv.day);
 
@@ -346,8 +345,21 @@ public class CalendarUtils {
         throw new RuntimeException("Date out of bounds");
     }
 
-    public static UniversalDate fromMillis(long millisFromJavaEpoch) {
-        return fromMillis(millisFromJavaEpoch, DateTimeZone.getDefault());
+    public static UniversalDate fromMillis(Date date, String timezone) {
+        Calendar cd = Calendar.getInstance();
+        cd.setTime(date);
+        if (timezone != null) {
+            cd.setTimeZone(TimeZone.getTimeZone(timezone));
+        } else if (DateUtils.timezone() != null) {
+            cd.setTimeZone(DateUtils.timezone());
+        }
+        long dateInMillis = cd.getTime().getTime();
+        DateTimeZone timezoneObject = DateTimeZone.forOffsetMillis(cd.getTimeZone().getRawOffset());
+        return fromMillis(dateInMillis, timezoneObject);
+    }
+
+    public static UniversalDate fromMillis(Date date) {
+        return fromMillis(date, null);
     }
 
     public static UniversalDate incrementMonth(UniversalDate date) {
