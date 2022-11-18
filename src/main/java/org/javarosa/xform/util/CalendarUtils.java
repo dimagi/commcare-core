@@ -356,7 +356,9 @@ public class CalendarUtils {
         } else if (timezone() != null) {
             cd.setTimeZone(timezone());
         }
-        return fromMillis(cd.getTime().getTime(), DateTimeZone.forID(cd.getTimeZone().getID()));
+        long dateInMillis = cd.getTime().getTime();
+        DateTimeZone timezoneObject = DateTimeZone.forOffsetMillis(cd.getTimeZone().getRawOffset());
+        return fromMillis(dateInMillis, timezoneObject);
     }
 
     public static UniversalDate fromMillis(Date date) {
