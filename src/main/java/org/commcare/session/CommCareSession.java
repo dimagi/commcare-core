@@ -995,6 +995,11 @@ public class CommCareSession {
         frame.addExtraTopStep(key, value);
     }
 
+
+    public void removeExtraFromCurrentFrameStep(String key) {
+        frame.removeExtraTopStep(key);
+    }
+
     /**
      * Get the 'extra' value for the given key.
      * This method only supports keys that have a single value. For keys with multiple values
