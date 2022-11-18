@@ -131,7 +131,7 @@ public class EntityScreen extends CompoundScreenHost {
 
         evalContext.setQueryContext(newContext);
 
-        if (needsFullInit || references.size() == 1 || shouldAutoSelect()) {
+        if (needsFullInit || references.size() == 1) {
             referenceMap = new Hashtable<>();
             EntityDatum needed = (EntityDatum)session.getNeededDatum();
             for (TreeReference reference : references) {
