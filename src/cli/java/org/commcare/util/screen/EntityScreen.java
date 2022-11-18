@@ -58,7 +58,7 @@ public class EntityScreen extends CompoundScreenHost {
     private boolean needsFullInit = true;
     private boolean isDetailScreen = false;
 
-    private Vector<TreeReference> references;
+    protected Vector<TreeReference> references;
 
     private boolean initialized = false;
     private Action autoLaunchAction;
@@ -142,10 +142,8 @@ public class EntityScreen extends CompoundScreenHost {
             // setting
             evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56, -46.66));
 
-            if (mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
-                this.setSelectedEntity(references.firstElement());
+            if (shouldAutoSelect()) {
                 if (!this.setCurrentScreenToDetail()) {
-                    this.updateSession(session);
                     readyToSkip = true;
                 }
             } else {
@@ -156,6 +154,26 @@ public class EntityScreen extends CompoundScreenHost {
             }
         }
         initialized = true;
+    }
+
+    protected boolean shouldAutoSelect() {
+        return mNeededDatum.isAutoSelectEnabled() && references.size() == 1;
+    }
+
+    /**
+     * Auto selects entities for the screen and advances the session
+     *
+     * @param session Current CommCare Session
+     * @return whether the session was advanced by this call
+     * @throws CommCareSessionException errors while auto selecting entities
+     */
+    public boolean autoSelectEntities(SessionWrapper session) throws CommCareSessionException {
+        this.setSelectedEntity(references.firstElement());
+        if (!setCurrentScreenToDetail()) {
+            updateSession(session);
+            return true;
+        }
+        return false;
     }
 
     protected void setSession(SessionWrapper session) throws CommCareSessionException {
@@ -304,6 +322,10 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     private boolean setCurrentScreenToDetail() throws CommCareSessionException {
+        if (mCurrentSelection == null) {
+            return false;
+        }
+
         Detail[] longDetailList = getLongDetailList(mCurrentSelection);
         if (longDetailList == null) {
             return false;
