@@ -14,6 +14,7 @@ import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.Text;
 import org.commcare.test.utilities.MockApp;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -55,6 +56,12 @@ public class CaseClaimModelTests {
         SessionDatum datum = session.getNeededDatum();
 
         Assert.assertTrue("Didn't find Remote Query datum definition", datum instanceof RemoteQueryDatum);
+
+        Text title = ((RemoteQueryDatum) datum).getTitleText();
+        Assert.assertEquals("Title Label", title.evaluate());
+
+        Text description = ((RemoteQueryDatum) datum).getDescriptionText();
+        Assert.assertEquals("Description text", description.evaluate());
     }
 
     @Test
