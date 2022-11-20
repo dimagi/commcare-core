@@ -31,6 +31,7 @@ public class RemoteQueryDatum extends SessionDatum {
     private boolean useCaseTemplate;
     private boolean defaultSearch;
     private Text title;
+    private Text description;
 
     @SuppressWarnings("unused")
     public RemoteQueryDatum() {
@@ -44,13 +45,14 @@ public class RemoteQueryDatum extends SessionDatum {
     public RemoteQueryDatum(URL url, String storageInstance,
             List<QueryData> hiddenQueryValues,
                             OrderedHashtable<String, QueryPrompt> userQueryPrompts,
-                            boolean useCaseTemplate, boolean defaultSearch, Text title) {
+                            boolean useCaseTemplate, boolean defaultSearch, Text title, Text description) {
         super(storageInstance, url.toString());
         this.hiddenQueryValues = hiddenQueryValues;
         this.userQueryPrompts = userQueryPrompts;
         this.useCaseTemplate = useCaseTemplate;
         this.defaultSearch = defaultSearch;
         this.title = title;
+        this.description = description;
     }
 
     public OrderedHashtable<String, QueryPrompt> getUserQueryPrompts() {
@@ -59,10 +61,6 @@ public class RemoteQueryDatum extends SessionDatum {
 
     public List<QueryData> getHiddenQueryValues() {
         return hiddenQueryValues;
-    }
-
-    public Text getTitleText() {
-        return title;
     }
 
     public URL getUrl() {
@@ -83,6 +81,14 @@ public class RemoteQueryDatum extends SessionDatum {
         return defaultSearch;
     }
 
+    public Text getTitleText() {
+        return title;
+    }
+
+    public Text getDescriptionText() {
+        return description;
+    }
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
@@ -93,6 +99,7 @@ public class RemoteQueryDatum extends SessionDatum {
                 (OrderedHashtable<String, QueryPrompt>)ExtUtil.read(in,
                         new ExtWrapMap(String.class, QueryPrompt.class, ExtWrapMap.TYPE_ORDERED), pf);
         title = (Text) ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
+        description = (Text) ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
         useCaseTemplate = ExtUtil.readBool(in);
         defaultSearch = ExtUtil.readBool(in);
         
@@ -104,6 +111,7 @@ public class RemoteQueryDatum extends SessionDatum {
         ExtUtil.write(out, new ExtWrapList(hiddenQueryValues, new ExtWrapTagged()));
         ExtUtil.write(out, new ExtWrapMap(userQueryPrompts));
         ExtUtil.write(out, new ExtWrapNullable(title));
+        ExtUtil.write(out, new ExtWrapNullable(description));
         ExtUtil.writeBool(out, useCaseTemplate);
         ExtUtil.writeBool(out, defaultSearch);
 
