@@ -13,8 +13,8 @@ plugins {
 }
 
 // Needed even though it looks unused
-sourceCompatibility = 11
-targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = 8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 configurations {
     ccapi.extendsFrom(ccapiImplementation)
