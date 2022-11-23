@@ -1,11 +1,11 @@
 package org.javarosa.core.model.actions;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.SubmissionProfile;
-import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.condition.Recalculate;
-import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -13,22 +13,14 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xform.parse.IElementHandler;
-import org.javarosa.xform.parse.XFormParser;
-import org.javarosa.xpath.XPathNodeset;
-import org.javarosa.xpath.XPathTypeMismatchException;
-import org.javarosa.xpath.expr.FunctionUtils;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.kxml2.kdom.Element;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
 
 /**
  * A Send Action is responsible for loading a submission template from the form, and performing
@@ -67,7 +59,7 @@ public class SendAction extends Action {
         String url = profile.getResource();
 
         TreeReference ref = profile.getRef();
-        Map<String, String> map = null;
+        Multimap<String, String> map = null;
         if(ref != null) {
             map = getKeyValueMapping(model, ref);
         }
@@ -87,8 +79,8 @@ public class SendAction extends Action {
         }
     }
 
-    private Map<String, String> getKeyValueMapping(FormDef model, TreeReference ref) {
-        Map<String, String> map = new HashMap<>();
+    private Multimap<String, String> getKeyValueMapping(FormDef model, TreeReference ref) {
+        Multimap<String, String> map = ArrayListMultimap.create();
         AbstractTreeElement element = model.getEvaluationContext().resolveReference(ref);
         for(int i = 0 ; i < element.getNumChildren() ; ++i) {
             AbstractTreeElement child = element.getChildAt(i);

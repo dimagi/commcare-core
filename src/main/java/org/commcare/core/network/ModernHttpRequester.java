@@ -1,13 +1,13 @@
 package org.commcare.core.network;
 
+import com.google.common.collect.Multimap;
+
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.interfaces.ResponseStreamAccessor;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
-import org.commcare.util.LogTypes;
 import org.commcare.util.NetworkStatus;
 import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,7 +51,6 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     private final List<MultipartBody.Part> parts;
     private final HttpResponseProcessor responseProcessor;
     protected final String url;
-    protected final Map<String, String> params;
     protected final Map<String, String> headers;
     private Response<ResponseBody> response;
     private CommCareNetworkService commCareNetworkService;
@@ -64,13 +63,12 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
      * to make a request in case of responseProcessor being null.
      */
     public ModernHttpRequester(BitCacheFactory.CacheDirSetup cacheDirSetup,
-                               String url, Map<String, String> params, HashMap<String, String> headers,
+                               String url, HashMap<String, String> headers,
                                @Nullable RequestBody requestBody, @Nullable List<MultipartBody.Part> parts,
                                CommCareNetworkService commCareNetworkService,
                                HTTPMethod method,
                                @Nullable HttpResponseProcessor responseProcessor) {
         this.cacheDirSetup = cacheDirSetup;
-        this.params = params;
         this.headers = headers;
         this.url = url;
         this.method = method;
@@ -106,13 +104,13 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     public Response<ResponseBody> makeRequest() throws IOException {
         switch (method) {
             case POST:
-                currentCall = commCareNetworkService.makePostRequest(url, params, headers, requestBody);
+                currentCall = commCareNetworkService.makePostRequest(url, headers, requestBody);
                 break;
             case MULTIPART_POST:
-                currentCall = commCareNetworkService.makeMultipartPostRequest(url, params, headers, parts);
+                currentCall = commCareNetworkService.makeMultipartPostRequest(url, headers, parts);
                 break;
             case GET:
-                currentCall = commCareNetworkService.makeGetRequest(url, params, headers);
+                currentCall = commCareNetworkService.makeGetRequest(url, headers);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid HTTPMethod " + method.toString());
@@ -186,9 +184,9 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         return getResponseStream(response);
     }
 
-    public static RequestBody getPostBody(HashMap<String, String> inputs) {
+    public static RequestBody getPostBody(Multimap<String, String> inputs) {
         FormBody.Builder formBodyBuilder = new FormBody.Builder();
-        for (Map.Entry<String, String> param : inputs.entrySet()) {
+        for (Map.Entry<String, String> param : inputs.entries()) {
             formBodyBuilder.add(param.getKey(), param.getValue());
         }
         return formBodyBuilder.build();

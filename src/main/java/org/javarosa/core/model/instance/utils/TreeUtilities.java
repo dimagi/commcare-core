@@ -2,18 +2,19 @@ package org.javarosa.core.model.instance.utils;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.expr.XPathStep;
 import org.javarosa.xpath.expr.XPathStringLiteral;
-import org.javarosa.xpath.expr.FunctionUtils;
 
 import java.util.Collection;
 import java.util.Hashtable;
@@ -239,5 +240,21 @@ public class TreeUtilities {
             table.register(attribute, cached);
         }
         return cached;
+    }
+
+    public static TreeElement renameInstance(TreeElement root, String instanceId) {
+        TreeElement copy = root.deepCopy(false);
+        copy.accept(new ITreeVisitor() {
+            @Override
+            public void visit(FormInstance tree) {
+                throw new RuntimeException("Not implemented");
+            }
+
+            @Override
+            public void visit(AbstractTreeElement element) {
+                ((TreeElement) element).setInstanceName(instanceId);
+            }
+        });
+        return copy;
     }
 }

@@ -26,10 +26,12 @@ public abstract class Subscreen<T extends CompoundScreenHost> implements Options
      * @param host            The Compound Screen that should be updated based on the user's input
      * @param allowAutoLaunch If this step is allowed to automatically launch an action,
      *                        assuming it has an autolaunch action specified.
+     * @param selectedValues  Selected entities for a Multi Select Entity Screen
      * @return True if the compound screen is ready and the session should move to the next step.
      * False if current Compound Screen should continue executing.
      */
-    public abstract boolean handleInputAndUpdateHost(String input, T host, boolean allowAutoLaunch) throws CommCareSessionException;
+    public abstract boolean handleInputAndUpdateHost(String input, T host, boolean allowAutoLaunch,
+            String[] selectedValues) throws CommCareSessionException;
 
     /**
      * Display this subscreen

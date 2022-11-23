@@ -1,10 +1,11 @@
 package org.commcare.cases.util;
 
-import org.commcare.cases.query.*;
 import org.commcare.cases.query.IndexedSetMemberLookup;
 import org.commcare.cases.query.IndexedValueLookup;
 import org.commcare.cases.query.NegativeIndexedValueLookup;
 import org.commcare.cases.query.PredicateProfile;
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.QueryPlanner;
 import org.commcare.cases.query.handlers.BasicStorageBackedCachingQueryHandler;
 import org.commcare.modern.engine.cases.RecordSetResultCache;
 import org.commcare.modern.util.PerformanceTuningUtil;

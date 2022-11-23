@@ -37,6 +37,12 @@ public class SessionFrame implements Externalizable {
     public static final String STATE_DATUM_VAL = "CASE_ID";
 
     /**
+     * Similar to STATE_DATUM_VAL but allows for a reference to vector datum value to be stored
+     * against it
+     */
+    public static final String STATE_MULTIPLE_DATUM_VAL = "SELECTED_ENTITIES";
+
+    /**
      * Signifies that the frame should be rewound to the last MARK, setting the
      * MARK's datum id (which is the next needed datum at that point in the frame)
      * to the value carried in the rewind.
@@ -111,6 +117,10 @@ public class SessionFrame implements Externalizable {
         this.dead = oldSessionFrame.dead;
     }
 
+    public static boolean isEntitySelectionDatum(String datum) {
+        return SessionFrame.STATE_DATUM_VAL.equals(datum) || SessionFrame.STATE_MULTIPLE_DATUM_VAL.equals(datum);
+    }
+
 
     public Vector<StackFrameStep> getSteps() {
         return steps;
@@ -126,15 +136,19 @@ public class SessionFrame implements Externalizable {
         return recentPop;
     }
 
-    protected boolean rewindToMarkAndSet(StackFrameStep step, EvaluationContext evalContext) {
+    protected boolean rewindToMarkAndSet(StackFrameStep step, EvaluationContext evalContext,
+            StackObserver observer) {
         int markIndex = getLatestMarkPosition(steps);
 
         if (markIndex >= 0) {
             String markDatumId = steps.get(markIndex).getId();
+            observer.dropped(steps.subList(markIndex, steps.size()));
             steps = new Vector<>(steps.subList(0, markIndex));
             if (step.getValue() != null) {
                 String evaluatedStepValue = step.evaluateValue(evalContext);
-                steps.addElement(new StackFrameStep(SessionFrame.STATE_UNKNOWN, markDatumId, evaluatedStepValue));
+                StackFrameStep rewindStep = new StackFrameStep(SessionFrame.STATE_UNKNOWN, markDatumId, evaluatedStepValue);
+                steps.addElement(rewindStep);
+                observer.pushed(rewindStep);
             }
             return true;
         } else {
@@ -222,16 +236,23 @@ public class SessionFrame implements Externalizable {
         }
     }
 
-    public synchronized Object getTopStepExtra(String key) {
+    public synchronized void removeExtraTopStep(String key) {
         if (!steps.isEmpty()) {
             StackFrameStep topStep = steps.elementAt(steps.size() - 1);
-            return topStep.getExtra(key);
+            topStep.removeExtra(key);
+        }
+    }
+
+    public synchronized StackFrameStep getTopStep() {
+        if (!steps.isEmpty()) {
+            return steps.elementAt(steps.size() - 1);
         }
         return null;
     }
 
     @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
         steps = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class), pf);
         snapshot = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class), pf);
         dead = ExtUtil.readBool(in);
@@ -266,7 +287,7 @@ public class SessionFrame implements Externalizable {
     }
 
     private void prettyPrintSteps(Vector<StackFrameStep> stepsToPrint,
-                                    StringBuilder stringBuilder) {
+            StringBuilder stringBuilder) {
         if (!stepsToPrint.isEmpty()) {
             // prevent trailing '/' by intercalating all but last element
             for (int i = 0; i < stepsToPrint.size() - 1; i++) {

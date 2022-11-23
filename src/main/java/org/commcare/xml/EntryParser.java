@@ -2,12 +2,14 @@ package org.commcare.xml;
 
 import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.DisplayUnit;
-import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormEntry;
+import org.commcare.suite.model.PostRequest;
+import org.commcare.suite.model.QueryData;
+import org.commcare.suite.model.RemoteRequestEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
-import org.commcare.suite.model.RemoteRequestEntry;
-import org.commcare.suite.model.PostRequest;
+import org.commcare.suite.model.ValueQueryData;
 import org.commcare.suite.model.ViewEntry;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
@@ -22,7 +24,9 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 import static org.commcare.xml.StackOpParser.NAME_STACK;
@@ -108,7 +112,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
         if (isViewEntry) {
             return new ViewEntry(commandId, display, data, instances, stackOps, assertions);
         } else if (FORM_ENTRY_TAG.equals(parserBlockTag)) {
-            return new FormEntry(commandId, display, data, xFormNamespace, instances, stackOps, assertions);
+            return new FormEntry(commandId, display, data, xFormNamespace, instances, stackOps, assertions, post);
         } else if (REMOTE_REQUEST_TAG.equals(parserBlockTag)) {
             if (post == null) {
                 throw new RuntimeException(REMOTE_REQUEST_TAG + " must contain a <post> element");
@@ -181,21 +185,9 @@ public class EntryParser extends CommCareElementParser<Entry> {
             }
         }
 
-        Hashtable<String, XPathExpression> postData = new Hashtable<>();
+        List<QueryData> postData = new ArrayList<QueryData>();
         while (nextTagInBlock("post")) {
-            if ("data".equals(parser.getName())) {
-                String refString = parser.getAttributeValue(null, "ref");
-                try {
-                    XPathExpression expr = XPathParseTool.parseXPath(refString);
-                    postData.put(parser.getAttributeValue(null, "key"), expr);
-                } catch (XPathSyntaxException e) {
-                    String errorMessage = "'ref' value is not a valid xpath expression: " + refString;
-                    throw new InvalidStructureException(errorMessage, parser);
-                }
-            } else {
-                throw new InvalidStructureException("Expected <data> element in a <post> structure.",
-                        parser);
-            }
+            postData.add(new QueryDataParser(parser).parse());
         }
         return new PostRequest(url, relevantExpr, postData);
     }

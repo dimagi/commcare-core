@@ -120,7 +120,7 @@ public class DateUtils {
         return tzProvider.getTimezoneOffsetMillis();
     }
 
-    private static TimeZone timezone() {
+    public static TimeZone timezone() {
         return tzProvider.getTimezone();
     }
 

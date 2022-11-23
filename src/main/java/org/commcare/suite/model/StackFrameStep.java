@@ -1,12 +1,19 @@
 package org.commcare.suite.model;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
+import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.commcare.session.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
+import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapMapPoly;
-import org.javarosa.core.util.externalizable.ExtWrapNullable;
+import org.javarosa.core.util.externalizable.ExtWrapMap;
+import org.javarosa.core.util.externalizable.ExtWrapMultiMap;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathException;
@@ -18,9 +25,12 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Enumeration;
+import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author ctsims
@@ -31,14 +41,14 @@ public class StackFrameStep implements Externalizable {
     private String id;
     private String value;
     private boolean valueIsXpath;
-    private Hashtable<String, Object> extras = new Hashtable<>();
+    private Multimap<String, Object> extras = ArrayListMultimap.create();
 
     /**
-     * XML instance collected during session navigation that is made available
+     * XML instances collected during session navigation that is made available
      * in the session's evaluation context. For instance, useful to store
      * results of a query command during case search and claim workflow
      */
-    private ExternalDataInstance xmlInstance;
+    private Hashtable<String, ExternalDataInstanceSource> dataInstanceSources = new Hashtable<>();
 
     /**
      * Serialization Only
@@ -55,28 +65,15 @@ public class StackFrameStep implements Externalizable {
         this.id = oldStackFrameStep.id;
         this.value = oldStackFrameStep.value;
         this.valueIsXpath = oldStackFrameStep.valueIsXpath;
-        for (Enumeration e = oldStackFrameStep.extras.keys(); e.hasMoreElements(); ) {
-            String key = (String)e.nextElement();
-            // shallow copy of extra value
-            extras.put(key, oldStackFrameStep.extras.get(key));
-        }
+        extras.putAll(oldStackFrameStep.getExtras());
 
-        if (oldStackFrameStep.hasXmlInstance()) {
-            this.xmlInstance = new ExternalDataInstance(oldStackFrameStep.xmlInstance);
-        }
+        this.dataInstanceSources.putAll(oldStackFrameStep.dataInstanceSources);
     }
 
     public StackFrameStep(String type, String id, String value) {
         this.elementType = type;
         this.id = id;
         this.value = value;
-    }
-
-    public StackFrameStep(String type, String id, String value,
-                          ExternalDataInstance xmlInstance) {
-        this(type, id, value);
-
-        this.xmlInstance = xmlInstance;
     }
 
     public StackFrameStep(String type, String id,
@@ -104,12 +101,54 @@ public class StackFrameStep implements Externalizable {
         return value;
     }
 
-    public boolean hasXmlInstance() {
-        return xmlInstance != null;
+    public void addDataInstanceSource(ExternalDataInstanceSource source) {
+        Objects.requireNonNull(source, String.format(
+                "Unable to add null instance data source to stack frame step '%s'", getId()));
+        String reference = source.getReference();
+        if (dataInstanceSources.containsKey(reference)) {
+            throw new RuntimeException(String.format(
+                    "Stack frame step '%s' already contains an instance with the reference '%s'",
+                    getId(), reference
+            ));
+        }
+        dataInstanceSources.put(reference, source);
     }
 
-    public ExternalDataInstance getXmlInstance() {
-        return xmlInstance;
+    public Hashtable<String, ExternalDataInstanceSource> getDataInstanceSources() {
+        return dataInstanceSources;
+    }
+
+    public boolean hasDataInstanceSource(String reference) {
+        return dataInstanceSources.containsKey(reference);
+    }
+
+    public ExternalDataInstanceSource getDataInstanceSource(String reference) {
+        return dataInstanceSources.get(reference);
+    }
+
+    public ExternalDataInstanceSource getDataInstanceSourceById(String instanceId) {
+        for (ExternalDataInstanceSource source : dataInstanceSources.values()) {
+            if (source.getInstanceId().equals(instanceId)) {
+                return source;
+            }
+        }
+        return null;
+    }
+
+    public void initDataInstanceSources(RemoteInstanceFetcher remoteInstanceFetcher)
+            throws RemoteInstanceFetcher.RemoteInstanceException {
+        for (ExternalDataInstanceSource source : dataInstanceSources.values()) {
+            if (source.needsInit()) {
+                source.remoteInit(remoteInstanceFetcher);
+            }
+        }
+    }
+
+    public Map<String, DataInstance> getInstances(InstanceInitializationFactory iif) {
+        return dataInstanceSources.values().stream().map((source) -> {
+            ExternalDataInstance instance = source.toInstance();
+            return instance.initialize(iif, source.getInstanceId());
+        }).collect(Collectors.toMap(DataInstance::getInstanceId, value -> value));
     }
 
     /**
@@ -121,11 +160,28 @@ public class StackFrameStep implements Externalizable {
         }
     }
 
-    public Object getExtra(String key) {
-        return extras.get(key);
+    /**
+     * Remove all extras for the given key
+     *
+     * @param key key we want to remove from extras
+     */
+    public void removeExtra(String key) {
+        extras.removeAll(key);
     }
 
-    public Map<String, Object> getExtras() {
+    public Object getExtra(String key) {
+        Collection<Object> values = extras.get(key);
+        if (values.size() > 1) {
+            throw new RuntimeException(String.format("Multiple extras found with key %s", key));
+        }
+        try {
+            return values.iterator().next();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
+    }
+
+    public Multimap<String, Object> getExtras() {
         return extras;
     }
 
@@ -157,10 +213,10 @@ public class StackFrameStep implements Externalizable {
             case SessionFrame.STATE_QUERY_REQUEST:
             case SessionFrame.STATE_SMART_LINK:
                 StackFrameStep defined = new StackFrameStep(elementType, id, evaluateValue(ec));
-                for (String key : extras.keySet()) {
-                    XPathExpression expr = (XPathExpression) getExtra(key);
+                extras.forEach((key, value) -> {
+                    XPathExpression expr = (XPathExpression) value;
                     defined.addExtra(key, FunctionUtils.toString(expr.eval(ec)));
-                }
+                });
                 return defined;
             default:
                 throw new RuntimeException("Invalid step [" + elementType + "] declared when constructing a new frame step");
@@ -187,8 +243,8 @@ public class StackFrameStep implements Externalizable {
         this.id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         this.value = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         this.valueIsXpath = ExtUtil.readBool(in);
-        this.extras = (Hashtable<String, Object>)ExtUtil.read(in, new ExtWrapMapPoly(String.class), pf);
-        this.xmlInstance = (ExternalDataInstance)ExtUtil.read(in, new ExtWrapNullable(ExternalDataInstance.class), pf);
+        this.extras = (Multimap<String, Object>)ExtUtil.read(in, new ExtWrapMultiMap(String.class), pf);
+        this.dataInstanceSources = (Hashtable<String, ExternalDataInstanceSource>)ExtUtil.read(in, new ExtWrapMap(String.class, ExternalDataInstanceSource.class), pf);
     }
 
     @Override
@@ -197,8 +253,8 @@ public class StackFrameStep implements Externalizable {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(value));
         ExtUtil.writeBool(out, valueIsXpath);
-        ExtUtil.write(out, new ExtWrapMapPoly(extras));
-        ExtUtil.write(out, new ExtWrapNullable(xmlInstance));
+        ExtUtil.write(out, new ExtWrapMultiMap(extras));
+        ExtUtil.write(out, new ExtWrapMap(dataInstanceSources));
     }
 
     @Override

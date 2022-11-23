@@ -15,7 +15,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Vector;
 
 public class ItemsetBinding implements Externalizable {

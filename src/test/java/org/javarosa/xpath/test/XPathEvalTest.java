@@ -1,5 +1,7 @@
 package org.javarosa.xpath.test;
 
+import static org.junit.Assert.fail;
+
 import org.commcare.util.EncryptionUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
@@ -10,6 +12,8 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.locale.TableLocaleSource;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathArityException;
@@ -18,29 +22,23 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnhandledException;
 import org.javarosa.xpath.XPathUnsupportedException;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathNumericLiteral;
 import org.javarosa.xpath.expr.XPathPathExpr;
-import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.GCMParameterSpec;
-
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Vector;
 
-import static org.junit.Assert.fail;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 
 public class XPathEvalTest {
     public static final double DOUBLE_TOLERANCE = 1.0e-12;
@@ -306,6 +304,7 @@ public class XPathEvalTest {
         testEval("format-date-for-calendar('', 'ethiopian')", null, null, "");
         testEval("format-date-for-calendar(date('1970-01-01'), 'neverland')", null, null, new XPathUnsupportedException());
 
+        configureLocaleForCalendar();
         testEval("format-date-for-calendar('2017-07-15', 'ethiopian', '%Y-%m-%d')", null, null, "2009-11-08");
         testEval("format-date-for-calendar('2017-07-15', 'nepali', '%Y-%m-%d')", null, null, "2074-03-31");
 
@@ -698,6 +697,17 @@ public class XPathEvalTest {
         testEval("min(/data/rangetest[0])", instance, null, Double.NaN);
         testEval("max(/data/rangetest/@num)", instance, null, new Double("3"));
         testEval("min(/data/rangetest/@num)", instance, null, new Double("-2"));
+    }
+
+    private void configureLocaleForCalendar() {
+        Localization.getGlobalLocalizerAdvanced().addAvailableLocale("default");
+        Localization.setLocale("default");
+        TableLocaleSource localeData = new TableLocaleSource();
+        localeData.setLocaleMapping("ethiopian_months",
+                "Mäskäräm,T’ïk’ïmt,Hïdar,Tahsas,T’ïr,Yäkatit,Mägabit,Miyaziya,Gïnbot,Säne,Hämle,Nähäse,P’agume");
+        localeData.setLocaleMapping("nepali_months",
+                "Baishakh,Jestha,Ashadh,Shrawan,Bhadra,Ashwin,Kartik,Mangsir,Poush,Magh,Falgun,Chaitra");
+        Localization.getGlobalLocalizerAdvanced().registerLocaleResource("default", localeData);
     }
 
     /**

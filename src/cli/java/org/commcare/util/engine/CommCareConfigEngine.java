@@ -3,15 +3,16 @@ package org.commcare.util.engine;
 import org.commcare.modern.reference.ArchiveFileRoot;
 import org.commcare.modern.reference.JavaFileRoot;
 import org.commcare.modern.reference.JavaHttpRoot;
+import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.InstallerFactory;
 import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.EntityDatum;
@@ -42,7 +43,6 @@ import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathMissingInstanceException;
-import org.commcare.resources.ResourceInstallContext;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -54,6 +54,8 @@ import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.zip.ZipFile;
+
+import datadog.trace.api.Trace;
 
 /**
  * @author ctsims
@@ -306,6 +308,7 @@ public class CommCareConfigEngine {
         return platform;
     }
 
+    @Trace
     public FormDef loadFormByXmlns(String xmlns) {
         IStorageUtilityIndexed<FormDef> formStorage = platform.getStorageManager().getStorage(FormDef.STORAGE_KEY);
         return formStorage.getRecordForValue("XMLNS", xmlns);

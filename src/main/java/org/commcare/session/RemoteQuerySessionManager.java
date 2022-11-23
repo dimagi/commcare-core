@@ -1,24 +1,30 @@
 package org.commcare.session;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimap;
+
 import org.commcare.cases.util.StringUtils;
+import org.commcare.data.xml.VirtualInstances;
 import org.commcare.modern.util.Pair;
+import org.commcare.suite.model.QueryData;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.ItemSetUtils;
 import org.javarosa.core.util.OrderedHashtable;
-import org.javarosa.xml.ElementParser;
-import org.javarosa.xml.TreeElementParser;
+import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -26,7 +32,12 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nullable;
 
 /**
  * Manager for remote query datums; get/answer user prompts and build
@@ -36,21 +47,23 @@ import java.util.Hashtable;
  */
 public class RemoteQuerySessionManager {
     // used to parse multi-select choices
-    public static final String MULTI_SELECT_DELIMITER = "#,#";
+    public static final String ANSWER_DELIMITER = "#,#";
 
     private final RemoteQueryDatum queryDatum;
     private final EvaluationContext evaluationContext;
-    private final Hashtable<String, String> userAnswers =
-            new Hashtable<>();
-    private final ArrayList<String> supportedPrompts;
+    private final Hashtable<String, String> userAnswers = new Hashtable<>();
+    private Hashtable<String, String> errors = new Hashtable<>();
+    private Hashtable<String, Boolean> requiredPrompts = new Hashtable<>();
+    private final List<String> supportedPrompts;
 
     private RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
-                                      EvaluationContext evaluationContext,
-                                      ArrayList<String> supportedPrompts) throws XPathException {
+            EvaluationContext evaluationContext,
+            List<String> supportedPrompts) throws XPathException {
         this.queryDatum = queryDatum;
         this.evaluationContext = evaluationContext;
         this.supportedPrompts = supportedPrompts;
         initUserAnswers();
+        refreshInputDependentState();
     }
 
     private void initUserAnswers() throws XPathException {
@@ -59,20 +72,16 @@ public class RemoteQuerySessionManager {
             String promptId = (String)en.nextElement();
             QueryPrompt prompt = queryPrompts.get(promptId);
 
-            if (isPromptSupported(prompt)) {
-                String defaultValue = "";
-                if (prompt.getDefaultValueExpr() != null) {
-                    defaultValue = FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext));
-                }
-                userAnswers.put(prompt.getKey(), defaultValue);
+            if (isPromptSupported(prompt) && prompt.getDefaultValueExpr() != null) {
+                userAnswers.put(prompt.getKey(),
+                        FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext)));
             }
-
         }
     }
 
     public static RemoteQuerySessionManager buildQuerySessionManager(CommCareSession session,
-                                                                     EvaluationContext sessionContext,
-                                                                     ArrayList<String> supportedPrompts) throws XPathException {
+            EvaluationContext sessionContext,
+            List<String> supportedPrompts) throws XPathException {
         SessionDatum datum;
         try {
             datum = session.getNeededDatum();
@@ -87,10 +96,6 @@ public class RemoteQuerySessionManager {
         }
     }
 
-    public RemoteQueryDatum getQueryDatum() {
-        return queryDatum;
-    }
-
     public OrderedHashtable<String, QueryPrompt> getNeededUserInputDisplays() {
         return queryDatum.getUserQueryPrompts();
     }
@@ -99,12 +104,28 @@ public class RemoteQuerySessionManager {
         return userAnswers;
     }
 
+    public Hashtable<String, String> getErrors() {
+        return errors;
+    }
+
+    public Hashtable<String, Boolean> getRequiredPrompts() {
+        return requiredPrompts;
+    }
+
     public void clearAnswers() {
         userAnswers.clear();
     }
 
-    public void answerUserPrompt(String key, String answer) {
-        userAnswers.put(key, answer);
+    /**
+     * Register a non-null value as an answer for the given key.
+     * If value is null, removes the corresponding answer
+     */
+    public void answerUserPrompt(String key, @Nullable String value) {
+        if (value == null) {
+            userAnswers.remove(key);
+        } else {
+            userAnswers.put(key, value);
+        }
     }
 
     public URL getBaseUrl() {
@@ -115,13 +136,13 @@ public class RemoteQuerySessionManager {
      * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
      * @return filters to be applied to case search uri as query params
      */
-    public Hashtable<String, String> getRawQueryParams(boolean skipDefaultPromptValues) {
-        Hashtable<String, String> params = new Hashtable<>();
-        Hashtable<String, XPathExpression> hiddenQueryValues = queryDatum.getHiddenQueryValues();
-        for (Enumeration e = hiddenQueryValues.keys(); e.hasMoreElements(); ) {
-            String key = (String)e.nextElement();
-            String evaluatedExpr = evalXpathExpression(hiddenQueryValues.get(key), evaluationContext);
-            params.put(key, evaluatedExpr);
+    public Multimap<String, String> getRawQueryParams(boolean skipDefaultPromptValues) {
+        EvaluationContext evalContextWithAnswers = getEvaluationContextWithUserInputInstance();
+
+        Multimap<String, String> params = ArrayListMultimap.create();
+        List<QueryData> hiddenQueryValues = queryDatum.getHiddenQueryValues();
+        for (QueryData queryData : hiddenQueryValues) {
+            params.putAll(queryData.getKey(), queryData.getValues(evalContextWithAnswers));
         }
 
         if (!skipDefaultPromptValues) {
@@ -130,51 +151,63 @@ public class RemoteQuerySessionManager {
                 String value = userAnswers.get(key);
                 QueryPrompt prompt = queryDatum.getUserQueryPrompts().get(key);
                 XPathExpression excludeExpr = prompt.getExclude();
-                if (!StringUtils.isEmpty(value) 
-                        && (excludeExpr == null || !(boolean) excludeExpr.eval(evaluationContext))) {
-                    params.put(key, userAnswers.get(key));
+                if (!(params.containsKey(key) && params.get(key).contains(value))) {
+                    if (value != null && (excludeExpr == null || !(boolean)excludeExpr.eval(evaluationContext))) {
+                        params.put(key, userAnswers.get(key));
+                    }
                 }
             }
         }
         return params;
     }
 
+    private EvaluationContext getEvaluationContextWithUserInputInstance() {
+        Map<String, String> userQueryValues = getUserQueryValues(false);
+        String refId = getSearchInstanceReferenceId();
+        ExternalDataInstance userInputInstance = VirtualInstances.buildSearchInputInstance(
+                refId, userQueryValues);
+        return evaluationContext.spawnWithCleanLifecycle(
+                ImmutableMap.of(
+                        userInputInstance.getInstanceId(), userInputInstance,
+                        // Temporary method to make the 'search-input' instance available using the legacy ID
+                        // Technically this instance elements should get renamed to match the instance ID, but
+                        // it's OK here since the other instance is always going to be in the eval context.
+                        "search-input", userInputInstance
+                )
+        );
+    }
+
+    private String getSearchInstanceReferenceId() {
+        return queryDatum.getDataId();
+    }
+
     public static String evalXpathExpression(XPathExpression expr,
-                                             EvaluationContext evaluationContext) {
+            EvaluationContext evaluationContext) {
         return FunctionUtils.toString(expr.eval(evaluationContext));
     }
 
-    /**
-     * @return Data instance built from xml stream or the error message raised during parsing
-     */
-    public Pair<ExternalDataInstance, String> buildExternalDataInstance(InputStream instanceStream) {
-        TreeElement root;
-        try {
-            KXmlParser baseParser = ElementParser.instantiateParser(instanceStream);
-            root = new TreeElementParser(baseParser, 0, queryDatum.getDataId()).parse();
-        } catch (InvalidStructureException | IOException
-                | XmlPullParserException | UnfullfilledRequirementsException e) {
-            e.printStackTrace();
-            return new Pair<>(null, e.getMessage());
-        }
-        return new Pair<>(ExternalDataInstance.buildFromRemote(queryDatum.getDataId(), root, queryDatum.useCaseTemplate()), "");
-    }
-
-    /**
-     * @return Data instance built from xml root or the error message raised during parsing
-     */
-    public ExternalDataInstance buildExternalDataInstance(TreeElement root) {
-        return ExternalDataInstance.buildFromRemote(queryDatum.getDataId(), root, queryDatum.useCaseTemplate());
-    }
-
     public void populateItemSetChoices(QueryPrompt queryPrompt) {
-        EvaluationContext evalContextWithAnswers = evaluationContext.spawnWithCleanLifecycle();
-        evalContextWithAnswers.setVariables(userAnswers);
-        ItemSetUtils.populateDynamicChoices(queryPrompt.getItemsetBinding(), evalContextWithAnswers);
+        ItemSetUtils.populateDynamicChoices(queryPrompt.getItemsetBinding(),
+                getEvaluationContextWithUserInputInstance());
+    }
+
+    public Map<String, String> getUserQueryValues(boolean includeNulls) {
+        Map<String, String> values = new HashMap<>();
+        OrderedHashtable<String, QueryPrompt> queryPrompts = queryDatum.getUserQueryPrompts();
+        for (Enumeration en = queryPrompts.keys(); en.hasMoreElements(); ) {
+            String promptId = (String)en.nextElement();
+            if (isPromptSupported(queryPrompts.get(promptId))) {
+                String answer = userAnswers.get(promptId);
+                if (includeNulls || answer != null) {
+                    values.put(promptId, answer);
+                }
+            }
+        }
+        return values;
     }
 
     // loops over query prompts and validates selection until all selections are valid
-    public void refreshItemSetChoices(Hashtable<String, String> userAnswers) {
+    public void refreshItemSetChoices() {
         OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
         if (userInputDisplays.size() == 0) {
             return;
@@ -185,7 +218,8 @@ public class RemoteQuerySessionManager {
         while (dirty) {
             if (index == userInputDisplays.size()) {
                 // loop has already run as many times as no of questions and we are still dirty
-                throw new RuntimeException("Invalid itemset state encountered while trying to refresh itemset choices");
+                throw new RuntimeException(
+                        "Invalid itemset state encountered while trying to refresh itemset choices");
             }
             dirty = false;
             for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
@@ -194,7 +228,7 @@ public class RemoteQuerySessionManager {
                 if (queryPrompt.isSelect()) {
                     String answer = userAnswers.get(promptId);
                     populateItemSetChoices(queryPrompt);
-                    String[] selectedChoices = extractSelectChoices(answer);
+                    String[] selectedChoices = extractMultipleChoices(answer);
                     ArrayList<String> validSelectedChoices = new ArrayList<>();
                     for (String selectedChoice : selectedChoices) {
                         if (checkForValidSelectValue(queryPrompt.getItemsetBinding(), selectedChoice)) {
@@ -203,11 +237,57 @@ public class RemoteQuerySessionManager {
                             dirty = true;
                         }
                     }
-                    userAnswers.put(promptId, String.join(RemoteQuerySessionManager.MULTI_SELECT_DELIMITER, validSelectedChoices));
+                    if (validSelectedChoices.size() > 0) {
+                        userAnswers.put(promptId,
+                                String.join(RemoteQuerySessionManager.ANSWER_DELIMITER, validSelectedChoices));
+                    } else {
+                        // no value
+                        userAnswers.remove(promptId);
+                    }
                 }
             }
             index++;
         }
+    }
+
+    // Recalculates screen properties that are dependent on user input
+    public void refreshInputDependentState() {
+        refreshItemSetChoices();
+        validateUserAnswers();
+        recalculateRequired();
+    }
+
+    private void recalculateRequired() {
+        requiredPrompts = new Hashtable<>();
+        OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
+        EvaluationContext ec = getEvaluationContextWithUserInputInstance();
+        for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
+            String key = (String)en.nextElement();
+            QueryPrompt queryPrompt = userInputDisplays.get(key);
+            boolean isRequired = queryPrompt.isRequired(ec);
+            requiredPrompts.put(key, isRequired);
+        }
+    }
+
+    private void validateUserAnswers() {
+        errors = new Hashtable<>();
+        OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
+        String instanceId = VirtualInstances.makeSearchInputInstanceID(getSearchInstanceReferenceId());
+        EvaluationContext ec = getEvaluationContextWithUserInputInstance();
+        for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
+            String key = (String)en.nextElement();
+            QueryPrompt queryPrompt = userInputDisplays.get(key);
+            String value = userAnswers.get(key);
+            TreeReference currentRef = getReferenceToInstanceNode(instanceId, key);
+            if (!StringUtils.isEmpty(value) && queryPrompt.isInvalidInput(new EvaluationContext(ec, currentRef))) {
+                errors.put(key, queryPrompt.getValidationMessage(ec));
+            }
+        }
+    }
+
+    private TreeReference getReferenceToInstanceNode(String instanceId, String key) {
+        String keyPath = "instance('" + instanceId + "')/input/field[@name='" + key + "']";
+        return XPathReference.getPathExpr(keyPath).getReference();
     }
 
     public boolean isPromptSupported(QueryPrompt queryPrompt) {
@@ -227,12 +307,31 @@ public class RemoteQuerySessionManager {
         return queryDatum.doDefaultSearch();
     }
 
-    // Converts a string containing space separated list of select choices
+    // Converts a string containing space separated list of choices
     // into a string array of individual choices
-    public static String[] extractSelectChoices(String answer) {
+    public static String[] extractMultipleChoices(String answer) {
         if (answer == null) {
             return new String[]{};
         }
-        return answer.split(MULTI_SELECT_DELIMITER);
+        return answer.split(ANSWER_DELIMITER);
+    }
+
+    public RemoteQueryDatum getQueryDatum() {
+        return queryDatum;
+    }
+
+    public Pair<ExternalDataInstance, String> buildExternalDataInstance(InputStream responseData, String url,
+            Multimap<String, String> requestData) {
+        try {
+            String instanceID = getQueryDatum().getDataId();
+            TreeElement root = ExternalDataInstance.parseExternalTree(responseData, instanceID);
+            ExternalDataInstanceSource instanceSource = ExternalDataInstanceSource.buildRemote(
+                    instanceID, root, getQueryDatum().useCaseTemplate(), url, requestData);
+            ExternalDataInstance instance = instanceSource.toInstance();
+            return new Pair<>(instance, "");
+        } catch (InvalidStructureException | IOException
+                | XmlPullParserException | UnfullfilledRequirementsException e) {
+            return new Pair<>(null, e.getMessage());
+        }
     }
 }

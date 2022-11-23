@@ -2,12 +2,8 @@ package org.javarosa.core.util;
 
 import org.commcare.util.CollectionUtils;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.Logger;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;

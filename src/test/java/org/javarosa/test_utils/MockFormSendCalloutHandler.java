@@ -1,5 +1,7 @@
 package org.javarosa.test_utils;
 
+import com.google.common.collect.Multimap;
+
 import org.javarosa.core.model.actions.FormSendCalloutHandler;
 
 import java.util.Map;
@@ -40,11 +42,11 @@ public class MockFormSendCalloutHandler implements FormSendCalloutHandler {
     }
 
     @Override
-    public String performHttpCalloutForResponse(String url, Map<String, String> paramMap) {
+    public String performHttpCalloutForResponse(String url, Multimap<String, String> paramMap) {
         if(throwException) {
             throw new RuntimeException("Expected Http Callout Exception");
         }else if(argreturn != null) {
-            return paramMap.get(argreturn);
+            return paramMap.get(argreturn).toArray(new String[]{})[0];
         } else {
             return payload;
         }

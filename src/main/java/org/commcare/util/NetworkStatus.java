@@ -20,7 +20,7 @@ public class NetworkStatus {
                 CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
         try {
             Response<ResponseBody> response =
-                    commCareNetworkService.makeGetRequest(captivePortalURL, new HashMap<>(), new HashMap<>()).execute();
+                    commCareNetworkService.makeGetRequest(captivePortalURL, new HashMap<>()).execute();
             return response.code() == 200 && !"success".equals(response.body().string());
         } catch (IOException e) {
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Detecting captive portal failed with exception" + e.getMessage());

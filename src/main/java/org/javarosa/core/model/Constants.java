@@ -84,5 +84,9 @@ public class Constants {
      * constants for xform tags
      */
     public static final String XFTAG_UPLOAD = "upload";
-}
 
+    /**
+     * constants for stack frame step extras
+     */
+    public static final String EXTRA_POST_SUCCESS = "post-success";
+}

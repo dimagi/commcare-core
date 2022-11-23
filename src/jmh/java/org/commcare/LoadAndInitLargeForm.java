@@ -1,17 +1,16 @@
 package org.commcare;
 
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.SessionNavigator;
+import org.commcare.test.utilities.MockApp;
+import org.commcare.test.utilities.MockSessionNavigationResponder;
+import org.javarosa.form.api.FormEntryController;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Group;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-
-import org.commcare.modern.session.SessionWrapper;
-import org.commcare.test.utilities.MockApp;
-import org.commcare.test.utilities.MockSessionNavigationResponder;
-import org.javarosa.form.api.FormEntryController;
 
 public class LoadAndInitLargeForm {
 
@@ -27,12 +26,12 @@ public class LoadAndInitLargeForm {
         sessionNavigator.startNextSessionStep();
         session.setCommand("m1");
         sessionNavigator.startNextSessionStep();
-        session.setDatum("case_id", "3b6bff05-b9c3-42d8-9b12-9b27a834d330");
+        session.setEntityDatum("case_id", "3b6bff05-b9c3-42d8-9b12-9b27a834d330");
         sessionNavigator.startNextSessionStep();
 
         session.setCommand("m1-f2");
         sessionNavigator.startNextSessionStep();
-        session.setDatum("case_id_new_imci_visit_0",
+        session.setEntityDatum("case_id_new_imci_visit_0",
                 "593ef28a-34ff-421d-a29c-6a0fd975df95");
         sessionNavigator.startNextSessionStep();
 

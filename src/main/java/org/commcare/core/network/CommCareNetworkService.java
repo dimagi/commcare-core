@@ -24,19 +24,19 @@ public interface CommCareNetworkService {
 
     @Streaming
     @GET
-    Call<ResponseBody> makeGetRequest(@Url String url, @QueryMap Map<String, String> params,
+    Call<ResponseBody> makeGetRequest(@Url String url,
                                       @HeaderMap Map<String, String> headers);
 
     @Streaming
     @Multipart
     @POST
-    Call<ResponseBody> makeMultipartPostRequest(@Url String url, @QueryMap Map<String, String> params,
+    Call<ResponseBody> makeMultipartPostRequest(@Url String url,
                                                 @HeaderMap Map<String, String> headers,
                                                 @Part List<MultipartBody.Part> files);
 
     @Streaming
     @POST
-    Call<ResponseBody> makePostRequest(@Url String url, @QueryMap Map<String, String> params,
+    Call<ResponseBody> makePostRequest(@Url String url,
                                        @HeaderMap Map<String, String> headers,
                                        @Body RequestBody body);
 
@@ -45,6 +45,6 @@ public interface CommCareNetworkService {
 
     @Streaming
     @DELETE
-    Call<ResponseBody> makeDeleteRequest(@Url String url, @QueryMap Map<String, String> params,
+    Call<ResponseBody> makeDeleteRequest(@Url String url,
                                          @HeaderMap Map<String, String> headers);
 }

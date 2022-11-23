@@ -2,14 +2,16 @@ package org.commcare.util.cli;
 
 import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.cases.util.InvalidCaseGraphException;
+import org.commcare.core.interfaces.MemoryVirtualDataInstanceStorage;
 import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.core.interfaces.VirtualDataInstanceStorage;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.resources.model.InstallCancelledException;
-import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.resources.model.ResourceInitializationException;
+import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Endpoint;
 import org.commcare.suite.model.FormIdDatum;
@@ -24,6 +26,7 @@ import org.commcare.util.screen.CommCareSessionException;
 import org.commcare.util.screen.EntityListSubscreen;
 import org.commcare.util.screen.EntityScreen;
 import org.commcare.util.screen.MenuScreen;
+import org.commcare.util.screen.MultiSelectEntityScreen;
 import org.commcare.util.screen.QueryScreen;
 import org.commcare.util.screen.Screen;
 import org.commcare.util.screen.SessionUtils;
@@ -53,6 +56,8 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.*;
 
+import static org.commcare.util.screen.MultiSelectEntityScreen.USE_SELECTED_VALUES;
+
 /**
  * CLI host for running a commcare application which has been configured and instatiated
  * for the provided user.
@@ -62,7 +67,7 @@ import java.util.*;
 public class ApplicationHost {
     private final CommCareConfigEngine mEngine;
     private final CommCarePlatform mPlatform;
-    private UserSandbox mSandbox;
+    private MockUserDataSandbox mSandbox;
     private CLISessionWrapper mSession;
 
     private boolean mUpdatePending = false;
@@ -78,7 +83,11 @@ public class ApplicationHost {
     private String qualifiedUsername;
     private String password;
     private String mRestoreFile;
-    private boolean mRestoreStrategySet = false;
+    private String mRestoreStrategy = null;
+
+    private SessionUtils mSessionUtils = new SessionUtils();
+
+    private VirtualDataInstanceStorage virtualInstanceStorage = new MemoryVirtualDataInstanceStorage();
 
     public ApplicationHost(CommCareConfigEngine engine,
                            PrototypeFactory prototypeFactory,
@@ -95,21 +104,31 @@ public class ApplicationHost {
         this(engine, prototypeFactory, new BufferedReader(new InputStreamReader(System.in)), System.out);
     }
 
-    public void setRestoreToRemoteUser(String username, String password) {
+    public void setRestoreToRemoteUser() {
+        mRestoreStrategy = "remote";
+        checkUsernamePasswordValid();
+    }
+
+    private void checkUsernamePasswordValid() {
+        if (this.username == null || this.password == null) {
+            throw new RuntimeException("username and password required");
+        }
+    }
+
+    public void setUsernamePassword(String username, String password) {
         this.username = username;
         this.password = password;
         String domain = mPlatform.getPropertyManager().getSingularProperty("cc_user_domain");
         this.qualifiedUsername = username + "@" + domain;
-        mRestoreStrategySet = true;
     }
 
     public void setRestoreToLocalFile(String filename) {
         this.mRestoreFile = filename;
-        mRestoreStrategySet = true;
+        mRestoreStrategy = "file";
     }
 
     public void setRestoreToDemoUser() {
-        mRestoreStrategySet = true;
+        mRestoreStrategy = "demo";
     }
 
     public void advanceSessionWithEndpoint(String endpointId, String[] endpointArgs) {
@@ -149,7 +168,7 @@ public class ApplicationHost {
             if (s instanceof SyncScreen) {
                 try {
                     s.init(mSession);
-                    s.handleInputAndUpdateSession(mSession, "", false);
+                    s.handleInputAndUpdateSession(mSession, "", false, null);
                 } catch (CommCareSessionException ccse) {
                     printErrorAndContinue("Error during session execution:", ccse);
                 }
@@ -159,7 +178,7 @@ public class ApplicationHost {
     }
 
     public void run(String endpointId, String[] endpointArgs) {
-        if (!mRestoreStrategySet) {
+        if (mRestoreStrategy == null) {
             throw new RuntimeException("You must set up an application host by calling " +
                     "one of the setRestore*() methods before running the app");
         }
@@ -215,31 +234,33 @@ public class ApplicationHost {
     }
 
     private boolean loopSession() throws IOException {
-        Screen s = getNextScreen();
+        Screen screen = getNextScreen();
         boolean screenIsRedrawing = false;
 
         boolean sessionIsLive = true;
         while (sessionIsLive) {
-            while (s != null) {
+            while (screen != null) {
                 try {
                     if (!screenIsRedrawing) {
-                        s.init(mSession);
+                        screen.init(mSession);
 
-                        if (s.shouldBeSkipped()) {
-                            s = getNextScreen();
+                        if (screen.shouldBeSkipped()) {
+                            screen = getNextScreen();
                             continue;
                         }
                     }
 
                     printStream.println("\n\n\n\n\n\n");
-                    printStream.println(s.getWrappedDisplaytitle(mSandbox, mPlatform));
+                    printStream.println(screen.getWrappedDisplaytitle(mSandbox, mPlatform));
 
                     printStream.println("====================");
-                    s.prompt(printStream);
-                    printStream.print("> ");
-
+                    boolean requiresInput = screen.prompt(printStream);
                     screenIsRedrawing = false;
-                    String input = reader.readLine();
+                    String input = "";
+                    if (requiresInput) {
+                        printStream.print("> ");
+                        input = reader.readLine();
+                    }
 
                     //TODO: Command language
                     if (input.startsWith(":")) {
@@ -268,7 +289,7 @@ public class ApplicationHost {
 
                         if (input.equals(":back")) {
                             mSession.stepBack(mSession.getEvaluationContext());
-                            s = getNextScreen();
+                            screen = getNextScreen();
                             continue;
                         }
 
@@ -301,16 +322,31 @@ public class ApplicationHost {
                     // which ultimately updates the session, so getNextScreen will move onto the form list,
                     // skipping the entity detail. To avoid this, flag that we want to force a redraw in this case.
                     boolean waitForCaseDetail = false;
-                    if (s instanceof EntityScreen) {
-                        boolean isAction = input.startsWith("action "); // Don't wait for case detail if action
-                        if (!isAction && ((EntityScreen) s).getCurrentScreen() instanceof EntityListSubscreen) {
-                            waitForCaseDetail = true;
+                    if (screen instanceof MultiSelectEntityScreen) {
+                        String[] selectedValues = input.split(",");
+                        screenIsRedrawing = screen.handleInputAndUpdateSession(mSession,
+                                                                               USE_SELECTED_VALUES,
+                                                                               false,
+                                                                               selectedValues);
+                    } else {
+                        if (screen instanceof EntityScreen) {
+                            boolean isAction = input.startsWith("action "); // Don't wait for case detail if action
+                            EntityScreen eScreen = (EntityScreen)screen;
+                            if (!isAction && eScreen.getCurrentScreen() instanceof EntityListSubscreen) {
+                                waitForCaseDetail = true;
+                            }
                         }
+                        screenIsRedrawing = !screen.handleInputAndUpdateSession(mSession, input, false, null);
                     }
-
-                    screenIsRedrawing = !s.handleInputAndUpdateSession(mSession, input, false);
                     if (!screenIsRedrawing && !waitForCaseDetail) {
-                        s = getNextScreen();
+                        screen = getNextScreen();
+                        if (screen instanceof EntityScreen) {
+                            screen.init(mSession);
+                            EntityScreen entityScreen = (EntityScreen)screen;
+                            if (entityScreen.evalAndExecuteAutoLaunchAction("", mSession)) {
+                                screen = getNextScreen();
+                            }
+                        }
                     }
                 } catch (CommCareSessionException ccse) {
                     printErrorAndContinue("Error during session execution:", ccse);
@@ -349,7 +385,7 @@ public class ApplicationHost {
                     return true;
                 } else if (player.getExecutionResult() == XFormPlayer.FormResult.Cancelled) {
                     mSession.stepBack(mSession.getEvaluationContext());
-                    s = getNextScreen();
+                    screen = getNextScreen();
                 } else {
                     //Handle this later
                     return true;
@@ -419,12 +455,20 @@ public class ApplicationHost {
         } else if (next.equals(SessionFrame.STATE_DATUM_VAL)) {
             return new EntityScreen(true);
         } else if (next.equals(SessionFrame.STATE_QUERY_REQUEST)) {
-            return new QueryScreen(qualifiedUsername, password, System.out);
+            checkUsernamePasswordValid();
+            return new QueryScreen(qualifiedUsername, password, System.out, virtualInstanceStorage, mSessionUtils);
         } else if (next.equals(SessionFrame.STATE_SYNC_REQUEST)) {
-            return new SyncScreen(qualifiedUsername, password, System.out);
+            checkUsernamePasswordValid();
+            return new SyncScreen(qualifiedUsername, password, System.out, mSessionUtils);
         } else if (next.equalsIgnoreCase(SessionFrame.STATE_DATUM_COMPUTED)) {
             computeDatum();
             return getNextScreen();
+        } else if (next.equals(SessionFrame.STATE_MULTIPLE_DATUM_VAL)) {
+            try {
+                return new MultiSelectEntityScreen(true, true, mSession, virtualInstanceStorage, false);
+            } catch (CommCareSessionException ccse) {
+                printErrorAndContinue("Error during session execution:", ccse);
+            }
         }
         throw new RuntimeException("Unexpected Frame Request: " + next);
     }
@@ -443,10 +487,10 @@ public class ApplicationHost {
         EvaluationContext ec = mSession.getEvaluationContext();
         if (datum instanceof FormIdDatum) {
             mSession.setXmlns(FunctionUtils.toString(form.eval(ec)));
-            mSession.setDatum("", "awful");
+            mSession.setEntityDatum("", "awful");
         } else {
             try {
-                mSession.setDatum(datum.getDataId(), FunctionUtils.toString(form.eval(ec)));
+                mSession.setEntityDatum(datum, FunctionUtils.toString(form.eval(ec)));
             } catch (XPathException e) {
                 error(e);
             }
@@ -467,12 +511,14 @@ public class ApplicationHost {
                 mPlatform.getStorageManager().getStorage(FormInstance.STORAGE_KEY));
 
         mSandbox = sandbox;
-        if (username != null && password != null) {
-            SessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
-        } else if (mRestoreFile != null) {
+        if (mRestoreStrategy == "remote") {
+            mSessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
+        } else if (mRestoreStrategy == "file" && mRestoreFile != null) {
             restoreFileToSandbox(mSandbox, mRestoreFile);
-        } else {
+        } else if (mRestoreStrategy == "demo") {
             restoreDemoUserToSandbox(mSandbox);
+        } else {
+            throw new RuntimeException("Unknown restore strategy " + mRestoreStrategy);
         }
     }
 
@@ -537,7 +583,7 @@ public class ApplicationHost {
         performCasePurge(mSandbox);
         if (username != null && password != null) {
             System.out.println("Requesting sync...");
-            SessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
+            mSessionUtils.restoreUserToSandbox(mSandbox, mSession, mPlatform, username, password, System.out);
         } else {
             printStream.println("Syncing is only available when using raw user credentials");
         }
@@ -573,4 +619,7 @@ public class ApplicationHost {
         }
     }
 
+    public void setSessionUtils(SessionUtils sessionUtils) {
+        mSessionUtils = sessionUtils;
+    }
 }

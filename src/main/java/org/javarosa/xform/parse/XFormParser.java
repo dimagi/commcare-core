@@ -1,7 +1,5 @@
 package org.javarosa.xform.parse;
 
-import org.javarosa.core.model.actions.Action;
-import org.javarosa.core.model.actions.ActionController;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.DataBinding;
 import org.javarosa.core.model.FormDef;
@@ -13,6 +11,8 @@ import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.QuestionString;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.SubmissionProfile;
+import org.javarosa.core.model.actions.Action;
+import org.javarosa.core.model.actions.ActionController;
 import org.javarosa.core.model.actions.SendAction;
 import org.javarosa.core.model.actions.SetValueAction;
 import org.javarosa.core.model.condition.Condition;
@@ -33,9 +33,9 @@ import org.javarosa.core.model.util.restorable.RestoreUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.locale.TableLocaleSource;
-import org.javarosa.core.util.ShortestCycleAlgorithm;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.Interner;
+import org.javarosa.core.util.ShortestCycleAlgorithm;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xform.util.InterningKXmlParser;
@@ -45,7 +45,6 @@ import org.javarosa.xpath.XPathConditional;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.XPathUnsupportedException;
-import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.kdom.Document;
@@ -58,7 +57,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Stack;
+import java.util.Vector;
 
 /**
  * Provides conversion from xform to epihandy object model and vice vasa.

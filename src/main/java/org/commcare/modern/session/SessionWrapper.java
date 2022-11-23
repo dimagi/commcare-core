@@ -1,8 +1,10 @@
 package org.commcare.modern.session;
 
+import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.session.CommCareSession;
+import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
@@ -68,6 +70,12 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
         }
 
         return initializer;
+    }
+
+    public void prepareExternalSources(RemoteInstanceFetcher remoteInstanceFetcher) throws RemoteInstanceFetcher.RemoteInstanceException {
+        for(StackFrameStep step : frame.getSteps()) {
+            step.initDataInstanceSources(remoteInstanceFetcher);
+        }
     }
 
     @Override

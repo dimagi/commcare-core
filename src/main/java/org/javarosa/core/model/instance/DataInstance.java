@@ -6,7 +6,7 @@ import org.commcare.cases.util.QueryUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.util.CacheTable;
+import org.javarosa.core.util.LocalCacheTable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
@@ -46,15 +46,13 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
 
     protected CacheHost mCacheHost;
 
-    private final CacheTable<TreeReference, T> referenceCache;
+    private final LocalCacheTable<TreeReference, T> referenceCache = new LocalCacheTable<>();
 
     public DataInstance() {
-        referenceCache = new CacheTable<>();
     }
 
     public DataInstance(String instanceid) {
         this.instanceid = instanceid;
-        referenceCache = new CacheTable<>();
     }
 
     public static TreeReference unpackReference(XPathReference ref) {

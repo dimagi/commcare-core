@@ -1,17 +1,16 @@
 package org.commcare.cases.util.test;
 
 import org.commcare.cases.model.Case;
-import org.commcare.cases.util.InvalidCaseGraphException;
-import org.javarosa.core.services.storage.IStorageIterator;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.junit.Assert;
-
 import org.commcare.cases.util.CasePurgeFilter;
+import org.commcare.cases.util.InvalidCaseGraphException;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
+import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DAG;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;

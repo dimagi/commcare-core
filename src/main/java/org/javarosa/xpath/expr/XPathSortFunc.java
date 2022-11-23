@@ -5,18 +5,10 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import javax.xml.crypto.dsig.spec.XPathType;
 
 /**
  * Created by amstone326 on 6/28/17.

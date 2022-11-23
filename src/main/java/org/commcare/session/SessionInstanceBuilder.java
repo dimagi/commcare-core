@@ -14,7 +14,7 @@ public class SessionInstanceBuilder {
     public static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
     public static final String KEY_ENTITY_LIST_EXTRA_DATA = "entity-list-data";
 
-    public static FormInstance getSessionInstance(SessionFrame frame, String deviceId,
+    public static TreeElement getSessionInstance(SessionFrame frame, String deviceId,
                                                   String appversion, long drift,
                                                   String username, String userId,
                                                   Hashtable<String, String> userFields) {
@@ -24,7 +24,7 @@ public class SessionInstanceBuilder {
         addMetadata(sessionRoot, deviceId, appversion, username, userId, drift);
         addUserProperties(sessionRoot, userFields);
 
-        return new FormInstance(sessionRoot, "session");
+        return sessionRoot;
     }
 
     private static void addSessionNavData(TreeElement sessionRoot, SessionFrame frame) {
@@ -39,7 +39,7 @@ public class SessionInstanceBuilder {
      */
     private static void addDatums(TreeElement sessionData, SessionFrame frame) {
         for (StackFrameStep step : frame.getSteps()) {
-            if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) ||
+            if (SessionFrame.isEntitySelectionDatum(step.getType()) ||
                     SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType())) {
                 Vector<TreeElement> matchingElements =
                         sessionData.getChildrenWithName(step.getId());

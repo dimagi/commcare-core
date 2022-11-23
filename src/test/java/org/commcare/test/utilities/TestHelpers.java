@@ -1,8 +1,7 @@
 package org.commcare.test.utilities;
 
-import org.junit.Assert;
-
 import org.javarosa.core.io.StreamsUtil;
+import org.junit.Assert;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

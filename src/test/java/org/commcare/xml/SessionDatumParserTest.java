@@ -1,18 +1,16 @@
 package org.commcare.xml;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
+import org.commcare.suite.model.QueryData;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.Text;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.xpath.expr.XPathExpression;
 import org.junit.Test;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.util.Hashtable;
 import java.util.List;
 
 /**
@@ -29,10 +27,11 @@ public class SessionDatumParserTest {
                 + "</query>";
         SessionDatumParser parser = ParserTestUtils.buildParser(query, SessionDatumParser.class);
         RemoteQueryDatum datum = (RemoteQueryDatum) parser.parse();
-        Hashtable<String, XPathExpression> hiddenQueryValues = datum.getHiddenQueryValues();
 
+        List<QueryData> hiddenQueryValues = datum.getHiddenQueryValues();
         assertEquals(1, hiddenQueryValues.size());
-        assertTrue(hiddenQueryValues.containsKey("device_id"));
+        QueryData queryData = hiddenQueryValues.get(0);
+        assertEquals("device_id", queryData.getKey());
     }
 
     @Test
@@ -50,10 +49,11 @@ public class SessionDatumParserTest {
         SessionDatumParser parser = ParserTestUtils.buildParser(query, SessionDatumParser.class);
         RemoteQueryDatum datum = (RemoteQueryDatum) parser.parse();
         String title = datum.getTitleText().getArgument();
-        Hashtable<String, XPathExpression> hiddenQueryValues = datum.getHiddenQueryValues();
+        List<QueryData> hiddenQueryValues = datum.getHiddenQueryValues();
 
         assertEquals(1, hiddenQueryValues.size());
-        assertTrue(hiddenQueryValues.containsKey("device_id"));
+        QueryData queryData = hiddenQueryValues.get(0);
+        assertEquals("device_id", queryData.getKey());
         assertEquals("locale_id", title);
     }
 }

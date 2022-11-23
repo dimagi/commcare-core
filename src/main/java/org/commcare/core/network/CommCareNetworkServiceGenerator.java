@@ -1,5 +1,11 @@
 package org.commcare.core.network;
 
+import static org.javarosa.core.model.utils.DateUtils.HOUR_IN_MS;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
+
 import org.commcare.core.services.CommCarePreferenceManagerFactory;
 import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.util.LogTypes;
@@ -9,6 +15,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.HttpUrl;
@@ -17,8 +24,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import retrofit2.Retrofit;
-
-import static org.javarosa.core.model.utils.DateUtils.HOUR_IN_MS;
 
 /**
  * Provides an instance of CommCareNetworkService.
@@ -34,6 +39,8 @@ public class CommCareNetworkServiceGenerator {
     // Retrofit needs a base url to generate an instance but since our apis are fully dynamic it's not getting used.
     private static final String BASE_URL = "http://example.url/";
 
+    private static Multimap<String, String> queryParams = ArrayListMultimap.create();
+
     private static Retrofit.Builder builder = new Retrofit.Builder().baseUrl(BASE_URL);
 
     private static Interceptor redirectionInterceptor = chain -> {
@@ -47,6 +54,17 @@ public class CommCareNetworkServiceGenerator {
             }
         }
         return response;
+    };
+
+    // Retrofit doesn't support multimaps @Querymap, so add the params on fly instead
+    private static Interceptor queryParamsInterceptor = chain -> {
+        HttpUrl.Builder builder = chain.request().url().newBuilder();
+        for (Map.Entry<String, String> entry : queryParams.entries()) {
+            builder.addQueryParameter(entry.getKey(), entry.getValue());
+        }
+        HttpUrl urlWithQueryParams = builder.build();
+        Request request = chain.request().newBuilder().url(urlWithQueryParams).build();
+        return chain.proceed(request);
     };
 
     private static Interceptor driftInterceptor = chain -> {
@@ -78,6 +96,7 @@ public class CommCareNetworkServiceGenerator {
             .connectTimeout(ModernHttpRequester.CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)
             .readTimeout(ModernHttpRequester.CONNECTION_SO_TIMEOUT, TimeUnit.MILLISECONDS)
             .addNetworkInterceptor(redirectionInterceptor)
+            .addInterceptor(queryParamsInterceptor)
             .addInterceptor(authenticationInterceptor)
             .addInterceptor(driftInterceptor)
             .followRedirects(true);
@@ -98,7 +117,10 @@ public class CommCareNetworkServiceGenerator {
         noRetryRetrofit =  builder.client(config.performCustomConfig(httpClient.retryOnConnectionFailure(false)).build()).build();
     }
 
-    public static CommCareNetworkService createCommCareNetworkService(final String credential, boolean enforceSecureEndpoint, boolean retry) {
+    public static CommCareNetworkService createCommCareNetworkService(final String credential,
+            boolean enforceSecureEndpoint, boolean retry,
+            Multimap<String, String> params) {
+        queryParams = params;
         authenticationInterceptor.setCredential(credential);
         authenticationInterceptor.setEnforceSecureEndpoint(enforceSecureEndpoint);
         if (retry) {
@@ -106,11 +128,10 @@ public class CommCareNetworkServiceGenerator {
         } else {
             return noRetryRetrofit.create(CommCareNetworkService.class);
         }
-
     }
 
     public static CommCareNetworkService createNoAuthCommCareNetworkService() {
-        return createCommCareNetworkService(null, false, true);
+        return createCommCareNetworkService(null, false, true, ImmutableMultimap.of());
     }
 
     private static boolean isValidRedirect(HttpUrl url, HttpUrl newUrl) {
