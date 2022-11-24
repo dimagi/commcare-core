@@ -245,7 +245,7 @@ public class CalendarUtils {
             format = "%e %B %Y";
         }
 
-        UniversalDate dateUniv = CalendarUtils.fromMillis(date);
+        UniversalDate dateUniv = CalendarUtils.fromMillis(date.getTime());
         DateUtils.DateFields df = DateUtils.getFieldsForNonGregorianCalendar(dateUniv.year,
                 dateUniv.month, dateUniv.day);
 
@@ -358,8 +358,9 @@ public class CalendarUtils {
         return fromMillis(dateInMillis, timezoneObject);
     }
 
-    public static UniversalDate fromMillis(Date date) {
-        return fromMillis(date, null);
+    public static UniversalDate fromMillis(long millisFromJavaEpoch) {
+        Date date = new Date(millisFromJavaEpoch);
+        return fromMillis(date,null);
     }
 
     public static UniversalDate incrementMonth(UniversalDate date) {
