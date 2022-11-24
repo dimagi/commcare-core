@@ -18,6 +18,7 @@ import org.javarosa.xpath.expr.XPathCountFunc;
 import org.javarosa.xpath.expr.XPathCountSelectedFunc;
 import org.javarosa.xpath.expr.XPathCustomRuntimeFunc;
 import org.javarosa.xpath.expr.XPathDateFunc;
+import org.javarosa.xpath.expr.XPathDecryptStringFunc;
 import org.javarosa.xpath.expr.XPathDependFunc;
 import org.javarosa.xpath.expr.XPathDistanceFunc;
 import org.javarosa.xpath.expr.XPathDistinctValuesFunc;
@@ -252,6 +253,8 @@ public class ASTNodeFunctionCall extends ASTNode {
                 return new XPathIndexOfFunc(args);
             case "encrypt-string":
                 return new XPathEncryptStringFunc(args);
+            case "decrypt-string":
+                return new XPathDecryptStringFunc(args);
             case "json-property":
                 return new XPathJsonPropertyFunc(args);
             default:

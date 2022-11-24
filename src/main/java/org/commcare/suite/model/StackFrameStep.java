@@ -4,7 +4,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.core.interfaces.RemoteInstanceFetcher;
-import org.commcare.data.xml.VirtualInstances;
 import org.commcare.session.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
@@ -161,6 +160,15 @@ public class StackFrameStep implements Externalizable {
         }
     }
 
+    /**
+     * Remove all extras for the given key
+     *
+     * @param key key we want to remove from extras
+     */
+    public void removeExtra(String key) {
+        extras.removeAll(key);
+    }
+
     public Object getExtra(String key) {
         Collection<Object> values = extras.get(key);
         if (values.size() > 1) {
@@ -296,5 +304,4 @@ public class StackFrameStep implements Externalizable {
     public String getElementType() {
         return elementType;
     }
-
 }

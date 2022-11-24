@@ -88,6 +88,7 @@ public class FunctionUtils {
         funcList.put(XPathSleepFunc.NAME, XPathSleepFunc.class);
         funcList.put(XPathIndexOfFunc.NAME, XPathIndexOfFunc.class);
         funcList.put(XPathEncryptStringFunc.NAME, XPathEncryptStringFunc.class);
+        funcList.put(XPathDecryptStringFunc.NAME, XPathDecryptStringFunc.class);
         funcList.put(XPathJsonPropertyFunc.NAME, XPathJsonPropertyFunc.class);
     }
 

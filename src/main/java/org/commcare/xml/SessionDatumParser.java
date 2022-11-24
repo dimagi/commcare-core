@@ -126,7 +126,6 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
         }
 
         boolean defaultSearch = "true".equals(parser.getAttributeValue(null, "default_search"));
-
         Text title = null;
         Text description = null;
         ArrayList<QueryData> hiddenQueryValues = new ArrayList<QueryData>();

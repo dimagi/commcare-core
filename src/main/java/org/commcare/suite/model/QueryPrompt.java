@@ -71,7 +71,6 @@ public class QueryPrompt implements Externalizable {
             String hidden, DisplayUnit display, ItemsetBinding itemsetBinding,
             XPathExpression defaultValueExpr, boolean allowBlankValue, XPathExpression exclude,
             QueryPromptCondition required, QueryPromptCondition validation) {
-
         this.key = key;
         this.appearance = appearance;
         this.input = input;
