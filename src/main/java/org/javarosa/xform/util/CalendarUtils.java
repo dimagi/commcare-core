@@ -360,7 +360,7 @@ public class CalendarUtils {
 
     public static UniversalDate fromMillis(long millisFromJavaEpoch) {
         Date date = new Date(millisFromJavaEpoch);
-        return fromMillis(date,null);
+        return fromMillis(date, null);
     }
 
     public static UniversalDate incrementMonth(UniversalDate date) {
