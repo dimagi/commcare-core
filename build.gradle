@@ -99,7 +99,7 @@ dependencies {
     testImplementation sourceSets.translate.output
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.json:json:20140107'
-    testImplementation 'org.xerial:sqlite-jdbc:3.28.0'
+    testImplementation 'org.xerial:sqlite-jdbc:3.40.0.0'
     testImplementation 'joda-time:joda-time:2.9.4'
     testImplementation 'com.squareup.retrofit2:retrofit:2.3.0'
     testImplementation 'com.squareup.okhttp3:okhttp:4.4.1'
