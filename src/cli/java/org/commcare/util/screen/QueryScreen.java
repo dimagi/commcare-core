@@ -1,6 +1,7 @@
 package org.commcare.util.screen;
 
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_ADDRESS;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_CHECKBOX;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATE;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT;
@@ -55,6 +56,7 @@ public class QueryScreen extends Screen {
     private SessionWrapper sessionWrapper;
     private String[] fields;
     private String mTitle;
+    private String description;
     private String currentMessage;
 
     private String domainedUsername;
@@ -97,6 +99,7 @@ public class QueryScreen extends Screen {
         }
 
         mTitle = getTitleLocaleString();
+        description = getDescriptionLocaleString();
         
     }
 
@@ -107,6 +110,15 @@ public class QueryScreen extends Screen {
             mTitle = getTitleLocaleStringLegacy();
         }
         return mTitle;
+    }
+
+    private String getDescriptionLocaleString() {
+        try {
+            description = getQueryDatum().getDescriptionText().evaluate();
+        } catch (NoLocalizedTextException | NullPointerException e) {
+            description = "";
+        }
+        return description;
     }
 
     private String getTitleLocaleStringLegacy() {
@@ -125,6 +137,7 @@ public class QueryScreen extends Screen {
         supportedPrompts.add(INPUT_TYPE_SELECT);
         supportedPrompts.add(INPUT_TYPE_DATE);
         supportedPrompts.add(INPUT_TYPE_DATERANGE);
+        supportedPrompts.add(INPUT_TYPE_CHECKBOX);
         supportedPrompts.add(INPUT_TYPE_ADDRESS);
         return supportedPrompts;
     }
@@ -253,6 +266,10 @@ public class QueryScreen extends Screen {
 
     public String getScreenTitle() {
         return mTitle;
+    }
+
+    public String getDescriptionText() {
+        return description;
     }
 
     @Override

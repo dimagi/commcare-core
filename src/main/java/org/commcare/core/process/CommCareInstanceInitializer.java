@@ -91,8 +91,6 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             return setupSessionData(instance);
         } else if (ref.startsWith(ExternalDataInstance.JR_REMOTE_REFERENCE)) {
             return setupExternalDataInstance(instance, ref, SessionFrame.STATE_QUERY_REQUEST);
-        } else if (ref.contains("migration")) {
-            return setupMigrationData(instance);
         } else if (ref.startsWith(JR_SELECTED_ENTITIES_REFERENCE)) {
             return setupExternalDataInstance(instance, ref, SessionFrame.STATE_MULTIPLE_DATUM_VAL);
         } else if (ref.startsWith(JR_SEARCH_INPUT_REFERENCE)) {
@@ -104,8 +102,9 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     /**
      * Initialises instances with reference to 'selected_cases'
      *
-     * @param instance  Selected Cases Instance that needs to be initialised
+     * @param instance  External data Instance that needs to be initialised
      * @param reference instance source reference
+     * @param stepType  type of CommCare session frame step with which the given instance is bundled with
      * @return Initialised instance root for the the given instance
      */
     protected InstanceRoot setupExternalDataInstance(ExternalDataInstance instance, String reference,
@@ -121,7 +120,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                 instanceRoot = getExternalDataInstanceSource(referenceWithId, stepType);
 
                 // last attempt to find the instance
-                // this is necessary for 'sesarch-input' instances which do not follow the convention
+                // this is necessary for 'search-input' instances which do not follow the convention
                 // of instance ref = base + instance Id:
                 //    <instance id="search-input:results" ref="jr://instance/search-input/results />
                 if (instanceRoot == null) {
@@ -258,10 +257,6 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
     public String getVersionString() {
         return "CommCare Version: " + mPlatform.getMajorVersion() + "." + mPlatform.getMinorVersion();
-    }
-
-    protected InstanceRoot setupMigrationData(ExternalDataInstance instance) {
-        return ConcreteInstanceRoot.NULL;
     }
 
     public static class FixtureInitializationException extends RuntimeException {

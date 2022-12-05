@@ -58,7 +58,7 @@ public class EntityScreen extends CompoundScreenHost {
     private boolean needsFullInit = true;
     private boolean isDetailScreen = false;
 
-    private Vector<TreeReference> references;
+    protected Vector<TreeReference> references;
 
     private boolean initialized = false;
     private Action autoLaunchAction;
@@ -112,7 +112,8 @@ public class EntityScreen extends CompoundScreenHost {
     public void init(SessionWrapper session) throws CommCareSessionException {
         if (initialized) {
             if (session != this.mSession) {
-                throw new CommCareSessionException("Entity screen initialized with two different session wrappers");
+                throw new CommCareSessionException(
+                        "Entity screen initialized with two different session wrappers");
             }
             return;
         }
@@ -130,7 +131,7 @@ public class EntityScreen extends CompoundScreenHost {
 
         evalContext.setQueryContext(newContext);
 
-        if (needsFullInit || references.size() == 1) {
+        if (needsFullInit || references.size() == 1 || shouldAutoSelect()) {
             referenceMap = new Hashtable<>();
             EntityDatum needed = (EntityDatum)session.getNeededDatum();
             for (TreeReference reference : references) {
@@ -141,18 +142,38 @@ public class EntityScreen extends CompoundScreenHost {
             // setting
             evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56, -46.66));
 
-            if (mNeededDatum.isAutoSelectEnabled() && references.size() == 1) {
-                this.setSelectedEntity(references.firstElement());
+            if (shouldAutoSelect()) {
                 if (!this.setCurrentScreenToDetail()) {
-                    this.updateSession(session);
                     readyToSkip = true;
                 }
             } else {
-                mCurrentScreen = new EntityListSubscreen(mShortDetail, references, evalContext,
+                // We can simply skip evaluating Detail for entities for a detail screen
+                Vector<TreeReference> entityListReferences = isDetailScreen ? new Vector<>() : references;
+                mCurrentScreen = new EntityListSubscreen(mShortDetail, entityListReferences, evalContext,
                         handleCaseIndex);
             }
         }
         initialized = true;
+    }
+
+    protected boolean shouldAutoSelect() {
+        return mNeededDatum.isAutoSelectEnabled() && references.size() == 1;
+    }
+
+    /**
+     * Auto selects entities for the screen and advances the session
+     *
+     * @param session Current CommCare Session
+     * @return whether the session was advanced by this call
+     * @throws CommCareSessionException errors while auto selecting entities
+     */
+    public boolean autoSelectEntities(SessionWrapper session) throws CommCareSessionException {
+        this.setSelectedEntity(references.firstElement());
+        if (!setCurrentScreenToDetail()) {
+            updateSession(session);
+            return true;
+        }
+        return false;
     }
 
     protected void setSession(SessionWrapper session) throws CommCareSessionException {
@@ -234,7 +255,7 @@ public class EntityScreen extends CompoundScreenHost {
         session.setEntityDatum(mNeededDatum, selectedValue);
     }
 
-    protected boolean executePendingAction(CommCareSession session) {
+    public boolean executePendingAction(CommCareSession session) {
         if (mPendingAction != null) {
             session.executeStackOperations(mPendingAction.getStackOperations(), evalContext);
             return true;
@@ -301,6 +322,10 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     private boolean setCurrentScreenToDetail() throws CommCareSessionException {
+        if (mCurrentSelection == null) {
+            return false;
+        }
+
         Detail[] longDetailList = getLongDetailList(mCurrentSelection);
         if (longDetailList == null) {
             return false;
@@ -424,5 +449,22 @@ public class EntityScreen extends CompoundScreenHost {
      */
     public void updateDatum(CommCareSession session, String input) {
         session.setEntityDatum(session.getNeededDatum(), input);
+    }
+
+    /**
+     * Handle auto-launch actions for EntityScreens
+     *
+     * @return true if the session was advanced
+     * @throws CommCareSessionException if there was an error during evaluation of auto launch action
+     */
+    public boolean evalAndExecuteAutoLaunchAction(String nextInput, CommCareSession session)
+            throws CommCareSessionException {
+        evaluateAutoLaunch(nextInput);
+        if (getAutoLaunchAction() != null) {
+            setPendingAction(getAutoLaunchAction());
+            executePendingAction(session);
+            return true;
+        }
+        return false;
     }
 }

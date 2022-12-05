@@ -13,6 +13,7 @@ import org.joda.time.chrono.GregorianChronology;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 public class CalendarUtils {
 
@@ -49,9 +50,8 @@ public class CalendarUtils {
             format = "%e %B %Y";
         }
 
-        Calendar c = Calendar.getInstance();
-        c.setTime(d);
-        return ConvertToEthiopian(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH), format);
+        DateUtils.DateFields fields = DateUtils.getFields(d);
+        return ConvertToEthiopian(fields.year, fields.month, fields.day, format);
     }
 
     private static final HashMap<Integer, int[]> NEPALI_YEAR_MONTHS = new HashMap<>();
@@ -345,8 +345,22 @@ public class CalendarUtils {
         throw new RuntimeException("Date out of bounds");
     }
 
+    public static UniversalDate fromMillis(Date date, String timezone) {
+        Calendar cd = Calendar.getInstance();
+        cd.setTime(date);
+        if (timezone != null) {
+            cd.setTimeZone(TimeZone.getTimeZone(timezone));
+        } else if (DateUtils.timezone() != null) {
+            cd.setTimeZone(DateUtils.timezone());
+        }
+        long dateInMillis = cd.getTime().getTime();
+        DateTimeZone timezoneObject = DateTimeZone.forOffsetMillis(cd.getTimeZone().getRawOffset());
+        return fromMillis(dateInMillis, timezoneObject);
+    }
+
     public static UniversalDate fromMillis(long millisFromJavaEpoch) {
-        return fromMillis(millisFromJavaEpoch, DateTimeZone.getDefault());
+        Date date = new Date(millisFromJavaEpoch);
+        return fromMillis(date, null);
     }
 
     public static UniversalDate incrementMonth(UniversalDate date) {

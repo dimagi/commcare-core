@@ -1,5 +1,7 @@
 package org.commcare.suite.model;
 
+import static org.commcare.xml.SessionDatumParser.DEFAULT_MAX_SELECT_VAL;
+
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -13,7 +15,7 @@ import java.io.IOException;
  */
 public class MultiSelectEntityDatum extends EntityDatum {
 
-    private int maxSelectValue = -1;
+    private int maxSelectValue = DEFAULT_MAX_SELECT_VAL;
 
     @SuppressWarnings("unused")
     public MultiSelectEntityDatum() {
@@ -33,6 +35,13 @@ public class MultiSelectEntityDatum extends EntityDatum {
             DeserializationException {
         super.readExternal(in, pf);
         maxSelectValue = ExtUtil.readInt(in);
+
+        /** Set the correct default here in case the serialised state has
+         *  the incorrect older default of -1. This is a temporary work-around
+         *  and should be safe to removed ~1 month after it gets deployed **/
+        if (maxSelectValue == -1) {
+            maxSelectValue = DEFAULT_MAX_SELECT_VAL;
+        }
     }
 
     @Override
