@@ -29,8 +29,7 @@ public class XmlUtil {
         try {
             String unformattedXml = new String(xml);
             final Document document = parseXmlFile(unformattedXml);
-            StringWriter stringWriter=new StringWriter();
-
+            StringWriter stringWriter = new StringWriter();
 
             DOMImplementationRegistry registry =  DOMImplementationRegistry.newInstance();
             DOMImplementationLS impls =  (DOMImplementationLS)registry.getDOMImplementation("LS");
