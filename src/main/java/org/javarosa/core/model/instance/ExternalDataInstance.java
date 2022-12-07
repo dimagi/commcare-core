@@ -171,4 +171,13 @@ public class ExternalDataInstance extends DataInstance {
     public ExternalDataInstance copy() {
         return new ExternalDataInstance(this);
     }
+
+    @Override
+    public String toString() {
+        return "ExternalDataInstance{" +
+                "reference='" + reference + '\'' +
+                ", name='" + name + '\'' +
+                ", instanceid='" + instanceid + '\'' +
+                '}';
+    }
 }
