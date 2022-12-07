@@ -89,7 +89,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
 
     private boolean validateSelectionSize(int selectionSize) {
         if (selectionSize == 0) {
-            throw new InvalidEntitiesSelectionException(getNoEntitiesError());
+            return false;
         } else if (selectionSize > maxSelectValue) {
             throw new InvalidEntitiesSelectionException(getMaxSelectError(selectionSize));
         }
@@ -115,14 +115,6 @@ public class MultiSelectEntityScreen extends EntityScreen {
             }
         }
         return error;
-    }
-
-    private String getNoEntitiesError() {
-        try {
-            return Localization.get("case.list.no.selection.error");
-        } catch (NoLocalizedTextException | NullPointerException e) {
-            return String.format("No cases found");
-        }
     }
 
     private void setSelectedEntities(String input, @Nullable String[] selectedValues)
