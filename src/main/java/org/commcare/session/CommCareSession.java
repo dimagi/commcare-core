@@ -995,17 +995,32 @@ public class CommCareSession {
         frame.addExtraTopStep(key, value);
     }
 
+
+    public void removeExtraFromCurrentFrameStep(String key) {
+        frame.removeExtraTopStep(key);
+    }
+
     /**
      * Get the 'extra' value for the given key.
      * This method only supports keys that have a single value. For keys with multiple values
      * use `getCurrentFrameStepExtras().get(key)` which returns a Collection of the values.
      */
+    @Nullable
     public Object getCurrentFrameStepExtra(String key) {
-        return frame.getTopStep().getExtra(key);
+        StackFrameStep topStep = frame.getTopStep();
+        if (topStep != null) {
+            return topStep.getExtra(key);
+        }
+        return null;
     }
 
+    @Nullable
     public Multimap<String, Object> getCurrentFrameStepExtras() {
-        return frame.getTopStep().getExtras();
+        StackFrameStep topStep = frame.getTopStep();
+        if (topStep != null) {
+            return topStep.getExtras();
+        }
+        return null;
     }
 
     /**

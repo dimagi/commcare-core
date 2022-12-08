@@ -236,6 +236,13 @@ public class SessionFrame implements Externalizable {
         }
     }
 
+    public synchronized void removeExtraTopStep(String key) {
+        if (!steps.isEmpty()) {
+            StackFrameStep topStep = steps.elementAt(steps.size() - 1);
+            topStep.removeExtra(key);
+        }
+    }
+
     public synchronized StackFrameStep getTopStep() {
         if (!steps.isEmpty()) {
             return steps.elementAt(steps.size() - 1);

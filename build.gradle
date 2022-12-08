@@ -13,11 +13,12 @@ plugins {
 }
 
 // Needed even though it looks unused
-sourceCompatibility = 1.8
+sourceCompatibility = 8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 configurations {
     ccapi.extendsFrom(ccapiImplementation)
-    cliOutput.extendsFrom(cliImplementation)
+    cliOutput.extendsFrom (cliImplementation)
     harness
     translate.extendsFrom(translateImplementation)
     testsAsJar
@@ -38,6 +39,7 @@ sourceSets {
             compileClasspath += main.output
         }
     }
+
 
     cli {
         java {
@@ -62,7 +64,6 @@ sourceSets {
             compileClasspath += translate.output
         }
     }
-
 
 }
 
@@ -228,11 +229,11 @@ task formTranslateJar(type: Jar, dependsOn: translateClasses) {
 }
 
 artifacts {
-    cliOutput cliJar
-    ccapi ccapiJar
-    harness harnessJar
-    translate formTranslateJar
-    testsAsJar testsrcJar
+  cliOutput cliJar
+  ccapi ccapiJar
+  harness harnessJar
+  translate formTranslateJar
+  testsAsJar testsrcJar
 }
 
 task copyTestResources(type: Copy) {

@@ -27,8 +27,8 @@ public class SessionDatumParserTest {
                 + "</query>";
         SessionDatumParser parser = ParserTestUtils.buildParser(query, SessionDatumParser.class);
         RemoteQueryDatum datum = (RemoteQueryDatum) parser.parse();
-        List<QueryData> hiddenQueryValues = datum.getHiddenQueryValues();
 
+        List<QueryData> hiddenQueryValues = datum.getHiddenQueryValues();
         assertEquals(1, hiddenQueryValues.size());
         QueryData queryData = hiddenQueryValues.get(0);
         assertEquals("device_id", queryData.getKey());

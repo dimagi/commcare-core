@@ -5,6 +5,7 @@ package org.commcare.xml;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.suite.model.AndroidPackageDependency;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.reference.RootTranslator;
@@ -17,11 +18,16 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Vector;
 
 /**
  * @author ctsims
  */
 public class ProfileParser extends ElementParser<Profile> {
+
+    private static final String NAME_DEPENDENCIES = "dependencies";
+    private static final String NAME_ANDROID_PACKAGE = "android_package";
+    private static final String ATTR_ID = "id";
 
     ResourceTable table;
     String resourceId;
@@ -235,12 +241,30 @@ public class ProfileParser extends ElementParser<Profile> {
                         throw new InvalidStructureException("Unrecognized tag " + parser.getName() + " inside of users feature block", parser);
                     }
                 }
+            } else if (tag.equals(NAME_DEPENDENCIES)) {
+                profile.setDependencies(parseDependencies());
             } else if (tag.equals("sense")) {
             }
 
             profile.setFeatureActive(tag, isActive);
             //TODO: set feature activation in profile
         }
+    }
+
+    private Vector<AndroidPackageDependency> parseDependencies()
+            throws InvalidStructureException, XmlPullParserException, IOException {
+        Vector<AndroidPackageDependency> appDependencies = new Vector<>();
+        while (nextTagInBlock(NAME_DEPENDENCIES)) {
+            String tag = parser.getName().toLowerCase();
+            if (tag.equals(NAME_ANDROID_PACKAGE)) {
+                String appId = parser.getAttributeValue(null, ATTR_ID);
+                if (appId == null) {
+                    throw new InvalidStructureException("No id defined for app dependency");
+                }
+                appDependencies.add(new AndroidPackageDependency(appId));
+            }
+        }
+        return appDependencies;
     }
 
     private void parseSuite() throws InvalidStructureException, XmlPullParserException, IOException {

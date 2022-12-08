@@ -793,7 +793,11 @@ public class XPathEvalTest {
                                      keyString + "','" + algorithm + "')",
                                      null, ec);
             String resultString = FunctionUtils.toString(result);
-            String decryptedMessage = EncryptionUtils.decrypt(resultString, keyString);
+
+            Object decryptedObject = evalExpr("decrypt-string('" + resultString + "','" +
+                            keyString + "','" + algorithm + "')",
+                    null, ec);
+            String decryptedMessage = FunctionUtils.toString(decryptedObject);
             if (!message.equals(decryptedMessage)) {
                 fail("Expected decrypted message " + message + ", got " +
                      decryptedMessage);

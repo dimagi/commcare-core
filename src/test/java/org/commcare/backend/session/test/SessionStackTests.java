@@ -9,6 +9,7 @@ import static org.junit.Assert.fail;
 import com.google.common.collect.ArrayListMultimap;
 
 import org.commcare.modern.session.SessionWrapper;
+import org.commcare.modern.util.Pair;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Action;
@@ -367,21 +368,14 @@ public class SessionStackTests {
 
     static ExternalDataInstance buildRemoteExternalDataInstance(Class cls,
             SessionWrapper sessionWrapper,
-            String resourcePath)
-            throws UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException,
-            IOException {
+            String resourcePath) {
         RemoteQuerySessionManager remoteQuerySessionManager =
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper,
                         sessionWrapper.getEvaluationContext(), new ArrayList<>());
         InputStream is = cls.getResourceAsStream(resourcePath);
-        RemoteQueryDatum queryDatum = remoteQuerySessionManager.getQueryDatum();
-        TreeElement root = ExternalDataInstance.parseExternalTree(is, queryDatum.getDataId());
-        ExternalDataInstanceSource source = ExternalDataInstanceSource.buildRemote(
-                queryDatum.getDataId(), root, queryDatum.useCaseTemplate(),
-                resourcePath, ArrayListMultimap.create()
-        );
-        ExternalDataInstance instance = source.toInstance();
-        assertNotNull(instance);
-        return instance;
+        Pair<ExternalDataInstance, String> instanceOrError = remoteQuerySessionManager.buildExternalDataInstance(
+                is, resourcePath, ArrayListMultimap.create());
+        assertNotNull(instanceOrError.first);
+        return instanceOrError.first;
     }
 }

@@ -57,7 +57,6 @@ public class SyncScreen extends Screen {
                     username,
                     password,
                     printStream);
-
                 printStream.println("Sync successful with response");
             } else {
                 printStream.println("Did not sync because case was already claimed.");
