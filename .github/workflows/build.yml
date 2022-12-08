@@ -17,7 +17,7 @@ jobs:
       JAVA_VERSION: '17'
       JOB_GRADLE_VERSION: 7.3
       FORMPLAYER_GRADLE_VERSION: 7.3
-      FORMPLAYER_JAVA_VERSION: '8'
+      FORMPLAYER_JAVA_VERSION: '17'
     steps:
       - uses: actions/checkout@v3
       - name: Set environment for Formplayer
