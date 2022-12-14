@@ -22,7 +22,7 @@ public class XPathRandomFunc extends XPathFuncExpr implements VolatileXPathFuncE
     @Override
     public Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         //calculated expressions may be recomputed w/o warning! use with caution!!
-        return new Double(MathUtils.getRand().nextDouble());
+        return Double.valueOf(MathUtils.getRand().nextDouble());
     }
 
     @Override

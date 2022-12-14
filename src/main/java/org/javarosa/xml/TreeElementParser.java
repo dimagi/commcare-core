@@ -47,7 +47,7 @@ public class TreeElementParser extends ElementParser<TreeElement> {
                     } else {
                         val = 0;
                     }
-                    multiplicities.put(name, new Integer(val));
+                    multiplicities.put(name, Integer.valueOf(val));
 
                     TreeElement kid = new TreeElementParser(parser, val, instanceId).parse();
                     element.addChild(kid);

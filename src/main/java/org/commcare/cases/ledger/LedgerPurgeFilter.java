@@ -30,7 +30,7 @@ public class LedgerPurgeFilter extends EntityFilter<Ledger> {
             try {
                 caseStorage.getRecordForValue(Case.INDEX_CASE_ID, s.getEntiyId());
             } catch (NoSuchElementException nsee) {
-                idsToRemove.addElement(new Integer(s.getID()));
+                idsToRemove.addElement(Integer.valueOf(s.getID()));
             }
         }
     }

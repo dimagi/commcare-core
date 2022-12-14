@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class XFormAnswerDataSerializerTest {
     static final String stringDataValue = "String Data Value";
-    static final Integer integerDataValue = new Integer(5);
+    static final Integer integerDataValue = Integer.valueOf(5);
     static final Date dateDataValue = new Date();
     static final Date timeDataValue = new Date();
 

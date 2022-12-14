@@ -13,8 +13,8 @@ public class IntegerDataTests {
 
     @BeforeClass
     public static void setUp() {
-        one = new Integer(1);
-        two = new Integer(2);
+        one = Integer.valueOf(1);
+        two = Integer.valueOf(2);
     }
 
     @Test

@@ -62,7 +62,7 @@ public class NumericEncodingTest {
     }
 
     public void testNumericEncoding(long val, ExtWrapIntEncoding encoding) {
-        ExternalizableTest.testExternalizable(encoding.clone(new Long(val)), encoding, null, null);
+        ExternalizableTest.testExternalizable(encoding.clone(Long.valueOf(val)), encoding, null, null);
     }
 
 }
