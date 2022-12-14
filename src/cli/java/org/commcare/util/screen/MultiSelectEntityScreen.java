@@ -69,7 +69,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
 
     @Override
     protected boolean shouldAutoSelect() {
-        return mNeededDatum.isAutoSelectEnabled();
+        return mNeededDatum.isAutoSelectEnabled() && references.size() != 0;
     }
 
     @Override
