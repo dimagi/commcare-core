@@ -331,7 +331,7 @@ public class DateUtils {
     }
 
     private static String formatDateColloquial(DateFields f) {
-        String year = new Integer(f.year).toString();
+        String year = Integer.valueOf(f.year).toString();
 
         //Normal Date
         if (year.length() == 4) {
@@ -869,7 +869,7 @@ public class DateUtils {
         //correct for any drift in the offsets. This can also present if timezone definitions
         //have drifted over time
         long timeZoneAdjust = (a.getTimezoneOffset() - EPOCH_DATE.getTimezoneOffset()) * 60* 1000;
-        return new Double(((a.getTime() - EPOCH_DATE.getTime()) - timeZoneAdjust) / (double)DAY_IN_MS);
+        return Double.valueOf(((a.getTime() - EPOCH_DATE.getTime()) - timeZoneAdjust) / (double)DAY_IN_MS);
     }
 
     /**

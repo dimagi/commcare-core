@@ -114,9 +114,9 @@ public class XPathCmpExpr extends XPathBinaryOpExpr {
                     } else if (b instanceof Float) {
                         val = ((Float)b).doubleValue();
                     } else if (b instanceof Short) {
-                        val = new Double((Short)b);
+                        val = Double.valueOf((Short)b);
                     } else if (b instanceof Byte) {
-                        val = new Double((Byte)b);
+                        val = Double.valueOf((Byte)b);
                     } else {
                         if (b instanceof String) {
                             try {

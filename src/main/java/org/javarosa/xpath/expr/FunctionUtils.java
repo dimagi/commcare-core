@@ -141,7 +141,7 @@ public class FunctionUtils {
         try {
             // Don't process strings with scientific notation or +/- Infinity as doubles
             if (checkForInvalidNumericOrDatestringCharacters(attrValue)) {
-                mDoubleParseCache.register(attrValue, new Double(Double.NaN));
+                mDoubleParseCache.register(attrValue, Double.valueOf(Double.NaN));
                 return attrValue;
             }
             Double ret = Double.parseDouble(attrValue);
@@ -149,7 +149,7 @@ public class FunctionUtils {
             return ret;
         } catch (NumberFormatException ife) {
             //Not a double
-            mDoubleParseCache.register(attrValue, new Double(Double.NaN));
+            mDoubleParseCache.register(attrValue, Double.valueOf(Double.NaN));
         }
         //TODO: What about dates? That is a _super_ expensive
         //operation to be testing, though...
@@ -223,25 +223,25 @@ public class FunctionUtils {
         o = unpack(o);
 
         if (o instanceof Boolean) {
-            val = new Double(((Boolean)o).booleanValue() ? 1 : 0);
+            val = Double.valueOf(((Boolean)o).booleanValue() ? 1 : 0);
         } else if (o instanceof Double) {
             val = (Double)o;
         } else if (o instanceof String) {
             String s = ((String)o).trim();
             if (checkForInvalidNumericOrDatestringCharacters(s)) {
-                return new Double(Double.NaN);
+                return Double.valueOf(Double.NaN);
             }
             try {
-                val = new Double(Double.parseDouble(s));
+                val = Double.valueOf(Double.parseDouble(s));
             } catch (NumberFormatException nfe) {
                 try {
                     val = attemptDateConversion(s);
                 } catch (XPathTypeMismatchException e) {
-                    val = new Double(Double.NaN);
+                    val = Double.valueOf(Double.NaN);
                 }
             }
         } else if (o instanceof Date) {
-            val = new Double(DateUtils.daysSinceEpoch((Date)o));
+            val = Double.valueOf(DateUtils.daysSinceEpoch((Date)o));
         } else if (o instanceof IExprDataType) {
             val = ((IExprDataType)o).toNumeric();
         }
@@ -290,9 +290,9 @@ public class FunctionUtils {
             return val;
         } else {
             long l = val.longValue();
-            Double dbl = new Double(l);
-            if (l == 0 && (val < 0. || val.equals(new Double(-0.)))) {
-                dbl = new Double(-0.);
+            Double dbl = Double.valueOf(l);
+            if (l == 0 && (val < 0. || val.equals(Double.valueOf(-0.)))) {
+                dbl = Double.valueOf(-0.);
             }
             return dbl;
         }

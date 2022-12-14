@@ -37,7 +37,7 @@ public class XPathDistanceFunc extends XPathFuncExpr {
         String unpackedTo = (String)FunctionUtils.unpack(to);
 
         if (unpackedFrom == null || "".equals(unpackedFrom) || unpackedTo == null || "".equals(unpackedTo)) {
-            return new Double(-1.0);
+            return Double.valueOf(-1.0);
         }
 
         try {
@@ -45,7 +45,7 @@ public class XPathDistanceFunc extends XPathFuncExpr {
             GeoPointData castedFrom = new GeoPointData().cast(new UncastData(unpackedFrom));
             GeoPointData castedTo = new GeoPointData().cast(new UncastData(unpackedTo));
 
-            return new Double(GeoPointUtils.computeDistanceBetween(castedFrom, castedTo));
+            return Double.valueOf(GeoPointUtils.computeDistanceBetween(castedFrom, castedTo));
         } catch (NumberFormatException e) {
             throw new XPathTypeMismatchException("distance() function requires arguments containing " +
                     "numeric values only, but received arguments: " + unpackedFrom + " and " + unpackedTo);

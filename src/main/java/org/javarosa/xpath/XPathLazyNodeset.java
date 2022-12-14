@@ -30,7 +30,7 @@ public class XPathLazyNodeset extends XPathNodeset {
 
     //Since we're using this as a lock, we need to be very careful to ensure that each
     //nodeset gets its own new object.
-    private Boolean evaluated = new Boolean(false);
+    private Boolean evaluated = Boolean.valueOf(false);
     private final TreeReference unExpandedRef;
 
     /**
@@ -57,7 +57,7 @@ public class XPathLazyNodeset extends XPathNodeset {
                 }
             }
             this.setReferences(nodes);
-            evaluated = new Boolean(true);
+            evaluated = Boolean.valueOf(true);
         }
     }
 

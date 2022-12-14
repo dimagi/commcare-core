@@ -67,7 +67,7 @@ public class LongData implements IAnswerData {
 
     @Override
     public UncastData uncast() {
-        return new UncastData(new Long(n).toString());
+        return new UncastData(Long.valueOf(n).toString());
     }
 
     @Override

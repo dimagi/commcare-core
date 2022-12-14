@@ -41,7 +41,7 @@ public class XPathArithExpr extends XPathBinaryOpExpr {
                 result = aval % bval;
                 break;
         }
-        return new Double(result);
+        return Double.valueOf(result);
     }
 
     @Override

@@ -274,11 +274,11 @@ public class EvaluationContext {
         //Some datatypes can be trivially converted to a first order
         //xpath datatype
         if (value instanceof Integer) {
-            variables.put(name, new Double(((Integer)value).doubleValue()));
+            variables.put(name, Double.valueOf(((Integer)value).doubleValue()));
             return;
         }
         if (value instanceof Float) {
-            variables.put(name, new Double(((Float)value).doubleValue()));
+            variables.put(name, Double.valueOf(((Float)value).doubleValue()));
         } else {
             //Otherwise we just hope for the best, I suppose? Should we log this?
             variables.put(name, value);

@@ -45,15 +45,15 @@ public class XPathTranslateFunc extends XPathFuncExpr {
 
         Hashtable<Character, Character> map = new Hashtable<>();
         for (int i = 0; i < Math.min(from.length(), to.length()); i++) {
-            if (!map.containsKey(new Character(from.charAt(i)))) {
-                map.put(new Character(from.charAt(i)), new Character(to.charAt(i)));
+            if (!map.containsKey(Character.valueOf(from.charAt(i)))) {
+                map.put(Character.valueOf(from.charAt(i)), Character.valueOf(to.charAt(i)));
             }
         }
         String toDelete = from.substring(Math.min(from.length(), to.length()));
 
         String returnValue = "";
         for (int i = 0; i < source.length(); i++) {
-            Character current = new Character(source.charAt(i));
+            Character current = Character.valueOf(source.charAt(i));
             if (toDelete.indexOf(current) == -1) {
                 if (map.containsKey(current)) {
                     current = map.get(current);
