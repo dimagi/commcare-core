@@ -780,6 +780,7 @@ public class FormDef implements IFormElement, IMetaData,
      *                          children have already been queued to be
      *                          triggered.
      */
+    @Trace
     private void fillTriggeredElements(Triggerable t,
                                        List<Triggerable> destination,
                                        boolean isRepeatEntryInit) {
