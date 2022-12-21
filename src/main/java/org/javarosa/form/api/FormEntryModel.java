@@ -565,7 +565,8 @@ public class FormEntryModel {
                 TreeElement parentNode = form.getMainInstance().resolveReference(nodeRef.getParentRef());
                 mult = parentNode.getChildMultiplicity(name);
             }
-            multiplicities.setElementAt(new Integer(repeatStructure == REPEAT_STRUCTURE_NON_LINEAR ? TreeReference.INDEX_REPEAT_JUNCTURE : mult), multiplicities.size() - 1);
+            multiplicities.setElementAt(Integer.valueOf(repeatStructure == REPEAT_STRUCTURE_NON_LINEAR ?
+                    TreeReference.INDEX_REPEAT_JUNCTURE : mult), multiplicities.size() - 1);
             return true;
         } else {
             return false;

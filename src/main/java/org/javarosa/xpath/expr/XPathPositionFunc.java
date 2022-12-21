@@ -44,14 +44,14 @@ public class XPathPositionFunc extends XPathFuncExpr {
                 }
             }
         } else if (evalContext.getContextPosition() != -1) {
-            return new Double(evalContext.getContextPosition());
+            return Double.valueOf(evalContext.getContextPosition());
         } else {
             return position(evalContext.getContextRef());
         }
     }
 
     private static Double position(TreeReference refAt) {
-        return new Double(refAt.getMultLast());
+        return Double.valueOf(refAt.getMultLast());
     }
 
 }

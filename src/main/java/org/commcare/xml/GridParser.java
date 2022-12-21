@@ -42,6 +42,6 @@ public class GridParser extends ElementParser<Integer> {
         //exit grid block
         parser.nextTag();
 
-        return new Integer(1);
+        return Integer.valueOf(1);
     }
 }

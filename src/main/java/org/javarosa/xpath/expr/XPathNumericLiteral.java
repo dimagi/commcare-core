@@ -25,7 +25,7 @@ public class XPathNumericLiteral extends XPathExpression {
 
     @Override
     protected Object evalRaw(DataInstance model, EvaluationContext evalContext) {
-        return new Double(d);
+        return Double.valueOf(d);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class XPathNumericLiteral extends XPathExpression {
 
     @Override
     public int hashCode() {
-        return (new Long(Double.doubleToLongBits(d))).hashCode();
+        return (Long.valueOf(Double.doubleToLongBits(d))).hashCode();
     }
 
     @Override

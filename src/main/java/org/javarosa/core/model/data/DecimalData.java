@@ -45,7 +45,7 @@ public class DecimalData implements IAnswerData {
 
     @Override
     public Object getValue() {
-        return new Double(d);
+        return Double.valueOf(d);
     }
 
     @Override

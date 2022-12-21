@@ -261,7 +261,7 @@ public class FormEntryCaption {
 
         Hashtable<String, Object> vars = new Hashtable<>();
         vars.put("name", title);
-        vars.put("n", new Integer(count));
+        vars.put("n", Integer.valueOf(count));
         return form.fillTemplateString(caption, index.getReference(), vars);
     }
 

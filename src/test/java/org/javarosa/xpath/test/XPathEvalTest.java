@@ -182,14 +182,14 @@ public class XPathEvalTest {
         testEval("(filter-expr)[5]", instance, null, new XPathUnsupportedException());
         testEval("(filter-expr)/data", instance, null, new XPathUnsupportedException());
         /* numeric literals */
-        testEval("5", null, null, new Double(5.0));
-        testEval("555555.555", null, null, new Double(555555.555));
-        testEval(".000555", null, null, new Double(0.000555));
-        testEval("0", null, null, new Double(0.0));
-        testEval("-5", null, null, new Double(-5.0));
-        testEval("-0", null, null, new Double(-0.0));
-        testEval("1230000000000000000000", null, null, new Double(1.23e21));
-        testEval("0.00000000000000000123", null, null, new Double(1.23e-18));
+        testEval("5", null, null, Double.valueOf(5.0));
+        testEval("555555.555", null, null, Double.valueOf(555555.555));
+        testEval(".000555", null, null, Double.valueOf(0.000555));
+        testEval("0", null, null, Double.valueOf(0.0));
+        testEval("-5", null, null, Double.valueOf(-5.0));
+        testEval("-0", null, null, Double.valueOf(-0.0));
+        testEval("1230000000000000000000", null, null, Double.valueOf(1.23e21));
+        testEval("0.00000000000000000123", null, null, Double.valueOf(1.23e-18));
         /* string literals */
         testEval("''", null, null, "");
         testEval("'\"'", null, null, "\"");
@@ -215,48 +215,48 @@ public class XPathEvalTest {
         testEval("boolean(date('2000-01-01'))", null, null, Boolean.TRUE);
         testEval("boolean(convertible())", null, ec, Boolean.TRUE);
         testEval("boolean(inconvertible())", null, ec, new XPathTypeMismatchException());
-        testEval("number(true())", null, null, new Double(1.0));
-        testEval("number(false())", null, null, new Double(0.0));
-        testEval("number('100')", null, null, new Double(100.0));
-        testEval("number('100.001')", null, null, new Double(100.001));
-        testEval("number('.1001')", null, null, new Double(0.1001));
-        testEval("number('1230000000000000000000')", null, null, new Double(1.23e21));
-        testEval("number('0.00000000000000000123')", null, null, new Double(1.23e-18));
-        testEval("number('0')", null, null, new Double(0.0));
-        testEval("number('-0')", null, null, new Double(-0.0));
-        testEval("number(' -12345.6789  ')", null, null, new Double(-12345.6789));
-        testEval("number('NaN')", null, null, new Double(Double.NaN));
-        testEval("number('not a number')", null, null, new Double(Double.NaN));
-        testEval("number('- 17')", null, null, new Double(Double.NaN));
-        testEval("number('  ')", null, null, new Double(Double.NaN));
-        testEval("number('')", null, null, new Double(Double.NaN));
-        testEval("number('Infinity')", null, null, new Double(Double.NaN));
-        testEval("number('1.1e6')", null, null, new Double(Double.NaN));
-        testEval("number('34.56.7')", null, null, new Double(Double.NaN));
-        testEval("number(10)", null, null, new Double(10.0));
-        testEval("number(0)", null, null, new Double(0.0));
-        testEval("number(-0)", null, null, new Double(-0.0));
-        testEval("number(-123.5)", null, null, new Double(-123.5));
-        testEval("number(number('NaN'))", null, null, new Double(Double.NaN));
-        testEval("number(1 div 0)", null, null, new Double(Double.POSITIVE_INFINITY));
-        testEval("number(-1 div 0)", null, null, new Double(Double.NEGATIVE_INFINITY));
-        testEval("number(date('1970-01-01'))", null, null, new Double(0.0));
-        testEval("number(date('1970-01-02'))", null, null, new Double(1.0));
-        testEval("number(date('1969-12-31'))", null, null, new Double(-1.0));
-        testEval("number(date('2008-09-05'))", null, null, new Double(14127.0));
-        testEval("number(date('1941-12-07'))", null, null, new Double(-10252.0));
-        testEval("number('1970-01-01')", null, null, new Double(0.0));
-        testEval("number('1970-01-02')", null, null, new Double(1.0));
-        testEval("number('1969-12-31')", null, null, new Double(-1.0));
-        testEval("number('2008-09-05')", null, null, new Double(14127.0));
-        testEval("number('1941-12-07')", null, null, new Double(-10252.0));
-        testEval("number('1970-01')", null, null, new Double(Double.NaN));
-        testEval("number('-1970-01-02')", null, null, new Double(Double.NaN));
-        testEval("number('12-31')", null, null, new Double(Double.NaN));
-        testEval("number('2016-13-13')", null, null, new Double(Double.NaN));
-        testEval("number('2017-01-45')", null, null, new Double(Double.NaN));
+        testEval("number(true())", null, null, Double.valueOf(1.0));
+        testEval("number(false())", null, null, Double.valueOf(0.0));
+        testEval("number('100')", null, null, Double.valueOf(100.0));
+        testEval("number('100.001')", null, null, Double.valueOf(100.001));
+        testEval("number('.1001')", null, null, Double.valueOf(0.1001));
+        testEval("number('1230000000000000000000')", null, null, Double.valueOf(1.23e21));
+        testEval("number('0.00000000000000000123')", null, null, Double.valueOf(1.23e-18));
+        testEval("number('0')", null, null, Double.valueOf(0.0));
+        testEval("number('-0')", null, null, Double.valueOf(-0.0));
+        testEval("number(' -12345.6789  ')", null, null, Double.valueOf(-12345.6789));
+        testEval("number('NaN')", null, null, Double.valueOf(Double.NaN));
+        testEval("number('not a number')", null, null, Double.valueOf(Double.NaN));
+        testEval("number('- 17')", null, null, Double.valueOf(Double.NaN));
+        testEval("number('  ')", null, null, Double.valueOf(Double.NaN));
+        testEval("number('')", null, null, Double.valueOf(Double.NaN));
+        testEval("number('Infinity')", null, null, Double.valueOf(Double.NaN));
+        testEval("number('1.1e6')", null, null, Double.valueOf(Double.NaN));
+        testEval("number('34.56.7')", null, null, Double.valueOf(Double.NaN));
+        testEval("number(10)", null, null, Double.valueOf(10.0));
+        testEval("number(0)", null, null, Double.valueOf(0.0));
+        testEval("number(-0)", null, null, Double.valueOf(-0.0));
+        testEval("number(-123.5)", null, null, Double.valueOf(-123.5));
+        testEval("number(number('NaN'))", null, null, Double.valueOf(Double.NaN));
+        testEval("number(1 div 0)", null, null, Double.valueOf(Double.POSITIVE_INFINITY));
+        testEval("number(-1 div 0)", null, null, Double.valueOf(Double.NEGATIVE_INFINITY));
+        testEval("number(date('1970-01-01'))", null, null, Double.valueOf(0.0));
+        testEval("number(date('1970-01-02'))", null, null, Double.valueOf(1.0));
+        testEval("number(date('1969-12-31'))", null, null, Double.valueOf(-1.0));
+        testEval("number(date('2008-09-05'))", null, null, Double.valueOf(14127.0));
+        testEval("number(date('1941-12-07'))", null, null, Double.valueOf(-10252.0));
+        testEval("number('1970-01-01')", null, null, Double.valueOf(0.0));
+        testEval("number('1970-01-02')", null, null, Double.valueOf(1.0));
+        testEval("number('1969-12-31')", null, null, Double.valueOf(-1.0));
+        testEval("number('2008-09-05')", null, null, Double.valueOf(14127.0));
+        testEval("number('1941-12-07')", null, null, Double.valueOf(-10252.0));
+        testEval("number('1970-01')", null, null, Double.valueOf(Double.NaN));
+        testEval("number('-1970-01-02')", null, null, Double.valueOf(Double.NaN));
+        testEval("number('12-31')", null, null, Double.valueOf(Double.NaN));
+        testEval("number('2016-13-13')", null, null, Double.valueOf(Double.NaN));
+        testEval("number('2017-01-45')", null, null, Double.valueOf(Double.NaN));
 
-        testEval("number(convertible())", null, ec, new Double(5.0));
+        testEval("number(convertible())", null, ec, Double.valueOf(5.0));
         testEval("number(inconvertible())", null, ec, new XPathTypeMismatchException());
         testEval("string(true())", null, null, "true");
         testEval("string(false())", null, null, "false");
@@ -328,7 +328,7 @@ public class XPathEvalTest {
         testEval("boolean-from-string(1.0001)", null, null, Boolean.FALSE);
         testEval("boolean-from-string(true())", null, null, Boolean.TRUE);
         testEval("if(true())", null, null, new XPathSyntaxException());
-        testEval("if(true(), 5, 'abc')", null, null, new Double(5.0));
+        testEval("if(true(), 5, 'abc')", null, null, Double.valueOf(5.0));
         testEval("if(false(), 5, 'abc')", null, null, "abc");
         testEval("if(6 > 7, 5, 'abc')", null, null, "abc");
         testEval("if('', 5, 'abc')", null, null, "abc");
@@ -343,61 +343,61 @@ public class XPathEvalTest {
         testEval("selected('', 'apple')", null, null, Boolean.FALSE);
         /* operators */
 
-        testEval("min(5.5, 0.5)", null, null, new Double(0.5));
-        testEval("min(5.5)", null, null, new Double(5.5));
-        testEval("min(-2,-3)", null, null, new Double(-3));
-        testEval("min(2,-3)", null, null, new Double(-3));
+        testEval("min(5.5, 0.5)", null, null, Double.valueOf(0.5));
+        testEval("min(5.5)", null, null, Double.valueOf(5.5));
+        testEval("min(-2,-3)", null, null, Double.valueOf(-3));
+        testEval("min(2,-3)", null, null, Double.valueOf(-3));
         testEval("date(min(date('2012-02-05'), date('2012-01-01')))", null, null, DateUtils.parseDate("2012-01-01"));
 
-        testEval("max(5.5, 0.5)", null, null, new Double(5.5));
-        testEval("max(0.5)", null, null, new Double(0.5));
-        testEval("max(-2,-3)", null, null, new Double(-2));
-        testEval("max(2,-3)", null, null, new Double(2));
+        testEval("max(5.5, 0.5)", null, null, Double.valueOf(5.5));
+        testEval("max(0.5)", null, null, Double.valueOf(0.5));
+        testEval("max(-2,-3)", null, null, Double.valueOf(-2));
+        testEval("max(2,-3)", null, null, Double.valueOf(2));
         testEval("date(max(date('2012-02-05'), date('2012-01-01')))", null, null, DateUtils.parseDate("2012-02-05"));
 
 
         // Test that taking the min or max of date-strings works, but still fails properly for
         // numeric strings that are not dates
         testEval("min('2012-02-05', '2012-01-01', '2012-04-20')", null, null,
-                new Double(DateUtils.daysSinceEpoch(DateUtils.parseDate("2012-01-01"))));
+                Double.valueOf(DateUtils.daysSinceEpoch(DateUtils.parseDate("2012-01-01"))));
         testEval("max('2012-02-05', '2012-01-01', '2012-04-20')", null, null,
-                new Double(DateUtils.daysSinceEpoch(DateUtils.parseDate("2012-04-20"))));
+                Double.valueOf(DateUtils.daysSinceEpoch(DateUtils.parseDate("2012-04-20"))));
         testEval("max('-1-02-05', '2012-01-01', '2012-04-20')", null, null,
-                new Double(Double.NaN));
+                Double.valueOf(Double.NaN));
         testEval("max('02-05', '2012-01-01', '2012-04-20')", null, null,
-                new Double(Double.NaN));
+                Double.valueOf(Double.NaN));
         testEval("max('2012-14-05', '2012-01-01', '2012-04-20')", null, null,
-                new Double(Double.NaN));
+                Double.valueOf(Double.NaN));
 
 
-        testEval("5.5 + 5.5", null, null, new Double(11.0));
-        testEval("0 + 0", null, null, new Double(0.0));
-        testEval("6.1 - 7.8", null, null, new Double(-1.7));
-        testEval("-3 + 4", null, null, new Double(1.0));
-        testEval("3 + -4", null, null, new Double(-1.0));
-        testEval("1 - 2 - 3", null, null, new Double(-4.0));
-        testEval("1 - (2 - 3)", null, null, new Double(2.0));
-        testEval("-(8*5)", null, null, new Double(-40.0));
-        testEval("-'19'", null, null, new Double(-19.0));
-        testEval("1.1 * -1.1", null, null, new Double(-1.21));
-        testEval("-10 div -4", null, null, new Double(2.5));
-        testEval("2 * 3 div 8 * 2", null, null, new Double(1.5));
-        testEval("3 + 3 * 3", null, null, new Double(12.0));
-        testEval("1 div 0", null, null, new Double(Double.POSITIVE_INFINITY));
-        testEval("-1 div 0", null, null, new Double(Double.NEGATIVE_INFINITY));
-        testEval("0 div 0", null, null, new Double(Double.NaN));
-        testEval("3.1 mod 3.1", null, null, new Double(0.0));
-        testEval("5 mod 3.1", null, null, new Double(1.9));
-        testEval("2 mod 3.1", null, null, new Double(2.0));
-        testEval("0 mod 3.1", null, null, new Double(0.0));
-        testEval("5 mod -3", null, null, new Double(2.0));
-        testEval("-5 mod 3", null, null, new Double(-2.0));
-        testEval("-5 mod -3", null, null, new Double(-2.0));
-        testEval("5 mod 0", null, null, new Double(Double.NaN));
-        testEval("5 * (6 + 7)", null, null, new Double(65.0));
-        testEval("'123' * '456'", null, null, new Double(56088.0));
-        testEval("true() + 8", null, null, new Double(9.0));
-        testEval("date('2008-09-08') - date('1983-10-06')", null, null, new Double(9104.0));
+        testEval("5.5 + 5.5", null, null, Double.valueOf(11.0));
+        testEval("0 + 0", null, null, Double.valueOf(0.0));
+        testEval("6.1 - 7.8", null, null, Double.valueOf(-1.7));
+        testEval("-3 + 4", null, null, Double.valueOf(1.0));
+        testEval("3 + -4", null, null, Double.valueOf(-1.0));
+        testEval("1 - 2 - 3", null, null, Double.valueOf(-4.0));
+        testEval("1 - (2 - 3)", null, null, Double.valueOf(2.0));
+        testEval("-(8*5)", null, null, Double.valueOf(-40.0));
+        testEval("-'19'", null, null, Double.valueOf(-19.0));
+        testEval("1.1 * -1.1", null, null, Double.valueOf(-1.21));
+        testEval("-10 div -4", null, null, Double.valueOf(2.5));
+        testEval("2 * 3 div 8 * 2", null, null, Double.valueOf(1.5));
+        testEval("3 + 3 * 3", null, null, Double.valueOf(12.0));
+        testEval("1 div 0", null, null, Double.valueOf(Double.POSITIVE_INFINITY));
+        testEval("-1 div 0", null, null, Double.valueOf(Double.NEGATIVE_INFINITY));
+        testEval("0 div 0", null, null, Double.valueOf(Double.NaN));
+        testEval("3.1 mod 3.1", null, null, Double.valueOf(0.0));
+        testEval("5 mod 3.1", null, null, Double.valueOf(1.9));
+        testEval("2 mod 3.1", null, null, Double.valueOf(2.0));
+        testEval("0 mod 3.1", null, null, Double.valueOf(0.0));
+        testEval("5 mod -3", null, null, Double.valueOf(2.0));
+        testEval("-5 mod 3", null, null, Double.valueOf(-2.0));
+        testEval("-5 mod -3", null, null, Double.valueOf(-2.0));
+        testEval("5 mod 0", null, null, Double.valueOf(Double.NaN));
+        testEval("5 * (6 + 7)", null, null, Double.valueOf(65.0));
+        testEval("'123' * '456'", null, null, Double.valueOf(56088.0));
+        testEval("true() + 8", null, null, Double.valueOf(9.0));
+        testEval("date('2008-09-08') - date('1983-10-06')", null, null, Double.valueOf(9104.0));
         testEval("true() and true()", null, null, Boolean.TRUE);
         testEval("true() and false()", null, null, Boolean.FALSE);
         testEval("false() and false()", null, null, Boolean.FALSE);
@@ -410,7 +410,7 @@ public class XPathEvalTest {
         testEval("false() and date('')", null, null, Boolean.FALSE); //short-circuiting
         testEval("'' or 17", null, null, Boolean.TRUE);
         testEval("false() or 0 + 2", null, null, Boolean.TRUE);
-        testEval("(false() or 0) + 2", null, null, new Double(2.0));
+        testEval("(false() or 0) + 2", null, null, Double.valueOf(2.0));
         testEval("4 < 5", null, null, Boolean.TRUE);
         testEval("5 < 5", null, null, Boolean.FALSE);
         testEval("6 < 5", null, null, Boolean.FALSE);
@@ -439,30 +439,30 @@ public class XPathEvalTest {
         testEval("(double(date('2004-05-01T07:00:00')) - double(date('2004-05-01T00:30:00'))) > (6.0 div 24) ", null, null, Boolean.TRUE);
         testEval("(double(date('2004-05-03T07:00:00')) - double(date('2004-05-01T03:00:00'))) > (6.0 div 24) ", null, null, Boolean.TRUE);
 
-        testEval("abs(-3.5)", null, null, new Double(3.5));
-        testEval("abs(2)", null, null, new Double(2.0));
-        testEval("floor(-4.8)", null, null, new Double(-5.0));
-        testEval("floor(100.2)", null, null, new Double(100.0));
-        testEval("ceiling(-0.5)", null, null, new Double(0.0));
-        testEval("ceiling(10.4)", null, null, new Double(11.0));
-        testEval("round(1.5)", null, null, new Double(2.0));
-        testEval("round(-1.5)", null, null, new Double(-1.0));
-        testEval("round(1.455)", null, null, new Double(1.0));
+        testEval("abs(-3.5)", null, null, Double.valueOf(3.5));
+        testEval("abs(2)", null, null, Double.valueOf(2.0));
+        testEval("floor(-4.8)", null, null, Double.valueOf(-5.0));
+        testEval("floor(100.2)", null, null, Double.valueOf(100.0));
+        testEval("ceiling(-0.5)", null, null, Double.valueOf(0.0));
+        testEval("ceiling(10.4)", null, null, Double.valueOf(11.0));
+        testEval("round(1.5)", null, null, Double.valueOf(2.0));
+        testEval("round(-1.5)", null, null, Double.valueOf(-1.0));
+        testEval("round(1.455)", null, null, Double.valueOf(1.0));
 
-        testEval("log(" + Math.E + ")", null, null, new Double(1.0));
-        testEval("log(1)", null, null, new Double(0.0));
-        testEval("log10(100)", null, null, new Double(2.0));
-        testEval("log10(1)", null, null, new Double(0.0));
+        testEval("log(" + Math.E + ")", null, null, Double.valueOf(1.0));
+        testEval("log(1)", null, null, Double.valueOf(0.0));
+        testEval("log10(100)", null, null, Double.valueOf(2.0));
+        testEval("log10(1)", null, null, Double.valueOf(0.0));
 
 
-        testEval("pow(2, 2)", null, null, new Double(4.0));
-        testEval("pow(2, 0)", null, null, new Double(1.0));
-        testEval("pow(0, 4)", null, null, new Double(0.0));
-        testEval("pow(2.5, 2)", null, null, new Double(6.25));
-        testEval("pow(0.5, 2)", null, null, new Double(.25));
+        testEval("pow(2, 2)", null, null, Double.valueOf(4.0));
+        testEval("pow(2, 0)", null, null, Double.valueOf(1.0));
+        testEval("pow(0, 4)", null, null, Double.valueOf(0.0));
+        testEval("pow(2.5, 2)", null, null, Double.valueOf(6.25));
+        testEval("pow(0.5, 2)", null, null, Double.valueOf(.25));
 
-        testEval("pow(-1, 2)", null, null, new Double(1.0));
-        testEval("pow(-1, 3)", null, null, new Double(-1.0));
+        testEval("pow(-1, 2)", null, null, Double.valueOf(1.0));
+        testEval("pow(-1, 3)", null, null, Double.valueOf(-1.0));
         testEval("sin(0)", null, null, 0.0);
         testEval("cos(0)", null, null, 1.0);
         testEval("tan(0)", null, null, 0.0);
@@ -477,15 +477,15 @@ public class XPathEvalTest {
         //So raising things to decimal powers is.... very hard
         //to evaluated exactly due to double floating point
         //precision. We'll try for things with clean answers
-        //testEval("pow(4, 0.5)", null, null, new Double(2.0), .001);
-        //testEval("pow(16, 0.25)", null, null, new Double(2.0), .001);
+        //testEval("pow(4, 0.5)", null, null, Double.valueOf(2.0), .001);
+        //testEval("pow(16, 0.25)", null, null, Double.valueOf(2.0), .001);
         //CTS: We're going to skip trying to do any sort of hackery workaround
         //for this for now and go with "Integer powers only"
 
         testEval("false() and false() < true()", null, null, Boolean.FALSE);
         testEval("(false() and false()) < true()", null, null, Boolean.TRUE);
         testEval("6 < 7 - 4", null, null, Boolean.FALSE);
-        testEval("(6 < 7) - 4", null, null, new Double(-3.0));
+        testEval("(6 < 7) - 4", null, null, Double.valueOf(-3.0));
         testEval("3 < 4 < 5", null, null, Boolean.TRUE);
         testEval("3 < (4 < 5)", null, null, Boolean.FALSE);
         testEval("true() = true()", null, null, Boolean.TRUE);
@@ -536,8 +536,8 @@ public class XPathEvalTest {
         testEval("string('too', 'many', 'args')", null, null, new XPathArityException());
         testEval("not-a-function()", null, null, new XPathUnhandledException());
         testEval("testfunc()", null, ec, Boolean.TRUE);
-        testEval("add(3, 5)", null, ec, new Double(8.0));
-        testEval("add('17', '-14')", null, ec, new Double(3.0));
+        testEval("add(3, 5)", null, ec, Double.valueOf(8.0));
+        testEval("add('17', '-14')", null, ec, Double.valueOf(3.0));
         // proto not setup for 0 arguments. Note that Arity is a parse exception, so we expect this
         // to get wrapped
         testEval("proto()", null, ec, new XPathTypeMismatchException());
@@ -605,10 +605,10 @@ public class XPathEvalTest {
 
         //Variables
         EvaluationContext varContext = getVariableContext();
-        testEval("$var_float_five", null, varContext, new Double(5.0));
+        testEval("$var_float_five", null, varContext, Double.valueOf(5.0));
         testEval("$var_string_five", null, varContext, "five");
-        testEval("$var_int_five", null, varContext, new Double(5.0));
-        testEval("$var_double_five", null, varContext, new Double(5.0));
+        testEval("$var_int_five", null, varContext, Double.valueOf(5.0));
+        testEval("$var_double_five", null, varContext, Double.valueOf(5.0));
 
         //Attribute XPath References
         //testEval("/@blah", null, null, new XPathUnsupportedException());
@@ -667,17 +667,17 @@ public class XPathEvalTest {
         addDataRef(instance, "/data/rangetest[2]/@num", new StringData("3"));
 
         testEval("/data/string", instance, null, "string");
-        testEval("/data/int", instance, null, new Double(17.0));
+        testEval("/data/int", instance, null, Double.valueOf(17.0));
 
-        testEval("min(/data/int, /data/int_two)", instance, null, new Double(5.0));
+        testEval("min(/data/int, /data/int_two)", instance, null, Double.valueOf(5.0));
 
-        testEval("count(/data/predtest[@val = /data/string_two])", instance, null, new Double(2));
-        testEval("count(/data/predtest[@val = 2])", instance, null, new Double(2));
-        testEval("count(/data/predtest[2 = @val])", instance, null, new Double(2));
+        testEval("count(/data/predtest[@val = /data/string_two])", instance, null, Double.valueOf(2));
+        testEval("count(/data/predtest[@val = 2])", instance, null, Double.valueOf(2));
+        testEval("count(/data/predtest[2 = @val])", instance, null, Double.valueOf(2));
 
-        testEval("count(/data/strtest[@val = 'a'])", instance, null, new Double(1));
-        testEval("count(/data/strtest[@val = 2])", instance, null, new Double(0));
-        testEval("count(/data/strtest[@val = /data/string])", instance, null, new Double(1));
+        testEval("count(/data/strtest[@val = 'a'])", instance, null, Double.valueOf(1));
+        testEval("count(/data/strtest[@val = 2])", instance, null, Double.valueOf(0));
+        testEval("count(/data/strtest[@val = /data/string])", instance, null, Double.valueOf(1));
 
         testEval("sum(/data/predtest/@num)", instance, null, 4.0);
         testEval("concat(/data/predtest/@num)", instance, null, "2.02");
@@ -695,8 +695,8 @@ public class XPathEvalTest {
 
         testEval("max(/data/rangetest[0])", instance, null, Double.NaN);
         testEval("min(/data/rangetest[0])", instance, null, Double.NaN);
-        testEval("max(/data/rangetest/@num)", instance, null, new Double("3"));
-        testEval("min(/data/rangetest/@num)", instance, null, new Double("-2"));
+        testEval("max(/data/rangetest/@num)", instance, null, Double.valueOf("3"));
+        testEval("min(/data/rangetest/@num)", instance, null, Double.valueOf("-2"));
     }
 
     private void configureLocaleForCalendar() {
@@ -947,7 +947,7 @@ public class XPathEvalTest {
 
             @Override
             public Object eval(Object[] args, EvaluationContext ec) {
-                return new Double(((Double)args[0]).doubleValue() + ((Double)args[1]).doubleValue());
+                return Double.valueOf(((Double)args[0]).doubleValue() + ((Double)args[1]).doubleValue());
             }
         });
 
@@ -1052,7 +1052,7 @@ public class XPathEvalTest {
 
                     @Override
                     public Double toNumeric() {
-                        return new Double(5.0);
+                        return Double.valueOf(5.0);
                     }
 
                     @Override
@@ -1144,10 +1144,10 @@ public class XPathEvalTest {
     private EvaluationContext getVariableContext() {
         EvaluationContext ec = new EvaluationContext(null);
 
-        ec.setVariable("var_float_five", new Float(5.0));
+        ec.setVariable("var_float_five", Float.valueOf((float)5.0));
         ec.setVariable("var_string_five", "five");
-        ec.setVariable("var_int_five", new Integer(5));
-        ec.setVariable("var_double_five", new Double(5.0));
+        ec.setVariable("var_int_five", Integer.valueOf(5));
+        ec.setVariable("var_double_five", Double.valueOf(5.0));
 
         return ec;
     }

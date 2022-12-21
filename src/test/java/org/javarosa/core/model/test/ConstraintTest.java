@@ -50,9 +50,9 @@ public class ConstraintTest {
             }
 
             if (q.getTextID().equals("constraint-max-label")){
-                assertConstraintMaxMin(new Integer(30), null);
+                assertConstraintMaxMin(Integer.valueOf(30), null);
             } else if (q.getTextID().equals("constraint-min-label")){
-                assertConstraintMaxMin(null, new Integer(10));
+                assertConstraintMaxMin(null, Integer.valueOf(10));
             } else if (q.getTextID().equals("constraint-max-or-min-label")){
                 assertUnpivotable();
             } else if (q.getTextID().equals("constraint-max-and-min-label")){
