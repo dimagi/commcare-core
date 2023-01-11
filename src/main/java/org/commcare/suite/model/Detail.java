@@ -110,7 +110,7 @@ public class Detail implements Externalizable {
 
     }
 
-    public Detail(String id, DisplayUnit title, String nodeset, Vector<Detail> detailsVector,
+    public Detail(String id, DisplayUnit title, Text noItemsText, String nodeset, Vector<Detail> detailsVector,
                   Vector<DetailField> fieldsVector, OrderedHashtable<String, String> variables,
                   Vector<Action> actions, Callout callout, String fitAcross,
                   String uniformUnitsString, String forceLandscape, String focusFunction,
