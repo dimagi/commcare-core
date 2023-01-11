@@ -6,6 +6,7 @@ import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Global;
+import org.commcare.suite.model.Text;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathParseTool;
@@ -55,6 +56,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
         Vector<Action> actions = new Vector<>();
 
         //Now get the headers and templates.
+        Text noItemsText = null;
         Vector<Detail> subdetails = new Vector<>();
         Vector<DetailField> fields = new Vector<>();
         OrderedHashtable<String, String> variables = new OrderedHashtable<>();
@@ -70,6 +72,14 @@ public class DetailParser extends CommCareElementParser<Detail> {
                 checkNode("lookup");
                 callout = new CalloutParser(parser).parse();
                 parser.nextTag();
+            }
+            if ("no_items_text".equals(parser.getName().toLowerCase())) {
+                checkNode("no_items_text");
+                getNextTagInBlock("no_items_text");
+                if ("text".equals(parser.getName().toLowerCase())) {
+                    noItemsText = new TextParser(parser).parse();
+                }
+                continue;
             }
             if ("variables".equals(parser.getName().toLowerCase())) {
                 while (nextTagInBlock("variables")) {
@@ -112,7 +122,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
             }
         }
 
-        return new Detail(id, title, nodeset, subdetails, fields, variables, actions, callout,
+        return new Detail(id, title, noItemsText, nodeset, subdetails, fields, variables, actions, callout,
                 fitAcross, useUniformUnits, forceLandscapeView, focusFunction, printTemplatePath,
                 relevancy, global);
     }
