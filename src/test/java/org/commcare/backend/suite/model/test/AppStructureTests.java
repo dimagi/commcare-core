@@ -115,6 +115,12 @@ public class AppStructureTests {
     }
 
     @Test
+    public void testDetailNoItemsText() {
+        Text noItemsText = mApp.getSession().getPlatform().getDetail("m0_case_short").getNoItemsText();
+        Assert.assertEquals("Empty List", noItemsText.evaluate());
+    }
+
+    @Test
     public void testDemoUserRestoreParsing() throws Exception {
         // Test parsing an app with a properly-formed demo user restore file
         MockApp appWithGoodUserRestore = new MockApp("/app_with_good_demo_restore/");
