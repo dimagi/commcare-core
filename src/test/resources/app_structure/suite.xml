@@ -5,11 +5,21 @@
       <location authority="local">./form_placeholder.xml</location>
     </resource>
   </xform>
+  <locale language="default">
+    <resource id="default" version="1399" descriptor="Default">
+      <location authority="local">./app_strings.txt</location>
+    </resource>
+  </locale>
 
   <detail id="m0_case_short">
     <title>
       <text>Case List</text>
     </title>
+    <no_items_text>
+      <text>
+        <locale id="m0_no_items_text"/>
+      </text>
+    </no_items_text>
     <global>
       <geo-overlay>
         <coordinates>
