@@ -21,6 +21,7 @@ import java.util.Vector;
  * @author ctsims
  */
 public class DetailParser extends CommCareElementParser<Detail> {
+    private static final String NAME_NO_ITEMS_TEXT = "no_items_text";
 
     public DetailParser(KXmlParser parser) {
         super(parser);
@@ -73,7 +74,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
                 callout = new CalloutParser(parser).parse();
                 parser.nextTag();
             }
-            if ("no_items_text".equals(parser.getName().toLowerCase())) {
+            if (NAME_NO_ITEMS_TEXT.equals(parser.getName().toLowerCase())) {
                 checkNode("no_items_text");
                 getNextTagInBlock("no_items_text");
                 if ("text".equals(parser.getName().toLowerCase())) {
