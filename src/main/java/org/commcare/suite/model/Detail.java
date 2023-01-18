@@ -60,6 +60,8 @@ public class Detail implements Externalizable {
     private TreeReference nodeset;
 
     private DisplayUnit title;
+
+    @Nullable
     private Text noItemsText;
 
     /**
@@ -185,6 +187,7 @@ public class Detail implements Externalizable {
      * @return The text to be displayed to users if case list
      * has no items.
      */
+    @Nullable
     public Text getNoItemsText() {
         return noItemsText;
     }
