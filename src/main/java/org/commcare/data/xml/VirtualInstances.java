@@ -64,6 +64,7 @@ public class VirtualInstances {
 
     /**
      * Parses instance reference of format "refScheme/refId" to return the reference id
+     *
      * @param reference An instance reference in form of "refScheme/refId"
      * @return reference id from the given reference
      */
@@ -73,6 +74,7 @@ public class VirtualInstances {
 
     /**
      * Parses instance reference of format "refScheme/refId" to return the reference scheme
+     *
      * @param reference An instance reference in form of "refScheme/refId"
      * @return reference scheme from the given reference
      */
@@ -82,8 +84,9 @@ public class VirtualInstances {
 
     /**
      * Constructs an instance reference in format "refScheme/refId"
+     *
      * @param referenceScheme reference scheme for the instance reference
-     * @param referenceId reference id for the instance reference
+     * @param referenceId     reference id for the instance reference
      * @return an instance reference in format "refScheme/refId"
      */
     public static String getInstanceReference(String referenceScheme, String referenceId) {
