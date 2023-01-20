@@ -1,5 +1,7 @@
 package org.commcare.data.xml;
 
+import static org.junit.Assert.assertEquals;
+
 import com.google.common.collect.ImmutableMap;
 
 import org.javarosa.core.model.instance.ExternalDataInstance;
@@ -12,8 +14,6 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-
-import static org.junit.Assert.assertEquals;
 
 public class VirtualInstancesTest {
     @Test
@@ -72,6 +72,7 @@ public class VirtualInstancesTest {
     @Test
     public void testGetReferenceScheme() {
         String instanceReference = VirtualInstances.getRemoteReference("instanceId");
-        assertEquals(ExternalDataInstance.JR_REMOTE_REFERENCE, VirtualInstances.getReferenceScheme(instanceReference));
+        assertEquals(ExternalDataInstance.JR_REMOTE_REFERENCE,
+                VirtualInstances.getReferenceScheme(instanceReference));
     }
 }
