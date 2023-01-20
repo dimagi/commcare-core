@@ -51,18 +51,42 @@ public class VirtualInstances {
 
 
     public static String getSelectedEntitiesReference(String referenceId) {
-        return JR_SELECTED_ENTITIES_REFERENCE.concat("/").concat(referenceId);
+        return getInstanceReference(JR_SELECTED_ENTITIES_REFERENCE, referenceId);
     }
 
     public static String getSearchInputReference(String referenceId) {
-        return JR_SEARCH_INPUT_REFERENCE.concat("/").concat(referenceId);
+        return getInstanceReference(JR_SEARCH_INPUT_REFERENCE, referenceId);
     }
 
     public static String getRemoteReference(String referenceId) {
-        return JR_REMOTE_REFERENCE.concat("/").concat(referenceId);
+        return getInstanceReference(JR_REMOTE_REFERENCE, referenceId);
     }
 
+    /**
+     * Parses instance reference of format "refScheme/refId" to return the reference id
+     * @param reference An instance reference in form of "refScheme/refId"
+     * @return reference id from the given reference
+     */
     public static String getReferenceId(String reference) {
         return reference.substring(reference.lastIndexOf('/') + 1);
+    }
+
+    /**
+     * Parses instance reference of format "refScheme/refId" to return the reference scheme
+     * @param reference An instance reference in form of "refScheme/refId"
+     * @return reference scheme from the given reference
+     */
+    public static String getReferenceScheme(String reference) {
+        return reference.substring(0, reference.lastIndexOf('/'));
+    }
+
+    /**
+     * Constructs an instance reference in format "refScheme/refId"
+     * @param referenceScheme reference scheme for the instance reference
+     * @param referenceId reference id for the instance reference
+     * @return an instance reference in format "refScheme/refId"
+     */
+    public static String getInstanceReference(String referenceScheme, String referenceId) {
+        return referenceScheme.concat("/").concat(referenceId);
     }
 }
