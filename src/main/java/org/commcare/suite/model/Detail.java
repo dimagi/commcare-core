@@ -185,7 +185,7 @@ public class Detail implements Externalizable {
 
     /**
      * Returns the text displayed when case list results contain no items.
-     * 
+     *
      * @return returns Text for empty case list.
      */
     @Nullable
