@@ -137,7 +137,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         return instanceRoot == null ? ConcreteInstanceRoot.NULL : instanceRoot;
     }
 
-    private boolean isNonUniqueReference(String reference) {
+    public static boolean isNonUniqueReference(String reference) {
         return reference.contentEquals(ExternalDataInstance.JR_REMOTE_REFERENCE) ||
                 reference.contentEquals(ExternalDataInstance.JR_SELECTED_ENTITIES_REFERENCE) ||
                 reference.contentEquals(ExternalDataInstance.JR_SEARCH_INPUT_REFERENCE);
