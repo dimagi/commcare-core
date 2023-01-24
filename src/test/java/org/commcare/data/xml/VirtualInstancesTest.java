@@ -1,5 +1,7 @@
 package org.commcare.data.xml;
 
+import static org.junit.Assert.assertEquals;
+
 import com.google.common.collect.ImmutableMap;
 
 import org.javarosa.core.model.instance.ExternalDataInstance;
@@ -12,8 +14,6 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-
-import static org.junit.Assert.assertEquals;
 
 public class VirtualInstancesTest {
     @Test
@@ -40,5 +40,39 @@ public class VirtualInstancesTest {
                 instanceId
         );
         assertEquals(expected, instance.getRoot());
+    }
+
+    @Test
+    public void testBuildSelectedValuesInstance()
+            throws UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException,
+            IOException {
+        String instanceId = "selected-cases";
+        String[] selectedValues = new String[]{"case1", "case2"};
+        ExternalDataInstance instance = VirtualInstances.buildSelectedValuesInstance(instanceId, selectedValues);
+        String expectedXml = String.join(
+                "",
+                "<results id=\"selected-cases\">",
+                "<value>case1</value>",
+                "<value>case2</value>",
+                "</results>"
+        );
+        TreeElement expected = ExternalDataInstance.parseExternalTree(
+                new ByteArrayInputStream(expectedXml.getBytes(StandardCharsets.UTF_8)),
+                instanceId
+        );
+        assertEquals(expected, instance.getRoot());
+    }
+
+    @Test
+    public void testGetReferenceId() {
+        String instanceReference = VirtualInstances.getRemoteReference("instanceId");
+        assertEquals("instanceId", VirtualInstances.getReferenceId(instanceReference));
+    }
+
+    @Test
+    public void testGetReferenceScheme() {
+        String instanceReference = VirtualInstances.getRemoteReference("instanceId");
+        assertEquals(ExternalDataInstance.JR_REMOTE_REFERENCE,
+                VirtualInstances.getReferenceScheme(instanceReference));
     }
 }
