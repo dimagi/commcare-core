@@ -61,6 +61,9 @@ public class Detail implements Externalizable {
 
     private DisplayUnit title;
 
+    @Nullable
+    private Text noItemsText;
+
     /**
      * Optional and only relevant if this detail has child details. In that
      * case, form may be 'image' or omitted.
@@ -110,7 +113,7 @@ public class Detail implements Externalizable {
 
     }
 
-    public Detail(String id, DisplayUnit title, String nodeset, Vector<Detail> detailsVector,
+    public Detail(String id, DisplayUnit title, Text noItemsText, String nodeset, Vector<Detail> detailsVector,
                   Vector<DetailField> fieldsVector, OrderedHashtable<String, String> variables,
                   Vector<Action> actions, Callout callout, String fitAcross,
                   String uniformUnitsString, String forceLandscape, String focusFunction,
@@ -122,6 +125,7 @@ public class Detail implements Externalizable {
 
         this.id = id;
         this.title = title;
+        this.noItemsText = noItemsText;
         if (nodeset != null) {
             this.nodeset = XPathReference.getPathExpr(nodeset).getReference();
         }
@@ -177,6 +181,16 @@ public class Detail implements Externalizable {
      */
     public DisplayUnit getTitle() {
         return title;
+    }
+
+    /**
+     * Returns the text displayed when case list results contain no items.
+     *
+     * @return returns Text for empty case list.
+     */
+    @Nullable
+    public Text getNoItemsText() {
+        return noItemsText;
     }
 
     /**
@@ -238,6 +252,7 @@ public class Detail implements Externalizable {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         id = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         title = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
+        noItemsText = (Text) ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
         titleForm = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         nodeset = (TreeReference)ExtUtil.read(in, new ExtWrapNullable(TreeReference.class), pf);
         Vector<Detail> theDetails = (Vector<Detail>)ExtUtil.read(in, new ExtWrapList(Detail.class), pf);
@@ -261,6 +276,7 @@ public class Detail implements Externalizable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapNullable(id));
         ExtUtil.write(out, title);
+        ExtUtil.write(out, new ExtWrapNullable(noItemsText));
         ExtUtil.write(out, new ExtWrapNullable(titleForm));
         ExtUtil.write(out, new ExtWrapNullable(nodeset));
         ExtUtil.write(out, new ExtWrapList(ArrayUtilities.toVector(details)));

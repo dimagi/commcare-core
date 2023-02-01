@@ -1,0 +1,1 @@
+m0_no_items_text=Empty List
