@@ -65,13 +65,16 @@ public class ExternalDataInstance extends DataInstance {
     }
 
     public ExternalDataInstance(String reference, String instanceId,
-            TreeElement topLevel, ExternalDataInstanceSource source) {
+            AbstractTreeElement topLevel, ExternalDataInstanceSource source) {
         this(reference, instanceId);
         base = new InstanceBase(instanceId);
         this.source = source;
-        topLevel.setInstanceName(instanceId);
-        topLevel.setParent(base);
         this.root = topLevel;
+        if (root instanceof TreeElement) {
+            TreeElement rootAsTreeElement = ((TreeElement)root);
+            rootAsTreeElement.setInstanceName(instanceId);
+            rootAsTreeElement.setParent(base);
+        }
         base.setChild(root);
     }
 
