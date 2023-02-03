@@ -3,7 +3,7 @@ package org.javarosa.core.model.instance.test;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.model.instance.utils.FormLoadingUtils;
+import org.javarosa.core.model.instance.utils.InstanceUtils;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
@@ -30,7 +30,7 @@ public class DataInstanceTest {
         // load the xml doc into a form instance
         FormInstance model = null;
         try {
-            model = FormLoadingUtils.loadFormInstance(formPath);
+            model = InstanceUtils.loadFormInstance(formPath);
         } catch (IOException e) {
             fail("Unable to load form at " + formPath);
         } catch (InvalidStructureException e) {

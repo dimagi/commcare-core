@@ -13,16 +13,15 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Collection of static form loading methods
+ * Collection of static instance loading methods
  *
  * @author Phillip Mates
  */
-public class FormLoadingUtils {
+public class InstanceUtils {
 
     public static FormInstance loadFormInstance(String formFilepath)
             throws InvalidStructureException, IOException {
         TreeElement root = xmlToTreeElement(formFilepath);
-
         return new FormInstance(root, null);
     }
 
@@ -30,7 +29,7 @@ public class FormLoadingUtils {
             throws InvalidStructureException, IOException {
         InputStream is = null;
         try {
-            is = FormLoadingUtils.class.getResourceAsStream(xmlFilepath);
+            is = InstanceUtils.class.getResourceAsStream(xmlFilepath);
             TreeElementParser parser = new TreeElementParser(ElementParser.instantiateParser(is), 0, "instance");
 
             try {
