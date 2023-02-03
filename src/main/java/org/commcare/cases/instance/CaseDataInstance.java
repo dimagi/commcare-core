@@ -3,7 +3,7 @@ package org.commcare.cases.instance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.model.instance.utils.FormLoadingUtils;
+import org.javarosa.core.model.instance.utils.InstanceUtils;
 import org.javarosa.xml.util.InvalidStructureException;
 
 import java.io.IOException;
@@ -43,7 +43,7 @@ public class CaseDataInstance extends ExternalDataInstance {
         if (caseDbSpecTemplate == null) {
             try {
                 caseDbSpecTemplate =
-                        FormLoadingUtils.xmlToTreeElement("/casedb_instance_structure.xml");
+                        InstanceUtils.xmlToTreeElement("/casedb_instance_structure.xml");
             } catch (InvalidStructureException | IOException e) {
                 throw new RuntimeException(errorMsg);
             }
