@@ -280,9 +280,8 @@ public class TreeUtilities {
         InputStream is = null;
         try {
             is = InstanceUtils.class.getResourceAsStream(xmlFilepath);
-            TreeElementParser parser = new TreeElementParser(ElementParser.instantiateParser(is), 0, "instance");
             try {
-                return parser.parse();
+                return xmlStreamToTreeElement(is, "instance");
             } catch (UnfullfilledRequirementsException | XmlPullParserException e) {
                 throw new IOException(e.getMessage());
             }
