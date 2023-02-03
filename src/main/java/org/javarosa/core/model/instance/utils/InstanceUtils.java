@@ -2,7 +2,9 @@ package org.javarosa.core.model.instance.utils;
 
 import static org.javarosa.core.model.instance.utils.TreeUtilities.xmlToTreeElement;
 
+import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.InstanceBase;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.xml.util.InvalidStructureException;
 
@@ -19,5 +21,21 @@ public class InstanceUtils {
             throws InvalidStructureException, IOException {
         TreeElement root = xmlToTreeElement(formFilepath);
         return new FormInstance(root, null);
+    }
+
+    /**
+     * Sets instance properties to the given instance root
+     *
+     * @param instanceRoot instance root
+     * @param instanceId   instance id to set
+     * @param instanceBase instance base to set
+     */
+    public static void setUpInstanceRoot(AbstractTreeElement instanceRoot, String instanceId,
+            InstanceBase instanceBase) {
+        if (instanceRoot instanceof TreeElement) {
+            TreeElement rootAsTreeElement = ((TreeElement)instanceRoot);
+            rootAsTreeElement.setInstanceName(instanceId);
+            rootAsTreeElement.setParent(instanceBase);
+        }
     }
 }
