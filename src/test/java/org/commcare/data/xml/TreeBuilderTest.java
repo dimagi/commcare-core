@@ -3,8 +3,8 @@ package org.commcare.data.xml;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.model.instance.utils.TreeUtilities;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.junit.Test;
@@ -48,7 +48,7 @@ public class TreeBuilderTest {
                 "</node>",
                 "</test>"
         );
-        TreeElement expected = ExternalDataInstance.parseExternalTree(
+        TreeElement expected = TreeUtilities.xmlStreamToTreeElement(
                 new ByteArrayInputStream(expectedXml.getBytes(StandardCharsets.UTF_8)),
                 "test-instance"
         );

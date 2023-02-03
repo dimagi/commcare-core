@@ -17,6 +17,7 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.instance.utils.TreeUtilities;
 import org.javarosa.core.model.utils.ItemSetUtils;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.model.xform.XPathReference;
@@ -324,7 +325,7 @@ public class RemoteQuerySessionManager {
             Multimap<String, String> requestData) {
         try {
             String instanceID = getQueryDatum().getDataId();
-            TreeElement root = ExternalDataInstance.parseExternalTree(responseData, instanceID);
+            TreeElement root = TreeUtilities.xmlStreamToTreeElement(responseData, instanceID);
             ExternalDataInstanceSource instanceSource = ExternalDataInstanceSource.buildRemote(
                     instanceID, root, getQueryDatum().useCaseTemplate(), url, requestData);
             ExternalDataInstance instance = instanceSource.toInstance();
