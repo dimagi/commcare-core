@@ -306,7 +306,6 @@ public class TreeUtilities {
             throws IOException, UnfullfilledRequirementsException, XmlPullParserException,
             InvalidStructureException {
         KXmlParser baseParser = ElementParser.instantiateParser(stream);
-        TreeElement root = new TreeElementParser(baseParser, 0, instanceId).parse();
-        return root;
+        return new TreeElementParser(baseParser, 0, instanceId).parse();
     }
 }
