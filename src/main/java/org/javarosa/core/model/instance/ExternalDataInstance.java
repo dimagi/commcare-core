@@ -1,5 +1,7 @@
 package org.javarosa.core.model.instance;
 
+import static org.javarosa.core.model.instance.utils.InstanceUtils.setUpInstanceRoot;
+
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -70,11 +72,7 @@ public class ExternalDataInstance extends DataInstance {
         base = new InstanceBase(instanceId);
         this.source = source;
         this.root = topLevel;
-        if (root instanceof TreeElement) {
-            TreeElement rootAsTreeElement = ((TreeElement)root);
-            rootAsTreeElement.setInstanceName(instanceId);
-            rootAsTreeElement.setParent(base);
-        }
+        setUpInstanceRoot(root, instanceId, base);
         base.setChild(root);
     }
 

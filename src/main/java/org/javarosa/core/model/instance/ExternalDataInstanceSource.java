@@ -1,6 +1,7 @@
 package org.javarosa.core.model.instance;
 
 import static org.javarosa.core.model.instance.ExternalDataInstance.JR_REMOTE_REFERENCE;
+import static org.javarosa.core.model.instance.utils.InstanceUtils.setUpInstanceRoot;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
@@ -127,11 +128,7 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
             throws RemoteInstanceFetcher.RemoteInstanceException {
         String instanceId = getInstanceId();
         init(remoteInstanceFetcher.getExternalRoot(instanceId, this));
-        if (root instanceof TreeElement) {
-            TreeElement rootAsTreeElement = ((TreeElement)root);
-            rootAsTreeElement.setInstanceName(instanceId);
-            rootAsTreeElement.setParent(new InstanceBase(instanceId));
-        }
+        setUpInstanceRoot(root, instanceId, new InstanceBase(instanceId));
     }
 
     public void setupNewCopy(ExternalDataInstance instance) {
