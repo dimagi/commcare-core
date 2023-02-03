@@ -1,16 +1,12 @@
 package org.javarosa.core.model.instance.utils;
 
-import org.javarosa.core.io.StreamsUtil;
+import static org.javarosa.core.model.instance.utils.TreeUtilities.xmlToTreeElement;
+
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.xml.ElementParser;
-import org.javarosa.xml.TreeElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Collection of static instance loading methods
@@ -23,22 +19,5 @@ public class InstanceUtils {
             throws InvalidStructureException, IOException {
         TreeElement root = xmlToTreeElement(formFilepath);
         return new FormInstance(root, null);
-    }
-
-    public static TreeElement xmlToTreeElement(String xmlFilepath)
-            throws InvalidStructureException, IOException {
-        InputStream is = null;
-        try {
-            is = InstanceUtils.class.getResourceAsStream(xmlFilepath);
-            TreeElementParser parser = new TreeElementParser(ElementParser.instantiateParser(is), 0, "instance");
-
-            try {
-                return parser.parse();
-            } catch (UnfullfilledRequirementsException | XmlPullParserException e) {
-                throw new IOException(e.getMessage());
-            }
-        } finally {
-            StreamsUtil.closeStream(is);
-        }
     }
 }
