@@ -78,14 +78,6 @@ public class ExternalDataInstance extends DataInstance {
         base.setChild(root);
     }
 
-    public static TreeElement parseExternalTree(InputStream stream, String instanceId)
-            throws IOException, UnfullfilledRequirementsException, XmlPullParserException,
-            InvalidStructureException {
-        KXmlParser baseParser = ElementParser.instantiateParser(stream);
-        TreeElement root = new TreeElementParser(baseParser, 0, instanceId).parse();
-        return root;
-    }
-
     public boolean useCaseTemplate() {
         return source == null ? CaseInstanceTreeElement.MODEL_NAME.equals(instanceid) : source.useCaseTemplate();
     }

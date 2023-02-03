@@ -20,6 +20,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.expr.XPathStep;
 import org.javarosa.xpath.expr.XPathStringLiteral;
+import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -268,6 +269,7 @@ public class TreeUtilities {
 
     /**
      * Converts xml in a given file to TreeElement
+     *
      * @param xmlFilepath file path for the xml file
      * @return TreeElement for the given xml
      * @throws InvalidStructureException
@@ -287,5 +289,24 @@ public class TreeUtilities {
         } finally {
             StreamsUtil.closeStream(is);
         }
+    }
+
+    /**
+     * Converts a xml stream to TreeElement
+     *
+     * @param stream     Xml Stream
+     * @param instanceId Instance Id for the TreeElement
+     * @return TreeElement for the given xml stream
+     * @throws IOException
+     * @throws UnfullfilledRequirementsException
+     * @throws XmlPullParserException
+     * @throws InvalidStructureException
+     */
+    public static TreeElement xmlStreamToTreeElement(InputStream stream, String instanceId)
+            throws IOException, UnfullfilledRequirementsException, XmlPullParserException,
+            InvalidStructureException {
+        KXmlParser baseParser = ElementParser.instantiateParser(stream);
+        TreeElement root = new TreeElementParser(baseParser, 0, instanceId).parse();
+        return root;
     }
 }
