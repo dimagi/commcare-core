@@ -1,5 +1,6 @@
 package org.javarosa.core.model.instance.utils;
 
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.FormInstance;
@@ -8,6 +9,10 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.TreeElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathEqExpr;
@@ -15,7 +20,10 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.expr.XPathStep;
 import org.javarosa.xpath.expr.XPathStringLiteral;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
@@ -256,5 +264,28 @@ public class TreeUtilities {
             }
         });
         return copy;
+    }
+
+    /**
+     * Converts xml in a given file to TreeElement
+     * @param xmlFilepath file path for the xml file
+     * @return TreeElement for the given xml
+     * @throws InvalidStructureException
+     * @throws IOException
+     */
+    public static TreeElement xmlToTreeElement(String xmlFilepath)
+            throws InvalidStructureException, IOException {
+        InputStream is = null;
+        try {
+            is = InstanceUtils.class.getResourceAsStream(xmlFilepath);
+            TreeElementParser parser = new TreeElementParser(ElementParser.instantiateParser(is), 0, "instance");
+            try {
+                return parser.parse();
+            } catch (UnfullfilledRequirementsException | XmlPullParserException e) {
+                throw new IOException(e.getMessage());
+            }
+        } finally {
+            StreamsUtil.closeStream(is);
+        }
     }
 }
