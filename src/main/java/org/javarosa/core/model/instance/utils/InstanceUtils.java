@@ -6,6 +6,7 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceBase;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.model.instance.UnrecognisedInstanceRootException;
 import org.javarosa.xml.util.InvalidStructureException;
 
 import java.io.IOException;
@@ -36,6 +37,10 @@ public class InstanceUtils {
             TreeElement rootAsTreeElement = ((TreeElement)instanceRoot);
             rootAsTreeElement.setInstanceName(instanceId);
             rootAsTreeElement.setParent(instanceBase);
+        } else {
+            String error = "Unrecognised Instance root of type " + instanceRoot.getClass().getName() +
+                    " for instance " + instanceId;
+            throw new UnrecognisedInstanceRootException(error);
         }
     }
 }
