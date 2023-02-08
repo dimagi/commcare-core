@@ -1,5 +1,7 @@
 package org.javarosa.core.model.instance;
 
+import static org.javarosa.core.model.instance.utils.InstanceUtils.setUpInstanceRoot;
+
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -65,22 +67,13 @@ public class ExternalDataInstance extends DataInstance {
     }
 
     public ExternalDataInstance(String reference, String instanceId,
-            TreeElement topLevel, ExternalDataInstanceSource source) {
+            AbstractTreeElement topLevel, ExternalDataInstanceSource source) {
         this(reference, instanceId);
         base = new InstanceBase(instanceId);
         this.source = source;
-        topLevel.setInstanceName(instanceId);
-        topLevel.setParent(base);
         this.root = topLevel;
+        setUpInstanceRoot(root, instanceId, base);
         base.setChild(root);
-    }
-
-    public static TreeElement parseExternalTree(InputStream stream, String instanceId)
-            throws IOException, UnfullfilledRequirementsException, XmlPullParserException,
-            InvalidStructureException {
-        KXmlParser baseParser = ElementParser.instantiateParser(stream);
-        TreeElement root = new TreeElementParser(baseParser, 0, instanceId).parse();
-        return root;
     }
 
     public boolean useCaseTemplate() {

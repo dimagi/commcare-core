@@ -2,7 +2,7 @@ package org.javarosa.test_utils;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.model.instance.utils.FormLoadingUtils;
+import org.javarosa.core.model.instance.utils.InstanceUtils;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
@@ -179,7 +179,7 @@ public class ExprEvalUtils {
     public static FormInstance loadInstance(String formPath) {
         FormInstance instance = null;
         try {
-            instance = FormLoadingUtils.loadFormInstance(formPath);
+            instance = InstanceUtils.loadFormInstance(formPath);
         } catch (IOException e) {
             fail("Unable to load form at " + formPath);
         } catch (InvalidStructureException e) {

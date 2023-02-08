@@ -1,5 +1,6 @@
 package org.javarosa.core.model.instance.utils;
 
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.FormInstance;
@@ -8,6 +9,10 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.TreeElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathEqExpr;
@@ -15,7 +20,11 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.expr.XPathStep;
 import org.javarosa.xpath.expr.XPathStringLiteral;
+import org.kxml2.io.KXmlParser;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
@@ -47,11 +56,11 @@ public class TreeUtilities {
      * is provided
      */
     public static Collection<TreeReference> tryBatchChildFetch(AbstractTreeElement parent,
-                                                               Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> childAttributeHintMap,
-                                                               String name,
-                                                               int mult,
-                                                               Vector<XPathExpression> predicates,
-                                                               EvaluationContext evalContext) {
+            Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> childAttributeHintMap,
+            String name,
+            int mult,
+            Vector<XPathExpression> predicates,
+            EvaluationContext evalContext) {
         // This method builds a predictive model for quick queries that
         // prevents the need to fully flesh out full walks of the tree.
 
@@ -92,7 +101,8 @@ public class TreeUtilities {
 
                 //For now, only cheat when this is a string literal (this basically just means that we're
                 //handling attribute based referencing with very reasonable timing, but it's complex otherwise)
-                if (left instanceof XPathPathExpr && (right instanceof XPathStringLiteral || right instanceof XPathPathExpr)) {
+                if (left instanceof XPathPathExpr && (right instanceof XPathStringLiteral
+                        || right instanceof XPathPathExpr)) {
                     String literalMatch = null;
                     if (right instanceof XPathStringLiteral) {
                         literalMatch = ((XPathStringLiteral)right).s;
@@ -100,7 +110,8 @@ public class TreeUtilities {
                         //We'll also try to match direct path queries as long as they are not
                         //complex.
 
-                        //First: Evaluate whether there are predicates (which may have nesting that ruins our ability to do this)
+                        //First: Evaluate whether there are predicates (which may have nesting that ruins our
+                        // ability to do this)
                         for (XPathStep step : ((XPathPathExpr)right).steps) {
                             if (step.predicates.length > 0) {
                                 //We can't evaluate this, just bail
@@ -113,7 +124,8 @@ public class TreeUtilities {
                             Object o = FunctionUtils.unpack(right.eval(evalContext));
                             literalMatch = FunctionUtils.toString(o);
                         } catch (XPathException e) {
-                            //We may have some weird lack of context that makes this not work, so don't choke on the bonus evaluation
+                            //We may have some weird lack of context that makes this not work, so don't choke on
+                            // the bonus evaluation
                             //and just evaluate that traditional way
                             e.printStackTrace();
                             break;
@@ -132,7 +144,8 @@ public class TreeUtilities {
                                     predicateMatches.add(element.getRef());
                                 }
                             }
-                            //Merge and note that this predicate is evaluated and doesn't need to be evaluated in the future.
+                            //Merge and note that this predicate is evaluated and doesn't need to be evaluated
+                            // in the future.
                             allSelectedChildren = merge(allSelectedChildren, predicateMatches, i, toRemove);
                             continue predicate;
                         }
@@ -172,7 +185,7 @@ public class TreeUtilities {
                             for (int kidI = 0; kidI < kids.size(); ++kidI) {
                                 String attrValue = kids.elementAt(kidI).getAttributeValue(null, attributeName);
 
-                                if(attrValue == null ) {
+                                if (attrValue == null) {
                                     attrValue = "";
                                 }
 
@@ -217,8 +230,8 @@ public class TreeUtilities {
 
 
     private static Collection<TreeReference> merge(Collection<TreeReference> allSelectedChildren,
-                                               Collection<TreeReference> predicateMatches,
-                                               int i, Vector<Integer> toRemove) {
+            Collection<TreeReference> predicateMatches,
+            int i, Vector<Integer> toRemove) {
         toRemove.addElement(DataUtil.integer(i));
         if (allSelectedChildren == null) {
             return predicateMatches;
@@ -252,9 +265,50 @@ public class TreeUtilities {
 
             @Override
             public void visit(AbstractTreeElement element) {
-                ((TreeElement) element).setInstanceName(instanceId);
+                ((TreeElement)element).setInstanceName(instanceId);
             }
         });
         return copy;
+    }
+
+    /**
+     * Converts xml in a given file to TreeElement
+     *
+     * @param xmlFilepath file path for the xml file
+     * @return TreeElement for the given xml
+     * @throws InvalidStructureException
+     * @throws IOException
+     */
+    public static TreeElement xmlToTreeElement(String xmlFilepath)
+            throws InvalidStructureException, IOException {
+        InputStream is = null;
+        try {
+            is = InstanceUtils.class.getResourceAsStream(xmlFilepath);
+            try {
+                return xmlStreamToTreeElement(is, "instance");
+            } catch (UnfullfilledRequirementsException | XmlPullParserException e) {
+                throw new IOException(e.getMessage());
+            }
+        } finally {
+            StreamsUtil.closeStream(is);
+        }
+    }
+
+    /**
+     * Converts a xml stream to TreeElement
+     *
+     * @param stream     Xml Stream
+     * @param instanceId Instance Id for the TreeElement
+     * @return TreeElement for the given xml stream
+     * @throws IOException
+     * @throws UnfullfilledRequirementsException
+     * @throws XmlPullParserException
+     * @throws InvalidStructureException
+     */
+    public static TreeElement xmlStreamToTreeElement(InputStream stream, String instanceId)
+            throws IOException, UnfullfilledRequirementsException, XmlPullParserException,
+            InvalidStructureException {
+        KXmlParser baseParser = ElementParser.instantiateParser(stream);
+        return new TreeElementParser(baseParser, 0, instanceId).parse();
     }
 }

@@ -1,5 +1,6 @@
 package org.commcare.core.interfaces;
 
+import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeElement;
 
@@ -8,7 +9,7 @@ import org.javarosa.core.model.instance.TreeElement;
  */
 public interface RemoteInstanceFetcher {
 
-    TreeElement getExternalRoot(String instanceId, ExternalDataInstanceSource source)
+    AbstractTreeElement getExternalRoot(String instanceId, ExternalDataInstanceSource source)
             throws RemoteInstanceException;
 
     class RemoteInstanceException extends Exception {

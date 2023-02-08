@@ -1,6 +1,7 @@
 package org.javarosa.core.model.instance;
 
 import static org.javarosa.core.model.instance.ExternalDataInstance.JR_REMOTE_REFERENCE;
+import static org.javarosa.core.model.instance.utils.InstanceUtils.setUpInstanceRoot;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
@@ -16,7 +17,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
 public class ExternalDataInstanceSource implements InstanceRoot, Externalizable {
 
     @Nullable
-    private TreeElement root;
+    private AbstractTreeElement root;
     private String instanceId;
     private boolean useCaseTemplate;
     private String reference;
@@ -109,14 +109,14 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
         return false;
     }
 
-    public TreeElement getRoot() {
+    public AbstractTreeElement getRoot() {
         if (needsInit()) {
             throw new RuntimeException("Uninstantiated external instance source");
         }
         return root;
     }
 
-    public void init(TreeElement root) {
+    public void init(AbstractTreeElement root) {
         if (this.root != null) {
             throw new RuntimeException(
                     "Initializing an already instantiated external instance source is not permitted");
@@ -128,8 +128,7 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
             throws RemoteInstanceFetcher.RemoteInstanceException {
         String instanceId = getInstanceId();
         init(remoteInstanceFetcher.getExternalRoot(instanceId, this));
-        root.setInstanceName(instanceId);
-        root.setParent(new InstanceBase(instanceId));
+        setUpInstanceRoot(root, instanceId, new InstanceBase(instanceId));
     }
 
     public void setupNewCopy(ExternalDataInstance instance) {
