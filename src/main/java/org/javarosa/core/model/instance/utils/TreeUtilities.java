@@ -56,11 +56,11 @@ public class TreeUtilities {
      * is provided
      */
     public static Collection<TreeReference> tryBatchChildFetch(AbstractTreeElement parent,
-                                                               Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> childAttributeHintMap,
-                                                               String name,
-                                                               int mult,
-                                                               Vector<XPathExpression> predicates,
-                                                               EvaluationContext evalContext) {
+            Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> childAttributeHintMap,
+            String name,
+            int mult,
+            Vector<XPathExpression> predicates,
+            EvaluationContext evalContext) {
         // This method builds a predictive model for quick queries that
         // prevents the need to fully flesh out full walks of the tree.
 
@@ -101,7 +101,8 @@ public class TreeUtilities {
 
                 //For now, only cheat when this is a string literal (this basically just means that we're
                 //handling attribute based referencing with very reasonable timing, but it's complex otherwise)
-                if (left instanceof XPathPathExpr && (right instanceof XPathStringLiteral || right instanceof XPathPathExpr)) {
+                if (left instanceof XPathPathExpr && (right instanceof XPathStringLiteral
+                        || right instanceof XPathPathExpr)) {
                     String literalMatch = null;
                     if (right instanceof XPathStringLiteral) {
                         literalMatch = ((XPathStringLiteral)right).s;
@@ -109,7 +110,8 @@ public class TreeUtilities {
                         //We'll also try to match direct path queries as long as they are not
                         //complex.
 
-                        //First: Evaluate whether there are predicates (which may have nesting that ruins our ability to do this)
+                        //First: Evaluate whether there are predicates (which may have nesting that ruins our
+                        // ability to do this)
                         for (XPathStep step : ((XPathPathExpr)right).steps) {
                             if (step.predicates.length > 0) {
                                 //We can't evaluate this, just bail
@@ -122,7 +124,8 @@ public class TreeUtilities {
                             Object o = FunctionUtils.unpack(right.eval(evalContext));
                             literalMatch = FunctionUtils.toString(o);
                         } catch (XPathException e) {
-                            //We may have some weird lack of context that makes this not work, so don't choke on the bonus evaluation
+                            //We may have some weird lack of context that makes this not work, so don't choke on
+                            // the bonus evaluation
                             //and just evaluate that traditional way
                             e.printStackTrace();
                             break;
@@ -141,7 +144,8 @@ public class TreeUtilities {
                                     predicateMatches.add(element.getRef());
                                 }
                             }
-                            //Merge and note that this predicate is evaluated and doesn't need to be evaluated in the future.
+                            //Merge and note that this predicate is evaluated and doesn't need to be evaluated
+                            // in the future.
                             allSelectedChildren = merge(allSelectedChildren, predicateMatches, i, toRemove);
                             continue predicate;
                         }
@@ -181,7 +185,7 @@ public class TreeUtilities {
                             for (int kidI = 0; kidI < kids.size(); ++kidI) {
                                 String attrValue = kids.elementAt(kidI).getAttributeValue(null, attributeName);
 
-                                if(attrValue == null ) {
+                                if (attrValue == null) {
                                     attrValue = "";
                                 }
 
@@ -226,8 +230,8 @@ public class TreeUtilities {
 
 
     private static Collection<TreeReference> merge(Collection<TreeReference> allSelectedChildren,
-                                               Collection<TreeReference> predicateMatches,
-                                               int i, Vector<Integer> toRemove) {
+            Collection<TreeReference> predicateMatches,
+            int i, Vector<Integer> toRemove) {
         toRemove.addElement(DataUtil.integer(i));
         if (allSelectedChildren == null) {
             return predicateMatches;
@@ -261,7 +265,7 @@ public class TreeUtilities {
 
             @Override
             public void visit(AbstractTreeElement element) {
-                ((TreeElement) element).setInstanceName(instanceId);
+                ((TreeElement)element).setInstanceName(instanceId);
             }
         });
         return copy;
