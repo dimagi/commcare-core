@@ -317,6 +317,16 @@ public class RemoteQuerySessionManager {
         return answer.split(ANSWER_DELIMITER);
     }
 
+    /**
+     * Join multiple choices for a prompt into a single String separated by answer delimiter
+     *
+     * @param choices list of choices to be joined together
+     * @return String with choices joined with the answer delimiter
+     */
+    public static String joinMultipleChoices(ArrayList<String> choices) {
+        return String.join(ANSWER_DELIMITER, choices);
+    }
+
     public RemoteQueryDatum getQueryDatum() {
         return queryDatum;
     }
