@@ -21,11 +21,22 @@ import javax.annotation.Nullable;
 // Model for <prompt> node in {@link
 public class QueryPrompt implements Externalizable {
 
+    // Spinner with single selection
     public static final String INPUT_TYPE_SELECT1 = "select1";
+
+    // Spinner with multiple selection
     public static final String INPUT_TYPE_SELECT = "select";
+
+    // widget to select a date range (start and end date)
     public static final String INPUT_TYPE_DATERANGE = "daterange";
+
+    // widget to select a single date
     public static final String INPUT_TYPE_DATE = "date";
+
+    // Checkbox, multiple selection
     public static final String INPUT_TYPE_CHECKBOX = "checkbox";
+
+    // list of address fields like street, state, city etc
     public static final String INPUT_TYPE_ADDRESS = "address";
     public static final String DEFAULT_REQUIRED_ERROR = "Sorry, this response is required!";
     public static final String DEFAULT_VALIDATION_ERROR = "Sorry, this response is invalid!";
