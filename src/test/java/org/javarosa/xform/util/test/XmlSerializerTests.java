@@ -1,7 +1,7 @@
 package org.javarosa.xform.util.test;
 
 import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.model.instance.utils.FormLoadingUtils;
+import org.javarosa.core.model.instance.utils.InstanceUtils;
 import org.javarosa.core.services.transport.payload.ByteArrayPayload;
 import org.javarosa.core.services.transport.payload.IDataPayload;
 import org.javarosa.model.xform.XFormSerializingVisitor;
@@ -26,7 +26,7 @@ public class XmlSerializerTests {
     public void testParseXmlWithNonBMPCharacters() {
         FormInstance model = null;
         try {
-            model = FormLoadingUtils.loadFormInstance(formPath);
+            model = InstanceUtils.loadFormInstance(formPath);
             // Serialize the xml containing special characters.
             IDataPayload payload = new XFormSerializingVisitor().createSerializedPayload(model);
             assertTrue(payload instanceof ByteArrayPayload);

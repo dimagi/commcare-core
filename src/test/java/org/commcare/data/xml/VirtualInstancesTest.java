@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.model.instance.utils.TreeUtilities;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.junit.Test;
@@ -35,7 +36,7 @@ public class VirtualInstancesTest {
                 "<field name=\"key2\">val2</field>",
                 "</input>"
         );
-        TreeElement expected = ExternalDataInstance.parseExternalTree(
+        TreeElement expected = TreeUtilities.xmlStreamToTreeElement(
                 new ByteArrayInputStream(expectedXml.getBytes(StandardCharsets.UTF_8)),
                 instanceId
         );
@@ -56,7 +57,7 @@ public class VirtualInstancesTest {
                 "<value>case2</value>",
                 "</results>"
         );
-        TreeElement expected = ExternalDataInstance.parseExternalTree(
+        TreeElement expected = TreeUtilities.xmlStreamToTreeElement(
                 new ByteArrayInputStream(expectedXml.getBytes(StandardCharsets.UTF_8)),
                 instanceId
         );
