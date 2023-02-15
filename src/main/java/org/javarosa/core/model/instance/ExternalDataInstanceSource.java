@@ -124,10 +124,10 @@ public class ExternalDataInstanceSource implements InstanceRoot, Externalizable 
         this.root = root;
     }
 
-    public void remoteInit(RemoteInstanceFetcher remoteInstanceFetcher, String refID)
+    public void remoteInit(RemoteInstanceFetcher remoteInstanceFetcher, String refId)
             throws RemoteInstanceFetcher.RemoteInstanceException {
         String instanceId = getInstanceId();
-        init(remoteInstanceFetcher.getExternalRoot(instanceId, this, refID));
+        init(remoteInstanceFetcher.getExternalRoot(instanceId, this, refId));
         setUpInstanceRoot(root, instanceId, new InstanceBase(instanceId));
     }
 
