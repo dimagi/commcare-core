@@ -31,7 +31,7 @@ public class MemoryVirtualDataInstanceStorage implements
     }
 
     @Override
-    public ExternalDataInstance read(String key, String instanceId) {
+    public ExternalDataInstance read(String key, String instanceId, String refId) {
         return storage.get(key);
     }
 
