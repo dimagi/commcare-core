@@ -139,7 +139,7 @@ public class StackFrameStep implements Externalizable {
             throws RemoteInstanceFetcher.RemoteInstanceException {
         for (ExternalDataInstanceSource source : dataInstanceSources.values()) {
             if (source.needsInit()) {
-                source.remoteInit(remoteInstanceFetcher);
+                source.remoteInit(remoteInstanceFetcher, getId());
             }
         }
     }

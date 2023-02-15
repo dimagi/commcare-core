@@ -15,8 +15,9 @@ public interface VirtualDataInstanceStorage {
      *
      * @param key The instance storage key
      * @param instanceId The instanceId to apply to the loaded instance
+     * @param refId Unique reference id to apply to the loaded instance
      */
-    ExternalDataInstance read(String key, String instanceId);
+    ExternalDataInstance read(String key, String instanceId, String refId);
 
     boolean contains(String key);
 }
