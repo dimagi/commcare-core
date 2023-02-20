@@ -9,7 +9,7 @@ import org.javarosa.core.model.instance.TreeElement;
  */
 public interface RemoteInstanceFetcher {
 
-    AbstractTreeElement getExternalRoot(String instanceId, ExternalDataInstanceSource source)
+    AbstractTreeElement getExternalRoot(String instanceId, ExternalDataInstanceSource source, String refId)
             throws RemoteInstanceException;
 
     class RemoteInstanceException extends Exception {
