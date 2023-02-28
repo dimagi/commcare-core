@@ -142,16 +142,8 @@ public class QueryScreen extends Screen {
         ImmutableListMultimap.Builder<String, String> dataBuilder = ImmutableListMultimap.builder();
         Multimap<String, String> queryParams = getQueryParams(skipDefaultPromptValues);
         for (String key : queryParams.keySet()) {
-            QueryPrompt prompt = userInputDisplays.get(key);
             for (String value : queryParams.get(key)) {
-                if (prompt != null) {
-                    String[] choices = RemoteQuerySessionManager.extractMultipleChoices(value);
-                    for (String choice : choices) {
-                        dataBuilder.put(key, choice);
-                    }
-                } else {
-                    dataBuilder.put(key, value);
-                }
+                dataBuilder.put(key, value);
             }
         }
         return dataBuilder.build();
