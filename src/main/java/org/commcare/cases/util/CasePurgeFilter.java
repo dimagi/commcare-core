@@ -104,7 +104,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         for (Enumeration iterator = internalCaseDAG.getNodes(); iterator.hasMoreElements(); ) {
             int[] node = (int[])iterator.nextElement();
             if (!caseStatusIs(node[0], STATUS_ALIVE)) {
-                idsToRemove.addElement(new Integer(node[1]));
+                idsToRemove.addElement(Integer.valueOf(node[1]));
             }
         }
     }
@@ -337,7 +337,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         // DAG, and add it to the list of cases to be purged
         if (casesRemovedDueToMissingCases.indexOf(indexOfRemovedNode) == -1) {
             int storageIdOfRemovedNode = internalCaseDAG.removeNode(indexOfRemovedNode)[1];
-            idsToRemove.addElement(new Integer(storageIdOfRemovedNode));
+            idsToRemove.addElement(Integer.valueOf(storageIdOfRemovedNode));
             casesRemovedDueToMissingCases.addElement(indexOfRemovedNode);
         }
     }

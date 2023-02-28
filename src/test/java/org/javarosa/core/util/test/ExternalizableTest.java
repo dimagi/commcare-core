@@ -134,23 +134,23 @@ public class ExternalizableTest {
         PrototypeFactory.setStaticHasher(new ClassNameHasher());
 
         testExternalizable("string", String.class);
-        testExternalizable(new Byte((byte)0), Byte.class);
-        testExternalizable(new Byte((byte)0x55), Byte.class);
-        testExternalizable(new Byte((byte)0xe9), Byte.class);
-        testExternalizable(new Short((short)0), Short.class);
-        testExternalizable(new Short((short)-12345), Short.class);
-        testExternalizable(new Short((short)12345), Short.class);
-        testExternalizable(new Integer(0), Integer.class);
-        testExternalizable(new Integer(1234567890), Integer.class);
-        testExternalizable(new Integer(-1234567890), Integer.class);
-        testExternalizable(new Long(0), Long.class);
-        testExternalizable(new Long(1234567890123456789L), Long.class);
-        testExternalizable(new Long(-1234567890123456789L), Long.class);
+        testExternalizable(Byte.valueOf((byte)0), Byte.class);
+        testExternalizable(Byte.valueOf((byte)0x55), Byte.class);
+        testExternalizable(Byte.valueOf((byte)0xe9), Byte.class);
+        testExternalizable(Short.valueOf((short)0), Short.class);
+        testExternalizable(Short.valueOf((short)-12345), Short.class);
+        testExternalizable(Short.valueOf((short)12345), Short.class);
+        testExternalizable(Integer.valueOf(0), Integer.class);
+        testExternalizable(Integer.valueOf(1234567890), Integer.class);
+        testExternalizable(Integer.valueOf(-1234567890), Integer.class);
+        testExternalizable(Long.valueOf(0), Long.class);
+        testExternalizable(Long.valueOf(1234567890123456789L), Long.class);
+        testExternalizable(Long.valueOf(-1234567890123456789L), Long.class);
         testExternalizable(Boolean.TRUE, Boolean.class);
         testExternalizable(Boolean.FALSE, Boolean.class);
-        testExternalizable(new Character('e'), Character.class);
-        testExternalizable(new Float(123.45e6), Float.class);
-        testExternalizable(new Double(123.45e6), Double.class);
+        testExternalizable(Character.valueOf('e'), Character.class);
+        testExternalizable(Float.valueOf((float)123.45e6), Float.class);
+        testExternalizable(Double.valueOf(123.45e6), Double.class);
         testExternalizable(new Date(), Date.class);
         testExternalizable(new SampleExtz("your", "mom"), SampleExtz.class);
 
@@ -162,16 +162,16 @@ public class ExternalizableTest {
         testExternalizable(new ExtWrapNullable((String)null), new ExtWrapNullable(String.class));
         testExternalizable(new ExtWrapNullable("string"), new ExtWrapNullable(String.class));
         testExternalizable(new ExtWrapNullable((Integer)null), new ExtWrapNullable(Integer.class));
-        testExternalizable(new ExtWrapNullable(new Integer(17)), new ExtWrapNullable(Integer.class));
+        testExternalizable(new ExtWrapNullable(Integer.valueOf(17)), new ExtWrapNullable(Integer.class));
         testExternalizable(new ExtWrapNullable((SampleExtz)null), new ExtWrapNullable(SampleExtz.class));
         testExternalizable(new ExtWrapNullable(new SampleExtz("hi", "there")), new ExtWrapNullable(SampleExtz.class));
 
         //vectors of base types
         Vector v = new Vector();
-        v.addElement(new Integer(27));
-        v.addElement(new Integer(-73));
-        v.addElement(new Integer(1024));
-        v.addElement(new Integer(66066066));
+        v.addElement(Integer.valueOf(27));
+        v.addElement(Integer.valueOf(-73));
+        v.addElement(Integer.valueOf(1024));
+        v.addElement(Integer.valueOf(66066066));
         testExternalizable(new ExtWrapList(v), new ExtWrapList(Integer.class));
 
         Vector vs = new Vector();
@@ -196,8 +196,8 @@ public class ExternalizableTest {
 
         //vectors of vectors (including empties)
         Vector x = new Vector();
-        x.addElement(new Integer(-35));
-        x.addElement(new Integer(-31415926));
+        x.addElement(Integer.valueOf(-35));
+        x.addElement(Integer.valueOf(-31415926));
         Vector y = new Vector();
         y.addElement(v);
         y.addElement(x);
@@ -207,7 +207,7 @@ public class ExternalizableTest {
 
         //tagged base types
         testExternalizable(new ExtWrapTagged("string"), new ExtWrapTagged());
-        testExternalizable(new ExtWrapTagged(new Integer(5000)), new ExtWrapTagged());
+        testExternalizable(new ExtWrapTagged(Integer.valueOf(5000)), new ExtWrapTagged());
         //tagged custom type
         //PrototypeFactory pf = new PrototypeFactory();
         pf.addClass(SampleExtz.class);
@@ -223,7 +223,7 @@ public class ExternalizableTest {
 
         //polymorphic vectors
         Vector a = new Vector();
-        a.addElement(new Integer(47));
+        a.addElement(Integer.valueOf(47));
         a.addElement("string");
         a.addElement(Boolean.FALSE);
         a.addElement(new SampleExtz("hello", "dolly"));
@@ -258,8 +258,8 @@ public class ExternalizableTest {
         testExternalizable(new ExtWrapTagged(new ExtWrapMap(h)), new ExtWrapTagged(), pf);
 
         Hashtable j = new Hashtable();
-        j.put(new Integer(17), h);
-        j.put(new Integer(-3), h);
+        j.put(Integer.valueOf(17), h);
+        j.put(Integer.valueOf(-3), h);
         Hashtable k = new Hashtable();
         k.put("key", j);
         testExternalizable(new ExtWrapMap(k, new ExtWrapMap(Integer.class, new ExtWrapMap(String.class, SampleExtz.class))),
@@ -267,8 +267,8 @@ public class ExternalizableTest {
 
         OrderedHashtable m = new OrderedHashtable();
         m.put("a", "b");
-        m.put("b", new Integer(17));
-        m.put("c", new Short((short)-443));
+        m.put("b", Integer.valueOf(17));
+        m.put("c", Short.valueOf((short)-443));
         m.put("d", new SampleExtz("boris", "yeltsin"));
         m.put("e", new ExtWrapList(vs));
         testExternalizable(new ExtWrapMapPoly(m), new ExtWrapMapPoly(String.class, true), pf);
