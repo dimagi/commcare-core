@@ -153,7 +153,10 @@ public class RemoteQuerySessionManager {
                 XPathExpression excludeExpr = prompt.getExclude();
                 if (!(params.containsKey(key) && params.get(key).contains(value))) {
                     if (value != null && (excludeExpr == null || !(boolean)excludeExpr.eval(evaluationContext))) {
-                        params.put(key, value);
+                        String[] choices = RemoteQuerySessionManager.extractMultipleChoices(value);
+                        for (String choice : choices) {
+                            params.put(key, choice);
+                        }
                     }
                 }
             }
