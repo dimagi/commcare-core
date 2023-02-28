@@ -153,7 +153,7 @@ public class RemoteQuerySessionManager {
                 XPathExpression excludeExpr = prompt.getExclude();
                 if (!(params.containsKey(key) && params.get(key).contains(value))) {
                     if (value != null && (excludeExpr == null || !(boolean)excludeExpr.eval(evaluationContext))) {
-                        params.put(key, userAnswers.get(key));
+                        params.put(key, value);
                     }
                 }
             }
