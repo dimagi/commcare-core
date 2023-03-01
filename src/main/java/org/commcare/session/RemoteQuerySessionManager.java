@@ -154,7 +154,10 @@ public class RemoteQuerySessionManager {
                 XPathExpression excludeExpr = prompt.getExclude();
                 if (!(params.containsKey(key) && params.get(key).contains(value))) {
                     if (value != null && (excludeExpr == null || !(boolean)excludeExpr.eval(evaluationContext))) {
-                        params.put(key, userAnswers.get(key));
+                        String[] choices = RemoteQuerySessionManager.extractMultipleChoices(value);
+                        for (String choice : choices) {
+                            params.put(key, choice);
+                        }
                     }
                 }
             }
@@ -315,6 +318,16 @@ public class RemoteQuerySessionManager {
             return new String[]{};
         }
         return answer.split(ANSWER_DELIMITER);
+    }
+
+    /**
+     * Join multiple choices for a prompt into a single String separated by answer delimiter
+     *
+     * @param choices list of choices to be joined together
+     * @return String with choices joined with the answer delimiter
+     */
+    public static String joinMultipleChoices(ArrayList<String> choices) {
+        return String.join(ANSWER_DELIMITER, choices);
     }
 
     public RemoteQueryDatum getQueryDatum() {

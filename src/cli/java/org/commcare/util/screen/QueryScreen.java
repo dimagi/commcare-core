@@ -137,26 +137,6 @@ public class QueryScreen extends Screen {
         supportedPrompts.add(INPUT_TYPE_ADDRESS);
         return supportedPrompts;
     }
-
-    public Multimap<String, String> getRequestData(boolean skipDefaultPromptValues) {
-        ImmutableListMultimap.Builder<String, String> dataBuilder = ImmutableListMultimap.builder();
-        Multimap<String, String> queryParams = getQueryParams(skipDefaultPromptValues);
-        for (String key : queryParams.keySet()) {
-            QueryPrompt prompt = userInputDisplays.get(key);
-            for (String value : queryParams.get(key)) {
-                if (prompt != null) {
-                    String[] choices = RemoteQuerySessionManager.extractMultipleChoices(value);
-                    for (String choice : choices) {
-                        dataBuilder.put(key, choice);
-                    }
-                } else {
-                    dataBuilder.put(key, value);
-                }
-            }
-        }
-        return dataBuilder.build();
-    }
-
     public Pair<ExternalDataInstance, String> processResponse(InputStream responseData, URL url,
             Multimap<String, String> requestData) {
         if (responseData == null) {
@@ -245,7 +225,7 @@ public class QueryScreen extends Screen {
      * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
      * @return filters to be applied to case search uri as query params
      */
-    protected Multimap<String, String> getQueryParams(boolean skipDefaultPromptValues) {
+    public Multimap<String, String> getQueryParams(boolean skipDefaultPromptValues) {
         return remoteQuerySessionManager.getRawQueryParams(skipDefaultPromptValues);
     }
 
@@ -287,7 +267,7 @@ public class QueryScreen extends Screen {
         }
         answerPrompts(userAnswers);
         URL url = getBaseUrl();
-        Multimap<String, String> requestData = getRequestData(false);
+        Multimap<String, String> requestData = getQueryParams(false);
         InputStream response = sessionUtils.makeQueryRequest(url, requestData, domainedUsername, password);
         Pair<ExternalDataInstance, String> instanceOrError = processResponse(response, url, requestData);
         updateSession(instanceOrError.first);
