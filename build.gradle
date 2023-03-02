@@ -9,7 +9,7 @@ buildscript {
 
 plugins {
     id 'java-library'
-    id "me.champeau.jmh" version "0.6.5"
+    id "me.champeau.jmh" version "0.7.0"
 }
 
 // Needed even though it looks unused
