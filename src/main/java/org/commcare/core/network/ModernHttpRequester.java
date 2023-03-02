@@ -18,8 +18,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLException;
 
 import okhttp3.FormBody;
 import okhttp3.MultipartBody;
@@ -122,14 +121,22 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     private Response executeAndCheckCaptivePortals(Call currentCall) throws IOException {
         try {
             return currentCall.execute();
-        } catch (SSLHandshakeException | SSLPeerUnverifiedException e) {
+        } catch (SSLException e) {
+            // SSLHandshakeException is thrown by the CommcareRequestGenerator on
+            // 4.3 devices when the peer certificate is bad.
+            //
+            // SSLPeerUnverifiedException is thrown by the CommcareRequestGenerator
+            // on 2.3 devices when the peer certificate is bad.
+            //
             // This may be a real SSL exception associated with the real endpoint server, or this
             // might be a property of the local network.
+
             if(NetworkStatus.isCaptivePortal()) {
                 throw new CaptivePortalRedirectException();
             }
 
             //Otherwise just rethrow the original exception. Probably a certificate issue
+            //Could be related to local clock issue
             throw e;
         }
     }
