@@ -79,7 +79,7 @@ dependencies {
     api 'com.squareup.okhttp3:okhttp:3.12.12'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
-    implementation 'com.google.guava:guava:30.1.1-jre'
+    implementation 'com.google.guava:guava:31.1-jre'
     implementation 'io.opentracing:opentracing-api:0.33.0'
     implementation 'io.opentracing:opentracing-util:0.33.0'
     implementation 'com.datadoghq:dd-trace-api:1.10.0'
@@ -91,7 +91,7 @@ dependencies {
     cliImplementation 'io.reactivex.rxjava2:rxjava:2.1.1'
     cliImplementation 'com.squareup.retrofit2:retrofit:2.3.0'
     cliImplementation 'com.squareup.okhttp3:okhttp:4.4.1'
-    cliImplementation 'com.google.guava:guava:30.1.1-jre'
+    cliImplementation 'com.google.guava:guava:31.1-jre'
     cliImplementation 'com.datadoghq:dd-trace-api:1.10.0'
 
     testImplementation sourceSets.main.output
@@ -104,7 +104,7 @@ dependencies {
     testImplementation 'joda-time:joda-time:2.9.4'
     testImplementation 'com.squareup.retrofit2:retrofit:2.3.0'
     testImplementation 'com.squareup.okhttp3:okhttp:4.4.1'
-    testImplementation 'com.google.guava:guava:30.1.1-jre'
+    testImplementation 'com.google.guava:guava:31.1-jre'
 
     ccapiImplementation sourceSets.main.output
     ccapiImplementation 'org.json:json:20140107'
@@ -115,7 +115,7 @@ dependencies {
     ccapiImplementation 'io.reactivex.rxjava2:rxjava:2.1.1'
     ccapiImplementation "com.squareup.retrofit2:retrofit:2.3.0"
     ccapiImplementation 'com.squareup.okhttp3:okhttp:4.4.1'
-    ccapiImplementation 'com.google.guava:guava:30.1.1-jre'
+    ccapiImplementation 'com.google.guava:guava:31.1-jre'
     ccapiImplementation 'io.opentracing:opentracing-api:0.33.0'
     ccapiImplementation 'io.opentracing:opentracing-util:0.33.0'
     ccapiImplementation 'com.datadoghq:dd-trace-api:1.10.0'
@@ -129,7 +129,7 @@ dependencies {
     translateImplementation 'io.reactivex.rxjava2:rxjava:2.1.1'
     translateImplementation "com.squareup.retrofit2:retrofit:2.3.0"
     translateImplementation 'com.squareup.okhttp3:okhttp:4.4.1'
-    translateImplementation 'com.google.guava:guava:30.1.1-jre'
+    translateImplementation 'com.google.guava:guava:31.1-jre'
 
     // 'compile' dependency is also needed to run 'gradle jmh' for some reason,
     // but leaving it in conflicts with apk builds, so only uncomment the
