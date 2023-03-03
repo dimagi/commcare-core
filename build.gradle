@@ -82,7 +82,7 @@ dependencies {
     implementation 'com.google.guava:guava:30.1.1-jre'
     implementation 'io.opentracing:opentracing-api:0.33.0'
     implementation 'io.opentracing:opentracing-util:0.33.0'
-    implementation 'com.datadoghq:dd-trace-api:0.64.0'
+    implementation 'com.datadoghq:dd-trace-api:1.10.0'
 
     cliImplementation 'org.json:json:20140107'
     cliImplementation 'com.github.stefanhaustein:kxml2:2.4.1'
@@ -92,7 +92,7 @@ dependencies {
     cliImplementation 'com.squareup.retrofit2:retrofit:2.3.0'
     cliImplementation 'com.squareup.okhttp3:okhttp:4.4.1'
     cliImplementation 'com.google.guava:guava:30.1.1-jre'
-    cliImplementation 'com.datadoghq:dd-trace-api:0.64.0'
+    cliImplementation 'com.datadoghq:dd-trace-api:1.10.0'
 
     testImplementation sourceSets.main.output
     testImplementation sourceSets.ccapi.output
@@ -118,7 +118,7 @@ dependencies {
     ccapiImplementation 'com.google.guava:guava:30.1.1-jre'
     ccapiImplementation 'io.opentracing:opentracing-api:0.33.0'
     ccapiImplementation 'io.opentracing:opentracing-util:0.33.0'
-    ccapiImplementation 'com.datadoghq:dd-trace-api:0.64.0'
+    ccapiImplementation 'com.datadoghq:dd-trace-api:1.10.0'
 
     translateImplementation 'com.github.stefanhaustein:kxml2:2.4.1'
     translateImplementation 'xpp3:xpp3:1.1.4c'
