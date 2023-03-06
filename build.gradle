@@ -111,7 +111,7 @@ dependencies {
     ccapiImplementation 'org.xerial:sqlite-jdbc:3.40.0.0'
     ccapiImplementation 'com.github.stefanhaustein:kxml2:2.4.1'
     ccapiImplementation 'joda-time:joda-time:2.9.4'
-    ccapiImplementation 'com.carrotsearch:hppc:0.7.2'
+    ccapiImplementation 'com.carrotsearch:hppc:0.9.1'
     ccapiImplementation 'io.reactivex.rxjava2:rxjava:2.1.1'
     ccapiImplementation "com.squareup.retrofit2:retrofit:2.3.0"
     ccapiImplementation 'com.squareup.okhttp3:okhttp:4.4.1'
