@@ -371,4 +371,16 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     public Class<?> getPrototype() {
         return prototype;
     }
+
+    @Override
+    public boolean isStorageExists() {
+        // this method is not really meaningful for dummy storage
+        // so default to returning true until needed otherwise
+        return true;
+    }
+
+    @Override
+    public void initStorage() {
+        // do nothing as storage is initialized by default
+    }
 }
