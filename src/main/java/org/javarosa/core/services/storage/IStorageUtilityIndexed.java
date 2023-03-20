@@ -272,4 +272,15 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      * Provide public accessor to the inner class that is stored
      */
     Class<?> getPrototype();
+
+    /**
+     * if the storage exists or not
+     * @return a boolean indicating if the storage exists
+     */
+    boolean isStorageExists();
+
+    /**
+     * initialise the storage, for example create the table in the DB for this storage
+     */
+    void initStorage();
 }
