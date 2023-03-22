@@ -1,0 +1,22 @@
+<results id="case">
+    <case case_id="f6dff792-2599-4fd3-9e86-c11ef61f0302" case_type="song" owner_id="420c714a23fdd2ac2f2e40f82bbe9659" status="open">
+        <case_name>tapid papid</case_name>
+        <last_modified>2021-01-19T07:30:43.472000Z</last_modified>
+        <date_opened>2021-01-19</date_opened>
+        <commcare_search_score>1.0</commcare_search_score>
+        <energy>5</energy>
+        <mood>5</mood>
+        <play_count>0</play_count>
+        <rating>5</rating>
+        <song_id/>
+    </case>
+    <case case_id="8bff6617-7456-412f-a69b-a57534582771" case_type="show" owner_id="43171e8e32cd4b39b6d72b52e5bafc59" status="open">
+        <case_name>Delhi March</case_name>
+        <last_modified>2021-01-29T08:52:23.839000Z</last_modified>
+        <date_opened>2021-01-29</date_opened>
+        <commcare_search_score>1.0</commcare_search_score>
+        <index>
+            <parent case_type="song">f6dff792-2599-4fd3-9e86-c11ef61f0302</parent>
+        </index>
+    </case>
+</results>
