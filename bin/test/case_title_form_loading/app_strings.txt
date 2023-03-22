@@ -1,0 +1,9 @@
+m0.case_short.title=Cases
+m0.case_long.title=Cases
+m0.case_long.case_name_1.header=Name
+forms.m0f0= ??
+forms.m0f0= ??
+forms.m3f0= ??
+modules.m0=patients
+modules.m1=visits
+case_list_form.m0=register

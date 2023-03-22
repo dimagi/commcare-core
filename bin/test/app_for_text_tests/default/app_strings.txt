@@ -1,0 +1,7 @@
+display.string=DefaultString
+unused=unused
+witharg=Value${0}
+msg_in_lang=msg1
+msg1=Message1
+msg2=Message2
+multiarg=${0}${2}${1}

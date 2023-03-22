@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="1" descriptor="Suite File">
+  <xform>
+    <resource id="546d5695ad31d060faac835fea2bc436810c81f9" version="1" descriptor="Form: Placeholder">
+      <location authority="local">./form_placeholder.xml</location>
+    </resource>
+  </xform>
+
+  <detail id="m0_short">
+    <title>
+      <text>List</text>
+    </title>
+    <field>
+      <header>
+        <text>Name</text>
+      </header>
+      <template>
+        <text>
+          <xpath function="."/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="m0-f0">
+      <text>Form</text>
+    </command>
+    <instance id="data-list-key-one" src="jr://fixture/data-list"/>
+    <session>
+      <datum id="selected_item" function="instance('data-list-key-one')/list/item[@id ='1' and true()]/@id"/>
+    </session>
+  </entry>
+  <menu id="m0">
+    <text>Menu</text>
+    <command id="m0-f0"/>
+  </menu>
+</suite>

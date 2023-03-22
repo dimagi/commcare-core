@@ -1,0 +1,3 @@
+This set of resources is a fully contained application and user setup which you can copy as a template for easily testing different applicaton structures and functions. 
+
+Don't write tests directly against this app, copy it first into another directory

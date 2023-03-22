@@ -1,0 +1,34 @@
+<OpenRosaResponse>
+    <message nature="ota_restore_success">Successfully restored account test!</message>
+    <schema id="testfixture">
+        <indices>
+            <index>@filter_attribute</index>
+            <index>filter_one</index>
+            <index>name</index>
+        </indices>
+    </schema>
+    <fixture id="testfixture" indexed="true">
+        <test>
+            <entry filter_attribute="fail">
+                <filter_one>pass</filter_one>
+                <name>failed</name>
+                <other_1>DONT READ THIS VERY LARGE BODY EACH TIME JUST TO DO THE FILTERING</other_1>
+            </entry>
+            <entry filter_attribute="pass">
+                <filter_one>fail</filter_one>
+                <name>failed</name>
+                <other_1>DONT READ THIS VERY LARGE BODY EACH TIME JUST TO DO THE FILTERING</other_1>
+            </entry>
+            <entry filter_attribute="fail">
+                <filter_one>fail</filter_one>
+                <name>failed</name>
+                <other_1>DONT READ THIS VERY LARGE BODY EACH TIME JUST TO DO THE FILTERING</other_1>
+            </entry>
+            <entry filter_attribute="pass">
+                <filter_one>pass</filter_one>
+                <name>succeed</name>
+                <other_1>DONT READ THIS VERY LARGE BODY EACH TIME JUST TO DO THE FILTERING</other_1>
+            </entry>
+        </test>
+    </fixture>
+</OpenRosaResponse>

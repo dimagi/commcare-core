@@ -1,0 +1,9 @@
+<OpenRosaResponse>
+	<case case_id="base_case"
+		date_modified="2014-08-04T21:09:07.000000Z" user_id="test_example"
+		xmlns="http://commcarehq.org/case/transaction/v2">
+		<index>
+			<existing/>
+		</index>
+	</case>
+</OpenRosaResponse>

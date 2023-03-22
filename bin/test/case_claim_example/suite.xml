@@ -1,0 +1,213 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="1" descriptor="Suite File">
+  <xform>
+    <resource id="546d5695ad31d060faac835fea2bc436810c81f9" version="1" descriptor="Form: Placeholder">
+      <location authority="local">./form_placeholder.xml</location>
+    </resource>
+  </xform>
+  <locale language="default">
+    <resource id="default" version="1399" descriptor="Default">
+      <location authority="local">./app_strings.txt</location>
+    </resource>
+  </locale>
+
+  <detail id="m0_case_short">
+    <title>
+      <text>Case List</text>
+    </title>
+    <field>
+      <header>
+        <text>Name</text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m0_case_long">
+    <title>
+      <text>Case Detail</text>
+    </title>
+    <field>
+      <header>
+        <text>Name</text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+
+  <remote-request>
+    <post url="https://www.fake.com/claim_patient/"
+        relevant="count(instance('casedb')/casedb/case[@case_id=instance('session')/session/data/case_id]) = 0">
+      <data key="selected_case_id" ref="instance('session')/session/data/case_id"/>
+    </post>
+    <command id="patient-search">
+      <display>
+        <text>Global search for person</text>
+      </display>
+    </command>
+    <instance id="session" src="jr://instance/session"/>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="my-search-input" src="jr://instance/search-input/patients"/>
+    <session>
+      <query url="https://www.fake.com/patient_search/" storage-instance="patients">
+        <title>
+          <text>
+            <locale id="query.title"/>
+          </text>
+        </title>
+        <description>
+          <text>
+            <locale id="query.description"/>
+          </text>
+        </description>
+        <data key="device_id" ref="instance('session')/session/context/deviceid"/>
+        <data key="patient_id" ref="if(count(instance('search-input:patients')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('search-input:patients')/input/field[@name='patient_id']), '')"/>
+        <data key="patient_id_legacy" ref="if(count(instance('search-input')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('search-input')/input/field[@name='patient_id']), '')"/>
+        <data key="patient_id_custom_id" ref="if(count(instance('my-search-input')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('my-search-input')/input/field[@name='patient_id']), '')"/>
+        <prompt key="name" required="true()" default="instance('session')/session/context/deviceid">
+          <validation test="instance('my-search-input')/input/field[@name='name']!=''">
+            <text>
+              <locale id="query.name.validation.message"/>
+            </text>
+          </validation>
+          <display>
+            <text>
+              <locale id="query.name"/>
+            </text>
+          </display>
+        </prompt>
+        <prompt key="age">
+          <validation test="int(instance('my-search-input')/input/field[@name='age'])>18">
+            <text>
+              <locale id="query.age.validation.message"/>
+            </text>
+          </validation>
+          <required test="count(instance('my-search-input')/input/field[@name='dob']) = 0 or instance('my-search-input')/input/field[@name='dob']=''">
+            <text>
+              <locale id="query.age.required.message"/>
+            </text>
+          </required>
+          <display>
+            <text>
+              <locale id="query.age"/>
+            </text>
+          </display>
+        </prompt>
+        <prompt key="another_age">
+          <validation test="int(.)>18">
+          </validation>
+          <display>
+            <text>
+              <locale id="query.age"/>
+            </text>
+          </display>
+        </prompt>
+        <prompt key="dob">
+          <display>
+            <text>
+              <locale id="query.name"/>
+            </text>
+          </display>
+          <required test="count(instance('my-search-input')/input/field[@name='age']) = 0 or instance('my-search-input')/input/field[@name='age']=''">
+            <text>
+              <locale id="query.dob.required.message"/>
+            </text>
+          </required>
+        </prompt>
+        <prompt key="patient_id" hidden="false" allow_blank_value="true" exclude="false()">
+          <display>
+            <text>
+              <locale id="query.id"/>
+            </text>
+          </display>
+        </prompt>
+        <prompt key="exclude_patient_id" hidden="false" allow_blank_value="true" exclude="true()">
+          <display>
+            <text>
+              <locale id="query.id"/>
+            </text>
+          </display>
+        </prompt>
+        <prompt key="state" input="select1" allow_blank_value="true">
+          <display>
+            <text>
+              <locale id="search_property.m1.state"/>
+            </text>
+            <hint>
+              <text>
+                <locale id="search_property.m1.hint"/>
+              </text>
+            </hint>
+          </display>
+          <itemset nodeset="instance('state')/state_list/state">
+            <label ref="name"/>
+            <value ref="id"/>
+            <sort ref="id"/>
+          </itemset>
+        </prompt>
+        <prompt key="district" input="select">
+          <display>
+            <text>
+              <locale id="search_property.m1.district"/>
+            </text>
+          </display>
+          <itemset nodeset="instance('district')/district_list/district[state_id = instance('search-input:patients')/input/field[@name='state']]">
+            <label ref="name"/>
+            <value ref="id"/>
+            <sort ref="id"/>
+          </itemset>
+        </prompt>
+      </query>
+      <datum id="case_id" nodeset="instance('patients')/patients/patient" value="./id" detail-select="patient_short" detail-confirm="patient_long"/>
+    </session>
+    <stack>
+      <push>
+        <command value="'m1-f0'"/>
+        <datum id="calculated_data" value="'claimed'"/>
+      </push>
+    </stack>
+  </remote-request>
+
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="m0-f0">
+      <text>Form</text>
+    </command>
+    <session>
+      <query url="http://www.example.com/a/domain/phone/get_case/" storage-instance="registry1" template="case" default_search="true">
+        <data key="case_type" ref="'case'"/>
+        <prompt key="name">
+          <display>
+            <text>
+              <locale id="query.name"/>
+            </text>
+          </display>
+        </prompt>
+        <prompt key="age">
+          <display>
+            <text>
+              <locale id="query.age"/>
+            </text>
+          </display>
+        </prompt>
+      </query>
+    </session>
+  </entry>
+  <menu id="root">
+    <text>Menu</text>
+    <command id="m0-f0"/>
+    <command id="patient-search"/>
+  </menu>
+</suite>

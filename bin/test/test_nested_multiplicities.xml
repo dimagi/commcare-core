@@ -1,0 +1,34 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.w3.org/2002/xforms"
+    >
+    <h:head>
+        <h:title>Constraints for simple and select answers</h:title>
+        <model>
+            <instance>
+                <data
+                    xmlns="http://openrosa.org/formdesigner/21D20D14-BF66-497D-8258-8356080CDB3C"
+                    uiVersion="1" version="279"
+                    name="simple structure to test nested multiplicity queries">
+                    <bikes>
+                        <manufacturer id="surly" american="yes">
+                            <model id="karate-monkey" color="black">1</model>
+                            <model id="long-haul" color="black">0</model>
+                            <model id="cross-check" color="silver"/>
+                        </manufacturer>
+                        <manufacturer id="moots" american="yes">
+                            <model id="vamoots" color="silver">1</model>
+                        </manufacturer>
+                        <manufacturer id="bianchi" american="no">
+                            <model id="pista" color="seafoam">1</model>
+                            <model id="zolder" color="silver"/>
+                        </manufacturer>
+                    </bikes>
+                </data>
+            </instance>
+        </model>
+    </h:head>
+
+    <h:body>
+    </h:body>
+</h:html>
+

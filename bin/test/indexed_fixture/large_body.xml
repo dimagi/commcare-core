@@ -1,0 +1,379 @@
+<OpenRosaResponse>
+    <message nature="ota_restore_success">Successfully restored account test!</message>
+    <schema id="testfixture">
+        <indices>
+            <index>@type</index>
+        </indices>
+    </schema>
+    <fixture id="testfixture" indexed="true">
+        <test>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+
+
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+            <entry type="a">
+                <value>1</value>
+            </entry>
+
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+            <entry type="a">
+                <value>2</value>
+            </entry>
+
+
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+            <entry type="b">
+                <value>1</value>
+            </entry>
+
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+            <entry type="b">
+                <value>2</value>
+            </entry>
+        </test>
+    </fixture>
+</OpenRosaResponse>

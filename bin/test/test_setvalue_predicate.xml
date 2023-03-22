@@ -1,0 +1,31 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.w3.org/2002/xforms"
+    >
+    <h:head>
+        <h:title>Setvalue Predicates Test</h:title>
+        <model>
+            <instance>
+                <data
+                    xmlns="http://openrosa.org/tests/setvalue_predicates"
+                    uiVersion="1" version="279" name="setvalue predicates">
+                  <nested>
+                      <value id="one">
+                          <output>fail</output>
+                      </value>
+                      <value id="two">
+                          <output></output>
+                      </value>
+                  </nested>
+                  <output/>
+                </data>
+            </instance>
+            <setvalue event="xforms-ready" ref="/data/nested/value[@id='two']/output" value="'pass'"/>
+        </model>
+    </h:head>
+    <h:body>
+        <trigger ref="/data/output">
+            <label>Test:<output ref="/data/nested/value[@id='two']/output"></output></label>
+        </trigger>
+    </h:body>
+</h:html>
+

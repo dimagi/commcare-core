@@ -1,0 +1,553 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="36" descriptor="Suite File">
+  <xform>
+    <resource id="1662072614e4dc0c3808d095c5b1cc826be7c1ec" version="28" descriptor="Placeholder">
+      <location authority="local">./placeholder_form.xml</location>
+    </resource>
+  </xform>
+  <locale language="default">
+    <resource id="app_default_strings" version="41" descriptor="Translations: Default Language">
+      <location authority="local">./default/app_strings.txt</location>
+      <location authority="remote">./default/app_strings.txt</location>
+    </resource>
+  </locale>
+  <detail id="m1_case_short">
+    <title>
+      <text>
+        <locale id="cchq.case"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m1_case_long">
+    <title>
+      <text>
+        <locale id="cchq.case"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_long.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+
+  <detail id="m3_case_short">
+    <title>
+      <text>
+        <locale id="cchq.case"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+    <action auto_launch="count(instance('next_input')/results/value) = 0 or count(instance('next_input')/results/value[count(instance('casedb')/casedb/case[@case_id = current()/.]) =0 ]) > 0">
+      <display>
+        <text>Jump to Menu 1 Form 0</text>
+      </display>
+      <stack>
+        <push>
+          <mark/>
+          <command value="'search_command.m3'"/>
+        </push>
+      </stack>
+    </action>
+  </detail>
+
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="m0-f0">
+      <text>Module 0 Form 0</text>
+    </command>
+    <session>
+      <datum id="case_id_new_pregnancy_0" function="uuid()"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="m0-f1">
+      <text>Module 0 Form 1</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='pregnancy'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="m0-f2">
+      <text>Module 0 Form 2</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='pregnancy'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long" autoselect="true"/>
+    </session>
+  </entry>
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="m0-f3">
+            <text>Module 0 Form 3</text>
+        </command>
+        <instance id="casedb" src="jr://instance/casedb"/>
+        <session>
+            <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long"/>
+            <datum id="case_id_new_visit_0" function="uuid()"/>
+            <datum id="usercase_id" function="uuid()"/>
+        </session>
+    </entry>
+
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="m1-f0">
+      <text>Module 1 Form 0</text>
+    </command>
+    <session>
+      <datum id="case_id_new_child_0" function="uuid()"/>
+    </session>
+    <stack>
+      <create>
+        <command value="'m1'"/>
+      </create>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="m1-f1">
+      <text>Module 1 Form 1</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='child'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long" autoselect="true"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="m1-f2">
+      <text>Module 1 Form 2</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='child'][@status='open']" value="./@case_id" detail-select="m1_case_short" autoselect="true"/>
+    </session>
+  </entry>
+  <entry>
+  <form>http://commcarehq.org/test/placeholder</form>
+  <command id="m1-f3">
+    <text>Module 1 Form 1</text>
+  </command>
+  <instance id="casedb" src="jr://instance/casedb"/>
+  <session>
+    <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='child'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long"/>
+  </session>
+  </entry>
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="m1-f4">
+      <text>Module 1 Form 1</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='child'][@status='open']" value="./@case_id" detail-select="m1_case_short" autoselect="true"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="m2-f0">
+      <text>Module 2 Form 0</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="session" src="jr://instance/session"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long" />
+    </session>
+  </entry>
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="m2-f1">
+      <text>Module 2 Form 1</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long" />
+    </session>
+  </entry>
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <post url="https://example.commcarehq.org/a/domain/phone/claim-case/" relevant="true()">
+      <data key="case_id" ref="instance('commcaresession')/session/data/case_id"/>
+    </post>
+    <command id="m2-f2">
+      <text>Module 2 Form 2</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long" />
+    </session>
+  </entry>
+
+  <entry>
+    <!-- test multi-select detail action autolaunch -->
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="multi-select-auto-launch">
+      <text>multi-select form with auto-launch case list</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <instance-datum id="selected_cases" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m3_case_short" detail-confirm="m1_case_long" max-select-value="10"/>
+    </session>
+  </entry>
+
+  <remote-request>
+    <post url="http://fake.com/claim_patient/"
+          relevant="count(instance('casedb')/casedb/case[@case_id=instance('session')/session/data/case_id]) = 0">
+      <data key="selected_case_id" ref="instance('session')/session/data/case_id"/>
+      <data key="selected_name" ref="instance('patients')/patients/case[@case_id=instance('session')/session/data/case_id]/name"/>
+    </post>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="session" src="jr://instance/session"/>
+    <command id="patient-case-search">
+      <display>
+        <text>Global search for person</text>
+      </display>
+    </command>
+    <session>
+      <query url="http://fake.com/patient_search/" storage-instance="patients" template="case">
+        <data key="device_id" ref="instance('session')/session/data/uuid"/>
+        <prompt key="name">
+          <display>
+            <text>Input patient name</text>
+          </display>
+        </prompt>
+        <prompt key="patient_id">
+          <display>
+            <text>Input patient id</text>
+          </display>
+        </prompt>
+      </query>
+      <datum id="case_id" nodeset="instance('patients')/patients/case" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long"/>
+    </session>
+    <stack>
+      <create>
+        <command value="'m2-f0'"/>
+        <datum id="case_id" value="instance('patients')/patients/case[@id = '123']/name"/>
+      </create>
+    </stack>
+  </remote-request>
+
+  <remote-request>
+    <post url="http://fake.com/claim_patient/"
+          relevant="count(instance('casedb')/casedb/case[@case_id=instance('session')/session/data/case_id]) = 0">
+      <data key="selected_case_id" ref="instance('session')/session/data/case_id"/>
+      <data key="selected_name" ref="instance('patients')/patients/case[@case_id=instance('session')/session/data/case_id]/name"/>
+    </post>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="session" src="jr://instance/session"/>
+    <command id="patient-noncase-search">
+      <display>
+        <text>Global search for person</text>
+      </display>
+    </command>
+    <session>
+      <query url="http://fake.com/patient_search/" storage-instance="patients">
+        <data key="device_id" ref="instance('session')/session/data/uuid"/>
+        <prompt key="name">
+          <display>
+            <text>Input patient name</text>
+          </display>
+        </prompt>
+        <prompt key="patient_id">
+          <display>
+            <text>Input patient id</text>
+          </display>
+        </prompt>
+      </query>
+      <datum id="case_id" nodeset="instance('patients')/patients/case" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long"/>
+    </session>
+    <stack>
+      <create>
+        <command value="'m2-f0'"/>
+        <datum id="case_id" value="instance('patients')/patients/case[@id = '123']/name"/>
+      </create>
+    </stack>
+  </remote-request>
+
+  <remote-request>
+    <post url="http://fake.com/claim_patient/"
+          relevant="count(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/search_case_id]) = 0">
+      <data key="case_id" ref="instance('commcaresession')/session/data/search_case_id"/>
+    </post>
+    <command id="smart-link-search">
+      <display>
+        <text>Global patient search</text>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <query url="http://fake.com/patient_search/" storage-instance="patients">
+        <data key="case_type" ref="'patient'"/>
+        <data key="commcare_registry" ref="'patient_reg'"/>
+        <prompt key="name">
+          <display>
+            <text>Name</text>
+          </display>
+        </prompt>
+      </query>
+      <datum id="search_case_id" nodeset="instance('patients')/results/case[@case_type='patient']" value="./@case_id" detail-select="m0_search_short" detail-confirm="m0_search_long"/>
+    </session>
+    <stack>
+      <push if="instance('results')/results/case[@case_id=instance('commcaresession')/session/data/search_case_id]/commcare_project != instance('commcaresession')/session/user/data/commcare_project">
+        <jump>
+          <url>
+          <text>
+          <xpath function="concat('http://www.commcarehq.org/a/', $domain, '/app/v1/123abc/patients_endpoint/')">
+            <variable name="domain">
+              <xpath function="instance('results')/results/case[@case_id=instance('commcaresession')/session/data/search_case_id]/commcare_project"/>
+            </variable>
+          </xpath>
+          </text>
+          </url>
+        </jump>
+      </push>
+      <push>
+        <rewind value="instance('commcaresession')/session/data/search_case_id"/>
+      </push>
+    </stack>
+  </remote-request>
+
+  <remote-request>
+    <post url="http://fake.com/claim_patient/"/>
+    <command id="empty-remote-request">
+      <display>
+        <text>Global search for person</text>
+      </display>
+    </command>
+    <session/>
+  </remote-request>
+
+  <remote-request>
+    <post url="http://fake.com/claim_patient/" relevant="false()"/>
+    <command id="irrelevant-remote-request">
+      <display>
+        <text>Global search for person</text>
+      </display>
+    </command>
+    <session/>
+  </remote-request>
+
+  <remote-request>
+    <post url="http://fake.com/claim_patient/" relevant="true()"/>
+    <command id="relevant-remote-request">
+      <display>
+        <text>Global search for person</text>
+      </display>
+    </command>
+    <session/>
+  </remote-request>
+
+  <remote-request>
+    <post url="http://fake.com/claim_patient/" relevant="$selected_case_id != ''">
+      <data key="selected_case_id" ref="instance('session')/session/data/case_id"/>
+    </post>
+    <instance id="session" src="jr://instance/session"/>
+    <command id="dynamic-relevancy-remote-request">
+      <display>
+        <text>Global search for person</text>
+      </display>
+    </command>
+    <session/>
+  </remote-request>
+
+  <menu id="m0">
+    <text>
+      <locale id="modules.m0"/>
+    </text>
+    <command id="m0-f0"/>
+    <command id="m0-f1"/>
+    <command id="m0-f2"/>
+  </menu>
+  <menu id="m1">
+    <text>
+      <locale id="modules.m1"/>
+    </text>
+    <command id="m1-f0"/>
+    <command id="m1-f1"/>
+  </menu>
+  <menu id="m2">
+    <text>
+      <locale id="modules.m2"/>
+    </text>
+    <command id="m2-f0"/>
+    <command id="m2-f1"/>
+    <command id="m2-f2"/>
+  </menu>
+
+  <menu id="m3">
+    <text>
+      <locale id="modules.m3"/>
+    </text>
+    <command id="m2-f2"/>
+  </menu>
+
+  <menu id="m4">
+    <text>Multi select case list</text>
+    <command id="multi-select-auto-launch"/>
+  </menu>
+
+  <!-- testing child modules and needed case id logic -->
+  <!-- NOTE: order of menu entries is important here -->
+  <menu id="parent-module">
+    <text>
+      <locale id="modules.parent"/>
+    </text>
+    <command id="baby-form"/>
+  </menu>
+  <menu id="parent-module">
+    <text>
+      <locale id="modules.parent"/>
+    </text>
+    <command id="adolescent-form"/>
+  </menu>
+  <menu id="parent-module">
+    <text>
+      <locale id="modules.parent"/>
+    </text>
+    <command id="dummy-form" relevant="1=2"/>
+  </menu>
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="dummy-form">
+      <text>Form that is never shown</text>
+    </command>
+    <session/>
+  </entry>
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="baby-form">
+      <text>baby child form</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="session" src="jr://instance/session"/>
+    <session>
+      <datum id="baby_case_id" nodeset="instance('casedb')/casedb/case[@case_type='baby'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long" />
+    </session>
+  </entry>
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="adolescent-form">
+      <text>Module 2 Form 1</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="adolescent_case_id" nodeset="instance('casedb')/casedb/case[@case_type='adolescent'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long" />
+    </session>
+  </entry>
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="eof-nav-registry">
+      <text>Some Form</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <query url="http://fake.com/patient_search/" storage-instance="results" template="case">
+        <data key="case_type" ref="'patient'"/>
+        <data key="commcare_registry" ref="'patient_reg'"/>
+        <prompt key="name">
+          <display>
+            <text>Name</text>
+          </display>
+        </prompt>
+      </query>
+      <datum id="case_id" nodeset="instance('results')/results/case[@case_type='patient'][@status='open']" value="./@case_id" detail-select="m1_case_short"/>
+      <query url="http://fake.com/registry_case/" storage-instance="registry" template="case" default_search="true">
+        <data key="case_type" ref="'patient'"/>
+        <data key="case_id" ref="instance('commcaresession')/session/data/case_id"/>
+        <data key="commcare_registry" ref="'patient_reg'"/>
+      </query>
+    </session>
+    <stack>
+      <create if="true()">
+        <command value="'m1'"/>
+        <query id="results" value="http://fake.com/registry_case/">
+          <data key="case_type" ref="'patient'"/>
+          <data key="commcare_registry" ref="'patient_reg'"/>
+          <data key="case_id" ref="instance('commcaresession')/session/data/case_id"/>
+        </query>
+        <datum id="case_id" value="instance('commcaresession')/session/data/case_id"/>
+        <query id="registry" value="http://fake.com/registry_case/">
+          <data key="case_type" ref="'patient'"/>
+          <data key="case_id" ref="instance('commcaresession')/session/data/case_id"/>
+          <data key="commcare_registry" ref="'patient_reg'"/>
+        </query>
+        <command value="'m1-f0'"/>
+      </create>
+    </stack>
+  </entry>
+  <remote-request>
+    <post url="https://www.example.com/a/multiple-referrals/phone/claim-case/"
+          relevant="$case_id != ''">
+      <data key="case_id"
+            nodeset="instance('search_selected_cases')/results/value"
+            exclude="count(instance('casedb')/casedb/case[@case_id=current()/.]) = 1"
+            ref="."/>
+    </post>
+    <command id="search_command.m3">
+      <display>
+        <text>Multi-select case search</text>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <instance id="search_selected_cases" src="jr://instance/selected-entities"/>
+    <session>
+      <query default_search="false" storage-instance="results" template="case" url="https://www.example.com/a/multiple-referrals/phone/search/123/">
+        <data key="case_type" ref="'person'"/>
+        <prompt key="name">
+          <display>
+            <text>Name</text>
+          </display>
+        </prompt>
+      </query>
+      <instance-datum detail-confirm="m1_case_long" detail-select="m1_case_short" id="search_selected_cases" nodeset="instance('results')/results/case[@case_type='person'][not(commcare_is_related_case=true())]" value="./@case_id"/>
+    </session>
+    <stack>
+      <push>
+        <rewind value="instance('commcaresession')/session/data/search_selected_cases"/>
+      </push>
+    </stack>
+  </remote-request>
+</suite>

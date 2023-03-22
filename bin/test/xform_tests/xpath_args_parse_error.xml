@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+    <h:head>
+        <h:title>Invalid XPaths Arg Error</h:title>
+        <model>
+            <instance>
+                <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://commcarehq.org/tests/bad_xform_inputs" uiVersion="1" version="1" name="Invalid XPaths Arg Error">
+                    <node/>
+                    <question/>
+                </data>
+            </instance>
+            <bind nodeset="/data/node" calculate="selected('one', 'two', 'three','four')"/>
+        </model>
+    </h:head>
+    <h:body>
+        <input  ref="/data/question">
+            <label>dummy</label>
+        </input>
+    </h:body>
+</h:html>

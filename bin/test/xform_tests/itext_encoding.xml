@@ -1,0 +1,32 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.w3.org/2002/xforms"
+        xmlns:jr="http://openrosa.org/javarosa">
+    <h:head>
+        <h:title>Form for checking encodings</h:title>
+        <model>
+            <instance>
+                <data
+                    xmlns="http://openrosa.org/tests/itextfunction"
+                    uiVersion="1" version="279" name="Itext">
+                    <calculation/>
+                    <inline/>
+                    <nested/>
+                </data>
+            </instance>
+
+            <itext>
+                <translation lang="en" default="">
+                    <text id="four_byte_emoji">
+                        <value>&#129490;</value>
+                    </text>
+                </translation>
+            </itext>
+        </model>
+    </h:head>
+
+    <h:body>
+        <trigger ref="nested">
+            <label ref="jr:itext('four_byte_emoji')"/>
+        </trigger>
+    </h:body>
+</h:html>

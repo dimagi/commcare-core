@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<OpenRosaResponse xmlns="http://openrosa.org/http/response">
+<message nature="ota_restore_success">Successfully restored account test!</message>
+<Sync xmlns="http://commcarehq.org/sync">
+<restore_id>869e2be63ba442e62c9b079c3caeee59</restore_id>
+</Sync>
+<Registration xmlns="http://openrosa.org/user/registration">
+<username>test</username>
+<password>sha1$o80y8ytGm6tP$2a4774f68fdaf0cbcb376e8909cc1de62ade8b8f</password>
+<uuid>test_uuid</uuid>
+<date>2014-07-31</date>
+</Registration>
+<fixture id="commcare:reports">
+    <reports>
+        <report id="my_report">
+            <name>Candidates by Team</name>
+            <description/>
+            <rows>
+                <row index="0">
+                    <column id="applicant_type"/>
+                    <column id="remote_choices_no">2</column>
+                    <column id="remote_choices_unknown">0</column>
+                    <column id="remote_choices_yes">2</column>
+                </row>
+                <row index="1">
+                    <column id="applicant_type">either_team</column>
+                    <column id="remote_choices_no">18</column>
+                    <column id="remote_choices_unknown">6</column>
+                    <column id="remote_choices_yes">4</column>
+                </row>
+                <row index="2">
+                    <column id="applicant_type">mobile_only</column>
+                    <column id="remote_choices_no">6</column>
+                    <column id="remote_choices_unknown">1</column>
+                    <column id="remote_choices_yes">0</column>
+                </row>
+                <row index="3">
+                    <column id="applicant_type">server_only</column>
+                    <column id="remote_choices_no">24</column>
+                    <column id="remote_choices_unknown">5</column>
+                    <column id="remote_choices_yes">11</column>
+                </row>
+            </rows>
+        </report>
+    </reports>
+</fixture>
+</OpenRosaResponse>

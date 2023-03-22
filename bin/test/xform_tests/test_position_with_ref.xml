@@ -1,0 +1,39 @@
+<h:html xmlns="http://www.w3.org/2002/xforms" xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:jr="http://openrosa.org/javarosa"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <h:head>
+        <h:title>Tests position(ref) failures</h:title>
+        <model>
+            <instance>
+                <data name="position failure"
+                      uiVersion="1"
+                      version="1"
+                      xmlns="http://openrosa.org/formdesigner/313BF9C4-9DF3-4B92-A111-1AB7306EA8CA">
+                    <how_many/>
+                    <animals jr:template="">
+                        <id_num/>
+                        <zoos jr:template="">
+                            <id_num/>
+                        </zoos>
+                    </animals>
+                </data>
+            </instance>
+
+            <bind nodeset="/data/how_many" type="xsd:int"/>
+            <bind calculate="position(/data/animals/zoos) + 1" nodeset="/data/animals/id_num"/>
+            <bind nodeset="/data/animals"/>
+            <setvalue event="xforms-ready" ref="/data/how_many" value="4"/>
+        </model>
+    </h:head>
+    <h:body>
+        <group>
+            <repeat nodeset="/data/animals" jr:count="/data/how_many" jr:noAddRemove="true()">
+                <group>
+                    <repeat nodeset="/data/animals/zoos" jr:count="/data/how_many"
+                            jr:noAddRemove="true()">
+                    </repeat>
+                </group>
+            </repeat>
+        </group>
+    </h:body>
+</h:html>

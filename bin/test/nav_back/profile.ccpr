@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<profile version="36"
+         update=""
+         requiredMajor="2"
+         requiredMinor="22"
+         uniqueid="uniqueid"
+         name="Session Back Test"
+         descriptor="Profile File">
+
+    <suite><resource id="suite" version="36">
+            <location authority="local">./suite.xml</location>
+    </resource></suite>
+
+</profile>
