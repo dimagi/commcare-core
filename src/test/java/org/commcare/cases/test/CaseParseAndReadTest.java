@@ -53,7 +53,7 @@ public class CaseParseAndReadTest {
 
     @Test
     public void testReadCaseDB() throws Exception {
-        compareCaseDbState("/case_create_basic.xml", "/case_create_basic_output.xml");
+        parseAndCompareCaseDbState("/case_create_basic.xml", "/case_create_basic_output.xml");
 
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
@@ -62,21 +62,23 @@ public class CaseParseAndReadTest {
 
     @Test
     public void testDoubleCreateCaseWithUpdate() throws Exception {
-        compareCaseDbState("/case_create_overwrite.xml", "/case_create_overwrite_output.xml");
+        parseAndCompareCaseDbState("/case_create_overwrite.xml", "/case_create_overwrite_output.xml");
         EvaluationContext ec = MockDataUtils.buildContextWithInstance(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", "case_overwrite"));
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_property1", "one"));
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_property2", "property_two"));
     }
-
-
-    private void compareCaseDbState(String inputTransactions,
+    private void parseAndCompareCaseDbState(String inputTransactions,
                                     String caseDbState) throws Exception {
         config.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox, false);
+        compareCaseDbState(sandbox, getClass().getResourceAsStream(caseDbState));
+    }
 
+    private static void compareCaseDbState(MockUserDataSandbox sandbox, InputStream caseDbState)
+            throws IOException {
         byte[] parsedDb = serializeCaseInstanceFromSandbox(sandbox);
         Document parsed = XmlComparator.getDocumentFromStream(new ByteArrayInputStream(parsedDb));
-        Document loaded = XmlComparator.getDocumentFromStream(this.getClass().getResourceAsStream(caseDbState));
+        Document loaded = XmlComparator.getDocumentFromStream(caseDbState);
 
         try {
             XmlComparator.isDOMEqual(parsed, loaded);
@@ -104,12 +106,9 @@ public class CaseParseAndReadTest {
     }
 
 
-    private byte[] dumpStream(String inputResource) throws IOException {
-        InputStream is = this.getClass().getResourceAsStream(inputResource);
+    private static byte[] dumpStream(InputStream is) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
         StreamsUtil.writeFromInputToOutput(is, bos);
-
         return bos.toByteArray();
     }
 }
