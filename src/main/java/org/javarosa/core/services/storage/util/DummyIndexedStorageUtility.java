@@ -18,6 +18,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -358,6 +359,12 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
             response[i] = (String)((IMetaData)data.get(recordId)).getMetaData(fieldNames[i]);
         }
         return response;
+    }
+
+    @Override
+    public Vector<T> getBulkRecordsForIndex(String metaFieldName, Collection<String> matchingValues) {
+        // we don't care about bulk retrieval for dummy storage, so just call normal method to get records here
+        return getRecordsForValues(new String[]{metaFieldName}, matchingValues.toArray());
     }
 
     @Override
