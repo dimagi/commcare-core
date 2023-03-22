@@ -4,6 +4,7 @@ import org.javarosa.core.model.condition.RequestAbandonedException;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -267,6 +268,16 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      * required for the fields to be retrieved from storage again.
      */
     void bulkReadMetadata(LinkedHashSet<Integer> recordIds, String[] metaFieldNames, HashMap<Integer, String[]> metadataMap);
+
+
+    /**
+     * Bulk retrieves a set of the records in storage based on a list of values matching one of the
+     * field for this storage
+     * @param metaFieldName field we are matching against
+     * @param matchingValues matching values for metaFieldName that we want to filter records against
+     * @return A Vector of Externalizable objects e, such that the field specified is equal to the corresponding value provided.
+     */
+    Vector<E> getBulkRecordsForIndex(String metaFieldName, Collection<String> matchingValues);
 
     /**
      * Provide public accessor to the inner class that is stored
