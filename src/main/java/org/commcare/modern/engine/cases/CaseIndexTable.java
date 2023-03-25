@@ -23,4 +23,8 @@ public interface CaseIndexTable {
     void indexCase(Case c);
 
     void clearCaseIndices(Collection<Integer> idsToClear);
+
+    void delete();
+
+    boolean isStorageExists();
 }
