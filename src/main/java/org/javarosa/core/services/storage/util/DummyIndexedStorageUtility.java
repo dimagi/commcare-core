@@ -32,7 +32,7 @@ import java.util.Vector;
  */
 public class DummyIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T> {
 
-    private final Hashtable<String, Hashtable<Object, Vector<Integer>>> meta = new Hashtable<>();
+    private Hashtable<String, Hashtable<Object, Vector<Integer>>> meta = new Hashtable<>();
     private final Hashtable<Integer, T> data = new Hashtable<>();
     private int curCount = 0;
     private final Class<T> prototype;
@@ -381,13 +381,16 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 
     @Override
     public boolean isStorageExists() {
-        // this method is not really meaningful for dummy storage
-        // so default to returning true until needed otherwise
-        return true;
+        return meta != null;
     }
 
     @Override
     public void initStorage() {
-        // do nothing as storage is initialized by default
+        meta = new Hashtable<>();
+    }
+
+    @Override
+    public void deleteStorage() {
+        meta = null;
     }
 }
