@@ -294,4 +294,9 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      * initialise the storage, for example create the table in the DB for this storage
      */
     void initStorage();
+
+    /**
+     * Deletes the storage
+     */
+    void deleteStorage();
 }
