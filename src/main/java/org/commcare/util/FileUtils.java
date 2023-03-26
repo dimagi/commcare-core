@@ -11,6 +11,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 
 import javax.annotation.Nullable;
 
@@ -67,5 +72,41 @@ public class FileUtils {
             return ArrayUtilities.last(file.split("\\."));
         }
         return "";
+    }
+
+    /**
+     * Delete files inside the given folder if they were las accessed before the given cutOff time
+     *
+     * @param folder folder for which we want to delete the files
+     * @param cutOff cutOff time before which we want to delete the files
+     * @return number of files deleted
+     * @throws IOException
+     */
+    public static int deleteFiles(File folder, Instant cutOff) throws IOException {
+        File[] files = folder.listFiles();
+        int count = 0;
+        for (File file : files) {
+            if (file.isDirectory()) {
+               deleteFiles(file, cutOff);
+            } else {
+                deleteFile(file, cutOff);
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Delete given file if it was las accessed before the given cutOff time
+     * @param file file to be deleted
+     * @param cutOff cutOff time before which we want to delete the file
+     * @throws IOException
+     */
+    public static void deleteFile(File file, Instant cutOff) throws IOException {
+        BasicFileAttributes attr = Files.readAttributes(Paths.get(file.getPath()), BasicFileAttributes.class);
+        FileTime lastAccessTime = attr.lastAccessTime();
+        if (lastAccessTime.toInstant().isBefore(cutOff)) {
+            file.delete();
+        }
     }
 }
