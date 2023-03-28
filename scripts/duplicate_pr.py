@@ -37,6 +37,16 @@ def git_create_branch(orig_branch_name:str, new_branch_name: str, git=None):
         exit(1)
 
 
+def git_pull_pr(pr_id:str, new_branch_name:str, git=None):
+    git = git or get_git()
+    input = "pull/{}/head:{}".format(pr_id,new_branch_name)
+    try:
+        git.fetch("origin", input)
+    except sh.ErrorReturnCode_1 as e:
+        print(red(e.stderr.decode()))
+        exit(1)
+
+
 def _wrap_with(code):
 
     def inner(text, bold=False):
@@ -64,6 +74,9 @@ def main():
 
     print("Creating branch {} from {}".format(new_source_branch, new_target_branch))
     git_create_branch(orig_branch_name=new_target_branch, new_branch_name=new_source_branch)
+
+    print("Pulling {}".format(args.orig_source_branch))
+    git_pull_pr(args.orig_pr_id, args.orig_source_branch)
 
 
 if __name__ == "__main__":
