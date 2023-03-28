@@ -47,6 +47,26 @@ def git_pull_pr(pr_id:str, new_branch_name:str, git=None):
         exit(1)
 
 
+def get_new_commits(base_branch: str, curr_branch:str, git=None):
+    git = git or get_git()
+    base_commit = merge_base_commit(base_branch, curr_branch)
+    recent_commit = latest_commit(curr_branch)
+
+    commits_range = "{}..{}".format(base_commit, recent_commit)
+    interested_commits = git("rev-list", "--no-merges", commits_range).split()
+    return interested_commits
+
+
+def merge_base_commit(branch1: str, branch2:str, git=None):
+    git = git or get_git()
+    return str(git("merge-base", branch1, branch2).replace("\n", ""))
+
+
+def latest_commit(branch:str, git=None):
+    git = git or get_git()
+    return str(git("rev-parse", branch).replace("\n", ""))
+
+
 def _wrap_with(code):
 
     def inner(text, bold=False):
@@ -77,6 +97,9 @@ def main():
 
     print("Pulling {}".format(args.orig_source_branch))
     git_pull_pr(args.orig_pr_id, args.orig_source_branch)
+
+    print("Getting new commits from {}".format(args.orig_source_branch))
+    new_commits = get_new_commits(args.orig_target_branch, args.orig_source_branch)
 
 
 if __name__ == "__main__":
