@@ -23,6 +23,20 @@ def get_target_branch(orig_target_branch:str):
         exit(1)
 
 
+def git_create_branch(orig_branch_name:str, new_branch_name: str, git=None):
+    git = git or get_git()
+    try:
+        git.checkout(orig_branch_name)
+    except sh.ErrorReturnCode_1 as e:
+        print(e.stderr.decode())
+        exit(1)
+    try:
+        git.checkout('-b', new_branch_name)
+    except sh.ErrorReturnCode_128 as e:
+        print(e.stderr.decode())
+        exit(1)
+
+
 def main():
     parser = argparse.ArgumentParser(description='Duplicate and push PR between formplayer/master')
     parser.add_argument('orig_pr_id', type=str, help="ID of PR to be cloned")
@@ -33,6 +47,9 @@ def main():
 
     new_source_branch = "copy_of_" + args.orig_source_branch
     new_target_branch = get_target_branch(args.orig_target_branch)
+
+    print("Creating branch {} from {}".format(new_source_branch, new_target_branch))
+    git_create_branch(orig_branch_name=new_target_branch, new_branch_name=new_source_branch)
 
 
 if __name__ == "__main__":
