@@ -57,6 +57,13 @@ def get_new_commits(base_branch: str, curr_branch:str, git=None):
     return interested_commits
 
 
+def cherry_pick_new_commits(commits:list[str], branch:str, git=None):
+    git = git or get_git()
+    git.checkout(branch)
+    for commits in reversed(commits):
+        git("cherry-pick", commits)
+
+
 def merge_base_commit(branch1: str, branch2:str, git=None):
     git = git or get_git()
     return str(git("merge-base", branch1, branch2).replace("\n", ""))
@@ -100,6 +107,9 @@ def main():
 
     print("Getting new commits from {}".format(args.orig_source_branch))
     new_commits = get_new_commits(args.orig_target_branch, args.orig_source_branch)
+
+    print("Cherry-picking commits from {} to {}".format(args.orig_source_branch, new_source_branch))
+    cherry_pick_new_commits (new_commits, new_source_branch)
 
 
 if __name__ == "__main__":
