@@ -64,6 +64,11 @@ def cherry_pick_new_commits(commits:list[str], branch:str, git=None):
         git("cherry-pick", commits)
 
 
+def git_push_pr(branch:str, git=None):
+    git = git or get_git()
+    git.push("origin", branch)
+
+
 def merge_base_commit(branch1: str, branch2:str, git=None):
     git = git or get_git()
     return str(git("merge-base", branch1, branch2).replace("\n", ""))
@@ -110,6 +115,9 @@ def main():
 
     print("Cherry-picking commits from {} to {}".format(args.orig_source_branch, new_source_branch))
     cherry_pick_new_commits (new_commits, new_source_branch)
+
+    print("Pushing {}".format(new_source_branch))
+    git_push_pr(new_source_branch)
 
 
 if __name__ == "__main__":
