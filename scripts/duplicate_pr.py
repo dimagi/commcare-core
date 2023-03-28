@@ -28,13 +28,27 @@ def git_create_branch(orig_branch_name:str, new_branch_name: str, git=None):
     try:
         git.checkout(orig_branch_name)
     except sh.ErrorReturnCode_1 as e:
-        print(e.stderr.decode())
+        print(red(e.stderr.decode()))
         exit(1)
     try:
         git.checkout('-b', new_branch_name)
     except sh.ErrorReturnCode_128 as e:
-        print(e.stderr.decode())
+        print(red(e.stderr.decode()))
         exit(1)
+
+
+def _wrap_with(code):
+
+    def inner(text, bold=False):
+        c = code
+
+        if bold:
+            c = "1;%s" % c
+        return "\033[%sm%s\033[0m" % (c, text)
+    return inner
+
+
+red = _wrap_with('31')
 
 
 def main():
