@@ -1,10 +1,16 @@
 from enum import Enum
 
 import argparse
+import sh
+
 
 class BranchName(Enum):
     MASTER = "master"
     FORMPLAYER = "formplayer"
+
+
+def get_git(path=None):
+    return sh.git.bake(_tty_out=False, _cwd=path)
 
 
 def main():
