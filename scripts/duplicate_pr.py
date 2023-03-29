@@ -37,9 +37,10 @@ def git_create_branch(orig_branch_name:str, new_branch_name: str, git=None):
         exit(1)
 
 
-def git_pull_pr(pr_id:str, new_branch_name:str, git=None):
+def git_fetch_pr_branch(branch_name:str, git=None):
     git = git or get_git()
-    input = "pull/{}/head:{}".format(pr_id,new_branch_name)
+    # fetch remote branch without switching branches
+    input = "{0}:{0}".format(branch_name)
     try:
         git.fetch("origin", input)
     except sh.ErrorReturnCode_1 as e:
@@ -95,7 +96,6 @@ red = _wrap_with('31')
 
 def main():
     parser = argparse.ArgumentParser(description='Duplicate and push PR between formplayer/master')
-    parser.add_argument('orig_pr_id', type=str, help="ID of PR to be cloned")
     parser.add_argument('orig_source_branch', type=str, help="Branch name of PR to be duplicated")
     parser.add_argument('orig_target_branch', type=str, help="Name of branch the original PR merged into",
                             choices = [key.value for key in BranchName])
@@ -107,8 +107,8 @@ def main():
     print("Creating branch {} from {}".format(new_source_branch, new_target_branch))
     git_create_branch(orig_branch_name=new_target_branch, new_branch_name=new_source_branch)
 
-    print("Pulling {}".format(args.orig_source_branch))
-    git_pull_pr(args.orig_pr_id, args.orig_source_branch)
+    print("Fetching {}".format(args.orig_source_branch))
+    git_fetch_pr_branch(args.orig_source_branch)
 
     print("Getting new commits from {}".format(args.orig_source_branch))
     new_commits = get_new_commits(args.orig_target_branch, args.orig_source_branch)
