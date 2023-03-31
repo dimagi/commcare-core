@@ -9,8 +9,8 @@ class BranchName(Enum):
     FORMPLAYER = "formplayer"
 
 
-def get_git(path=None):
-    return sh.git.bake(_tty_out=False, _cwd=path)
+def get_git():
+    return sh.git.bake(_tty_out=False)
 
 
 def get_target_branch(orig_target_branch:str):
@@ -23,8 +23,8 @@ def get_target_branch(orig_target_branch:str):
         exit(1)
 
 
-def git_create_branch(orig_branch_name:str, new_branch_name: str, git=None):
-    git = git or get_git()
+def git_create_branch(orig_branch_name:str, new_branch_name: str):
+    git = get_git()
     try:
         git.checkout(orig_branch_name)
     except sh.ErrorReturnCode_1 as e:
@@ -37,8 +37,8 @@ def git_create_branch(orig_branch_name:str, new_branch_name: str, git=None):
         exit(1)
 
 
-def git_fetch_pr_branch(branch_name:str, git=None):
-    git = git or get_git()
+def git_fetch_pr_branch(branch_name:str):
+    git = get_git()
     # fetch remote branch without switching branches
     input = "{0}:{0}".format(branch_name)
     try:
@@ -48,8 +48,8 @@ def git_fetch_pr_branch(branch_name:str, git=None):
         exit(1)
 
 
-def get_new_commits(base_branch: str, curr_branch:str, git=None):
-    git = git or get_git()
+def get_new_commits(base_branch: str, curr_branch:str):
+    git = get_git()
     base_commit = merge_base_commit(base_branch, curr_branch)
     recent_commit = latest_commit(curr_branch)
 
@@ -58,26 +58,26 @@ def get_new_commits(base_branch: str, curr_branch:str, git=None):
     return interested_commits
 
 
-def cherry_pick_new_commits(commits:list[str], branch:str, git=None):
-    git = git or get_git()
+def cherry_pick_new_commits(commits:list[str], branch:str):
+    git = get_git()
     git.checkout(branch)
     for commits in reversed(commits):
         git("cherry-pick", commits)
 
 
-def git_push_pr(branch:str, git=None):
-    git = git or get_git()
+def git_push_pr(branch:str):
+    git = get_git()
     output = git.push("origin", branch, _err_to_out=True)
     print(output)
 
 
-def merge_base_commit(branch1: str, branch2:str, git=None):
-    git = git or get_git()
+def merge_base_commit(branch1: str, branch2:str):
+    git = get_git()
     return str(git("merge-base", branch1, branch2).replace("\n", ""))
 
 
-def latest_commit(branch:str, git=None):
-    git = git or get_git()
+def latest_commit(branch:str):
+    git = get_git()
     return str(git("rev-parse", branch).replace("\n", ""))
 
 
@@ -115,7 +115,7 @@ def main():
     new_commits = get_new_commits(args.orig_target_branch, args.orig_source_branch)
 
     print("Cherry-picking commits from {} to {}".format(args.orig_source_branch, new_source_branch))
-    cherry_pick_new_commits (new_commits, new_source_branch)
+    cherry_pick_new_commits(new_commits, new_source_branch)
 
     print("Pushing {}".format(new_source_branch))
     git_push_pr(new_source_branch)
