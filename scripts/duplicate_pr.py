@@ -26,6 +26,7 @@ def get_target_branch(orig_target_branch:str):
 def git_create_branch(orig_branch_name:str, new_branch_name: str):
     git = get_git()
     try:
+        git_fetch_branch(orig_branch_name)
         git.checkout(orig_branch_name)
     except sh.ErrorReturnCode_1 as e:
         print(red(e.stderr.decode()))
@@ -37,7 +38,7 @@ def git_create_branch(orig_branch_name:str, new_branch_name: str):
         exit(1)
 
 
-def git_fetch_pr_branch(branch_name:str):
+def git_fetch_branch(branch_name:str):
     git = get_git()
     # fetch remote branch without switching branches
     input = "{0}:{0}".format(branch_name)
@@ -109,7 +110,7 @@ def main():
     git_create_branch(orig_branch_name=new_target_branch, new_branch_name=new_source_branch)
 
     print("Fetching {}".format(args.orig_source_branch))
-    git_fetch_pr_branch(args.orig_source_branch)
+    git_fetch_branch(args.orig_source_branch)
 
     print("Getting new commits from {}".format(args.orig_source_branch))
     new_commits = get_new_commits(args.orig_target_branch, args.orig_source_branch)
