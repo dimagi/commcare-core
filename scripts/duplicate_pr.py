@@ -67,7 +67,8 @@ def cherry_pick_new_commits(commits:list[str], branch:str, git=None):
 
 def git_push_pr(branch:str, git=None):
     git = git or get_git()
-    git.push("origin", branch)
+    output = git.push("origin", branch, _err_to_out=True)
+    print(output)
 
 
 def merge_base_commit(branch1: str, branch2:str, git=None):
