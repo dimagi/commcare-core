@@ -23,7 +23,7 @@ jobs:
       - name: Run duplicate_pr script
         run: python scripts/duplicate_pr.py ${GITHUB_REF_NAME} ${GITHUB_BASE_REF}
       - name: Varibles
-      - run: |
+        run: |
           echo GITHUB_REF_NAME is ${GITHUB_REF_NAME}
           echo GITHUB_BASE_REF is ${GITHUB_BASE_REF}}
 
