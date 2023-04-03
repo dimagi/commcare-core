@@ -1,0 +1,46 @@
+name: Duplicate PR
+
+on:
+  issue_comment:
+    types: [created, edited]
+  
+
+# jobs:
+#   duplicate_pr:
+#     name: PR comment
+#     # if: ${{ github.event.issue.pull_request && github.event.comment.body == "@dimagotchi duplicate this" }}
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v3
+#         with:
+#           submodules: recursive
+#       - uses: actions/setup-python@v4
+#         with:
+#           python-version: '3.9'
+#       - name: Install dev requirements
+#         working-directory: ./commcare-hq
+#         run: pip install -r requirements/dev-requirements.txt
+#       - name: Run duplicate_pr script
+#         run: python scripts/duplicate_pr.py ${GITHUB_REF_NAME} ${GITHUB_BASE_REF}
+jobs:
+  pr_commented:
+    # This job only runs for pull request comments
+    name: PR comment
+    if: ${{ github.event.issue.pull_request }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo A comment on PR $NUMBER
+        env:
+          NUMBER: ${{ github.event.issue.number }}
+
+  issue_commented:
+    # This job only runs for issue comments
+    name: Issue comment
+    if: ${{ !github.event.issue.pull_request }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo A comment on issue $NUMBER
+        env:
+          NUMBER: ${{ github.event.issue.number }}
