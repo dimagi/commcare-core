@@ -11,6 +11,9 @@ jobs:
     if: ${{ github.event.issue.pull_request && github.event.comment.body == '@dimagotchi duplicate this' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Pull Request Comment Branch
+        uses: xt0rted/pull-request-comment-branch@v2.0.0
+        id: comment-branch
       - uses: actions/checkout@v3
         with:
           submodules: recursive
@@ -23,8 +26,8 @@ jobs:
         # run: pip install -r requirements/dev-requirements.txt
       - name: Varibles
         run: |
-          echo GITHUB_REF_NAME is ${GITHUB_REF_NAME}
-          echo GITHUB_BASE_REF is ${GITHUB_BASE_REF}}
+          echo base is ${{ steps.comment-branch.outputs.base_ref }}
+          echo head is ${{ steps.comment-branch.outputs.head_ref }}
       - name: Run duplicate_pr script
         run: python scripts/duplicate_pr.py ${GITHUB_REF_NAME} ${GITHUB_BASE_REF}
 
