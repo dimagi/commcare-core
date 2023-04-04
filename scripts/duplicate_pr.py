@@ -74,8 +74,11 @@ def git_push_pr(branch:str):
 
 def merge_base_commit(branch1: str, branch2:str):
     git = get_git()
-    return str(git("merge-base", branch1, branch2).replace("\n", ""))
-
+    try:
+        return str(git("merge-base", branch1, branch2).replace("\n", ""))
+    except sh.ErrorReturnCode_1 as e:
+        print(red(e.stderr.decode()))
+        exit(1)
 
 def latest_commit(branch:str):
     git = get_git()
