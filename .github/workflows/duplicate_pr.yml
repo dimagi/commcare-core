@@ -19,7 +19,9 @@ jobs:
           python-version: '3.9'
       - name: Install dev requirements
         working-directory: ./commcare-hq
-        run: pip install -r requirements/dev-requirements.txt
+        run: |
+          pwd
+          pip install -r requirements/dev-requirements.txt
       - name: Run duplicate_pr script
         run: python scripts/duplicate_pr.py ${GITHUB_REF_NAME} ${GITHUB_BASE_REF}
       - name: Varibles
