@@ -51,12 +51,8 @@ def git_fetch_branch(branch_name:str):
 
 def get_new_commits(base_branch: str, curr_branch:str):
     git = get_git()
-    try:
-        base_commit = merge_base_commit(base_branch, curr_branch)
-        recent_commit = latest_commit(curr_branch)
-    except sh.ErrorReturnCode_1 as e:
-        print(red(e.stderr.decode()))
-        exit(1)
+    base_commit = merge_base_commit(base_branch, curr_branch)
+    recent_commit = latest_commit(curr_branch)
 
     commits_range = "{}..{}".format(base_commit, recent_commit)
     interested_commits = git("rev-list", "--no-merges", commits_range).split()
@@ -78,11 +74,8 @@ def git_push_pr(branch:str):
 
 def merge_base_commit(branch1: str, branch2:str):
     git = get_git()
-    try:
-        return str(git("merge-base", branch1, branch2).replace("\n", ""))
-    except sh.ErrorReturnCode_1 as e:
-        print(red(e.stderr.decode()))
-        exit(1)
+    return str(git("merge-base", branch1, branch2).replace("\n", ""))
+
 
 def latest_commit(branch:str):
     git = get_git()
