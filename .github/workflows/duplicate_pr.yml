@@ -11,9 +11,9 @@ jobs:
     if: ${{ github.event.issue.pull_request && github.event.comment.body == '@dimagotchi duplicate this' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Pull Request Comment Branch
-        uses: xt0rted/pull-request-comment-branch@v2.0.0
-        id: comment-branch
+      # - name: Pull Request Comment Branch
+      #   uses: xt0rted/pull-request-comment-branch@v2.0.0
+      #   id: comment-branch
       - uses: actions/checkout@v3
         with:
           submodules: recursive
@@ -24,12 +24,13 @@ jobs:
         run: pip install sh
         # working-directory: ./commcare-hq
         # run: pip install -r requirements/dev-requirements.txt
-      - name: Varibles
-        run: |
-          echo base is ${{ steps.comment-branch.outputs.base_ref }}
-          echo head is ${{ steps.comment-branch.outputs.head_ref }}
+      # - name: Varibles Issue Comment
+      #   run: |
+      #     echo base is ${{ steps.comment-branch.outputs.base_ref }}
+      #     echo head is ${{ steps.comment-branch.outputs.head_ref }}
       - name: Run duplicate_pr script
-        run: python scripts/duplicate_pr.py ${{ steps.comment-branch.outputs.head_ref }} ${{ steps.comment-branch.outputs.base_ref }}
+        # run: python scripts/duplicate_pr.py ${{ steps.comment-branch.outputs.head_ref }} ${{ steps.comment-branch.outputs.base_ref }}
+        run: python scripts/duplicate_pr.py test_branch master
 
   # pr_commented:
   #   # This job only runs for pull request comments
