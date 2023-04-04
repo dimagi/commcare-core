@@ -51,8 +51,12 @@ def git_fetch_branch(branch_name:str):
 
 def get_new_commits(base_branch: str, curr_branch:str):
     git = get_git()
-    base_commit = merge_base_commit(base_branch, curr_branch)
-    recent_commit = latest_commit(curr_branch)
+    try:
+        base_commit = merge_base_commit(base_branch, curr_branch)
+        recent_commit = latest_commit(curr_branch)
+    except sh.ErrorReturnCode_1 as e:
+        print(red(e.stderr.decode()))
+        exit(1)
 
     commits_range = "{}..{}".format(base_commit, recent_commit)
     interested_commits = git("rev-list", "--no-merges", commits_range).split()
