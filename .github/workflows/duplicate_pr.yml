@@ -29,7 +29,7 @@ jobs:
           echo base is ${{ steps.comment-branch.outputs.base_ref }}
           echo head is ${{ steps.comment-branch.outputs.head_ref }}
       - name: Run duplicate_pr script
-        run: python scripts/duplicate_pr.py ${GITHUB_REF_NAME} ${GITHUB_BASE_REF}
+        run: python scripts/duplicate_pr.py ${{ steps.comment-branch.outputs.head_ref }} ${{ steps.comment-branch.outputs.base_ref }}
 
   # pr_commented:
   #   # This job only runs for pull request comments
