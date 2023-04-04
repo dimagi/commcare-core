@@ -112,7 +112,6 @@ def main():
 
     print("Fetching {}".format(args.orig_source_branch))
     git_fetch_branch(args.orig_source_branch)
-    git_fetch_branch(args.orig_target_branch)
 
     print("Getting new commits from {}".format(args.orig_source_branch))
     new_commits = get_new_commits(args.orig_target_branch, args.orig_source_branch)
