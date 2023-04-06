@@ -179,8 +179,7 @@ public class QueryScreen extends Screen {
         }
         return CryptUtil.sha256(builder.toString());
     }
-
-    public void answerPrompts(Hashtable<String, String> answers) {
+    public void answerPrompts(Hashtable<String, String> answers, boolean selectValuesByKeys) {
         for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
             QueryPrompt queryPrompt = userInputDisplays.get(key);
@@ -193,17 +192,19 @@ public class QueryScreen extends Screen {
                 Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
                 String[] indicesOfSelectedChoices = RemoteQuerySessionManager.extractMultipleChoices(answer);
                 ArrayList<String> selectedChoices = new ArrayList<>(indicesOfSelectedChoices.length);
-                for (int i = 0; i < indicesOfSelectedChoices.length; i++) {
-                    if (indicesOfSelectedChoices[i].isEmpty()) {
-                        selectedChoices.add("");
-                    } else {
-                        int choiceIndex = Integer.parseInt(indicesOfSelectedChoices[i]);
-                        if (choiceIndex < selectChoices.size() && choiceIndex > -1) {
-                            selectedChoices.add(selectChoices.get(choiceIndex).getValue());
+                if (!selectValuesByKeys) {
+                    for (int i = 0; i < indicesOfSelectedChoices.length; i++) {
+                        if (indicesOfSelectedChoices[i].isEmpty()) {
+                            selectedChoices.add("");
+                        } else {
+                            int choiceIndex = Integer.parseInt(indicesOfSelectedChoices[i]);
+                            if (choiceIndex < selectChoices.size() && choiceIndex > -1) {
+                                selectedChoices.add(selectChoices.get(choiceIndex).getValue());
+                            }
                         }
                     }
+                    answer = String.join(RemoteQuerySessionManager.ANSWER_DELIMITER, selectedChoices);
                 }
-                answer = String.join(RemoteQuerySessionManager.ANSWER_DELIMITER, selectedChoices);
             }
             remoteQuerySessionManager.answerUserPrompt(key, answer);
         }
@@ -262,7 +263,7 @@ public class QueryScreen extends Screen {
             userAnswers.put(queryPromptEntry.getKey(), answers[count]);
             count++;
         }
-        answerPrompts(userAnswers);
+        answerPrompts(userAnswers, true);
         URL url = getBaseUrl();
         Multimap<String, String> requestData = getQueryParams(false);
         InputStream response = sessionUtils.makeQueryRequest(url, requestData, domainedUsername, password);
