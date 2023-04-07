@@ -12,9 +12,9 @@ jobs:
     if: ${{ github.event.issue.pull_request && github.event.comment.body == '@dimagotchi duplicate this' }}
     runs-on: ubuntu-latest
     steps:
-      # - name: Pull Request Comment Branch
-      #   uses: xt0rted/pull-request-comment-branch@v2.0.0
-      #   id: comment-branch
+      - name: Pull Request Comment Branch
+        uses: xt0rted/pull-request-comment-branch@v2.0.0
+        id: comment-branch
       - uses: actions/checkout@v3
         with:
           submodules: recursive
@@ -36,8 +36,8 @@ jobs:
           git config --global user.email github-actions@github.com
           git config --global user.name github-actions
       - name: Run duplicate_pr script
-        # run: python scripts/duplicate_pr.py ${{ steps.comment-branch.outputs.head_ref }} ${{ steps.comment-branch.outputs.base_ref }}
-        run: python scripts/duplicate_pr.py test2 master
+        run: python scripts/duplicate_pr.py ${{ steps.comment-branch.outputs.head_ref }} ${{ steps.comment-branch.outputs.base_ref }}
+        # run: python scripts/duplicate_pr.py test2 master
       - name: Create Pull Request Base Master
         if: ${{ steps.comment-branch.outputs.base_ref == 'formplayer' }}
         run: gh pr create --title "AUTO PR" --body "AUTO BODY" --base master 
