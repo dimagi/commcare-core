@@ -41,7 +41,7 @@ jobs:
         run: |
           gh pr create --title "AUTO PR" --body "AUTO BODY" --base master 
           env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GH_TOKEN: ${{ github.token }}
         # id: cpr
         # uses: peter-evans/create-pull-request@v5
         # with:
