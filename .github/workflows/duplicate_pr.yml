@@ -38,11 +38,8 @@ jobs:
         # run: python scripts/duplicate_pr.py ${{ steps.comment-branch.outputs.head_ref }} ${{ steps.comment-branch.outputs.base_ref }}
         run: python scripts/duplicate_pr.py test2 master
       - name: Create Pull Request
-        id: cpr
-        uses: peter-evans/create-pull-request@v5
-        with:
-          title: TITLE
-          commit-message: Update report
+        run: |
+          gh pr create --title "AUTO PR" --body "AUTO BODY" --base master
 
   # pr_commented:
   #   # This job only runs for pull request comments
