@@ -47,7 +47,7 @@ jobs:
         if: ${{ steps.comment-branch.outputs.base_ref == 'master' }}
         run: gh pr create --title "AUTO PR" --body "AUTO BODY" --base formplayer 
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN}}
         # id: cpr
         # uses: peter-evans/create-pull-request@v5
         # with:
