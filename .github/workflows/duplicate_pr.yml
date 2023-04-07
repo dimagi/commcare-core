@@ -39,7 +39,15 @@ jobs:
         run: python scripts/duplicate_pr.py test2 master
       - name: Create Pull Request
         run: |
-          gh pr create --title "AUTO PR" --body "AUTO BODY" --base master
+          gh pr create --title "AUTO PR" --body "AUTO BODY" --base master 
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # id: cpr
+        # uses: peter-evans/create-pull-request@v5
+        # with:
+        #   title: TITLE
+        #   commit-message: Update report
+        #   branch: 
 
   # pr_commented:
   #   # This job only runs for pull request comments
