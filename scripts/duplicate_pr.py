@@ -77,7 +77,6 @@ def cherry_pick_new_commits(commits:list[str], branch:str):
             empty_commit_message = "The previous cherry-pick is now empty"
             git("cherry-pick", commits)
         except sh.ErrorReturnCode_1 as e:
-            print("error is",e.stderr.decode())
             if empty_commit_message in e.stderr.decode():
                 print("IN IF")
                 git("cherry-pick", "--skip")
