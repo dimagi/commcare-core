@@ -38,10 +38,9 @@ jobs:
         # run: python scripts/duplicate_pr.py ${{ steps.comment-branch.outputs.head_ref }} ${{ steps.comment-branch.outputs.base_ref }}
         run: python scripts/duplicate_pr.py test2 master
       - name: Create Pull Request
-        run: |
-          gh pr create --title "AUTO PR" --body "AUTO BODY" --base master 
-          env:
-            GH_TOKEN: ${{ github.token }}
+        run: gh pr create --title "AUTO PR" --body "AUTO BODY" --base master 
+        env:
+          GH_TOKEN: ${{ github.token }}
         # id: cpr
         # uses: peter-evans/create-pull-request@v5
         # with:
