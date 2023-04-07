@@ -26,6 +26,7 @@ def get_target_branch(orig_target_branch:str):
 def git_create_branch(orig_branch_name:str, new_branch_name: str):
     git = get_git()
     try:
+        print("orig_branch_name", orig_branch_name)
         if orig_branch_name != BranchName.MASTER.value:
             print("in fetch for create branceh, orig_branchname is", orig_branch_name)
             git_fetch_branch(orig_branch_name)
@@ -57,6 +58,9 @@ def git_fetch_branch(branch_name:str):
 def get_new_commits(base_branch: str, curr_branch:str):
     git = get_git()
     print("before merge_base_commit")
+    if base_branch != BranchName.MASTER.value:
+        print("in fetch for get_new_commits, orig_branchname is", base_branch)
+        git_fetch_branch(base_branch)
     base_commit = merge_base_commit(base_branch, curr_branch)
     recent_commit = latest_commit(curr_branch)
 
