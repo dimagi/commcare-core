@@ -48,31 +48,3 @@ jobs:
         run: gh pr create --title "AUTO PR" --body "AUTO BODY" --base formplayer 
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN}}
-        # id: cpr
-        # uses: peter-evans/create-pull-request@v5
-        # with:
-        #   title: TITLE
-        #   commit-message: Update report
-        #   branch: 
-
-  # pr_commented:
-  #   # This job only runs for pull request comments
-  #   name: PR comment
-  #   if: ${{ github.event.issue.pull_request }}
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - run: |
-  #         echo A comment on PR $NUMBER
-  #       env:
-  #         NUMBER: ${{ github.event.issue.number }}
-
-  # issue_commented:
-  #   # This job only runs for issue comments
-  #   name: Issue comment
-  #   if: ${{ !github.event.issue.pull_request }}
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - run: |
-  #         echo A comment on issue $NUMBER
-  #       env:
-  #         NUMBER: ${{ github.event.issue.number }}
