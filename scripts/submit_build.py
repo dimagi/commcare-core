@@ -18,7 +18,7 @@ import sys
 
 def submit_build(environ, host):
     target_url = host + "/builds/post/"
-
+    print("TESTS NEW COMMIT")
     if "ARTIFACTS" in environ:
         raw_command = ('curl -v -H "Expect:" -F "artifacts=@{ARTIFACTS}" ' +
                        '-F "username={USERNAME}" -F "password={PASSWORD}" ' +
