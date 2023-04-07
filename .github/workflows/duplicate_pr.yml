@@ -39,12 +39,12 @@ jobs:
         # run: python scripts/duplicate_pr.py ${{ steps.comment-branch.outputs.head_ref }} ${{ steps.comment-branch.outputs.base_ref }}
         run: python scripts/duplicate_pr.py test2 master
       - name: Create Pull Request Base Master
-        if: ${{ steps.comment-branch.outputs.base_ref == "formplayer"}}
+        if: ${{ steps.comment-branch.outputs.base_ref == 'formplayer' }}
         run: gh pr create --title "AUTO PR" --body "AUTO BODY" --base master 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Pull Request Base Formplayer
-        if: ${{ steps.comment-branch.outputs.base_ref == "master"}}
+        if: ${{ steps.comment-branch.outputs.base_ref == 'master' }}
         run: gh pr create --title "AUTO PR" --body "AUTO BODY" --base formplayer 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
