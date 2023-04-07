@@ -27,7 +27,9 @@ def git_create_branch(orig_branch_name:str, new_branch_name: str):
     git = get_git()
     try:
         if orig_branch_name != BranchName.MASTER.value:
+            print("in fetch for create branceh, orig_branchname is", orig_branch_name)
             git_fetch_branch(orig_branch_name)
+            print("after fethch in create branch")
         git.checkout(orig_branch_name)
     except sh.ErrorReturnCode_1 as e:
         print(red(e.stderr.decode()))
@@ -44,7 +46,9 @@ def git_fetch_branch(branch_name:str):
     # fetch remote branch without switching branches
     input = "{0}:{0}".format(branch_name)
     try:
+        print("input", input)
         git.fetch("origin", input)
+        print("fetched")
     except sh.ErrorReturnCode_1 as e:
         print(red(e.stderr.decode()))
         exit(1)

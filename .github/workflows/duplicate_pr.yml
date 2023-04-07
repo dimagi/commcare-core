@@ -30,7 +30,7 @@ jobs:
         run: |
           echo sender is ${{ github.event.sender }}
           echo triggering_actor is ${{ github.triggering_actor }}
-          echo html_url is ${{github.html_url}}
+          echo html_url is ${{github.event.issue.pull_request.html_url}}
       - name: Config Git
         run: |
           git config --global user.email github-actions@github.com
