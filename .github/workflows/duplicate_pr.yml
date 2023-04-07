@@ -29,6 +29,7 @@ jobs:
         run: |
           echo sender is ${{ github.event.sender }}
           echo triggering_actor is ${{ github.triggering_actor }}
+          echo html_url is ${{github.html_url}}
       - name: Config Git
         run: |
           git config --global user.email github-actions@github.com
@@ -36,6 +37,12 @@ jobs:
       - name: Run duplicate_pr script
         # run: python scripts/duplicate_pr.py ${{ steps.comment-branch.outputs.head_ref }} ${{ steps.comment-branch.outputs.base_ref }}
         run: python scripts/duplicate_pr.py test2 master
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v5
+        with:
+          title: TITLE
+          commit-message: Update report
 
   # pr_commented:
   #   # This job only runs for pull request comments
