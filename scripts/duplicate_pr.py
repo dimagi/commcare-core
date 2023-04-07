@@ -73,7 +73,16 @@ def cherry_pick_new_commits(commits:list[str], branch:str):
     git = get_git()
     git.checkout(branch)
     for commits in reversed(commits):
-        git("cherry-pick", commits)
+        try:
+            empty_commit_message = "The previous cherry-pick is now empty"
+            git("cherry-pick", commits, _err_to_out=True)
+        except sh.ErrorReturnCode_1 as e:
+            print("error is",e )
+            if empty_commit_message in e:
+                print("IN IF")
+                git("cherry-pick", "--skip")
+            
+
 
 
 def git_push_pr(branch:str):
