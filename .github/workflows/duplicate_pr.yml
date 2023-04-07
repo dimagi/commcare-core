@@ -24,8 +24,6 @@ jobs:
           python-version: '3.9'
       - name: Install dev requirements
         run: pip install sh
-        # working-directory: ./commcare-hq
-        # run: pip install -r requirements/dev-requirements.txt
       - name: sender
         run: |
           echo sender is ${{ github.event.sender }}
@@ -37,7 +35,6 @@ jobs:
           git config --global user.name github-actions
       - name: Run duplicate_pr script
         run: python scripts/duplicate_pr.py ${{ steps.comment-branch.outputs.head_ref }} ${{ steps.comment-branch.outputs.base_ref }}
-        # run: python scripts/duplicate_pr.py test2 master
       - name: Create Pull Request Base Master
         if: ${{ steps.comment-branch.outputs.base_ref == 'formplayer' }}
         run: gh pr create --title "AUTO PR" --body "AUTO BODY" --base master 
