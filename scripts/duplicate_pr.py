@@ -50,11 +50,14 @@ def git_fetch_branch(branch_name:str):
         exit(1)
 
 
-def get_new_commits(base_branch: str, curr_branch:str):
+def get_new_commits(base_branch: str, curr_branch:str, base_commit:str = None):
     git = get_git()
     if base_branch != BranchName.MASTER.value:
         git_fetch_branch(base_branch)
-    base_commit = merge_base_commit(base_branch, curr_branch)
+    if base_commit:
+        base_commit = git.show("{}^1".format(base_commit)).split()[1]
+    else:
+        base_commit = merge_base_commit(base_branch, curr_branch)
     recent_commit = latest_commit(curr_branch)
 
     commits_range = "{}..{}".format(base_commit, recent_commit)
@@ -104,6 +107,7 @@ def main():
     parser.add_argument('orig_source_branch', type=str, help="Branch name of PR to be duplicated")
     parser.add_argument('orig_target_branch', type=str, help="Name of branch the original PR merged into",
                             choices = [key.value for key in BranchName])
+    parser.add_argument('-i','--initial_sha', type=str, help="SHA of first commit in PR to be duplicated")
     args = parser.parse_args()
 
     new_source_branch = "copy_of_" + args.orig_source_branch
@@ -116,7 +120,7 @@ def main():
     git_fetch_branch(args.orig_source_branch)
 
     print("Getting new commits from {}".format(args.orig_source_branch))
-    new_commits = get_new_commits(args.orig_target_branch, args.orig_source_branch)
+    new_commits = get_new_commits(args.orig_target_branch, args.orig_source_branch, args.initial_sha)
 
     print("Cherry-picking commits from {} to {}".format(args.orig_source_branch, new_source_branch))
     cherry_pick_new_commits(new_commits, new_source_branch)
