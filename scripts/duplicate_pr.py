@@ -26,7 +26,8 @@ def get_target_branch(orig_target_branch:str):
 def git_create_branch(orig_branch_name:str, new_branch_name: str):
     git = get_git()
     try:
-        git_fetch_branch(orig_branch_name)
+        if orig_branch_name != BranchName.MASTER.value:
+            git_fetch_branch(orig_branch_name)
         git.checkout(orig_branch_name)
     except sh.ErrorReturnCode_1 as e:
         print(red(e.stderr.decode()))
