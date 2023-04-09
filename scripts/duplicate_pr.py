@@ -52,6 +52,8 @@ def git_fetch_branch(branch_name:str):
 
 def get_new_commits(base_branch: str, curr_branch:str):
     git = get_git()
+    if base_branch != BranchName.MASTER.value:
+        git_fetch_branch(base_branch)
     base_commit = merge_base_commit(base_branch, curr_branch)
     recent_commit = latest_commit(curr_branch)
 
