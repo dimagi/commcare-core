@@ -1,0 +1,32 @@
+name: Duplicate PR
+
+#Duplication workflow must be run before PR branch is deleted
+on:
+  issue_comment:
+    types: [created, edited]
+
+jobs:
+  duplicate_pr:
+    name: Duplicate PR
+    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body,'@dimagibot duplicate this PR') }}
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/marketplace/actions/pull-request-comment-branch
+      - name: Pull Request Comment Branch
+        uses: xt0rted/pull-request-comment-branch@v2.0.0
+        id: comment-branch
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install Requirements
+        run: pip install sh
+      - name: Config Git
+        run: |
+          git config --global user.email github-actions@github.com
+          git config --global user.name github-actions
+      - name: Run duplicate_pr.py script with PR not merged
+        run: python scripts/duplicate_pr.py ${{ steps.comment-branch.outputs.head_ref }} ${{ steps.comment-branch.outputs.base_ref }}
