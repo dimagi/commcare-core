@@ -47,24 +47,18 @@ jobs:
       - name: Run duplicate_pr.py script with PR not merged
         if: ${{ github.event.issue.pull_request.merged_at == null }}
         run: python scripts/duplicate_pr.py ${{ steps.comment-branch.outputs.head_ref }} ${{ steps.comment-branch.outputs.base_ref }}
-      - name: Create Pull Request Base Master
-        if: ${{ steps.comment-branch.outputs.base_ref == 'formplayer' }}
-        run: gh pr create --title "${title_text}" --body "${body_text}" --base master 
+      - name: Determine Base Branch
+        id: base-branch
+        run: |
+          if [[ ${{ steps.comment-branch.outputs.base_ref}} = "formplayer" ]]
+          then echo "NAME=master" >> $GITHUB_OUTPUT
+          elif [[ ${{ steps.comment-branch.outputs.base_ref}} = "master" ]]
+          then echo "NAME=formplayer" >> $GITHUB_OUTPUT
+          fi
+      - name: Create Pull Request
+        run: gh pr create --title "${title_text}" --body "${body_text}" --base "${base_branch_name}"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          title_text: Duplicate of ${{ steps.comment-branch.outputs.head_ref }}
-          body_text: |
-            Copy of PR ${{github.event.issue.pull_request.html_url}} and used GitHub CLI to open this pull request.
-
-            GitHub Actions automatically ran duplicate_pr.py
-            
-            Please **close and reopen** this pull request to have tests run.<sup>†</sup>
-
-            <sup>†</sup> Workaround for [this GitHub Actions constraint](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow)
-      - name: Create Pull Request Base Formplayer
-        if: ${{ steps.comment-branch.outputs.base_ref == 'master' }}
-        run: gh pr create --title "${title_text}" --body "${body_text}" --base formplayer 
-        env:
+          base_branch_name: ${{ steps.base-branch.outputs.NAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           title_text: Duplicate of ${{ steps.comment-branch.outputs.head_ref }}
           body_text: |
