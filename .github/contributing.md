@@ -8,15 +8,7 @@ We try to keep both these branches in sync with each other the best we can. To d
 
 1. If you are working on a Formplayer change, you will want to start by checking out `your_feature_branch` from `formplayer` as the base branch. Make changes on `your_feature_branch` and create your original PR against `formplayer` branch.
 
-2. Now you will need to duplicate this PR by making another PR against `master`.
-
-    To do this with GitHub Action -
-    Make sure the branch for this PR is not deleted. Then create the comment `duplicate this PR`. If the PR has already been merged, comment `duplicate this PR <starting-commit-SHA>`.
-
-    To do this manually -
-    Firstly you would want to compare `your_feature_branch` to the `master` and see if the diff only shows the commit that belongs to your branch. If yes, you can directly create another PR from `your_feature_branch` to `master`.
-    Otherwise you will need to create another branch by checking out `your_feature_branch_dupe` from `master` as the base branch. You will then need to [cherry-pick](https://docs.github.com/en/desktop/contributing-and-collaborating-using-github-desktop/managing-commits/cherry-picking-a-commit#about-git-cherry-pick) each of the commits from `your_feature_branch` to `your_feature_branch_dupe`. 
-    Subsequently you should create a PR from `your_feature_branch_dupe` against `master`. While creating this PR you can remove all the PR template field and simply mention your original `formplayer` PR as a reference.
+2. Now you will need to duplicate this PR by making another PR against `master`. Make sure the branch for this PR is not deleted. Then create the comment `duplicate this PR`. If the PR has already been merged, comment `duplicate this PR <starting-commit-id>`.
 
 3. In order for us to test that your PR against `master` doesn't break anything on CommCare Android, we need to run android side tests with your PR.
 To do this - 
@@ -37,15 +29,7 @@ To do this -
 
 1. If you are working on a CommCare Android change, you will want to start by checking out `your_feature_branch` from `master` as the base branch. Make changes on `your_feature_branch` and create your original PR against `master` branch.
 
-2. Now you will need to duplicate this PR by making another PR against `formplayer`.
-
-    To do this with GitHub Action -
-    Make sure the branch for this PR is not deleted. Then create the comment `duplicate this PR`. If the PR has already been merged, comment `duplicate this PR <starting-commit-SHA>`.
-
-    To do this manually -
-    Firstly you would want to compare `your_feature_branch` to the `formplayer` and see if the diff only shows the commit that belongs to your branch. If yes, you can directly create another PR from `your_feature_branch` to `formplayer`.
-    Otherwise you will need to create another branch by checking out `your_feature_branch_dupe` from `formplayer` as the base branch. You will then need to [cherry-pick](https://docs.github.com/en/desktop/contributing-and-collaborating-using-github-desktop/managing-commits/cherry-picking-a-commit#about-git-cherry-pick) each of the commits from `your_feature_branch` to `your_feature_branch_dupe`.
-    Subsequently you should create a PR from `your_feature_branch_dupe` against `formplayer`. While creating this PR you can remove all the PR template field and simply mention your original `master` PR as a reference.
+2. Now you will need to duplicate this PR by making another PR against `formplayer`. Make sure the branch for this PR is not deleted. Then create the comment `duplicate this PR`. If the PR has already been merged, comment `duplicate this PR <starting-commit-id>`.
 
 3. In order for us to test that your PR against `formplayer` doesn't break anything on Formplayer, we need to run formplayer side tests with your PR.
 To do this - 
