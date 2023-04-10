@@ -8,7 +8,7 @@ on:
 jobs:
   duplicate_pr:
     name: Duplicate PR
-    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body,'@dimagibot duplicate this PR') }}
+    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body,'duplicate this PR') }}
     runs-on: ubuntu-latest
     steps:
       # https://github.com/marketplace/actions/github-script
