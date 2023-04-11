@@ -62,16 +62,16 @@ public class BulkCaseInstanceXmlParser extends BulkElementParser<Case> {
     protected void processBufferedElement(TreeElement bufferedTreeElement, Map<String, Case> currentOperatingSet,
             LinkedHashMap<String, Case> writeLog) throws InvalidStructureException {
         String caseId = bufferedTreeElement.getAttributeValue(null, CASE_PROPERTY_CASE_ID);
-        validateMandatoryProperty(CASE_PROPERTY_CASE_ID, caseId);
+        validateMandatoryProperty(CASE_PROPERTY_CASE_ID, caseId, "");
 
         String caseType = bufferedTreeElement.getAttributeValue(null, CASE_PROPERTY_CASE_TYPE);
-        validateMandatoryProperty(CASE_PROPERTY_CASE_TYPE, caseType);
+        validateMandatoryProperty(CASE_PROPERTY_CASE_TYPE, caseType, caseId);
 
         String ownerId = bufferedTreeElement.getAttributeValue(null, CASE_PROPERTY_OWNER_ID);
-        validateMandatoryProperty(CASE_PROPERTY_OWNER_ID, ownerId);
+        validateMandatoryProperty(CASE_PROPERTY_OWNER_ID, ownerId, caseId);
 
         String status = bufferedTreeElement.getAttributeValue(null, CASE_PROPERTY_STATUS);
-        validateMandatoryProperty(CASE_PROPERTY_STATUS, status);
+        validateMandatoryProperty(CASE_PROPERTY_STATUS, status, caseId);
 
         Case caseForBlock = currentOperatingSet.get(caseId);
         if (caseForBlock == null) {
@@ -97,8 +97,8 @@ public class BulkCaseInstanceXmlParser extends BulkElementParser<Case> {
     }
 
     private void validateCase(Case caseForBlock) throws InvalidStructureException {
-        validateMandatoryProperty(CASE_PROPERTY_LAST_MODIFIED, caseForBlock.getLastModified());
-        validateMandatoryProperty(CASE_PROPERTY_CASE_NAME, caseForBlock.getName());
+        validateMandatoryProperty(CASE_PROPERTY_LAST_MODIFIED, caseForBlock.getLastModified(), caseForBlock.getCaseId());
+        validateMandatoryProperty(CASE_PROPERTY_CASE_NAME, caseForBlock.getName(), caseForBlock.getCaseId());
     }
 
     private static String getTrimmedElementTextOrBlank(TreeElement element) {
@@ -108,9 +108,9 @@ public class BulkCaseInstanceXmlParser extends BulkElementParser<Case> {
         return element.getValue().uncast().getString().trim();
     }
 
-    private static void validateMandatoryProperty(String key, Object value) throws InvalidStructureException {
+    private static void validateMandatoryProperty(String key, Object value, String caseId) throws InvalidStructureException {
         if (value == null || value.equals("")) {
-            String error = String.format("The %s attribute of a <case> wasn't set", key);
+            String error = String.format("The %s attribute of a <case> %s wasn't set", key, caseId);
             throw new InvalidStructureException(error);
         }
     }
