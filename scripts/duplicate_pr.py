@@ -79,7 +79,10 @@ def cherry_pick_new_commits(commits:list[str], branch:str):
 
 def git_push_pr(branch:str):
     git = get_git()
-    output = git.push("origin", branch, _err_to_out=True)
+    try:
+        output = git.push("origin", branch, _err_to_out=True)
+    except sh.ErrorReturnCode_1 as e:
+        print(red("Failed to push. Branch {} already exists remotely. Try deleting remote branch and run action again".format(branch)))
     print(output)
 
 
