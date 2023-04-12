@@ -1,0 +1,71 @@
+name: Duplicate PR
+
+#Duplication workflow must be run before PR branch is deleted
+on:
+  issue_comment:
+    types: [created, edited]
+
+jobs:
+  duplicate_pr:
+    name: Duplicate PR
+    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body,'duplicate this PR') }}
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/marketplace/actions/github-script
+      - name: Get PR Intial Commit SHA
+        if: ${{ github.event.issue.pull_request.merged_at }}
+        id: initial-sha
+        uses: actions/github-script@0.9.0
+        with:
+          script: |
+            const sha = context.payload.comment.body.split(" ").pop()
+            core.setOutput('sha', sha)
+      # https://github.com/marketplace/actions/pull-request-comment-branch
+      - name: Pull Request Comment Branch
+        uses: xt0rted/pull-request-comment-branch@v2.0.0
+        id: comment-branch
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install Requirements
+        run: pip install sh
+      - name: Config Git
+        run: |
+          git config --global user.email github-actions@github.com
+          git config --global user.name github-actions
+      - name: Run duplicate_pr.py script with PR merged
+        if: ${{ github.event.issue.pull_request.merged_at }}
+        run: |
+          echo Intial SHA is "${{ steps.initial-sha.outputs.sha }}"
+          python scripts/duplicate_pr.py ${{ steps.comment-branch.outputs.head_ref }} ${{ steps.comment-branch.outputs.base_ref }} --initial_sha ${initial_sha}
+        env:
+          initial_sha: ${{ steps.initial-sha.outputs.sha }}
+      - name: Run duplicate_pr.py script with PR not merged
+        if: ${{ github.event.issue.pull_request.merged_at == null }}
+        run: python scripts/duplicate_pr.py ${{ steps.comment-branch.outputs.head_ref }} ${{ steps.comment-branch.outputs.base_ref }}
+      - name: Determine Base Branch
+        id: base-branch
+        run: |
+          if [[ ${{ steps.comment-branch.outputs.base_ref}} = "formplayer" ]]
+          then echo "NAME=master" >> $GITHUB_OUTPUT
+          elif [[ ${{ steps.comment-branch.outputs.base_ref}} = "master" ]]
+          then echo "NAME=formplayer" >> $GITHUB_OUTPUT
+          fi
+      - name: Create Pull Request
+        run: gh pr create --title "${title_text}" --body "${body_text}" --base "${base_branch_name}"
+        env:
+          base_branch_name: ${{ steps.base-branch.outputs.NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          title_text: Duplicate of ${{ steps.comment-branch.outputs.head_ref }}
+          body_text: |
+            Copy of PR ${{github.event.issue.pull_request.html_url}}
+
+            GitHub Actions automatically ran duplicate_pr.py and used GitHub CLI to open this pull request.
+            
+            Please **close and reopen** this pull request to have tests run.<sup>†</sup>
+
+            <sup>†</sup> Workaround for [this GitHub Actions constraint](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow)
