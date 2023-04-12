@@ -12,6 +12,7 @@ import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_EXTERNAL_ID;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_OWNER_ID;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_STATE;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_USER_ID;
+import static org.commcare.xml.CaseXmlParserUtil.checkForMaxLength;
 import static org.commcare.xml.CaseXmlParserUtil.validateMandatoryProperty;
 
 import org.commcare.cases.model.Case;
@@ -224,25 +225,6 @@ public class CaseXmlParser extends TransactionParser<Case> {
             }
         }
         checkForMaxLength(caseForBlock);
-    }
-
-    private void checkForMaxLength(Case caseForBlock) throws InvalidStructureException {
-        if (getStringLength(caseForBlock.getTypeId()) > 255) {
-            throw new InvalidCasePropertyLengthException("case_type");
-        } else if (getStringLength(caseForBlock.getUserId()) > 255) {
-            throw new InvalidCasePropertyLengthException("owner_id");
-        } else if (getStringLength(caseForBlock.getName()) > 255) {
-            throw new InvalidCasePropertyLengthException("case_name");
-        } else if (getStringLength(caseForBlock.getExternalId()) > 255) {
-            throw new InvalidCasePropertyLengthException("external_id");
-        }
-    }
-
-    /**
-     * Returns the length of string if it's not null, otherwise 0.
-     */
-    private int getStringLength(String input) {
-        return input != null ? input.length() : 0;
     }
 
     private Case loadCase(Case caseForBlock, String caseId, boolean errorIfMissing) throws InvalidStructureException {
