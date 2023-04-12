@@ -75,7 +75,7 @@ public class FileUtils {
     }
 
     /**
-     * Delete files inside the given folder if they were las accessed before the given cutOff time
+     * Delete files inside the given folder if they were last accessed before the given cutOff time
      *
      * @param folder folder for which we want to delete the files
      * @param cutOff cutOff time before which we want to delete the files
@@ -97,7 +97,7 @@ public class FileUtils {
     }
 
     /**
-     * Delete given file if it was las accessed before the given cutOff time
+     * Delete given file if it was last accessed before the given cutOff time
      * @param file file to be deleted
      * @param cutOff cutOff time before which we want to delete the file
      * @throws IOException
