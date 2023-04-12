@@ -7,6 +7,12 @@ import org.commcare.modern.engine.cases.CaseIndexTable;
 import org.commcare.xml.bulk.BulkCaseInstanceXmlParser;
 import org.kxml2.io.KXmlParser;
 
+/**
+ * Transaction factory for parsing the case instance xml as defined in
+ * https://github.com/dimagi/commcare-core/wiki/casedb
+ *
+ * It's primary usage is to parse case instance xml from case query API
+ */
 public class CaseInstanceXmlTransactionParserFactory implements TransactionParserFactory {
 
     private final UserSandbox sandbox;
