@@ -190,12 +190,16 @@ public class BulkCaseInstanceXmlParser extends BulkElementParser<Case> {
             String indexName = subElement.getName();
             String caseType = subElement.getAttributeValue(null, "case_type");
 
+            String value = getTrimmedElementTextOrBlank(subElement);
             String relationship = subElement.getAttributeValue(null, "relationship");
             if (relationship == null) {
                 relationship = CaseIndex.RELATIONSHIP_CHILD;
+            } else if ("".equals(relationship)) {
+                throw new InvalidStructureException(String.format(
+                        "Invalid Case Transaction for Case[%s]: Attempt to add a '' relationship type to "
+                                + "entity[%s]",
+                        caseId, value));
             }
-
-            String value = getTrimmedElementTextOrBlank(subElement);
 
             if (value.equals(caseId)) {
                 throw new ActionableInvalidStructureException("case.error.self.index", new String[]{caseId},
@@ -206,14 +210,6 @@ public class BulkCaseInstanceXmlParser extends BulkElementParser<Case> {
             if (value.equals("")) {
                 value = null;
             }
-
-            if ("".equals(relationship)) {
-                throw new InvalidStructureException(String.format(
-                        "Invalid Case Transaction for Case[%s]: Attempt to add a '' relationship type to "
-                                + "entity[%s]",
-                        caseId, value));
-            }
-
 
             //Process blank inputs in the same manner as data fields (IE: Remove the underlying model)
             if (value == null) {
