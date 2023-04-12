@@ -1,5 +1,17 @@
 package org.commcare.xml.bulk;
 
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CASE_ID;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CASE_NAME;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CASE_TYPE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CATEGORY;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_DATE_OPENED;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_EXTERNAL_ID;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_INDEX;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_LAST_MODIFIED;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_OWNER_ID;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_STATE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_STATUS;
+
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.modern.engine.cases.CaseIndexTable;
@@ -24,18 +36,6 @@ import java.util.Set;
 
 // todo this and other case parsers duplicates a bunch of logic today that can be unified
 public class BulkCaseInstanceXmlParser extends BulkElementParser<Case> {
-
-    private static final String CASE_PROPERTY_CASE_ID = "case_id";
-    private static final String CASE_PROPERTY_CASE_TYPE = "case_type";
-    private static final String CASE_PROPERTY_OWNER_ID = "owner_id";
-    private static final String CASE_PROPERTY_STATUS = "status";
-    private static final String CASE_PROPERTY_CASE_NAME = "case_name";
-    private static final String CASE_PROPERTY_LAST_MODIFIED = "last_modified";
-    private static final String CASE_PROPERTY_DATE_OPENED = "date_opened";
-    private static final String CASE_PROPERTY_EXTERNAL_ID = "external_id";
-    private static final String CASE_PROPERTY_CATEGORY = "category";
-    private static final String CASE_PROPERTY_STATE = "state";
-    private static final String CASE_PROPERTY_INDEX = "index";
 
     private final CaseIndexTable mCaseIndexTable;
     private final IStorageUtilityIndexed<Case> storage;
