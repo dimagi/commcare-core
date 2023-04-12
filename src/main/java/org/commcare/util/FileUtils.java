@@ -87,7 +87,7 @@ public class FileUtils {
         int count = 0;
         for (File file : files) {
             if (file.isDirectory()) {
-               deleteFiles(file, cutOff);
+                deleteFiles(file, cutOff);
             } else {
                 deleteFile(file, cutOff);
                 count++;
@@ -98,7 +98,8 @@ public class FileUtils {
 
     /**
      * Delete given file if it was last accessed before the given cutOff time
-     * @param file file to be deleted
+     *
+     * @param file   file to be deleted
      * @param cutOff cutOff time before which we want to delete the file
      * @throws IOException
      */

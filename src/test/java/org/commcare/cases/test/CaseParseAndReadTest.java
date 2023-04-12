@@ -70,8 +70,9 @@ public class CaseParseAndReadTest {
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_property1", "one"));
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_property2", "property_two"));
     }
+
     private void parseAndCompareCaseDbState(String inputTransactions,
-                                    String caseDbState) throws Exception {
+            String caseDbState) throws Exception {
         config.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox, false);
         compareCaseDbState(sandbox, getClass().getResourceAsStream(caseDbState));
     }

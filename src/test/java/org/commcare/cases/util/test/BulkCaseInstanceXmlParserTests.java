@@ -34,11 +34,13 @@ public class BulkCaseInstanceXmlParserTests {
             throws UnfullfilledRequirementsException, InvalidStructureException, XmlPullParserException,
             IOException, XPathSyntaxException {
         parseXml("case_instance_parse/case_instance_valid.xml");
-        compareCaseDbState(sandbox, getClass().getClassLoader().getResourceAsStream("case_instance_parse/case_instance_output.xml"));
+        compareCaseDbState(sandbox,
+                getClass().getClassLoader().getResourceAsStream("case_instance_parse/case_instance_output.xml"));
         EvaluationContext ec = MockDataUtils.buildContextWithInstance(this.sandbox, "casedb",
                 CaseTestUtils.CASE_INSTANCE);
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec,
-                "instance('casedb')/casedb/case[@case_id = 'f6dff792-2599-4fd3-9e86-c11ef61f0302']/case_name", "tapid papid"));
+                "instance('casedb')/casedb/case[@case_id = 'f6dff792-2599-4fd3-9e86-c11ef61f0302']/case_name",
+                "tapid papid"));
     }
 
     private void parseXml(String resourceFilePath)
