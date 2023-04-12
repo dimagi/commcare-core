@@ -11,6 +11,7 @@ import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_LAST_MODIFIED;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_OWNER_ID;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_STATE;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_STATUS;
+import static org.commcare.xml.CaseXmlParserUtil.validateMandatoryProperty;
 
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
@@ -62,16 +63,16 @@ public class BulkCaseInstanceXmlParser extends BulkElementParser<Case> {
     protected void processBufferedElement(TreeElement bufferedTreeElement, Map<String, Case> currentOperatingSet,
             LinkedHashMap<String, Case> writeLog) throws InvalidStructureException {
         String caseId = bufferedTreeElement.getAttributeValue(null, CASE_PROPERTY_CASE_ID);
-        validateMandatoryProperty(CASE_PROPERTY_CASE_ID, caseId, "");
+        validateMandatoryProperty(CASE_PROPERTY_CASE_ID, caseId, "", parser);
 
         String caseType = bufferedTreeElement.getAttributeValue(null, CASE_PROPERTY_CASE_TYPE);
-        validateMandatoryProperty(CASE_PROPERTY_CASE_TYPE, caseType, caseId);
+        validateMandatoryProperty(CASE_PROPERTY_CASE_TYPE, caseType, caseId, parser);
 
         String ownerId = bufferedTreeElement.getAttributeValue(null, CASE_PROPERTY_OWNER_ID);
-        validateMandatoryProperty(CASE_PROPERTY_OWNER_ID, ownerId, caseId);
+        validateMandatoryProperty(CASE_PROPERTY_OWNER_ID, ownerId, caseId, parser);
 
         String status = bufferedTreeElement.getAttributeValue(null, CASE_PROPERTY_STATUS);
-        validateMandatoryProperty(CASE_PROPERTY_STATUS, status, caseId);
+        validateMandatoryProperty(CASE_PROPERTY_STATUS, status, caseId, parser);
 
         Case caseForBlock = currentOperatingSet.get(caseId);
         if (caseForBlock == null) {
@@ -97,9 +98,10 @@ public class BulkCaseInstanceXmlParser extends BulkElementParser<Case> {
     }
 
     private void validateCase(Case caseForBlock) throws InvalidStructureException {
-        validateMandatoryProperty(CASE_PROPERTY_LAST_MODIFIED, caseForBlock.getLastModified(),
-                caseForBlock.getCaseId());
-        validateMandatoryProperty(CASE_PROPERTY_CASE_NAME, caseForBlock.getName(), caseForBlock.getCaseId());
+        validateMandatoryProperty(CASE_PROPERTY_LAST_MODIFIED, caseForBlock.getLastModified(), caseForBlock.getCaseId(),
+                parser);
+        validateMandatoryProperty(CASE_PROPERTY_CASE_NAME, caseForBlock.getName(), caseForBlock.getCaseId(),
+                parser);
     }
 
     private static String getTrimmedElementTextOrBlank(TreeElement element) {
@@ -107,14 +109,6 @@ public class BulkCaseInstanceXmlParser extends BulkElementParser<Case> {
             return "";
         }
         return element.getValue().uncast().getString().trim();
-    }
-
-    private static void validateMandatoryProperty(String key, Object value, String caseId)
-            throws InvalidStructureException {
-        if (value == null || value.equals("")) {
-            String error = String.format("The %s attribute of a <case> %s wasn't set", key, caseId);
-            throw new InvalidStructureException(error);
-        }
     }
 
     protected Case buildCase(String name, String typeId) {

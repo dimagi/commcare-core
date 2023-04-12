@@ -1,13 +1,18 @@
 package org.commcare.xml;
 
-public class CaseXmlParserUtil {
+import org.javarosa.xml.util.InvalidStructureException;
+import org.kxml2.io.KXmlParser;
 
+public class CaseXmlParserUtil {
+    public static final String CASE_NODE_NAME = "case";
     public static final String CASE_PROPERTY_CASE_ID = "case_id";
     public static final String CASE_PROPERTY_CASE_TYPE = "case_type";
     public static final String CASE_PROPERTY_OWNER_ID = "owner_id";
+    public static final String CASE_PROPERTY_USER_ID = "user_id";
     public static final String CASE_PROPERTY_STATUS = "status";
     public static final String CASE_PROPERTY_CASE_NAME = "case_name";
     public static final String CASE_PROPERTY_LAST_MODIFIED = "last_modified";
+    public static final String CASE_PROPERTY_DATE_MODIFIED = "date_modified";
     public static final String CASE_PROPERTY_DATE_OPENED = "date_opened";
     public static final String CASE_PROPERTY_EXTERNAL_ID = "external_id";
     public static final String CASE_PROPERTY_CATEGORY = "category";
@@ -17,5 +22,14 @@ public class CaseXmlParserUtil {
     public static final String ATTACHMENT_FROM_REMOTE = "remote";
     public static final String ATTACHMENT_FROM_INLINE = "inline";
     public static final String CASE_XML_NAMESPACE = "http://commcarehq.org/case/transaction/v2";
+
+
+    public static void validateMandatoryProperty(String key, Object value, String caseId, KXmlParser parser) throws
+            InvalidStructureException {
+        if (value == null || value.equals("")) {
+            String error = String.format("The %s attribute of a <case> %s wasn't set", key, caseId);
+            throw  InvalidStructureException.readableInvalidStructureException(error, parser);
+        }
+    }
 
 }
