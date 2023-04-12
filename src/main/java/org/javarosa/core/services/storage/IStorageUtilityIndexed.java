@@ -286,6 +286,7 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
 
     /**
      * if the storage exists or not
+     *
      * @return a boolean indicating if the storage exists
      */
     boolean isStorageExists();
