@@ -1,5 +1,7 @@
 package org.commcare.xml;
 
+import org.commcare.cases.model.Case;
+import org.javarosa.xml.util.InvalidCasePropertyLengthException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 
@@ -30,6 +32,25 @@ public class CaseXmlParserUtil {
             String error = String.format("The %s attribute of a <case> %s wasn't set", key, caseId);
             throw  InvalidStructureException.readableInvalidStructureException(error, parser);
         }
+    }
+
+    protected static void checkForMaxLength(Case caseForBlock) throws InvalidStructureException {
+        if (getStringLength(caseForBlock.getTypeId()) > 255) {
+            throw new InvalidCasePropertyLengthException(CASE_PROPERTY_CASE_TYPE);
+        } else if (getStringLength(caseForBlock.getUserId()) > 255) {
+            throw new InvalidCasePropertyLengthException(CASE_PROPERTY_OWNER_ID);
+        } else if (getStringLength(caseForBlock.getName()) > 255) {
+            throw new InvalidCasePropertyLengthException(CASE_PROPERTY_CASE_NAME);
+        } else if (getStringLength(caseForBlock.getExternalId()) > 255) {
+            throw new InvalidCasePropertyLengthException(CASE_PROPERTY_EXTERNAL_ID);
+        }
+    }
+
+    /**
+     * Returns the length of string if it's not null, otherwise 0.
+     */
+    private static int getStringLength(String input) {
+        return input != null ? input.length() : 0;
     }
 
 }
