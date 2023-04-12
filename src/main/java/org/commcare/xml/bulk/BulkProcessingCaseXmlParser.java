@@ -1,5 +1,17 @@
 package org.commcare.xml.bulk;
 
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CASE_ID;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CASE_NAME;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CASE_TYPE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CATEGORY;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_DATE_MODIFIED;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_DATE_OPENED;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_EXTERNAL_ID;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_OWNER_ID;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_STATE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_USER_ID;
+import static org.commcare.xml.CaseXmlParserUtil.validateMandatoryProperty;
+
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.javarosa.core.model.instance.TreeElement;
@@ -43,18 +55,14 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
 
     @Override
     protected void processBufferedElement(TreeElement bufferedTreeElement, Map<String, Case> currentOperatingSet, LinkedHashMap<String, Case> writeLog) throws InvalidStructureException {
-        String caseId = bufferedTreeElement.getAttributeValue(null, "case_id");
-        if (caseId == null || caseId.equals("")) {
-            throw new InvalidStructureException("The case_id attribute of a <case> wasn't set");
-        }
+        String caseId = bufferedTreeElement.getAttributeValue(null, CASE_PROPERTY_CASE_ID);
+        validateMandatoryProperty(CASE_PROPERTY_CASE_ID, caseId, "", parser);
 
-        String dateModified = bufferedTreeElement.getAttributeValue(null, "date_modified");
-        if (dateModified == null) {
-            throw new InvalidStructureException("The date_modified attribute of a <case> wasn't set");
-        }
+        String dateModified = bufferedTreeElement.getAttributeValue(null, CASE_PROPERTY_DATE_MODIFIED);
+        validateMandatoryProperty(CASE_PROPERTY_DATE_MODIFIED, dateModified, caseId, parser);
         Date modified = DateUtils.parseDateTime(dateModified);
 
-        String userId = parser.getAttributeValue(null, "user_id");
+        String userId = parser.getAttributeValue(null, CASE_PROPERTY_USER_ID);
 
         Case caseForBlock = null;
         boolean isCreateOrUpdate = false;
@@ -119,19 +127,19 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
                             String caseId, Date modified, String userId) throws InvalidStructureException {
 
         String[] data = new String[3];
-        Case caseForBlock = null;
+        Case caseForBlock;
 
         for (int i = 0; i < createElement.getNumChildren(); i++) {
             TreeElement subElement = createElement.getChildAt(i);
             String tag = subElement.getName();
             switch (tag) {
-                case "case_type":
+                case CASE_PROPERTY_CASE_TYPE:
                     data[0] = getTrimmedElementTextOrBlank(subElement);
                     break;
-                case "owner_id":
+                case CASE_PROPERTY_OWNER_ID:
                     data[1] = getTrimmedElementTextOrBlank(subElement);
                     break;
-                case "case_name":
+                case CASE_PROPERTY_CASE_NAME:
                     data[2] = getTrimmedElementTextOrBlank(subElement);
                     break;
                 default:
@@ -193,16 +201,16 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
             String value = getTrimmedElementTextOrBlank(subElement);
 
             switch (key) {
-                case "case_type":
+                case CASE_PROPERTY_CASE_TYPE:
                     caseForBlock.setTypeId(value);
                     break;
-                case "case_name":
+                case CASE_PROPERTY_CASE_NAME:
                     caseForBlock.setName(value);
                     break;
-                case "date_opened":
+                case CASE_PROPERTY_DATE_OPENED:
                     caseForBlock.setDateOpened(DateUtils.parseDate(value));
                     break;
-                case "owner_id":
+                case CASE_PROPERTY_OWNER_ID:
                     String oldUserId = caseForBlock.getUserId();
 
                     if (!oldUserId.equals(value)) {
@@ -210,13 +218,13 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
                     }
                     caseForBlock.setUserId(value);
                     break;
-                case "external_id":
+                case CASE_PROPERTY_EXTERNAL_ID:
                     caseForBlock.setExternalId(value);
                     break;
-                case "category":
+                case CASE_PROPERTY_CATEGORY:
                     caseForBlock.setCategory(value);
                     break;
-                case "state":
+                case CASE_PROPERTY_STATE:
                     caseForBlock.setState(value);
                     break;
                 default:
