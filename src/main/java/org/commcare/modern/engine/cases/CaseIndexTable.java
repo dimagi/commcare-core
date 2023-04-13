@@ -1,5 +1,6 @@
 package org.commcare.modern.engine.cases;
 
+import org.commcare.cases.model.Case;
 import org.commcare.cases.query.queryset.DualTableSingleMatchModelQuerySet;
 
 import java.util.Collection;
@@ -18,4 +19,12 @@ public interface CaseIndexTable {
     LinkedHashSet<Integer> getCasesMatchingValueSet(String indexName, String[] valueSet);
 
     LinkedHashSet<Integer> getCasesMatchingIndex(String indexName, String value);
+
+    void indexCase(Case c);
+
+    void clearCaseIndices(Collection<Integer> idsToClear);
+
+    void delete();
+
+    boolean isStorageExists();
 }
