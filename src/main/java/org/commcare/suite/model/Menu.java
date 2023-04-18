@@ -4,6 +4,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathParseTool;
@@ -36,6 +37,7 @@ public class Menu implements Externalizable, MenuDisplayable {
     private String rawRelevance;
     private String style;
     private XPathExpression relevance;
+    AssertionSet assertions;
 
     /**
      * Serialization only!!!
@@ -46,7 +48,8 @@ public class Menu implements Externalizable, MenuDisplayable {
 
     public Menu(String id, String root, String rawRelevance,
                 XPathExpression relevance, DisplayUnit display,
-                Vector<String> commandIds, String[] commandExprs, String style) {
+                Vector<String> commandIds, String[] commandExprs,
+                String style, AssertionSet assertions) {
         this.id = id;
         this.root = root;
         this.rawRelevance = rawRelevance;
@@ -55,6 +58,7 @@ public class Menu implements Externalizable, MenuDisplayable {
         this.commandIds = commandIds;
         this.commandExprs = commandExprs;
         this.style = style;
+        this.assertions = assertions;
     }
 
     /**
@@ -115,6 +119,10 @@ public class Menu implements Externalizable, MenuDisplayable {
         return commandExprs[index] == null ? null : XPathParseTool.parseXPath(commandExprs[index]);
     }
 
+    public AssertionSet getAssertions() {
+        return assertions == null ? new AssertionSet(new Vector<String>(), new Vector<Text>()) : assertions;
+    }
+
     /**
      * @return an optional string indicating how this menu wants to display its items
      */
@@ -146,6 +154,7 @@ public class Menu implements Externalizable, MenuDisplayable {
             }
         }
         style = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        assertions = (AssertionSet)ExtUtil.read(in, new ExtWrapNullable(AssertionSet.class), pf);
     }
 
     @Override
@@ -166,6 +175,7 @@ public class Menu implements Externalizable, MenuDisplayable {
         }
 
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(style));
+        ExtUtil.write(out, new ExtWrapNullable(assertions));
     }
 
 
