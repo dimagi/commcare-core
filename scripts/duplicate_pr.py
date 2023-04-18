@@ -61,7 +61,7 @@ def get_new_commits(base_branch: str, curr_branch:str, base_commit:str = None):
     recent_commit = latest_commit(curr_branch)
 
     commits_range = "{}..{}".format(base_commit, recent_commit)
-    interested_commits = git("rev-list", "--no-merges", commits_range).split()
+    interested_commits = git("rev-list", "--no-merges", "--first-parent", commits_range).split()
     return interested_commits
 
 
