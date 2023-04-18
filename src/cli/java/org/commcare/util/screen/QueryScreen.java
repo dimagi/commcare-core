@@ -192,10 +192,10 @@ public class QueryScreen extends Screen {
             // be converted to the corresponding value
             if (queryPrompt.isSelect() && !StringUtils.isEmpty(answer)) {
                 remoteQuerySessionManager.populateItemSetChoices(queryPrompt);
-                Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
-                String[] indicesOfSelectedChoices = RemoteQuerySessionManager.extractMultipleChoices(answer);
-                ArrayList<String> selectedChoices = new ArrayList<>(indicesOfSelectedChoices.length);
                 if (!selectValuesByKeys) {
+                    Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
+                    String[] indicesOfSelectedChoices = RemoteQuerySessionManager.extractMultipleChoices(answer);
+                    ArrayList<String> selectedChoices = new ArrayList<>(indicesOfSelectedChoices.length);
                     for (int i = 0; i < indicesOfSelectedChoices.length; i++) {
                         if (indicesOfSelectedChoices[i].isEmpty()) {
                             selectedChoices.add("");
