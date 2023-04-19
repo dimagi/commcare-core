@@ -1,5 +1,6 @@
 package org.commcare.xml.bulk;
 
+import static org.commcare.xml.CaseXmlParserUtil.CASE_NODE;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CASE_ID;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CASE_NAME;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CASE_TYPE;
@@ -7,6 +8,8 @@ import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CATEGORY;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_DATE_OPENED;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_EXTERNAL_ID;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_INDEX;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_INDEX_CASE_TYPE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_INDEX_RELATIONSHIP;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_LAST_MODIFIED;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_OWNER_ID;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_STATE;
@@ -50,13 +53,13 @@ public class BulkCaseInstanceXmlParser extends BulkElementParser<Case> {
 
     @Override
     protected void requestModelReadsForElement(TreeElement bufferedTreeElement, Set<String> currentBulkReadSet) {
-        String caseId = bufferedTreeElement.getAttributeValue(null, "case_id");
+        String caseId = bufferedTreeElement.getAttributeValue(null, CASE_PROPERTY_CASE_ID);
         currentBulkReadSet.add(caseId);
     }
 
     @Override
     protected void preParseValidate() throws InvalidStructureException {
-        checkNode("case");
+        checkNode(CASE_NODE);
     }
 
     @Override
@@ -184,10 +187,10 @@ public class BulkCaseInstanceXmlParser extends BulkElementParser<Case> {
             TreeElement subElement = indexElement.getChildAt(i);
 
             String indexName = subElement.getName();
-            String caseType = subElement.getAttributeValue(null, "case_type");
+            String caseType = subElement.getAttributeValue(null, CASE_PROPERTY_INDEX_CASE_TYPE);
 
             String value = getTrimmedElementTextOrBlank(subElement);
-            String relationship = subElement.getAttributeValue(null, "relationship");
+            String relationship = subElement.getAttributeValue(null, CASE_PROPERTY_INDEX_RELATIONSHIP);
             if (relationship == null) {
                 relationship = CaseIndex.RELATIONSHIP_CHILD;
             } else if ("".equals(relationship)) {
