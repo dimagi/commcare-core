@@ -12,7 +12,9 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.junit.Before;
 import org.junit.Test;
 
-
+/**
+ * Tests for assertions in menus
+ */
 public class MenuTests {
 
     MockApp appWithMenuAssertions;
