@@ -6,7 +6,12 @@ import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 
 public class CaseXmlParserUtil {
-    public static final String CASE_NODE_NAME = "case";
+    public static final String CASE_NODE = "case";
+    public static final String CASE_CREATE_NODE = "create";
+    public static final String CASE_UPDATE_NODE = "update";
+    public static final String CASE_CLOSE_NODE = "close";
+    public static final String CASE_INDEX_NODE = "index";
+    public static final String CASE_ATTACHMENT_NODE = "attachment";
     public static final String CASE_PROPERTY_CASE_ID = "case_id";
     public static final String CASE_PROPERTY_CASE_TYPE = "case_type";
     public static final String CASE_PROPERTY_OWNER_ID = "owner_id";
@@ -20,10 +25,11 @@ public class CaseXmlParserUtil {
     public static final String CASE_PROPERTY_CATEGORY = "category";
     public static final String CASE_PROPERTY_STATE = "state";
     public static final String CASE_PROPERTY_INDEX = "index";
-    public static final String ATTACHMENT_FROM_LOCAL = "local";
-    public static final String ATTACHMENT_FROM_REMOTE = "remote";
-    public static final String ATTACHMENT_FROM_INLINE = "inline";
-    public static final String CASE_XML_NAMESPACE = "http://commcarehq.org/case/transaction/v2";
+    public static final String CASE_PROPERTY_INDEX_CASE_TYPE = "case_type";
+    public static final String CASE_PROPERTY_INDEX_RELATIONSHIP = "relationship";
+    public static final String CASE_PROPERTY_ATTACHMENT_SRC = "src";
+    public static final String CASE_PROPERTY_ATTACHMENT_FROM = "from";
+    public static final String CASE_PROPERTY_ATTACHMENT_NAME = "name";
 
 
     public static void validateMandatoryProperty(String key, Object value, String caseId, KXmlParser parser) throws

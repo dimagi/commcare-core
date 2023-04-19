@@ -1,5 +1,13 @@
 package org.commcare.xml.bulk;
 
+import static org.commcare.xml.CaseXmlParserUtil.CASE_ATTACHMENT_NODE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_CLOSE_NODE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_CREATE_NODE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_INDEX_NODE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_NODE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_ATTACHMENT_FROM;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_ATTACHMENT_NAME;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_ATTACHMENT_SRC;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CASE_ID;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CASE_NAME;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CASE_TYPE;
@@ -7,9 +15,12 @@ import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CATEGORY;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_DATE_MODIFIED;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_DATE_OPENED;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_EXTERNAL_ID;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_INDEX_CASE_TYPE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_INDEX_RELATIONSHIP;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_OWNER_ID;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_STATE;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_USER_ID;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_UPDATE_NODE;
 import static org.commcare.xml.CaseXmlParserUtil.validateMandatoryProperty;
 
 import org.commcare.cases.model.Case;
@@ -50,7 +61,7 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
 
     @Override
     protected void preParseValidate() throws InvalidStructureException {
-        checkNode("case");
+        checkNode(CASE_NODE);
     }
 
     @Override
@@ -71,24 +82,24 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
             TreeElement subElement = bufferedTreeElement.getChildAt(i);
             String action = subElement.getName().toLowerCase();
             switch (action) {
-                case "create":
+                case CASE_CREATE_NODE:
                     caseForBlock = createCase(subElement, currentOperatingSet, caseId, modified, userId);
                     isCreateOrUpdate = true;
                     break;
-                case "update":
+                case CASE_UPDATE_NODE:
                     caseForBlock = loadCase(caseForBlock, caseId, currentOperatingSet, true);
                     updateCase(subElement, caseForBlock, caseId);
                     isCreateOrUpdate = true;
                     break;
-                case "close":
+                case CASE_CLOSE_NODE:
                     caseForBlock = loadCase(caseForBlock, caseId, currentOperatingSet, true);
                     closeCase(caseForBlock, caseId);
                     break;
-                case "index":
+                case CASE_INDEX_NODE:
                     caseForBlock = loadCase(caseForBlock, caseId, currentOperatingSet, false);
                     indexCase(subElement, caseForBlock, caseId);
                     break;
-                case "attachment":
+                case CASE_ATTACHMENT_NODE:
                     caseForBlock = loadCase(caseForBlock, caseId, currentOperatingSet, false);
                     processCaseAttachment(subElement, caseForBlock);
                     break;
@@ -247,9 +258,9 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
             TreeElement subElement = indexElement.getChildAt(i);
 
             String indexName = subElement.getName();
-            String caseType = subElement.getAttributeValue(null, "case_type");
+            String caseType = subElement.getAttributeValue(null, CASE_PROPERTY_INDEX_CASE_TYPE);
 
-            String relationship = subElement.getAttributeValue(null, "relationship");
+            String relationship = subElement.getAttributeValue(null, CASE_PROPERTY_INDEX_RELATIONSHIP);
             if (relationship == null) {
                 relationship = CaseIndex.RELATIONSHIP_CHILD;
             }
@@ -310,9 +321,9 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
             TreeElement subElement = attachmentElement.getChildAt(i);
 
             String attachmentName = subElement.getName();
-            String src = subElement.getAttributeValue(null, "src");
-            String from = subElement.getAttributeValue(null, "from");
-            String fileName = subElement.getAttributeValue(null, "name");
+            String src = subElement.getAttributeValue(null, CASE_PROPERTY_ATTACHMENT_SRC);
+            String from = subElement.getAttributeValue(null, CASE_PROPERTY_ATTACHMENT_FROM);
+            String fileName = subElement.getAttributeValue(null, CASE_PROPERTY_ATTACHMENT_NAME);
 
             if ((src == null || "".equals(src)) && (from == null || "".equals(from))) {
                 //this is actually an attachment removal
