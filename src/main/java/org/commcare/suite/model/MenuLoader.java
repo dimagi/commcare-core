@@ -73,7 +73,7 @@ public class MenuLoader {
             for (Menu m : s.getMenus()) {
                 try {
                     if (m.getId().equals(menuID)) {
-                        if (menuIsRelevant(sessionWrapper, m)) {
+                        if (menuIsRelevant(sessionWrapper, m) && menuAssertionsPass(sessionWrapper, m)) {
                             addRelevantCommandEntries(sessionWrapper, m, items, badges, map, includeBadges);
                         }
                     } else {
@@ -143,6 +143,11 @@ public class MenuLoader {
             return result;
         }
         return true;
+    }
+
+    public boolean menuAssertionsPass(SessionWrapperInterface sessionWrapper, Menu m) {
+        Text text =  m.getAssertions().getAssertionFailure(sessionWrapper.getEvaluationContext());
+        return text == null;
     }
 
     private void addRelevantCommandEntries(SessionWrapperInterface sessionWrapper,
