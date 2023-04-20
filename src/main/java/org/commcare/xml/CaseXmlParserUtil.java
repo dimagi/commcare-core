@@ -1,6 +1,7 @@
 package org.commcare.xml;
 
 import org.commcare.cases.model.Case;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.xml.util.InvalidCasePropertyLengthException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
@@ -57,6 +58,19 @@ public class CaseXmlParserUtil {
      */
     private static int getStringLength(String input) {
         return input != null ? input.length() : 0;
+    }
+
+    /**
+     * Trims and returns elements value or empty string
+     * @param element TreeElement we want the value for
+     * @return empty string if element value is null, otherwise the trimmed value for element
+     */
+    public static String getTrimmedElementTextOrBlank(TreeElement element) {
+        if (element.getValue() == null) {
+            return "";
+        }
+
+        return element.getValue().uncast().getString().trim();
     }
 
 }
