@@ -14,6 +14,7 @@ import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_LAST_MODIFIED;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_OWNER_ID;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_STATE;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_STATUS;
+import static org.commcare.xml.CaseXmlParserUtil.getTrimmedElementTextOrBlank;
 import static org.commcare.xml.CaseXmlParserUtil.validateMandatoryProperty;
 
 import org.commcare.cases.model.Case;
@@ -106,13 +107,6 @@ public class BulkCaseInstanceXmlParser extends BulkElementParser<Case> implement
                 parser);
         validateMandatoryProperty(CASE_PROPERTY_CASE_NAME, caseForBlock.getName(), caseForBlock.getCaseId(),
                 parser);
-    }
-
-    private static String getTrimmedElementTextOrBlank(TreeElement element) {
-        if (element.getValue() == null) {
-            return "";
-        }
-        return element.getValue().uncast().getString().trim();
     }
 
     protected Case buildCase(String name, String typeId) {

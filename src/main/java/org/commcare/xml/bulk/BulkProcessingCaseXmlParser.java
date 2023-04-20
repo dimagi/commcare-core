@@ -21,6 +21,7 @@ import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_OWNER_ID;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_STATE;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_USER_ID;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_UPDATE_NODE;
+import static org.commcare.xml.CaseXmlParserUtil.getTrimmedElementTextOrBlank;
 import static org.commcare.xml.CaseXmlParserUtil.validateMandatoryProperty;
 
 import org.commcare.cases.model.Case;
@@ -125,14 +126,6 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
                 onCaseCreateUpdate(caseId);
             }
         }
-    }
-
-    private String getTrimmedElementTextOrBlank(TreeElement element) {
-        if (element.getValue() == null) {
-            return "";
-        }
-
-        return element.getValue().uncast().getString().trim();
     }
 
 
@@ -268,7 +261,7 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
                 relationship = CaseIndex.RELATIONSHIP_CHILD;
             }
 
-            String value = this.getTrimmedElementTextOrBlank(subElement);
+            String value = getTrimmedElementTextOrBlank(subElement);
 
             if (value.equals(caseId)) {
                 throw new ActionableInvalidStructureException("case.error.self.index", new String[]{caseId}, "Case " + caseId + " cannot index itself");
