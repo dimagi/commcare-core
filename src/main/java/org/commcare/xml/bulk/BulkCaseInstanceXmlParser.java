@@ -19,6 +19,7 @@ import static org.commcare.xml.CaseXmlParserUtil.validateMandatoryProperty;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.modern.engine.cases.CaseIndexTable;
+import org.commcare.xml.CaseIndexChangeListener;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -39,7 +40,7 @@ import java.util.Set;
  */
 
 // todo this and other case parsers duplicates a bunch of logic today that can be unified
-public class BulkCaseInstanceXmlParser extends BulkElementParser<Case> {
+public class BulkCaseInstanceXmlParser extends BulkElementParser<Case> implements CaseIndexChangeListener {
 
     private final CaseIndexTable mCaseIndexTable;
     private final IStorageUtilityIndexed<Case> storage;
@@ -218,5 +219,10 @@ public class BulkCaseInstanceXmlParser extends BulkElementParser<Case> {
                         relationship));
             }
         }
+    }
+
+    @Override
+    public void onIndexDisrupted(String caseId) {
+
     }
 }
