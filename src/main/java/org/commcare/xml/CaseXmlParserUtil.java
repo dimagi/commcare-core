@@ -1,7 +1,9 @@
 package org.commcare.xml;
 
 import org.commcare.cases.model.Case;
+import org.commcare.cases.model.CaseIndex;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.xml.util.ActionableInvalidStructureException;
 import org.javarosa.xml.util.InvalidCasePropertyLengthException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
@@ -71,6 +73,57 @@ public class CaseXmlParserUtil {
         }
 
         return element.getValue().uncast().getString().trim();
+    }
+
+    /**
+     * Processes given treeElement to set case indexes
+     * @param indexElement TreeElement containing the index nodes
+     * @param caseForBlock Case to which indexes should be applied
+     * @param caseId id of the given case
+     * @param caseIndexChangeListener listener for the case index changes
+     * @throws InvalidStructureException thrown when the given indexElement doesn't have valid index nodes
+     */
+    public static void indexCase(TreeElement indexElement, Case caseForBlock, String caseId,
+            CaseIndexChangeListener caseIndexChangeListener)
+            throws InvalidStructureException {
+        for (int i = 0; i < indexElement.getNumChildren(); i++) {
+            TreeElement subElement = indexElement.getChildAt(i);
+
+            String indexName = subElement.getName();
+            String caseType = subElement.getAttributeValue(null, CASE_PROPERTY_INDEX_CASE_TYPE);
+
+            String value = getTrimmedElementTextOrBlank(subElement);
+            if (value.equals(caseId)) {
+                throw new ActionableInvalidStructureException("case.error.self.index", new String[]{caseId},
+                        "Case " + caseId + " cannot index itself");
+            } else if (value.equals("")) {
+                //Remove any ambiguity associated with empty values
+                value = null;
+            }
+
+            String relationship = subElement.getAttributeValue(null, CASE_PROPERTY_INDEX_RELATIONSHIP);
+            if (relationship == null) {
+                relationship = CaseIndex.RELATIONSHIP_CHILD;
+            } else if ("".equals(relationship)) {
+                throw new InvalidStructureException(String.format(
+                        "Invalid Case Transaction for Case[%s]: Attempt to add a '' relationship type to "
+                                + "entity[%s]",
+                        caseId, value));
+            }
+
+
+            //Process blank inputs in the same manner as data fields (IE: Remove the underlying model)
+            if (value == null) {
+                if (caseForBlock.removeIndex(indexName)) {
+                    caseIndexChangeListener.onIndexDisrupted(caseId);
+                }
+            } else {
+                if (caseForBlock.setIndex(new CaseIndex(indexName, caseType, value,
+                        relationship))) {
+                    caseIndexChangeListener.onIndexDisrupted(caseId);
+                }
+            }
+        }
     }
 
 }
