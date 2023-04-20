@@ -25,6 +25,7 @@ import static org.commcare.xml.CaseXmlParserUtil.validateMandatoryProperty;
 
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
+import org.commcare.xml.CaseIndexChangeListener;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.util.externalizable.SerializationLimitationException;
@@ -47,7 +48,8 @@ import java.util.Set;
  *
  * Created by ctsims on 3/14/2017.
  */
-public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case> {
+public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case> implements
+        CaseIndexChangeListener {
 
     public BulkProcessingCaseXmlParser(KXmlParser parser) {
         super(parser);
@@ -97,7 +99,7 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
                     break;
                 case CASE_INDEX_NODE:
                     caseForBlock = loadCase(caseForBlock, caseId, currentOperatingSet, false);
-                    indexCase(subElement, caseForBlock, caseId);
+                    indexCase(subElement, caseForBlock, caseId, this);
                     break;
                 case CASE_ATTACHMENT_NODE:
                     caseForBlock = loadCase(caseForBlock, caseId, currentOperatingSet, false);
@@ -252,7 +254,8 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
         onIndexDisrupted(caseId);
     }
 
-    private void indexCase(TreeElement indexElement, Case caseForBlock, String caseId)
+    private static void indexCase(TreeElement indexElement, Case caseForBlock, String caseId,
+            CaseIndexChangeListener caseIndexChangeListener)
             throws InvalidStructureException {
         for (int i = 0; i < indexElement.getNumChildren(); i++) {
             TreeElement subElement = indexElement.getChildAt(i);
@@ -284,28 +287,18 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
             //Process blank inputs in the same manner as data fields (IE: Remove the underlying model)
             if (value == null) {
                 if (caseForBlock.removeIndex(indexName)) {
-                    onIndexDisrupted(caseId);
+                    caseIndexChangeListener.onIndexDisrupted(caseId);
                 }
             } else {
                 if (caseForBlock.setIndex(new CaseIndex(indexName, caseType, value,
                         relationship))) {
-                    onIndexDisrupted(caseId);
+                    caseIndexChangeListener.onIndexDisrupted(caseId);
                 }
             }
         }
     }
 
-    /**
-     * A signal that notes that processing a transaction has resulted in a
-     * potential change in what cases should be on the phone. This can be
-     * due to a case's owner changing, a case closing, an index moving, etc.
-     *
-     * Does not have to be consumed, but can be used to identify proactively
-     * when to reconcile what cases should be available.
-     *
-     * @param caseId The ID of a case which has changed in a potentially
-     *               disruptive way
-     */
+    @Override
     public void onIndexDisrupted(String caseId) {
 
     }
