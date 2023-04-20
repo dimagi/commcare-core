@@ -8,24 +8,21 @@ import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CATEGORY;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_DATE_OPENED;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_EXTERNAL_ID;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_INDEX;
-import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_INDEX_CASE_TYPE;
-import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_INDEX_RELATIONSHIP;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_LAST_MODIFIED;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_OWNER_ID;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_STATE;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_STATUS;
 import static org.commcare.xml.CaseXmlParserUtil.getTrimmedElementTextOrBlank;
+import static org.commcare.xml.CaseXmlParserUtil.indexCase;
 import static org.commcare.xml.CaseXmlParserUtil.validateMandatoryProperty;
 
 import org.commcare.cases.model.Case;
-import org.commcare.cases.model.CaseIndex;
 import org.commcare.modern.engine.cases.CaseIndexTable;
 import org.commcare.xml.CaseIndexChangeListener;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.externalizable.SerializationLimitationException;
-import org.javarosa.xml.util.ActionableInvalidStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 
@@ -142,7 +139,7 @@ public class BulkCaseInstanceXmlParser extends BulkElementParser<Case> implement
                     caseForBlock.setState(value);
                     break;
                 case CASE_PROPERTY_INDEX:
-                    indexCase(subElement, caseForBlock, caseId);
+                    indexCase(subElement, caseForBlock, caseId, this);
                     break;
                 default:
                     caseForBlock.setProperty(key, value);
@@ -172,45 +169,6 @@ public class BulkCaseInstanceXmlParser extends BulkElementParser<Case> implement
             for (String cid : writeLog.keySet()) {
                 Case c = writeLog.get(cid);
                 mCaseIndexTable.indexCase(c);
-            }
-        }
-    }
-
-    private static void indexCase(TreeElement indexElement, Case caseForBlock, String caseId)
-            throws InvalidStructureException {
-        for (int i = 0; i < indexElement.getNumChildren(); i++) {
-            TreeElement subElement = indexElement.getChildAt(i);
-
-            String indexName = subElement.getName();
-            String caseType = subElement.getAttributeValue(null, CASE_PROPERTY_INDEX_CASE_TYPE);
-
-            String value = getTrimmedElementTextOrBlank(subElement);
-            String relationship = subElement.getAttributeValue(null, CASE_PROPERTY_INDEX_RELATIONSHIP);
-            if (relationship == null) {
-                relationship = CaseIndex.RELATIONSHIP_CHILD;
-            } else if ("".equals(relationship)) {
-                throw new InvalidStructureException(String.format(
-                        "Invalid Case Transaction for Case[%s]: Attempt to add a '' relationship type to "
-                                + "entity[%s]",
-                        caseId, value));
-            }
-
-            if (value.equals(caseId)) {
-                throw new ActionableInvalidStructureException("case.error.self.index", new String[]{caseId},
-                        "Case " + caseId + " cannot index itself");
-            }
-
-            //Remove any ambiguity associated with empty values
-            if (value.equals("")) {
-                value = null;
-            }
-
-            //Process blank inputs in the same manner as data fields (IE: Remove the underlying model)
-            if (value == null) {
-                caseForBlock.removeIndex(indexName);
-            } else {
-                caseForBlock.setIndex(new CaseIndex(indexName, caseType, value,
-                        relationship));
             }
         }
     }

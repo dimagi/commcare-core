@@ -15,22 +15,19 @@ import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CATEGORY;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_DATE_MODIFIED;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_DATE_OPENED;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_EXTERNAL_ID;
-import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_INDEX_CASE_TYPE;
-import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_INDEX_RELATIONSHIP;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_OWNER_ID;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_STATE;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_USER_ID;
 import static org.commcare.xml.CaseXmlParserUtil.CASE_UPDATE_NODE;
 import static org.commcare.xml.CaseXmlParserUtil.getTrimmedElementTextOrBlank;
+import static org.commcare.xml.CaseXmlParserUtil.indexCase;
 import static org.commcare.xml.CaseXmlParserUtil.validateMandatoryProperty;
 
 import org.commcare.cases.model.Case;
-import org.commcare.cases.model.CaseIndex;
 import org.commcare.xml.CaseIndexChangeListener;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.util.externalizable.SerializationLimitationException;
-import org.javarosa.xml.util.ActionableInvalidStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 
@@ -245,49 +242,6 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
         //this used to insist on a write happening _right here_. Not sure exactly why. Maybe related
         //to other writes happening in the same restore?
         onIndexDisrupted(caseId);
-    }
-
-    private static void indexCase(TreeElement indexElement, Case caseForBlock, String caseId,
-            CaseIndexChangeListener caseIndexChangeListener)
-            throws InvalidStructureException {
-        for (int i = 0; i < indexElement.getNumChildren(); i++) {
-            TreeElement subElement = indexElement.getChildAt(i);
-
-            String indexName = subElement.getName();
-            String caseType = subElement.getAttributeValue(null, CASE_PROPERTY_INDEX_CASE_TYPE);
-
-            String value = getTrimmedElementTextOrBlank(subElement);
-            if (value.equals(caseId)) {
-                throw new ActionableInvalidStructureException("case.error.self.index", new String[]{caseId},
-                        "Case " + caseId + " cannot index itself");
-            } else if (value.equals("")) {
-                //Remove any ambiguity associated with empty values
-                value = null;
-            }
-
-            String relationship = subElement.getAttributeValue(null, CASE_PROPERTY_INDEX_RELATIONSHIP);
-            if (relationship == null) {
-                relationship = CaseIndex.RELATIONSHIP_CHILD;
-            } else if ("".equals(relationship)) {
-                throw new InvalidStructureException(String.format(
-                        "Invalid Case Transaction for Case[%s]: Attempt to add a '' relationship type to "
-                                + "entity[%s]",
-                        caseId, value));
-            }
-
-
-            //Process blank inputs in the same manner as data fields (IE: Remove the underlying model)
-            if (value == null) {
-                if (caseForBlock.removeIndex(indexName)) {
-                    caseIndexChangeListener.onIndexDisrupted(caseId);
-                }
-            } else {
-                if (caseForBlock.setIndex(new CaseIndex(indexName, caseType, value,
-                        relationship))) {
-                    caseIndexChangeListener.onIndexDisrupted(caseId);
-                }
-            }
-        }
     }
 
     @Override
