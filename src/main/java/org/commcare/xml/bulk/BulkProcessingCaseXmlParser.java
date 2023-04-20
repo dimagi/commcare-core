@@ -256,24 +256,23 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
             String indexName = subElement.getName();
             String caseType = subElement.getAttributeValue(null, CASE_PROPERTY_INDEX_CASE_TYPE);
 
-            String relationship = subElement.getAttributeValue(null, CASE_PROPERTY_INDEX_RELATIONSHIP);
-            if (relationship == null) {
-                relationship = CaseIndex.RELATIONSHIP_CHILD;
-            }
-
             String value = getTrimmedElementTextOrBlank(subElement);
-
             if (value.equals(caseId)) {
-                throw new ActionableInvalidStructureException("case.error.self.index", new String[]{caseId}, "Case " + caseId + " cannot index itself");
-            }
-
-            //Remove any ambiguity associated with empty values
-            if (value.equals("")) {
+                throw new ActionableInvalidStructureException("case.error.self.index", new String[]{caseId},
+                        "Case " + caseId + " cannot index itself");
+            } else if (value.equals("")) {
+                //Remove any ambiguity associated with empty values
                 value = null;
             }
 
-            if ("".equals(relationship)) {
-                throw new InvalidStructureException(String.format("Invalid Case Transaction for Case[%s]: Attempt to add a '' relationship type to entity[%s]", caseId, value));
+            String relationship = subElement.getAttributeValue(null, CASE_PROPERTY_INDEX_RELATIONSHIP);
+            if (relationship == null) {
+                relationship = CaseIndex.RELATIONSHIP_CHILD;
+            } else if ("".equals(relationship)) {
+                throw new InvalidStructureException(String.format(
+                        "Invalid Case Transaction for Case[%s]: Attempt to add a '' relationship type to "
+                                + "entity[%s]",
+                        caseId, value));
             }
 
 
