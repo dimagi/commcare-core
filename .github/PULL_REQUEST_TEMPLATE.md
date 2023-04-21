@@ -54,3 +54,6 @@ Otherwise replace it with detailed instructions or reasons a rollback is impossi
 ### Review
 
 - [ ] The set of people pinged as reviewers is appropriate for the level of risk of the change.
+
+### Duplicate PR
+Automatically duplicate this PR as defined in [contributing.md](https://github.com/dimagi/commcare-core/blob/de31d3b5729eefb994371ab55cdf1f3935679e1c/.github/contributing.md).
