@@ -147,7 +147,10 @@ public class MenuLoader {
 
     public boolean menuAssertionsPass(SessionWrapperInterface sessionWrapper, Menu m) {
         Text text =  m.getAssertions().getAssertionFailure(sessionWrapper.getEvaluationContext());
-        return text == null;
+        if (text != null) {
+            loadException = new Exception(text.evaluate());
+        }
+        return true;
     }
 
     private void addRelevantCommandEntries(SessionWrapperInterface sessionWrapper,
