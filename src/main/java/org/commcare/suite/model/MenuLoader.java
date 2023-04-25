@@ -149,6 +149,7 @@ public class MenuLoader {
         Text text =  m.getAssertions().getAssertionFailure(sessionWrapper.getEvaluationContext());
         if (text != null) {
             loadException = new Exception(text.evaluate());
+            return false;
         }
         return true;
     }
