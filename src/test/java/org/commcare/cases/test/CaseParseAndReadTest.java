@@ -1,5 +1,7 @@
 package org.commcare.cases.test;
 
+import static org.commcare.test.utilities.CaseTestUtils.compareCaseDbState;
+
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.TestInstanceInitializer;
@@ -53,7 +55,7 @@ public class CaseParseAndReadTest {
 
     @Test
     public void testReadCaseDB() throws Exception {
-        compareCaseDbState("/case_create_basic.xml", "/case_create_basic_output.xml");
+        parseAndCompareCaseDbState("/case_create_basic.xml", "/case_create_basic_output.xml");
 
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
@@ -62,54 +64,16 @@ public class CaseParseAndReadTest {
 
     @Test
     public void testDoubleCreateCaseWithUpdate() throws Exception {
-        compareCaseDbState("/case_create_overwrite.xml", "/case_create_overwrite_output.xml");
+        parseAndCompareCaseDbState("/case_create_overwrite.xml", "/case_create_overwrite_output.xml");
         EvaluationContext ec = MockDataUtils.buildContextWithInstance(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", "case_overwrite"));
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_property1", "one"));
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_property2", "property_two"));
     }
 
-
-    private void compareCaseDbState(String inputTransactions,
-                                    String caseDbState) throws Exception {
+    private void parseAndCompareCaseDbState(String inputTransactions,
+            String caseDbState) throws Exception {
         config.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox, false);
-
-        byte[] parsedDb = serializeCaseInstanceFromSandbox(sandbox);
-        Document parsed = XmlComparator.getDocumentFromStream(new ByteArrayInputStream(parsedDb));
-        Document loaded = XmlComparator.getDocumentFromStream(this.getClass().getResourceAsStream(caseDbState));
-
-        try {
-            XmlComparator.isDOMEqual(parsed, loaded);
-        } catch(Exception e) {
-            System.out.print(new String(parsedDb));
-
-            //NOTE: The DOM's definitely don't match here, so the strings cannot be the same.
-            //The reason we are asserting equality is because the delta between the strings is
-            //likely to do a good job of contextualizing where the DOM's don't match.
-            Assert.assertEquals("CaseDB output did not match expected structure(" + e.getMessage() + ")", new String(dumpStream(caseDbState)), new String(parsedDb));
-        }
-    }
-
-    private static byte[] serializeCaseInstanceFromSandbox(MockUserDataSandbox sandbox) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            DataModelSerializer s = new DataModelSerializer(bos, new TestInstanceInitializer(sandbox));
-
-            s.serialize(new ExternalDataInstance(CaseTestUtils.CASE_INSTANCE, CaseInstanceTreeElement.MODEL_NAME), null);
-
-            return bos.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
-
-
-    private byte[] dumpStream(String inputResource) throws IOException {
-        InputStream is = this.getClass().getResourceAsStream(inputResource);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-        StreamsUtil.writeFromInputToOutput(is, bos);
-
-        return bos.toByteArray();
+        compareCaseDbState(sandbox, getClass().getResourceAsStream(caseDbState));
     }
 }

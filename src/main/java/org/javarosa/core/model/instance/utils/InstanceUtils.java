@@ -2,6 +2,7 @@ package org.javarosa.core.model.instance.utils;
 
 import static org.javarosa.core.model.instance.utils.TreeUtilities.xmlToTreeElement;
 
+import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceBase;
@@ -37,6 +38,9 @@ public class InstanceUtils {
             TreeElement rootAsTreeElement = ((TreeElement)instanceRoot);
             rootAsTreeElement.setInstanceName(instanceId);
             rootAsTreeElement.setParent(instanceBase);
+        } else if (instanceRoot instanceof CaseInstanceTreeElement) {
+            CaseInstanceTreeElement caseInstanceRoot = ((CaseInstanceTreeElement)instanceRoot);
+            caseInstanceRoot.rebase(instanceBase);
         } else {
             String error = "Unrecognised Instance root of type " + instanceRoot.getClass().getName() +
                     " for instance " + instanceId;
