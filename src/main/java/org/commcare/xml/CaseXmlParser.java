@@ -1,5 +1,29 @@
 package org.commcare.xml;
 
+import static org.commcare.xml.CaseXmlParserUtil.CASE_ATTACHMENT_NODE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_CLOSE_NODE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_CREATE_NODE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_INDEX_NODE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_NODE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_ATTACHMENT_FROM;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_ATTACHMENT_NAME;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_ATTACHMENT_SRC;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CASE_ID;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CASE_NAME;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CASE_TYPE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CATEGORY;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_DATE_MODIFIED;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_DATE_OPENED;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_EXTERNAL_ID;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_INDEX_CASE_TYPE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_INDEX_RELATIONSHIP;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_OWNER_ID;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_STATE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_USER_ID;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_UPDATE_NODE;
+import static org.commcare.xml.CaseXmlParserUtil.checkForMaxLength;
+import static org.commcare.xml.CaseXmlParserUtil.validateMandatoryProperty;
+
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.data.xml.TransactionParser;
@@ -7,7 +31,6 @@ import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.externalizable.SerializationLimitationException;
 import org.javarosa.xml.util.ActionableInvalidStructureException;
-import org.javarosa.xml.util.InvalidCasePropertyLengthException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -29,13 +52,7 @@ import java.util.NoSuchElementException;
  *
  * @author ctsims
  */
-public class CaseXmlParser extends TransactionParser<Case> {
-
-    public static final String ATTACHMENT_FROM_LOCAL = "local";
-    public static final String ATTACHMENT_FROM_REMOTE = "remote";
-    public static final String ATTACHMENT_FROM_INLINE = "inline";
-
-    public static final String CASE_XML_NAMESPACE = "http://commcarehq.org/case/transaction/v2";
+public class CaseXmlParser extends TransactionParser<Case> implements CaseIndexChangeListener {
 
     private final IStorageUtilityIndexed storage;
     private final boolean acceptCreateOverwrites;
@@ -61,45 +78,42 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
     @Override
     public Case parse() throws InvalidStructureException, IOException, XmlPullParserException {
-        checkNode("case");
+        checkNode(CASE_NODE);
 
-        String caseId = parser.getAttributeValue(null, "case_id");
-        if (caseId == null || caseId.equals("")) {
-            throw InvalidStructureException.readableInvalidStructureException("The case_id attribute of a <case> wasn't set", parser);
-        }
+        String caseId = parser.getAttributeValue(null, CASE_PROPERTY_CASE_ID);
+        validateMandatoryProperty(CASE_PROPERTY_CASE_ID, caseId, "", parser);
 
-        String dateModified = parser.getAttributeValue(null, "date_modified");
-        if (dateModified == null) {
-            throw InvalidStructureException.readableInvalidStructureException("The date_modified attribute of a <case> wasn't set", parser);
-        }
+        String dateModified = parser.getAttributeValue(null, CASE_PROPERTY_DATE_MODIFIED);
+        validateMandatoryProperty(CASE_PROPERTY_DATE_MODIFIED, dateModified, caseId, parser);
+
         Date modified = DateUtils.parseDateTime(dateModified);
 
-        String userId = parser.getAttributeValue(null, "user_id");
+        String userId = parser.getAttributeValue(null, CASE_PROPERTY_USER_ID);
 
         Case caseForBlock = null;
         boolean isCreateOrUpdate = false;
 
-        while (nextTagInBlock("case")) {
+        while (nextTagInBlock(CASE_NODE)) {
             String action = parser.getName().toLowerCase();
             switch (action) {
-                case "create":
+                case CASE_CREATE_NODE:
                     caseForBlock = createCase(caseId, modified, userId);
                     isCreateOrUpdate = true;
                     break;
-                case "update":
+                case CASE_UPDATE_NODE:
                     caseForBlock = loadCase(caseForBlock, caseId, true);
                     updateCase(caseForBlock, caseId);
                     isCreateOrUpdate = true;
                     break;
-                case "close":
+                case CASE_CLOSE_NODE:
                     caseForBlock = loadCase(caseForBlock, caseId, true);
                     closeCase(caseForBlock, caseId);
                     break;
-                case "index":
+                case CASE_INDEX_NODE:
                     caseForBlock = loadCase(caseForBlock, caseId, false);
                     indexCase(caseForBlock, caseId);
                     break;
-                case "attachment":
+                case CASE_ATTACHMENT_NODE:
                     caseForBlock = loadCase(caseForBlock, caseId, false);
                     processCaseAttachment(caseForBlock);
                     break;
@@ -129,16 +143,16 @@ public class CaseXmlParser extends TransactionParser<Case> {
         String[] data = new String[3];
         Case caseForBlock = null;
 
-        while (nextTagInBlock("create")) {
+        while (nextTagInBlock(CASE_CREATE_NODE)) {
             String tag = parser.getName();
             switch (tag) {
-                case "case_type":
+                case CASE_PROPERTY_CASE_TYPE:
                     data[0] = parser.nextText().trim();
                     break;
-                case "owner_id":
+                case CASE_PROPERTY_OWNER_ID:
                     data[1] = parser.nextText().trim();
                     break;
-                case "case_name":
+                case CASE_PROPERTY_CASE_NAME:
                     data[2] = parser.nextText().trim();
                     break;
                 default:
@@ -182,21 +196,21 @@ public class CaseXmlParser extends TransactionParser<Case> {
     }
 
     private void updateCase(Case caseForBlock, String caseId) throws InvalidStructureException, IOException, XmlPullParserException {
-        while (nextTagInBlock("update")) {
+        while (nextTagInBlock(CASE_UPDATE_NODE)) {
             String key = parser.getName();
             String value = parser.nextText().trim();
 
             switch (key) {
-                case "case_type":
+                case CASE_PROPERTY_CASE_TYPE:
                     caseForBlock.setTypeId(value);
                     break;
-                case "case_name":
+                case CASE_PROPERTY_CASE_NAME:
                     caseForBlock.setName(value);
                     break;
-                case "date_opened":
+                case CASE_PROPERTY_DATE_OPENED:
                     caseForBlock.setDateOpened(DateUtils.parseDate(value));
                     break;
-                case "owner_id":
+                case CASE_PROPERTY_OWNER_ID:
                     String oldUserId = caseForBlock.getUserId();
 
                     if (!oldUserId.equals(value)) {
@@ -204,13 +218,13 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     }
                     caseForBlock.setUserId(value);
                     break;
-                case "external_id":
+                case CASE_PROPERTY_EXTERNAL_ID:
                     caseForBlock.setExternalId(value);
                     break;
-                case "category":
+                case CASE_PROPERTY_CATEGORY:
                     caseForBlock.setCategory(value);
                     break;
-                case "state":
+                case CASE_PROPERTY_STATE:
                     caseForBlock.setState(value);
                     break;
                 default:
@@ -219,25 +233,6 @@ public class CaseXmlParser extends TransactionParser<Case> {
             }
         }
         checkForMaxLength(caseForBlock);
-    }
-
-    private void checkForMaxLength(Case caseForBlock) throws InvalidStructureException {
-        if (getStringLength(caseForBlock.getTypeId()) > 255) {
-            throw new InvalidCasePropertyLengthException("case_type");
-        } else if (getStringLength(caseForBlock.getUserId()) > 255) {
-            throw new InvalidCasePropertyLengthException("owner_id");
-        } else if (getStringLength(caseForBlock.getName()) > 255) {
-            throw new InvalidCasePropertyLengthException("case_name");
-        } else if (getStringLength(caseForBlock.getExternalId()) > 255) {
-            throw new InvalidCasePropertyLengthException("external_id");
-        }
-    }
-
-    /**
-     * Returns the length of string if it's not null, otherwise 0.
-     */
-    private int getStringLength(String input) {
-        return input != null ? input.length() : 0;
     }
 
     private Case loadCase(Case caseForBlock, String caseId, boolean errorIfMissing) throws InvalidStructureException {
@@ -257,11 +252,11 @@ public class CaseXmlParser extends TransactionParser<Case> {
     }
 
     private void indexCase(Case caseForBlock, String caseId) throws InvalidStructureException, IOException, XmlPullParserException {
-        while (nextTagInBlock("index")) {
+        while (nextTagInBlock(CASE_INDEX_NODE)) {
             String indexName = parser.getName();
-            String caseType = parser.getAttributeValue(null, "case_type");
+            String caseType = parser.getAttributeValue(null, CASE_PROPERTY_INDEX_CASE_TYPE);
 
-            String relationship = parser.getAttributeValue(null, "relationship");
+            String relationship = parser.getAttributeValue(null, CASE_PROPERTY_INDEX_RELATIONSHIP);
             if (relationship == null) {
                 relationship = CaseIndex.RELATIONSHIP_CHILD;
             } else if ("".equals(relationship)) {
@@ -291,11 +286,11 @@ public class CaseXmlParser extends TransactionParser<Case> {
     }
 
     private void processCaseAttachment(Case caseForBlock) throws InvalidStructureException, IOException, XmlPullParserException {
-        while (nextTagInBlock("attachment")) {
+        while (nextTagInBlock(CASE_ATTACHMENT_NODE)) {
             String attachmentName = parser.getName();
-            String src = parser.getAttributeValue(null, "src");
-            String from = parser.getAttributeValue(null, "from");
-            String fileName = parser.getAttributeValue(null, "name");
+            String src = parser.getAttributeValue(null, CASE_PROPERTY_ATTACHMENT_SRC);
+            String from = parser.getAttributeValue(null, CASE_PROPERTY_ATTACHMENT_FROM);
+            String fileName = parser.getAttributeValue(null, CASE_PROPERTY_ATTACHMENT_NAME);
 
             if ((src == null || "".equals(src)) && (from == null || "".equals(from))) {
                 //this is actually an attachment removal
@@ -340,17 +335,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
         return storage;
     }
 
-    /**
-     * A signal that notes that processing a transaction has resulted in a
-     * potential change in what cases should be on the phone. This can be
-     * due to a case's owner changing, a case closing, an index moving, etc.
-     *
-     * Does not have to be consumed, but can be used to identify proactively
-     * when to reconcile what cases should be available.
-     *
-     * @param caseId The ID of a case which has changed in a potentially
-     *               disruptive way
-     */
+    @Override
     public void onIndexDisrupted(String caseId) {
 
     }

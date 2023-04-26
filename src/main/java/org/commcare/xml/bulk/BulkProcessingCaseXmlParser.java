@@ -1,11 +1,33 @@
 package org.commcare.xml.bulk;
 
+import static org.commcare.xml.CaseXmlParserUtil.CASE_ATTACHMENT_NODE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_CLOSE_NODE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_CREATE_NODE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_INDEX_NODE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_NODE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_ATTACHMENT_FROM;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_ATTACHMENT_NAME;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_ATTACHMENT_SRC;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CASE_ID;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CASE_NAME;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CASE_TYPE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_CATEGORY;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_DATE_MODIFIED;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_DATE_OPENED;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_EXTERNAL_ID;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_OWNER_ID;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_STATE;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_PROPERTY_USER_ID;
+import static org.commcare.xml.CaseXmlParserUtil.CASE_UPDATE_NODE;
+import static org.commcare.xml.CaseXmlParserUtil.getTrimmedElementTextOrBlank;
+import static org.commcare.xml.CaseXmlParserUtil.indexCase;
+import static org.commcare.xml.CaseXmlParserUtil.validateMandatoryProperty;
+
 import org.commcare.cases.model.Case;
-import org.commcare.cases.model.CaseIndex;
+import org.commcare.xml.CaseIndexChangeListener;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.util.externalizable.SerializationLimitationException;
-import org.javarosa.xml.util.ActionableInvalidStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 
@@ -24,7 +46,8 @@ import java.util.Set;
  *
  * Created by ctsims on 3/14/2017.
  */
-public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case> {
+public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case> implements
+        CaseIndexChangeListener {
 
     public BulkProcessingCaseXmlParser(KXmlParser parser) {
         super(parser);
@@ -38,23 +61,19 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
 
     @Override
     protected void preParseValidate() throws InvalidStructureException {
-        checkNode("case");
+        checkNode(CASE_NODE);
     }
 
     @Override
     protected void processBufferedElement(TreeElement bufferedTreeElement, Map<String, Case> currentOperatingSet, LinkedHashMap<String, Case> writeLog) throws InvalidStructureException {
-        String caseId = bufferedTreeElement.getAttributeValue(null, "case_id");
-        if (caseId == null || caseId.equals("")) {
-            throw new InvalidStructureException("The case_id attribute of a <case> wasn't set");
-        }
+        String caseId = bufferedTreeElement.getAttributeValue(null, CASE_PROPERTY_CASE_ID);
+        validateMandatoryProperty(CASE_PROPERTY_CASE_ID, caseId, "", parser);
 
-        String dateModified = bufferedTreeElement.getAttributeValue(null, "date_modified");
-        if (dateModified == null) {
-            throw new InvalidStructureException("The date_modified attribute of a <case> wasn't set");
-        }
+        String dateModified = bufferedTreeElement.getAttributeValue(null, CASE_PROPERTY_DATE_MODIFIED);
+        validateMandatoryProperty(CASE_PROPERTY_DATE_MODIFIED, dateModified, caseId, parser);
         Date modified = DateUtils.parseDateTime(dateModified);
 
-        String userId = parser.getAttributeValue(null, "user_id");
+        String userId = parser.getAttributeValue(null, CASE_PROPERTY_USER_ID);
 
         Case caseForBlock = null;
         boolean isCreateOrUpdate = false;
@@ -63,24 +82,24 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
             TreeElement subElement = bufferedTreeElement.getChildAt(i);
             String action = subElement.getName().toLowerCase();
             switch (action) {
-                case "create":
+                case CASE_CREATE_NODE:
                     caseForBlock = createCase(subElement, currentOperatingSet, caseId, modified, userId);
                     isCreateOrUpdate = true;
                     break;
-                case "update":
+                case CASE_UPDATE_NODE:
                     caseForBlock = loadCase(caseForBlock, caseId, currentOperatingSet, true);
                     updateCase(subElement, caseForBlock, caseId);
                     isCreateOrUpdate = true;
                     break;
-                case "close":
+                case CASE_CLOSE_NODE:
                     caseForBlock = loadCase(caseForBlock, caseId, currentOperatingSet, true);
                     closeCase(caseForBlock, caseId);
                     break;
-                case "index":
+                case CASE_INDEX_NODE:
                     caseForBlock = loadCase(caseForBlock, caseId, currentOperatingSet, false);
-                    indexCase(subElement, caseForBlock, caseId);
+                    indexCase(subElement, caseForBlock, caseId, this);
                     break;
-                case "attachment":
+                case CASE_ATTACHMENT_NODE:
                     caseForBlock = loadCase(caseForBlock, caseId, currentOperatingSet, false);
                     processCaseAttachment(subElement, caseForBlock);
                     break;
@@ -106,32 +125,24 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
         }
     }
 
-    private String getTrimmedElementTextOrBlank(TreeElement element) {
-        if (element.getValue() == null) {
-            return "";
-        }
-
-        return element.getValue().uncast().getString().trim();
-    }
-
 
     private Case createCase(TreeElement createElement, Map<String, Case> currentOperatingSet,
                             String caseId, Date modified, String userId) throws InvalidStructureException {
 
         String[] data = new String[3];
-        Case caseForBlock = null;
+        Case caseForBlock;
 
         for (int i = 0; i < createElement.getNumChildren(); i++) {
             TreeElement subElement = createElement.getChildAt(i);
             String tag = subElement.getName();
             switch (tag) {
-                case "case_type":
+                case CASE_PROPERTY_CASE_TYPE:
                     data[0] = getTrimmedElementTextOrBlank(subElement);
                     break;
-                case "owner_id":
+                case CASE_PROPERTY_OWNER_ID:
                     data[1] = getTrimmedElementTextOrBlank(subElement);
                     break;
-                case "case_name":
+                case CASE_PROPERTY_CASE_NAME:
                     data[2] = getTrimmedElementTextOrBlank(subElement);
                     break;
                 default:
@@ -193,16 +204,16 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
             String value = getTrimmedElementTextOrBlank(subElement);
 
             switch (key) {
-                case "case_type":
+                case CASE_PROPERTY_CASE_TYPE:
                     caseForBlock.setTypeId(value);
                     break;
-                case "case_name":
+                case CASE_PROPERTY_CASE_NAME:
                     caseForBlock.setName(value);
                     break;
-                case "date_opened":
+                case CASE_PROPERTY_DATE_OPENED:
                     caseForBlock.setDateOpened(DateUtils.parseDate(value));
                     break;
-                case "owner_id":
+                case CASE_PROPERTY_OWNER_ID:
                     String oldUserId = caseForBlock.getUserId();
 
                     if (!oldUserId.equals(value)) {
@@ -210,13 +221,13 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
                     }
                     caseForBlock.setUserId(value);
                     break;
-                case "external_id":
+                case CASE_PROPERTY_EXTERNAL_ID:
                     caseForBlock.setExternalId(value);
                     break;
-                case "category":
+                case CASE_PROPERTY_CATEGORY:
                     caseForBlock.setCategory(value);
                     break;
-                case "state":
+                case CASE_PROPERTY_STATE:
                     caseForBlock.setState(value);
                     break;
                 default:
@@ -233,60 +244,7 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
         onIndexDisrupted(caseId);
     }
 
-    private void indexCase(TreeElement indexElement, Case caseForBlock, String caseId)
-            throws InvalidStructureException {
-        for (int i = 0; i < indexElement.getNumChildren(); i++) {
-            TreeElement subElement = indexElement.getChildAt(i);
-
-            String indexName = subElement.getName();
-            String caseType = subElement.getAttributeValue(null, "case_type");
-
-            String relationship = subElement.getAttributeValue(null, "relationship");
-            if (relationship == null) {
-                relationship = CaseIndex.RELATIONSHIP_CHILD;
-            }
-
-            String value = this.getTrimmedElementTextOrBlank(subElement);
-
-            if (value.equals(caseId)) {
-                throw new ActionableInvalidStructureException("case.error.self.index", new String[]{caseId}, "Case " + caseId + " cannot index itself");
-            }
-
-            //Remove any ambiguity associated with empty values
-            if (value.equals("")) {
-                value = null;
-            }
-
-            if ("".equals(relationship)) {
-                throw new InvalidStructureException(String.format("Invalid Case Transaction for Case[%s]: Attempt to add a '' relationship type to entity[%s]", caseId, value));
-            }
-
-
-            //Process blank inputs in the same manner as data fields (IE: Remove the underlying model)
-            if (value == null) {
-                if (caseForBlock.removeIndex(indexName)) {
-                    onIndexDisrupted(caseId);
-                }
-            } else {
-                if (caseForBlock.setIndex(new CaseIndex(indexName, caseType, value,
-                        relationship))) {
-                    onIndexDisrupted(caseId);
-                }
-            }
-        }
-    }
-
-    /**
-     * A signal that notes that processing a transaction has resulted in a
-     * potential change in what cases should be on the phone. This can be
-     * due to a case's owner changing, a case closing, an index moving, etc.
-     *
-     * Does not have to be consumed, but can be used to identify proactively
-     * when to reconcile what cases should be available.
-     *
-     * @param caseId The ID of a case which has changed in a potentially
-     *               disruptive way
-     */
+    @Override
     public void onIndexDisrupted(String caseId) {
 
     }
@@ -302,9 +260,9 @@ public abstract class BulkProcessingCaseXmlParser extends BulkElementParser<Case
             TreeElement subElement = attachmentElement.getChildAt(i);
 
             String attachmentName = subElement.getName();
-            String src = subElement.getAttributeValue(null, "src");
-            String from = subElement.getAttributeValue(null, "from");
-            String fileName = subElement.getAttributeValue(null, "name");
+            String src = subElement.getAttributeValue(null, CASE_PROPERTY_ATTACHMENT_SRC);
+            String from = subElement.getAttributeValue(null, CASE_PROPERTY_ATTACHMENT_FROM);
+            String fileName = subElement.getAttributeValue(null, CASE_PROPERTY_ATTACHMENT_NAME);
 
             if ((src == null || "".equals(src)) && (from == null || "".equals(from))) {
                 //this is actually an attachment removal
