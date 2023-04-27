@@ -65,6 +65,10 @@ public class AssertionSet implements Externalizable {
         }
     }
 
+    public Vector<String> getAssertionsXPaths() {
+        return this.xpathExpressions;
+    }
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.xpathExpressions = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);

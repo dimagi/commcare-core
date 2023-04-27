@@ -8,6 +8,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 import org.javarosa.xpath.expr.FunctionUtils;
@@ -145,11 +146,28 @@ public class MenuLoader {
         return true;
     }
 
-    public boolean menuAssertionsPass(SessionWrapperInterface sessionWrapper, Menu m) {
-        Text text =  m.getAssertions().getAssertionFailure(sessionWrapper.getEvaluationContext());
-        if (text != null) {
-            loadException = new Exception(text.evaluate());
-            return false;
+    public boolean menuAssertionsPass(SessionWrapperInterface sessionWrapper, Menu m) throws XPathSyntaxException{
+        Vector<String> assertionXpathStrings = m.getAssertions().getAssertionsXPaths();
+        if (!assertionXpathStrings.isEmpty()) {
+            XPathExpression assertionXpath = XPathParseTool.parseXPath(assertionXpathStrings.get(0));
+
+            Set<String> instancesNeededByAssertionCondition =
+                    (new InstanceNameAccumulatingAnalyzer()).accumulate(assertionXpath);
+            EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(m.getId(),
+                    instancesNeededByAssertionCondition);
+
+            EvaluationContext traceableContext = new EvaluationContext(ec, ec.getOriginalContext());
+            if (traceReporter != null) {
+                traceableContext.setDebugModeOn(traceReporter);
+            }
+
+            InstrumentationUtils.printAndClearTraces(traceReporter, "menu load expand");
+            Text text =  m.getAssertions().getAssertionFailure(ec);
+
+            if (text != null) {
+                loadException = new Exception(text.evaluate());
+                return false;
+            }
         }
         return true;
     }
