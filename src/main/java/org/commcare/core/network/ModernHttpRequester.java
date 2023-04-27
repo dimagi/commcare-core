@@ -87,7 +87,18 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         }
         try {
             response = makeRequest();
-            processResponse(responseProcessor, response.code(), this);
+            String errorMessage = null;
+            try {
+                ResponseBody body = response.errorBody();
+                if(body != null) {
+                    errorMessage = body.string();
+                }
+            }
+            catch(Exception e) {
+
+            }
+
+            processResponse(responseProcessor, response.code(), errorMessage, this);
         } catch (IOException e) {
             e.printStackTrace();
             responseProcessor.handleIOException(e);
@@ -143,6 +154,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
 
     public static void processResponse(HttpResponseProcessor responseProcessor,
                                        int responseCode,
+                                       String errorMessage,
                                        ResponseStreamAccessor streamAccessor) {
         if (responseCode >= 200 && responseCode < 300) {
             InputStream responseStream = null;
