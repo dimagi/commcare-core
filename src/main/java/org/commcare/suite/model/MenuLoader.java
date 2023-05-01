@@ -157,7 +157,7 @@ public class MenuLoader {
                         (new InstanceNameAccumulatingAnalyzer()).accumulate(assertionXPath);
                 allInstancesNeededByAssertionCondition.addAll(instancesNeededByAssertionCondition);
             }
-
+            allInstancesNeededByAssertionCondition.add("commcaresession");
             EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(m.getId(),
                     allInstancesNeededByAssertionCondition);
 
