@@ -15,6 +15,7 @@ import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
@@ -147,14 +148,18 @@ public class MenuLoader {
     }
 
     public boolean menuAssertionsPass(SessionWrapperInterface sessionWrapper, Menu m) throws XPathSyntaxException{
-        Vector<String> assertionXpathStrings = m.getAssertions().getAssertionsXPaths();
-        if (!assertionXpathStrings.isEmpty()) {
-            XPathExpression assertionXpath = XPathParseTool.parseXPath(assertionXpathStrings.get(0));
+        Vector<String> assertionXPathStrings = m.getAssertions().getAssertionsXPaths();
+        if (!assertionXPathStrings.isEmpty()) {
+            Set<String> allInstancesNeededByAssertionCondition = new HashSet<>();
+            for ( int i = 0; i < assertionXPathStrings.size(); i++) {
+                XPathExpression assertionXPath = XPathParseTool.parseXPath(assertionXPathStrings.get(i));
+                Set<String> instancesNeededByAssertionCondition =
+                        (new InstanceNameAccumulatingAnalyzer()).accumulate(assertionXPath);
+                allInstancesNeededByAssertionCondition.addAll(instancesNeededByAssertionCondition);
+            }
 
-            Set<String> instancesNeededByAssertionCondition =
-                    (new InstanceNameAccumulatingAnalyzer()).accumulate(assertionXpath);
             EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(m.getId(),
-                    instancesNeededByAssertionCondition);
+                    allInstancesNeededByAssertionCondition);
 
             EvaluationContext traceableContext = new EvaluationContext(ec, ec.getOriginalContext());
             if (traceReporter != null) {
