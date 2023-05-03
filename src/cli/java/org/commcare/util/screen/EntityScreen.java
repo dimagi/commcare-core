@@ -63,6 +63,8 @@ public class EntityScreen extends CompoundScreenHost {
     private boolean initialized = false;
     private Action autoLaunchAction;
 
+    private QueryScreen queryScreen;
+
     public EntityScreen(boolean handleCaseIndex) {
         this.handleCaseIndex = handleCaseIndex;
     }
@@ -466,5 +468,13 @@ public class EntityScreen extends CompoundScreenHost {
             return true;
         }
         return false;
+    }
+
+    public QueryScreen getQueryScreen() {
+        return queryScreen;
+    }
+
+    public void setQueryScreen(QueryScreen queryScreen) {
+        this.queryScreen = queryScreen;
     }
 }
