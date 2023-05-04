@@ -33,7 +33,9 @@ public class CaseXmlParserUtil {
     public static final String CASE_PROPERTY_ATTACHMENT_SRC = "src";
     public static final String CASE_PROPERTY_ATTACHMENT_FROM = "from";
     public static final String CASE_PROPERTY_ATTACHMENT_NAME = "name";
-
+    public static final String ATTACHMENT_FROM_LOCAL = "local";
+    public static final String ATTACHMENT_FROM_REMOTE = "remote";
+    public static final String CASE_XML_NAMESPACE = "http://commcarehq.org/case/transaction/v2";
 
     public static void validateMandatoryProperty(String key, Object value, String caseId, KXmlParser parser) throws
             InvalidStructureException {
