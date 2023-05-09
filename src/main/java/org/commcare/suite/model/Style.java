@@ -36,6 +36,7 @@ public class Style {
         Image,
         Audio,
         Text,
+        Address,
         Graph,
         Phone,
         Markdown,
@@ -75,6 +76,9 @@ public class Style {
                 break;
             case "text":
                 setDisplayFormat(DisplayFormat.Text);
+                break;
+            case "address":
+                setDisplayFormat(DisplayFormat.Address);
                 break;
             case "graph":
                 setDisplayFormat(DisplayFormat.Graph);
