@@ -120,7 +120,7 @@ public class QueryScreen extends Screen {
         } catch (NoLocalizedTextException | NullPointerException e) {
             mTitle = "Case Claim";
         }
-        return mTitle;  
+        return mTitle;
     }
 
     // Formplayer List of Supported prompts
@@ -134,6 +134,7 @@ public class QueryScreen extends Screen {
         supportedPrompts.add(INPUT_TYPE_ADDRESS);
         return supportedPrompts;
     }
+
     public Pair<ExternalDataInstance, String> processResponse(InputStream responseData, URL url,
             Multimap<String, String> requestData) {
         if (responseData == null) {
@@ -179,6 +180,7 @@ public class QueryScreen extends Screen {
         }
         return CryptUtil.sha256(builder.toString());
     }
+
     public void answerPrompts(Hashtable<String, String> answers, boolean selectValuesByKeys) {
         for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
