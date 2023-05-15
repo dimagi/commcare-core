@@ -26,7 +26,8 @@ def get_target_branch(orig_target_branch:str):
 def git_create_branch(orig_branch_name:str, new_branch_name: str):
     git = get_git()
     try:
-        git_fetch_branch(orig_branch_name)
+        if orig_branch_name != BranchName.MASTER.value:
+            git_fetch_branch(orig_branch_name)
         git.checkout(orig_branch_name)
     except sh.ErrorReturnCode_1 as e:
         print(red(e.stderr.decode()))
@@ -49,13 +50,18 @@ def git_fetch_branch(branch_name:str):
         exit(1)
 
 
-def get_new_commits(base_branch: str, curr_branch:str):
+def get_new_commits(base_branch: str, curr_branch:str, base_commit:str = None):
     git = get_git()
-    base_commit = merge_base_commit(base_branch, curr_branch)
+    if base_branch != BranchName.MASTER.value:
+        git_fetch_branch(base_branch)
+    if base_commit:
+        base_commit = git.show("{}^1".format(base_commit)).split()[1]
+    else:
+        base_commit = merge_base_commit(base_branch, curr_branch)
     recent_commit = latest_commit(curr_branch)
 
     commits_range = "{}..{}".format(base_commit, recent_commit)
-    interested_commits = git("rev-list", "--no-merges", commits_range).split()
+    interested_commits = git("rev-list", "--no-merges", "--first-parent", commits_range).split()
     return interested_commits
 
 
@@ -63,12 +69,20 @@ def cherry_pick_new_commits(commits:list[str], branch:str):
     git = get_git()
     git.checkout(branch)
     for commits in reversed(commits):
-        git("cherry-pick", commits)
+        try:
+            empty_commit_message = "The previous cherry-pick is now empty"
+            git("cherry-pick", commits)
+        except sh.ErrorReturnCode_1 as e:
+            if empty_commit_message in e.stderr.decode():
+                git("cherry-pick", "--skip")
 
 
 def git_push_pr(branch:str):
     git = get_git()
-    output = git.push("origin", branch, _err_to_out=True)
+    try:
+        output = git.push("origin", branch, _err_to_out=True)
+    except sh.ErrorReturnCode_1 as e:
+        print(red("Failed to push. Branch {} already exists remotely. Try deleting remote branch and run action again".format(branch)))
     print(output)
 
 
@@ -101,6 +115,7 @@ def main():
     parser.add_argument('orig_source_branch', type=str, help="Branch name of PR to be duplicated")
     parser.add_argument('orig_target_branch', type=str, help="Name of branch the original PR merged into",
                             choices = [key.value for key in BranchName])
+    parser.add_argument('-i','--initial_sha', type=str, help="SHA of first commit in PR to be duplicated")
     args = parser.parse_args()
 
     new_source_branch = "copy_of_" + args.orig_source_branch
@@ -113,7 +128,7 @@ def main():
     git_fetch_branch(args.orig_source_branch)
 
     print("Getting new commits from {}".format(args.orig_source_branch))
-    new_commits = get_new_commits(args.orig_target_branch, args.orig_source_branch)
+    new_commits = get_new_commits(args.orig_target_branch, args.orig_source_branch, args.initial_sha)
 
     print("Cherry-picking commits from {} to {}".format(args.orig_source_branch, new_source_branch))
     cherry_pick_new_commits(new_commits, new_source_branch)

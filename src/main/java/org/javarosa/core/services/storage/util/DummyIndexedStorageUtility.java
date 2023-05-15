@@ -18,6 +18,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -31,7 +32,7 @@ import java.util.Vector;
  */
 public class DummyIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T> {
 
-    private final Hashtable<String, Hashtable<Object, Vector<Integer>>> meta = new Hashtable<>();
+    private Hashtable<String, Hashtable<Object, Vector<Integer>>> meta = new Hashtable<>();
     private final Hashtable<Integer, T> data = new Hashtable<>();
     private int curCount = 0;
     private final Class<T> prototype;
@@ -361,6 +362,12 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     @Override
+    public Vector<T> getBulkRecordsForIndex(String metaFieldName, Collection<String> matchingValues) {
+        // we don't care about bulk retrieval for dummy storage, so just call normal method to get records here
+        return getRecordsForValues(new String[]{metaFieldName}, matchingValues.toArray());
+    }
+
+    @Override
     public void bulkReadMetadata(LinkedHashSet cuedCases, String[] metaDataIds, HashMap metadataMap) {
         for (int i : ((LinkedHashSet<Integer>)cuedCases)) {
             metadataMap.put(i, getMetaDataForRecord(i, metaDataIds));
@@ -370,5 +377,20 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     @Override
     public Class<?> getPrototype() {
         return prototype;
+    }
+
+    @Override
+    public boolean isStorageExists() {
+        return meta != null;
+    }
+
+    @Override
+    public void initStorage() {
+        meta = new Hashtable<>();
+    }
+
+    @Override
+    public void deleteStorage() {
+        meta = null;
     }
 }

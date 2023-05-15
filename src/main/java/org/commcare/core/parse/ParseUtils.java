@@ -2,6 +2,7 @@ package org.commcare.core.parse;
 
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.data.xml.TransactionParserFactory;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -31,10 +32,9 @@ public class ParseUtils {
         parseIntoSandbox(stream, factory, failfast, bulkProcessingEnabled);
     }
 
-    public static void parseIntoSandbox(InputStream stream, CommCareTransactionParserFactory factory,
+    public static void parseIntoSandbox(InputStream stream, TransactionParserFactory factory,
                                         boolean failfast, boolean bulkProcessingEnabled) throws IOException, InvalidStructureException, UnfullfilledRequirementsException, XmlPullParserException {
         DataModelPullParser parser = new DataModelPullParser(stream, factory, failfast, bulkProcessingEnabled);
         parser.parse();
-
     }
 }
