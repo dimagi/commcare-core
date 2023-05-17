@@ -1,6 +1,7 @@
 package org.commcare.modern.engine.cases;
 
 import org.commcare.cases.model.Case;
+import org.commcare.cases.query.queryset.DualTableMultiMatchModelQuerySet;
 import org.commcare.cases.query.queryset.DualTableSingleMatchModelQuerySet;
 
 import java.util.Collection;
@@ -15,6 +16,8 @@ public interface CaseIndexTable {
     int loadIntoIndexTable(HashMap<String, Vector<Integer>> indexCache, String indexName);
 
     DualTableSingleMatchModelQuerySet bulkReadIndexToCaseIdMatch(String indexName, Collection<Integer> cuedCases);
+
+    DualTableMultiMatchModelQuerySet bulkReadIndexToCaseIdMatchReverse(String indexName, Collection<Integer> cuedCases);
 
     LinkedHashSet<Integer> getCasesMatchingValueSet(String indexName, String[] valueSet);
 
