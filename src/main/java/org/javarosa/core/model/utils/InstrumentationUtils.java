@@ -5,7 +5,10 @@ import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.trace.TraceSerialization;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Utility functions for instrumentation in the engine
@@ -44,6 +47,15 @@ public class InstrumentationUtils {
      */
     public static String collectAndClearTraces(EvaluationTraceReporter reporter, String description,
                                                TraceSerialization.TraceInfoType requestedInfo) {
+        String result = collectTraces(reporter, description, requestedInfo);
+        if (reporter != null) {
+            reporter.reset();
+        }
+        return result;
+    }
+
+    public static String collectTraces(EvaluationTraceReporter reporter, String description,
+                                       TraceSerialization.TraceInfoType requestedInfo) {
         String returnValue = "";
         if (reporter != null) {
             if (reporter.wereTracesReported()) {
@@ -55,10 +67,17 @@ public class InstrumentationUtils {
                 returnValue += TraceSerialization.serializeEvaluationTrace(trace, requestedInfo,
                         reporter.reportAsFlat());
             }
-
-            reporter.reset();
         }
         return returnValue;
+    }
+
+    public static List<String> getMatchedTraces(EvaluationTraceReporter reporter, Predicate<String> predicate) {
+        String output = collectTraces(reporter, "", TraceSerialization.TraceInfoType.FULL_PROFILE);
+        return Arrays.stream(output.split("\n")).filter(predicate).collect(Collectors.toList());
+    }
+
+    public static int countMatchedTraces(EvaluationTraceReporter reporter, Predicate<String> predicate) {
+        return getMatchedTraces(reporter, predicate).size();
     }
 
     public static void printExpressionsThatUsedCaching(EvaluationTraceReporter reporter, String description) {
