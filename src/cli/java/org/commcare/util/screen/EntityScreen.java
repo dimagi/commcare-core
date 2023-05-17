@@ -349,24 +349,25 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     public Detail[] getLongDetailList(TreeReference ref) {
-        Detail[] longDetailList;
-        String longDetailId = this.mNeededDatum.getLongDetail();
-        if (longDetailId == null) {
-            return null;
-        }
-        Detail d = mPlatform.getDetail(longDetailId);
-        if (d == null) {
-            return null;
-        }
+        Detail d = getLongDetail();
+        if (d == null) return null;
 
         EvaluationContext contextForChildDetailDisplayConditions =
                 EntityUtil.prepareCompoundEvaluationContext(ref, d, evalContext);
 
-        longDetailList = d.getDisplayableChildDetails(contextForChildDetailDisplayConditions);
+        Detail[] longDetailList = d.getDisplayableChildDetails(contextForChildDetailDisplayConditions);
         if (longDetailList == null || longDetailList.length == 0) {
             longDetailList = new Detail[]{d};
         }
         return longDetailList;
+    }
+
+    public Detail getLongDetail() {
+        String longDetailId = this.mNeededDatum.getLongDetail();
+        if (longDetailId == null) {
+            return null;
+        }
+        return mPlatform.getDetail(longDetailId);
     }
 
     public String[] getDetailListTitles(EvaluationContext subContext, TreeReference reference) {
