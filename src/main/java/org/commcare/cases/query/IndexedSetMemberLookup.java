@@ -1,5 +1,7 @@
 package org.commcare.cases.query;
 
+import java.util.Arrays;
+
 /**
  * An indexed set member lookup is a check for whether a value which is indexed on the current
  * platform is a member of a set of elements.
@@ -22,5 +24,13 @@ public class IndexedSetMemberLookup implements PredicateProfile {
 
     public String getKey() {
         return key;
+    }
+
+    @Override
+    public String toString() {
+        return "IndexedSetMemberLookup{" +
+                "key='" + key + '\'' +
+                ", valueSet=" + Arrays.toString(valueSet) +
+                '}';
     }
 }

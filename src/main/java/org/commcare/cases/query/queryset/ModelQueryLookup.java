@@ -33,4 +33,13 @@ public class ModelQueryLookup implements PredicateProfile {
     public TreeReference getRootLookupRef() {
         return rootLookupRef;
     }
+
+    @Override
+    public String toString() {
+        return "ModelQueryLookup{" +
+                "key='" + key + '\'' +
+                ", rootLookupRef=" + rootLookupRef +
+                ", setLookup=" + setLookup +
+                '}';
+    }
 }
