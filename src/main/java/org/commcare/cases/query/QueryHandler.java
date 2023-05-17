@@ -67,7 +67,7 @@ public interface QueryHandler<T> {
      * lookup for any of them. If so, return an object representing the query to be run, it will
      * be passed back in the loadProfileMatches method.
      *
-     * @param profiles pending predicate profiles which havent' been processed/handled
+     * @param profiles pending predicate profiles which haven't been processed/handled
      * @return a querySet object to be passed back into this handler specifying the query to be run.
      * often a single (or collection of) predicate profiles.
      */
@@ -78,7 +78,7 @@ public interface QueryHandler<T> {
      * generate a list of matching model ID's.
      *
      * If for some reason the query set cannot be run against the current context, this method
-     * can return null, which will signal the the query couldn't be run and no predicates have
+     * can return null, which will signal the query couldn't be run and no predicates have
      * been evaluated.
      */
     List<Integer> loadProfileMatches(T querySet, QueryContext queryContext);

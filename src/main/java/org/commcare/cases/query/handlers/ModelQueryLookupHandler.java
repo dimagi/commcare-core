@@ -73,6 +73,8 @@ public class ModelQueryLookupHandler implements QueryHandler<ModelQueryLookup> {
                                                                  EvaluationContext evalContext) {
 
         XPathExpression predicate = predicates.elementAt(0);
+        // e.g. [@case_id = current()/index/parent]
+        // optimize the right side of the predicate (`current()/index/parent`)
         QuerySetLookup lookup = matcher.getQueryLookupFromPredicate(predicate);
         if (lookup == null) {
             return null;
@@ -86,6 +88,9 @@ public class ModelQueryLookupHandler implements QueryHandler<ModelQueryLookup> {
 
         XPathEqExpr eq = (XPathEqExpr)predicate;
         TreeReference matchTo = ((XPathPathExpr)eq.a).getReference();
+
+        // Optimize the left side of the predicate (querySet -> `@case_id` or `index/parent`).
+        // This is either an identity transform or a reverse index lookup transform.
         lookup = matcher.getTransformedQuerySetLookupForOutput(lookup, matchTo);
         Vector<PredicateProfile> newProfile = new Vector<>();
         newProfile.add(new ModelQueryLookup(lookup.getQueryModelId(), lookup, ref));
