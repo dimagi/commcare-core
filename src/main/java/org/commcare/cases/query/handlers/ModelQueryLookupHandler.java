@@ -9,7 +9,9 @@ import org.commcare.cases.query.queryset.QuerySetLookup;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathPathExpr;
 
 import java.util.Collection;
 import java.util.List;
@@ -70,7 +72,8 @@ public class ModelQueryLookupHandler implements QueryHandler<ModelQueryLookup> {
                                                                  QueryContext context,
                                                                  EvaluationContext evalContext) {
 
-        QuerySetLookup lookup = matcher.getQueryLookupFromPredicate(predicates.elementAt(0));
+        XPathExpression predicate = predicates.elementAt(0);
+        QuerySetLookup lookup = matcher.getQueryLookupFromPredicate(predicate);
         if (lookup == null) {
             return null;
         }
@@ -81,6 +84,9 @@ public class ModelQueryLookupHandler implements QueryHandler<ModelQueryLookup> {
             return null;
         }
 
+        XPathEqExpr eq = (XPathEqExpr)predicate;
+        TreeReference matchTo = ((XPathPathExpr)eq.a).getReference();
+        lookup = matcher.getTransformedQuerySetLookupForOutput(lookup, matchTo);
         Vector<PredicateProfile> newProfile = new Vector<>();
         newProfile.add(new ModelQueryLookup(lookup.getQueryModelId(), lookup, ref));
         return newProfile;

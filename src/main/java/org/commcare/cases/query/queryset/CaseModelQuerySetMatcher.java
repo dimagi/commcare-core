@@ -27,12 +27,13 @@ import java.util.Vector;
  */
 
 public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
-    private final Collection<XPathExpression> membershipIndexes;
+    private final Collection<XPathPathExpr> membershipIndexes;
 
     private TreeReference caseDbRoot;
     private Map<Integer, Integer> multiplicityMap;
 
     private Vector<QuerySetTransform> querySetTransforms = new Vector<>();
+    private Vector<QuerySetTransform> outputSetTransforms = new Vector<>();
 
     public CaseModelQuerySetMatcher(Map<Integer, Integer> multiplicityMap) {
         this("casedb", multiplicityMap);
@@ -51,18 +52,27 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
         membershipIndexes.add(CaseInstanceTreeElement.CASE_ID_EXPR);
         membershipIndexes.add(CaseInstanceTreeElement.CASE_ID_EXPR_TWO);
         addQuerySetTransform(new CaseIdentityQuerySetTransform());
+        outputSetTransforms.add(new CaseIdentityQuerySetTransform());
     }
 
     public void addQuerySetTransform(QuerySetTransform transform) {
         this.querySetTransforms.add(transform);
     }
 
+    public void addMatchAndOutputSetTransform(XPathPathExpr match, QuerySetTransform transform) {
+        this.membershipIndexes.add(match);
+        this.outputSetTransforms.add(transform);
+    }
+
     @Override
     public QuerySetLookup getQueryLookupFromPredicate(XPathExpression expr) {
         if (expr instanceof XPathEqExpr && ((XPathEqExpr)expr).op == XPathEqExpr.EQ) {
             XPathEqExpr eq = ((XPathEqExpr)expr);
-            if (membershipIndexes.contains(eq.a)) {
-                if (eq.b instanceof XPathPathExpr) {
+            if (!(eq.b instanceof XPathPathExpr)) {
+                return null;
+            }
+            for (XPathPathExpr member : membershipIndexes) {
+                if (member.matches(eq.a)) {
                     TreeReference ref = ((XPathPathExpr)eq.b).getReference();
                     return getQuerySetLookup(ref);
                 }
@@ -105,7 +115,17 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
     private QuerySetLookup getTransformedQuerySetLookup(QuerySetLookup lookup,
                                                         TreeReference remainder) {
 
-        for (QuerySetTransform transform : querySetTransforms) {
+        return transformQuerySetLookup(lookup, remainder, querySetTransforms);
+    }
+
+    public QuerySetLookup getTransformedQuerySetLookupForOutput(QuerySetLookup lookup,
+                                                       TreeReference remainder) {
+        return transformQuerySetLookup(lookup, remainder, outputSetTransforms);
+    }
+
+    private QuerySetLookup transformQuerySetLookup(
+            QuerySetLookup lookup, TreeReference remainder, Vector<QuerySetTransform> transforms){
+        for (QuerySetTransform transform : transforms) {
             QuerySetLookup retVal = transform.getTransformedLookup(lookup, remainder);
             if (retVal != null) {
                 return retVal;
