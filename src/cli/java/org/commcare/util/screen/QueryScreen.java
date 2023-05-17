@@ -7,7 +7,6 @@ import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.cases.util.StringUtils;
@@ -20,7 +19,6 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.QueryPrompt;
-import org.commcare.suite.model.RemoteQueryDatum;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
@@ -28,7 +26,6 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.core.util.OrderedHashtable;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
@@ -303,6 +300,10 @@ public class QueryScreen extends Screen {
 
     public RemoteQueryDatum getQueryDatum() {
         return remoteQuerySessionManager.getQueryDatum();
+    }
+
+    public SessionWrapper getSession() {
+        return sessionWrapper;
     }
 
     @Override
