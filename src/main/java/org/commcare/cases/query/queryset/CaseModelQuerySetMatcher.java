@@ -124,7 +124,7 @@ public class CaseModelQuerySetMatcher implements ModelQuerySetMatcher {
     }
 
     private QuerySetLookup transformQuerySetLookup(
-            QuerySetLookup lookup, TreeReference remainder, Vector<QuerySetTransform> transforms){
+            QuerySetLookup lookup, TreeReference remainder, Vector<QuerySetTransform> transforms) {
         for (QuerySetTransform transform : transforms) {
             QuerySetLookup retVal = transform.getTransformedLookup(lookup, remainder);
             if (retVal != null) {
