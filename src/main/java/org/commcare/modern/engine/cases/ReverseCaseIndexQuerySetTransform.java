@@ -58,7 +58,7 @@ public class ReverseCaseIndexQuerySetTransform implements QuerySetTransform {
 
 
             Set<Integer> querySetBody = getRootLookup().getLookupSetBody(queryContext);
-            DualTableMultiMatchModelQuerySet ret = table.bulkReadIndexToCaseIdMatchReverse(indexName, querySetBody);
+            DualTableMultiMatchModelQuerySet ret = table.bulkReadCaseIdToIndexMatch(indexName, querySetBody);
             cacheCaseModelQuerySet(queryContext, ret);
 
             trace.setOutcome("Loaded: " + ret.getSetBody().size());

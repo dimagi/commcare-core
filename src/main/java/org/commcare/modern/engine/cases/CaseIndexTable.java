@@ -17,7 +17,7 @@ public interface CaseIndexTable {
 
     DualTableSingleMatchModelQuerySet bulkReadIndexToCaseIdMatch(String indexName, Collection<Integer> cuedCases);
 
-    DualTableMultiMatchModelQuerySet bulkReadIndexToCaseIdMatchReverse(String indexName, Collection<Integer> cuedCases);
+    DualTableMultiMatchModelQuerySet bulkReadCaseIdToIndexMatch(String indexName, Collection<Integer> cuedCases);
 
     LinkedHashSet<Integer> getCasesMatchingValueSet(String indexName, String[] valueSet);
 
