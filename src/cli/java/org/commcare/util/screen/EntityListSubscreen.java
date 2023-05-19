@@ -52,7 +52,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         rows = getRows(mChoices, context, shortDetail);
     }
 
-    public static String[] getRows(TreeReference[] references,
+    private static String[] getRows(TreeReference[] references,
             EvaluationContext evaluationContext,
             Detail detail) {
         String[] rows = new String[references.length];
