@@ -33,7 +33,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     private static final int SCREEN_WIDTH = 100;
 
     private final TreeReference[] entitiesRefs;
-    private final String[] rows;
+    private String[] rows;
     private final String mHeader;
 
     private final Vector<Action> actions;
@@ -54,7 +54,6 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         references.copyInto(entitiesRefs);
         actions = shortDetail.getCustomActions(context);
         initEntities(context, shortDetail);
-        rows = getRows(shortDetail);
     }
 
     private void initEntities(EvaluationContext context, Detail shortDetail) {
@@ -172,6 +171,9 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     @Override
     public String[] getOptions() {
+        if (rows == null) {
+            rows = getRows(shortDetail);
+        }
         return rows;
     }
 
