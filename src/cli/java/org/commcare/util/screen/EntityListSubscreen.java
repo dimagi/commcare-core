@@ -2,6 +2,8 @@ package org.commcare.util.screen;
 
 import static org.commcare.util.screen.MultiSelectEntityScreen.USE_SELECTED_VALUES;
 
+import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
@@ -16,6 +18,8 @@ import org.javarosa.core.util.DataUtil;
 import org.javarosa.xpath.XPathException;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -38,6 +42,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     private final EvaluationContext rootContext;
 
     private boolean handleCaseIndex;
+    private List<Entity<TreeReference>> entities;
 
     public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context,
             boolean handleCaseIndex) throws CommCareSessionException {
@@ -48,71 +53,41 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         this.handleCaseIndex = handleCaseIndex;
         references.copyInto(entitiesRefs);
         actions = shortDetail.getCustomActions(context);
-        rows = getRows(entitiesRefs, context, shortDetail);
+        initEntities(context, shortDetail);
+        rows = getRows(shortDetail);
     }
 
-    private static String[] getRows(TreeReference[] references,
-            EvaluationContext evaluationContext,
-            Detail detail) {
-        String[] rows = new String[references.length];
-        int i = 0;
-        for (TreeReference entity : references) {
-            rows[i] = createRow(entity, evaluationContext, detail);
-            ++i;
+    private void initEntities(EvaluationContext context, Detail shortDetail) {
+        NodeEntityFactory nodeEntityFactory = new NodeEntityFactory(shortDetail, context);
+        entities = new ArrayList<>();
+        for (TreeReference reference : entitiesRefs) {
+            entities.add(nodeEntityFactory.getEntity(reference));
+        }
+        nodeEntityFactory.prepareEntities(entities);
+    }
+
+    private String[] getRows(Detail detail) {
+        String[] rows = new String[entities.size()];
+        for (int e = 0; e < entities.size(); e++) {
+            Entity<TreeReference> entity = entities.get(e);
+            rows[e] = createRow(entity, detail);
         }
         return rows;
     }
 
-    private static String createRow(TreeReference entity, EvaluationContext evaluationContext, Detail detail) {
-        return createRow(entity, false, evaluationContext, detail);
-    }
-
-    private static String createRow(TreeReference entity,
-            boolean collectDebug,
-            EvaluationContext evaluationContext,
-            Detail detail) {
-        EvaluationContext context = new EvaluationContext(evaluationContext, entity);
-        EvaluationTraceReporter reporter = new AccumulatingReporter();
-
-        if (collectDebug) {
-            context.setDebugModeOn(reporter);
-        }
-        detail.populateEvaluationContextVariables(context);
-
-        if (collectDebug) {
-            InstrumentationUtils.printAndClearTraces(reporter, "Variable Traces");
-        }
-
-        DetailField[] fields = detail.getFields();
-
+    private String createRow(Entity<TreeReference> entity, Detail detail) {
+        Object[] entityFields = entity.getData();
+        DetailField[] detailFields = detail.getFields();
         StringBuilder row = new StringBuilder();
-        XPathException detailFieldException = null;
-        int i = 0;
-        for (DetailField field : fields) {
-            Object o;
-            try {
-                o = field.getTemplate().evaluate(context);
-            } catch (XPathException e) {
-                o = "error (see output)";
-                if (detailFieldException == null) {
-                    detailFieldException = e;
-                }
-            }
+        for (int i = 0; i < entityFields.length; i++) {
+            Object entityField = entityFields[i];
             String s;
-            if (!(o instanceof String)) {
+            if (!(entityField instanceof String)) {
                 s = "";
             } else {
-                s = (String)o;
+                s = (String)entityField;
             }
-            row.append(ScreenUtils.pad(s, getWidthHint(fields, field)));
-        }
-
-        if (detailFieldException != null) {
-            detailFieldException.printStackTrace();
-        }
-
-        if (collectDebug) {
-            InstrumentationUtils.printAndClearTraces(reporter, "Template Traces:");
+            row.append(ScreenUtils.pad(s, getWidthHint(detailFields, detailFields[i])));
         }
         return row.toString();
     }
@@ -220,7 +195,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             String debugArg = input.substring("debug ".length());
             try {
                 int chosenDebugIndex = Integer.valueOf(debugArg.trim());
-                createRow(this.entitiesRefs[chosenDebugIndex], rootContext, shortDetail);
+                createRow(entities.get(chosenDebugIndex), shortDetail);
             } catch (NumberFormatException e) {
                 if ("list".equals(debugArg)) {
                     host.printNodesetExpansionTrace(new AccumulatingReporter());
@@ -278,5 +253,9 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     public Vector<Action> getActions() {
         return actions;
+    }
+
+    public List<Entity<TreeReference>> getEntities() {
+        return entities;
     }
 }
