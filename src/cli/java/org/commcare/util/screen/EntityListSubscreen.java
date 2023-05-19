@@ -6,7 +6,6 @@ import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.util.screen.MultiSelectEntityScreen;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.AccumulatingReporter;
@@ -29,7 +28,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     private static final int SCREEN_WIDTH = 100;
 
-    private final TreeReference[] mChoices;
+    private final TreeReference[] entitiesRefs;
     private final String[] rows;
     private final String mHeader;
 
@@ -45,11 +44,11 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         mHeader = createHeader(shortDetail, context);
         this.shortDetail = shortDetail;
         this.rootContext = context;
-        this.mChoices = new TreeReference[references.size()];
+        this.entitiesRefs = new TreeReference[references.size()];
         this.handleCaseIndex = handleCaseIndex;
-        references.copyInto(mChoices);
+        references.copyInto(entitiesRefs);
         actions = shortDetail.getCustomActions(context);
-        rows = getRows(mChoices, context, shortDetail);
+        rows = getRows(entitiesRefs, context, shortDetail);
     }
 
     private static String[] getRows(TreeReference[] references,
@@ -177,11 +176,11 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     @Override
     public void prompt(PrintStream out) {
-        int maxLength = String.valueOf(mChoices.length).length();
+        int maxLength = String.valueOf(entitiesRefs.length).length();
         out.println(ScreenUtils.pad("", maxLength + 1) + mHeader);
         out.println("===========================================================================================");
 
-        for (int i = 0; i < mChoices.length; ++i) {
+        for (int i = 0; i < entitiesRefs.length; ++i) {
             String d = rows[i];
             out.println(ScreenUtils.pad(String.valueOf(i), maxLength) + ") " + d);
         }
@@ -221,7 +220,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             String debugArg = input.substring("debug ".length());
             try {
                 int chosenDebugIndex = Integer.valueOf(debugArg.trim());
-                createRow(this.mChoices[chosenDebugIndex], rootContext, shortDetail);
+                createRow(this.entitiesRefs[chosenDebugIndex], rootContext, shortDetail);
             } catch (NumberFormatException e) {
                 if ("list".equals(debugArg)) {
                     host.printNodesetExpansionTrace(new AccumulatingReporter());
@@ -244,12 +243,12 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                     selectedRefs = new TreeReference[selectedValues.length];
                     for (int i = 0; i < selectedValues.length; i++) {
                         int index = Integer.parseInt(selectedValues[i]);
-                        selectedRefs[i] = mChoices[index];
+                        selectedRefs[i] = entitiesRefs[index];
                     }
                 } else {
                     int index = Integer.parseInt(input);
                     selectedRefs = new TreeReference[1];
-                    selectedRefs[0] = mChoices[index];
+                    selectedRefs[0] = entitiesRefs[index];
                 }
                 host.updateSelection(input, selectedRefs);
                 return true;
