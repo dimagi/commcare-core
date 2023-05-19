@@ -148,12 +148,17 @@ public class EntityScreen extends CompoundScreenHost {
                 if (!this.setCurrentScreenToDetail()) {
                     readyToSkip = true;
                 }
-            } else {
-                // We can simply skip evaluating Detail for entities for a detail screen
-                Vector<TreeReference> entityListReferences = isDetailScreen ? new Vector<>() : references;
-                mCurrentScreen = new EntityListSubscreen(mShortDetail, entityListReferences, evalContext,
-                        handleCaseIndex);
             }
+        }
+
+        // if readyToSkip, entity screen will not be displayed. We don't need to init the subscreen
+        if (!readyToSkip) {
+            // if isDetailScreen or needsFullInit is not set,
+            // sub screen is needed to handle actions but we can skip eval refs
+            Vector<TreeReference> entityListReferences =
+                    !needsFullInit || isDetailScreen ? new Vector<>() : references;
+            mCurrentScreen = new EntityListSubscreen(mShortDetail, entityListReferences, evalContext,
+                    handleCaseIndex);
         }
         initialized = true;
     }
