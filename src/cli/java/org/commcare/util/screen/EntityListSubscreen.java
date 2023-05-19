@@ -275,4 +275,8 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         }
         return widthHint;
     }
+
+    public Vector<Action> getActions() {
+        return actions;
+    }
 }
