@@ -57,7 +57,6 @@ public class EntityScreen extends CompoundScreenHost {
 
     private boolean handleCaseIndex;
     private boolean needsFullInit = true;
-    private boolean isDetailScreen = false;
 
     protected Vector<TreeReference> references;
 
@@ -86,12 +85,11 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     public EntityScreen(boolean handleCaseIndex, boolean needsFullInit, SessionWrapper session,
-            boolean isDetailScreen, EntityScreenContext entityScreenContext)
+            EntityScreenContext entityScreenContext)
             throws CommCareSessionException {
         this.handleCaseIndex = handleCaseIndex;
         this.needsFullInit = needsFullInit;
         this.setSession(session);
-        this.isDetailScreen = isDetailScreen;
         this.entityScreenContext = entityScreenContext;
     }
 
@@ -160,7 +158,7 @@ public class EntityScreen extends CompoundScreenHost {
             // if isDetailScreen or needsFullInit is not set,
             // sub screen is needed to handle actions but we can skip eval refs
             Vector<TreeReference> entityListReferences =
-                    !needsFullInit || isDetailScreen ? new Vector<>() : references;
+                    !needsFullInit || isDetailScreen() ? new Vector<>() : references;
             mCurrentScreen = new EntityListSubscreen(mShortDetail, entityListReferences, evalContext,
                     handleCaseIndex, entityScreenContext);
         }
@@ -304,10 +302,14 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     private void showDetailScreen() throws CommCareSessionException {
-        if (isDetailScreen) {
+        if (isDetailScreen()) {
             // Set entity screen to show detail and redraw
             setCurrentScreenToDetail();
         }
+    }
+
+    private boolean isDetailScreen() {
+        return entityScreenContext.getDetailSelection() != null;
     }
 
     @Trace

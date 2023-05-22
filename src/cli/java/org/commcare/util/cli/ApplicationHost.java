@@ -466,7 +466,7 @@ public class ApplicationHost {
             return getNextScreen();
         } else if (next.equals(SessionFrame.STATE_MULTIPLE_DATUM_VAL)) {
             try {
-                return new MultiSelectEntityScreen(true, true, mSession, virtualInstanceStorage, false,
+                return new MultiSelectEntityScreen(true, true, mSession, virtualInstanceStorage,
                         new EntityScreenContext());
             } catch (CommCareSessionException ccse) {
                 printErrorAndContinue("Error during session execution:", ccse);
