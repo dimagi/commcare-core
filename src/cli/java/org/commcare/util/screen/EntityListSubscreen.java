@@ -198,6 +198,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         out.println(ScreenUtils.pad("", maxLength + 1) + mHeader);
         out.println("===========================================================================================");
 
+        initRows();
         for (int i = 0; i < entitiesRefs.length; ++i) {
             String d = rows[i];
             out.println(ScreenUtils.pad(String.valueOf(i), maxLength) + ") " + d);
@@ -215,10 +216,14 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     @Override
     public String[] getOptions() {
+        initRows();
+        return rows;
+    }
+
+    private void initRows() {
         if (rows == null) {
             rows = getRows(shortDetail);
         }
-        return rows;
     }
 
     @Override
