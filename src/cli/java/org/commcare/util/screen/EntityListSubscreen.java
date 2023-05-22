@@ -3,6 +3,9 @@ package org.commcare.util.screen;
 import static org.commcare.util.screen.MultiSelectEntityScreen.USE_SELECTED_VALUES;
 
 import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.EntitySortNotificationInterface;
+import org.commcare.cases.entity.EntitySorter;
+import org.commcare.cases.entity.EntityStringFilterer;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.Action;
@@ -33,6 +36,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     private static final int SCREEN_WIDTH = 100;
 
     private final TreeReference[] entitiesRefs;
+    private final EntityScreenContext entityScreenContext;
     private String[] rows;
     private final String mHeader;
 
@@ -45,24 +49,64 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     private List<Entity<TreeReference>> entities;
 
     public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context,
-            boolean handleCaseIndex) throws CommCareSessionException {
+            boolean handleCaseIndex, EntityScreenContext entityScreenContext) throws CommCareSessionException {
         mHeader = createHeader(shortDetail, context);
         this.shortDetail = shortDetail;
         this.rootContext = context;
         this.entitiesRefs = new TreeReference[references.size()];
         this.handleCaseIndex = handleCaseIndex;
+        this.entityScreenContext = entityScreenContext;
         references.copyInto(entitiesRefs);
         actions = shortDetail.getCustomActions(context);
-        initEntities(context, shortDetail);
+        initEntities(context, shortDetail, entityScreenContext);
     }
 
-    private void initEntities(EvaluationContext context, Detail shortDetail) {
+    private void initEntities(EvaluationContext context, Detail shortDetail,
+            EntityScreenContext entityScreenContext) {
         NodeEntityFactory nodeEntityFactory = new NodeEntityFactory(shortDetail, context);
         entities = new ArrayList<>();
         for (TreeReference reference : entitiesRefs) {
             entities.add(nodeEntityFactory.getEntity(reference));
         }
         nodeEntityFactory.prepareEntities(entities);
+        filterEntities(entityScreenContext);
+        sortEntities(entityScreenContext);
+    }
+
+    private void filterEntities(EntityScreenContext entityScreenContext) {
+        String searchText = entityScreenContext.getSearchText();
+        boolean isFuzzySearchEnabled = entityScreenContext.isFuzzySearch();
+        if (searchText != null && !"".equals(searchText)) {
+            NodeEntityFactory nodeEntityFactory = new NodeEntityFactory(shortDetail, rootContext);
+            EntityStringFilterer filterer = new EntityStringFilterer(searchText.split(" "),
+                    nodeEntityFactory, entities, isFuzzySearchEnabled);
+            entities = filterer.buildMatchList();
+        }
+    }
+
+    private void sortEntities(EntityScreenContext entityScreenContext) {
+        int sortIndex = entityScreenContext.getSortIndex();
+        int[] order;
+        boolean reverse = false;
+        if (sortIndex != 0) {
+            if (sortIndex < 0) {
+                reverse = true;
+                sortIndex = Math.abs(sortIndex);
+            }
+            // sort index is one indexed so adjust for that
+            int sortFieldIndex = sortIndex - 1;
+            order = new int[]{sortFieldIndex};
+        } else {
+            order = shortDetail.getOrderedFieldIndicesForSorting();
+            for (int i = 0; i < shortDetail.getFields().length; ++i) {
+                String header = shortDetail.getFields()[i].getHeader().evaluate();
+                if (order.length == 0 && !"".equals(header)) {
+                    order = new int[]{i};
+                }
+            }
+        }
+        java.util.Collections.sort(entities,
+                new EntitySorter(shortDetail.getFields(), reverse, order, new LogNotifier()));
     }
 
     private String[] getRows(Detail detail) {
@@ -259,5 +303,12 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     public List<Entity<TreeReference>> getEntities() {
         return entities;
+    }
+
+    private static class LogNotifier implements EntitySortNotificationInterface {
+        @Override
+        public void notifyBadFilter(String[] args) {
+
+        }
     }
 }

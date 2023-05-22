@@ -25,6 +25,7 @@ import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.screen.CommCareSessionException;
 import org.commcare.util.screen.EntityListSubscreen;
 import org.commcare.util.screen.EntityScreen;
+import org.commcare.util.screen.EntityScreenContext;
 import org.commcare.util.screen.MenuScreen;
 import org.commcare.util.screen.MultiSelectEntityScreen;
 import org.commcare.util.screen.QueryScreen;
@@ -465,7 +466,8 @@ public class ApplicationHost {
             return getNextScreen();
         } else if (next.equals(SessionFrame.STATE_MULTIPLE_DATUM_VAL)) {
             try {
-                return new MultiSelectEntityScreen(true, true, mSession, virtualInstanceStorage, false);
+                return new MultiSelectEntityScreen(true, true, mSession, virtualInstanceStorage, false,
+                        new EntityScreenContext());
             } catch (CommCareSessionException ccse) {
                 printErrorAndContinue("Error during session execution:", ccse);
             }
