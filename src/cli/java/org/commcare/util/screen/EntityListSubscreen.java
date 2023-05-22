@@ -14,11 +14,8 @@ import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.AccumulatingReporter;
-import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
-import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.util.DataUtil;
-import org.javarosa.xpath.XPathException;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -69,15 +66,14 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             entities.add(nodeEntityFactory.getEntity(reference));
         }
         nodeEntityFactory.prepareEntities(entities);
-        filterEntities(entityScreenContext);
+        filterEntities(entityScreenContext, nodeEntityFactory);
         sortEntities(entityScreenContext);
     }
 
-    private void filterEntities(EntityScreenContext entityScreenContext) {
+    private void filterEntities(EntityScreenContext entityScreenContext, NodeEntityFactory nodeEntityFactory) {
         String searchText = entityScreenContext.getSearchText();
         boolean isFuzzySearchEnabled = entityScreenContext.isFuzzySearch();
         if (searchText != null && !"".equals(searchText)) {
-            NodeEntityFactory nodeEntityFactory = new NodeEntityFactory(shortDetail, rootContext);
             EntityStringFilterer filterer = new EntityStringFilterer(searchText.split(" "),
                     nodeEntityFactory, entities, isFuzzySearchEnabled);
             entities = filterer.buildMatchList();
