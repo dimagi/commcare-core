@@ -24,7 +24,7 @@ public class EntityScreenContext {
         mOffSet = offset;
         mSearchText = searchText;
         mSortIndex = sortIndex;
-        mCasesPerPage = casesPerPage;
+        mCasesPerPage = casesPerPage == 0 ? DEFAULT_CASES_PER_PAGE : casesPerPage;
         mSelectedValues = selectedValues;
         mDetailSelection = detailSelection;
         fuzzySearch = isFuzzySearch;
