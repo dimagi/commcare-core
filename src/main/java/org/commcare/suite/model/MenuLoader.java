@@ -150,16 +150,12 @@ public class MenuLoader {
     public boolean menuAssertionsPass(SessionWrapperInterface sessionWrapper, Menu m) throws XPathSyntaxException{
         Vector<String> assertionXPathStrings = m.getAssertions().getAssertionsXPaths();
         if (!assertionXPathStrings.isEmpty()) {
-            Set<String> allInstancesNeededByAssertionCondition = new HashSet<>();
-            for ( int i = 0; i < assertionXPathStrings.size(); i++) {
-                XPathExpression assertionXPath = XPathParseTool.parseXPath(assertionXPathStrings.get(i));
-                Set<String> instancesNeededByAssertionCondition =
-                        (new InstanceNameAccumulatingAnalyzer()).accumulate(assertionXPath);
-                allInstancesNeededByAssertionCondition.addAll(instancesNeededByAssertionCondition);
-            }
-            allInstancesNeededByAssertionCondition.add("commcaresession");
+            XPathExpression assertionXPath = XPathParseTool.parseXPath(assertionXPathStrings.get(0));
+
+            Set<String> instancesNeededByAssertionCondition =
+                    (new InstanceNameAccumulatingAnalyzer()).accumulate(assertionXPath);
             EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(m.getId(),
-                    allInstancesNeededByAssertionCondition);
+                    instancesNeededByAssertionCondition);
 
             EvaluationContext traceableContext = new EvaluationContext(ec, ec.getOriginalContext());
             if (traceReporter != null) {
