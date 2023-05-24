@@ -15,7 +15,9 @@ import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -129,39 +131,22 @@ public class MenuLoader {
         if (m.getMenuRelevance() != null) {
             xPathErrorMessage = m.getMenuRelevanceRaw();
 
-            Set<String> instancesNeededByRelevancyCondition =
-                    (new InstanceNameAccumulatingAnalyzer()).accumulate(relevance);
-            EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(m.getId(),
-                    instancesNeededByRelevancyCondition);
-
-            EvaluationContext traceableContext = new EvaluationContext(ec, ec.getOriginalContext());
-            if (traceReporter != null) {
-                traceableContext.setDebugModeOn(traceReporter);
-            }
+            EvaluationContext traceableContext = accumulateInstances(sessionWrapper, m, relevance)
+                    .get("traceableContext");
 
             boolean result = FunctionUtils.toBoolean(relevance.eval(traceableContext));
-            InstrumentationUtils.printAndClearTraces(traceReporter, "menu load expand");
             return result;
         }
         return true;
     }
 
-    public boolean menuAssertionsPass(SessionWrapperInterface sessionWrapper, Menu m) throws XPathSyntaxException{
-        Vector<String> assertionXpathStrings = m.getAssertions().getAssertionsXPaths();
-        if (!assertionXpathStrings.isEmpty()) {
-            XPathExpression assertionXpath = XPathParseTool.parseXPath(assertionXpathStrings.get(0));
+    public boolean menuAssertionsPass(SessionWrapperInterface sessionWrapper, Menu m) throws XPathSyntaxException {
+        Vector<String> assertionXPathStrings = m.getAssertions().getAssertionsXPaths();
+        if (!assertionXPathStrings.isEmpty()) {
+            XPathExpression assertionXPath = XPathParseTool.parseXPath(assertionXPathStrings.get(0));
 
-            Set<String> instancesNeededByAssertionCondition =
-                    (new InstanceNameAccumulatingAnalyzer()).accumulate(assertionXpath);
-            EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(m.getId(),
-                    instancesNeededByAssertionCondition);
+            EvaluationContext ec = accumulateInstances(sessionWrapper, m, assertionXPath).get("evaluationContext");
 
-            EvaluationContext traceableContext = new EvaluationContext(ec, ec.getOriginalContext());
-            if (traceReporter != null) {
-                traceableContext.setDebugModeOn(traceReporter);
-            }
-
-            InstrumentationUtils.printAndClearTraces(traceReporter, "menu load expand");
             Text text =  m.getAssertions().getAssertionFailure(ec);
 
             if (text != null) {
@@ -170,6 +155,28 @@ public class MenuLoader {
             }
         }
         return true;
+    }
+
+    private Map<String, EvaluationContext> accumulateInstances(
+            SessionWrapperInterface sessionWrapper,
+            Menu m,
+            XPathExpression xPathExpression) {
+        Map<String, EvaluationContext> evaluationContextMap = new HashMap<>();
+
+        Set<String> instancesNeededByCondition =
+                (new InstanceNameAccumulatingAnalyzer()).accumulate(xPathExpression);
+        EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(m.getId(),
+                instancesNeededByCondition);
+        EvaluationContext traceableContext = new EvaluationContext(ec, ec.getOriginalContext());
+
+        evaluationContextMap.put("evaluationContext", ec);
+        evaluationContextMap.put("traceableContext", traceableContext);
+
+        if (traceReporter != null) {
+            traceableContext.setDebugModeOn(traceReporter);
+        }
+        InstrumentationUtils.printAndClearTraces(traceReporter, "menu load expand");
+        return evaluationContextMap;
     }
 
     private void addRelevantCommandEntries(SessionWrapperInterface sessionWrapper,
