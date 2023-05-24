@@ -19,7 +19,13 @@ public abstract class AuthInfo {
             this.username = username;
             this.password = password;
         }
+    }
 
+    public static class BasicAuth extends AuthInfo {
+        public BasicAuth(String username, String password) {
+            this.username = username;
+            this.password = password;
+        }
     }
 
     // Auth with the currently-logged in user
