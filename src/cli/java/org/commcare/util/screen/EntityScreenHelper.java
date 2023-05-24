@@ -64,10 +64,13 @@ public class EntityScreenHelper {
             order = new int[]{sortFieldIndex};
         } else {
             order = shortDetail.getOrderedFieldIndicesForSorting();
-            for (int i = 0; i < shortDetail.getFields().length; ++i) {
-                String header = shortDetail.getFields()[i].getHeader().evaluate();
-                if (order.length == 0 && !"".equals(header)) {
-                    order = new int[]{i};
+            if (order.length == 0) {
+                for (int i = 0; i < shortDetail.getFields().length; ++i) {
+                    String header = shortDetail.getFields()[i].getHeader().evaluate();
+                    if (!"".equals(header)) {
+                        order = new int[]{i};
+                        break;
+                    }
                 }
             }
         }
