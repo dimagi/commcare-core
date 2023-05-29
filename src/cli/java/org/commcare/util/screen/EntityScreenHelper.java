@@ -19,10 +19,11 @@ public class EntityScreenHelper {
 
     /**
      * Initialises given entity references into Entity models
-     * @param context evaluation context to calculate detail fields
-     * @param detail detail definition to map the given entity references to
+     *
+     * @param context             evaluation context to calculate detail fields
+     * @param detail              detail definition to map the given entity references to
      * @param entityScreenContext entity screen context
-     * @param entitiesRefs references to initialise
+     * @param entitiesRefs        references to initialise
      * @return List of initialised entity models
      */
     public static List<Entity<TreeReference>> initEntities(EvaluationContext context, Detail detail,
@@ -37,7 +38,8 @@ public class EntityScreenHelper {
         return sortEntities(entityScreenContext, entities, detail);
     }
 
-    private static List<Entity<TreeReference>> filterEntities(EntityScreenContext entityScreenContext, NodeEntityFactory nodeEntityFactory,
+    private static List<Entity<TreeReference>> filterEntities(EntityScreenContext entityScreenContext,
+            NodeEntityFactory nodeEntityFactory,
             List<Entity<TreeReference>> entities) {
         String searchText = entityScreenContext.getSearchText();
         boolean isFuzzySearchEnabled = entityScreenContext.isFuzzySearch();
@@ -49,7 +51,8 @@ public class EntityScreenHelper {
         return entities;
     }
 
-    private static List<Entity<TreeReference>> sortEntities(EntityScreenContext entityScreenContext, List<Entity<TreeReference>> entities,
+    private static List<Entity<TreeReference>> sortEntities(EntityScreenContext entityScreenContext,
+            List<Entity<TreeReference>> entities,
             Detail shortDetail) {
         int sortIndex = entityScreenContext.getSortIndex();
         int[] order;
