@@ -39,9 +39,9 @@ public class MultiSelectEntityScreen extends EntityScreen {
     public MultiSelectEntityScreen(boolean handleCaseIndex, boolean needsFullInit,
             SessionWrapper session,
             VirtualDataInstanceStorage virtualDataInstanceStorage,
-            boolean isDetailScreen)
+            EntityScreenContext entityScreenContext)
             throws CommCareSessionException {
-        super(handleCaseIndex, needsFullInit, session, isDetailScreen);
+        super(handleCaseIndex, needsFullInit, session, entityScreenContext);
         this.virtualDataInstanceStorage = virtualDataInstanceStorage;
     }
 

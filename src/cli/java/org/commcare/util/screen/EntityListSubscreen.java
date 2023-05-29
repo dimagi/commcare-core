@@ -1,22 +1,21 @@
 package org.commcare.util.screen;
 
+import static org.commcare.util.screen.EntityScreenHelper.initEntities;
 import static org.commcare.util.screen.MultiSelectEntityScreen.USE_SELECTED_VALUES;
 
+import org.commcare.cases.entity.Entity;
 import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.util.screen.MultiSelectEntityScreen;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.AccumulatingReporter;
-import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
-import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.util.DataUtil;
-import org.javarosa.xpath.XPathException;
 
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -29,8 +28,8 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     private static final int SCREEN_WIDTH = 100;
 
-    private final TreeReference[] mChoices;
-    private final String[] rows;
+    private final TreeReference[] entitiesRefs;
+    private String[] rows;
     private final String mHeader;
 
     private final Vector<Action> actions;
@@ -39,81 +38,42 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     private final EvaluationContext rootContext;
 
     private boolean handleCaseIndex;
+    private List<Entity<TreeReference>> entities;
 
     public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context,
-            boolean handleCaseIndex) throws CommCareSessionException {
+            boolean handleCaseIndex, EntityScreenContext entityScreenContext) throws CommCareSessionException {
         mHeader = createHeader(shortDetail, context);
         this.shortDetail = shortDetail;
         this.rootContext = context;
-        this.mChoices = new TreeReference[references.size()];
         this.handleCaseIndex = handleCaseIndex;
-        references.copyInto(mChoices);
+        this.entitiesRefs = new TreeReference[references.size()];
+        references.copyInto(entitiesRefs);
         actions = shortDetail.getCustomActions(context);
-        rows = getRows(mChoices, context, shortDetail);
+        entities = initEntities(context, shortDetail, entityScreenContext, entitiesRefs);
     }
 
-    public static String[] getRows(TreeReference[] references,
-            EvaluationContext evaluationContext,
-            Detail detail) {
-        String[] rows = new String[references.length];
-        int i = 0;
-        for (TreeReference entity : references) {
-            rows[i] = createRow(entity, evaluationContext, detail);
-            ++i;
+    private String[] getRows(Detail detail) {
+        String[] rows = new String[entities.size()];
+        for (int e = 0; e < entities.size(); e++) {
+            Entity<TreeReference> entity = entities.get(e);
+            rows[e] = createRow(entity, detail);
         }
         return rows;
     }
 
-    private static String createRow(TreeReference entity, EvaluationContext evaluationContext, Detail detail) {
-        return createRow(entity, false, evaluationContext, detail);
-    }
-
-    private static String createRow(TreeReference entity,
-            boolean collectDebug,
-            EvaluationContext evaluationContext,
-            Detail detail) {
-        EvaluationContext context = new EvaluationContext(evaluationContext, entity);
-        EvaluationTraceReporter reporter = new AccumulatingReporter();
-
-        if (collectDebug) {
-            context.setDebugModeOn(reporter);
-        }
-        detail.populateEvaluationContextVariables(context);
-
-        if (collectDebug) {
-            InstrumentationUtils.printAndClearTraces(reporter, "Variable Traces");
-        }
-
-        DetailField[] fields = detail.getFields();
-
+    private String createRow(Entity<TreeReference> entity, Detail detail) {
+        Object[] entityFields = entity.getData();
+        DetailField[] detailFields = detail.getFields();
         StringBuilder row = new StringBuilder();
-        XPathException detailFieldException = null;
-        int i = 0;
-        for (DetailField field : fields) {
-            Object o;
-            try {
-                o = field.getTemplate().evaluate(context);
-            } catch (XPathException e) {
-                o = "error (see output)";
-                if (detailFieldException == null) {
-                    detailFieldException = e;
-                }
-            }
+        for (int i = 0; i < entityFields.length; i++) {
+            Object entityField = entityFields[i];
             String s;
-            if (!(o instanceof String)) {
+            if (!(entityField instanceof String)) {
                 s = "";
             } else {
-                s = (String)o;
+                s = (String)entityField;
             }
-            row.append(ScreenUtils.pad(s, getWidthHint(fields, field)));
-        }
-
-        if (detailFieldException != null) {
-            detailFieldException.printStackTrace();
-        }
-
-        if (collectDebug) {
-            InstrumentationUtils.printAndClearTraces(reporter, "Template Traces:");
+            row.append(ScreenUtils.pad(s, getWidthHint(detailFields, detailFields[i])));
         }
         return row.toString();
     }
@@ -177,11 +137,12 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     @Override
     public void prompt(PrintStream out) {
-        int maxLength = String.valueOf(mChoices.length).length();
+        int maxLength = String.valueOf(entitiesRefs.length).length();
         out.println(ScreenUtils.pad("", maxLength + 1) + mHeader);
         out.println("===========================================================================================");
 
-        for (int i = 0; i < mChoices.length; ++i) {
+        initRows();
+        for (int i = 0; i < entitiesRefs.length; ++i) {
             String d = rows[i];
             out.println(ScreenUtils.pad(String.valueOf(i), maxLength) + ") " + d);
         }
@@ -198,7 +159,14 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     @Override
     public String[] getOptions() {
+        initRows();
         return rows;
+    }
+
+    private void initRows() {
+        if (rows == null) {
+            rows = getRows(shortDetail);
+        }
     }
 
     @Override
@@ -221,7 +189,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             String debugArg = input.substring("debug ".length());
             try {
                 int chosenDebugIndex = Integer.valueOf(debugArg.trim());
-                createRow(this.mChoices[chosenDebugIndex], rootContext, shortDetail);
+                createRow(entities.get(chosenDebugIndex), shortDetail);
             } catch (NumberFormatException e) {
                 if ("list".equals(debugArg)) {
                     host.printNodesetExpansionTrace(new AccumulatingReporter());
@@ -244,12 +212,12 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                     selectedRefs = new TreeReference[selectedValues.length];
                     for (int i = 0; i < selectedValues.length; i++) {
                         int index = Integer.parseInt(selectedValues[i]);
-                        selectedRefs[i] = mChoices[index];
+                        selectedRefs[i] = entitiesRefs[index];
                     }
                 } else {
                     int index = Integer.parseInt(input);
                     selectedRefs = new TreeReference[1];
-                    selectedRefs[0] = mChoices[index];
+                    selectedRefs[0] = entitiesRefs[index];
                 }
                 host.updateSelection(input, selectedRefs);
                 return true;
@@ -275,5 +243,13 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             //Really don't care if it didn't work
         }
         return widthHint;
+    }
+
+    public Vector<Action> getActions() {
+        return actions;
+    }
+
+    public List<Entity<TreeReference>> getEntities() {
+        return entities;
     }
 }

@@ -37,6 +37,7 @@ import datadog.trace.api.Trace;
  */
 public class EntityScreen extends CompoundScreenHost {
 
+    private final EntityScreenContext entityScreenContext;
     private TreeReference mCurrentSelection;
 
     private SessionWrapper mSession;
@@ -56,7 +57,6 @@ public class EntityScreen extends CompoundScreenHost {
 
     private boolean handleCaseIndex;
     private boolean needsFullInit = true;
-    private boolean isDetailScreen = false;
 
     protected Vector<TreeReference> references;
 
@@ -67,6 +67,7 @@ public class EntityScreen extends CompoundScreenHost {
 
     public EntityScreen(boolean handleCaseIndex) {
         this.handleCaseIndex = handleCaseIndex;
+        entityScreenContext = new EntityScreenContext();
     }
 
     /**
@@ -80,15 +81,16 @@ public class EntityScreen extends CompoundScreenHost {
     public EntityScreen(boolean handleCaseIndex, boolean needsFullInit) {
         this.handleCaseIndex = handleCaseIndex;
         this.needsFullInit = needsFullInit;
+        entityScreenContext = new EntityScreenContext();
     }
 
     public EntityScreen(boolean handleCaseIndex, boolean needsFullInit, SessionWrapper session,
-            boolean isDetailScreen)
+            EntityScreenContext entityScreenContext)
             throws CommCareSessionException {
         this.handleCaseIndex = handleCaseIndex;
         this.needsFullInit = needsFullInit;
         this.setSession(session);
-        this.isDetailScreen = isDetailScreen;
+        this.entityScreenContext = entityScreenContext;
     }
 
     public void evaluateAutoLaunch(String nextInput) throws CommCareSessionException {
@@ -97,7 +99,7 @@ public class EntityScreen extends CompoundScreenHost {
             if (action.isAutoLaunchAction(subContext)) {
                 // Supply an empty case list so we can "select" from it later using getEntityFromID
                 mCurrentScreen = new EntityListSubscreen(mShortDetail, new Vector<>(), evalContext,
-                        handleCaseIndex);
+                        handleCaseIndex, entityScreenContext);
                 this.autoLaunchAction = action;
             }
         }
@@ -148,12 +150,17 @@ public class EntityScreen extends CompoundScreenHost {
                 if (!this.setCurrentScreenToDetail()) {
                     readyToSkip = true;
                 }
-            } else {
-                // We can simply skip evaluating Detail for entities for a detail screen
-                Vector<TreeReference> entityListReferences = isDetailScreen ? new Vector<>() : references;
-                mCurrentScreen = new EntityListSubscreen(mShortDetail, entityListReferences, evalContext,
-                        handleCaseIndex);
             }
+        }
+
+        // if readyToSkip, entity screen will not be displayed. We don't need to init the subscreen
+        if (!readyToSkip) {
+            // if isDetailScreen or needsFullInit is not set,
+            // sub screen is needed to handle actions but we can skip eval refs
+            Vector<TreeReference> entityListReferences =
+                    !needsFullInit || isDetailScreen() ? new Vector<>() : references;
+            mCurrentScreen = new EntityListSubscreen(mShortDetail, entityListReferences, evalContext,
+                    handleCaseIndex, entityScreenContext);
         }
         initialized = true;
     }
@@ -295,10 +302,14 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     private void showDetailScreen() throws CommCareSessionException {
-        if (isDetailScreen) {
+        if (isDetailScreen()) {
             // Set entity screen to show detail and redraw
             setCurrentScreenToDetail();
         }
+    }
+
+    private boolean isDetailScreen() {
+        return entityScreenContext.getDetailSelection() != null;
     }
 
     @Trace
@@ -343,7 +354,8 @@ public class EntityScreen extends CompoundScreenHost {
         if (detailNodeset != null) {
             TreeReference contextualizedNodeset = detailNodeset.contextualize(this.mCurrentSelection);
             this.mCurrentScreen = new EntityListSubscreen(longDetailList[index],
-                    subContext.expandReference(contextualizedNodeset), subContext, handleCaseIndex);
+                    subContext.expandReference(contextualizedNodeset), subContext, handleCaseIndex,
+                    entityScreenContext);
         } else {
             this.mCurrentScreen = new EntityDetailSubscreen(index, longDetailList[index],
                     subContext, getDetailListTitles(subContext, this.mCurrentSelection));
@@ -477,5 +489,9 @@ public class EntityScreen extends CompoundScreenHost {
 
     public void setQueryScreen(QueryScreen queryScreen) {
         this.queryScreen = queryScreen;
+    }
+
+    public EntityScreenContext getEntityScreenContext() {
+        return entityScreenContext;
     }
 }
