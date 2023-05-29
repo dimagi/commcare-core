@@ -354,7 +354,8 @@ public class EntityScreen extends CompoundScreenHost {
         if (detailNodeset != null) {
             TreeReference contextualizedNodeset = detailNodeset.contextualize(this.mCurrentSelection);
             this.mCurrentScreen = new EntityListSubscreen(longDetailList[index],
-                    subContext.expandReference(contextualizedNodeset), subContext, handleCaseIndex, entityScreenContext);
+                    subContext.expandReference(contextualizedNodeset), subContext, handleCaseIndex,
+                    entityScreenContext);
         } else {
             this.mCurrentScreen = new EntityDetailSubscreen(index, longDetailList[index],
                     subContext, getDetailListTitles(subContext, this.mCurrentSelection));
