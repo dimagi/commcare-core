@@ -2,6 +2,7 @@ package org.javarosa.core.model.utils;
 
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.ScopeLimitedReferenceRequestCache;
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -214,13 +215,15 @@ public class ItemSetUtils {
     }
 
     // returns labels corresponding to choices associated with the given itemsetBinding
-    public static String[] getChoiceLabels(ItemsetBinding itemsetBinding) {
+    public static Pair<String[], String[]>  getChoices(ItemsetBinding itemsetBinding) {
         Vector<SelectChoice> selectChoices = itemsetBinding.getChoices();
         String[] choiceLabels = new String[selectChoices.size()];
+        String[] choiceKeys = new String[selectChoices.size()];
         for (int i = 0; i < selectChoices.size(); i++) {
             SelectChoice selectChoice = selectChoices.get(i);
             choiceLabels[i] = selectChoice.getLabelInnerText();
+            choiceKeys[i] = selectChoice.getValue();
         }
-        return choiceLabels;
+        return new Pair(choiceKeys, choiceLabels);
     }
 }
