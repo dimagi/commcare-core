@@ -69,6 +69,19 @@ public class AssertionSet implements Externalizable {
         return this.xpathExpressions;
     }
 
+    public Text evalAssertionAtIndex(Integer i, XPathExpression expression, EvaluationContext ec) {
+        try {
+            Object val = expression.eval(ec);
+            if (!FunctionUtils.toBoolean(val)) {
+                return messages.elementAt(i);
+            }
+        } catch (Exception e) {
+            return messages.elementAt(i);
+        }
+
+        return null;
+    }
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.xpathExpressions = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);

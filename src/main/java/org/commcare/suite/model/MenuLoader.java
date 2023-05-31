@@ -131,52 +131,49 @@ public class MenuLoader {
         if (m.getMenuRelevance() != null) {
             xPathErrorMessage = m.getMenuRelevanceRaw();
 
-            EvaluationContext traceableContext = accumulateInstances(sessionWrapper, m, relevance)
-                    .get("traceableContext");
+            EvaluationContext traceableContext = accumulateInstances(sessionWrapper, m, relevance);
 
             boolean result = FunctionUtils.toBoolean(relevance.eval(traceableContext));
+            InstrumentationUtils.printAndClearTraces(traceReporter, "menu load expand");
             return result;
         }
         return true;
     }
 
     public boolean menuAssertionsPass(SessionWrapperInterface sessionWrapper, Menu m) throws XPathSyntaxException {
-        Vector<String> assertionXPathStrings = m.getAssertions().getAssertionsXPaths();
+        AssertionSet assertions = m.getAssertions();
+        Vector<String> assertionXPathStrings = assertions.getAssertionsXPaths();
         if (!assertionXPathStrings.isEmpty()) {
-            XPathExpression assertionXPath = XPathParseTool.parseXPath(assertionXPathStrings.get(0));
 
-            EvaluationContext ec = accumulateInstances(sessionWrapper, m, assertionXPath).get("evaluationContext");
+            for (int i = 0; i < assertionXPathStrings.size(); i++) {
+                XPathExpression assertionXPath = XPathParseTool.parseXPath(assertionXPathStrings.get(i));
 
-            Text text =  m.getAssertions().getAssertionFailure(ec);
+                EvaluationContext traceableContext = accumulateInstances(sessionWrapper, m, assertionXPath);
 
-            if (text != null) {
-                loadException = new Exception(text.evaluate());
-                return false;
+                Text text = assertions.evalAssertionAtIndex(i, assertionXPath, traceableContext);
+                InstrumentationUtils.printAndClearTraces(traceReporter, "menu load expand");
+                if (text != null) {
+                    loadException = new Exception(text.evaluate());
+                    return false;
+                }
             }
         }
         return true;
     }
 
-    private Map<String, EvaluationContext> accumulateInstances(
+    private EvaluationContext accumulateInstances(
             SessionWrapperInterface sessionWrapper,
             Menu m,
             XPathExpression xPathExpression) {
-        Map<String, EvaluationContext> evaluationContextMap = new HashMap<>();
-
         Set<String> instancesNeededByCondition =
                 (new InstanceNameAccumulatingAnalyzer()).accumulate(xPathExpression);
         EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(m.getId(),
                 instancesNeededByCondition);
         EvaluationContext traceableContext = new EvaluationContext(ec, ec.getOriginalContext());
-
-        evaluationContextMap.put("evaluationContext", ec);
-        evaluationContextMap.put("traceableContext", traceableContext);
-
         if (traceReporter != null) {
             traceableContext.setDebugModeOn(traceReporter);
         }
-        InstrumentationUtils.printAndClearTraces(traceReporter, "menu load expand");
-        return evaluationContextMap;
+        return traceableContext;
     }
 
     private void addRelevantCommandEntries(SessionWrapperInterface sessionWrapper,
