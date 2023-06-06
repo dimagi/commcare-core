@@ -35,7 +35,8 @@ public class EntityScreenHelper {
         }
         nodeEntityFactory.prepareEntities(entities);
         entities = filterEntities(entityScreenContext, nodeEntityFactory, entities);
-        return sortEntities(entityScreenContext, entities, detail);
+        sortEntities(entityScreenContext, entities, detail);
+        return entities;
     }
 
     private static List<Entity<TreeReference>> filterEntities(EntityScreenContext entityScreenContext,
@@ -51,7 +52,7 @@ public class EntityScreenHelper {
         return entities;
     }
 
-    private static List<Entity<TreeReference>> sortEntities(EntityScreenContext entityScreenContext,
+    private static void sortEntities(EntityScreenContext entityScreenContext,
             List<Entity<TreeReference>> entities,
             Detail shortDetail) {
         int sortIndex = entityScreenContext.getSortIndex();
@@ -79,7 +80,6 @@ public class EntityScreenHelper {
         }
         java.util.Collections.sort(entities,
                 new EntitySorter(shortDetail.getFields(), reverse, order, new LogNotifier()));
-        return entities;
     }
 
     private static class LogNotifier implements EntitySortNotificationInterface {
