@@ -38,6 +38,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
@@ -149,6 +150,14 @@ public class CommCareSession {
             }
         }
         return entries;
+    }
+
+    private Vector<Menu> getMenusForCommand(String commandId) {
+        Vector<Menu> menusWithId = new Vector<>();
+        for (Suite s : platform.getInstalledSuites()) {
+            menusWithId.addAll(s.getMenusWithId(commandId));
+        }
+        return menusWithId;
     }
 
     @Nullable
@@ -602,7 +611,7 @@ public class CommCareSession {
      * @return Evaluation context for current session state
      */
     public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif) {
-        return this.getEvaluationContext(iif, getCommand(), null);
+        return this.getEvaluationContext(iif, getCommand(), null, null);
     }
 
     /**
@@ -613,20 +622,43 @@ public class CommCareSession {
      * @return Evaluation context for a command in the installed app
      */
     public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif,
-                                                  String command,
-                                                  Set<String> instancesToInclude) {
+            String command,
+            Set<String> instancesToInclude,
+            Hashtable<String, DataInstance> instancesInScope) {
         if (command == null) {
             return new EvaluationContext(null);
         }
         Vector<Entry> entries = getEntriesForCommand(command);
+        Vector<Menu> menus = getMenusForCommand(command);
+
+        Menu menu = null;
+        Hashtable<String, DataInstance> menuInstances = null;
 
         if (entries.size() == 0) {
             return new EvaluationContext(null);
         }
 
         Entry entry = entries.elementAt(0);
+        if (!menus.isEmpty()) {
+            menu = menus.elementAt(0);
+        }
 
-        Hashtable<String, DataInstance> instancesInScope = entry.getInstances(instancesToInclude);
+        // one large hashtable instancesInScope
+        if (instancesInScope == null){
+            instancesInScope = new Hashtable<>();
+        }
+
+        // menu.getInstances menuInstances
+        if (menu != null) {
+            menuInstances = menu.getInstances(instancesToInclude);
+        }
+        // entry.getInstances entryInstances
+        Hashtable<String, DataInstance> entryInstances = entry.getInstances(instancesToInclude);
+        // combine menuInstances and entryInstances in instancesInScope
+        if (menuInstances != null) {
+            instancesInScope.putAll(menuInstances);
+        }
+        instancesInScope.putAll(entryInstances);
 
         for (Enumeration en = instancesInScope.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();

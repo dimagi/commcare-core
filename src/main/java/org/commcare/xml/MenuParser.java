@@ -3,6 +3,7 @@ package org.commcare.xml;
 import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Menu;
+import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -11,6 +12,7 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -29,6 +31,8 @@ public class MenuParser extends CommCareElementParser<Menu> {
         String id = parser.getAttributeValue(null, "id");
         String root = parser.getAttributeValue(null, "root");
         root = root == null ? "root" : root;
+
+        Hashtable<String, DataInstance> instances = new Hashtable<>();
 
         String relevant = parser.getAttributeValue(null, "relevant");
         XPathExpression relevantExpression = null;
@@ -80,7 +84,9 @@ public class MenuParser extends CommCareElementParser<Menu> {
                         throw new InvalidStructureException("Bad XPath Expression {" + relevantExpr + "}", parser);
                     }
                 }
-            } else if (tagName.equals("assertions")) {
+            } else if (tagName.toLowerCase().equals("instance")) {
+                ParseInstance.parseInstance(instances, parser);
+            }else if (tagName.equals("assertions")) {
                 try {
                     assertions = new AssertionSetParser(parser).parse();
                 } catch (InvalidStructureException e) {
@@ -94,6 +100,6 @@ public class MenuParser extends CommCareElementParser<Menu> {
         relevantExprs.copyInto(expressions);
 
         return new Menu(id, root, relevant, relevantExpression, display, commandIds, expressions,
-                style, assertions);
+                style, assertions, instances);
     }
 }

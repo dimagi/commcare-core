@@ -167,8 +167,9 @@ public class MenuLoader {
             XPathExpression xPathExpression) {
         Set<String> instancesNeededByCondition =
                 (new InstanceNameAccumulatingAnalyzer()).accumulate(xPathExpression);
+        //pass menu.getInstances to getRestrictedEvaluationContext?
         EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(m.getId(),
-                instancesNeededByCondition);
+                (Set<String>)m.getInstances(instancesNeededByCondition));
         EvaluationContext traceableContext = new EvaluationContext(ec, ec.getOriginalContext());
         if (traceReporter != null) {
             traceableContext.setDebugModeOn(traceReporter);
