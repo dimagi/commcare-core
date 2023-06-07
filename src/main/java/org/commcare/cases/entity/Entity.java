@@ -2,6 +2,8 @@ package org.commcare.cases.entity;
 
 import org.commcare.cases.util.StringUtils;
 
+import javax.annotation.Nullable;
+
 /**
  * @author ctsims
  */
@@ -17,6 +19,8 @@ public class Entity<T> {
     public final String extraKey;
     private boolean shouldReceiveFocus;
 
+    private String groupKey;
+
 
     protected Entity(T t, String extraKey) {
         this.t = t;
@@ -24,13 +28,14 @@ public class Entity<T> {
     }
 
     public Entity(Object[] data, String[] sortData, boolean[] relevancyData, T t,
-                  String extraKey, boolean shouldReceiveFocus) {
+                  String extraKey, boolean shouldReceiveFocus, String groupKey) {
         this.t = t;
         this.sortData = sortData;
         this.data = data;
         this.relevancyData = relevancyData;
         this.extraKey = extraKey;
         this.shouldReceiveFocus = shouldReceiveFocus;
+        this.groupKey = groupKey;
     }
 
     public Object getField(int i) {
@@ -111,5 +116,10 @@ public class Entity<T> {
             sb.append("IsValidField: ").append(isValidField(i));
         }
         return sb.toString() + "\n" + super.toString();
+    }
+
+    @Nullable
+    public String getGroupKey() {
+        return groupKey;
     }
 }
