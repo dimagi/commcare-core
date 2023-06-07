@@ -4,6 +4,7 @@ import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.DetailGroup;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Global;
 import org.commcare.suite.model.Text;
@@ -62,6 +63,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
         Vector<DetailField> fields = new Vector<>();
         OrderedHashtable<String, String> variables = new OrderedHashtable<>();
         String focusFunction = null;
+        DetailGroup detailGroup = null;
 
         while (nextTagInBlock("detail")) {
             if (GlobalParser.NAME_GLOBAL.equals(parser.getName().toLowerCase())) {
@@ -115,6 +117,10 @@ public class DetailParser extends CommCareElementParser<Detail> {
                 actions.addElement(new ActionParser(parser).parse());
                 continue;
             }
+            if (DetailGroupParser.NAME_GROUP.equalsIgnoreCase(parser.getName())) {
+                detailGroup = new DetailGroupParser(parser).parse();
+                continue;
+            }
             if (parser.getName().equals("detail")) {
                 subdetails.addElement(getDetailParser().parse());
             } else {
@@ -125,7 +131,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
 
         return new Detail(id, title, noItemsText, nodeset, subdetails, fields, variables, actions, callout,
                 fitAcross, useUniformUnits, forceLandscapeView, focusFunction, printTemplatePath,
-                relevancy, global);
+                relevancy, global, detailGroup);
     }
 
     protected DetailParser getDetailParser() {
