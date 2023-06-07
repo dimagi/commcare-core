@@ -113,6 +113,7 @@
         </text>
       </sort>
     </field>
+    <group function="./index/parent" grid-header-rows="2" />
   </detail>
 
   <entry>

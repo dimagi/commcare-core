@@ -104,6 +104,8 @@ public class Detail implements Externalizable {
     // equal to its width, rather than being computed independently
     private boolean useUniformUnitsInCaseTile;
 
+    private DetailGroup group;
+
     // ENDREGION
 
     /**
@@ -117,7 +119,7 @@ public class Detail implements Externalizable {
                   Vector<DetailField> fieldsVector, OrderedHashtable<String, String> variables,
                   Vector<Action> actions, Callout callout, String fitAcross,
                   String uniformUnitsString, String forceLandscape, String focusFunction,
-                  String printPathProvided, String relevancy, Global global) {
+                  String printPathProvided, String relevancy, Global global, DetailGroup group) {
 
         if (detailsVector.size() > 0 && fieldsVector.size() > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
@@ -166,6 +168,7 @@ public class Detail implements Externalizable {
             }
         }
         this.global = global;
+        this.group = group;
     }
 
     /**
@@ -270,6 +273,7 @@ public class Detail implements Externalizable {
         useUniformUnitsInCaseTile = ExtUtil.readBool(in);
         parsedRelevancyExpression = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
         global = (Global)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
+        group = (DetailGroup) ExtUtil.read(in, new ExtWrapNullable(DetailGroup.class), pf);
     }
 
     @Override
@@ -291,6 +295,7 @@ public class Detail implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(
                 parsedRelevancyExpression == null ? null : new ExtWrapTagged(parsedRelevancyExpression)));
         ExtUtil.write(out, new ExtWrapNullable(global == null ? null : new ExtWrapTagged(global)));
+        ExtUtil.write(out, new ExtWrapNullable(group));
     }
 
     public OrderedHashtable<String, XPathExpression> getVariableDeclarations() {
@@ -605,5 +610,10 @@ public class Detail implements Externalizable {
     @Nullable
     public Global getGlobal() {
         return global;
+    }
+
+    @Nullable
+    public DetailGroup getGroup() {
+        return group;
     }
 }
