@@ -4,6 +4,7 @@ import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.DetailGroup;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
@@ -74,8 +75,14 @@ public class NodeEntityFactory {
             count++;
         }
 
+        String groupKey = null;
+        DetailGroup detailGroup = detail.getGroup();
+        if (detailGroup != null) {
+            groupKey = (String)detailGroup.getFunction().eval(nodeContext);
+        }
+
         return new Entity<>(fieldData, sortData, relevancyData, data, extraKey,
-                detail.evaluateFocusFunction(nodeContext));
+                detail.evaluateFocusFunction(nodeContext), groupKey);
     }
 
     /**
