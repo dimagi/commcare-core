@@ -68,6 +68,7 @@ public class Style {
     private void setDisplayFormatFromString(String displayFormat){
         switch (displayFormat) {
             case "image":
+            case "enum-image":
                 setDisplayFormat(DisplayFormat.Image);
                 break;
             case "audio":
