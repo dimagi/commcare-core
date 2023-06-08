@@ -8,24 +8,23 @@ public abstract class AuthInfo {
 
     public String username;
     public String password;
+    public boolean wrapDomain;
 
     public static class NoAuth extends AuthInfo {
 
     }
 
     public static class ProvidedAuth extends AuthInfo {
-
         public ProvidedAuth(String username, String password) {
-            this.username = username;
-            this.password = password;
+            this(username, password, true);
         }
-    }
 
-    public static class BasicAuth extends AuthInfo {
-        public BasicAuth(String username, String password) {
+        public ProvidedAuth(String username, String password, boolean wrapDomain) {
             this.username = username;
             this.password = password;
+            this.wrapDomain = wrapDomain;
         }
+
     }
 
     // Auth with the currently-logged in user
