@@ -154,14 +154,6 @@ public class EntryParser extends CommCareElementParser<Entry> {
         }
     }
 
-    // make its own class to be used by menu and entry
-    // make static
-//    private void parseInstance(Hashtable<String, DataInstance> instances) {
-//        String instanceId = parser.getAttributeValue(null, "id");
-//        String location = parser.getAttributeValue(null, "src");
-//        instances.put(instanceId, new ExternalDataInstance(location, instanceId));
-//    }
-
     private PostRequest parsePost() throws InvalidStructureException, IOException, XmlPullParserException {
         String urlString = parser.getAttributeValue(null, "url");
         if (urlString == null) {
