@@ -611,7 +611,7 @@ public class CommCareSession {
      * @return Evaluation context for current session state
      */
     public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif) {
-        return this.getEvaluationContext(iif, getCommand(), null, null);
+        return this.getEvaluationContext(iif, getCommand(), null);
     }
 
     /**
@@ -623,8 +623,7 @@ public class CommCareSession {
      */
     public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif,
             String command,
-            Set<String> instancesToInclude,
-            Hashtable<String, DataInstance> instancesInScope) {
+            Set<String> instancesToInclude) {
         if (command == null) {
             return new EvaluationContext(null);
         }
@@ -643,18 +642,14 @@ public class CommCareSession {
             menu = menus.elementAt(0);
         }
 
-        // one large hashtable instancesInScope
-        if (instancesInScope == null){
-            instancesInScope = new Hashtable<>();
-        }
+        Hashtable<String, DataInstance> instancesInScope = new Hashtable<>();
 
-        // menu.getInstances menuInstances
         if (menu != null) {
             menuInstances = menu.getInstances(instancesToInclude);
         }
-        // entry.getInstances entryInstances
+
         Hashtable<String, DataInstance> entryInstances = entry.getInstances(instancesToInclude);
-        // combine menuInstances and entryInstances in instancesInScope
+
         if (menuInstances != null) {
             instancesInScope.putAll(menuInstances);
         }
