@@ -2,6 +2,7 @@ package org.commcare.suite.model;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.utils.InstanceUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -92,7 +93,7 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
     }
 
     public Hashtable<String, DataInstance> getInstances(Set<String> instancesToInclude) {
-        return GetLimitedInstances.getLimitedInstances(null, instances);
+        return InstanceUtils.getLimitedInstances(null, instances);
     }
 
     public AssertionSet getAssertions() {
