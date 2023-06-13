@@ -2,7 +2,7 @@ package org.commcare.suite.model;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.utils.InstanceUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -16,7 +16,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
@@ -45,10 +44,10 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
     }
 
     public Entry(String commandId, DisplayUnit display,
-                 Vector<SessionDatum> data,
-                 Hashtable<String, DataInstance> instances,
-                 Vector<StackOperation> stackOperations,
-                 AssertionSet assertions) {
+            Vector<SessionDatum> data,
+            Hashtable<String, DataInstance> instances,
+            Vector<StackOperation> stackOperations,
+            AssertionSet assertions) {
         this.commandId = commandId == null ? "" : commandId;
         this.display = display;
         this.data = data;
@@ -93,36 +92,8 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
         return data;
     }
 
-    public Hashtable<String, DataInstance> getInstances() {
-        return getInstances(null);
-    }
-    /**
-     *
-     * @param limitingList a list of instance names to restrict the returning set to; null
-     *                     if no limiting is being used
-     * @return a hashtable representing the data instances that are in scope for this Entry,
-     * potentially limited by @limitingList
-     */
-    public Hashtable<String, DataInstance> getInstances(Set<String> limitingList) {
-        Hashtable<String, DataInstance> copy = new Hashtable<>();
-        for (Enumeration en = instances.keys(); en.hasMoreElements(); ) {
-            String key = (String)en.nextElement();
-
-            //This is silly, all of these are external data instances. TODO: save their
-            //construction details instead.
-            DataInstance cur = instances.get(key);
-            if (limitingList == null || limitingList.contains(cur.getInstanceId())) {
-                // Make sure we either aren't using a limiting list, or the instanceid is in the list
-                if (cur instanceof ExternalDataInstance) {
-                    //Copy the EDI so when it gets populated we don't keep it dependent on this object's lifecycle!!
-                    copy.put(key, new ExternalDataInstance(((ExternalDataInstance)cur).getReference(), cur.getInstanceId()));
-                } else {
-                    copy.put(key, cur);
-                }
-            }
-        }
-
-        return copy;
+    public Hashtable<String, DataInstance> getInstances(Set<String> instancesToInclude) {
+        return InstanceUtils.getLimitedInstances(null, instances);
     }
 
     public AssertionSet getAssertions() {
