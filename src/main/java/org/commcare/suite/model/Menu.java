@@ -1,10 +1,14 @@
 package org.commcare.suite.model;
 
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.utils.InstanceUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
+import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathParseTool;
@@ -14,6 +18,8 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Set;
 import java.util.Vector;
 
 import io.reactivex.Single;
@@ -38,6 +44,7 @@ public class Menu implements Externalizable, MenuDisplayable {
     private String style;
     private XPathExpression relevance;
     AssertionSet assertions;
+    Hashtable<String, DataInstance> instances;
 
     /**
      * Serialization only!!!
@@ -47,9 +54,10 @@ public class Menu implements Externalizable, MenuDisplayable {
     }
 
     public Menu(String id, String root, String rawRelevance,
-                XPathExpression relevance, DisplayUnit display,
-                Vector<String> commandIds, String[] commandExprs,
-                String style, AssertionSet assertions) {
+            XPathExpression relevance, DisplayUnit display,
+            Vector<String> commandIds, String[] commandExprs,
+            String style, AssertionSet assertions,
+            Hashtable<String, DataInstance> instances) {
         this.id = id;
         this.root = root;
         this.rawRelevance = rawRelevance;
@@ -59,6 +67,7 @@ public class Menu implements Externalizable, MenuDisplayable {
         this.commandExprs = commandExprs;
         this.style = style;
         this.assertions = assertions;
+        this.instances = instances;
     }
 
     /**
@@ -119,6 +128,10 @@ public class Menu implements Externalizable, MenuDisplayable {
         return commandExprs[index] == null ? null : XPathParseTool.parseXPath(commandExprs[index]);
     }
 
+    public Hashtable<String, DataInstance> getInstances(Set<String> instancesToInclude) {
+        return InstanceUtils.getLimitedInstances(null, instances);
+    }
+
     public AssertionSet getAssertions() {
         return assertions == null ? new AssertionSet(new Vector<String>(), new Vector<Text>()) : assertions;
     }
@@ -147,6 +160,7 @@ public class Menu implements Externalizable, MenuDisplayable {
         rawRelevance = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
         commandIds = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
+        instances = (Hashtable<String, DataInstance>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapTagged()), pf);
         commandExprs = new String[ExtUtil.readInt(in)];
         for (int i = 0; i < commandExprs.length; ++i) {
             if (ExtUtil.readBool(in)) {
@@ -164,6 +178,7 @@ public class Menu implements Externalizable, MenuDisplayable {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(rawRelevance));
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapList(commandIds));
+        ExtUtil.write(out, new ExtWrapMap(instances, new ExtWrapTagged()));
         ExtUtil.writeNumeric(out, commandExprs.length);
         for (String commandExpr : commandExprs) {
             if (commandExpr == null) {
