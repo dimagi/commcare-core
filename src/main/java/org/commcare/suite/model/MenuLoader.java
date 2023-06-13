@@ -15,8 +15,9 @@ import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -34,15 +35,14 @@ public class MenuLoader {
 
     private ReducingTraceReporter traceReporter;
 
-    public MenuLoader(CommCarePlatform platform, SessionWrapperInterface sessionWrapper,
-                      String menuId, LoggerInterface loggerInterface,
-                      boolean shouldOutputEvalTrace, boolean hideTrainingRoot) {
+    public MenuLoader(CommCarePlatform platform, SessionWrapperInterface sessionWrapper, String menuId,
+            LoggerInterface loggerInterface, boolean shouldOutputEvalTrace, boolean hideTrainingRoot) {
         this(platform, sessionWrapper, menuId, loggerInterface, shouldOutputEvalTrace, hideTrainingRoot, false);
     }
 
-    public MenuLoader(CommCarePlatform platform, SessionWrapperInterface sessionWrapper,
-                      String menuId, LoggerInterface loggerInterface,
-                      boolean shouldOutputEvalTrace, boolean hideTrainingRoot, boolean includeBadges) {
+    public MenuLoader(CommCarePlatform platform, SessionWrapperInterface sessionWrapper, String menuId,
+            LoggerInterface loggerInterface, boolean shouldOutputEvalTrace, boolean hideTrainingRoot,
+            boolean includeBadges) {
         this.loggerInterface = loggerInterface;
         if (shouldOutputEvalTrace) {
             this.traceReporter = new ReducingTraceReporter(false);
@@ -60,14 +60,15 @@ public class MenuLoader {
     }
 
     private void getMenuDisplayables(CommCarePlatform platform,
-                                     SessionWrapperInterface sessionWrapper,
-                                     String menuID, boolean hideTrainingRoot) {
-        getMenuDisplayables(platform,sessionWrapper, menuID, hideTrainingRoot, false);
+            SessionWrapperInterface sessionWrapper,
+            String menuID, boolean hideTrainingRoot) {
+        getMenuDisplayables(platform, sessionWrapper, menuID, hideTrainingRoot, false);
     }
+
     private void getMenuDisplayables(CommCarePlatform platform,
-                                     SessionWrapperInterface sessionWrapper,
-                                     String menuID, boolean hideTrainingRoot,
-                                     boolean includeBadges) {
+            SessionWrapperInterface sessionWrapper,
+            String menuID, boolean hideTrainingRoot,
+            boolean includeBadges) {
         Vector<MenuDisplayable> items = new Vector<>();
         Vector<String> badges = new Vector<>();
         Hashtable<String, Entry> map = platform.getCommandToEntryMap();
@@ -82,7 +83,7 @@ public class MenuLoader {
                         addUnaddedMenu(sessionWrapper, menuID, m, items, badges, hideTrainingRoot, includeBadges);
                     }
                 } catch (CommCareInstanceInitializer.FixtureInitializationException
-                        | XPathSyntaxException | XPathException xpe) {
+                         | XPathSyntaxException | XPathException xpe) {
                     setLoadException(xpe);
                     menus = new MenuDisplayable[0];
                     return;
@@ -98,8 +99,8 @@ public class MenuLoader {
     }
 
     private void addUnaddedMenu(SessionWrapperInterface sessionWrapper, String currentMenuId,
-                                Menu toAdd, Vector<MenuDisplayable> items, Vector<String> badges,
-                                boolean hideTrainingRoot, boolean includeBadges) throws XPathSyntaxException {
+            Menu toAdd, Vector<MenuDisplayable> items, Vector<String> badges,
+            boolean hideTrainingRoot, boolean includeBadges) throws XPathSyntaxException {
         if (hideTrainingRoot && toAdd.getId().equals(Menu.TRAINING_MENU_ROOT)) {
             return;
         }
@@ -130,15 +131,7 @@ public class MenuLoader {
         if (m.getMenuRelevance() != null) {
             xPathErrorMessage = m.getMenuRelevanceRaw();
 
-            Set<String> instancesNeededByRelevancyCondition =
-                    (new InstanceNameAccumulatingAnalyzer()).accumulate(relevance);
-            EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(m.getId(),
-                    instancesNeededByRelevancyCondition);
-
-            EvaluationContext traceableContext = new EvaluationContext(ec, ec.getOriginalContext());
-            if (traceReporter != null) {
-                traceableContext.setDebugModeOn(traceReporter);
-            }
+            EvaluationContext traceableContext = accumulateInstances(sessionWrapper, m, relevance);
 
             boolean result = FunctionUtils.toBoolean(relevance.eval(traceableContext));
             InstrumentationUtils.printAndClearTraces(traceReporter, "menu load expand");
@@ -147,38 +140,48 @@ public class MenuLoader {
         return true;
     }
 
-    public boolean menuAssertionsPass(SessionWrapperInterface sessionWrapper, Menu m) throws XPathSyntaxException{
-        Vector<String> assertionXPathStrings = m.getAssertions().getAssertionsXPaths();
+    public boolean menuAssertionsPass(SessionWrapperInterface sessionWrapper, Menu m) throws XPathSyntaxException {
+        AssertionSet assertions = m.getAssertions();
+        Vector<String> assertionXPathStrings = assertions.getAssertionsXPaths();
         if (!assertionXPathStrings.isEmpty()) {
-            XPathExpression assertionXPath = XPathParseTool.parseXPath(assertionXPathStrings.get(0));
 
-            Set<String> instancesNeededByAssertionCondition =
-                    (new InstanceNameAccumulatingAnalyzer()).accumulate(assertionXPath);
-            EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(m.getId(),
-                    instancesNeededByAssertionCondition);
+            for (int i = 0; i < assertionXPathStrings.size(); i++) {
+                XPathExpression assertionXPath = XPathParseTool.parseXPath(assertionXPathStrings.get(i));
+                EvaluationContext traceableContext = accumulateInstances(sessionWrapper, m, assertionXPath);
 
-            EvaluationContext traceableContext = new EvaluationContext(ec, ec.getOriginalContext());
-            if (traceReporter != null) {
-                traceableContext.setDebugModeOn(traceReporter);
-            }
+                Text text = assertions.evalAssertionAtIndex(i, assertionXPath, traceableContext);
 
-            InstrumentationUtils.printAndClearTraces(traceReporter, "menu load expand");
-            Text text =  m.getAssertions().getAssertionFailure(ec);
-
-            if (text != null) {
-                loadException = new Exception(text.evaluate());
-                return false;
+                InstrumentationUtils.printAndClearTraces(traceReporter, "menu load expand");
+                if (text != null) {
+                    loadException = new Exception(text.evaluate());
+                    return false;
+                }
             }
         }
         return true;
     }
 
+    private EvaluationContext accumulateInstances(
+            SessionWrapperInterface sessionWrapper,
+            Menu m,
+            XPathExpression xPathExpression) {
+        Set<String> instancesNeededByCondition =
+                (new InstanceNameAccumulatingAnalyzer()).accumulate(xPathExpression);
+        EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(m.getId(),
+                m.getInstances(instancesNeededByCondition).keySet());
+        EvaluationContext traceableContext = new EvaluationContext(ec, ec.getOriginalContext());
+        if (traceReporter != null) {
+            traceableContext.setDebugModeOn(traceReporter);
+        }
+        return traceableContext;
+    }
+
     private void addRelevantCommandEntries(SessionWrapperInterface sessionWrapper,
-                                           Menu m,
-                                           Vector<MenuDisplayable> items,
-                                           Vector<String> badges,
-                                           Hashtable<String, Entry> map,
-                                           boolean includeBadges)
+            Menu m,
+            Vector<MenuDisplayable> items,
+            Vector<String> badges,
+            Hashtable<String, Entry> map,
+            boolean includeBadges)
             throws XPathSyntaxException {
         xPathErrorMessage = "";
         for (String command : m.getCommandIds()) {
