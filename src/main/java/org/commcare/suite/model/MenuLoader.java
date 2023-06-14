@@ -168,7 +168,7 @@ public class MenuLoader {
         Set<String> instancesNeededByCondition =
                 (new InstanceNameAccumulatingAnalyzer()).accumulate(xPathExpression);
         EvaluationContext ec = sessionWrapper.getRestrictedEvaluationContext(m.getId(),
-                m.getInstances(instancesNeededByCondition).keySet());
+                instancesNeededByCondition);
         EvaluationContext traceableContext = new EvaluationContext(ec, ec.getOriginalContext());
         if (traceReporter != null) {
             traceableContext.setDebugModeOn(traceReporter);
