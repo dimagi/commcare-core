@@ -8,28 +8,22 @@ We try to keep both these branches in sync with each other the best we can. To d
 
 1. If you are working on a Formplayer change, you will want to start by checking out `your_feature_branch` from `formplayer` as the base branch. Make changes on `your_feature_branch` and create your original PR against `formplayer` branch.
 
-2. Now you will need to duplicate this PR by making another PR against `master`. Make sure the branch for this PR is not deleted. Then create the comment `duplicate this PR`. If the PR has already been merged, comment `duplicate this PR <starting-commit-id>`.
+2. Now you will need to duplicate this PR by making another PR against `master`. Make sure the branch for this PR is not deleted. Then create the comment `duplicate this PR`. If the PR has already been merged, comment `duplicate this PR <starting-commit-id>`. This should result in a Github Actions workflow duplicating your PR against `master`. Go to the duplicate PR, close and re-open it to run the Github checks against it. 
 
-3. In order for us to test that your PR against `master` doesn't break anything on CommCare Android, we need to run android side tests with your PR.
+3. In order for us to test that your PR against `master` doesn't break anything on CommCare Android, you need to run android side tests with your PR.
 To do this - 
-    - Check out a new branch say `test_cc_1189` from `master` in [CommCare Android](https://github.com/dimagi/commcare-android)
-    - Do an empty commit on your new branch as `git commit --allow-empty -m "Empty-Commit"` and push your branch to github. 
-    - Create a dummy test PR with a subject `[Test] CC 1189`. 
-    - You can remove all the fields from the PR template here and add a line at the very bottom saying `cross-request: link_to_commcare-core_master_pr`. Without this line the tests won't factor in your CommCare Core `master` PR to run tests with. 
-    - Label the PR with `cross requested tag`
-    - Label the PR with an appropriate `product/*` tag.
-    - You don't need to add any reviewers here as this PR will be closed without merging and is only used to run Android tests
+    - Go to the [Android test PR](https://github.com/dimagi/commcare-android/pull/2612)
+    - Change "cross-request" PR in description to the duplicate PR created in step 2 above
+    - Make a comment saying `@damagatchi retest this please` ([example](https://github.com/dimagi/commcare-android/pull/2612#issuecomment-1453132625))
 
-   See https://github.com/dimagi/commcare-android/pull/2609 for an example of such a test PR. 
-
-4. Go back to your CommCare Core `master` PR and add `cross-request: link_to_commcare-android_test_pr` as the last line in the PR description. This PR will now be owned by the Android devs to decide whether any additional changes are required on CommCare Android before merging this PR.
+4. Request a review from `@shubham1g5`on your duplicate commcare-core PR. Android devs will now be responsible to make any further Android compatibility changes for this PR if required and merge it.  
 
 
 ##### Duplicating A CommCare Android change to Formplayer
 
 1. If you are working on a CommCare Android change, you will want to start by checking out `your_feature_branch` from `master` as the base branch. Make changes on `your_feature_branch` and create your original PR against `master` branch.
 
-2. Now you will need to duplicate this PR by making another PR against `formplayer`. Make sure the branch for this PR is not deleted. Then create the comment `duplicate this PR`. If the PR has already been merged, comment `duplicate this PR <starting-commit-id>`.
+2. Now you will need to duplicate this PR by making another PR against `formplayer`. Make sure the branch for this PR is not deleted. Then create the comment `duplicate this PR`. If the PR has already been merged, comment `duplicate this PR <starting-commit-id>`. This should result in a Github Actions workflow duplicating your PR against `formplayer`. Go to the duplicate PR, close and re-open it to run the Github checks against it. 
 
 3. In order for us to test that your PR against `formplayer` doesn't break anything on Formplayer, we need to run formplayer side tests with your PR.
 To do this - 

@@ -148,8 +148,8 @@ public class CliTests {
                     Assert.assertTrue(output.contains("0) Name"));
                     break;
                 case 2:
-                    Assert.assertTrue(output.contains("0) Lucy"));
-                    Assert.assertTrue(output.contains("1) Jack"));
+                    Assert.assertTrue(output.contains("0) Jack"));
+                    Assert.assertTrue(output.contains("1) Lucy"));
                     break;
                 case 3:
                     Assert.assertTrue(output.contains("0) multi-select form with auto-launch case list"));

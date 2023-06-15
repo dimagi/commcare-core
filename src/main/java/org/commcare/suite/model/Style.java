@@ -36,6 +36,7 @@ public class Style {
         Image,
         Audio,
         Text,
+        Address,
         Graph,
         Phone,
         Markdown,
@@ -68,6 +69,7 @@ public class Style {
     private void setDisplayFormatFromString(String displayFormat){
         switch (displayFormat) {
             case "image":
+            case "enum-image":
                 setDisplayFormat(DisplayFormat.Image);
                 break;
             case "audio":
@@ -75,6 +77,9 @@ public class Style {
                 break;
             case "text":
                 setDisplayFormat(DisplayFormat.Text);
+                break;
+            case "address":
+                setDisplayFormat(DisplayFormat.Address);
                 break;
             case "graph":
                 setDisplayFormat(DisplayFormat.Graph);

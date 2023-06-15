@@ -7,7 +7,6 @@ import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.cases.util.StringUtils;
@@ -20,7 +19,6 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.QueryPrompt;
-import org.commcare.suite.model.RemoteQueryDatum;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
@@ -28,7 +26,6 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.core.util.OrderedHashtable;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
@@ -123,7 +120,7 @@ public class QueryScreen extends Screen {
         } catch (NoLocalizedTextException | NullPointerException e) {
             mTitle = "Case Claim";
         }
-        return mTitle;  
+        return mTitle;
     }
 
     // Formplayer List of Supported prompts
@@ -137,6 +134,7 @@ public class QueryScreen extends Screen {
         supportedPrompts.add(INPUT_TYPE_ADDRESS);
         return supportedPrompts;
     }
+
     public Pair<ExternalDataInstance, String> processResponse(InputStream responseData, URL url,
             Multimap<String, String> requestData) {
         if (responseData == null) {
@@ -183,7 +181,7 @@ public class QueryScreen extends Screen {
         return CryptUtil.sha256(builder.toString());
     }
 
-    public void answerPrompts(Hashtable<String, String> answers) {
+    public void answerPrompts(Hashtable<String, String> answers, boolean selectValuesByKeys) {
         for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
             QueryPrompt queryPrompt = userInputDisplays.get(key);
@@ -193,20 +191,22 @@ public class QueryScreen extends Screen {
             // be converted to the corresponding value
             if (queryPrompt.isSelect() && !StringUtils.isEmpty(answer)) {
                 remoteQuerySessionManager.populateItemSetChoices(queryPrompt);
-                Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
-                String[] indicesOfSelectedChoices = RemoteQuerySessionManager.extractMultipleChoices(answer);
-                ArrayList<String> selectedChoices = new ArrayList<>(indicesOfSelectedChoices.length);
-                for (int i = 0; i < indicesOfSelectedChoices.length; i++) {
-                    if (indicesOfSelectedChoices[i].isEmpty()) {
-                        selectedChoices.add("");
-                    } else {
-                        int choiceIndex = Integer.parseInt(indicesOfSelectedChoices[i]);
-                        if (choiceIndex < selectChoices.size() && choiceIndex > -1) {
-                            selectedChoices.add(selectChoices.get(choiceIndex).getValue());
+                if (!selectValuesByKeys) {
+                    Vector<SelectChoice> selectChoices = queryPrompt.getItemsetBinding().getChoices();
+                    String[] indicesOfSelectedChoices = RemoteQuerySessionManager.extractMultipleChoices(answer);
+                    ArrayList<String> selectedChoices = new ArrayList<>(indicesOfSelectedChoices.length);
+                    for (int i = 0; i < indicesOfSelectedChoices.length; i++) {
+                        if (indicesOfSelectedChoices[i].isEmpty()) {
+                            selectedChoices.add("");
+                        } else {
+                            int choiceIndex = Integer.parseInt(indicesOfSelectedChoices[i]);
+                            if (choiceIndex < selectChoices.size() && choiceIndex > -1) {
+                                selectedChoices.add(selectChoices.get(choiceIndex).getValue());
+                            }
                         }
                     }
+                    answer = String.join(RemoteQuerySessionManager.ANSWER_DELIMITER, selectedChoices);
                 }
-                answer = String.join(RemoteQuerySessionManager.ANSWER_DELIMITER, selectedChoices);
             }
             remoteQuerySessionManager.answerUserPrompt(key, answer);
         }
@@ -265,7 +265,7 @@ public class QueryScreen extends Screen {
             userAnswers.put(queryPromptEntry.getKey(), answers[count]);
             count++;
         }
-        answerPrompts(userAnswers);
+        answerPrompts(userAnswers, true);
         URL url = getBaseUrl();
         Multimap<String, String> requestData = getQueryParams(false);
         InputStream response = sessionUtils.makeQueryRequest(url, requestData, domainedUsername, password);
@@ -303,6 +303,10 @@ public class QueryScreen extends Screen {
 
     public RemoteQueryDatum getQueryDatum() {
         return remoteQuerySessionManager.getQueryDatum();
+    }
+
+    public SessionWrapper getSession() {
+        return sessionWrapper;
     }
 
     @Override
