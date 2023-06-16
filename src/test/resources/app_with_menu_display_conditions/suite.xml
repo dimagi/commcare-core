@@ -107,7 +107,6 @@
     </command>
     <instance id="casedb" src="jr://instance/casedb"/>
     <instance id="commcaresession" src="jr://instance/session"/>
-    <instance id="City" src="jr://fixture/item-list:City"/>
     <session>
       <datum id="case_id_new_case_0" function="uuid()"/>
     </session>
@@ -121,7 +120,6 @@
     </command>
     <instance id="casedb" src="jr://instance/casedb"/>
     <instance id="commcaresession" src="jr://instance/session"/>
-    <instance id="City" src="jr://fixture/item-list:City"/>
     <session>
       <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='case'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long"/>
     </session>
