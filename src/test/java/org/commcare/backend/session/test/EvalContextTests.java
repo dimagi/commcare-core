@@ -46,6 +46,7 @@ public class EvalContextTests {
         // 1) Confirm that the eval context was restricted properly
         List<String> instancesThatShouldBeIncluded = new ArrayList<>();
         instancesThatShouldBeIncluded.add("casedb");
+        instancesThatShouldBeIncluded.add("commcaresession");
         Assert.assertEquals(instancesThatShouldBeIncluded, ec.getInstanceIds());
 
         // 2) Confirm the display condition was evaluated properly with the restricted context
@@ -67,6 +68,7 @@ public class EvalContextTests {
 
         // 1) Confirm that the eval context was restricted properly
         List<String> instancesThatShouldBeIncluded = new ArrayList<>();
+        instancesThatShouldBeIncluded.add("casedb");
         instancesThatShouldBeIncluded.add("commcaresession");
         Assert.assertEquals(instancesThatShouldBeIncluded, ec.getInstanceIds());
 
