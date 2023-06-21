@@ -114,6 +114,37 @@ public class EntityScreen extends CompoundScreenHost {
 
     @Trace
     public void init(SessionWrapper session) throws CommCareSessionException {
+        initReferences(session);
+        initListSubScreen();
+    }
+
+    /**
+     * Initialises EntityListSubscreen for current entity screen
+     * Should only be called after initReferences
+     * @throws CommCareSessionException
+     */
+    public void initListSubScreen() throws CommCareSessionException {
+        if (!initialized) {
+            throw new CommCareSessionException("trying to initialise subscreen before initialising references");
+        }
+
+        // if readyToSkip, entity screen will not be displayed. We don't need to init the subscreen
+        if (!readyToSkip) {
+            // if isDetailScreen or needsFullInit is not set,
+            // sub screen is needed to handle actions but we can skip eval refs
+            Vector<TreeReference> entityListReferences =
+                    !needsFullInit || isDetailScreen() ? new Vector<>() : references;
+            mCurrentScreen = new EntityListSubscreen(mShortDetail, entityListReferences, evalContext,
+                    handleCaseIndex, entityScreenContext);
+        }
+    }
+
+    /**
+     * Initialises references and referenceMap for current entity screen
+     * @param session Current CommCare Session to initialise the screen with
+     * @throws CommCareSessionException
+     */
+    public void initReferences(SessionWrapper session) throws CommCareSessionException {
         if (initialized) {
             if (session != this.mSession) {
                 throw new CommCareSessionException(
@@ -151,16 +182,6 @@ public class EntityScreen extends CompoundScreenHost {
                     readyToSkip = true;
                 }
             }
-        }
-
-        // if readyToSkip, entity screen will not be displayed. We don't need to init the subscreen
-        if (!readyToSkip) {
-            // if isDetailScreen or needsFullInit is not set,
-            // sub screen is needed to handle actions but we can skip eval refs
-            Vector<TreeReference> entityListReferences =
-                    !needsFullInit || isDetailScreen() ? new Vector<>() : references;
-            mCurrentScreen = new EntityListSubscreen(mShortDetail, entityListReferences, evalContext,
-                    handleCaseIndex, entityScreenContext);
         }
         initialized = true;
     }
