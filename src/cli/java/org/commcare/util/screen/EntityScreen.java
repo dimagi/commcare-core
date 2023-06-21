@@ -114,8 +114,9 @@ public class EntityScreen extends CompoundScreenHost {
 
     @Trace
     public void init(SessionWrapper session) throws CommCareSessionException {
-        initReferences(session);
-        initListSubScreen();
+        if (initReferences(session)) {
+            initListSubScreen();
+        }
     }
 
     /**
@@ -143,14 +144,15 @@ public class EntityScreen extends CompoundScreenHost {
      * Initialises references and referenceMap for current entity screen
      * @param session Current CommCare Session to initialise the screen with
      * @throws CommCareSessionException
+     * @return whether we initialised references as part of this call
      */
-    public void initReferences(SessionWrapper session) throws CommCareSessionException {
+    public boolean initReferences(SessionWrapper session) throws CommCareSessionException {
         if (initialized) {
             if (session != this.mSession) {
                 throw new CommCareSessionException(
                         "Entity screen initialized with two different session wrappers");
             }
-            return;
+            return false;
         }
 
         this.setSession(session);
@@ -184,6 +186,7 @@ public class EntityScreen extends CompoundScreenHost {
             }
         }
         initialized = true;
+        return true;
     }
 
     protected boolean shouldAutoSelect() {
