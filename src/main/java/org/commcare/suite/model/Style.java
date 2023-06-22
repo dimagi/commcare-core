@@ -42,6 +42,7 @@ public class Style {
         Audio,
         Text,
         Address,
+        AddressPopup,
         Graph,
         Phone,
         Markdown,
@@ -85,6 +86,9 @@ public class Style {
                 break;
             case "address":
                 setDisplayFormat(DisplayFormat.Address);
+                break;
+            case "address-popup":
+                setDisplayFormat(DisplayFormat.AddressPopup);
                 break;
             case "graph":
                 setDisplayFormat(DisplayFormat.Graph);
