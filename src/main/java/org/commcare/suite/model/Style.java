@@ -82,7 +82,7 @@ public class Style {
             case "address":
                 setDisplayFormat(DisplayFormat.Address);
                 break;
-            case "address_popup":
+            case "address-popup":
                 setDisplayFormat(DisplayFormat.AddressPopup);
                 break;
             case "graph":
