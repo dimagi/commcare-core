@@ -10,7 +10,11 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Common methods for initialising entities
@@ -35,7 +39,20 @@ public class EntityScreenHelper {
         }
         nodeEntityFactory.prepareEntities(entities);
         entities = filterEntities(entityScreenContext, nodeEntityFactory, entities);
-        return sortEntities(entityScreenContext, entities, detail);
+        sortEntities(entityScreenContext, entities, detail);
+        return groupEntities(entities, detail);
+    }
+
+    // Sorts by order of appearance of a groupKey if grouping is enabled
+    private static List<Entity<TreeReference>> groupEntities(List<Entity<TreeReference>> entities, Detail detail) {
+        if (detail.getGroup() != null) {
+            Map<String, Integer> groupKeyOrder = entities.stream()
+                    .collect(HashMap::new,
+                            (m, entity) -> m.putIfAbsent(entity.getGroupKey(), m.size()),
+                            (m1, m2) -> m2.keySet().forEach(l->m1.putIfAbsent(l, m1.size())));
+            entities.sort(Comparator.comparingInt(entity -> groupKeyOrder.get(entity.getGroupKey())));
+        }
+        return entities;
     }
 
     private static List<Entity<TreeReference>> filterEntities(EntityScreenContext entityScreenContext,
@@ -51,7 +68,7 @@ public class EntityScreenHelper {
         return entities;
     }
 
-    private static List<Entity<TreeReference>> sortEntities(EntityScreenContext entityScreenContext,
+    private static void sortEntities(EntityScreenContext entityScreenContext,
             List<Entity<TreeReference>> entities,
             Detail shortDetail) {
         int sortIndex = entityScreenContext.getSortIndex();
@@ -77,9 +94,8 @@ public class EntityScreenHelper {
                 }
             }
         }
-        java.util.Collections.sort(entities,
+        Collections.sort(entities,
                 new EntitySorter(shortDetail.getFields(), reverse, order, new LogNotifier()));
-        return entities;
     }
 
     private static class LogNotifier implements EntitySortNotificationInterface {
