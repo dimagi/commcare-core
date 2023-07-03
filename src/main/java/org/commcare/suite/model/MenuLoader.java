@@ -143,19 +143,17 @@ public class MenuLoader {
     public boolean menuAssertionsPass(SessionWrapperInterface sessionWrapper, Menu m) throws XPathSyntaxException {
         AssertionSet assertions = m.getAssertions();
         Vector<String> assertionXPathStrings = assertions.getAssertionsXPaths();
-        if (!assertionXPathStrings.isEmpty()) {
 
-            for (int i = 0; i < assertionXPathStrings.size(); i++) {
-                XPathExpression assertionXPath = XPathParseTool.parseXPath(assertionXPathStrings.get(i));
-                EvaluationContext traceableContext = accumulateInstances(sessionWrapper, m, assertionXPath);
+        for (int i = 0; i < assertionXPathStrings.size(); i++) {
+            XPathExpression assertionXPath = XPathParseTool.parseXPath(assertionXPathStrings.get(i));
+            EvaluationContext traceableContext = accumulateInstances(sessionWrapper, m, assertionXPath);
 
-                Text text = assertions.evalAssertionAtIndex(i, assertionXPath, traceableContext);
+            Text text = assertions.evalAssertionAtIndex(i, assertionXPath, traceableContext);
 
-                InstrumentationUtils.printAndClearTraces(traceReporter, "menu assertions");
-                if (text != null) {
-                    loadException = new Exception(text.evaluate());
-                    return false;
-                }
+            InstrumentationUtils.printAndClearTraces(traceReporter, "menu assertions");
+            if (text != null) {
+                loadException = new Exception(text.evaluate());
+                return false;
             }
         }
         return true;
