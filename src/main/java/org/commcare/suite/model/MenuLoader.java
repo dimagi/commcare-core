@@ -151,7 +151,7 @@ public class MenuLoader {
 
                 Text text = assertions.evalAssertionAtIndex(i, assertionXPath, traceableContext);
 
-                InstrumentationUtils.printAndClearTraces(traceReporter, "menu load expand");
+                InstrumentationUtils.printAndClearTraces(traceReporter, "menu assertions");
                 if (text != null) {
                     loadException = new Exception(text.evaluate());
                     return false;
