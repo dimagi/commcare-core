@@ -93,7 +93,7 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
     }
 
     public Hashtable<String, DataInstance> getInstances(Set<String> instancesToInclude) {
-        return InstanceUtils.getLimitedInstances(null, instances);
+        return InstanceUtils.getLimitedInstances(instancesToInclude, instances);
     }
 
     public AssertionSet getAssertions() {
