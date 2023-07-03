@@ -76,7 +76,6 @@ public class AssertionSet implements Externalizable {
                 return messages.elementAt(i);
             }
         } catch (Exception e) {
-            // Following the patter from getAssertionFailure. Is there a reason not to throw the exception here?
             return messages.elementAt(i);
         }
 
