@@ -186,6 +186,18 @@
   <menu id="m0">
     <text>Menu</text>
     <command id="m0-f0"/>
+    <assertions>
+      <assert test="2 - 1 = 1">
+        <text>
+          <locale id="custom_assertion.m0.0"/>
+        </text>
+      </assert>
+      <assert test="0 + 1 = 0">
+        <text>
+          <locale id="custom_assertion.m0.0"/>
+        </text>
+      </assert>
+    </assertions>
   </menu>
 
   <menu id="root" style="grid">
