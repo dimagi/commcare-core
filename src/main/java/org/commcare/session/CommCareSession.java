@@ -151,6 +151,18 @@ public class CommCareSession {
         return entries;
     }
 
+
+    private Vector<Menu> getMenusForCommand(String commandId) {
+        Vector<Menu> menusWithId = new Vector<>();
+        for (Suite s : platform.getInstalledSuites()) {
+            List<Menu> menus = s.getMenusWithId(commandId);
+            if (menus != null && menus.size() > 0) {
+                menusWithId.addAll(s.getMenusWithId(commandId));
+            }
+        }
+        return menusWithId;
+    }
+
     @Nullable
     public FormEntry getEntryForNameSpace(String xmlns) {
         for (Suite suite : platform.getInstalledSuites()) {
@@ -341,7 +353,7 @@ public class CommCareSession {
      * datumsCollectedSoFar
      */
     private SessionDatum getFirstMissingDatum(OrderedHashtable datumsCollectedSoFar,
-                                              Vector<SessionDatum> allDatumsNeeded) {
+            Vector<SessionDatum> allDatumsNeeded) {
         for (SessionDatum datum : allDatumsNeeded) {
             if (!datumsCollectedSoFar.containsKey(datum.getDataId())) {
                 return datum;
@@ -613,20 +625,39 @@ public class CommCareSession {
      * @return Evaluation context for a command in the installed app
      */
     public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif,
-                                                  String command,
-                                                  Set<String> instancesToInclude) {
+            String command,
+            Set<String> instancesToInclude) {
         if (command == null) {
             return new EvaluationContext(null);
         }
         Vector<Entry> entries = getEntriesForCommand(command);
+        Vector<Menu> menus = getMenusForCommand(command);
 
-        if (entries.size() == 0) {
-            return new EvaluationContext(null);
+        Menu menu = null;
+        Entry entry = null;
+        Hashtable<String, DataInstance> instancesInScope = new Hashtable<>();
+        Hashtable<String, DataInstance> menuInstances = null;
+        Hashtable<String, DataInstance> entryInstances = null;
+
+        if (!entries.isEmpty()) {
+            entry = entries.elementAt(0);
+            if (entry != null) {
+                entryInstances = entry.getInstances(instancesToInclude);
+            }
+            if (entryInstances != null) {
+                instancesInScope.putAll(entryInstances);
+            }
         }
 
-        Entry entry = entries.elementAt(0);
-
-        Hashtable<String, DataInstance> instancesInScope = entry.getInstances(instancesToInclude);
+        if (!menus.isEmpty()) {
+            menu = menus.elementAt(0);
+            if (menu != null) {
+                menuInstances = menu.getInstances(instancesToInclude);
+            }
+            if (menuInstances != null) {
+                instancesInScope.putAll(menuInstances);
+            }
+        }
 
         for (Enumeration en = instancesInScope.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
@@ -638,7 +669,7 @@ public class CommCareSession {
     }
 
     private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap,
-                                       InstanceInitializationFactory iif) {
+            InstanceInitializationFactory iif) {
         for (StackFrameStep step : frame.getSteps()) {
             instanceMap.putAll(step.getInstances(iif));
         }
@@ -716,7 +747,7 @@ public class CommCareSession {
     }
 
     private void createFrame(SessionFrame createdFrame,
-                             StackOperation op, EvaluationContext ec, StackObserver observer) {
+            StackOperation op, EvaluationContext ec, StackObserver observer) {
         if (op.isOperationTriggered(ec)) {
             // create has its own event so don't pass through the active observer
             performPushInner(op, createdFrame, ec, new StackObserver());
@@ -760,7 +791,7 @@ public class CommCareSession {
     }
 
     private static SessionDatum getNeededDatumForFrame(CommCareSession session,
-                                                       SessionFrame targetFrame) {
+            SessionFrame targetFrame) {
         CommCareSession sessionCopy = new CommCareSession(session);
         sessionCopy.frame = targetFrame;
         sessionCopy.syncState();
@@ -793,7 +824,7 @@ public class CommCareSession {
     }
 
     private void performClearOperation(StackOperation op,
-                                       EvaluationContext ec, StackObserver observer) {
+            EvaluationContext ec, StackObserver observer) {
         if (op.isOperationTriggered(ec)) {
             frameStack.removeElement(frame);
             observer.dropped(frame);
@@ -1028,7 +1059,7 @@ public class CommCareSession {
      * Doesn't support restoring the frame stack
      */
     public static CommCareSession restoreSessionFromStream(CommCarePlatform ccPlatform,
-                                                           DataInputStream inputStream)
+            DataInputStream inputStream)
             throws DeserializationException, IOException {
         SessionFrame restoredFrame = new SessionFrame();
         restoredFrame.readExternal(inputStream, ExtUtil.defaultPrototypes());

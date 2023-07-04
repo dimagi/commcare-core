@@ -1,7 +1,9 @@
 package org.commcare.xml;
 
+import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Menu;
+import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -10,6 +12,7 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -29,6 +32,8 @@ public class MenuParser extends CommCareElementParser<Menu> {
         String root = parser.getAttributeValue(null, "root");
         root = root == null ? "root" : root;
 
+        Hashtable<String, DataInstance> instances = new Hashtable<>();
+
         String relevant = parser.getAttributeValue(null, "relevant");
         XPathExpression relevantExpression = null;
         if (relevant != null) {
@@ -39,12 +44,13 @@ public class MenuParser extends CommCareElementParser<Menu> {
                 throw new InvalidStructureException("Bad module filtering expression {" + relevant + "}", parser);
             }
         }
+        AssertionSet assertions = null;
 
         String style = parser.getAttributeValue(null, "style");
 
         getNextTagInBlock("menu");
 
-        DisplayUnit display;
+        DisplayUnit display = null;
         if (parser.getName().equals("text")) {
             display = new DisplayUnit(new TextParser(parser).parse());
         } else if (parser.getName().equals("display")) {
@@ -62,19 +68,30 @@ public class MenuParser extends CommCareElementParser<Menu> {
         Vector<String> commandIds = new Vector<>();
         Vector<String> relevantExprs = new Vector<>();
         while (nextTagInBlock("menu")) {
-            checkNode("command");
-            commandIds.addElement(parser.getAttributeValue(null, "id"));
-            String relevantExpr = parser.getAttributeValue(null, "relevant");
-            if (relevantExpr == null) {
-                relevantExprs.addElement(null);
-            } else {
+            String tagName = parser.getName();
+            if (tagName.equals("command")) {
+                commandIds.addElement(parser.getAttributeValue(null, "id"));
+                String relevantExpr = parser.getAttributeValue(null, "relevant");
+                if (relevantExpr == null) {
+                    relevantExprs.addElement(null);
+                } else {
+                    try {
+                        //Safety checking
+                        XPathParseTool.parseXPath(relevantExpr);
+                        relevantExprs.addElement(relevantExpr);
+                    } catch (XPathSyntaxException e) {
+                        e.printStackTrace();
+                        throw new InvalidStructureException("Bad XPath Expression {" + relevantExpr + "}", parser);
+                    }
+                }
+            } else if (tagName.toLowerCase().equals("instance")) {
+                ParseInstance.parseInstance(instances, parser);
+            }else if (tagName.equals("assertions")) {
                 try {
-                    //Safety checking
-                    XPathParseTool.parseXPath(relevantExpr);
-                    relevantExprs.addElement(relevantExpr);
-                } catch (XPathSyntaxException e) {
+                    assertions = new AssertionSetParser(parser).parse();
+                } catch (InvalidStructureException e) {
                     e.printStackTrace();
-                    throw new InvalidStructureException("Bad XPath Expression {" + relevantExpr + "}", parser);
+                    throw new InvalidStructureException(e.getMessage(), parser);
                 }
             }
         }
@@ -82,6 +99,7 @@ public class MenuParser extends CommCareElementParser<Menu> {
         String[] expressions = new String[relevantExprs.size()];
         relevantExprs.copyInto(expressions);
 
-        return new Menu(id, root, relevant, relevantExpression, display, commandIds, expressions, style);
+        return new Menu(id, root, relevant, relevantExpression, display, commandIds, expressions,
+                style, assertions, instances);
     }
 }

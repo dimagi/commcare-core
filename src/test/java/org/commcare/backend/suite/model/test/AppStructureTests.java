@@ -1,6 +1,7 @@
 package org.commcare.backend.suite.model.test;
 
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.GeoOverlay;
@@ -199,4 +200,11 @@ public class AppStructureTests {
         }
     }
 
+    @Test
+    public void testMenuAssertions() {
+        Suite s = mApp.getSession().getPlatform().getInstalledSuites().get(0);
+        Menu menuWithAssertionsBlock = s.getMenusWithId("m0").get(0);
+        AssertionSet assertions = menuWithAssertionsBlock.getAssertions();
+        Assert.assertNotNull(assertions);
+    }
 }

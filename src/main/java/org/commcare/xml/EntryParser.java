@@ -83,7 +83,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
                 commandId = parser.getAttributeValue(null, "id");
                 display = parseCommandDisplay();
             } else if ("instance".equals(tagName.toLowerCase())) {
-                parseInstance(instances);
+                ParseInstance.parseInstance(instances, parser);
             } else if ("session".equals(tagName)) {
                 parseSessionData(data);
             } else if ("entity".equals(tagName) || "details".equals(tagName)) {
@@ -152,12 +152,6 @@ public class EntryParser extends CommCareElementParser<Entry> {
         while (this.nextTagInBlock(NAME_STACK)) {
             stackOps.addElement(sop.parse());
         }
-    }
-
-    private void parseInstance(Hashtable<String, DataInstance> instances) {
-        String instanceId = parser.getAttributeValue(null, "id");
-        String location = parser.getAttributeValue(null, "src");
-        instances.put(instanceId, new ExternalDataInstance(location, instanceId));
     }
 
     private PostRequest parsePost() throws InvalidStructureException, IOException, XmlPullParserException {
