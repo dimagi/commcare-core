@@ -1,5 +1,6 @@
 package org.commcare.suite.model;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
@@ -71,6 +72,9 @@ public class StackFrameStep implements Externalizable {
     }
 
     public StackFrameStep(String type, String id, String value) {
+        Preconditions.checkNotNull(type, "Can't create a Stack Frame Step with null type");
+        Preconditions.checkNotNull(id, "Can't create a Stack Frame Step with null id");
+        Preconditions.checkNotNull(value, "Can't create a Stack Frame Step with null value");
         this.elementType = type;
         this.id = id;
         this.value = value;
@@ -240,8 +244,8 @@ public class StackFrameStep implements Externalizable {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.elementType = ExtUtil.readString(in);
-        this.id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-        this.value = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        this.id = ExtUtil.readString(in);
+        this.value = ExtUtil.readString(in);
         this.valueIsXpath = ExtUtil.readBool(in);
         this.extras = (Multimap<String, Object>)ExtUtil.read(in, new ExtWrapMultiMap(String.class), pf);
         this.dataInstanceSources = (Hashtable<String, ExternalDataInstanceSource>)ExtUtil.read(in, new ExtWrapMap(String.class, ExternalDataInstanceSource.class), pf);
@@ -250,8 +254,8 @@ public class StackFrameStep implements Externalizable {
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, elementType);
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(value));
+        ExtUtil.writeString(out, id);
+        ExtUtil.writeString(out, value);
         ExtUtil.writeBool(out, valueIsXpath);
         ExtUtil.write(out, new ExtWrapMultiMap(extras));
         ExtUtil.write(out, new ExtWrapMap(dataInstanceSources));
