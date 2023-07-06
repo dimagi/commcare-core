@@ -116,8 +116,10 @@ public class SessionInstanceBuilder {
 
     private static void addData(TreeElement root, String name, String data) {
         TreeElement datum = new TreeElement(name, root.getChildMultiplicity(name));
-        datum.setValue(new UncastData(data));
-        root.addChild(datum);
+        if (data != null) {
+            datum.setValue(new UncastData(data));
+            root.addChild(datum);
+        }
     }
 
 }
