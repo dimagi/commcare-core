@@ -32,6 +32,7 @@ public class RemoteQueryDatum extends SessionDatum {
     private boolean defaultSearch;
     private Text title;
     private Text description;
+    private Text resultsTitle;
 
     @SuppressWarnings("unused")
     public RemoteQueryDatum() {
@@ -45,7 +46,8 @@ public class RemoteQueryDatum extends SessionDatum {
     public RemoteQueryDatum(URL url, String storageInstance,
             List<QueryData> hiddenQueryValues,
                             OrderedHashtable<String, QueryPrompt> userQueryPrompts,
-                            boolean useCaseTemplate, boolean defaultSearch, Text title, Text description) {
+                            boolean useCaseTemplate, boolean defaultSearch,
+                            Text title, Text description, Text resultsTitle) {
         super(storageInstance, url.toString());
         this.hiddenQueryValues = hiddenQueryValues;
         this.userQueryPrompts = userQueryPrompts;
@@ -53,6 +55,7 @@ public class RemoteQueryDatum extends SessionDatum {
         this.defaultSearch = defaultSearch;
         this.title = title;
         this.description = description;
+        this.resultsTitle = resultsTitle;
     }
 
     public OrderedHashtable<String, QueryPrompt> getUserQueryPrompts() {
@@ -89,6 +92,8 @@ public class RemoteQueryDatum extends SessionDatum {
         return description;
     }
 
+    public Text getResultsTitleText() { return resultsTitle; }
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
@@ -102,6 +107,7 @@ public class RemoteQueryDatum extends SessionDatum {
         description = (Text) ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
         useCaseTemplate = ExtUtil.readBool(in);
         defaultSearch = ExtUtil.readBool(in);
+        resultsTitle = (Text) ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
         
     }
 
@@ -114,6 +120,6 @@ public class RemoteQueryDatum extends SessionDatum {
         ExtUtil.write(out, new ExtWrapNullable(description));
         ExtUtil.writeBool(out, useCaseTemplate);
         ExtUtil.writeBool(out, defaultSearch);
-
+        ExtUtil.write(out, new ExtWrapNullable(resultsTitle));
     }
 }
