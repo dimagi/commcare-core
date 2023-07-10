@@ -143,9 +143,6 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
             } else if ("description".equals(tagName)) {
                 nextTagInBlock("description");
                 description = new TextParser(parser).parse();
-            } else if ("results_title".equals(tagName)) {
-                nextTagInBlock("results_title");
-                resultsTitle = new TextParser(parser).parse();
             } else if ("results-title".equals(tagName)) {
                 nextTagInBlock("results-title");
                 resultsTitle = new TextParser(parser).parse();
