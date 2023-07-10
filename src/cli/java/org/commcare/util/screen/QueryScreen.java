@@ -51,6 +51,7 @@ public class QueryScreen extends Screen {
     private String[] fields;
     private String mTitle;
     private String description;
+    private String resultsTitle;
     private String currentMessage;
 
     private String domainedUsername;
@@ -94,6 +95,7 @@ public class QueryScreen extends Screen {
 
         mTitle = getTitleLocaleString();
         description = getDescriptionLocaleString();
+        resultsTitle = getResultsTitleLocaleString();
     }
 
     private String getTitleLocaleString() {
@@ -112,6 +114,15 @@ public class QueryScreen extends Screen {
             description = "";
         }
         return description;
+    }
+
+    private String getResultsTitleLocaleString() {
+        try {
+            resultsTitle = getQueryDatum().getResultsTitleText().evaluate();
+        } catch (NoLocalizedTextException | NullPointerException e) {
+            resultsTitle = "";
+        }
+        return resultsTitle;
     }
 
     private String getTitleLocaleStringLegacy() {
@@ -235,6 +246,10 @@ public class QueryScreen extends Screen {
 
     public String getDescriptionText() {
         return description;
+    }
+
+    public String getResultsTitle() {
+        return resultsTitle;
     }
 
     @Override
