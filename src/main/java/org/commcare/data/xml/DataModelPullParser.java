@@ -10,6 +10,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -28,13 +29,14 @@ public class DataModelPullParser extends ElementParser<Boolean> {
     private final InputStream is;
     private final String requiredRootEnvelope = null;
     private final CommCareOTARestoreListener rListener;
+    private List<String> blocksToSkipParsing;
 
     public DataModelPullParser(InputStream is, TransactionParserFactory factory) throws InvalidStructureException, IOException {
         this(is, factory, false);
     }
 
     public DataModelPullParser(InputStream is, TransactionParserFactory factory, CommCareOTARestoreListener rl) throws InvalidStructureException, IOException {
-        this(is, factory, false, false, rl);
+        this(is, factory, false, false, rl, null);
     }
 
     public DataModelPullParser(InputStream is, TransactionParserFactory factory, boolean deep) throws InvalidStructureException, IOException {
@@ -42,10 +44,10 @@ public class DataModelPullParser extends ElementParser<Boolean> {
     }
 
     public DataModelPullParser(InputStream is, TransactionParserFactory factory, boolean failfast, boolean deep) throws InvalidStructureException, IOException {
-        this(is, factory, failfast, deep, null);
+        this(is, factory, failfast, deep, null, null);
     }
 
-    public DataModelPullParser(InputStream is, TransactionParserFactory factory, boolean failfast, boolean deep, CommCareOTARestoreListener rListener) throws InvalidStructureException, IOException {
+    public DataModelPullParser(InputStream is, TransactionParserFactory factory, boolean failfast, boolean deep, CommCareOTARestoreListener rListener, List<String> blocksToSkipParsing) throws InvalidStructureException, IOException {
         super(ElementParser.instantiateParser(is));
         this.is = is;
         this.failfast = failfast;
@@ -53,6 +55,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
         errors = new Vector<>();
         this.deep = deep;
         this.rListener = rListener;
+        this.blocksToSkipParsing = blocksToSkipParsing;
     }
 
     @Override
@@ -123,6 +126,11 @@ public class DataModelPullParser extends ElementParser<Boolean> {
 
             String name = parser.getName();
             if (name == null) {
+                continue;
+            }
+
+            if (blocksToSkipParsing != null && blocksToSkipParsing.equals(name)) {
+                this.skipBlock(name);
                 continue;
             }
 
