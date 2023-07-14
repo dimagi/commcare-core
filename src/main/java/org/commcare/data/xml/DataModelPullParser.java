@@ -129,7 +129,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
                 continue;
             }
 
-            if (blocksToSkipParsing != null && blocksToSkipParsing.equals(name)) {
+            if (blocksToSkipParsing != null && blocksToSkipParsing.contains(name)) {
                 this.skipBlock(name);
                 continue;
             }
