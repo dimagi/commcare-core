@@ -107,4 +107,6 @@ public class LogTypes {
 
     public static final String TYPE_CC_UPDATE = "commcare-update";
 
+    public static final String TYPE_NETWORK = "commcare-network";
+
 }
