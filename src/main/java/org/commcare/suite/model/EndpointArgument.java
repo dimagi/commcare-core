@@ -59,4 +59,8 @@ public class EndpointArgument implements Externalizable {
     public String getInstanceSrc() {
         return instanceSrc;
     }
+
+    public boolean isInstanceArgument() {
+        return instanceId != null;
+    }
 }
