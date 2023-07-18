@@ -11,6 +11,9 @@ import java.io.IOException;
 
 import javax.annotation.Nullable;
 
+/**
+ * Model class to represent an argument to Endpoint
+ */
 public class EndpointArgument implements Externalizable {
 
     private String id;
@@ -60,6 +63,11 @@ public class EndpointArgument implements Externalizable {
         return instanceSrc;
     }
 
+    /**
+     * If the argument should be processed into a external data instance
+     *
+     * @return true if the argument defines instance attributes, false otherwise
+     */
     public boolean isInstanceArgument() {
         return instanceId != null;
     }
