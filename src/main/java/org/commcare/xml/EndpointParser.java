@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.util.Vector;
 
 import static org.commcare.xml.StackOpParser.NAME_STACK;
+import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SELECTED_ENTITIES_REFERENCE;
+
+import com.google.common.collect.ImmutableList;
 
 public class EndpointParser extends ElementParser<Endpoint> {
 
@@ -49,8 +52,15 @@ public class EndpointParser extends ElementParser<Endpoint> {
 
                 if (argInstanceId != null && argInstanceSrc == null) {
                     throw new InvalidStructureException(
-                            "argument containing a non-null instance-id must define an instance-src", parser);
+                            "Endpoint argument containing a non-null instance-id must define an instance-src", parser);
                 }
+
+                ImmutableList<String> validInstanceSrc = ImmutableList.of(JR_SELECTED_ENTITIES_REFERENCE);
+                if (!validInstanceSrc.contains(argInstanceSrc)) {
+                    throw new InvalidStructureException(
+                            "instance-src for an endpoint argument must be one of " + validInstanceSrc, parser);
+                }
+
                 arguments.add(new EndpointArgument(argumentID, argInstanceId, argInstanceSrc));
             } else if (tagName.contentEquals(NAME_STACK)) {
                 StackOpParser sop = new StackOpParser(parser);
