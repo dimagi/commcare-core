@@ -56,7 +56,7 @@ public class EndpointParser extends ElementParser<Endpoint> {
                 }
 
                 ImmutableList<String> validInstanceSrc = ImmutableList.of(JR_SELECTED_ENTITIES_REFERENCE);
-                if (!validInstanceSrc.contains(argInstanceSrc)) {
+                if (argInstanceSrc != null && !validInstanceSrc.contains(argInstanceSrc)) {
                     throw new InvalidStructureException(
                             "instance-src for an endpoint argument must be one of " + validInstanceSrc, parser);
                 }
