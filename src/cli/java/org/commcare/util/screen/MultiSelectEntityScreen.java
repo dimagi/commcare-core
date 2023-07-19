@@ -134,7 +134,16 @@ public class MultiSelectEntityScreen extends EntityScreen {
                     "Could not make selection with reference id " + guid + " on this screen. " +
                             " If this error persists please report a bug to CommCareHQ.");
         }
+        validateEntitiesInInstance(cachedInstance);
         storageReferenceId = guid;
+    }
+
+    private void validateEntitiesInInstance(ExternalDataInstance instance) throws CommCareSessionException {
+        AbstractTreeElement root = instance.getRoot();
+        for (int i = 0; i < root.getNumChildren(); i++) {
+            String entityVal = root.getChildAt(i).getValue().uncast().getString();
+            getAndValidateEntityReference(entityVal);
+        }
     }
 
     private String getNeededDatumId() {
@@ -156,16 +165,21 @@ public class MultiSelectEntityScreen extends EntityScreen {
         if (selectedValues != null && validateSelectionSize(selectedValues.length)) {
             String[] evaluatedValues = new String[selectedValues.length];
             for (int i = 0; i < selectedValues.length; i++) {
-                TreeReference currentReference = getEntityReference(selectedValues[i]);
-                if (currentReference == null) {
-                    throw new CommCareSessionException(
-                            "Could not select case " + selectedValues[i] + " on this screen. " +
-                                    " If this error persists please report a bug to CommCareHQ.");
-                }
+                TreeReference currentReference = getAndValidateEntityReference(selectedValues[i]);
                 evaluatedValues[i] = getReturnValueFromSelection(currentReference);
             }
             processSelectionIntoInstance(evaluatedValues);
         }
+    }
+
+    private TreeReference getAndValidateEntityReference(String selectedValue) throws CommCareSessionException {
+        TreeReference currentReference = getEntityReference(selectedValue);
+        if (currentReference == null) {
+            throw new CommCareSessionException(
+                    "Could not select case " + selectedValue + " on this screen. " +
+                            " If this error persists please report a bug to CommCareHQ.");
+        }
+        return currentReference;
     }
 
     private void processSelectionIntoInstance(String[] evaluatedValues) {
