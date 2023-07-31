@@ -4,6 +4,8 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.MathUtils;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -945,4 +947,14 @@ public class DateUtils {
         return string.contains(substring);
     }
 
+    // TODO: Move this method to DateUtils
+    public static String convertTimeInMsToISO8601(long ms) {
+        if (ms == 0) {
+            return "";
+        } else {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+            df.setTimeZone(TimeZone.getTimeZone("UTC"));
+            return df.format(ms);
+        }
+    }
 }
