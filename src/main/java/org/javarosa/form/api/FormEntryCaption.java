@@ -292,7 +292,7 @@ public class FormEntryCaption {
                 }
             }
             if (caption == null) {
-                return title + " " + ix + "/" + count;
+                return title == null ? ix + "/" + count : title + " " + ix + "/" + count;
             }
 
             Hashtable<String, Object> vars = new Hashtable<>();
