@@ -9,7 +9,7 @@ import org.commcare.cases.instance.LedgerInstanceTreeElement;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.data.xml.VirtualInstances;
-import org.commcare.session.CommCareSession;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.StackFrameStep;
@@ -37,7 +37,7 @@ import javax.annotation.Nonnull;
  */
 public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
-    protected final CommCareSession session;
+    protected final SessionWrapper sessionWrapper;
     protected CaseInstanceTreeElement casebase;
     protected LedgerInstanceTreeElement stockbase;
     private final LocalCacheTable<String, TreeElement> fixtureBases = new LocalCacheTable<>();
@@ -54,8 +54,8 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         this(null, sandbox, null);
     }
 
-    public CommCareInstanceInitializer(CommCareSession session, UserSandbox sandbox, CommCarePlatform platform) {
-        this.session = session;
+    public CommCareInstanceInitializer(SessionWrapper sessionWrapper, UserSandbox sandbox, CommCarePlatform platform) {
+        this.sessionWrapper = sessionWrapper;
         this.mSandbox = sandbox;
         this.mPlatform = platform;
     }
@@ -208,7 +208,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         }
         User u = mSandbox.getLoggedInUserUnsafe();
         TreeElement root =
-                SessionInstanceBuilder.getSessionInstance(session.getFrame(), getDeviceId(),
+                SessionInstanceBuilder.getSessionInstance(sessionWrapper.getFrame(), getDeviceId(),
                         getVersionString(), getCurrentDrift(), u.getUsername(), u.getUniqueId(),
                         u.getProperties());
         root.setParent(instance.getBase());
@@ -220,7 +220,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
 
     protected InstanceRoot getExternalDataInstanceSource(String reference, String stepType) {
-        for (StackFrameStep step : session.getFrame().getSteps()) {
+        for (StackFrameStep step : sessionWrapper.getFrame().getSteps()) {
             if (step.getType().equals(stepType) && step.hasDataInstanceSource(reference)) {
                 return step.getDataInstanceSource(reference);
             }
@@ -232,7 +232,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
      * Required for legacy instance support
      */
     protected InstanceRoot getExternalDataInstanceSourceById(String instanceId, String stepType) {
-        for (StackFrameStep step : session.getFrame().getSteps()) {
+        for (StackFrameStep step : sessionWrapper.getFrame().getSteps()) {
             if (step.getType().equals(stepType)) {
                 ExternalDataInstanceSource source = step.getDataInstanceSourceById(instanceId);
                 if (source != null) {
