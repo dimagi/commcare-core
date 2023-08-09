@@ -54,14 +54,6 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         this(null, sandbox, null);
     }
 
-    public CommCareInstanceInitializer(UserSandbox sandbox, CommCarePlatform platform) {
-        this(null, sandbox, platform);
-    }
-
-    public CommCareInstanceInitializer(UserSandbox sandbox, CommCareSession session) {
-        this(session, sandbox, null);
-    }
-
     public CommCareInstanceInitializer(CommCareSession session, UserSandbox sandbox, CommCarePlatform platform) {
         this.session = session;
         this.mSandbox = sandbox;
