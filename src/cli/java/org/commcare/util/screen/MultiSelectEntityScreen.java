@@ -9,6 +9,7 @@ import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.interfaces.VirtualDataInstanceStorage;
 import org.commcare.data.xml.VirtualInstances;
 import org.commcare.modern.session.SessionWrapper;
+import org.commcare.modern.util.Pair;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.MultiSelectEntityDatum;
 import org.commcare.util.FormDataUtil;
@@ -80,7 +81,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
             for (int i = 0; i < selectionSize; i++) {
                 evaluatedValues[i] = getReturnValueFromSelection(references.elementAt(i));
             }
-            processSelectionIntoInstance(evaluatedValues);
+            processSelectionIntoInstance(evaluatedValues, getNeededDatumId());
             updateSession(session);
             return true;
         }
@@ -156,7 +157,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
             for (int i = 0; i < selectedRefs.length; i++) {
                 evaluatedValues[i] = getReturnValueFromSelection(selectedRefs[i]);
             }
-            processSelectionIntoInstance(evaluatedValues);
+            processSelectionIntoInstance(evaluatedValues, getNeededDatumId());
         }
     }
 
@@ -168,7 +169,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
                 TreeReference currentReference = getAndValidateEntityReference(selectedValues[i]);
                 evaluatedValues[i] = getReturnValueFromSelection(currentReference);
             }
-            processSelectionIntoInstance(evaluatedValues);
+            processSelectionIntoInstance(evaluatedValues, getNeededDatumId());
         }
     }
 
@@ -182,17 +183,11 @@ public class MultiSelectEntityScreen extends EntityScreen {
         return currentReference;
     }
 
-    private void processSelectionIntoInstance(String[] evaluatedValues) {
-        ExternalDataInstance instance = VirtualInstances.buildSelectedValuesInstance(
-                getSession().getNeededDatum().getDataId(),
-                evaluatedValues);
-        String guid = virtualDataInstanceStorage.write(instance);
-        storageReferenceId = guid;
-
-        // rebuild instance with the source
-        ExternalDataInstanceSource instanceSource = ExternalDataInstanceSource.buildVirtual(instance,
-                storageReferenceId);
-        selectedValuesInstance = instanceSource.toInstance();
+    private void processSelectionIntoInstance(String[] evaluatedValues, String instanceId) {
+        Pair<String, ExternalDataInstance> guidAndInstance = VirtualInstances.storeSelectedValuesInInstance(
+                virtualDataInstanceStorage, evaluatedValues, instanceId);
+        storageReferenceId = guidAndInstance.first;
+        selectedValuesInstance = guidAndInstance.second;
     }
 
     @Override
