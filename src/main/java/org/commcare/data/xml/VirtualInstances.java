@@ -6,7 +6,10 @@ import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SELECTED_
 
 import com.google.common.collect.ImmutableMap;
 
+import org.commcare.core.interfaces.VirtualDataInstanceStorage;
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeElement;
 
 import java.util.ArrayList;
@@ -47,6 +50,27 @@ public class VirtualInstances {
         TreeElement root = TreeBuilder.buildTree(instanceId, SELCTED_CASES_INSTANCE_ROOT_NAME,
                 nodes);
         return new ExternalDataInstance(getSelectedEntitiesReference(instanceId), instanceId, root);
+    }
+
+    /**
+     * Builds and stores the selected entitied into selected entities instance
+     *
+     * @param virtualDataInstanceStorage Instance Storage
+     * @param selectedValues             Values to be stored into instance
+     * @param instanceId                 instance id for the new instance
+     * @return A pair of unique storage id for the instance and the newly generated instance
+     */
+    public static Pair<String, ExternalDataInstance> storeSelectedValuesInInstance(
+            VirtualDataInstanceStorage virtualDataInstanceStorage, String[] selectedValues, String instanceId) {
+        ExternalDataInstance instance = VirtualInstances.buildSelectedValuesInstance(
+                instanceId,
+                selectedValues);
+        String guid = virtualDataInstanceStorage.write(instance);
+
+        // rebuild instance with the source
+        ExternalDataInstanceSource instanceSource = ExternalDataInstanceSource.buildVirtual(instance, guid);
+        ExternalDataInstance selectedValuesInstance = instanceSource.toInstance();
+        return new Pair<>(guid, selectedValuesInstance);
     }
 
 
@@ -91,5 +115,19 @@ public class VirtualInstances {
      */
     public static String getInstanceReference(String referenceScheme, String referenceId) {
         return referenceScheme.concat("/").concat(referenceId);
+    }
+
+    /**
+     * Throw when the data instance with the given key doesn't exist in the DB
+     */
+    public static class InstanceNotFoundException extends RuntimeException {
+
+        public InstanceNotFoundException(String key, String namespace) {
+            super(String.format(
+                    "Could not find data instance with ID %s (namespace=%s)." +
+                            "Redirecting to home screen. If this issue persists, please file a bug report.",
+                    key, namespace
+            ));
+        }
     }
 }
