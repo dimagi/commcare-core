@@ -287,7 +287,11 @@ public class RemoteQuerySessionManager {
                 errors.put(key, queryPrompt.getValidationMessage(ec));
             }
             if (StringUtils.isEmpty(value) && queryPrompt.isRequired(ec)) {
-                errors.put(key, queryPrompt.DEFAULT_REQUIRED_ERROR);
+                String message = queryPrompt.getRequiredMessage(ec);
+                if (message.replace('\u00A0',' ').isBlank()) {
+                    message = queryPrompt.DEFAULT_REQUIRED_ERROR;
+                }
+                errors.put(key,  message);
             }
         }
     }
