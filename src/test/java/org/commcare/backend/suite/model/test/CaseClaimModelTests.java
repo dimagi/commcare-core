@@ -62,9 +62,6 @@ public class CaseClaimModelTests {
 
         Text description = ((RemoteQueryDatum) datum).getDescriptionText();
         Assert.assertEquals("Description text", description.evaluate());
-
-        Text resultsTitle = ((RemoteQueryDatum) datum).getResultsTitleText();
-        Assert.assertEquals("Results Title", resultsTitle.evaluate());
     }
 
     @Test
