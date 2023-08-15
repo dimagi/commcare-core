@@ -286,6 +286,9 @@ public class RemoteQuerySessionManager {
             if (!StringUtils.isEmpty(value) && queryPrompt.isInvalidInput(new EvaluationContext(ec, currentRef))) {
                 errors.put(key, queryPrompt.getValidationMessage(ec));
             }
+            if (StringUtils.isEmpty(value) && queryPrompt.isRequired(ec)) {
+                errors.put(key, queryPrompt.DEFAULT_REQUIRED_ERROR);
+            }
         }
     }
 
