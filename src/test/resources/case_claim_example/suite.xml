@@ -72,11 +72,6 @@
             <locale id="query.description"/>
           </text>
         </description>
-        <results-title>
-          <text>
-            <locale id="query.resultsTitle"/>
-          </text>
-        </results-title>
         <data key="device_id" ref="instance('session')/session/context/deviceid"/>
         <data key="patient_id" ref="if(count(instance('search-input:patients')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('search-input:patients')/input/field[@name='patient_id']), '')"/>
         <data key="patient_id_legacy" ref="if(count(instance('search-input')/input/field[@name='patient_id']) > 0, concat('external_id = ', instance('search-input')/input/field[@name='patient_id']), '')"/>
