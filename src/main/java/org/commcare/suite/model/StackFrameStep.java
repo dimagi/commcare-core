@@ -197,6 +197,8 @@ public class StackFrameStep implements Externalizable {
         switch (elementType) {
             case SessionFrame.STATE_DATUM_VAL:
                 return new StackFrameStep(SessionFrame.STATE_DATUM_VAL, id, evaluateValue(ec));
+            case SessionFrame.STATE_MULTIPLE_DATUM_VAL:
+                return new StackFrameStep(SessionFrame.STATE_MULTIPLE_DATUM_VAL, id, evaluateValue(ec));
             case SessionFrame.STATE_COMMAND_ID:
                 return new StackFrameStep(SessionFrame.STATE_COMMAND_ID, evaluateValue(ec), null);
             case SessionFrame.STATE_UNKNOWN:

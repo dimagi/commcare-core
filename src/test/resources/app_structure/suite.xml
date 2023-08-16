@@ -230,5 +230,13 @@
     <text>Menu</text>
     <command id="m0-f1"/>
   </menu>
-
+  <endpoint id="case_list">
+    <argument id="selected_cases" instance-id="selected_cases" instance-src="jr://instance/selected-entities"/>
+    <stack>
+      <push>
+        <command value="'m0-f0'"/>
+        <instance-datum id="case_id" value="$selected_cases"/>
+      </push>
+    </stack>
+  </endpoint>
 </suite>
