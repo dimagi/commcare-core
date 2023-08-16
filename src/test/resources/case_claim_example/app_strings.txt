@@ -7,4 +7,3 @@ query.age.required.message=One of age or DOB is required
 query.dob.required.message=One of age or DOB is required
 query.title=Title Label
 query.description=Description text
-query.resultsTitle=Results Title
