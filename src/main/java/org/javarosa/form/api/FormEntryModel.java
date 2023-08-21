@@ -91,6 +91,10 @@ public class FormEntryModel {
         IFormElement element = form.getChild(index);
         if (element instanceof GroupDef) {
             if (((GroupDef)element).isRepeat()) {
+                if (((GroupDef)element).getCountReference() == null) {
+                    // non counted repeat
+                    return FormEntryController.EVENT_REPEAT_JUNCTURE;
+                }
                 if (repeatStructure != REPEAT_STRUCTURE_NON_LINEAR && form.getMainInstance().resolveReference(form.getChildInstanceRef(index)) == null) {
                     return FormEntryController.EVENT_PROMPT_NEW_REPEAT;
                 } else if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR && index.getElementMultiplicity() == TreeReference.INDEX_REPEAT_JUNCTURE) {
@@ -426,10 +430,9 @@ public class FormEntryModel {
                 multiplicities.addElement(0);
                 elements.addElement((i == -1 ? form : elements.elementAt(i)).getChild(0));
 
-                if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR) {
-                    if (elements.lastElement() instanceof GroupDef && ((GroupDef)elements.lastElement()).isRepeat()) {
-                        multiplicities.setElementAt(TreeReference.INDEX_REPEAT_JUNCTURE, multiplicities.size() - 1);
-                    }
+                if (elements.lastElement() instanceof GroupDef
+                        && ((GroupDef)elements.lastElement()).isNonCountedRepeat()) {
+                    multiplicities.setElementAt(TreeReference.INDEX_REPEAT_JUNCTURE, multiplicities.size() - 1);
                 }
 
                 return;
@@ -467,10 +470,9 @@ public class FormEntryModel {
                 multiplicities.setElementAt(0, i);
                 elements.setElementAt(parent.getChild(curIndex + 1), i);
 
-                if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR) {
-                    if (elements.lastElement() instanceof GroupDef && ((GroupDef)elements.lastElement()).isRepeat()) {
-                        multiplicities.setElementAt(TreeReference.INDEX_REPEAT_JUNCTURE, multiplicities.size() - 1);
-                    }
+                if (elements.lastElement() instanceof GroupDef
+                        && ((GroupDef)elements.lastElement()).isNonCountedRepeat()) {
+                    multiplicities.setElementAt(TreeReference.INDEX_REPEAT_JUNCTURE, multiplicities.size() - 1);
                 }
 
                 return;

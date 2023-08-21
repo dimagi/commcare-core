@@ -116,6 +116,10 @@ public class GroupDef implements IFormElement {
         return isRepeat;
     }
 
+    public boolean isNonCountedRepeat() {
+        return isRepeat && getCountReference() == null;
+    }
+
     public void setIsRepeat(boolean repeat) {
         this.isRepeat = repeat;
     }
