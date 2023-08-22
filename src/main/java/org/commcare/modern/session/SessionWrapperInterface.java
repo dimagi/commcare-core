@@ -22,5 +22,5 @@ public interface SessionWrapperInterface {
     EvaluationContext getRestrictedEvaluationContext(String commandId, Set<String> instancesToInclude);
     EvaluationContext getEvaluationContextWithAccumulatedInstances(String commandID, XPathAnalyzable xPathAnalyzable);
 
-    void prepareExternalSources(RemoteInstanceFetcher fetcher) throws RemoteInstanceFetcher.RemoteInstanceException;
+    void prepareExternalSources() throws RemoteInstanceFetcher.RemoteInstanceException;
 }
