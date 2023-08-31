@@ -271,8 +271,8 @@ public class RemoteQuerySessionManager {
             String key = (String)en.nextElement();
             QueryPrompt queryPrompt = userInputDisplays.get(key);
             boolean isRequired = queryPrompt.isRequired(ec);
-            String value = userAnswers.get(key);
             requiredPrompts.put(key, isRequired);
+            String value = userAnswers.get(key);
             TreeReference currentRef = getReferenceToInstanceNode(instanceId, key);
             if (!StringUtils.isEmpty(value) && queryPrompt.isInvalidInput(new EvaluationContext(ec, currentRef))) {
                 errors.put(key, queryPrompt.getValidationMessage(ec));
