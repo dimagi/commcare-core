@@ -279,9 +279,6 @@ public class RemoteQuerySessionManager {
             }
             if (StringUtils.isEmpty(value) && isRequired) {
                 String message = queryPrompt.getRequiredMessage(ec);
-                if (message.replace('\u00A0',' ').isBlank()) {
-                    message = queryPrompt.DEFAULT_REQUIRED_ERROR;
-                }
                 errors.put(key,  message);
             }
         }
