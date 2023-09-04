@@ -258,22 +258,11 @@ public class RemoteQuerySessionManager {
     public void refreshInputDependentState() {
         refreshItemSetChoices();
         validateUserAnswers();
-        recalculateRequired();
     }
 
-    private void recalculateRequired() {
-        requiredPrompts = new Hashtable<>();
-        OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
-        EvaluationContext ec = getEvaluationContextWithUserInputInstance();
-        for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
-            String key = (String)en.nextElement();
-            QueryPrompt queryPrompt = userInputDisplays.get(key);
-            boolean isRequired = queryPrompt.isRequired(ec);
-            requiredPrompts.put(key, isRequired);
-        }
-    }
 
     private void validateUserAnswers() {
+        requiredPrompts = new Hashtable<>();
         errors = new Hashtable<>();
         OrderedHashtable<String, QueryPrompt> userInputDisplays = getNeededUserInputDisplays();
         String instanceId = VirtualInstances.makeSearchInputInstanceID(getSearchInstanceReferenceId());
@@ -281,10 +270,16 @@ public class RemoteQuerySessionManager {
         for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
             QueryPrompt queryPrompt = userInputDisplays.get(key);
+            boolean isRequired = queryPrompt.isRequired(ec);
+            requiredPrompts.put(key, isRequired);
             String value = userAnswers.get(key);
             TreeReference currentRef = getReferenceToInstanceNode(instanceId, key);
             if (!StringUtils.isEmpty(value) && queryPrompt.isInvalidInput(new EvaluationContext(ec, currentRef))) {
                 errors.put(key, queryPrompt.getValidationMessage(ec));
+            }
+            if (StringUtils.isEmpty(value) && isRequired) {
+                String message = queryPrompt.getRequiredMessage(ec);
+                errors.put(key,  message);
             }
         }
     }

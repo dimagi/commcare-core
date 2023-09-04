@@ -274,7 +274,7 @@ public class CaseClaimModelTests {
     public void testErrorsWithUserInput_noInput() throws Exception {
         testErrorsWithUserInput(
                 ImmutableMap.of(),
-                ImmutableMap.of(),
+                ImmutableMap.of("age", "One of age or DOB is required", "dob", "One of age or DOB is required"),
                 null
         );
     }
@@ -283,7 +283,7 @@ public class CaseClaimModelTests {
     public void testErrorsWithUserInput_EmptyInput() throws Exception {
         testErrorsWithUserInput(
                 ImmutableMap.of("age", "", "another_age", ""),
-                ImmutableMap.of(),
+                ImmutableMap.of("age", "One of age or DOB is required"),
                 null
         );
     }
