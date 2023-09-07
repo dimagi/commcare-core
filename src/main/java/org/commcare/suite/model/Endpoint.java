@@ -12,19 +12,20 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.Vector;
 
 public class Endpoint implements Externalizable {
 
     String id;
-    Vector<String> arguments;
+    Vector<EndpointArgument> arguments;
     Vector<StackOperation> stackOperations;
 
     // for serialization
     public Endpoint() {
     }
 
-    public Endpoint(String id, Vector<String> arguments, Vector<StackOperation> stackOperations) {
+    public Endpoint(String id, Vector<EndpointArgument> arguments, Vector<StackOperation> stackOperations) {
         this.id = id;
         this.arguments = arguments;
         this.stackOperations = stackOperations;
@@ -33,7 +34,7 @@ public class Endpoint implements Externalizable {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         id = ExtUtil.readString(in);
-        arguments = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
+        arguments = (Vector<EndpointArgument>)ExtUtil.read(in, new ExtWrapList(EndpointArgument.class), pf);
         stackOperations = (Vector<StackOperation>)ExtUtil.read(in, new ExtWrapList(StackOperation.class), pf);
     }
 
@@ -48,7 +49,7 @@ public class Endpoint implements Externalizable {
         return id;
     }
 
-    public Vector<String> getArguments() {
+    public Vector<EndpointArgument> getArguments() {
         return arguments;
     }
 
@@ -59,38 +60,58 @@ public class Endpoint implements Externalizable {
 
     // Utility Functions
     public static void populateEndpointArgumentsToEvaluationContext(Endpoint endpoint, ArrayList<String> args, EvaluationContext evaluationContext) {
-        Vector<String> endpointArguments = endpoint.getArguments();
+        Vector<EndpointArgument> endpointArguments = endpoint.getArguments();
 
         if (endpointArguments.size() > args.size()) {
-            Vector<String> missingArguments = new Vector<String>(endpointArguments.subList(args.size(), endpointArguments.size()));
+            Vector<String> missingArguments = new Vector<>();
+            for (int i = args.size(); i < endpointArguments.size(); i++) {
+                missingArguments.add(endpointArguments.get(i).getId());
+            }
             throw new InvalidEndpointArgumentsException(missingArguments, null);
         }
 
         for (int i = 0; i < endpointArguments.size(); i++) {
-            String argumentName = endpointArguments.elementAt(i);
+            String argumentName = endpointArguments.elementAt(i).getId();
             evaluationContext.setVariable(argumentName, args.get(i));
         }
     }
 
     public static void populateEndpointArgumentsToEvaluationContext(Endpoint endpoint, HashMap<String, String> args, EvaluationContext evaluationContext) {
-        Vector<String> endpointArguments = endpoint.getArguments();
+        Vector<EndpointArgument> endpointArguments = endpoint.getArguments();
+        Set<String> argumentIds = args.keySet();
+        Vector<String> missingArguments = new Vector<>();
+        for (EndpointArgument endpointArgument : endpointArguments) {
+            if(!argumentIds.contains(endpointArgument.getId())){
+                missingArguments.add(endpointArgument.getId());
+            }
+        }
 
-        Vector<String> missingArguments = (Vector<String>)endpointArguments.clone();
-        missingArguments.removeAll(args.keySet());
-
-        Vector<String> unexpectedArguments = new Vector<String>(args.keySet());
-        unexpectedArguments.removeAll(endpointArguments);
+        Vector<String> unexpectedArguments = new Vector<>();
+        for (String argumentId : argumentIds) {
+            if(!isValidArgumentId(endpointArguments, argumentId)){
+                unexpectedArguments.add(argumentId);
+            }
+        }
 
         if (missingArguments.size() > 0 || unexpectedArguments.size() > 0) {
             throw new InvalidEndpointArgumentsException(missingArguments, unexpectedArguments);
         }
 
         for (int i = 0; i < endpointArguments.size(); i++) {
-            String argumentName = endpointArguments.elementAt(i);
+            String argumentName = endpointArguments.elementAt(i).getId();
             if (args.containsKey(argumentName)) {
                 evaluationContext.setVariable(argumentName, args.get(argumentName));
             }
         }
+    }
+
+    private static boolean isValidArgumentId(Vector<EndpointArgument> endpointArguments, String argumentId) {
+        for (EndpointArgument endpointArgument : endpointArguments) {
+            if (endpointArgument.getId().contentEquals(argumentId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static class InvalidEndpointArgumentsException extends RuntimeException {
