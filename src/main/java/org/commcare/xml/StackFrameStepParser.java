@@ -81,17 +81,16 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
     }
 
     private StackFrameStep parseValue(String type, String datumId) throws XmlPullParserException, IOException, InvalidStructureException {
-        //TODO: ... require this to have a value!!!! It's not processing this properly
         String value = parser.getAttributeValue(null, "value");
         boolean valueIsXpath;
         if (value == null) {
             //must have a child
             value = parser.nextText();
-            //Can we get here, or would this have caused an exception?
-            if (value == null) {
-                throw new InvalidStructureException("Stack frame element must define a value expression or have a direct value", parser);
-            } else {
+            if (value != null) {
                 value = value.trim();
+                if (value.isEmpty()) {
+                    value = null;
+                }
             }
             valueIsXpath = false;
         } else {
