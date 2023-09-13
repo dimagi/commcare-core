@@ -9,7 +9,6 @@ import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
 import com.google.common.collect.Multimap;
 
-import org.commcare.cases.util.StringUtils;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.interfaces.VirtualDataInstanceStorage;
 import org.commcare.data.xml.VirtualInstances;
@@ -19,7 +18,6 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.QueryPrompt;
-import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.services.locale.Localization;
@@ -33,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Vector;
 
 import datadog.trace.api.Trace;
 
@@ -149,10 +146,10 @@ public class QueryScreen extends Screen {
         return instanceOrError;
     }
 
-    public void updateSession(ExternalDataInstance dataInstance) {
+    public void updateSession(ExternalDataInstance dataInstance, Multimap<String, String> queryData) {
         if (dataInstance != null) {
             ExternalDataInstance userInputInstance = getUserInputInstance();
-            sessionWrapper.setQueryDatum(dataInstance, userInputInstance);
+            sessionWrapper.setQueryDatum(dataInstance, userInputInstance, queryData);
         }
     }
 
@@ -247,7 +244,7 @@ public class QueryScreen extends Screen {
         Multimap<String, String> requestData = getQueryParams(false);
         InputStream response = sessionUtils.makeQueryRequest(url, requestData, domainedUsername, password);
         Pair<ExternalDataInstance, String> instanceOrError = processResponse(response, url, requestData);
-        updateSession(instanceOrError.first);
+        updateSession(instanceOrError.first, requestData);
         if (currentMessage != null) {
             out.println(currentMessage);
         }

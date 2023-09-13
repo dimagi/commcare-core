@@ -38,12 +38,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
-import java.util.Vector;
+import java.util.*;
 
 import javax.annotation.Nullable;
 
@@ -505,14 +500,25 @@ public class CommCareSession {
      * Set a (xml) data instance as the result to a session query datum.
      * The instance is available in session's evaluation context until the corresponding query frame is removed
      */
-    public void setQueryDatum(ExternalDataInstance queryResultInstance, ExternalDataInstance... extras) {
+    public void setQueryDatum(ExternalDataInstance queryResultInstance) {
+        setQueryDatum(queryResultInstance, null);
+    }
+
+    public void setQueryDatum(ExternalDataInstance queryResultInstance, ExternalDataInstance instance) {
+        setQueryDatum(queryResultInstance, instance, null);
+    }
+
+    public void setQueryDatum(ExternalDataInstance queryResultInstance, ExternalDataInstance instance, Multimap<String, String> extras) {
         SessionDatum datum = getNeededDatum();
         if (datum instanceof RemoteQueryDatum) {
             StackFrameStep step = new StackFrameStep(
                     SessionFrame.STATE_QUERY_REQUEST, datum.getDataId(), datum.getValue());
             step.addDataInstanceSource(queryResultInstance.getSource());
-            for (ExternalDataInstance instance : extras) {
+            if (instance != null) {
                 step.addDataInstanceSource(instance.getSource());
+            }
+            if (extras != null) {
+                extras.entries().forEach(entry -> step.addExtra(entry.getKey(), entry.getValue()));
             }
             frame.pushStep(step);
             syncState();
