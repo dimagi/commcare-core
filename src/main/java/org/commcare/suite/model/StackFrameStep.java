@@ -26,11 +26,11 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author ctsims
@@ -145,10 +145,13 @@ public class StackFrameStep implements Externalizable {
     }
 
     public Map<String, DataInstance> getInstances(InstanceInitializationFactory iif) {
-        return dataInstanceSources.values().stream().map((source) -> {
-            ExternalDataInstance instance = source.toInstance();
-            return instance.initialize(iif, source.getInstanceId());
-        }).collect(Collectors.toMap(DataInstance::getInstanceId, value -> value));
+        HashMap<String, DataInstance> instances = new HashMap<>();
+        for (ExternalDataInstanceSource source : dataInstanceSources.values()) {
+            ExternalDataInstance instance = (ExternalDataInstance)source.toInstance()
+                    .initialize(iif, source.getInstanceId());
+            instances.put(instance.getInstanceId(), instance);
+        }
+        return instances;
     }
 
     /**
