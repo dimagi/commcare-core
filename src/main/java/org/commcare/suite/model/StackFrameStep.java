@@ -219,8 +219,11 @@ public class StackFrameStep implements Externalizable {
             case SessionFrame.STATE_SMART_LINK:
                 StackFrameStep defined = new StackFrameStep(elementType, id, evaluateValue(ec));
                 extras.forEach((key, value) -> {
-                    XPathExpression expr = (XPathExpression) value;
-                    defined.addExtra(key, FunctionUtils.toString(expr.eval(ec)));
+                    if (value instanceof QueryData) {
+                        defined.addExtra(key, ((QueryData)value).getValues(ec));
+                    } else {
+                        throw new RuntimeException("Invalid data type for step extra " + key);
+                    }
                 });
                 return defined;
             default:
