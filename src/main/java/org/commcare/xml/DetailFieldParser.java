@@ -73,9 +73,9 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
         } else {
             throw new InvalidStructureException("detail <field> with no <template>!", parser);
         }
-        if (nextTagInBlock("field")) {
+        while(nextTagInBlock("field")) {
             //sort details
-            checkNode(new String[]{"sort", "background"});
+            checkNode(new String[]{"sort", "background", "action"});
 
             String name = parser.getName().toLowerCase();
 
@@ -84,6 +84,9 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
             } else if (name.equals("background")) {
                 // background tag in fields is deprecated
                 skipBlock("background");
+            } else if (name.equals(ActionParser.NAME_ACTION)) {
+                checkNode(ActionParser.NAME_ACTION);
+                builder.setAction(new ActionParser(parser).parse());
             }
         }
         return builder.build();
