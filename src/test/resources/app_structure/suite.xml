@@ -75,6 +75,17 @@
           <xpath function="case_name"/>
         </text>
       </sort>
+      <action>
+        <display>
+          <text>Action Form</text>
+        </display>
+        <stack>
+          <push>
+            <command value="'m0-f0'"/>
+            <datum id="case_id_new_case_0" value="uuid()"/>
+          </push>
+        </stack>
+      </action>
     </field>
   </detail>
   <detail id="m0_case_long">

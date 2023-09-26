@@ -67,6 +67,7 @@ public class DetailField implements Externalizable {
     private String verticalAlign;
     private String fontSize;
     private String cssID;
+    private Action action;
 
     public DetailField() {
     }
@@ -201,6 +202,7 @@ public class DetailField implements Externalizable {
         horizontalAlign = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         verticalAlign = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         cssID = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        action = (Action)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
     }
 
     @Override
@@ -230,6 +232,7 @@ public class DetailField implements Externalizable {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(horizontalAlign));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(verticalAlign));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(cssID));
+        ExtUtil.write(out, new ExtWrapNullable(action == null ? null : new ExtWrapTagged(action)));
     }
 
     public int getGridX() {
@@ -262,6 +265,10 @@ public class DetailField implements Externalizable {
 
     public String getCssId() {
         return cssID;
+    }
+
+    public Action getAction() {
+        return action;
     }
 
     public static class Builder {
@@ -381,6 +388,10 @@ public class DetailField implements Externalizable {
 
         public void setCssID(String id) {
             field.cssID = id;
+        }
+
+        public void setAction(Action action) {
+            field.action = action;
         }
     }
 }

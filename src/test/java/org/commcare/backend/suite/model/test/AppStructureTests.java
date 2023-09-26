@@ -1,8 +1,10 @@
 package org.commcare.backend.suite.model.test;
 
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.suite.model.Action;
 import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.Callout;
+import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.GeoOverlay;
 import org.commcare.suite.model.Global;
@@ -20,6 +22,7 @@ import org.junit.Test;
 import io.reactivex.observers.TestObserver;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 /**
@@ -88,6 +91,13 @@ public class AppStructureTests {
         XPathExpression focusFunction =
                 mApp.getSession().getPlatform().getDetail("m1_case_short").getFocusFunction();
         Assert.assertTrue(focusFunction != null);
+    }
+
+    @Test
+    public void testDetailWithFieldAction() {
+        Detail detail = mApp.getSession().getPlatform().getDetail("m0_case_short");
+        DetailField field = detail.getFields()[0];
+        assertNotNull(field.getAction());
     }
 
     @Test
