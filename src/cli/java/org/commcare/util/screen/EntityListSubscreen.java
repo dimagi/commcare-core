@@ -27,6 +27,7 @@ import java.util.Vector;
 public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     private static final int SCREEN_WIDTH = 100;
+    private static final String PREFIX_FIELD_ACTION = "field_action ";
 
     private final TreeReference[] entitiesRefs;
     private String[] rows;
@@ -182,6 +183,21 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             if (actions.size() > chosenActionIndex) {
                 host.setPendingAction(actions.elementAt(chosenActionIndex));
                 return true;
+            }
+        }
+
+        if (input.startsWith(PREFIX_FIELD_ACTION)) {
+            try {
+                int chosenFieldIndex = Integer.parseInt(input.substring(PREFIX_FIELD_ACTION.length()).trim());
+                DetailField[] detailFields = shortDetail.getFields();
+                if (chosenFieldIndex < detailFields.length && chosenFieldIndex > -1) {
+                    DetailField detailField = detailFields[chosenFieldIndex];
+                    host.setPendingAction(detailField.getAction());
+                    return true;
+                }
+                return false;
+            } catch (NumberFormatException e) {
+                return false;
             }
         }
 
