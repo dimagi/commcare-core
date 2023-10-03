@@ -23,17 +23,31 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
     final protected UserSandbox mSandbox;
     final protected CommCarePlatform mPlatform;
     protected CommCareInstanceInitializer initializer;
+    protected RemoteInstanceFetcher remoteInstanceFetcher;
 
-    public SessionWrapper(CommCareSession session, CommCarePlatform platform, UserSandbox sandbox) {
-        this(platform, sandbox);
+    public SessionWrapper(CommCareSession session, CommCarePlatform platform, UserSandbox sandbox,
+            RemoteInstanceFetcher remoteInstanceFetcher) {
+        this(platform, sandbox, remoteInstanceFetcher);
         this.frame = session.getFrame();
         this.setFrameStack(session.getFrameStack());
+    }
+
+
+    public SessionWrapper(CommCareSession session, CommCarePlatform platform, UserSandbox sandbox) {
+        this(session, platform, sandbox, null);
     }
     
     public SessionWrapper(CommCarePlatform platform, UserSandbox sandbox) {
         super(platform);
         this.mSandbox = sandbox;
         this.mPlatform = platform;
+    }
+
+    public SessionWrapper(CommCarePlatform platform, UserSandbox sandbox, RemoteInstanceFetcher remoteInstanceFetcher) {
+        super(platform);
+        this.mSandbox = sandbox;
+        this.mPlatform = platform;
+        this.remoteInstanceFetcher = remoteInstanceFetcher;
     }
 
     /**
@@ -72,7 +86,7 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
         return initializer;
     }
 
-    public void prepareExternalSources(RemoteInstanceFetcher remoteInstanceFetcher) throws RemoteInstanceFetcher.RemoteInstanceException {
+    public void prepareExternalSources() throws RemoteInstanceFetcher.RemoteInstanceException {
         for(StackFrameStep step : frame.getSteps()) {
             step.initDataInstanceSources(remoteInstanceFetcher);
         }
@@ -100,5 +114,9 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
 
     public void stepBack() {
         super.stepBack(getEvaluationContext());
+    }
+
+    public RemoteInstanceFetcher getRemoteInstanceFetcher() {
+        return remoteInstanceFetcher;
     }
 }

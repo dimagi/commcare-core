@@ -26,11 +26,11 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author ctsims
@@ -145,10 +145,13 @@ public class StackFrameStep implements Externalizable {
     }
 
     public Map<String, DataInstance> getInstances(InstanceInitializationFactory iif) {
-        return dataInstanceSources.values().stream().map((source) -> {
-            ExternalDataInstance instance = source.toInstance();
-            return instance.initialize(iif, source.getInstanceId());
-        }).collect(Collectors.toMap(DataInstance::getInstanceId, value -> value));
+        HashMap<String, DataInstance> instances = new HashMap<>();
+        for (ExternalDataInstanceSource source : dataInstanceSources.values()) {
+            ExternalDataInstance instance = (ExternalDataInstance)source.toInstance()
+                    .initialize(iif, source.getInstanceId());
+            instances.put(instance.getInstanceId(), instance);
+        }
+        return instances;
     }
 
     /**
@@ -197,6 +200,8 @@ public class StackFrameStep implements Externalizable {
         switch (elementType) {
             case SessionFrame.STATE_DATUM_VAL:
                 return new StackFrameStep(SessionFrame.STATE_DATUM_VAL, id, evaluateValue(ec));
+            case SessionFrame.STATE_MULTIPLE_DATUM_VAL:
+                return new StackFrameStep(SessionFrame.STATE_MULTIPLE_DATUM_VAL, id, evaluateValue(ec));
             case SessionFrame.STATE_COMMAND_ID:
                 return new StackFrameStep(SessionFrame.STATE_COMMAND_ID, evaluateValue(ec), null);
             case SessionFrame.STATE_UNKNOWN:
@@ -214,8 +219,11 @@ public class StackFrameStep implements Externalizable {
             case SessionFrame.STATE_SMART_LINK:
                 StackFrameStep defined = new StackFrameStep(elementType, id, evaluateValue(ec));
                 extras.forEach((key, value) -> {
-                    XPathExpression expr = (XPathExpression) value;
-                    defined.addExtra(key, FunctionUtils.toString(expr.eval(ec)));
+                    if (value instanceof QueryData) {
+                        defined.addExtra(key, ((QueryData)value).getValues(ec));
+                    } else {
+                        throw new RuntimeException("Invalid data type for step extra " + key);
+                    }
                 });
                 return defined;
             default:

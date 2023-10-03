@@ -1,6 +1,7 @@
 package org.commcare.xml;
 
 import org.commcare.session.SessionFrame;
+import org.commcare.suite.model.QueryData;
 import org.commcare.suite.model.StackFrameStep;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -26,10 +27,10 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
     public StackFrameStep parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String operation = parser.getName();
         String value = parser.getAttributeValue(null, "value");
+        String datumId = parser.getAttributeValue(null, "id");
 
         switch (operation) {
             case "datum":
-                String datumId = parser.getAttributeValue(null, "id");
                 return parseValue(SessionFrame.STATE_UNKNOWN, datumId);
             case "rewind":
                 return parseValue(SessionFrame.STATE_REWIND, null);
@@ -41,6 +42,8 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
                 return parseQuery();
             case "jump":
                 return parseJump();
+            case "instance-datum":
+                return parseValue(SessionFrame.STATE_MULTIPLE_DATUM_VAL, datumId);
             default:
                 throw new InvalidStructureException("<" + operation + "> is not a valid stack frame element!", this.parser);
         }
@@ -60,14 +63,8 @@ class StackFrameStepParser extends ElementParser<StackFrameStep> {
         while (nextTagInBlock("query")) {
             String tagName = parser.getName();
             if ("data".equals(tagName)) {
-                String key = parser.getAttributeValue(null, "key");
-                String ref = parser.getAttributeValue(null, "ref");
-                try {
-                    step.addExtra(key, XPathParseTool.parseXPath(ref));
-                } catch (XPathSyntaxException e) {
-                    String errorMessage = "'ref' value is not a valid xpath expression: " + ref;
-                    throw new InvalidStructureException(errorMessage, this.parser);
-                }
+                QueryData queryData = new QueryDataParser(parser).parse();
+                step.addExtra(queryData.getKey(), queryData);
             }
         }
         return step;

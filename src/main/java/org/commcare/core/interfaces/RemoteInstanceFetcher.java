@@ -12,6 +12,8 @@ public interface RemoteInstanceFetcher {
     AbstractTreeElement getExternalRoot(String instanceId, ExternalDataInstanceSource source, String refId)
             throws RemoteInstanceException;
 
+    VirtualDataInstanceStorage getVirtualDataInstanceStorage();
+
     class RemoteInstanceException extends Exception {
 
         public RemoteInstanceException(String message) {
