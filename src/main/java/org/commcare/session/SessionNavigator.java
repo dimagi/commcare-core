@@ -28,6 +28,7 @@ public class SessionNavigator {
     public static final int START_SYNC_REQUEST = 7;
     public static final int PROCESS_QUERY_REQUEST = 8;
     public static final int REPORT_CASE_AUTOSELECT = 9;
+    public static final int FORM_ENTRY_ATTEMPT_DURING_SYNC = 10;
 
     private final SessionNavigationResponder responder;
     private CommCareSession currentSession;
@@ -107,6 +108,12 @@ public class SessionNavigator {
         else if (currentSession.getForm() == null) {
             sendResponse(NO_CURRENT_FORM);
         } else {
+            // The current state indicate that a form needs to be instantiated but a background sync is ongoing
+            if (responder.getBackgroundSyncLock().isLocked()) {
+                sendResponse(FORM_ENTRY_ATTEMPT_DURING_SYNC);
+                return;
+            }
+
             sendResponse(START_FORM_ENTRY);
         }
     }
