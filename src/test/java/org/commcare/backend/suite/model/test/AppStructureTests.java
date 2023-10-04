@@ -3,7 +3,9 @@ package org.commcare.backend.suite.model.test;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.Callout;
+import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.EndpointAction;
 import org.commcare.suite.model.GeoOverlay;
 import org.commcare.suite.model.Global;
 import org.commcare.suite.model.Menu;
@@ -206,5 +208,14 @@ public class AppStructureTests {
         Menu menuWithAssertionsBlock = s.getMenusWithId("m0").get(0);
         AssertionSet assertions = menuWithAssertionsBlock.getAssertions();
         Assert.assertNotNull(assertions);
+    }
+
+    @Test
+    public void testDetailWithFieldAction() {
+        Detail detail = mApp.getSession().getPlatform().getDetail("m0_case_short");
+        DetailField field = detail.getFields()[0];
+        EndpointAction endpointAction = field.getEndpointAction();
+        assertEquals("case_list",endpointAction.getEndpointId());
+        assertEquals(true, endpointAction.isBackground());
     }
 }
