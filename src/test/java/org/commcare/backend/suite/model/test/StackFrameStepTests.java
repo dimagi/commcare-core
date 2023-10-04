@@ -1,5 +1,11 @@
 package org.commcare.backend.suite.model.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 
 import org.cli.MockSessionUtils;
@@ -19,11 +25,6 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Vector;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by amstone326 on 8/7/15.
@@ -180,11 +181,11 @@ public class StackFrameStepTests {
         StackFrameStep queryFrame = steps.get(2);
         assertEquals(SessionFrame.STATE_QUERY_REQUEST, queryFrame.getElementType());
 
-        ImmutableMultimap.Builder<String, Object> builder = ImmutableMultimap.builder();
-        builder.put("case_type", "patient");
-        builder.put("x_commcare_data_registry", "test");
-        builder.put("case_id", "case_one");
-        builder.put("case_id", "dupe1");
+        ImmutableMultimap.Builder<String, ImmutableList> builder = ImmutableMultimap.builder();
+        builder.put("case_type", ImmutableList.of("patient"));
+        builder.put("x_commcare_data_registry", ImmutableList.of("test"));
+        builder.put("case_id", ImmutableList.of("case_one"));
+        builder.put("case_id", ImmutableList.of("dupe1"));
         assertEquals(builder.build(), queryFrame.getExtras());
     }
 }

@@ -12,9 +12,11 @@ import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -73,8 +75,10 @@ public class CommCareNetworkServiceGenerator {
         ICommCarePreferenceManager commCarePreferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
         if (commCarePreferenceManager != null) {
             String serverDate = response.header("date");
+
             try {
-                long serverTimeInMillis = new SimpleDateFormat("EEE, dd MMM yyyy hh:mm:ss zzz").parse(serverDate).getTime();
+                long serverTimeInMillis = new SimpleDateFormat(
+                        "EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH).parse(serverDate).getTime();
                 long now = new Date().getTime();
                 long currentDrift = (now - serverTimeInMillis) / HOUR_IN_MS;
                 commCarePreferenceManager.putLong(CURRENT_DRIFT, currentDrift);
@@ -89,6 +93,8 @@ public class CommCareNetworkServiceGenerator {
         }
         return response;
     };
+
+
 
     private static AuthenticationInterceptor authenticationInterceptor = new AuthenticationInterceptor();
 
