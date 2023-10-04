@@ -17,6 +17,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import javax.annotation.Nullable;
+
 /**
  * Detail Fields represent the <field> elements of a suite's detail
  * definitions. The model contains the relevent text templates as well
@@ -43,6 +45,9 @@ public class DetailField implements Externalizable {
     private String headerWidthHint = null;  // Something like "500" or "10%"
     private String templateWidthHint = null;
     private String printIdentifier;
+
+    @Nullable
+    private EndpointAction endpointAction;
 
     /**
      * Optional hint which provides a hint for whether rich media should be
@@ -201,6 +206,7 @@ public class DetailField implements Externalizable {
         horizontalAlign = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         verticalAlign = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         cssID = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        endpointAction = (EndpointAction)ExtUtil.read(in, new ExtWrapNullable(EndpointAction.class), pf);
     }
 
     @Override
@@ -230,6 +236,7 @@ public class DetailField implements Externalizable {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(horizontalAlign));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(verticalAlign));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(cssID));
+        ExtUtil.write(out, new ExtWrapNullable(endpointAction));
     }
 
     public int getGridX() {
@@ -254,6 +261,11 @@ public class DetailField implements Externalizable {
 
     public String getVerticalAlign() {
         return verticalAlign;
+    }
+
+    @Nullable
+    public EndpointAction getEndpointAction() {
+        return endpointAction;
     }
 
     public String getFontSize() {
@@ -381,6 +393,10 @@ public class DetailField implements Externalizable {
 
         public void setCssID(String id) {
             field.cssID = id;
+        }
+
+        public void setEndpointAction(EndpointAction endpointAction) {
+            field.endpointAction = endpointAction;
         }
     }
 }
