@@ -75,6 +75,7 @@
           <xpath function="case_name"/>
         </text>
       </sort>
+      <endpoint_action endpoint_id="case_list" background="true"/>
     </field>
   </detail>
   <detail id="m0_case_long">
