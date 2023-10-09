@@ -18,7 +18,15 @@ jobs:
         uses: actions/github-script@0.9.0
         with:
           script: |
-            const sha = context.payload.comment.body.split(" ").pop()
+            const sha = context.payload.comment.body.split(" ").reverse()[1];
+            core.setOutput('sha', sha)
+      - name: Get PR End Commit SHA
+        if: ${{ github.event.issue.pull_request.merged_at }}
+        id: end-sha
+        uses: actions/github-script@0.9.0
+        with:
+          script: |
+            const sha = context.payload.comment.body.split(" ").reverse()[0];
             core.setOutput('sha', sha)
       # https://github.com/marketplace/actions/pull-request-comment-branch
       - name: Pull Request Comment Branch
@@ -41,9 +49,10 @@ jobs:
         if: ${{ github.event.issue.pull_request.merged_at }}
         run: |
           echo Intial SHA is "${{ steps.initial-sha.outputs.sha }}"
-          python scripts/duplicate_pr.py ${{ steps.comment-branch.outputs.head_ref }} ${{ steps.comment-branch.outputs.base_ref }} --initial_sha ${initial_sha}
+          python scripts/duplicate_pr.py ${{ steps.comment-branch.outputs.head_ref }} ${{ steps.comment-branch.outputs.base_ref }} --initial_sha ${initial_sha} --end_sha ${end_sha}
         env:
           initial_sha: ${{ steps.initial-sha.outputs.sha }}
+          end_sha: ${{ steps.end-sha.outputs.sha }}
       - name: Run duplicate_pr.py script with PR not merged
         if: ${{ github.event.issue.pull_request.merged_at == null }}
         run: python scripts/duplicate_pr.py ${{ steps.comment-branch.outputs.head_ref }} ${{ steps.comment-branch.outputs.base_ref }}
