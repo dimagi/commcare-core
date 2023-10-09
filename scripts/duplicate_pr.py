@@ -50,7 +50,7 @@ def git_fetch_branch(branch_name:str):
         exit(1)
 
 
-def get_new_commits(base_branch: str, curr_branch:str, base_commit:str = None):
+def get_new_commits(base_branch: str, curr_branch:str, base_commit:str = None, end_commit:str = None):
     git = get_git()
     if base_branch != BranchName.MASTER.value:
         git_fetch_branch(base_branch)
@@ -58,9 +58,10 @@ def get_new_commits(base_branch: str, curr_branch:str, base_commit:str = None):
         base_commit = git.show("{}^1".format(base_commit)).split()[1]
     else:
         base_commit = merge_base_commit(base_branch, curr_branch)
-    recent_commit = latest_commit(curr_branch)
+    if not end_commit:
+        end_commit = latest_commit(curr_branch)
 
-    commits_range = "{}..{}".format(base_commit, recent_commit)
+    commits_range = "{}..{}".format(base_commit, end_commit)
     interested_commits = git("rev-list", "--no-merges", "--first-parent", commits_range).split()
     return interested_commits
 
@@ -116,6 +117,7 @@ def main():
     parser.add_argument('orig_target_branch', type=str, help="Name of branch the original PR merged into",
                             choices = [key.value for key in BranchName])
     parser.add_argument('-i','--initial_sha', type=str, help="SHA of first commit in PR to be duplicated")
+    parser.add_argument('-e','--end_sha', type=str, help="SHA of last commit in PR to be duplicated")
     args = parser.parse_args()
 
     new_source_branch = "copy_of_" + args.orig_source_branch
@@ -128,7 +130,7 @@ def main():
     git_fetch_branch(args.orig_source_branch)
 
     print("Getting new commits from {}".format(args.orig_source_branch))
-    new_commits = get_new_commits(args.orig_target_branch, args.orig_source_branch, args.initial_sha)
+    new_commits = get_new_commits(args.orig_target_branch, args.orig_source_branch, args.initial_sha, args.end_sha)
 
     print("Cherry-picking commits from {} to {}".format(args.orig_source_branch, new_source_branch))
     cherry_pick_new_commits(new_commits, new_source_branch)
