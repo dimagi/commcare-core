@@ -68,14 +68,17 @@ def get_new_commits(base_branch: str, curr_branch:str, base_commit:str = None):
 def cherry_pick_new_commits(commits:list[str], branch:str):
     git = get_git()
     git.checkout(branch)
-    for commits in reversed(commits):
+    for commit in reversed(commits):
         try:
             empty_commit_message = "The previous cherry-pick is now empty"
-            git("cherry-pick", commits)
+            failed_cherry_pick = "error: could not apply"
+            git("cherry-pick", commit)
         except sh.ErrorReturnCode_1 as e:
             if empty_commit_message in e.stderr.decode():
                 git("cherry-pick", "--skip")
-
+            if failed_cherry_pick in e.stderr.decode():
+                print(red(f'''Failed to cherry-pick {commit} most likely from a merge conflict with branch {branch}. The PR will need to either be manually duplicated or rebased to resolve the merge conflict.'''))
+                raise
 
 def git_push_pr(branch:str):
     git = get_git()
