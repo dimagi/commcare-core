@@ -1,10 +1,17 @@
 package org.commcare.util;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Security;
+import java.security.UnrecoverableEntryException;
+import java.security.cert.CertificateException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -16,6 +23,22 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 public class EncryptionUtils {
+    private static KeyStore androidKeyStore;
+
+    public static final String ANDROID_KEYSTORE_PROVIDER_NAME = "AndroidKeyStore";
+
+    public static KeyStore getAndroidKeyStore(){
+        if (androidKeyStore == null) {
+            try {
+                androidKeyStore = KeyStore.getInstance(ANDROID_KEYSTORE_PROVIDER_NAME);
+                androidKeyStore.load(null);
+            } catch (KeyStoreException | IOException | NoSuchAlgorithmException |
+                     CertificateException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return androidKeyStore;
+    }
 
     /**
      * Encrypts a message using the AES encryption and produces a base64 encoded payload containing the ciphertext, and a random IV which was used to encrypt the input.
