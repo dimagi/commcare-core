@@ -160,6 +160,10 @@ public class EncryptionUtils {
         }
     }
 
+    public static boolean isAndroidKeyStoreSupported(){
+        return Security.getProvider("AndroidKeyStore") != null;
+    }
+
     public static class EncryptionException extends Exception {
 
         public EncryptionException(String message) {
