@@ -1,5 +1,6 @@
 package org.javarosa.core.model;
 
+import org.commcare.util.EncryptionUtils;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.util.restorable.Restorable;
@@ -15,6 +16,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
+
+import static org.commcare.util.EncryptionUtils.USER_CREDENTIALS_KEY_ALIAS;
+import static org.commcare.util.EncryptionUtils.isAndroidKeyStoreSupported;
 
 /**
  * Peristable object representing a CommCare mobile user.
@@ -55,7 +59,7 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public User(String name, String passw, String uniqueID, String userType) {
-        username = name;
+        setUsername(name);
         passwordHash = passw;
         uniqueId = uniqueID;
         setUserType(userType);
@@ -65,7 +69,7 @@ public class User implements Persistable, Restorable, IMetaData {
     // fetch the value for the default user and password from the RMS
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        this.username = ExtUtil.readString(in);
+        setUsername(ExtUtil.readString(in));
         this.passwordHash = ExtUtil.readString(in);
         this.recordId = ExtUtil.readInt(in);
         this.uniqueId = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
@@ -77,7 +81,7 @@ public class User implements Persistable, Restorable, IMetaData {
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeString(out, username);
+        ExtUtil.writeString(out, getUsername());
         ExtUtil.writeString(out, passwordHash);
         ExtUtil.writeNumeric(out, recordId);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(uniqueId));
@@ -88,7 +92,15 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public String getUsername() {
-        return username;
+        if (!isAndroidKeyStoreSupported()) {
+            return this.username;
+        } else {
+            try {
+                return EncryptionUtils.decrypt(this.username, USER_CREDENTIALS_KEY_ALIAS, false);
+            } catch (EncryptionUtils.EncryptionException e) {
+                throw new RuntimeException("Error encountered while decrypting the Username ", e);
+            }
+        }
     }
 
     public String getPasswordHash() {
@@ -118,7 +130,15 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public void setUsername(String username) {
-        this.username = username;
+        if (!isAndroidKeyStoreSupported()) {
+            this.username = username;
+        } else {
+            try {
+                this.username = EncryptionUtils.encrypt(username, USER_CREDENTIALS_KEY_ALIAS, false);
+            } catch (EncryptionUtils.EncryptionException e) {
+                throw new RuntimeException("Error encountered while encrypting the Username: ", e);
+            }
+        }
     }
 
     public void setPassword(String passwordHash) {
@@ -184,10 +204,27 @@ public class User implements Persistable, Restorable, IMetaData {
     //Don't ever save!
     private String cachedPwd;
     public void setCachedPwd(String password) {
-        this.cachedPwd = password;
+        if (!isAndroidKeyStoreSupported()) {
+            this.cachedPwd = password;
+        } else {
+            try {
+                this.cachedPwd = EncryptionUtils.encrypt(password, USER_CREDENTIALS_KEY_ALIAS, false);
+            } catch (EncryptionUtils.EncryptionException e) {
+                throw new RuntimeException("Error encountered while encrypting the Password: ", e);
+            }
+        }
     }
+
     public String getCachedPwd() {
-        return this.cachedPwd;
+        if (!isAndroidKeyStoreSupported()) {
+            return this.cachedPwd;
+        } else {
+            try {
+                return EncryptionUtils.decrypt(this.cachedPwd, USER_CREDENTIALS_KEY_ALIAS, false);
+            } catch (EncryptionUtils.EncryptionException e) {
+                throw new RuntimeException("Error encountered while decrypting the Password: ", e);
+            }
+        }
     }
 
     public String getLastSyncToken() {
