@@ -47,11 +47,12 @@ public class EncryptionUtils {
     /**
      * Encrypts a message using the AES encryption and produces a base64 encoded payload containing the ciphertext, and a random IV which was used to encrypt the input.
      *
-     * @param message a UTF-8 encoded message to be encrypted 
-     * @param key     A base64 encoded 256 bit symmetric key
+     * @param message a UTF-8 encoded message to be encrypted
+     * @param keyOrAlias A base64 encoded 256 bit symmetric key OR a KeyStore key alias
+     * @param usingKey indicate whether a Key or a Key alias was provided
      * @return A base64 encoded payload containing the IV and AES encrypted ciphertext, which can be decoded by this utility's decrypt method and the same symmetric key
      */
-    public static String encrypt(String message, String key) throws EncryptionException {
+    public static String encrypt(String message, String keyOrAlias, boolean usingKey) throws EncryptionException {
         final String ENCRYPT_ALGO = "AES/GCM/NoPadding";
         final int MIN_IV_LENGTH_BYTE = 1;
         final int MAX_IV_LENGTH_BYTE = 255;
@@ -131,10 +132,10 @@ public class EncryptionUtils {
      * Decrypts a base64 payload containing an IV and AES encrypted ciphertext using the provided key
      *
      * @param message a message to be decrypted
-     * @param key     key that should be used for decryption
+     * @param keyOrAlias key or key alias that should be used for decryption
      * @return Decrypted message for the given AES encrypted message
      */
-    public static String decrypt(String message, String key) throws EncryptionException {
+    public static String decrypt(String message, String keyOrAlias, boolean usingKey) throws EncryptionException {
         final String ENCRYPT_ALGO = "AES/GCM/NoPadding";
         final int TAG_LENGTH_BIT = 128;
         Key secret = getKey(keyOrAlias, usingKey, CryptographicOperation.Decryption);

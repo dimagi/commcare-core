@@ -46,7 +46,7 @@ public class XPathDecryptStringFunc extends XPathFuncExpr {
         }
 
         try {
-            return decrypt(message, key);
+            return decrypt(message, key, true);
         } catch (EncryptionUtils.EncryptionException e) {
             throw new XPathException(e);
         }
