@@ -2,6 +2,8 @@ package org.commcare.session;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * Interface defining all functionality to be implemented by any class that will receive and
  * process status codes from a SessionNavigator
@@ -19,4 +21,5 @@ public interface SessionNavigationResponder {
     // Provide a hook to the current evaluation context that the SessionNavigator will use
     EvaluationContext getEvalContextForNavigator();
 
+    ReentrantLock getBackgroundSyncLock();
 }

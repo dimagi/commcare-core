@@ -41,6 +41,7 @@ public class Style {
         Graph,
         Phone,
         Markdown,
+        ClickableIcon,
     }
 
     public DisplayFormat getDisplayFormat() {
@@ -93,6 +94,9 @@ public class Style {
                 break;
             case "markdown":
                 setDisplayFormat(DisplayFormat.Markdown);
+                break;
+            case "clickable-icon":
+                setDisplayFormat(DisplayFormat.ClickableIcon);
                 break;
         }
     }
