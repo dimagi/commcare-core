@@ -25,7 +25,11 @@ import javax.crypto.spec.SecretKeySpec;
 public class EncryptionUtils {
     private static KeyStore androidKeyStore;
 
+    public static final String USER_CREDENTIALS_KEY_ALIAS = "user-credentials-key-alias";
+
     public static final String ANDROID_KEYSTORE_PROVIDER_NAME = "AndroidKeyStore";
+
+    private enum CryptographicOperation {Encryption, Decryption}
 
     public static KeyStore getAndroidKeyStore(){
         if (androidKeyStore == null) {
@@ -90,6 +94,23 @@ public class EncryptionUtils {
                     " bits long, not " + 8 * keyBytes.length);
         }
         return new SecretKeySpec(keyBytes, "AES");
+    }
+
+    private static Key retrieveKeyFromKeyStore(String keyAlias, CryptographicOperation operation) throws KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException {
+        if (getAndroidKeyStore().containsAlias(keyAlias)){
+            KeyStore.Entry keyEntry = getAndroidKeyStore().getEntry(keyAlias, null);
+            if (keyEntry instanceof KeyStore.PrivateKeyEntry){
+                if (operation == CryptographicOperation.Encryption){
+                    return ((KeyStore.PrivateKeyEntry)keyEntry).getCertificate().getPublicKey();
+                } else {
+                    return ((KeyStore.PrivateKeyEntry)keyEntry).getPrivateKey();
+                }
+            } else {
+                return ((KeyStore.SecretKeyEntry)keyEntry).getSecretKey();
+            }
+        } else {
+            throw new KeyStoreException("Key not found in KeyStore");
+        }
     }
 
     /**
