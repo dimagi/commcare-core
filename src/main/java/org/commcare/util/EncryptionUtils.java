@@ -55,7 +55,7 @@ public class EncryptionUtils {
         final String ENCRYPT_ALGO = "AES/GCM/NoPadding";
         final int MIN_IV_LENGTH_BYTE = 1;
         final int MAX_IV_LENGTH_BYTE = 255;
-        SecretKey secret = getSecretKeySpec(key);
+        Key secret = getKey(keyOrAlias, usingKey, CryptographicOperation.Encryption);
 
         try {
             Cipher cipher = Cipher.getInstance(ENCRYPT_ALGO);
@@ -80,12 +80,26 @@ public class EncryptionUtils {
         }
     }
 
+    private static Key getKey(String keyOrAlias, boolean usingKey, CryptographicOperation operation) throws EncryptionException {
+        try {
+            if (usingKey) {
+                return createKeyFromBase64String(keyOrAlias);
+            }
+            else {
+                return retrieveKeyFromKeyStore(keyOrAlias, operation);
+            }
+        } catch (EncryptionException e) {
+            throw new EncryptionException(e.getMessage());
+        } catch (UnrecoverableEntryException | KeyStoreException | NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-    private static SecretKey getSecretKeySpec(String key) throws EncryptionException {
+    private static Key createKeyFromBase64String(String base64encodedKey) throws EncryptionException {
         final int KEY_LENGTH_BIT = 256;
         byte[] keyBytes;
         try {
-            keyBytes = Base64.decode(key);
+            keyBytes = Base64.decode(base64encodedKey);
         } catch (Base64DecoderException e) {
             throw new EncryptionException("Encryption key base 64 encoding is invalid", e);
         }
@@ -123,7 +137,7 @@ public class EncryptionUtils {
     public static String decrypt(String message, String key) throws EncryptionException {
         final String ENCRYPT_ALGO = "AES/GCM/NoPadding";
         final int TAG_LENGTH_BIT = 128;
-        SecretKey secret = getSecretKeySpec(key);
+        Key secret = getKey(keyOrAlias, usingKey, CryptographicOperation.Decryption);
 
         try {
             byte[] messageBytes = Base64.decode(message);
