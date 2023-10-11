@@ -184,7 +184,7 @@ public class User implements Persistable, Restorable, IMetaData {
         if (META_UID.equals(fieldName)) {
             return uniqueId;
         } else if(META_USERNAME.equals(fieldName)) {
-            return username;
+            return getUsername();
         } else if(META_ID.equals(fieldName)) {
             return recordId;
         } else if (META_WRAPPED_KEY.equals(fieldName)) {
