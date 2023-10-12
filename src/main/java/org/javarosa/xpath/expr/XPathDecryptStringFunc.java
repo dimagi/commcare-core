@@ -1,7 +1,6 @@
 package org.javarosa.xpath.expr;
 
-import static org.commcare.util.EncryptionUtils.decrypt;
-import static org.commcare.util.EncryptionUtils.encrypt;
+import static org.commcare.util.EncryptionUtils.decryptUsingBase64EncodedKey;
 
 import org.commcare.util.EncryptionUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -46,7 +45,7 @@ public class XPathDecryptStringFunc extends XPathFuncExpr {
         }
 
         try {
-            return decrypt(message, key, true);
+            return decryptUsingBase64EncodedKey(algorithm, message, key);
         } catch (EncryptionUtils.EncryptionException e) {
             throw new XPathException(e);
         }
