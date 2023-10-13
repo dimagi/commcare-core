@@ -79,8 +79,8 @@ public class EncryptionUtils {
         final int MAX_IV_LENGTH_BYTE = 255;
 
         try {
-            Cipher cipher = Cipher.getInstance(ENCRYPT_ALGO);
-            cipher.init(Cipher.ENCRYPT_MODE, secret);
+            Cipher cipher = Cipher.getInstance(getCryptographicTransformation(algorithm));
+            cipher.init(Cipher.ENCRYPT_MODE, key);
             byte[] encryptedMessage = cipher.doFinal(message.getBytes(Charset.forName("UTF-8")));
             byte[] iv = cipher.getIV();
             if (iv.length < MIN_IV_LENGTH_BYTE || iv.length > MAX_IV_LENGTH_BYTE) {
@@ -146,6 +146,15 @@ public class EncryptionUtils {
         // This should cause an error
         return null;
     }
+
+    private static String getCryptographicTransformation(String algorithm){
+        if (algorithm.equals("AES")){
+            return "AES/GCM/NoPadding";
+        } else if (algorithm.equals("RSA")) {
+            return "RSA/ECB/PKCS1Padding";
+        } else {
+            // This will cause an error
+            return null;
         }
     }
 
@@ -207,12 +216,17 @@ public class EncryptionUtils {
             bb.get(cipherText);
 
 
-            Cipher cipher = Cipher.getInstance(ENCRYPT_ALGO);
-            cipher.init(Cipher.DECRYPT_MODE, secret, new GCMParameterSpec(TAG_LENGTH_BIT, iv));
+            Cipher cipher = Cipher.getInstance(getCryptographicTransformation(algorithm));
+            if (algorithm.equals("AES")){
+                cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(TAG_LENGTH_BIT, iv));
+            } else {
+                cipher.init(Cipher.DECRYPT_MODE, key);
+            }
             byte[] plainText = cipher.doFinal(cipherText);
             return new String(plainText, Charset.forName("UTF-8"));
         } catch (NoSuchAlgorithmException | BadPaddingException | NoSuchPaddingException |
-                IllegalBlockSizeException | InvalidAlgorithmParameterException | InvalidKeyException | Base64DecoderException e) {
+                 IllegalBlockSizeException | InvalidKeyException | Base64DecoderException |
+                 InvalidAlgorithmParameterException e) {
             throw new EncryptionException("Error encountered while decrypting the message", e);
         }
     }
