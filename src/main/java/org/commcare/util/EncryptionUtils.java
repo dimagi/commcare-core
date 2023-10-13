@@ -83,15 +83,18 @@ public class EncryptionUtils {
             cipher.init(Cipher.ENCRYPT_MODE, key);
             byte[] encryptedMessage = cipher.doFinal(message.getBytes(Charset.forName("UTF-8")));
             byte[] iv = cipher.getIV();
-            if (iv.length < MIN_IV_LENGTH_BYTE || iv.length > MAX_IV_LENGTH_BYTE) {
+            int ivSize = (iv == null? 0 : iv.length);
+            if(ivSize == 0){
+                iv = new byte[0];
+            } else if (ivSize < MIN_IV_LENGTH_BYTE || ivSize > MAX_IV_LENGTH_BYTE) {
                 throw new EncryptionException("Initialization vector should be between " +
                         MIN_IV_LENGTH_BYTE + " and " + MAX_IV_LENGTH_BYTE +
-                        " bytes long, but it is " + iv.length + " bytes");
+                        " bytes long, but it is " + ivSize + " bytes");
             }
             // The conversion of iv.length to byte takes the low 8 bits. To
             // convert back, cast to int and mask with 0xFF.
-            byte[] ivPlusMessage = ByteBuffer.allocate(1 + iv.length + encryptedMessage.length)
-                    .put((byte)iv.length)
+            byte[] ivPlusMessage = ByteBuffer.allocate(1 + ivSize + encryptedMessage.length)
+                    .put((byte)ivSize)
                     .put(iv)
                     .put(encryptedMessage)
                     .array();
