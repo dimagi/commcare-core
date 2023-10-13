@@ -33,7 +33,7 @@ public class EncryptionUtils {
 
     private enum CryptographicOperation {Encryption, Decryption}
 
-    public static KeyStore getAndroidKeyStore(){
+    public static KeyStore getAndroidKeyStore() {
         if (androidKeyStore == null) {
             try {
                 androidKeyStore = KeyStore.getInstance(ANDROID_KEYSTORE_PROVIDER_NAME);
@@ -67,11 +67,11 @@ public class EncryptionUtils {
     }
 
     /**
-     * Encrypts a message using the AES encryption and produces a base64 encoded payload containing the ciphertext, and a random IV which was used to encrypt the input.
+     * Encrypts a message using the AES or RAS algorithms and produces a base64 encoded payload containing the ciphertext, and a random IV which was used to encrypt the input.
      *
-     * @param message a UTF-8 encoded message to be encrypted
-     * @param keyOrAlias A base64 encoded 256 bit symmetric key OR a KeyStore key alias
-     * @param usingKey indicate whether a Key or a Key alias was provided
+     * @param algorithm to be used to encrypt the data
+     * @param message   a UTF-8 encoded message to be encrypted
+     * @param key       a SecretKey or PublicKey, depdending on the algorithm to be used
      * @return A base64 encoded payload containing the IV and AES encrypted ciphertext, which can be decoded by this utility's decrypt method and the same symmetric key
      */
     public static String encrypt(String algorithm, String message, Key key) throws EncryptionException {
@@ -83,8 +83,8 @@ public class EncryptionUtils {
             cipher.init(Cipher.ENCRYPT_MODE, key);
             byte[] encryptedMessage = cipher.doFinal(message.getBytes(Charset.forName("UTF-8")));
             byte[] iv = cipher.getIV();
-            int ivSize = (iv == null? 0 : iv.length);
-            if(ivSize == 0){
+            int ivSize = (iv == null ? 0 : iv.length);
+            if (ivSize == 0) {
                 iv = new byte[0];
             } else if (ivSize < MIN_IV_LENGTH_BYTE || ivSize > MAX_IV_LENGTH_BYTE) {
                 throw new EncryptionException("Initialization vector should be between " +
@@ -103,12 +103,13 @@ public class EncryptionUtils {
             throw new EncryptionException("Unknown error during encryption", ex);
         }
     }
+
     /**
      * Converts a base64 encoded key into a SecretKey, PrivateKey or PublicKey, depending on the
      * Algorithm and Cryptographic operation
      *
-     * @param algorithm to be used to encrypt/decrypt
-     * @param base64encodedKey key in String format
+     * @param algorithm              to be used to encrypt/decrypt
+     * @param base64encodedKey       key in String format
      * @param cryptographicOperation relevant to the RSA algorithm
      * @return Decrypted message for the given AES encrypted message
      */
@@ -128,7 +129,7 @@ public class EncryptionUtils {
                         " bits long, not " + 8 * keyBytes.length);
             }
             return new SecretKeySpec(keyBytes, "AES");
-        } else if (algorithm.equals("RSA")){
+        } else if (algorithm.equals("RSA")) {
             // This is not very relevant at the moment as the RSA algorithm is only used to encrypt
             // user credentials on devices runnning Android 5.0 - 5.1.1 for the KeyStore
             KeyFactory keyFactory = null;
@@ -150,8 +151,8 @@ public class EncryptionUtils {
         return null;
     }
 
-    private static String getCryptographicTransformation(String algorithm){
-        if (algorithm.equals("AES")){
+    private static String getCryptographicTransformation(String algorithm) {
+        if (algorithm.equals("AES")) {
             return "AES/GCM/NoPadding";
         } else if (algorithm.equals("RSA")) {
             return "RSA/ECB/PKCS1Padding";
@@ -162,10 +163,10 @@ public class EncryptionUtils {
     }
 
     private static Key retrieveKeyFromKeyStore(String keyAlias, CryptographicOperation operation) throws KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException {
-        if (getAndroidKeyStore().containsAlias(keyAlias)){
+        if (getAndroidKeyStore().containsAlias(keyAlias)) {
             KeyStore.Entry keyEntry = getAndroidKeyStore().getEntry(keyAlias, null);
-            if (keyEntry instanceof KeyStore.PrivateKeyEntry){
-                if (operation == CryptographicOperation.Encryption){
+            if (keyEntry instanceof KeyStore.PrivateKeyEntry) {
+                if (operation == CryptographicOperation.Encryption) {
                     return ((KeyStore.PrivateKeyEntry)keyEntry).getCertificate().getPublicKey();
                 } else {
                     return ((KeyStore.PrivateKeyEntry)keyEntry).getPrivateKey();
@@ -182,7 +183,7 @@ public class EncryptionUtils {
         Key key;
         try {
             key = retrieveKeyFromKeyStore(alias, CryptographicOperation.Decryption);
-        } catch (KeyStoreException| UnrecoverableEntryException | NoSuchAlgorithmException e) {
+        } catch (KeyStoreException | UnrecoverableEntryException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
         return decrypt(key.getAlgorithm(), message, key);
@@ -202,7 +203,7 @@ public class EncryptionUtils {
      * Decrypts a base64 payload containing an IV and AES encrypted ciphertext using the provided key
      *
      * @param message a message to be decrypted
-     * @param keyOrAlias key or key alias that should be used for decryption
+     * @param key     key that should be used for decryption
      * @return Decrypted message for the given AES encrypted message
      */
     private static String decrypt(String algorithm, String message, Key key) throws EncryptionException {
@@ -220,7 +221,7 @@ public class EncryptionUtils {
 
 
             Cipher cipher = Cipher.getInstance(getCryptographicTransformation(algorithm));
-            if (algorithm.equals("AES")){
+            if (algorithm.equals("AES")) {
                 cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(TAG_LENGTH_BIT, iv));
             } else {
                 cipher.init(Cipher.DECRYPT_MODE, key);
@@ -234,7 +235,7 @@ public class EncryptionUtils {
         }
     }
 
-    public static boolean isAndroidKeyStoreSupported(){
+    public static boolean isAndroidKeyStoreSupported() {
         return Security.getProvider("AndroidKeyStore") != null;
     }
 
