@@ -6,12 +6,16 @@ import java.nio.charset.Charset;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -112,11 +116,37 @@ public class EncryptionUtils {
         } catch (Base64DecoderException e) {
             throw new EncryptionException("Encryption key base 64 encoding is invalid", e);
         }
-        if (8 * keyBytes.length != KEY_LENGTH_BIT) {
-            throw new EncryptionException("Key should be " + KEY_LENGTH_BIT +
-                    " bits long, not " + 8 * keyBytes.length);
+
+        if (algorithm.equals("AES")) {
+            final int KEY_LENGTH_BIT = 256;
+
+            if (8 * keyBytes.length != KEY_LENGTH_BIT) {
+                throw new EncryptionException("Key should be " + KEY_LENGTH_BIT +
+                        " bits long, not " + 8 * keyBytes.length);
+            }
+            return new SecretKeySpec(keyBytes, "AES");
+        } else if (algorithm.equals("RSA")){
+            // This is not very relevant at the moment as the RSA algorithm is only used to encrypt
+            // user credentials on devices runnning Android 5.0 - 5.1.1 for the KeyStore
+            KeyFactory keyFactory = null;
+            try {
+                keyFactory = KeyFactory.getInstance("RSA");
+            } catch (NoSuchAlgorithmException e) {
+                throw new EncryptionException("There is no Provider for the selected algorithm", e);
+            }
+
+            if (cryptographicOperation == CryptographicOperation.Encryption) {
+                X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
+                return keyFactory.generatePublic(keySpec);
+            } else {
+                PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+                return keyFactory.generatePrivate(keySpec);
+            }
         }
-        return new SecretKeySpec(keyBytes, "AES");
+        // This should cause an error
+        return null;
+    }
+        }
     }
 
     private static Key retrieveKeyFromKeyStore(String keyAlias, CryptographicOperation operation) throws KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException {
