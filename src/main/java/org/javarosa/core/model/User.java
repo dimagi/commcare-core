@@ -96,7 +96,7 @@ public class User implements Persistable, Restorable, IMetaData {
             return this.username;
         } else {
             try {
-                return EncryptionUtils.decrypt(this.username, USER_CREDENTIALS_KEY_ALIAS, false);
+                return EncryptionUtils.decryptUsingKeyFromKeyStore(this.username, USER_CREDENTIALS_KEY_ALIAS);
             } catch (EncryptionUtils.EncryptionException e) {
                 throw new RuntimeException("Error encountered while decrypting the Username ", e);
             }
@@ -134,7 +134,7 @@ public class User implements Persistable, Restorable, IMetaData {
             this.username = username;
         } else {
             try {
-                this.username = EncryptionUtils.encrypt(username, USER_CREDENTIALS_KEY_ALIAS, false);
+                this.username = EncryptionUtils.encryptUsingKeyFromKeyStore(username, USER_CREDENTIALS_KEY_ALIAS);
             } catch (EncryptionUtils.EncryptionException e) {
                 throw new RuntimeException("Error encountered while encrypting the Username: ", e);
             }
@@ -208,7 +208,7 @@ public class User implements Persistable, Restorable, IMetaData {
             this.cachedPwd = password;
         } else {
             try {
-                this.cachedPwd = EncryptionUtils.encrypt(password, USER_CREDENTIALS_KEY_ALIAS, false);
+                this.cachedPwd = EncryptionUtils.encryptUsingKeyFromKeyStore(password, USER_CREDENTIALS_KEY_ALIAS);
             } catch (EncryptionUtils.EncryptionException e) {
                 throw new RuntimeException("Error encountered while encrypting the Password: ", e);
             }
@@ -220,7 +220,7 @@ public class User implements Persistable, Restorable, IMetaData {
             return this.cachedPwd;
         } else {
             try {
-                return EncryptionUtils.decrypt(this.cachedPwd, USER_CREDENTIALS_KEY_ALIAS, false);
+                return EncryptionUtils.decryptUsingKeyFromKeyStore(this.cachedPwd, USER_CREDENTIALS_KEY_ALIAS);
             } catch (EncryptionUtils.EncryptionException e) {
                 throw new RuntimeException("Error encountered while decrypting the Password: ", e);
             }

@@ -42,6 +42,26 @@ public class EncryptionUtils {
         return androidKeyStore;
     }
 
+    public static String encryptUsingKeyFromKeyStore(String message, String alias) throws EncryptionException {
+        Key key;
+        try {
+            key = retrieveKeyFromKeyStore(alias, CryptographicOperation.Encryption);
+        } catch (KeyStoreException | UnrecoverableEntryException | NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        return encrypt(key.getAlgorithm(), message, key);
+    }
+
+    public static String encryptUsingBase64EncodedKey(String algorithm, String message, String key) throws EncryptionException {
+        Key secret;
+        try {
+            secret = getKey(algorithm, key, CryptographicOperation.Encryption);
+        } catch (InvalidKeySpecException e) {
+            throw new EncryptionException("Invalid Key specifications", e);
+        }
+        return encrypt(algorithm, message, secret);
+    }
+
     /**
      * Encrypts a message using the AES encryption and produces a base64 encoded payload containing the ciphertext, and a random IV which was used to encrypt the input.
      *
@@ -50,11 +70,9 @@ public class EncryptionUtils {
      * @param usingKey indicate whether a Key or a Key alias was provided
      * @return A base64 encoded payload containing the IV and AES encrypted ciphertext, which can be decoded by this utility's decrypt method and the same symmetric key
      */
-    public static String encrypt(String message, String keyOrAlias, boolean usingKey) throws EncryptionException {
-        final String ENCRYPT_ALGO = "AES/GCM/NoPadding";
+    public static String encrypt(String algorithm, String message, Key key) throws EncryptionException {
         final int MIN_IV_LENGTH_BYTE = 1;
         final int MAX_IV_LENGTH_BYTE = 255;
-        Key secret = getKey(keyOrAlias, usingKey, CryptographicOperation.Encryption);
 
         try {
             Cipher cipher = Cipher.getInstance(ENCRYPT_ALGO);
@@ -78,24 +96,16 @@ public class EncryptionUtils {
             throw new EncryptionException("Unknown error during encryption", ex);
         }
     }
-
-    private static Key getKey(String keyOrAlias, boolean usingKey, CryptographicOperation operation) throws EncryptionException {
-        try {
-            if (usingKey) {
-                return createKeyFromBase64String(keyOrAlias);
-            }
-            else {
-                return retrieveKeyFromKeyStore(keyOrAlias, operation);
-            }
-        } catch (EncryptionException e) {
-            throw new EncryptionException(e.getMessage());
-        } catch (UnrecoverableEntryException | KeyStoreException | NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static Key createKeyFromBase64String(String base64encodedKey) throws EncryptionException {
-        final int KEY_LENGTH_BIT = 256;
+    /**
+     * Converts a base64 encoded key into a SecretKey, PrivateKey or PublicKey, depending on the
+     * Algorithm and Cryptographic operation
+     *
+     * @param algorithm to be used to encrypt/decrypt
+     * @param base64encodedKey key in String format
+     * @param cryptographicOperation relevant to the RSA algorithm
+     * @return Decrypted message for the given AES encrypted message
+     */
+    private static Key getKey(String algorithm, String base64encodedKey, CryptographicOperation cryptographicOperation) throws EncryptionException, InvalidKeySpecException {
         byte[] keyBytes;
         try {
             keyBytes = Base64.decode(base64encodedKey);
@@ -126,6 +136,26 @@ public class EncryptionUtils {
         }
     }
 
+    public static String decryptUsingKeyFromKeyStore(String message, String alias) throws EncryptionException {
+        Key key;
+        try {
+            key = retrieveKeyFromKeyStore(alias, CryptographicOperation.Decryption);
+        } catch (KeyStoreException| UnrecoverableEntryException | NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        return decrypt(key.getAlgorithm(), message, key);
+    }
+
+    public static String decryptUsingBase64EncodedKey(String algorithm, String message, String key) throws EncryptionException {
+        Key secret = null;
+        try {
+            secret = getKey(algorithm, key, CryptographicOperation.Decryption);
+        } catch (InvalidKeySpecException e) {
+            throw new EncryptionException("Invalid Key specifications", e);
+        }
+        return decrypt(algorithm, message, secret);
+    }
+
     /**
      * Decrypts a base64 payload containing an IV and AES encrypted ciphertext using the provided key
      *
@@ -133,10 +163,8 @@ public class EncryptionUtils {
      * @param keyOrAlias key or key alias that should be used for decryption
      * @return Decrypted message for the given AES encrypted message
      */
-    public static String decrypt(String message, String keyOrAlias, boolean usingKey) throws EncryptionException {
-        final String ENCRYPT_ALGO = "AES/GCM/NoPadding";
+    private static String decrypt(String algorithm, String message, Key key) throws EncryptionException {
         final int TAG_LENGTH_BIT = 128;
-        Key secret = getKey(keyOrAlias, usingKey, CryptographicOperation.Decryption);
 
         try {
             byte[] messageBytes = Base64.decode(message);
