@@ -1,5 +1,6 @@
 package org.javarosa.core.model;
 
+import org.commcare.util.CommCarePlatform;
 import org.commcare.util.EncryptionUtils;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
@@ -18,7 +19,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 
 import static org.commcare.util.EncryptionUtils.USER_CREDENTIALS_KEY_ALIAS;
-import static org.commcare.util.EncryptionUtils.isAndroidKeyStoreSupported;
+import static org.commcare.util.EncryptionUtils.isPlatformKeyStoreAvailable;
 
 /**
  * Peristable object representing a CommCare mobile user.
@@ -92,7 +93,7 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public String getUsername() {
-        if (!isAndroidKeyStoreSupported()) {
+        if (!isPlatformKeyStoreAvailable()) {
             return this.username;
         } else {
             try {
@@ -130,7 +131,7 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public void setUsername(String username) {
-        if (!isAndroidKeyStoreSupported()) {
+        if (!isPlatformKeyStoreAvailable()) {
             this.username = username;
         } else {
             try {
@@ -204,7 +205,7 @@ public class User implements Persistable, Restorable, IMetaData {
     //Don't ever save!
     private String cachedPwd;
     public void setCachedPwd(String password) {
-        if (!isAndroidKeyStoreSupported()) {
+        if (!isPlatformKeyStoreAvailable()) {
             this.cachedPwd = password;
         } else {
             try {
@@ -216,7 +217,7 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public String getCachedPwd() {
-        if (!isAndroidKeyStoreSupported()) {
+        if (!isPlatformKeyStoreAvailable()) {
             return this.cachedPwd;
         } else {
             try {

@@ -24,26 +24,27 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import static org.commcare.util.CommCarePlatform.getPlatformKeyStoreName;
+
 public class EncryptionUtils {
-    private static KeyStore androidKeyStore;
 
     public static final String USER_CREDENTIALS_KEY_ALIAS = "user-credentials-key-alias";
 
-    public static final String ANDROID_KEYSTORE_PROVIDER_NAME = "AndroidKeyStore";
+    private static KeyStore platformKeyStore;
 
     private enum CryptographicOperation {Encryption, Decryption}
 
-    public static KeyStore getAndroidKeyStore() {
-        if (androidKeyStore == null) {
+    public static KeyStore getPlatformKeyStore() {
+        if (platformKeyStore == null) {
             try {
-                androidKeyStore = KeyStore.getInstance(ANDROID_KEYSTORE_PROVIDER_NAME);
-                androidKeyStore.load(null);
+                platformKeyStore = KeyStore.getInstance(getPlatformKeyStoreName());
+                platformKeyStore.load(null);
             } catch (KeyStoreException | IOException | NoSuchAlgorithmException |
                      CertificateException e) {
                 throw new RuntimeException(e);
             }
         }
-        return androidKeyStore;
+        return platformKeyStore;
     }
 
     public static String encryptUsingKeyFromKeyStore(String message, String alias) throws EncryptionException {
@@ -163,8 +164,8 @@ public class EncryptionUtils {
     }
 
     private static Key retrieveKeyFromKeyStore(String keyAlias, CryptographicOperation operation) throws KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException {
-        if (getAndroidKeyStore().containsAlias(keyAlias)) {
-            KeyStore.Entry keyEntry = getAndroidKeyStore().getEntry(keyAlias, null);
+        if (getPlatformKeyStore().containsAlias(keyAlias)) {
+            KeyStore.Entry keyEntry = getPlatformKeyStore().getEntry(keyAlias, null);
             if (keyEntry instanceof KeyStore.PrivateKeyEntry) {
                 if (operation == CryptographicOperation.Encryption) {
                     return ((KeyStore.PrivateKeyEntry)keyEntry).getCertificate().getPublicKey();
@@ -235,8 +236,8 @@ public class EncryptionUtils {
         }
     }
 
-    public static boolean isAndroidKeyStoreSupported() {
-        return Security.getProvider("AndroidKeyStore") != null;
+    public static boolean isPlatformKeyStoreAvailable() {
+        return Security.getProvider(getPlatformKeyStoreName()) != null;
     }
 
     public static class EncryptionException extends Exception {
