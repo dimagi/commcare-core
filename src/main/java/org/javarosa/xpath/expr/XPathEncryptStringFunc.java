@@ -1,6 +1,7 @@
 package org.javarosa.xpath.expr;
 
 
+import static org.commcare.util.EncryptionUtils.AES_ALGORITHM_KEY;
 import static org.commcare.util.EncryptionUtils.encryptUsingBase64EncodedKey;
 
 import org.commcare.util.EncryptionUtils;
@@ -40,7 +41,7 @@ public class XPathEncryptStringFunc extends XPathFuncExpr {
         String key = FunctionUtils.toString(o2);
         String algorithm = FunctionUtils.toString(o3);
 
-        if (!algorithm.equals("AES")) {
+        if (!algorithm.equals(AES_ALGORITHM_KEY)) {
             throw new XPathException("Unknown algorithm \"" + algorithm +
                     "\" for " + NAME);
         }

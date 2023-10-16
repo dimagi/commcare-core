@@ -30,6 +30,10 @@ public class EncryptionUtils {
 
     public static final String USER_CREDENTIALS_KEY_ALIAS = "user-credentials-key-alias";
 
+    public static final String RSA_ALGORITHM_KEY = "RSA";
+    public static final String AES_ALGORITHM_KEY = "AES";
+
+
     private static KeyStore platformKeyStore;
 
     private enum CryptographicOperation {Encryption, Decryption}
@@ -122,20 +126,20 @@ public class EncryptionUtils {
             throw new EncryptionException("Encryption key base 64 encoding is invalid", e);
         }
 
-        if (algorithm.equals("AES")) {
+        if (algorithm.equals(AES_ALGORITHM_KEY)) {
             final int KEY_LENGTH_BIT = 256;
 
             if (8 * keyBytes.length != KEY_LENGTH_BIT) {
                 throw new EncryptionException("Key should be " + KEY_LENGTH_BIT +
                         " bits long, not " + 8 * keyBytes.length);
             }
-            return new SecretKeySpec(keyBytes, "AES");
-        } else if (algorithm.equals("RSA")) {
+            return new SecretKeySpec(keyBytes, AES_ALGORITHM_KEY);
+        } else if (algorithm.equals(RSA_ALGORITHM_KEY)) {
             // This is not very relevant at the moment as the RSA algorithm is only used to encrypt
             // user credentials on devices runnning Android 5.0 - 5.1.1 for the KeyStore
             KeyFactory keyFactory = null;
             try {
-                keyFactory = KeyFactory.getInstance("RSA");
+                keyFactory = KeyFactory.getInstance(RSA_ALGORITHM_KEY);
             } catch (NoSuchAlgorithmException e) {
                 throw new EncryptionException("There is no Provider for the selected algorithm", e);
             }
@@ -153,9 +157,9 @@ public class EncryptionUtils {
     }
 
     private static String getCryptographicTransformation(String algorithm) {
-        if (algorithm.equals("AES")) {
+        if (algorithm.equals(AES_ALGORITHM_KEY)) {
             return "AES/GCM/NoPadding";
-        } else if (algorithm.equals("RSA")) {
+        } else if (algorithm.equals(RSA_ALGORITHM_KEY)) {
             return "RSA/ECB/PKCS1Padding";
         } else {
             // This will cause an error
@@ -220,9 +224,8 @@ public class EncryptionUtils {
             byte[] cipherText = new byte[bb.remaining()];
             bb.get(cipherText);
 
-
             Cipher cipher = Cipher.getInstance(getCryptographicTransformation(algorithm));
-            if (algorithm.equals("AES")) {
+            if (algorithm.equals(AES_ALGORITHM_KEY)) {
                 cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(TAG_LENGTH_BIT, iv));
             } else {
                 cipher.init(Cipher.DECRYPT_MODE, key);
