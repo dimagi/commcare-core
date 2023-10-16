@@ -74,12 +74,16 @@ public class EncryptionUtils {
     }
 
     /**
-     * Encrypts a message using the AES or RAS algorithms and produces a base64 encoded payload containing the ciphertext, and a random IV which was used to encrypt the input.
+     * Encrypts a message using the AES or RAS algorithms and produces a base64 encoded payload
+     * containing the ciphertext, and, when applicable, a random IV which was used to encrypt
+     * the input.
      *
-     * @param algorithm to be used to encrypt the data
+     * @param algorithm the algotithm to be used to encrypt the data
      * @param message   a UTF-8 encoded message to be encrypted
-     * @param key       a SecretKey or PublicKey, depdending on the algorithm to be used
-     * @return A base64 encoded payload containing the IV and AES encrypted ciphertext, which can be decoded by this utility's decrypt method and the same symmetric key
+     * @param key       depending on the algorithm, a SecretKey or PublicKey to be used to
+     *                  encrypt the message
+     * @return A base64 encoded payload containing the IV and AES or RSA encrypted ciphertext,
+     *         which can be decoded by this utility's decrypt method and the same symmetric key
      */
     public static String encrypt(String algorithm, String message, Key key)
             throws EncryptionException {
@@ -113,13 +117,14 @@ public class EncryptionUtils {
     }
 
     /**
-     * Converts a base64 encoded key into a SecretKey, PrivateKey or PublicKey, depending on the
-     * Algorithm and Cryptographic operation
+     * Converts a Base64 encoded key into a SecretKey, PrivateKey or PublicKey, depending on the
+     * algorithm and cryptographic operation
      *
-     * @param algorithm              to be used to encrypt/decrypt
+     * @param algorithm              the algorithm to be used to encrypt/decrypt
      * @param base64encodedKey       key in String format
-     * @param cryptographicOperation relevant to the RSA algorithm
-     * @return Decrypted message for the given AES encrypted message
+     * @param cryptographicOperation Cryptographic operation where the key is to be used, relevant
+     *                               to the RSA algorithm
+     * @return Secret key, Public key or Private Key to be used
      */
     private static Key getKey(String algorithm,
                               String base64encodedKey,
@@ -214,11 +219,14 @@ public class EncryptionUtils {
     }
 
     /**
-     * Decrypts a base64 payload containing an IV and AES encrypted ciphertext using the provided key
+     * Decrypts a base64 payload containing an IV and AES or RSA encrypted ciphertext using the
+     * provided key
      *
-     * @param message a message to be decrypted
-     * @param key     key that should be used for decryption
-     * @return Decrypted message for the given AES encrypted message
+     * @param algorithm the algorithm to be used to decrypt the message
+     * @param message   a message to be decrypted
+     * @param key       dependening on the algorithm, a Secret key or Private key to be used for
+     *                  decryption
+     * @return Decrypted message for the given encrypted message
      */
     private static String decrypt(String algorithm, String message, Key key) throws EncryptionException {
         final int TAG_LENGTH_BIT = 128;
