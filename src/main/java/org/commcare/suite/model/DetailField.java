@@ -198,6 +198,9 @@ public class DetailField implements Externalizable {
         gridHeight = ExtUtil.readInt(in);
         fontSize = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         showBlanksLastInSort = ExtUtil.readBool(in);
+        horizontalAlign = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        verticalAlign = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        cssID = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
     }
 
     @Override
@@ -224,6 +227,9 @@ public class DetailField implements Externalizable {
         ExtUtil.writeNumeric(out, gridHeight);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(fontSize));
         ExtUtil.writeBool(out, showBlanksLastInSort);
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(horizontalAlign));
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(verticalAlign));
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(cssID));
     }
 
     public int getGridX() {
