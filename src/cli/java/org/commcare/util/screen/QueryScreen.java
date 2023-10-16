@@ -62,6 +62,8 @@ public class QueryScreen extends Screen {
 
     private boolean defaultSearch;
 
+    private boolean dynamicSearch;
+
     public QueryScreen(String domainedUsername, String password, PrintStream out,
             VirtualDataInstanceStorage instanceStorage, SessionUtils sessionUtils) {
         this.domainedUsername = domainedUsername;
@@ -212,6 +214,10 @@ public class QueryScreen extends Screen {
 
     public String getDescriptionText() {
         return description;
+    }
+
+    public boolean getDynamicSearch() {
+        return dynamicSearch;
     }
 
     @Override

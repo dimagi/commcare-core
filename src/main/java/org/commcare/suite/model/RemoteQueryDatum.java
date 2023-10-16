@@ -30,6 +30,7 @@ public class RemoteQueryDatum extends SessionDatum {
     private OrderedHashtable<String, QueryPrompt> userQueryPrompts;
     private boolean useCaseTemplate;
     private boolean defaultSearch;
+    private boolean dynamicSearch;
     private Text title;
     private Text description;
 
@@ -51,6 +52,7 @@ public class RemoteQueryDatum extends SessionDatum {
         this.userQueryPrompts = userQueryPrompts;
         this.useCaseTemplate = useCaseTemplate;
         this.defaultSearch = defaultSearch;
+        this.dynamicSearch = dynamicSearch;
         this.title = title;
         this.description = description;
     }
@@ -79,6 +81,10 @@ public class RemoteQueryDatum extends SessionDatum {
 
     public boolean doDefaultSearch() {
         return defaultSearch;
+    }
+
+    public boolean doDynamicSearch() {
+        return dynamicSearch;
     }
 
     public Text getTitleText() {
