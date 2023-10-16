@@ -51,7 +51,8 @@ public class EncryptionUtils {
         return platformKeyStore;
     }
 
-    public static String encryptUsingKeyFromKeyStore(String message, String alias) throws EncryptionException {
+    public static String encryptUsingKeyFromKeyStore(String message, String alias)
+            throws EncryptionException {
         Key key;
         try {
             key = retrieveKeyFromKeyStore(alias, CryptographicOperation.Encryption);
@@ -61,7 +62,8 @@ public class EncryptionUtils {
         return encrypt(key.getAlgorithm(), message, key);
     }
 
-    public static String encryptUsingBase64EncodedKey(String algorithm, String message, String key) throws EncryptionException {
+    public static String encryptUsingBase64EncodedKey(String algorithm, String message, String key)
+            throws EncryptionException {
         Key secret;
         try {
             secret = getKey(algorithm, key, CryptographicOperation.Encryption);
@@ -79,7 +81,8 @@ public class EncryptionUtils {
      * @param key       a SecretKey or PublicKey, depdending on the algorithm to be used
      * @return A base64 encoded payload containing the IV and AES encrypted ciphertext, which can be decoded by this utility's decrypt method and the same symmetric key
      */
-    public static String encrypt(String algorithm, String message, Key key) throws EncryptionException {
+    public static String encrypt(String algorithm, String message, Key key)
+            throws EncryptionException {
         final int MIN_IV_LENGTH_BYTE = 1;
         final int MAX_IV_LENGTH_BYTE = 255;
 
@@ -118,7 +121,10 @@ public class EncryptionUtils {
      * @param cryptographicOperation relevant to the RSA algorithm
      * @return Decrypted message for the given AES encrypted message
      */
-    private static Key getKey(String algorithm, String base64encodedKey, CryptographicOperation cryptographicOperation) throws EncryptionException, InvalidKeySpecException {
+    private static Key getKey(String algorithm,
+                              String base64encodedKey,
+                              CryptographicOperation cryptographicOperation)
+            throws EncryptionException, InvalidKeySpecException {
         byte[] keyBytes;
         try {
             keyBytes = Base64.decode(base64encodedKey);
@@ -167,7 +173,8 @@ public class EncryptionUtils {
         }
     }
 
-    private static Key retrieveKeyFromKeyStore(String keyAlias, CryptographicOperation operation) throws KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException {
+    private static Key retrieveKeyFromKeyStore(String keyAlias, CryptographicOperation operation)
+            throws KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException {
         if (getPlatformKeyStore().containsAlias(keyAlias)) {
             KeyStore.Entry keyEntry = getPlatformKeyStore().getEntry(keyAlias, null);
             if (keyEntry instanceof KeyStore.PrivateKeyEntry) {
@@ -184,7 +191,8 @@ public class EncryptionUtils {
         }
     }
 
-    public static String decryptUsingKeyFromKeyStore(String message, String alias) throws EncryptionException {
+    public static String decryptUsingKeyFromKeyStore(String message, String alias)
+            throws EncryptionException {
         Key key;
         try {
             key = retrieveKeyFromKeyStore(alias, CryptographicOperation.Decryption);
@@ -194,7 +202,8 @@ public class EncryptionUtils {
         return decrypt(key.getAlgorithm(), message, key);
     }
 
-    public static String decryptUsingBase64EncodedKey(String algorithm, String message, String key) throws EncryptionException {
+    public static String decryptUsingBase64EncodedKey(String algorithm, String message, String key)
+            throws EncryptionException {
         Key secret = null;
         try {
             secret = getKey(algorithm, key, CryptographicOperation.Decryption);
