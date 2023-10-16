@@ -2,6 +2,7 @@ package org.commcare.xml;
 
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.DetailTemplate;
+import org.commcare.suite.model.EndpointAction;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.Constants;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -73,9 +74,9 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
         } else {
             throw new InvalidStructureException("detail <field> with no <template>!", parser);
         }
-        if (nextTagInBlock("field")) {
+        while (nextTagInBlock("field")) {
             //sort details
-            checkNode(new String[]{"sort", "background"});
+            checkNode(new String[]{"sort", "background", "endpoint_action"});
 
             String name = parser.getName().toLowerCase();
 
@@ -84,9 +85,22 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
             } else if (name.equals("background")) {
                 // background tag in fields is deprecated
                 skipBlock("background");
+            } else if (name.equals("endpoint_action")){
+                parseEndpointAction(builder);
             }
         }
         return builder.build();
+    }
+
+    private void parseEndpointAction(DetailField.Builder builder) throws InvalidStructureException {
+        String id = parser.getAttributeValue(null, "endpoint_id");
+        if (id == null) {
+            throw new InvalidStructureException("No endpoint_id defined for endpoint_action for detail field ",
+                    parser);
+        }
+        String background = parser.getAttributeValue(null, "background");
+        boolean isBackground = "true".equals(background);
+        builder.setEndpointAction(new EndpointAction(id, isBackground));
     }
 
     private void parseStyle(DetailField.Builder builder) throws InvalidStructureException, IOException, XmlPullParserException {
