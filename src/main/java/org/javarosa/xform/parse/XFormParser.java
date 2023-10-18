@@ -91,6 +91,7 @@ public class XFormParser {
     private static final String SELECTONE = "select1";
     private static final String SELECT = "select";
     private static final String SORT = "sort";
+    private static final String FACE_CAPTURE_APPEARANCE_ATTR = "face";
 
     public static final String NAMESPACE_JAVAROSA = "http://openrosa.org/javarosa";
     public static final String NAMESPACE_HTML = "http://www.w3.org/1999/xhtml";
@@ -890,8 +891,12 @@ public class XFormParser {
 
         String mediaType = e.getAttributeValue(null, MEDIA_TYPE_ATTR);
         if ("image/*".equals(mediaType)) {
-            // NOTE: this could be further expanded. 
-            question.setControlType(Constants.CONTROL_IMAGE_CHOOSE);
+            String appearance = e.getAttributeValue(null, APPEARANCE_ATTR);
+            if (FACE_CAPTURE_APPEARANCE_ATTR.equals(appearance)) {
+                question.setControlType(Constants.CONTROL_FACE_CAPTURE);
+            } else {
+                question.setControlType(Constants.CONTROL_IMAGE_CHOOSE);
+            }
         } else if ("audio/*".equals(mediaType)) {
             question.setControlType(Constants.CONTROL_AUDIO_CAPTURE);
         } else if ("video/*".equals(mediaType)) {
