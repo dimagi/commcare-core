@@ -902,7 +902,15 @@ public class XFormParser {
     }
 
     protected QuestionDef parseControl(IFormElement parent, Element e, int controlType) {
-        return parseControl(parent, e, controlType, new Vector<String>());
+        QuestionDef question = parseControl(parent, e, controlType, new Vector<String>());
+
+        if (controlType == Constants.CONTROL_INPUT) {
+            String mediaType = e.getAttributeValue(null, MEDIA_TYPE_ATTR);
+            if ("image/*".equals(mediaType)) {
+                question.setControlType(Constants.CONTROL_MICRO_IMAGE);
+            }
+        }
+        return question;
     }
 
     /**
