@@ -87,6 +87,7 @@ public class XFormParser {
     private static final String BIND_ATTR = "bind";
     private static final String REF_ATTR = "ref";
     private static final String EVENT_ATTR = "event";
+    private static final String MEDIA_TYPE_ATTR = "mediatype";
     private static final String SELECTONE = "select1";
     private static final String SELECT = "select";
     private static final String SORT = "sort";
@@ -885,12 +886,9 @@ public class XFormParser {
     }
 
     protected QuestionDef parseUpload(IFormElement parent, Element e, int controlUpload) {
-        Vector<String> usedAtts = new Vector<>();
-        usedAtts.addElement("mediatype");
+        QuestionDef question = parseControl(parent, e, controlUpload);
 
-        QuestionDef question = parseControl(parent, e, controlUpload, usedAtts);
-
-        String mediaType = e.getAttributeValue(null, "mediatype");
+        String mediaType = e.getAttributeValue(null, MEDIA_TYPE_ATTR);
         if ("image/*".equals(mediaType)) {
             // NOTE: this could be further expanded. 
             question.setControlType(Constants.CONTROL_IMAGE_CHOOSE);
@@ -917,6 +915,10 @@ public class XFormParser {
     protected QuestionDef parseControl(IFormElement parent, Element e, int controlType,
                                        Vector<String> usedAtts) {
         QuestionDef question = new QuestionDef();
+
+        if (e.getAttributeValue(null, MEDIA_TYPE_ATTR)!=null) {
+            usedAtts.addElement(MEDIA_TYPE_ATTR);
+        }
 
         // Go through all of the registered extension parsers, and if it is applicable to the
         // element we are currently parsing, add the parsed extension data to the QuestionDef
