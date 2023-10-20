@@ -16,8 +16,10 @@
 
 package org.javarosa.xform.util;
 
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.data.IDataPointer;
 import org.javarosa.core.model.IAnswerDataSerializer;
+import org.javarosa.core.model.data.Base64ImageData;
 import org.javarosa.core.model.data.BooleanData;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.DateTimeData;
@@ -61,7 +63,8 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
         return data instanceof StringData || data instanceof DateData || data instanceof TimeData ||
                 data instanceof SelectMultiData || data instanceof SelectOneData ||
                 data instanceof IntegerData || data instanceof DecimalData || data instanceof PointerAnswerData ||
-                data instanceof GeoPointData || data instanceof LongData || data instanceof DateTimeData || data instanceof UncastData;
+                data instanceof GeoPointData || data instanceof LongData || data instanceof DateTimeData || data instanceof UncastData
+                || data instanceof Base64ImageData;
     }
 
     /**
@@ -167,6 +170,11 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
         return data.getDisplayText();
     }
 
+    public Object serializeAnswerData(Base64ImageData data) {
+        Pair<String, String> base64ImageData = (Pair<String, String>) data.getValue();
+        return base64ImageData.first + " " + base64ImageData.second;
+    }
+
     public Object serializeAnswerData(BooleanData data) {
         if ((Boolean)data.getValue()) {
             return "1";
@@ -218,6 +226,8 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
             return serializeAnswerData((BooleanData)data);
         } else if (data instanceof UncastData) {
             return serializeAnswerData((UncastData)data);
+        } else if (data instanceof Base64ImageData) {
+            return serializeAnswerData((Base64ImageData)data);
         }
 
         return null;
