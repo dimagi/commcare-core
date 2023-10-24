@@ -284,6 +284,11 @@ public class QueryScreen extends Screen {
         return remoteQuerySessionManager.doDefaultSearch();
     }
 
+    public boolean hasDynamicSearch() {
+        return remoteQuerySessionManager.hasDynamicSearch();
+    }
+
+
     public RemoteQueryDatum getQueryDatum() {
         return remoteQuerySessionManager.getQueryDatum();
     }
