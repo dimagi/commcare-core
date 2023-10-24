@@ -161,7 +161,7 @@ task cliJar(type: Jar, dependsOn: cliClasses) {
         attributes 'Main-Class': 'org.commcare.util.cli.CliMain'
     }
     duplicatesStrategy = DuplicatesStrategy.FAIL
-    filesMatching(["**/LICENSE.txt","**/NOTICE.txt"]) {
+    filesMatching(["**/LICENSE.txt","**/NOTICE.txt", "META-INF/**"]) {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 }
@@ -176,7 +176,7 @@ task ccapiJar(type: Jar, dependsOn: ccapiClasses) {
         }
     }
     duplicatesStrategy = DuplicatesStrategy.FAIL
-    filesMatching(["**/LICENSE.txt","**/NOTICE.txt"]) {
+    filesMatching(["**/LICENSE.txt","**/NOTICE.txt", "META-INF/**"]) {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 }
@@ -194,7 +194,7 @@ task harnessJar(type: Jar, dependsOn: translateClasses) {
         attributes 'Main-Class': 'org.javarosa.engine.Harness'
     }
     duplicatesStrategy = DuplicatesStrategy.FAIL
-    filesMatching(["**/LICENSE.txt","**/NOTICE.txt"]) {
+    filesMatching(["**/LICENSE.txt","**/NOTICE.txt", "META-INF/**"]) {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 }
@@ -222,7 +222,7 @@ task formTranslateJar(type: Jar, dependsOn: translateClasses) {
         attributes 'Main-Class': 'org.javarosa.xform.schema.Harness'
     }
     duplicatesStrategy = DuplicatesStrategy.FAIL
-    filesMatching(["**/LICENSE.txt","**/NOTICE.txt", "**/org.xmlpull.v1.XmlPullParserFactory","org/xmlpull/v1/*"]) {
+    filesMatching(["**/LICENSE.txt","**/NOTICE.txt", "META-INF/**", "**/org.xmlpull.v1.XmlPullParserFactory","org/xmlpull/v1/*"]) {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 }
