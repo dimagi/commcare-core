@@ -46,7 +46,7 @@ public class RemoteQueryDatum extends SessionDatum {
     public RemoteQueryDatum(URL url, String storageInstance,
             List<QueryData> hiddenQueryValues,
                             OrderedHashtable<String, QueryPrompt> userQueryPrompts,
-                            boolean useCaseTemplate, boolean defaultSearch, Text title, Text description) {
+                            boolean useCaseTemplate, boolean defaultSearch, boolean dynamicSearch, Text title, Text description) {
         super(storageInstance, url.toString());
         this.hiddenQueryValues = hiddenQueryValues;
         this.userQueryPrompts = userQueryPrompts;
@@ -83,7 +83,7 @@ public class RemoteQueryDatum extends SessionDatum {
         return defaultSearch;
     }
 
-    public boolean doDynamicSearch() {
+    public boolean hasDynamicSearch() {
         return dynamicSearch;
     }
 
@@ -108,7 +108,7 @@ public class RemoteQueryDatum extends SessionDatum {
         description = (Text) ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
         useCaseTemplate = ExtUtil.readBool(in);
         defaultSearch = ExtUtil.readBool(in);
-        
+        dynamicSearch = ExtUtil.readBool(in);
     }
 
     @Override
