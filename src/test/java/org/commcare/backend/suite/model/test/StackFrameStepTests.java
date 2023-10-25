@@ -167,7 +167,7 @@ public class StackFrameStepTests {
         screen.init(session);
 
         // perform the query
-        boolean success = screen.handleInputAndUpdateSession(session, "", false, null);
+        boolean success = screen.handleInputAndUpdateSession(session, "", false, null, true);
         Assert.assertTrue(success);
 
         assertNull(session.getNeededDatum());

@@ -38,16 +38,17 @@ public abstract class Screen implements OptionsScreen {
      * Based on the the input provided from the user to the command line, either update the session
      * and proceed to the next screen, or handle the input locally and ask to be redrawn
      *
-     * @param session         The current session to be mutated
-     * @param input           the input provided by the user to the command line
-     * @param allowAutoLaunch If this step is allowed to automatically launch an action,
-     *                        assuming it has an autolaunch action specified.
-     * @param selectedValues  Selected entities for a Multi Select Entity Screen
+     * @param session          The current session to be mutated
+     * @param input            the input provided by the user to the command line
+     * @param allowAutoLaunch  If this step is allowed to automatically launch an action,
+     *                         assuming it has an autolaunch action specified.
+     * @param selectedValues   Selected entities for a Multi Select Entity Screen
+     * @param respectRelevancy Whether to respect display conditions on a module or form whild handling input
      * @return True if the session was updated and the app should proceed to the next phase, false
      * if the screen wants to continue being redrawn.
      */
     public abstract boolean handleInputAndUpdateSession(CommCareSession session, String input,
-            boolean allowAutoLaunch, String[] selectedValues) throws CommCareSessionException;
+            boolean allowAutoLaunch, String[] selectedValues, boolean respectRelevancy) throws CommCareSessionException;
 
 
     /**

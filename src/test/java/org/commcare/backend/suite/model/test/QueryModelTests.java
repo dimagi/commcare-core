@@ -14,7 +14,6 @@ import org.commcare.test.utilities.MockApp;
 import org.commcare.util.screen.CommCareSessionException;
 import org.commcare.util.screen.QueryScreen;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.InstanceRoot;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,7 +41,7 @@ public class QueryModelTests {
         QueryScreen screen = setupQueryScreen(session);
 
         // perform the query
-        boolean success = screen.handleInputAndUpdateSession(session, "bob,23", false, null);
+        boolean success = screen.handleInputAndUpdateSession(session, "bob,23", false, null,true);
         Assert.assertTrue(success);
 
         // check that session datum requirement is satisfied
@@ -61,7 +60,7 @@ public class QueryModelTests {
         Assert.assertFalse(virtualDataInstanceStorage.contains(expectedInstanceStorageKey));
 
         // perform the query
-        boolean success = screen.handleInputAndUpdateSession(session, "bob,23", false, null);
+        boolean success = screen.handleInputAndUpdateSession(session, "bob,23", false, null, true);
         Assert.assertTrue(success);
 
         // check that saved instance matches expect what we expect
