@@ -18,6 +18,7 @@ import java.util.Vector;
 public class Endpoint implements Externalizable {
 
     String id;
+    boolean respectRelevancy;
     Vector<EndpointArgument> arguments;
     Vector<StackOperation> stackOperations;
 
@@ -25,10 +26,11 @@ public class Endpoint implements Externalizable {
     public Endpoint() {
     }
 
-    public Endpoint(String id, Vector<EndpointArgument> arguments, Vector<StackOperation> stackOperations) {
+    public Endpoint(String id, Vector<EndpointArgument> arguments, Vector<StackOperation> stackOperations, boolean respectRelevancy) {
         this.id = id;
         this.arguments = arguments;
         this.stackOperations = stackOperations;
+        this.respectRelevancy = respectRelevancy;
     }
 
     @Override
@@ -36,6 +38,7 @@ public class Endpoint implements Externalizable {
         id = ExtUtil.readString(in);
         arguments = (Vector<EndpointArgument>)ExtUtil.read(in, new ExtWrapList(EndpointArgument.class), pf);
         stackOperations = (Vector<StackOperation>)ExtUtil.read(in, new ExtWrapList(StackOperation.class), pf);
+        respectRelevancy = ExtUtil.readBool(in);
     }
 
     @Override
@@ -43,6 +46,7 @@ public class Endpoint implements Externalizable {
         ExtUtil.writeString(out, id);
         ExtUtil.write(out, new ExtWrapList(arguments));
         ExtUtil.write(out, new ExtWrapList(stackOperations));
+        ExtUtil.writeBool(out, respectRelevancy);
     }
 
     public String getId() {
@@ -57,6 +61,9 @@ public class Endpoint implements Externalizable {
         return stackOperations;
     }
 
+    public boolean isRespectRelevancy() {
+        return respectRelevancy;
+    }
 
     // Utility Functions
     public static void populateEndpointArgumentsToEvaluationContext(Endpoint endpoint, ArrayList<String> args, EvaluationContext evaluationContext) {

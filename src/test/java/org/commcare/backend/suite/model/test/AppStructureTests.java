@@ -5,6 +5,7 @@ import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.Endpoint;
 import org.commcare.suite.model.EndpointAction;
 import org.commcare.suite.model.GeoOverlay;
 import org.commcare.suite.model.Global;
@@ -22,6 +23,8 @@ import org.junit.Test;
 import io.reactivex.observers.TestObserver;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -215,7 +218,18 @@ public class AppStructureTests {
         Detail detail = mApp.getSession().getPlatform().getDetail("m0_case_short");
         DetailField field = detail.getFields()[0];
         EndpointAction endpointAction = field.getEndpointAction();
-        assertEquals("case_list",endpointAction.getEndpointId());
+        String endpointActionId = endpointAction.getEndpointId();
+        assertEquals("case_list", endpointActionId);
         assertEquals(true, endpointAction.isBackground());
+
+        Endpoint endpoint = mApp.getSession().getPlatform().getEndpoint(endpointActionId);
+        assertEquals(endpoint.getId(), endpointActionId);
+        assertFalse(endpoint.isRespectRelevancy());
+    }
+
+    @Test
+    public void testDefaultEndpointRelevancy_shouldBeTrue() {
+        Endpoint endpoint = mApp.getSession().getPlatform().getEndpoint("endpoint_with_no_relevancy");
+        assertTrue(endpoint.isRespectRelevancy());
     }
 }
