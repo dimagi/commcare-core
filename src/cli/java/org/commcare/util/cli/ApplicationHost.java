@@ -169,7 +169,7 @@ public class ApplicationHost {
             if (s instanceof SyncScreen) {
                 try {
                     s.init(mSession);
-                    s.handleInputAndUpdateSession(mSession, "", false, null);
+                    s.handleInputAndUpdateSession(mSession, "", false, null, true);
                 } catch (CommCareSessionException ccse) {
                     printErrorAndContinue("Error during session execution:", ccse);
                 }
@@ -328,7 +328,8 @@ public class ApplicationHost {
                         screenIsRedrawing = screen.handleInputAndUpdateSession(mSession,
                                                                                USE_SELECTED_VALUES,
                                                                                false,
-                                                                               selectedValues);
+                                                                               selectedValues,
+                                                                true);
                     } else {
                         if (screen instanceof EntityScreen) {
                             boolean isAction = input.startsWith("action "); // Don't wait for case detail if action
@@ -337,7 +338,7 @@ public class ApplicationHost {
                                 waitForCaseDetail = true;
                             }
                         }
-                        screenIsRedrawing = !screen.handleInputAndUpdateSession(mSession, input, false, null);
+                        screenIsRedrawing = !screen.handleInputAndUpdateSession(mSession, input, false, null, true);
                     }
                     if (!screenIsRedrawing && !waitForCaseDetail) {
                         screen = getNextScreen();
