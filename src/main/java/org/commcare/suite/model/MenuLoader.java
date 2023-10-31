@@ -30,6 +30,9 @@ public class MenuLoader {
     private Exception loadException;
     private String xPathErrorMessage;
     private MenuDisplayable[] menus;
+
+    // Includes both visible and non visible menu items
+    private MenuDisplayable[] allMenus;
     private String[] badges;
     private LoggerInterface loggerInterface;
 
@@ -70,6 +73,7 @@ public class MenuLoader {
             String menuID, boolean hideTrainingRoot,
             boolean includeBadges) {
         Vector<MenuDisplayable> items = new Vector<>();
+        Vector<MenuDisplayable> allItems = new Vector<>();
         Vector<String> badges = new Vector<>();
         Hashtable<String, Entry> map = platform.getCommandToEntryMap();
         for (Suite s : platform.getInstalledSuites()) {
@@ -77,10 +81,10 @@ public class MenuLoader {
                 try {
                     if (m.getId().equals(menuID)) {
                         if (menuIsRelevant(sessionWrapper, m) && menuAssertionsPass(sessionWrapper, m)) {
-                            addRelevantCommandEntries(sessionWrapper, m, items, badges, map, includeBadges);
+                            addRelevantCommandEntries(sessionWrapper, m, items, badges, map, includeBadges, allItems);
                         }
                     } else {
-                        addUnaddedMenu(sessionWrapper, menuID, m, items, badges, hideTrainingRoot, includeBadges);
+                        addUnaddedMenu(sessionWrapper, menuID, m, items, badges, hideTrainingRoot, includeBadges, allItems);
                     }
                 } catch (CommCareInstanceInitializer.FixtureInitializationException
                          | XPathSyntaxException | XPathException xpe) {
@@ -92,6 +96,10 @@ public class MenuLoader {
         }
         menus = new MenuDisplayable[items.size()];
         items.copyInto(menus);
+
+        allMenus = new MenuDisplayable[allItems.size()];
+        allItems.copyInto(allMenus);
+
         if (includeBadges) {
             this.badges = new String[badges.size()];
             badges.copyInto(this.badges);
@@ -100,7 +108,8 @@ public class MenuLoader {
 
     private void addUnaddedMenu(SessionWrapperInterface sessionWrapper, String currentMenuId,
             Menu toAdd, Vector<MenuDisplayable> items, Vector<String> badges,
-            boolean hideTrainingRoot, boolean includeBadges) throws XPathSyntaxException {
+            boolean hideTrainingRoot, boolean includeBadges,
+            Vector<MenuDisplayable> allItems) throws XPathSyntaxException {
         if (hideTrainingRoot && toAdd.getId().equals(Menu.TRAINING_MENU_ROOT)) {
             return;
         }
@@ -116,6 +125,7 @@ public class MenuLoader {
                 }
             }
             if (!idExists) {
+                allItems.add(toAdd);
                 if (menuIsRelevant(sessionWrapper, toAdd)) {
                     items.add(toAdd);
                     if (includeBadges) {
@@ -179,10 +189,12 @@ public class MenuLoader {
             Vector<MenuDisplayable> items,
             Vector<String> badges,
             Hashtable<String, Entry> map,
-            boolean includeBadges)
+            boolean includeBadges,
+            Vector<MenuDisplayable> allItems)
             throws XPathSyntaxException {
         xPathErrorMessage = "";
         for (String command : m.getCommandIds()) {
+            allItems.add(map.get(command));
             XPathExpression relevancyCondition = m.getCommandRelevance(m.indexOfCommand(command));
             if (relevancyCondition != null) {
                 xPathErrorMessage = m.getCommandRelevanceRaw(m.indexOfCommand(command));
@@ -241,6 +253,10 @@ public class MenuLoader {
 
     public MenuDisplayable[] getMenus() {
         return menus;
+    }
+
+    public MenuDisplayable[] getAllMenus() {
+        return allMenus;
     }
 
     public void setMenus(MenuDisplayable[] menus) {
