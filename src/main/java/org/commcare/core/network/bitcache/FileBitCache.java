@@ -38,7 +38,7 @@ public class FileBitCache implements BitCache {
 
         //generate temp file
         temp = File.createTempFile("commcare_pull_" + new Date().getTime(), "xml", cacheLocation);
-        key = CryptUtil.generateSemiRandomKey();
+        key = CryptUtil.generateRandomSecretKey();
     }
 
     @Override

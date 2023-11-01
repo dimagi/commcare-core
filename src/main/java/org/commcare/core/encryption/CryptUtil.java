@@ -138,11 +138,17 @@ public class CryptUtil {
         return null;
     }
 
-    public static SecretKey generateSemiRandomKey() {
+    // Generate random Secret key with a default key lenght of 256 bits
+    public static SecretKey generateRandomSecretKey() {
+        final int AES_DEFAULT_KEY_LENGTH = 256;
+        return generateRandomSecretKey(AES_DEFAULT_KEY_LENGTH);
+    }
+
+    public static SecretKey generateRandomSecretKey(int keylength) {
         KeyGenerator generator;
         try {
             generator = KeyGenerator.getInstance("AES");
-            generator.init(256, new SecureRandom());
+            generator.init(keylength, new SecureRandom());
             return generator.generateKey();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
