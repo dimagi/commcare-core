@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -181,5 +183,18 @@ public class CryptUtil {
         Cipher decrypter = Cipher.getInstance("AES");
         decrypter.init(mode, spec);
         return decrypter;
+    }
+
+    // For RSA
+    public static KeyPair generateRandomKeyPair(int keyLength) {
+        KeyPairGenerator generator;
+        try {
+            generator = KeyPairGenerator.getInstance("RSA");
+            generator.initialize(keyLength, new SecureRandom());
+            return generator.genKeyPair();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
