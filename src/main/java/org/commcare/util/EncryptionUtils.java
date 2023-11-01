@@ -38,7 +38,7 @@ public class EncryptionUtils {
 
     private enum CryptographicOperation {Encryption, Decryption}
 
-    public static KeyStore getPlatformKeyStore() {
+    private static KeyStore getPlatformKeyStore() {
         if (platformKeyStore == null) {
             try {
                 platformKeyStore = KeyStore.getInstance(getPlatformKeyStoreName());
@@ -51,18 +51,18 @@ public class EncryptionUtils {
         return platformKeyStore;
     }
 
-    public static String encryptUsingKeyFromKeyStore(String message, String alias)
+    public static String encryptWithKeyStore(String message, String keyAlias)
             throws EncryptionException {
         Key key;
         try {
-            key = retrieveKeyFromKeyStore(alias, CryptographicOperation.Encryption);
+            key = retrieveKeyFromKeyStore(keyAlias, CryptographicOperation.Encryption);
         } catch (KeyStoreException | UnrecoverableEntryException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
         return encrypt(key.getAlgorithm(), message, key);
     }
 
-    public static String encryptUsingBase64EncodedKey(String algorithm, String message, String key)
+    public static String encryptWithBase64EncodedKey(String algorithm, String message, String key)
             throws EncryptionException {
         Key secret;
         try {
@@ -195,18 +195,18 @@ public class EncryptionUtils {
         }
     }
 
-    public static String decryptUsingKeyFromKeyStore(String message, String alias)
+    public static String decryptWithKeyStore(String message, String keyAlias)
             throws EncryptionException {
         Key key;
         try {
-            key = retrieveKeyFromKeyStore(alias, CryptographicOperation.Decryption);
+            key = retrieveKeyFromKeyStore(keyAlias, CryptographicOperation.Decryption);
         } catch (KeyStoreException | UnrecoverableEntryException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
         return decrypt(key.getAlgorithm(), message, key);
     }
 
-    public static String decryptUsingBase64EncodedKey(String algorithm, String message, String key)
+    public static String decryptWithBase64EncodedKey(String algorithm, String message, String key)
             throws EncryptionException {
         Key secret;
         try {
