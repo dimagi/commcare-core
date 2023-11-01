@@ -146,13 +146,12 @@ public class EncryptionUtils {
             }
             return new SecretKeySpec(keyBytes, AES_ALGORITHM_KEY);
         } else if (algorithm.equals(RSA_ALGORITHM_KEY)) {
-            // This is not very relevant at the moment as the RSA algorithm is only used to encrypt
-            // user credentials on devices runnning Android 5.0 - 5.1.1 for the KeyStore
+            // RSA is only used for Android 5.0 - 5.1.1
             KeyFactory keyFactory = null;
             try {
                 keyFactory = KeyFactory.getInstance(RSA_ALGORITHM_KEY);
             } catch (NoSuchAlgorithmException e) {
-                throw new EncryptionException("There is no Provider for the selected algorithm", e);
+                throw new EncryptionException("There is no Provider for the RSA algorithm", e);
             }
 
             if (cryptographicOperation == CryptographicOperation.Encryption) {
@@ -209,7 +208,7 @@ public class EncryptionUtils {
 
     public static String decryptUsingBase64EncodedKey(String algorithm, String message, String key)
             throws EncryptionException {
-        Key secret = null;
+        Key secret;
         try {
             secret = getKey(algorithm, key, CryptographicOperation.Decryption);
         } catch (InvalidKeySpecException e) {
