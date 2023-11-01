@@ -1,9 +1,10 @@
 package org.javarosa.xpath.test;
 
+import static org.commcare.util.EncryptionUtils.AES_ALGORITHM_KEY;
+import static org.commcare.util.EncryptionUtils.RSA_ALGORITHM_KEY;
 import static org.junit.Assert.fail;
 
 import org.commcare.core.encryption.CryptUtil;
-import org.commcare.util.EncryptionUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.data.IAnswerData;
@@ -33,6 +34,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
+import java.security.InvalidParameterException;
+import java.security.KeyPair;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Vector;
@@ -769,25 +772,39 @@ public class XPathEvalTest {
                                   int keyLength, String message,
                                   Exception expectedException) throws UnsupportedEncodingException {
         SecretKey secretKey = null;
+        KeyPair keyPair = null;
         try {
-            secretKey = CryptUtil.generateRandomSecretKey(keyLength);
-        } catch(Exception ex) {
-            fail("Unexpected exception generating secret key");
+            if (algorithm.equals(AES_ALGORITHM_KEY)) {
+                secretKey = CryptUtil.generateRandomSecretKey(keyLength);
+            } else if (algorithm.equals(RSA_ALGORITHM_KEY)) {
+                keyPair = CryptUtil.generateRandomKeyPair(keyLength);
+            }
+        }catch(Exception ex) {
+            assertExceptionExpected(expectedException != null, ex, expectedException);
+            return;
         }
 
         // The encrypted output contains a random initialization vector, so
         // we can't know in advance what it will be. Instead decrypt the output
         // and check for the input message.
-        String keyString =
-                new String(Base64.getEncoder().encode(secretKey.getEncoded()), "UTF-8");
+        String encryptionKeyString = "", decryptionKeyString = "";
+        if (algorithm.equals(AES_ALGORITHM_KEY)) {
+            encryptionKeyString = decryptionKeyString =
+                    new String(Base64.getEncoder().encode(secretKey.getEncoded()), "UTF-8");
+        } else if (algorithm.equals(RSA_ALGORITHM_KEY)) {
+            encryptionKeyString =
+                    new String(Base64.getEncoder().encode(keyPair.getPublic().getEncoded()), "UTF-8");
+            decryptionKeyString =
+                    new String(Base64.getEncoder().encode(keyPair.getPrivate().getEncoded()), "UTF-8");
+        }
         try {
             Object result = evalExpr("encrypt-string('" + message + "','" +
-                                     keyString + "','" + algorithm + "')",
+                            encryptionKeyString + "','" + algorithm + "')",
                                      null, ec);
             String resultString = FunctionUtils.toString(result);
 
             Object decryptedObject = evalExpr("decrypt-string('" + resultString + "','" +
-                            keyString + "','" + algorithm + "')",
+                            decryptionKeyString + "','" + algorithm + "')",
                     null, ec);
             String decryptedMessage = FunctionUtils.toString(decryptedObject);
             if (!message.equals(decryptedMessage)) {
@@ -803,24 +820,41 @@ public class XPathEvalTest {
 
     @Test
     public void testEncryptString() throws UnsupportedEncodingException {
-        final int KEY_LENGTH_BIT = 256;
+        final int AES_KEY_LENGTH_BIT = 256;
+        final int RSA_KEY_LENGTH_BIT = 1024;
+
         EvaluationContext ec = getFunctionHandlers();
         // Valid inputs that should decrypt to themselves.
-        encryptAndCompare(ec, "AES", KEY_LENGTH_BIT, "49812057128", null);
-        encryptAndCompare(ec, "AES", KEY_LENGTH_BIT,
+        encryptAndCompare(ec, "AES", AES_KEY_LENGTH_BIT, "49812057128", null);
+        encryptAndCompare(ec, "AES", AES_KEY_LENGTH_BIT,
                           "A short message to be encrypted", null);
-        encryptAndCompare(ec, "AES", KEY_LENGTH_BIT,
+        encryptAndCompare(ec, "AES", AES_KEY_LENGTH_BIT,
                           "A longer message to be encrypted by the AES GCM " +
                           "method, which will test that somewhat longer " +
                           "messages can be correctly encrypted", null);
 
+        encryptAndCompare(ec, "RSA", RSA_KEY_LENGTH_BIT,
+                "A message to be successfully encrypted",
+                null);
+
         // Invalid inputs that should raise exceptions.
-        encryptAndCompare(ec, "DES", KEY_LENGTH_BIT,
+        encryptAndCompare(ec, "DES", AES_KEY_LENGTH_BIT,
                           "A short message to be encrypted",
                           new XPathException());
-        encryptAndCompare(ec, "AES", KEY_LENGTH_BIT/2,
+        encryptAndCompare(ec, "AES", AES_KEY_LENGTH_BIT/2,
                           "A short message to be encrypted",
                           new XPathException());
+
+        encryptAndCompare(ec, "RSA", RSA_KEY_LENGTH_BIT/4,
+                "A message whose encryption will fail due to the size of the key, " +
+                "min key size for RSA is 512 bits.",
+                new InvalidParameterException());
+
+        encryptAndCompare(ec, "RSA", RSA_KEY_LENGTH_BIT,
+                "A long message whose encryption will fail due to its lenght. " +
+                "When using RSA, the lenght of the message cannot exceed the size " +
+                "of the key minus bytes reserved for padding, which in this case is PKCS#1",
+                new XPathException());
     }
 
     protected void addDataRef(FormInstance dm, String ref, IAnswerData data) {
