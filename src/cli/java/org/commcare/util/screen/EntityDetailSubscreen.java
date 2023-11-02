@@ -29,6 +29,10 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
     private Detail detail;
 
     public EntityDetailSubscreen(int currentIndex, Detail detail, EvaluationContext subContext, String[] detailListTitles) {
+        this(currentIndex, detail, subContext, detailListTitles, false);
+    }
+
+    public EntityDetailSubscreen(int currentIndex, Detail detail, EvaluationContext subContext, String[] detailListTitles, boolean keepEmptyColumns) {
         this.detail = detail;
         DetailField[] fields = detail.getFields();
 
@@ -42,7 +46,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
         for (DetailField field : fields) {
             Object data = createData(field, subContext);
             // don't add empty details
-            if (data != null && !data.toString().trim().equals("")) {
+            if (keepEmptyColumns || (data != null && !data.toString().trim().equals(""))) {
                 dataTemporary.add(data);
                 headersTemporary.add(createHeader(field, subContext));
                 rowTemporary.add(createRow(field, subContext, data));
