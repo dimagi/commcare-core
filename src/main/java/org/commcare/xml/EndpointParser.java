@@ -22,6 +22,7 @@ public class EndpointParser extends ElementParser<Endpoint> {
     static final String NAME_ENDPOINT = "endpoint";
     private static final String NAME_ARGUMENT = "argument";
     private static final String ATTR_ARGUMENT_ID = "id";
+    private static final String ATTR_ARGUMENT_RESPECT_RELEVANCY = "respect-relevancy";
     private static final String ATTR_ARGUMENT_INSTANCE_ID = "instance-id";
     private static final String ATTR_ARGUMENT_INSTANCE_SRC = "instance-src";
 
@@ -36,6 +37,11 @@ public class EndpointParser extends ElementParser<Endpoint> {
         if (endpointId == null || endpointId.isEmpty()) {
             throw new InvalidStructureException("endpoint must define a non empty id", parser);
         }
+
+        String respectRelevancyStr = parser.getAttributeValue(null, ATTR_ARGUMENT_RESPECT_RELEVANCY);
+
+        // we are defaulting to true by checking against "false"
+        boolean respectReslevancy = !"false".equals(respectRelevancyStr);
 
         Vector<StackOperation> stackOperations = new Vector<>();
         Vector<EndpointArgument> arguments = new Vector<>();
@@ -70,6 +76,6 @@ public class EndpointParser extends ElementParser<Endpoint> {
             }
         }
 
-        return new Endpoint(endpointId, arguments, stackOperations);
+        return new Endpoint(endpointId, arguments, stackOperations, respectReslevancy);
     }
 }
