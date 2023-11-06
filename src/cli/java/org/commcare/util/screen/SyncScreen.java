@@ -101,7 +101,7 @@ public class SyncScreen extends Screen {
     @Trace
     @Override
     public boolean handleInputAndUpdateSession(CommCareSession commCareSession, String s, boolean allowAutoLaunch,
-            String[] selectedValues) throws CommCareSessionException {
+            String[] selectedValues, boolean respectRelevancy) throws CommCareSessionException {
         if (syncSuccessful) {
             updateSessionOnSuccess();
             Entry commandEntry = sessionWrapper.getCurrentEntry();
