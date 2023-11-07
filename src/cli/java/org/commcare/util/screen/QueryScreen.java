@@ -93,6 +93,7 @@ public class QueryScreen extends Screen {
 
         mTitle = getTitleLocaleString();
         description = getDescriptionLocaleString();
+        dynamicSearch = getQueryDatum().getDynamicSearch();
     }
 
     private String getTitleLocaleString() {
@@ -279,10 +280,6 @@ public class QueryScreen extends Screen {
 
     public boolean doDefaultSearch() {
         return remoteQuerySessionManager.doDefaultSearch();
-    }
-
-    public boolean hasDynamicSearch() {
-        return remoteQuerySessionManager.hasDynamicSearch();
     }
 
 
