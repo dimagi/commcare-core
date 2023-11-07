@@ -83,7 +83,7 @@ public class RemoteQueryDatum extends SessionDatum {
         return defaultSearch;
     }
 
-    public boolean hasDynamicSearch() {
+    public boolean getDynamicSearch() {
         return dynamicSearch;
     }
 
