@@ -120,6 +120,7 @@ public class RemoteQueryDatum extends SessionDatum {
         ExtUtil.write(out, new ExtWrapNullable(description));
         ExtUtil.writeBool(out, useCaseTemplate);
         ExtUtil.writeBool(out, defaultSearch);
+        ExtUtil.writeBool(out, dynamicSearch);
 
     }
 }
