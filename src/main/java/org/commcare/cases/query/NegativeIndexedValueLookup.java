@@ -24,4 +24,12 @@ public class NegativeIndexedValueLookup implements PredicateProfile {
     public String getKey() {
         return key;
     }
+
+    @Override
+    public String toString() {
+        return "NegativeIndexedValueLookup{" +
+                "key='" + key + '\'' +
+                ", value=" + value +
+                '}';
+    }
 }

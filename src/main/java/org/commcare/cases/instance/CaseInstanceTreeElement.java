@@ -11,6 +11,7 @@ import org.commcare.cases.query.handlers.ModelQueryLookupHandler;
 import org.commcare.cases.query.queryset.CaseModelQuerySetMatcher;
 import org.commcare.modern.engine.cases.CaseIndexQuerySetTransform;
 import org.commcare.modern.engine.cases.CaseIndexTable;
+import org.commcare.modern.engine.cases.ReverseCaseIndexQuerySetTransform;
 import org.commcare.modern.engine.cases.query.CaseIndexPrefetchHandler;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -83,6 +84,10 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<Case, Ca
         queryPlanner.addQueryHandler(new CaseIndexPrefetchHandler(caseIndexTable));
         CaseModelQuerySetMatcher matcher = new CaseModelQuerySetMatcher(multiplicityIdMapping);
         matcher.addQuerySetTransform(new CaseIndexQuerySetTransform(caseIndexTable));
+        matcher.addMatchAndOutputSetTransform(
+                CaseInstanceTreeElement.CASE_INDEX_EXPR,
+                new ReverseCaseIndexQuerySetTransform(caseIndexTable)
+        );
         queryPlanner.addQueryHandler(new ModelQueryLookupHandler(matcher));
     }
 
