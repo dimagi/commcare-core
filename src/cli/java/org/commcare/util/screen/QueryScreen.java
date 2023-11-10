@@ -59,6 +59,8 @@ public class QueryScreen extends Screen {
 
     private boolean defaultSearch;
 
+    private boolean dynamicSearch;
+
     public QueryScreen(String domainedUsername, String password, PrintStream out,
             VirtualDataInstanceStorage instanceStorage, SessionUtils sessionUtils) {
         this.domainedUsername = domainedUsername;
@@ -91,6 +93,7 @@ public class QueryScreen extends Screen {
 
         mTitle = getTitleLocaleString();
         description = getDescriptionLocaleString();
+        dynamicSearch = getQueryDatum().getDynamicSearch();
     }
 
     private String getTitleLocaleString() {
@@ -211,6 +214,10 @@ public class QueryScreen extends Screen {
         return description;
     }
 
+    public boolean getDynamicSearch() {
+        return dynamicSearch;
+    }
+
     @Override
     public boolean prompt(PrintStream out) {
         if (doDefaultSearch()) {
@@ -274,6 +281,7 @@ public class QueryScreen extends Screen {
     public boolean doDefaultSearch() {
         return remoteQuerySessionManager.doDefaultSearch();
     }
+
 
     public RemoteQueryDatum getQueryDatum() {
         return remoteQuerySessionManager.getQueryDatum();
