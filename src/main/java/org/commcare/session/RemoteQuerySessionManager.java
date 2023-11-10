@@ -306,6 +306,10 @@ public class RemoteQuerySessionManager {
         return queryDatum.doDefaultSearch();
     }
 
+    public boolean getDynamicSearch() {
+        return queryDatum.getDynamicSearch();
+    }
+
     // Converts a string containing space separated list of choices
     // into a string array of individual choices
     public static String[] extractMultipleChoices(String answer) {

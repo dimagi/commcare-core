@@ -126,6 +126,7 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
         }
 
         boolean defaultSearch = "true".equals(parser.getAttributeValue(null, "default_search"));
+        boolean dynamicSearch = "true".equals(parser.getAttributeValue(null, "dynamic_search"));
         Text title = null;
         Text description = null;
         ArrayList<QueryData> hiddenQueryValues = new ArrayList<QueryData>();
@@ -144,7 +145,7 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
                 description = new TextParser(parser).parse();
             }
         }
-        return new RemoteQueryDatum(queryUrl, queryResultStorageInstance,
-                hiddenQueryValues, userQueryPrompts, useCaseTemplate, defaultSearch, title, description);
+        return new RemoteQueryDatum(queryUrl, queryResultStorageInstance, hiddenQueryValues,
+            userQueryPrompts, useCaseTemplate, defaultSearch, dynamicSearch, title, description);
     }
 }
