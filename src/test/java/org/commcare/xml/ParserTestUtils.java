@@ -12,7 +12,7 @@ import java.util.function.Function;
  */
 public class ParserTestUtils {
 
-    public static <T extends CommCareElementParser> T buildParser(String xml, Class<T> parserClass) {
+    public static <T extends ElementParser> T buildParser(String xml, Class<T> parserClass) {
         return buildParser(xml, (xmlParser) -> {
             try {
                 Constructor<T> constructor = parserClass.getConstructor(KXmlParser.class);
@@ -23,7 +23,7 @@ public class ParserTestUtils {
         });
     }
 
-    public static <T extends CommCareElementParser> T buildParser(String xml, Function<KXmlParser, T> builder) {
+    public static <T extends ElementParser> T buildParser(String xml, Function<KXmlParser, T> builder) {
         try {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(xml.getBytes("UTF-8"));
             KXmlParser parser = ElementParser.instantiateParser(inputStream);

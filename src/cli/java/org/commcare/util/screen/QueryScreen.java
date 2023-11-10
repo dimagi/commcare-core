@@ -146,10 +146,10 @@ public class QueryScreen extends Screen {
         return instanceOrError;
     }
 
-    public void updateSession(ExternalDataInstance dataInstance) {
+    public void updateSession(ExternalDataInstance dataInstance, Multimap<String, String> queryData) {
         if (dataInstance != null) {
             ExternalDataInstance userInputInstance = getUserInputInstance();
-            sessionWrapper.setQueryDatum(dataInstance, userInputInstance);
+            sessionWrapper.setQueryDatum(dataInstance, userInputInstance, queryData);
         }
     }
 
@@ -244,7 +244,7 @@ public class QueryScreen extends Screen {
         Multimap<String, String> requestData = getQueryParams(false);
         InputStream response = sessionUtils.makeQueryRequest(url, requestData, domainedUsername, password);
         Pair<ExternalDataInstance, String> instanceOrError = processResponse(response, url, requestData);
-        updateSession(instanceOrError.first);
+        updateSession(instanceOrError.first, requestData);
         if (currentMessage != null) {
             out.println(currentMessage);
         }
