@@ -15,9 +15,7 @@ import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -80,9 +78,8 @@ public class MenuLoader {
             for (Menu m : s.getMenus()) {
                 try {
                     if (m.getId().equals(menuID)) {
-                        if (menuIsRelevant(sessionWrapper, m) && menuAssertionsPass(sessionWrapper, m)) {
-                            addRelevantCommandEntries(sessionWrapper, m, items, badges, map, includeBadges, allItems);
-                        }
+                        boolean addToItems = menuIsRelevant(sessionWrapper, m) && menuAssertionsPass(sessionWrapper, m);
+                        addRelevantCommandEntries(sessionWrapper, m, items, badges, map, includeBadges, allItems, addToItems);
                     } else {
                         addUnaddedMenu(sessionWrapper, menuID, m, items, badges, hideTrainingRoot, includeBadges, allItems);
                     }
@@ -190,7 +187,8 @@ public class MenuLoader {
             Vector<String> badges,
             Hashtable<String, Entry> map,
             boolean includeBadges,
-            Vector<MenuDisplayable> allItems)
+            Vector<MenuDisplayable> allItems,
+            boolean addToItems)
             throws XPathSyntaxException {
         xPathErrorMessage = "";
         for (String command : m.getCommandIds()) {
@@ -228,7 +226,9 @@ public class MenuLoader {
                 }
             }
 
-            items.add(e);
+            if (addToItems) {
+                items.add(e);
+            }
             if (includeBadges) {
                 badges.add(e.getTextForBadge(sessionWrapper.getEvaluationContext(e.getCommandId())).blockingGet());
             }
