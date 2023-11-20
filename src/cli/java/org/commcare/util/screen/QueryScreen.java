@@ -282,6 +282,10 @@ public class QueryScreen extends Screen {
         return remoteQuerySessionManager.doDefaultSearch();
     }
 
+    // returns an unique identifier for this screen
+    public String getQueryKey() {
+        return sessionWrapper.getCommand() + "_" + getQueryDatum().getDataId();
+    }
 
     public RemoteQueryDatum getQueryDatum() {
         return remoteQuerySessionManager.getQueryDatum();
