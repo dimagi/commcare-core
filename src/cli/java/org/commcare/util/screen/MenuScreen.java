@@ -50,9 +50,10 @@ public class MenuScreen extends Screen {
         }
     }
 
-    public boolean handleAutoMenuAdvance(SessionWrapper sessionWrapper) {
-        if (mChoices.length == 1) {
-            sessionWrapper.setCommand(mChoices[0].getCommandID());
+    public boolean handleAutoMenuAdvance(SessionWrapper sessionWrapper, boolean respectRelevancy) {
+        MenuDisplayable[] menuChoices = respectRelevancy ? mChoices : mAllChoices;
+        if (menuChoices.length == 1) {
+            sessionWrapper.setCommand(menuChoices[0].getCommandID());
             return true;
         }
         return false;
