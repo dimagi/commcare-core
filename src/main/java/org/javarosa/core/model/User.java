@@ -40,7 +40,8 @@ public class User implements Persistable, Restorable, IMetaData {
     public static final String META_SYNC_TOKEN = "synctoken";
 
     public int recordId = -1; //record id on device
-    private String username;
+    private String plaintextUsername;
+    private String encryptedUsername;
     private String passwordHash;
     private String uniqueId;  //globally-unique id
 
@@ -93,10 +94,10 @@ public class User implements Persistable, Restorable, IMetaData {
 
     public String getUsername() {
         if (!isPlatformKeyStoreAvailable()) {
-            return this.username;
+            return this.plaintextUsername;
         } else {
             try {
-                return EncryptionUtils.decryptWithKeyStore(this.username, USER_CREDENTIALS_KEY_ALIAS);
+                return EncryptionUtils.decryptWithKeyStore(this.encryptedUsername, USER_CREDENTIALS_KEY_ALIAS);
             } catch (EncryptionUtils.EncryptionException e) {
                 throw new RuntimeException("Error encountered while decrypting the Username ", e);
             }
@@ -131,10 +132,10 @@ public class User implements Persistable, Restorable, IMetaData {
 
     public void setUsername(String username) {
         if (!isPlatformKeyStoreAvailable()) {
-            this.username = username;
+            this.plaintextUsername = username;
         } else {
             try {
-                this.username = EncryptionUtils.encryptWithKeyStore(username, USER_CREDENTIALS_KEY_ALIAS);
+                this.encryptedUsername = EncryptionUtils.encryptWithKeyStore(username, USER_CREDENTIALS_KEY_ALIAS);
             } catch (EncryptionUtils.EncryptionException e) {
                 throw new RuntimeException("Error encountered while encrypting the Username: ", e);
             }
@@ -202,13 +203,14 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     //Don't ever save!
-    private String cachedPwd;
+    private String plaintextCachedPwd;
+    private String encryptedCachedPwd;
     public void setCachedPwd(String password) {
         if (!isPlatformKeyStoreAvailable()) {
-            this.cachedPwd = password;
+            this.plaintextCachedPwd = password;
         } else {
             try {
-                this.cachedPwd = EncryptionUtils.encryptWithKeyStore(password, USER_CREDENTIALS_KEY_ALIAS);
+                this.encryptedCachedPwd = EncryptionUtils.encryptWithKeyStore(password, USER_CREDENTIALS_KEY_ALIAS);
             } catch (EncryptionUtils.EncryptionException e) {
                 throw new RuntimeException("Error encountered while encrypting the Password: ", e);
             }
@@ -217,10 +219,10 @@ public class User implements Persistable, Restorable, IMetaData {
 
     public String getCachedPwd() {
         if (!isPlatformKeyStoreAvailable()) {
-            return this.cachedPwd;
+            return this.plaintextCachedPwd;
         } else {
             try {
-                return EncryptionUtils.decryptWithKeyStore(this.cachedPwd, USER_CREDENTIALS_KEY_ALIAS);
+                return EncryptionUtils.decryptWithKeyStore(this.encryptedCachedPwd, USER_CREDENTIALS_KEY_ALIAS);
             } catch (EncryptionUtils.EncryptionException e) {
                 throw new RuntimeException("Error encountered while decrypting the Password: ", e);
             }
