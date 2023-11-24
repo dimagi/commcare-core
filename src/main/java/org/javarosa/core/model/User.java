@@ -15,6 +15,9 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
 import java.util.Hashtable;
 
 import static org.commcare.util.EncryptionUtils.USER_CREDENTIALS_KEY_ALIAS;
@@ -98,8 +101,8 @@ public class User implements Persistable, Restorable, IMetaData {
         } else {
             try {
                 return EncryptionUtils.decryptWithKeyStore(this.encryptedUsername, USER_CREDENTIALS_KEY_ALIAS);
-            } catch (EncryptionUtils.EncryptionException e) {
-                throw new RuntimeException("Error encountered while decrypting the Username ", e);
+            } catch (UnrecoverableEntryException | KeyStoreException | NoSuchAlgorithmException e) {
+                throw new RuntimeException("Error encountered while retrieving key from keyStore: ", e);
             }
         }
     }
@@ -136,8 +139,8 @@ public class User implements Persistable, Restorable, IMetaData {
         } else {
             try {
                 this.encryptedUsername = EncryptionUtils.encryptWithKeyStore(username, USER_CREDENTIALS_KEY_ALIAS);
-            } catch (EncryptionUtils.EncryptionException e) {
-                throw new RuntimeException("Error encountered while encrypting the Username: ", e);
+            } catch (UnrecoverableEntryException | KeyStoreException | NoSuchAlgorithmException e) {
+                throw new RuntimeException("Error encountered while retrieving key from keyStore: ", e);
             }
         }
     }
@@ -211,8 +214,8 @@ public class User implements Persistable, Restorable, IMetaData {
         } else {
             try {
                 this.encryptedCachedPwd = EncryptionUtils.encryptWithKeyStore(password, USER_CREDENTIALS_KEY_ALIAS);
-            } catch (EncryptionUtils.EncryptionException e) {
-                throw new RuntimeException("Error encountered while encrypting the Password: ", e);
+            } catch (UnrecoverableEntryException | KeyStoreException | NoSuchAlgorithmException e) {
+                throw new RuntimeException("Error encountered while retrieving key from keyStore: ", e);
             }
         }
     }
@@ -223,8 +226,8 @@ public class User implements Persistable, Restorable, IMetaData {
         } else {
             try {
                 return EncryptionUtils.decryptWithKeyStore(this.encryptedCachedPwd, USER_CREDENTIALS_KEY_ALIAS);
-            } catch (EncryptionUtils.EncryptionException e) {
-                throw new RuntimeException("Error encountered while decrypting the Password: ", e);
+            } catch (UnrecoverableEntryException | KeyStoreException | NoSuchAlgorithmException e) {
+                throw new RuntimeException("Error encountered while retrieving key from keyStore: ", e);
             }
         }
     }

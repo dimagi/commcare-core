@@ -52,14 +52,14 @@ public class EncryptionUtils {
     }
 
     public static String encryptWithKeyStore(String message, String keyAlias)
-            throws EncryptionException {
-        Key key;
+            throws UnrecoverableEntryException, KeyStoreException, NoSuchAlgorithmException {
+        Key key = retrieveKeyFromKeyStore(keyAlias, CryptographicOperation.Encryption);
+
         try {
-            key = retrieveKeyFromKeyStore(keyAlias, CryptographicOperation.Encryption);
-        } catch (KeyStoreException | UnrecoverableEntryException | NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            return encrypt(key.getAlgorithm(), message, key);
+        } catch (EncryptionException e) {
+            throw new RuntimeException("Error encountered while encrypting the data: ", e);
         }
-        return encrypt(key.getAlgorithm(), message, key);
     }
 
     public static String encryptWithBase64EncodedKey(String algorithm, String message, String key)
@@ -196,14 +196,13 @@ public class EncryptionUtils {
     }
 
     public static String decryptWithKeyStore(String message, String keyAlias)
-            throws EncryptionException {
-        Key key;
+            throws UnrecoverableEntryException, KeyStoreException, NoSuchAlgorithmException {
+        Key key = retrieveKeyFromKeyStore(keyAlias, CryptographicOperation.Decryption);
         try {
-            key = retrieveKeyFromKeyStore(keyAlias, CryptographicOperation.Decryption);
-        } catch (KeyStoreException | UnrecoverableEntryException | NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            return decrypt(key.getAlgorithm(), message, key);
+        } catch (EncryptionException e) {
+            throw new RuntimeException("Error encountered while decrypting the data ", e);
         }
-        return decrypt(key.getAlgorithm(), message, key);
     }
 
     public static String decryptWithBase64EncodedKey(String algorithm, String message, String key)
