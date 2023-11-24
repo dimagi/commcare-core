@@ -54,6 +54,12 @@ public class User implements Persistable, Restorable, IMetaData {
 
     public Hashtable<String, String> properties = new Hashtable<>();
 
+    //Don't ever save!
+    private String plaintextCachedPwd;
+
+    //Don't ever save!
+    private String encryptedCachedPwd;
+
     public User() {
         setUserType(STANDARD);
     }
@@ -187,9 +193,9 @@ public class User implements Persistable, Restorable, IMetaData {
     public Object getMetaData(String fieldName) {
         if (META_UID.equals(fieldName)) {
             return uniqueId;
-        } else if(META_USERNAME.equals(fieldName)) {
+        } else if (META_USERNAME.equals(fieldName)) {
             return getUsername();
-        } else if(META_ID.equals(fieldName)) {
+        } else if (META_ID.equals(fieldName)) {
             return recordId;
         } else if (META_WRAPPED_KEY.equals(fieldName)) {
             return wrappedKey;
@@ -202,12 +208,9 @@ public class User implements Persistable, Restorable, IMetaData {
     // TODO: Add META_WRAPPED_KEY back in?
     @Override
     public String[] getMetaDataFields() {
-        return new String[] {META_UID, META_USERNAME, META_ID, META_SYNC_TOKEN};
+        return new String[]{META_UID, META_USERNAME, META_ID, META_SYNC_TOKEN};
     }
 
-    //Don't ever save!
-    private String plaintextCachedPwd;
-    private String encryptedCachedPwd;
     public void setCachedPwd(String password) {
         if (!isPlatformKeyStoreAvailable()) {
             this.plaintextCachedPwd = password;
