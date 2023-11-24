@@ -228,6 +228,13 @@ public class AppStructureTests {
     }
 
     @Test
+    public void testDetailWithBorder() {
+        Detail detail = mApp.getSession().getPlatform().getDetail("m0_case_short");
+        DetailField field1 = detail.getFields()[0];
+        assertTrue(field1.getShowBorder());
+    }
+
+    @Test
     public void testDefaultEndpointRelevancy_shouldBeTrue() {
         Endpoint endpoint = mApp.getSession().getPlatform().getEndpoint("endpoint_with_no_relevancy");
         assertTrue(endpoint.isRespectRelevancy());
