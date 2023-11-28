@@ -40,6 +40,9 @@ public class StyleParser extends ElementParser<Integer> {
         String cssID = parser.getAttributeValue(null, "css-id");
         builder.setCssID(cssID);
 
+        String showBorder = parser.getAttributeValue(null, "show-border");
+        builder.setShowBorder(Boolean.parseBoolean(showBorder));
+
         parser.nextTag();
 
         return Integer.valueOf(1);
