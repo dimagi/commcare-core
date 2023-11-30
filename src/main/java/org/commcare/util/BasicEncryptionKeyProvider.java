@@ -1,0 +1,43 @@
+package org.commcare.util;
+
+public class BasicEncryptionKeyProvider implements IEncryptionKeyProvider {
+
+    @Override
+    public EncryptionKeyAndTransformation retrieveKeyFromKeyStore(String keyAlias,
+            EncryptionUtils.CryptographicOperation operation) {
+        return null;
+    }
+
+    @Override
+    public void generateCryptographicKeyInKeyStore(String keyAlias) {
+        // nothing, this version doesn't support a KeyStore
+    }
+
+    @Override
+    public boolean isKeyStoreAvailable() {
+        return false;
+    }
+
+    @Override
+    public String getTransformationString(String algorithm) {
+        String transformation = null;
+        if (algorithm.equals(getAESKeyAlgorithmRepresentation())) {
+            transformation = "AES/GCM/NoPadding";
+        } else if (algorithm.equals(getRSAKeyAlgorithmRepresentation())) {
+            transformation = "RSA/ECB/PKCS1Padding";
+        }
+        // This will cause an error
+        return transformation;
+    }
+
+    @Override
+    public String getAESKeyAlgorithmRepresentation() {
+        return "AES";
+    }
+
+    @Override
+    public String getRSAKeyAlgorithmRepresentation() {
+        return "RSA";
+    }
+
+}
