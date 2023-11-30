@@ -1,7 +1,6 @@
 package org.javarosa.xpath.test;
 
-import static org.commcare.util.EncryptionUtils.AES_ALGORITHM_KEY;
-import static org.commcare.util.EncryptionUtils.RSA_ALGORITHM_KEY;
+import static org.commcare.util.EncryptionUtils.encryptionKeyProvider;
 import static org.junit.Assert.fail;
 
 import org.commcare.core.encryption.CryptUtil;
@@ -774,9 +773,9 @@ public class XPathEvalTest {
         SecretKey secretKey = null;
         KeyPair keyPair = null;
         try {
-            if (algorithm.equals(AES_ALGORITHM_KEY)) {
+            if (algorithm.equals(encryptionKeyProvider.getAESKeyAlgorithmRepresentation())) {
                 secretKey = CryptUtil.generateRandomSecretKey(keyLength);
-            } else if (algorithm.equals(RSA_ALGORITHM_KEY)) {
+            } else if (algorithm.equals(encryptionKeyProvider.getRSAKeyAlgorithmRepresentation())) {
                 keyPair = CryptUtil.generateRandomKeyPair(keyLength);
             }
         }catch(Exception ex) {
@@ -788,10 +787,10 @@ public class XPathEvalTest {
         // we can't know in advance what it will be. Instead decrypt the output
         // and check for the input message.
         String encryptionKeyString = "", decryptionKeyString = "";
-        if (algorithm.equals(AES_ALGORITHM_KEY)) {
+        if (algorithm.equals(encryptionKeyProvider.getAESKeyAlgorithmRepresentation())) {
             encryptionKeyString = decryptionKeyString =
                     new String(Base64.getEncoder().encode(secretKey.getEncoded()), "UTF-8");
-        } else if (algorithm.equals(RSA_ALGORITHM_KEY)) {
+        } else if (algorithm.equals(encryptionKeyProvider.getRSAKeyAlgorithmRepresentation())) {
             encryptionKeyString =
                     new String(Base64.getEncoder().encode(keyPair.getPublic().getEncoded()), "UTF-8");
             decryptionKeyString =
