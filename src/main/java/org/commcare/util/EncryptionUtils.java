@@ -36,20 +36,7 @@ public class EncryptionUtils {
 
     private static KeyStore platformKeyStore;
 
-    private enum CryptographicOperation {Encryption, Decryption}
-
-    private static KeyStore getPlatformKeyStore() {
-        if (platformKeyStore == null) {
-            try {
-                platformKeyStore = KeyStore.getInstance(getPlatformKeyStoreName());
-                platformKeyStore.load(null);
-            } catch (KeyStoreException | IOException | NoSuchAlgorithmException |
-                     CertificateException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return platformKeyStore;
-    }
+    public static IEncryptionKeyProvider encryptionKeyProvider = EncryptionKeyServiceProvider.getInstance().serviceImpl();
 
     /**
      * Encrypts a message using a key stored in the platform KeyStore. The key is retrieved using
