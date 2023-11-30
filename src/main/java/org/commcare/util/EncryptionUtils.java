@@ -34,16 +34,15 @@ public class EncryptionUtils {
      * Encrypts a message using a key stored in the platform KeyStore. The key is retrieved using
      * its alias which is established during key generation.
      *
-     * @param message   a UTF-8 encoded message to be encrypted
-     * @param keyAlias  key alias of the Key stored in the KeyStore, depending on the algorithm,
-     *                  it can be a SecretKey (for AES) or PublicKey (for RSA) to be used to
-     *                  encrypt the message
+     * @param message  a UTF-8 encoded message to be encrypted
+     * @param keyAlias key alias of the Key stored in the KeyStore, depending on the algorithm,
+     *                 it can be a SecretKey (for AES) or PublicKey (for RSA) to be used to
+     *                 encrypt the message
      * @return A base64 encoded payload containing the IV and AES or RSA encrypted ciphertext,
      *         which can be decoded by this utility's decrypt method and the same key
-     *
      * @throws KeyStoreException           if the keystore has not been initialized
      * @throws NoSuchAlgorithmException    if the appropriate data integrity algorithm could not be
-     *         found
+     *                                     found
      * @throws UnrecoverableEntryException if an entry in the keystore cannot be retrieved
      */
     public static String encryptWithKeyStore(String message, String keyAlias)
@@ -73,12 +72,11 @@ public class EncryptionUtils {
      * containing the ciphertext, and, when applicable, a random IV which was used to encrypt
      * the input.
      *
-     * @param algorithm the algorithm to be used to encrypt the data
-     * @param message   a UTF-8 encoded message to be encrypted
-     * @param key       depending on the algorithm, a SecretKey or PublicKey to be used to
-     *                  encrypt the message
-     * @return A base64 encoded payload containing the IV and AES or RSA encrypted ciphertext,
-     *         which can be decoded by this utility's decrypt method and the same key
+     * @param message          a UTF-8 encoded message to be encrypted
+     * @param keyAndTransform  depending on the algorithm, a SecretKey or PublicKey, and
+     *                         cryptographic transformation to be used to encrypt the message
+     * @return  A base64 encoded payload containing the IV and AES or RSA encrypted ciphertext,
+     *          which can be decoded by this utility's decrypt method and the same key
      */
     private static String encrypt(String message, EncryptionKeyAndTransformation keyAndTransform)
             throws EncryptionException {
@@ -171,15 +169,14 @@ public class EncryptionUtils {
      * stored in the platform KeyStore. The key is retrieved using its alias which is established
      * during key generation.
      *
-     * @param message   a UTF-8 encoded message to be decrypted
-     * @param keyAlias  key alias of the Key stored in the KeyStore, depending on the algorithm,
-     *                  it can be a SecretKey (for AES) or PublicKey (for RSA) to be used to
-     *                  decrypt the message
-     * @return          Decrypted message of the provided ciphertext,
-     *
+     * @param message  a UTF-8 encoded message to be decrypted
+     * @param keyAlias key alias of the Key stored in the KeyStore, depending on the algorithm,
+     *                 it can be a SecretKey (for AES) or PublicKey (for RSA) to be used to
+     *                 decrypt the message
+     * @return Decrypted message of the provided ciphertext,
      * @throws KeyStoreException           if the keystore has not been initialized
      * @throws NoSuchAlgorithmException    if the appropriate data integrity algorithm could not be
-     *         found
+     *                                     found
      * @throws UnrecoverableEntryException if an entry in the keystore cannot be retrieved
      */
     public static String decryptWithKeyStore(String message, String keyAlias)
@@ -209,10 +206,9 @@ public class EncryptionUtils {
      * Decrypts a base64 payload containing an IV and AES or RSA encrypted ciphertext using the
      * provided key
      *
-     * @param algorithm the algorithm to be used to decrypt the message
-     * @param message   a message to be decrypted
-     * @param key       dependening on the algorithm, a Secret key or Private key to be used for
-     *                  decryption
+     * @param message         a message to be decrypted
+     * @param keyAndTransform depending on the algorithm, a Secret key or Private key and its
+     *                        respective cryptographic transformation to be used for decryption
      * @return Decrypted message for the given encrypted message
      */
     private static String decrypt(String message, EncryptionKeyAndTransformation keyAndTransform)
