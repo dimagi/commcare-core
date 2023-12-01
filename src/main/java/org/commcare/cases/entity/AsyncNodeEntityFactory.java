@@ -54,7 +54,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         String entityKey = loadCalloutDataMapKey(nodeContext);
         AsyncEntity entity =
                 new AsyncEntity(detail.getFields(), nodeContext, data, mVariableDeclarations,
-                        mEntityCache, mCacheIndex, detail.getId(), entityKey);
+                        mEntityCache, mCacheIndex, detail.getId(), entityKey, detail.getGroup());
 
         if (mCacheIndex != null) {
             mEntitySet.put(mCacheIndex, entity);

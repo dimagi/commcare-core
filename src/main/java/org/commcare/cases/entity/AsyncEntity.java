@@ -3,6 +3,7 @@ package org.commcare.cases.entity;
 
 import org.commcare.cases.util.StringUtils;
 import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.DetailGroup;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
@@ -14,6 +15,8 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+
+import javax.annotation.Nullable;
 
 /**
  * An AsyncEntity is an entity reference which is capable of building its
@@ -38,6 +41,7 @@ public class AsyncEntity extends Entity<TreeReference> {
     private final String[][] sortDataPieces;
     private final EvaluationContext context;
     private final Hashtable<String, XPathExpression> mVariableDeclarations;
+    private final DetailGroup mDetailGroup;
     private boolean mVariableContextLoaded = false;
     private final String mCacheIndex;
     private final String mDetailId;
@@ -60,7 +64,7 @@ public class AsyncEntity extends Entity<TreeReference> {
     public AsyncEntity(DetailField[] fields, EvaluationContext ec,
                        TreeReference t, Hashtable<String, XPathExpression> variables,
                        EntityStorageCache cache, String cacheIndex, String detailId,
-                       String extraKey) {
+                       String extraKey, DetailGroup detailGroup) {
         super(t, extraKey);
 
         this.fields = fields;
@@ -77,6 +81,7 @@ public class AsyncEntity extends Entity<TreeReference> {
         this.mCacheIndex = cacheIndex;
 
         this.mDetailId = detailId;
+        this.mDetailGroup = detailGroup;
     }
 
     private void loadVariableContext() {
@@ -232,5 +237,14 @@ public class AsyncEntity extends Entity<TreeReference> {
             //(as a way to restrict possible matching)
             return input.split("\\s+");
         }
+    }
+
+    @Nullable
+    @Override
+    public String getGroupKey() {
+        if (mDetailGroup != null) {
+            return  (String)mDetailGroup.getFunction().eval(context);
+        }
+        return null;
     }
 }
