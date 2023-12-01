@@ -36,12 +36,7 @@ public class EntityScreenHelper {
      */
     public static List<Entity<TreeReference>> initEntities(EvaluationContext context, Detail detail,
             EntityScreenContext entityScreenContext, TreeReference[] entitiesRefs) {
-        NodeEntityFactory nodeEntityFactory;
-        if (detail.useAsyncStrategy()) {
-            nodeEntityFactory = new AsyncNodeEntityFactory(detail, context, null);
-        } else {
-            nodeEntityFactory = new NodeEntityFactory(detail, context);
-        }
+        NodeEntityFactory nodeEntityFactory = new AsyncNodeEntityFactory(detail, context, null);
         List<Entity<TreeReference>> entities = new ArrayList<>();
         for (TreeReference reference : entitiesRefs) {
             entities.add(nodeEntityFactory.getEntity(reference));
