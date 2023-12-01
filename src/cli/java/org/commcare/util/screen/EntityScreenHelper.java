@@ -1,8 +1,11 @@
 package org.commcare.util.screen;
 
+import org.commcare.cases.entity.AsyncEntity;
+import org.commcare.cases.entity.AsyncNodeEntityFactory;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.EntitySortNotificationInterface;
 import org.commcare.cases.entity.EntitySorter;
+import org.commcare.cases.entity.EntityStorageCache;
 import org.commcare.cases.entity.EntityStringFilterer;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.suite.model.Detail;
@@ -13,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +36,48 @@ public class EntityScreenHelper {
      */
     public static List<Entity<TreeReference>> initEntities(EvaluationContext context, Detail detail,
             EntityScreenContext entityScreenContext, TreeReference[] entitiesRefs) {
-        NodeEntityFactory nodeEntityFactory = new NodeEntityFactory(detail, context);
+        NodeEntityFactory nodeEntityFactory;
+        if (detail.useAsyncStrategy()) {
+            nodeEntityFactory = new AsyncNodeEntityFactory(detail, context, new EntityStorageCache() {
+                @Override
+                public boolean lockCache() {
+                    return true;
+                }
+
+                @Override
+                public void releaseCache() {
+
+                }
+
+                @Override
+                public String getCacheKey(String detailId, String detailFieldIndex) {
+                    return detailId + "_" + detailFieldIndex;
+                }
+
+                @Override
+                public String retrieveCacheValue(String cacheIndex, String cacheKey) {
+                    return null;
+                }
+
+                @Override
+                public void cache(String cacheIndex, String cacheKey, String data) {
+
+                }
+
+                @Override
+                public int getSortFieldIdFromCacheKey(String detailId, String cacheKey) {
+                    return -1;
+                }
+
+                @Override
+                public void primeCache(Hashtable<String, AsyncEntity> entitySet, String[][] cachePrimeKeys,
+                        Detail detail) {
+
+                }
+            });
+        } else {
+            nodeEntityFactory = new NodeEntityFactory(detail, context);
+        }
         List<Entity<TreeReference>> entities = new ArrayList<>();
         for (TreeReference reference : entitiesRefs) {
             entities.add(nodeEntityFactory.getEntity(reference));
