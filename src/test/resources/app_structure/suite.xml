@@ -11,7 +11,7 @@
     </resource>
   </locale>
 
-  <detail id="m0_case_short">
+  <detail id="m0_case_short" lazy_loading="true">
     <title>
       <text>Case List</text>
     </title>

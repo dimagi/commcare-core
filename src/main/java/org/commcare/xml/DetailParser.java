@@ -39,6 +39,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
         String forceLandscapeView = parser.getAttributeValue(null, "force-landscape");
         String printTemplatePath = parser.getAttributeValue(null, "print-template");
         String relevancy = parser.getAttributeValue(null, "relevant");
+        boolean isLazyLoading = Boolean.parseBoolean(parser.getAttributeValue(null, "lazy_loading"));
 
         // First fetch the title
         getNextTagInBlock("detail");
@@ -131,7 +132,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
 
         return new Detail(id, title, noItemsText, nodeset, subdetails, fields, variables, actions, callout,
                 fitAcross, useUniformUnits, forceLandscapeView, focusFunction, printTemplatePath,
-                relevancy, global, detailGroup);
+                relevancy, global, detailGroup, isLazyLoading);
     }
 
     protected DetailParser getDetailParser() {
