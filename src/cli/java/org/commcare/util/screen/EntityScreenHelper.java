@@ -37,7 +37,7 @@ public class EntityScreenHelper {
     public static List<Entity<TreeReference>> initEntities(EvaluationContext context, Detail detail,
             EntityScreenContext entityScreenContext, TreeReference[] entitiesRefs) {
         NodeEntityFactory nodeEntityFactory;
-        if (detail.useAsyncStrategy()) {
+        if (detail.isLazyLoading()) {
             nodeEntityFactory = new AsyncNodeEntityFactory(detail, context, null);
         } else {
             nodeEntityFactory = new NodeEntityFactory(detail, context);
