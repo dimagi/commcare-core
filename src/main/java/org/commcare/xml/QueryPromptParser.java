@@ -40,6 +40,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
     private static final String ATTR_REQUIRED = "required";
     private static final String ATTR_VALIDATION_TEST = "test";
     private static final String NAME_TEXT = "text";
+    private static final String ATTR_GROUP_KEY = "group_key";
 
     public QueryPromptParser(KXmlParser parser) {
         super(parser);
@@ -60,6 +61,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
         XPathExpression defaultValue = xpathPropertyValue(defaultValueString);
         String excludeValueString = parser.getAttributeValue(null, ATTR_EXCLUDE);
         XPathExpression exclude = xpathPropertyValue(excludeValueString);
+        String groupKey = parser.getAttributeValue(null, ATTR_GROUP_KEY);
         XPathExpression oldRequired = xpathPropertyValue(parser.getAttributeValue(null, ATTR_REQUIRED));
 
         QueryPromptCondition validation = null;
@@ -86,7 +88,7 @@ public class QueryPromptParser extends CommCareElementParser<QueryPrompt> {
 
         return new QueryPrompt(key, appearance, input, receive, hidden, display,
                 itemsetBinding, defaultValue, allowBlankValue, exclude,
-                required, validation);
+                required, validation, groupKey);
     }
 
     private QueryPromptCondition parseRequiredBlock(String key)
