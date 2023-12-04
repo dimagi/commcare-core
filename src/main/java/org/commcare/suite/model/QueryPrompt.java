@@ -74,6 +74,9 @@ public class QueryPrompt implements Externalizable {
     @Nullable
     private QueryPromptCondition validation;
 
+    @Nullable
+    private String groupKey;
+
     @SuppressWarnings("unused")
     public QueryPrompt() {
     }
@@ -81,7 +84,7 @@ public class QueryPrompt implements Externalizable {
     public QueryPrompt(String key, String appearance, String input, String receive,
             String hidden, DisplayUnit display, ItemsetBinding itemsetBinding,
             XPathExpression defaultValueExpr, boolean allowBlankValue, XPathExpression exclude,
-            QueryPromptCondition required, QueryPromptCondition validation) {
+            QueryPromptCondition required, QueryPromptCondition validation, String groupKey) {
         this.key = key;
         this.appearance = appearance;
         this.input = input;
@@ -94,6 +97,7 @@ public class QueryPrompt implements Externalizable {
         this.exclude = exclude;
         this.required = required;
         this.validation = validation;
+        this.groupKey = groupKey;
     }
 
     @Override
@@ -111,6 +115,7 @@ public class QueryPrompt implements Externalizable {
         exclude = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
         validation = (QueryPromptCondition)ExtUtil.read(in, new ExtWrapNullable(QueryPromptCondition.class), pf);
         required = (QueryPromptCondition)ExtUtil.read(in, new ExtWrapNullable(QueryPromptCondition.class), pf);
+        groupKey = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
     }
 
     @Override
@@ -128,6 +133,7 @@ public class QueryPrompt implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(exclude == null ? null : new ExtWrapTagged(exclude)));
         ExtUtil.write(out, new ExtWrapNullable(validation));
         ExtUtil.write(out, new ExtWrapNullable(required));
+        ExtUtil.write(out, new ExtWrapNullable(groupKey));
     }
 
     public String getKey() {
@@ -184,6 +190,11 @@ public class QueryPrompt implements Externalizable {
     @Nullable
     public QueryPromptCondition getValidation() {
         return validation;
+    }
+
+    @Nullable
+    public String getGroupKey() {
+        return groupKey;
     }
 
     /**
