@@ -15,6 +15,10 @@ public class QueryGroup implements Externalizable {
     private String key;
     private DisplayUnit display;
 
+    @SuppressWarnings("unused")
+    public QueryGroup() {
+    }
+
     public QueryGroup(String key, DisplayUnit display) {
         this.key = key;
         this.display = display;
