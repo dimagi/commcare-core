@@ -18,6 +18,7 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.QueryPrompt;
+import org.commcare.suite.model.QueryGroup;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.services.locale.Localization;
@@ -44,6 +45,7 @@ public class QueryScreen extends Screen {
 
     private RemoteQuerySessionManager remoteQuerySessionManager;
     protected OrderedHashtable<String, QueryPrompt> userInputDisplays;
+    protected OrderedHashtable<String, QueryGroup> groupHeaders;
     private SessionWrapper sessionWrapper;
     private String[] fields;
     private String mTitle;
@@ -94,6 +96,7 @@ public class QueryScreen extends Screen {
         mTitle = getTitleLocaleString();
         description = getDescriptionLocaleString();
         dynamicSearch = getQueryDatum().getDynamicSearch();
+        groupHeaders = getQueryDatum().getUserQueryGroupHeaders();
     }
 
     private String getTitleLocaleString() {
@@ -260,6 +263,10 @@ public class QueryScreen extends Screen {
 
     public OrderedHashtable<String, QueryPrompt> getUserInputDisplays() {
         return userInputDisplays;
+    }
+
+    public OrderedHashtable<String, QueryGroup> getGroupHeaders() {
+        return groupHeaders;
     }
 
     public String getCurrentMessage() {
