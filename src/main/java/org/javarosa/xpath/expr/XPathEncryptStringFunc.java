@@ -2,7 +2,7 @@ package org.javarosa.xpath.expr;
 
 
 import static org.commcare.util.EncryptionUtils.encryptWithBase64EncodedKey;
-import static org.commcare.util.EncryptionUtils.encryptionKeyProvider;
+import static org.commcare.util.EncryptionUtils.getEncryptionKeyProvider;
 
 import org.commcare.util.EncryptionUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -41,8 +41,8 @@ public class XPathEncryptStringFunc extends XPathFuncExpr {
         String key = FunctionUtils.toString(o2);
         String algorithm = FunctionUtils.toString(o3);
 
-        if (!algorithm.equals(encryptionKeyProvider.getAESKeyAlgorithmRepresentation()) &&
-                !algorithm.equals(encryptionKeyProvider.getRSAKeyAlgorithmRepresentation())) {
+        if (!algorithm.equals(getEncryptionKeyProvider().getAESKeyAlgorithmRepresentation()) &&
+                !algorithm.equals(getEncryptionKeyProvider().getRSAKeyAlgorithmRepresentation())) {
             throw new XPathException("Unknown algorithm \"" + algorithm +
                     "\" for " + NAME);
         }

@@ -102,7 +102,7 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public String getUsername() {
-        if (!EncryptionUtils.encryptionKeyProvider.isKeyStoreAvailable()) {
+        if (!EncryptionUtils.getEncryptionKeyProvider().isKeyStoreAvailable()) {
             return this.plaintextUsername;
         } else {
             try {
@@ -141,7 +141,7 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public void setUsername(String username) {
-        if (!EncryptionUtils.encryptionKeyProvider.isKeyStoreAvailable()) {
+        if (!EncryptionUtils.getEncryptionKeyProvider().isKeyStoreAvailable()) {
             this.plaintextUsername = username;
         } else {
             try {
@@ -214,7 +214,7 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public void setCachedPwd(String password) {
-        if (!EncryptionUtils.encryptionKeyProvider.isKeyStoreAvailable()) {
+        if (!EncryptionUtils.getEncryptionKeyProvider().isKeyStoreAvailable()) {
             this.plaintextCachedPwd = password;
         } else {
             try {
@@ -227,7 +227,7 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public String getCachedPwd() {
-        if (!EncryptionUtils.encryptionKeyProvider.isKeyStoreAvailable()) {
+        if (!EncryptionUtils.getEncryptionKeyProvider().isKeyStoreAvailable()) {
             return this.plaintextCachedPwd;
         } else {
             try {

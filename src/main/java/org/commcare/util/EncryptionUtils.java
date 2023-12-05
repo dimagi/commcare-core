@@ -28,7 +28,19 @@ public class EncryptionUtils {
 
     public enum CryptographicOperation {Encryption, Decryption}
 
-    public static IEncryptionKeyProvider encryptionKeyProvider = EncryptionKeyServiceProvider.getInstance().serviceImpl();
+    private static IEncryptionKeyProvider encryptionKeyProvider = EncryptionKeyServiceProvider.getInstance().serviceImpl();
+
+    public static IEncryptionKeyProvider getEncryptionKeyProvider() {
+        return encryptionKeyProvider;
+    }
+
+    public static void setEncryptionKeyProvider(IEncryptionKeyProvider newEncryptionKeyProvider) {
+        encryptionKeyProvider = newEncryptionKeyProvider;
+    }
+
+    public static void reloadEncryptionKeyProvider() {
+        encryptionKeyProvider = EncryptionKeyServiceProvider.getInstance().serviceImpl();
+    }
 
     /**
      * Encrypts a message using a key stored in the platform KeyStore. The key is retrieved using
