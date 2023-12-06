@@ -8,6 +8,7 @@ import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.data.DateData;
+import org.javarosa.core.model.data.DateTimeData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.SelectOneData;
@@ -22,6 +23,7 @@ import org.javarosa.core.model.utils.test.PersistableSandbox;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.test_utils.ExprEvalUtils;
+import org.javarosa.xform.util.XFormAnswerDataSerializer;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -491,6 +493,26 @@ public class FormDefTest {
         // Confirm that the other repeat is unchanged
         assertEquals(root.getChildMultiplicity("question1"), 2);
         assertNotEquals(root.getChild("question1", 1), null);
+    }
+
+    @Test
+    public void testBindForDateTimeType() {
+        FormParseInit fpi = new FormParseInit("/xform_tests/datetime_bind.xml");
+        FormEntryController fec = initFormEntry(fpi);
+        DateTimeData answer = new DateTimeData(new Date());
+        do {
+            QuestionDef q = fpi.getCurrentQuestion();
+            if (q == null || q.getTextID() == null || "".equals(q.getTextID())) {
+                continue;
+            }
+            if (q.getTextID().equals("time-label")) {
+                fec.answerQuestion(answer);
+            }
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+
+        // test that a value that should be updated has been updated
+        ExprEvalUtils.testEval("/data/case/update/time",
+                fpi.getFormDef().getInstance(), null, new XFormAnswerDataSerializer().serializeAnswerData(answer));
     }
 
     /**
