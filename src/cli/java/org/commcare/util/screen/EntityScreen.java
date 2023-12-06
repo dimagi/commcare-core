@@ -8,6 +8,7 @@ import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.Endpoint;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
@@ -382,6 +383,11 @@ public class EntityScreen extends CompoundScreenHost {
             return null;
         }
         return mPlatform.getDetail(longDetailId);
+    }
+
+    @Nullable
+    public Endpoint getEndpoint(String endpointId) {
+        return mPlatform.getEndpoint(endpointId);
     }
 
     public String[] getDetailListTitles(EvaluationContext subContext, TreeReference reference) {

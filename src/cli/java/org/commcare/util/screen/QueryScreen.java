@@ -9,7 +9,6 @@ import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
 import com.google.common.collect.Multimap;
 
-import org.commcare.cases.util.StringUtils;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.interfaces.VirtualDataInstanceStorage;
 import org.commcare.data.xml.VirtualInstances;
@@ -19,7 +18,6 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.QueryPrompt;
-import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.services.locale.Localization;
@@ -33,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Vector;
 
 import datadog.trace.api.Trace;
 
@@ -61,6 +58,8 @@ public class QueryScreen extends Screen {
     private SessionUtils sessionUtils;
 
     private boolean defaultSearch;
+
+    private boolean dynamicSearch;
 
     public QueryScreen(String domainedUsername, String password, PrintStream out,
             VirtualDataInstanceStorage instanceStorage, SessionUtils sessionUtils) {
@@ -94,6 +93,7 @@ public class QueryScreen extends Screen {
 
         mTitle = getTitleLocaleString();
         description = getDescriptionLocaleString();
+        dynamicSearch = getQueryDatum().getDynamicSearch();
     }
 
     private String getTitleLocaleString() {
@@ -214,6 +214,10 @@ public class QueryScreen extends Screen {
         return description;
     }
 
+    public boolean getDynamicSearch() {
+        return dynamicSearch;
+    }
+
     @Override
     public boolean prompt(PrintStream out) {
         if (doDefaultSearch()) {
@@ -234,7 +238,7 @@ public class QueryScreen extends Screen {
     @Trace
     @Override
     public boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch,
-            String[] selectedValues) {
+            String[] selectedValues, boolean respectRelevancy) {
         String[] answers = input.split(",");
         Hashtable<String, String> userAnswers = new Hashtable<>();
         int count = 0;
@@ -276,6 +280,11 @@ public class QueryScreen extends Screen {
 
     public boolean doDefaultSearch() {
         return remoteQuerySessionManager.doDefaultSearch();
+    }
+
+    // returns an unique identifier for this screen
+    public String getQueryKey() {
+        return sessionWrapper.getCommand() + "_" + getQueryDatum().getDataId();
     }
 
     public RemoteQueryDatum getQueryDatum() {

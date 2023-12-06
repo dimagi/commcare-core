@@ -17,6 +17,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import javax.annotation.Nullable;
+
 /**
  * Detail Fields represent the <field> elements of a suite's detail
  * definitions. The model contains the relevent text templates as well
@@ -43,6 +45,11 @@ public class DetailField implements Externalizable {
     private String headerWidthHint = null;  // Something like "500" or "10%"
     private String templateWidthHint = null;
     private String printIdentifier;
+
+    @Nullable
+    private EndpointAction endpointAction;
+
+    private boolean showBorder;
 
     /**
      * Optional hint which provides a hint for whether rich media should be
@@ -198,6 +205,11 @@ public class DetailField implements Externalizable {
         gridHeight = ExtUtil.readInt(in);
         fontSize = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         showBlanksLastInSort = ExtUtil.readBool(in);
+        horizontalAlign = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        verticalAlign = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        cssID = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        endpointAction = (EndpointAction)ExtUtil.read(in, new ExtWrapNullable(EndpointAction.class), pf);
+        showBorder = ExtUtil.readBool(in);
     }
 
     @Override
@@ -224,6 +236,11 @@ public class DetailField implements Externalizable {
         ExtUtil.writeNumeric(out, gridHeight);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(fontSize));
         ExtUtil.writeBool(out, showBlanksLastInSort);
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(horizontalAlign));
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(verticalAlign));
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(cssID));
+        ExtUtil.write(out, new ExtWrapNullable(endpointAction));
+        ExtUtil.writeBool(out, showBorder);
     }
 
     public int getGridX() {
@@ -250,12 +267,21 @@ public class DetailField implements Externalizable {
         return verticalAlign;
     }
 
+    @Nullable
+    public EndpointAction getEndpointAction() {
+        return endpointAction;
+    }
+
     public String getFontSize() {
         return fontSize;
     }
 
     public String getCssId() {
         return cssID;
+    }
+
+    public boolean getShowBorder() {
+        return showBorder;
     }
 
     public static class Builder {
@@ -375,6 +401,14 @@ public class DetailField implements Externalizable {
 
         public void setCssID(String id) {
             field.cssID = id;
+        }
+
+        public void setEndpointAction(EndpointAction endpointAction) {
+            field.endpointAction = endpointAction;
+        }
+
+        public void setShowBorder(boolean showBorder) {
+            field.showBorder = showBorder;
         }
     }
 }

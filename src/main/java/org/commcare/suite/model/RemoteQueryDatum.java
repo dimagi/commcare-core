@@ -30,6 +30,7 @@ public class RemoteQueryDatum extends SessionDatum {
     private OrderedHashtable<String, QueryPrompt> userQueryPrompts;
     private boolean useCaseTemplate;
     private boolean defaultSearch;
+    private boolean dynamicSearch;
     private Text title;
     private Text description;
 
@@ -45,12 +46,13 @@ public class RemoteQueryDatum extends SessionDatum {
     public RemoteQueryDatum(URL url, String storageInstance,
             List<QueryData> hiddenQueryValues,
                             OrderedHashtable<String, QueryPrompt> userQueryPrompts,
-                            boolean useCaseTemplate, boolean defaultSearch, Text title, Text description) {
+                            boolean useCaseTemplate, boolean defaultSearch, boolean dynamicSearch, Text title, Text description) {
         super(storageInstance, url.toString());
         this.hiddenQueryValues = hiddenQueryValues;
         this.userQueryPrompts = userQueryPrompts;
         this.useCaseTemplate = useCaseTemplate;
         this.defaultSearch = defaultSearch;
+        this.dynamicSearch = dynamicSearch;
         this.title = title;
         this.description = description;
     }
@@ -81,6 +83,10 @@ public class RemoteQueryDatum extends SessionDatum {
         return defaultSearch;
     }
 
+    public boolean getDynamicSearch() {
+        return dynamicSearch;
+    }
+
     public Text getTitleText() {
         return title;
     }
@@ -102,7 +108,7 @@ public class RemoteQueryDatum extends SessionDatum {
         description = (Text) ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
         useCaseTemplate = ExtUtil.readBool(in);
         defaultSearch = ExtUtil.readBool(in);
-        
+        dynamicSearch = ExtUtil.readBool(in);
     }
 
     @Override
@@ -114,6 +120,7 @@ public class RemoteQueryDatum extends SessionDatum {
         ExtUtil.write(out, new ExtWrapNullable(description));
         ExtUtil.writeBool(out, useCaseTemplate);
         ExtUtil.writeBool(out, defaultSearch);
+        ExtUtil.writeBool(out, dynamicSearch);
 
     }
 }

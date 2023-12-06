@@ -8,6 +8,10 @@ public class Style {
     private DisplayFormat displayFormats;
     private int fontSize;
     private int widthHint;
+    private String horizontalAlign;
+    private String verticalAlign;
+
+    private boolean showBorder;
 
     public Style(){}
 
@@ -30,6 +34,10 @@ public class Style {
             setWidthHint(-1);
         }
         setDisplayFormatFromString(detail.getTemplateForm());
+
+        verticalAlign = detail.getVerticalAlign();
+        horizontalAlign = detail.getHorizontalAlign();
+        showBorder = detail.getShowBorder();
     }
 
     enum DisplayFormat {
@@ -104,5 +112,17 @@ public class Style {
     @Override
     public String toString(){
         return "Style: [displayFormat=" + displayFormats + ", fontSize=" + fontSize + "]";
+    }
+
+    public String getHorizontalAlign() {
+        return horizontalAlign;
+    }
+
+    public String getVerticalAlign() {
+        return verticalAlign;
+    }
+
+    public boolean getShowBorder() {
+        return showBorder;
     }
 }

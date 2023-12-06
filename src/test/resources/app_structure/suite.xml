@@ -62,6 +62,9 @@
       </field>
     </lookup>
     <field>
+      <style horz-align="left" vert-align="center" font-size="small" show-border="true">
+        <grid grid-height="2" grid-width="3" grid-x="3" grid-y="5"/>
+      </style>
       <header>
         <text>Name</text>
       </header>
@@ -75,6 +78,7 @@
           <xpath function="case_name"/>
         </text>
       </sort>
+      <endpoint_action endpoint_id="case_list" background="true"/>
     </field>
   </detail>
   <detail id="m0_case_long">
@@ -230,12 +234,19 @@
     <text>Menu</text>
     <command id="m0-f1"/>
   </menu>
-  <endpoint id="case_list">
+  <endpoint id="case_list" respect-relevancy="false">
     <argument id="selected_cases" instance-id="selected_cases" instance-src="jr://instance/selected-entities"/>
     <stack>
       <push>
         <command value="'m0-f0'"/>
         <instance-datum id="case_id" value="$selected_cases"/>
+      </push>
+    </stack>
+  </endpoint>
+  <endpoint id="endpoint_with_no_relevancy">
+    <stack>
+      <push>
+        <command value="'m0-f0'"/>
       </push>
     </stack>
   </endpoint>

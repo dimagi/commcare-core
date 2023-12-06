@@ -22,6 +22,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
+import javax.annotation.Nullable;
+
 /**
  * TODO: This isn't really a great candidate for a
  * singleton interfaces. It should almost certainly be
@@ -117,6 +119,7 @@ public class CommCarePlatform {
         return null;
     }
 
+    @Nullable
     public Endpoint getEndpoint(String endpointId) {
         for(Suite s : getInstalledSuites()) {
             Endpoint endpoint = s.getEndpoint(endpointId);

@@ -8,8 +8,6 @@ import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.MenuLoader;
 import org.commcare.util.LoggerInterface;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -27,6 +25,8 @@ public class MenuScreen extends Screen {
     private SessionWrapper mSession;
 
     private MenuDisplayable[] mChoices;
+
+    private MenuDisplayable[] mAllChoices;
     private String[] badges;
 
     private String mTitle;
@@ -50,9 +50,10 @@ public class MenuScreen extends Screen {
         }
     }
 
-    public boolean handleAutoMenuAdvance(SessionWrapper sessionWrapper) {
-        if (mChoices.length == 1) {
-            sessionWrapper.setCommand(mChoices[0].getCommandID());
+    public boolean handleAutoMenuAdvance(SessionWrapper sessionWrapper, boolean respectRelevancy) {
+        MenuDisplayable[] menuChoices = respectRelevancy ? mChoices : mAllChoices;
+        if (menuChoices.length == 1) {
+            sessionWrapper.setCommand(menuChoices[0].getCommandID());
             return true;
         }
         return false;
@@ -77,6 +78,7 @@ public class MenuScreen extends Screen {
         String root = deriveMenuRoot(session);
         MenuLoader menuLoader = new MenuLoader(session.getPlatform(), session, root, new ScreenLogger(), false, false, false);
         this.mChoices = menuLoader.getMenus();
+        this.mAllChoices = menuLoader.getAllMenus();
         this.mTitle = this.getBestTitle();
         Exception loadException = menuLoader.getLoadException();
         if (loadException != null) {
@@ -119,15 +121,16 @@ public class MenuScreen extends Screen {
     @Trace
     @Override
     public boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch,
-            String[] selectedValues) {
+            String[] selectedValues, boolean respectRelevancy) {
         try {
             int i = Integer.parseInt(input);
             String commandId;
-            MenuDisplayable menuDisplayable = mChoices[i];
+            MenuDisplayable[] choices = respectRelevancy ? mChoices : mAllChoices;
+            MenuDisplayable menuDisplayable = choices[i];
             if (menuDisplayable instanceof Entry) {
                 commandId = ((Entry)menuDisplayable).getCommandId();
             } else {
-                commandId = ((Menu)mChoices[i]).getId();
+                commandId = ((Menu)choices[i]).getId();
             }
             session.setCommand(commandId);
             return true;
@@ -139,6 +142,10 @@ public class MenuScreen extends Screen {
 
     public MenuDisplayable[] getMenuDisplayables() {
         return mChoices;
+    }
+
+    public MenuDisplayable[] getAllChoices() {
+        return mAllChoices;
     }
 
     private String getBestTitle() {

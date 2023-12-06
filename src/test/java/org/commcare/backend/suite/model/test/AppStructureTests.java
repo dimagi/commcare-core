@@ -3,7 +3,10 @@ package org.commcare.backend.suite.model.test;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.Callout;
+import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.Endpoint;
+import org.commcare.suite.model.EndpointAction;
 import org.commcare.suite.model.GeoOverlay;
 import org.commcare.suite.model.Global;
 import org.commcare.suite.model.Menu;
@@ -20,6 +23,8 @@ import org.junit.Test;
 import io.reactivex.observers.TestObserver;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -206,5 +211,32 @@ public class AppStructureTests {
         Menu menuWithAssertionsBlock = s.getMenusWithId("m0").get(0);
         AssertionSet assertions = menuWithAssertionsBlock.getAssertions();
         Assert.assertNotNull(assertions);
+    }
+
+    @Test
+    public void testDetailWithFieldAction() {
+        Detail detail = mApp.getSession().getPlatform().getDetail("m0_case_short");
+        DetailField field = detail.getFields()[0];
+        EndpointAction endpointAction = field.getEndpointAction();
+        String endpointActionId = endpointAction.getEndpointId();
+        assertEquals("case_list", endpointActionId);
+        assertEquals(true, endpointAction.isBackground());
+
+        Endpoint endpoint = mApp.getSession().getPlatform().getEndpoint(endpointActionId);
+        assertEquals(endpoint.getId(), endpointActionId);
+        assertFalse(endpoint.isRespectRelevancy());
+    }
+
+    @Test
+    public void testDetailWithBorder() {
+        Detail detail = mApp.getSession().getPlatform().getDetail("m0_case_short");
+        DetailField field1 = detail.getFields()[0];
+        assertTrue(field1.getShowBorder());
+    }
+
+    @Test
+    public void testDefaultEndpointRelevancy_shouldBeTrue() {
+        Endpoint endpoint = mApp.getSession().getPlatform().getEndpoint("endpoint_with_no_relevancy");
+        assertTrue(endpoint.isRespectRelevancy());
     }
 }
