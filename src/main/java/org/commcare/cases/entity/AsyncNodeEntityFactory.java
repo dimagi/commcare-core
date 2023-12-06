@@ -11,6 +11,8 @@ import org.javarosa.xpath.expr.XPathExpression;
 import java.util.Hashtable;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 /**
  * @author ctsims
  */
@@ -19,6 +21,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     private final OrderedHashtable<String, XPathExpression> mVariableDeclarations;
 
     private final Hashtable<String, AsyncEntity> mEntitySet = new Hashtable<>();
+    @Nullable
     private final EntityStorageCache mEntityCache;
 
     private CacheHost mCacheHost = null;
@@ -29,7 +32,8 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     // Don't show entity list until we primeCache and caches all fields
     private final boolean isBlockingAsyncMode;
 
-    public AsyncNodeEntityFactory(Detail d, EvaluationContext ec, EntityStorageCache entityStorageCache) {
+    public AsyncNodeEntityFactory(Detail d, EvaluationContext ec,
+            @Nullable EntityStorageCache entityStorageCache) {
         super(d, ec);
 
         mVariableDeclarations = detail.getVariableDeclarations();
@@ -54,7 +58,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         String entityKey = loadCalloutDataMapKey(nodeContext);
         AsyncEntity entity =
                 new AsyncEntity(detail.getFields(), nodeContext, data, mVariableDeclarations,
-                        mEntityCache, mCacheIndex, detail.getId(), entityKey);
+                        mEntityCache, mCacheIndex, detail.getId(), entityKey, detail.getGroup());
 
         if (mCacheIndex != null) {
             mEntitySet.put(mCacheIndex, entity);
@@ -77,7 +81,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
      * Note that the cache is lazily built upon first case list search.
      */
     private void primeCache() {
-        if (mTemplateIsCachable == null || !mTemplateIsCachable || mCacheHost == null) {
+        if (mEntityCache == null || mTemplateIsCachable == null || !mTemplateIsCachable || mCacheHost == null) {
             return;
         }
 
