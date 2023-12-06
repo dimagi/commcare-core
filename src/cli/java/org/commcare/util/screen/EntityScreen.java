@@ -257,12 +257,6 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     @Override
-    public String getBreadcrumb(String input, UserSandbox sandbox, SessionWrapper session) {
-        String caseName = FormDataUtil.getCaseName(sandbox, input);
-        return caseName == null ? ScreenUtils.getBestTitle(session) : caseName;
-    }
-
-    @Override
     public Subscreen getCurrentScreen() {
         return mCurrentScreen;
     }
