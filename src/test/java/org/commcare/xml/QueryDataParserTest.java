@@ -143,4 +143,14 @@ public class QueryDataParserTest {
         } catch (InvalidStructureException ignored) {
         }
     }
+
+    @Test
+    public void testParseValueData_withGroupKeyAttribute()
+            throws InvalidStructureException, XmlPullParserException,
+            IOException, UnfullfilledRequirementsException {
+        String query = "<prompt key=\"name\" group_key=\"group_header_1\"></prompt>";
+        QueryPromptParser parser = ParserTestUtils.buildParser(query, QueryPromptParser.class);
+        QueryPrompt queryData = parser.parse();
+        assertEquals("group_header_1", queryData.getGroupKey());
+    }
 }
