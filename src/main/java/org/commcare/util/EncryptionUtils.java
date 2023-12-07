@@ -152,7 +152,7 @@ public class EncryptionUtils {
             key = new SecretKeySpec(keyBytes, encryptionKeyProvider.getAESKeyAlgorithmRepresentation());
         } else if (algorithm.equals(encryptionKeyProvider.getRSAKeyAlgorithmRepresentation())) {
             // RSA is only used for Android 5.0 - 5.1.1
-            KeyFactory keyFactory = null;
+            KeyFactory keyFactory;
             try {
                 keyFactory = KeyFactory.getInstance(encryptionKeyProvider.getRSAKeyAlgorithmRepresentation());
             } catch (NoSuchAlgorithmException e) {
@@ -166,14 +166,14 @@ public class EncryptionUtils {
                 PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
                 key = keyFactory.generatePrivate(keySpec);
             }
-
         }
 
-        if (key != null)
+        if (key == null) {
+            throw new EncryptionUtils.EncryptionException("Encryption key conversion failed");
+        } else {
             return new EncryptionKeyAndTransformation(key,
                     encryptionKeyProvider.getTransformationString(key.getAlgorithm()));
-        else
-            return null;
+        }
     }
 
     /**
