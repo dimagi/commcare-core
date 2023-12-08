@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 
 import org.commcare.suite.model.QueryData;
 import org.commcare.suite.model.QueryPrompt;
+import org.commcare.suite.model.QueryGroup;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -152,5 +153,15 @@ public class QueryDataParserTest {
         QueryPromptParser parser = ParserTestUtils.buildParser(query, QueryPromptParser.class);
         QueryPrompt queryData = parser.parse();
         assertEquals("group_header_1", queryData.getGroupKey());
+    }
+
+    @Test
+    public void testParseValueData_withGroup()
+            throws InvalidStructureException, XmlPullParserException,
+            IOException, UnfullfilledRequirementsException {
+        String query = "<group key=\"group_header_0\"></group>";
+        QueryGroupParser parser = ParserTestUtils.buildParser(query, QueryGroupParser.class);
+        QueryGroup queryData = parser.parse();
+        assertEquals("group_header_0", queryData.getKey());
     }
 }
