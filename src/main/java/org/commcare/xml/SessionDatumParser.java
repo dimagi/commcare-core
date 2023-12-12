@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 /**
  * @author ctsims
@@ -130,7 +131,7 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
         boolean dynamicSearch = "true".equals(parser.getAttributeValue(null, "dynamic_search"));
         Text title = null;
         Text description = null;
-        OrderedHashtable<String, QueryGroup> groupPrompts = new OrderedHashtable<>();
+        Hashtable<String, QueryGroup> groupPrompts = new Hashtable<>();
         ArrayList<QueryData> hiddenQueryValues = new ArrayList<QueryData>();
         while (nextTagInBlock("query")) {
             String tagName = parser.getName();

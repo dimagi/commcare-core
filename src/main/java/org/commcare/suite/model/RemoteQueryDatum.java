@@ -1,6 +1,7 @@
 package org.commcare.suite.model;
 
 import org.javarosa.core.util.OrderedHashtable;
+import java.util.Hashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapBase;
@@ -28,7 +29,7 @@ import java.util.List;
 public class RemoteQueryDatum extends SessionDatum {
     private List<QueryData> hiddenQueryValues;
     private OrderedHashtable<String, QueryPrompt> userQueryPrompts;
-    private OrderedHashtable<String, QueryGroup> userQueryGroupHeaders;
+    private Hashtable<String, QueryGroup> userQueryGroupHeaders;
     private boolean useCaseTemplate;
     private boolean defaultSearch;
     private boolean dynamicSearch;
@@ -48,7 +49,7 @@ public class RemoteQueryDatum extends SessionDatum {
             List<QueryData> hiddenQueryValues,
                             OrderedHashtable<String, QueryPrompt> userQueryPrompts,
                             boolean useCaseTemplate, boolean defaultSearch, boolean dynamicSearch, Text title, Text description,
-                            OrderedHashtable<String, QueryGroup> userQueryGroupHeaders) {
+                            Hashtable<String, QueryGroup> userQueryGroupHeaders) {
         super(storageInstance, url.toString());
         this.hiddenQueryValues = hiddenQueryValues;
         this.userQueryPrompts = userQueryPrompts;
@@ -64,7 +65,7 @@ public class RemoteQueryDatum extends SessionDatum {
         return userQueryPrompts;
     }
 
-    public OrderedHashtable<String, QueryGroup> getUserQueryGroupHeaders() {
+    public Hashtable<String, QueryGroup> getUserQueryGroupHeaders() {
         return userQueryGroupHeaders;
     }
 
@@ -112,7 +113,7 @@ public class RemoteQueryDatum extends SessionDatum {
                 (OrderedHashtable<String, QueryPrompt>)ExtUtil.read(in,
                         new ExtWrapMap(String.class, QueryPrompt.class, ExtWrapMap.TYPE_ORDERED), pf);
         userQueryGroupHeaders =
-                (OrderedHashtable<String, QueryGroup>)ExtUtil.read(in,
+                (Hashtable<String, QueryGroup>)ExtUtil.read(in,
                         new ExtWrapMap(String.class, QueryGroup.class, ExtWrapMap.TYPE_ORDERED), pf);
         title = (Text) ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
         description = (Text) ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
