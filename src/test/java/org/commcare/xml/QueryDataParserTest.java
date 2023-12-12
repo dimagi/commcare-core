@@ -159,7 +159,9 @@ public class QueryDataParserTest {
     public void testParseValueData_withGroup()
             throws InvalidStructureException, XmlPullParserException,
             IOException, UnfullfilledRequirementsException {
-        String query = "<group key=\"group_header_0\"></group>";
+        String query = "<group key=\"group_header_0\">"
+                + "<display><text><locale id=\"search_property.m0.group_header_0\"/></text></display>"
+                + "</group>";
         QueryGroupParser parser = ParserTestUtils.buildParser(query, QueryGroupParser.class);
         QueryGroup queryData = parser.parse();
         assertEquals("group_header_0", queryData.getKey());
