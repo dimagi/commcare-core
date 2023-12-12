@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class QueryGroupParser extends CommCareElementParser<QueryGroup> {
 
-    private static final String NAME_GROUP = "group";
+    public static final String NAME_GROUP = "group";
     private static final String ATTR_KEY = "key";
     private static final String NAME_DISPLAY = "display";
 
