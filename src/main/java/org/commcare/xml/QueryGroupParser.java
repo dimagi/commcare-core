@@ -30,7 +30,17 @@ public class QueryGroupParser extends CommCareElementParser<QueryGroup> {
         while (nextTagInBlock(NAME_GROUP)) {
             if (NAME_DISPLAY.equalsIgnoreCase(parser.getName())) {
                 display = parseDisplayBlock();
+            } else {
+                throw new InvalidStructureException(
+                        "Unrecognised node " + parser.getName() + "in validation for group " + key);
             }
+        }
+
+        if (key == null) {
+            throw new InvalidStructureException("<group> block must define a 'key' attribute", parser);
+        }
+        if (display == null) {
+            throw new InvalidStructureException("<group> block must define a <display> element", parser);
         }
 
         return new QueryGroup(key, display);
