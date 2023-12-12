@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class QueryGroupParser extends CommCareElementParser<QueryGroup> {
 
-    private static final String NAME_PROMPT = "group";
+    private static final String NAME_GROUP = "group";
     private static final String ATTR_KEY = "key";
     private static final String NAME_DISPLAY = "display";
 
@@ -27,7 +27,7 @@ public class QueryGroupParser extends CommCareElementParser<QueryGroup> {
         String key = parser.getAttributeValue(null, ATTR_KEY);
         DisplayUnit display = null;
     
-        while (nextTagInBlock(NAME_PROMPT)) {
+        while (nextTagInBlock(NAME_GROUP)) {
             if (NAME_DISPLAY.equalsIgnoreCase(parser.getName())) {
                 display = parseDisplayBlock();
             }
