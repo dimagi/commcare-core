@@ -147,8 +147,8 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
                 nextTagInBlock("description");
                 description = new TextParser(parser).parse();
             } else if (QueryGroupParser.NAME_GROUP.equals(tagName)){
-                String key = parser.getAttributeValue(null, "key");
-                groupPrompts.put(key, new QueryGroupParser(parser).parse());
+                QueryGroup queryGroup = new QueryGroupParser(parser).parse();
+                groupPrompts.put(queryGroup.getKey(), queryGroup);
             }
         }
         return new RemoteQueryDatum(queryUrl, queryResultStorageInstance, hiddenQueryValues,
