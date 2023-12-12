@@ -47,8 +47,8 @@ public class RemoteQueryDatum extends SessionDatum {
      */
     public RemoteQueryDatum(URL url, String storageInstance,
             List<QueryData> hiddenQueryValues,
-                            OrderedHashtable<String, QueryPrompt> userQueryPrompts,
-                            boolean useCaseTemplate, boolean defaultSearch, boolean dynamicSearch, Text title, Text description,
+                            OrderedHashtable<String, QueryPrompt> userQueryPrompts, boolean useCaseTemplate,
+                            boolean defaultSearch, boolean dynamicSearch, Text title, Text description,
                             Hashtable<String, QueryGroup> userQueryGroupHeaders) {
         super(storageInstance, url.toString());
         this.hiddenQueryValues = hiddenQueryValues;

@@ -22,7 +22,7 @@ public class QueryGroupParser extends CommCareElementParser<QueryGroup> {
     @Override
     public QueryGroup parse() throws InvalidStructureException, IOException, XmlPullParserException,
             UnfullfilledRequirementsException {
-        checkNode("group");
+        checkNode(NAME_GROUP);
 
         String key = parser.getAttributeValue(null, ATTR_KEY);
         DisplayUnit display = null;
