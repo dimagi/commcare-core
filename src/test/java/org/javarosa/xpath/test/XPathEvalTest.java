@@ -773,10 +773,15 @@ public class XPathEvalTest {
         SecretKey secretKey = null;
         KeyPair keyPair = null;
         try {
-            if (algorithm.equals(getEncryptionKeyProvider().getAESKeyAlgorithmRepresentation())) {
-                secretKey = CryptUtil.generateRandomSecretKey(keyLength);
-            } else if (algorithm.equals(getEncryptionKeyProvider().getRSAKeyAlgorithmRepresentation())) {
-                keyPair = CryptUtil.generateRandomKeyPair(keyLength);
+            try {
+                if (algorithm.equals(getEncryptionKeyProvider().getAESKeyAlgorithmRepresentation())) {
+                    secretKey = CryptUtil.generateRandomSecretKey(keyLength);
+                } else if (algorithm.equals(getEncryptionKeyProvider().getRSAKeyAlgorithmRepresentation())) {
+                    keyPair = CryptUtil.generateRandomKeyPair(keyLength);
+                }
+            } catch (InvalidParameterException e) {
+                // redirect InvalidParameterException to XPathException
+                throw new XPathException(e.getMessage());
             }
         } catch (Exception ex) {
             assertExceptionExpected(expectedException != null, ex, expectedException);
