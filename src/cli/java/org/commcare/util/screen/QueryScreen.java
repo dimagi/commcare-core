@@ -269,6 +269,17 @@ public class QueryScreen extends Screen {
         return groupHeaders;
     }
 
+    public Hashtable<String, String> evalGroupHeaders() {
+        Hashtable<String, String> queryGroupMap = new Hashtable<>();
+        for (Map.Entry<String, QueryGroup> entry : groupHeaders.entrySet()) {
+            String key = entry.getKey();
+            QueryGroup queryGroupItem = entry.getValue();
+            String text = queryGroupItem.getDisplay().getText().evaluate(sessionWrapper.getEvaluationContext());
+            queryGroupMap.put(key, text);
+        }
+        return queryGroupMap;
+    }
+
     public String getCurrentMessage() {
         return currentMessage;
     }
