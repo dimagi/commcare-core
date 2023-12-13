@@ -21,7 +21,7 @@ import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.util.Hashtable;
 
-import static org.commcare.util.EncryptionUtils.USER_CREDENTIALS_KEY_ALIAS;
+import static org.commcare.util.EncryptionUtils.CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS;
 
 /**
  * Peristable object representing a CommCare mobile user.
@@ -106,7 +106,7 @@ public class User implements Persistable, Restorable, IMetaData {
             return this.plaintextUsername;
         } else {
             try {
-                return EncryptionUtils.decryptWithKeyStore(this.encryptedUsername, USER_CREDENTIALS_KEY_ALIAS);
+                return EncryptionUtils.decryptWithKeyStore(this.encryptedUsername, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
             } catch (UnrecoverableEntryException | KeyStoreException | NoSuchAlgorithmException |
                      CertificateException | IOException e) {
                 throw new RuntimeException("Error encountered while retrieving key from keyStore: ", e);
@@ -145,7 +145,7 @@ public class User implements Persistable, Restorable, IMetaData {
             this.plaintextUsername = username;
         } else {
             try {
-                this.encryptedUsername = EncryptionUtils.encryptWithKeyStore(username, USER_CREDENTIALS_KEY_ALIAS);
+                this.encryptedUsername = EncryptionUtils.encryptWithKeyStore(username, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
             } catch (UnrecoverableEntryException | KeyStoreException | NoSuchAlgorithmException |
                      CertificateException | IOException e) {
                 throw new RuntimeException("Error encountered while retrieving key from keyStore: ", e);
@@ -218,7 +218,7 @@ public class User implements Persistable, Restorable, IMetaData {
             this.plaintextCachedPwd = password;
         } else {
             try {
-                this.encryptedCachedPwd = EncryptionUtils.encryptWithKeyStore(password, USER_CREDENTIALS_KEY_ALIAS);
+                this.encryptedCachedPwd = EncryptionUtils.encryptWithKeyStore(password, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
             } catch (UnrecoverableEntryException | KeyStoreException | NoSuchAlgorithmException |
                     CertificateException | IOException e) {
                 throw new RuntimeException("Error encountered while retrieving key from keyStore: ", e);
@@ -231,7 +231,7 @@ public class User implements Persistable, Restorable, IMetaData {
             return this.plaintextCachedPwd;
         } else {
             try {
-                return EncryptionUtils.decryptWithKeyStore(this.encryptedCachedPwd, USER_CREDENTIALS_KEY_ALIAS);
+                return EncryptionUtils.decryptWithKeyStore(this.encryptedCachedPwd, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
             } catch (UnrecoverableEntryException | KeyStoreException | NoSuchAlgorithmException |
                      CertificateException | IOException e) {
                 throw new RuntimeException("Error encountered while retrieving key from keyStore: ", e);

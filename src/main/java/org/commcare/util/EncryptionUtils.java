@@ -24,7 +24,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class EncryptionUtils {
 
-    public static final String USER_CREDENTIALS_KEY_ALIAS = "user-credentials-key-alias";
+    public static final String CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS = "cc-in-memory-encryption-key-alias";
 
     public enum CryptographicOperation {Encryption, Decryption}
 
