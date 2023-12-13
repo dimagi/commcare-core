@@ -725,7 +725,7 @@ public class XPathEvalTest {
 
     public void testStringOutput(String xPathInput) throws XPathSyntaxException {
         XPathExpression expr = XPathParseTool.parseXPath(xPathInput);
-        Assert.assertEquals(xPathInput,expr.toPrettyString());
+        Assert.assertEquals(xPathInput, expr.toPrettyString());
     }
 
 
@@ -778,7 +778,7 @@ public class XPathEvalTest {
             } else if (algorithm.equals(getEncryptionKeyProvider().getRSAKeyAlgorithmRepresentation())) {
                 keyPair = CryptUtil.generateRandomKeyPair(keyLength);
             }
-        }catch(Exception ex) {
+        } catch (Exception ex) {
             assertExceptionExpected(expectedException != null, ex, expectedException);
             return;
         }
@@ -799,7 +799,7 @@ public class XPathEvalTest {
         try {
             Object result = evalExpr("encrypt-string('" + message + "','" +
                             encryptionKeyString + "','" + algorithm + "')",
-                                     null, ec);
+                    null, ec);
             String resultString = FunctionUtils.toString(result);
 
             Object decryptedObject = evalExpr("decrypt-string('" + resultString + "','" +
@@ -808,11 +808,11 @@ public class XPathEvalTest {
             String decryptedMessage = FunctionUtils.toString(decryptedObject);
             if (!message.equals(decryptedMessage)) {
                 fail("Expected decrypted message " + message + ", got " +
-                     decryptedMessage);
+                        decryptedMessage);
             }
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             assertExceptionExpected(expectedException != null,
-                                    expectedException, ex);
+                    expectedException, ex);
             return;
         }
     }
@@ -826,11 +826,11 @@ public class XPathEvalTest {
         // Valid inputs that should decrypt to themselves.
         encryptAndCompare(ec, "AES", AES_KEY_LENGTH_BIT, "49812057128", null);
         encryptAndCompare(ec, "AES", AES_KEY_LENGTH_BIT,
-                          "A short message to be encrypted", null);
+                "A short message to be encrypted", null);
         encryptAndCompare(ec, "AES", AES_KEY_LENGTH_BIT,
-                          "A longer message to be encrypted by the AES GCM " +
-                          "method, which will test that somewhat longer " +
-                          "messages can be correctly encrypted", null);
+                "A longer message to be encrypted by the AES GCM " +
+                        "method, which will test that somewhat longer " +
+                        "messages can be correctly encrypted", null);
 
         encryptAndCompare(ec, "RSA", RSA_KEY_LENGTH_BIT,
                 "A message to be successfully encrypted",
@@ -838,21 +838,21 @@ public class XPathEvalTest {
 
         // Invalid inputs that should raise exceptions.
         encryptAndCompare(ec, "DES", AES_KEY_LENGTH_BIT,
-                          "A short message to be encrypted",
-                          new XPathException());
-        encryptAndCompare(ec, "AES", AES_KEY_LENGTH_BIT/2,
-                          "A short message to be encrypted",
-                          new XPathException());
+                "A short message to be encrypted",
+                new XPathException());
+        encryptAndCompare(ec, "AES", AES_KEY_LENGTH_BIT / 2,
+                "A short message to be encrypted",
+                new XPathException());
 
-        encryptAndCompare(ec, "RSA", RSA_KEY_LENGTH_BIT/4,
+        encryptAndCompare(ec, "RSA", RSA_KEY_LENGTH_BIT / 4,
                 "A message whose encryption will fail due to the size of the key, " +
-                "min key size for RSA is 512 bits.",
-                new InvalidParameterException());
+                        "min key size for RSA is 512 bits.",
+                new XPathException());
 
         encryptAndCompare(ec, "RSA", RSA_KEY_LENGTH_BIT,
                 "A long message whose encryption will fail due to its lenght. " +
-                "When using RSA, the lenght of the message cannot exceed the size " +
-                "of the key minus bytes reserved for padding, which in this case is PKCS#1",
+                        "When using RSA, the lenght of the message cannot exceed the size " +
+                        "of the key minus bytes reserved for padding, which in this case is PKCS#1",
                 new XPathException());
     }
 
