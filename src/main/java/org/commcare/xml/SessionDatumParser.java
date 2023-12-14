@@ -6,6 +6,7 @@ import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.MultiSelectEntityDatum;
 import org.commcare.suite.model.QueryData;
+import org.commcare.suite.model.QueryGroup;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 /**
  * @author ctsims
@@ -129,6 +131,7 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
         boolean dynamicSearch = "true".equals(parser.getAttributeValue(null, "dynamic_search"));
         Text title = null;
         Text description = null;
+        Hashtable<String, QueryGroup> groupPrompts = new Hashtable<>();
         ArrayList<QueryData> hiddenQueryValues = new ArrayList<QueryData>();
         while (nextTagInBlock("query")) {
             String tagName = parser.getName();
@@ -143,9 +146,12 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
             } else if ("description".equals(tagName)) {
                 nextTagInBlock("description");
                 description = new TextParser(parser).parse();
+            } else if (QueryGroupParser.NAME_GROUP.equals(tagName)){
+                QueryGroup queryGroup = new QueryGroupParser(parser).parse();
+                groupPrompts.put(queryGroup.getKey(), queryGroup);
             }
         }
         return new RemoteQueryDatum(queryUrl, queryResultStorageInstance, hiddenQueryValues,
-            userQueryPrompts, useCaseTemplate, defaultSearch, dynamicSearch, title, description);
+            userQueryPrompts, useCaseTemplate, defaultSearch, dynamicSearch, title, description, groupPrompts);
     }
 }

@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 
 import org.commcare.suite.model.QueryData;
 import org.commcare.suite.model.QueryPrompt;
+import org.commcare.suite.model.QueryGroup;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -142,5 +143,27 @@ public class QueryDataParserTest {
             fail("Expected InvalidStructureException");
         } catch (InvalidStructureException ignored) {
         }
+    }
+
+    @Test
+    public void testParseValueData_withGroupKeyAttribute()
+            throws InvalidStructureException, XmlPullParserException,
+            IOException, UnfullfilledRequirementsException {
+        String query = "<prompt key=\"name\" group_key=\"group_header_1\"></prompt>";
+        QueryPromptParser parser = ParserTestUtils.buildParser(query, QueryPromptParser.class);
+        QueryPrompt queryData = parser.parse();
+        assertEquals("group_header_1", queryData.getGroupKey());
+    }
+
+    @Test
+    public void testParseValueData_withGroup()
+            throws InvalidStructureException, XmlPullParserException,
+            IOException, UnfullfilledRequirementsException {
+        String query = "<group key=\"group_header_0\">"
+                + "<display><text><locale id=\"search_property.m0.group_header_0\"/></text></display>"
+                + "</group>";
+        QueryGroupParser parser = ParserTestUtils.buildParser(query, QueryGroupParser.class);
+        QueryGroup queryData = parser.parse();
+        assertEquals("group_header_0", queryData.getKey());
     }
 }

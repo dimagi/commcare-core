@@ -1,6 +1,7 @@
 package org.commcare.suite.model;
 
 import org.javarosa.core.util.OrderedHashtable;
+import java.util.Hashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapBase;
@@ -28,6 +29,7 @@ import java.util.List;
 public class RemoteQueryDatum extends SessionDatum {
     private List<QueryData> hiddenQueryValues;
     private OrderedHashtable<String, QueryPrompt> userQueryPrompts;
+    private Hashtable<String, QueryGroup> userQueryGroupHeaders;
     private boolean useCaseTemplate;
     private boolean defaultSearch;
     private boolean dynamicSearch;
@@ -45,11 +47,13 @@ public class RemoteQueryDatum extends SessionDatum {
      */
     public RemoteQueryDatum(URL url, String storageInstance,
             List<QueryData> hiddenQueryValues,
-                            OrderedHashtable<String, QueryPrompt> userQueryPrompts,
-                            boolean useCaseTemplate, boolean defaultSearch, boolean dynamicSearch, Text title, Text description) {
+                            OrderedHashtable<String, QueryPrompt> userQueryPrompts, boolean useCaseTemplate,
+                            boolean defaultSearch, boolean dynamicSearch, Text title, Text description,
+                            Hashtable<String, QueryGroup> userQueryGroupHeaders) {
         super(storageInstance, url.toString());
         this.hiddenQueryValues = hiddenQueryValues;
         this.userQueryPrompts = userQueryPrompts;
+        this.userQueryGroupHeaders = userQueryGroupHeaders;
         this.useCaseTemplate = useCaseTemplate;
         this.defaultSearch = defaultSearch;
         this.dynamicSearch = dynamicSearch;
@@ -59,6 +63,10 @@ public class RemoteQueryDatum extends SessionDatum {
 
     public OrderedHashtable<String, QueryPrompt> getUserQueryPrompts() {
         return userQueryPrompts;
+    }
+
+    public Hashtable<String, QueryGroup> getUserQueryGroupHeaders() {
+        return userQueryGroupHeaders;
     }
 
     public List<QueryData> getHiddenQueryValues() {
@@ -104,6 +112,9 @@ public class RemoteQueryDatum extends SessionDatum {
         userQueryPrompts =
                 (OrderedHashtable<String, QueryPrompt>)ExtUtil.read(in,
                         new ExtWrapMap(String.class, QueryPrompt.class, ExtWrapMap.TYPE_ORDERED), pf);
+        userQueryGroupHeaders =
+                (Hashtable<String, QueryGroup>)ExtUtil.read(in,
+                        new ExtWrapMap(String.class, QueryGroup.class, ExtWrapMap.TYPE_ORDERED), pf);
         title = (Text) ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
         description = (Text) ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
         useCaseTemplate = ExtUtil.readBool(in);
@@ -116,6 +127,7 @@ public class RemoteQueryDatum extends SessionDatum {
         super.writeExternal(out);
         ExtUtil.write(out, new ExtWrapList(hiddenQueryValues, new ExtWrapTagged()));
         ExtUtil.write(out, new ExtWrapMap(userQueryPrompts));
+        ExtUtil.write(out, new ExtWrapMap(userQueryGroupHeaders));
         ExtUtil.write(out, new ExtWrapNullable(title));
         ExtUtil.write(out, new ExtWrapNullable(description));
         ExtUtil.writeBool(out, useCaseTemplate);
