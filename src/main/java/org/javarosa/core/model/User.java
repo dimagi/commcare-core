@@ -54,10 +54,9 @@ public class User implements Persistable, Restorable, IMetaData {
 
     public Hashtable<String, String> properties = new Hashtable<>();
 
-    //Don't ever save!
+    // plaintextCachedPwd and encryptedCachedPwd are used to store the password in memory, should
+    // not to be persisted. For aspects related to persisting the password, refer to passwordHash
     private String plaintextCachedPwd;
-
-    //Don't ever save!
     private String encryptedCachedPwd;
 
     public User() {
