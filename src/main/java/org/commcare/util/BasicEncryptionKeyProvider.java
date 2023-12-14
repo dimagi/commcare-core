@@ -1,5 +1,8 @@
 package org.commcare.util;
 
+import static org.commcare.util.EncryptionUtils.CC_KEY_ALGORITHM_AES;
+import static org.commcare.util.EncryptionUtils.CC_KEY_ALGORITHM_RSA;
+
 public class BasicEncryptionKeyProvider implements IEncryptionKeyProvider {
 
     @Override
@@ -32,12 +35,12 @@ public class BasicEncryptionKeyProvider implements IEncryptionKeyProvider {
 
     @Override
     public String getAESKeyAlgorithmRepresentation() {
-        return "AES";
+        return CC_KEY_ALGORITHM_AES;
     }
 
     @Override
     public String getRSAKeyAlgorithmRepresentation() {
-        return "RSA";
+        return CC_KEY_ALGORITHM_RSA;
     }
 
 }

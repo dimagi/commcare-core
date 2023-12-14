@@ -24,6 +24,10 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class EncryptionUtils {
 
+    // these key algorithm constants are to be used only outside of any Keystore scope
+    public static final String CC_KEY_ALGORITHM_AES = "AES";
+    public static final String CC_KEY_ALGORITHM_RSA = "RSA";
+
     public static final String CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS = "cc-in-memory-encryption-key-alias";
 
     public enum CryptographicOperation {Encryption, Decryption}
