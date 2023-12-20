@@ -1,6 +1,6 @@
 package org.javarosa.core.model;
 
-import org.commcare.util.EncryptionUtils;
+import org.commcare.util.EncryptionHelper;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.util.restorable.Restorable;
@@ -21,7 +21,7 @@ import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.util.Hashtable;
 
-import static org.commcare.util.EncryptionUtils.CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS;
+import static org.commcare.util.EncryptionHelper.CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS;
 
 /**
  * Peristable object representing a CommCare mobile user.
@@ -53,6 +53,7 @@ public class User implements Persistable, Restorable, IMetaData {
     private byte[] wrappedKey;
 
     public Hashtable<String, String> properties = new Hashtable<>();
+    private EncryptionHelper encryptionHelper = new EncryptionHelper();
 
     // plaintextCachedPwd and encryptedCachedPwd are used to store the password in memory, should
     // not to be persisted. For aspects related to persisting the password, refer to passwordHash
@@ -101,11 +102,11 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public String getUsername() {
-        if (!EncryptionUtils.getEncryptionKeyProvider().isKeyStoreAvailable()) {
+        if (!encryptionHelper.getEncryptionKeyProvider().isKeyStoreAvailable()) {
             return this.plaintextUsername;
         } else {
             try {
-                return EncryptionUtils.decryptWithKeyStore(this.encryptedUsername, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
+                return encryptionHelper.decryptWithKeyStore(this.encryptedUsername, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
             } catch (UnrecoverableEntryException | KeyStoreException | NoSuchAlgorithmException |
                      CertificateException | IOException e) {
                 throw new RuntimeException("Error encountered while retrieving key from keyStore: ", e);
@@ -140,11 +141,11 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public void setUsername(String username) {
-        if (!EncryptionUtils.getEncryptionKeyProvider().isKeyStoreAvailable()) {
+        if (!encryptionHelper.getEncryptionKeyProvider().isKeyStoreAvailable()) {
             this.plaintextUsername = username;
         } else {
             try {
-                this.encryptedUsername = EncryptionUtils.encryptWithKeyStore(username, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
+                this.encryptedUsername = encryptionHelper.encryptWithKeyStore(username, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
             } catch (UnrecoverableEntryException | KeyStoreException | NoSuchAlgorithmException |
                      CertificateException | IOException e) {
                 throw new RuntimeException("Error encountered while retrieving key from keyStore: ", e);
@@ -213,11 +214,11 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public void setCachedPwd(String password) {
-        if (!EncryptionUtils.getEncryptionKeyProvider().isKeyStoreAvailable()) {
+        if (!encryptionHelper.getEncryptionKeyProvider().isKeyStoreAvailable()) {
             this.plaintextCachedPwd = password;
         } else {
             try {
-                this.encryptedCachedPwd = EncryptionUtils.encryptWithKeyStore(password, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
+                this.encryptedCachedPwd = encryptionHelper.encryptWithKeyStore(password, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
             } catch (UnrecoverableEntryException | KeyStoreException | NoSuchAlgorithmException |
                     CertificateException | IOException e) {
                 throw new RuntimeException("Error encountered while retrieving key from keyStore: ", e);
@@ -226,11 +227,11 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public String getCachedPwd() {
-        if (!EncryptionUtils.getEncryptionKeyProvider().isKeyStoreAvailable()) {
+        if (!encryptionHelper.getEncryptionKeyProvider().isKeyStoreAvailable()) {
             return this.plaintextCachedPwd;
         } else {
             try {
-                return EncryptionUtils.decryptWithKeyStore(this.encryptedCachedPwd, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
+                return encryptionHelper.decryptWithKeyStore(this.encryptedCachedPwd, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
             } catch (UnrecoverableEntryException | KeyStoreException | NoSuchAlgorithmException |
                      CertificateException | IOException e) {
                 throw new RuntimeException("Error encountered while retrieving key from keyStore: ", e);

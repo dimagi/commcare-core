@@ -1,13 +1,13 @@
 package org.commcare.util;
 
-import static org.commcare.util.EncryptionUtils.CC_KEY_ALGORITHM_AES;
-import static org.commcare.util.EncryptionUtils.CC_KEY_ALGORITHM_RSA;
+import static org.commcare.util.EncryptionHelper.CC_KEY_ALGORITHM_AES;
+import static org.commcare.util.EncryptionHelper.CC_KEY_ALGORITHM_RSA;
 
 public class BasicEncryptionKeyProvider implements IEncryptionKeyProvider {
 
     @Override
     public EncryptionKeyAndTransformation retrieveKeyFromKeyStore(String keyAlias,
-            EncryptionUtils.CryptographicOperation operation) {
+            EncryptionHelper.CryptographicOperation operation) {
         return null;
     }
 

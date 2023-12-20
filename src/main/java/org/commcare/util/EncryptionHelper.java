@@ -22,7 +22,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-public class EncryptionUtils {
+public class EncryptionHelper {
 
     // these key algorithm constants are to be used only outside of any Keystore scope
     public static final String CC_KEY_ALGORITHM_AES = "AES";
@@ -32,17 +32,17 @@ public class EncryptionUtils {
 
     public enum CryptographicOperation {Encryption, Decryption}
 
-    private static IEncryptionKeyProvider encryptionKeyProvider = EncryptionKeyServiceProvider.getInstance().serviceImpl();
+    private IEncryptionKeyProvider encryptionKeyProvider = EncryptionKeyServiceProvider.getInstance().serviceImpl();
 
-    public static IEncryptionKeyProvider getEncryptionKeyProvider() {
+    public IEncryptionKeyProvider getEncryptionKeyProvider() {
         return encryptionKeyProvider;
     }
 
-    public static void setEncryptionKeyProvider(IEncryptionKeyProvider newEncryptionKeyProvider) {
+    public void setEncryptionKeyProvider(IEncryptionKeyProvider newEncryptionKeyProvider) {
         encryptionKeyProvider = newEncryptionKeyProvider;
     }
 
-    public static void reloadEncryptionKeyProvider() {
+    public void reloadEncryptionKeyProvider() {
         encryptionKeyProvider = EncryptionKeyServiceProvider.getInstance().serviceImpl();
     }
 
@@ -61,7 +61,7 @@ public class EncryptionUtils {
      *                                     found
      * @throws UnrecoverableEntryException if an entry in the keystore cannot be retrieved
      */
-    public static String encryptWithKeyStore(String message, String keyAlias)
+    public String encryptWithKeyStore(String message, String keyAlias)
             throws UnrecoverableEntryException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
         EncryptionKeyAndTransformation keyAndTransformation = encryptionKeyProvider.retrieveKeyFromKeyStore(keyAlias, CryptographicOperation.Encryption);
 
@@ -72,7 +72,7 @@ public class EncryptionUtils {
         }
     }
 
-    public static String encryptWithBase64EncodedKey(String algorithm, String message, String key)
+    public String encryptWithBase64EncodedKey(String algorithm, String message, String key)
             throws EncryptionException {
         EncryptionKeyAndTransformation keyAndTransformation;
         try {
@@ -94,7 +94,7 @@ public class EncryptionUtils {
      * @return  A base64 encoded payload containing the IV and AES or RSA encrypted ciphertext,
      *          which can be decoded by this utility's decrypt method and the same key
      */
-    private static String encrypt(String message, EncryptionKeyAndTransformation keyAndTransform)
+    private String encrypt(String message, EncryptionKeyAndTransformation keyAndTransform)
             throws EncryptionException {
         final int MIN_IV_LENGTH_BYTE = 1;
         final int MAX_IV_LENGTH_BYTE = 255;
@@ -135,22 +135,22 @@ public class EncryptionUtils {
      *                               to the RSA algorithm
      * @return Secret key, Public key or Private Key to be used
      */
-    private static EncryptionKeyAndTransformation getKey(String algorithm,
+    private EncryptionKeyAndTransformation getKey(String algorithm,
                                                          String base64encodedKey,
-                                                         EncryptionUtils.CryptographicOperation cryptographicOperation)
-            throws EncryptionUtils.EncryptionException, InvalidKeySpecException {
+                                                         EncryptionHelper.CryptographicOperation cryptographicOperation)
+            throws EncryptionHelper.EncryptionException, InvalidKeySpecException {
         byte[] keyBytes;
         try {
             keyBytes = Base64.decode(base64encodedKey);
         } catch (Base64DecoderException e) {
-            throw new EncryptionUtils.EncryptionException("Encryption key base 64 encoding is invalid", e);
+            throw new EncryptionHelper.EncryptionException("Encryption key base 64 encoding is invalid", e);
         }
         Key key = null;
         if (algorithm.equals(encryptionKeyProvider.getAESKeyAlgorithmRepresentation())) {
             final int KEY_LENGTH_BIT = 256;
 
             if (8 * keyBytes.length != KEY_LENGTH_BIT) {
-                throw new EncryptionUtils.EncryptionException("Key should be " + KEY_LENGTH_BIT +
+                throw new EncryptionHelper.EncryptionException("Key should be " + KEY_LENGTH_BIT +
                         " bits long, not " + 8 * keyBytes.length);
             }
             key = new SecretKeySpec(keyBytes, encryptionKeyProvider.getAESKeyAlgorithmRepresentation());
@@ -160,10 +160,10 @@ public class EncryptionUtils {
             try {
                 keyFactory = KeyFactory.getInstance(encryptionKeyProvider.getRSAKeyAlgorithmRepresentation());
             } catch (NoSuchAlgorithmException e) {
-                throw new EncryptionUtils.EncryptionException("There is no Provider for the RSA algorithm", e);
+                throw new EncryptionHelper.EncryptionException("There is no Provider for the RSA algorithm", e);
             }
 
-            if (cryptographicOperation == EncryptionUtils.CryptographicOperation.Encryption) {
+            if (cryptographicOperation == EncryptionHelper.CryptographicOperation.Encryption) {
                 X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
                 key = keyFactory.generatePublic(keySpec);
             } else {
@@ -173,7 +173,7 @@ public class EncryptionUtils {
         }
 
         if (key == null) {
-            throw new EncryptionUtils.EncryptionException("Encryption key conversion failed");
+            throw new EncryptionHelper.EncryptionException("Encryption key conversion failed");
         } else {
             return new EncryptionKeyAndTransformation(key,
                     encryptionKeyProvider.getTransformationString(key.getAlgorithm()));
@@ -195,7 +195,7 @@ public class EncryptionUtils {
      *                                     found
      * @throws UnrecoverableEntryException if an entry in the keystore cannot be retrieved
      */
-    public static String decryptWithKeyStore(String message, String keyAlias)
+    public String decryptWithKeyStore(String message, String keyAlias)
             throws UnrecoverableEntryException, KeyStoreException, NoSuchAlgorithmException,
             CertificateException, IOException {
         EncryptionKeyAndTransformation keyAndTransformation =
@@ -207,7 +207,7 @@ public class EncryptionUtils {
         }
     }
 
-    public static String decryptWithBase64EncodedKey(String algorithm, String message, String key)
+    public String decryptWithBase64EncodedKey(String algorithm, String message, String key)
             throws EncryptionException {
         EncryptionKeyAndTransformation keyAndTransformation;
         try {
@@ -227,7 +227,7 @@ public class EncryptionUtils {
      *                        respective cryptographic transformation to be used for decryption
      * @return Decrypted message for the given encrypted message
      */
-    private static String decrypt(String message, EncryptionKeyAndTransformation keyAndTransform)
+    private String decrypt(String message, EncryptionKeyAndTransformation keyAndTransform)
             throws EncryptionException {
         final int TAG_LENGTH_BIT = 128;
 
@@ -256,7 +256,7 @@ public class EncryptionUtils {
         }
     }
 
-    public static class EncryptionException extends Exception {
+    public class EncryptionException extends Exception {
 
         public EncryptionException(String message) {
             super(message);

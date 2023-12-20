@@ -1,7 +1,7 @@
 package org.javarosa.xpath.test;
 
-import static org.commcare.util.EncryptionUtils.CC_KEY_ALGORITHM_AES;
-import static org.commcare.util.EncryptionUtils.CC_KEY_ALGORITHM_RSA;
+import static org.commcare.util.EncryptionHelper.CC_KEY_ALGORITHM_AES;
+import static org.commcare.util.EncryptionHelper.CC_KEY_ALGORITHM_RSA;
 import static org.junit.Assert.fail;
 
 import org.commcare.core.encryption.CryptUtil;

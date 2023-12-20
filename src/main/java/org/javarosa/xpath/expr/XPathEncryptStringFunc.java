@@ -1,11 +1,10 @@
 package org.javarosa.xpath.expr;
 
 
-import static org.commcare.util.EncryptionUtils.CC_KEY_ALGORITHM_AES;
-import static org.commcare.util.EncryptionUtils.CC_KEY_ALGORITHM_RSA;
-import static org.commcare.util.EncryptionUtils.encryptWithBase64EncodedKey;
+import static org.commcare.util.EncryptionHelper.CC_KEY_ALGORITHM_AES;
+import static org.commcare.util.EncryptionHelper.CC_KEY_ALGORITHM_RSA;
 
-import org.commcare.util.EncryptionUtils;
+import org.commcare.util.EncryptionHelper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.XPathException;
@@ -15,6 +14,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 public class XPathEncryptStringFunc extends XPathFuncExpr {
     public static final String NAME = "encrypt-string";
     private static final int EXPECTED_ARG_COUNT = 3;
+    private EncryptionHelper encryptionHelper = new EncryptionHelper();
 
     public XPathEncryptStringFunc() {
         name = NAME;
@@ -37,7 +37,7 @@ public class XPathEncryptStringFunc extends XPathFuncExpr {
      * @param o2       the key used for encryption
      * @param o3 the encryption algorithm to use
      */
-    private static String encryptString(Object o1, Object o2, Object o3) {
+    private String encryptString(Object o1, Object o2, Object o3) {
         String message = FunctionUtils.toString(o1);
         String key = FunctionUtils.toString(o2);
         String algorithm = FunctionUtils.toString(o3);
@@ -49,8 +49,8 @@ public class XPathEncryptStringFunc extends XPathFuncExpr {
         }
 
         try {
-            return encryptWithBase64EncodedKey(algorithm, message, key);
-        } catch (EncryptionUtils.EncryptionException e) {
+            return encryptionHelper.encryptWithBase64EncodedKey(algorithm, message, key);
+        } catch (EncryptionHelper.EncryptionException e) {
             throw new XPathException(e);
         }
     }

@@ -15,7 +15,7 @@ import java.security.cert.CertificateException;
 public interface IEncryptionKeyProvider {
 
     EncryptionKeyAndTransformation retrieveKeyFromKeyStore(String keyAlias,
-                                                           EncryptionUtils.CryptographicOperation operation)
+                                                           EncryptionHelper.CryptographicOperation operation)
             throws KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException, CertificateException, IOException;
 
     void generateCryptographicKeyInKeyStore(String keyAlias);
