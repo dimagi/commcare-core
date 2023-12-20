@@ -62,7 +62,7 @@
       </field>
     </lookup>
     <field>
-      <style horz-align="left" vert-align="center" font-size="small" show-border="true">
+      <style horz-align="left" vert-align="center" font-size="small" show-border="true" show-shading="true">
         <grid grid-height="2" grid-width="3" grid-x="3" grid-y="5"/>
       </style>
       <header>
