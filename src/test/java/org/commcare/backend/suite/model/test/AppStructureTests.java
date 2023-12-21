@@ -235,6 +235,13 @@ public class AppStructureTests {
     }
 
     @Test
+    public void testDetailWithShading() {
+        Detail detail = mApp.getSession().getPlatform().getDetail("m0_case_short");
+        DetailField field1 = detail.getFields()[0];
+        assertTrue(field1.getShowShading());
+    }
+
+    @Test
     public void testDetailWithLazyLoadingSet() {
         Detail detail = mApp.getSession().getPlatform().getDetail("m0_case_short");
         assertTrue(detail.isLazyLoading());
