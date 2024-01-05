@@ -43,6 +43,9 @@ public class StyleParser extends ElementParser<Integer> {
         String showBorder = parser.getAttributeValue(null, "show-border");
         builder.setShowBorder(Boolean.parseBoolean(showBorder));
 
+        String showShading = parser.getAttributeValue(null, "show-shading");
+        builder.setShowShading(Boolean.parseBoolean(showShading));
+
         parser.nextTag();
 
         return Integer.valueOf(1);

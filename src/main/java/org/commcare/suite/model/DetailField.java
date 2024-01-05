@@ -50,6 +50,7 @@ public class DetailField implements Externalizable {
     private EndpointAction endpointAction;
 
     private boolean showBorder;
+    private boolean showShading;
 
     /**
      * Optional hint which provides a hint for whether rich media should be
@@ -210,6 +211,7 @@ public class DetailField implements Externalizable {
         cssID = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         endpointAction = (EndpointAction)ExtUtil.read(in, new ExtWrapNullable(EndpointAction.class), pf);
         showBorder = ExtUtil.readBool(in);
+        showShading = ExtUtil.readBool(in);
     }
 
     @Override
@@ -241,6 +243,7 @@ public class DetailField implements Externalizable {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(cssID));
         ExtUtil.write(out, new ExtWrapNullable(endpointAction));
         ExtUtil.writeBool(out, showBorder);
+        ExtUtil.writeBool(out, showShading);
     }
 
     public int getGridX() {
@@ -282,6 +285,10 @@ public class DetailField implements Externalizable {
 
     public boolean getShowBorder() {
         return showBorder;
+    }
+
+    public boolean getShowShading() {
+        return showShading;
     }
 
     public static class Builder {
@@ -410,5 +417,7 @@ public class DetailField implements Externalizable {
         public void setShowBorder(boolean showBorder) {
             field.showBorder = showBorder;
         }
+
+        public void setShowShading(boolean showShading) { field.showShading = showShading; }
     }
 }
