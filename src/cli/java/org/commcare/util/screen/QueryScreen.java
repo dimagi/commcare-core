@@ -62,6 +62,7 @@ public class QueryScreen extends Screen {
     private boolean defaultSearch;
 
     private boolean dynamicSearch;
+    private boolean searchOnClear;
 
     public QueryScreen(String domainedUsername, String password, PrintStream out,
             VirtualDataInstanceStorage instanceStorage, SessionUtils sessionUtils) {
@@ -96,6 +97,7 @@ public class QueryScreen extends Screen {
         mTitle = getTitleLocaleString();
         description = getDescriptionLocaleString();
         dynamicSearch = getQueryDatum().getDynamicSearch();
+        searchOnClear = getQueryDatum().isSearchOnClear();
         groupHeaders = getQueryDatum().getUserQueryGroupHeaders();
     }
 
@@ -219,6 +221,10 @@ public class QueryScreen extends Screen {
 
     public boolean getDynamicSearch() {
         return dynamicSearch;
+    }
+
+    public boolean isSearchOnClear(){
+        return searchOnClear;
     }
 
     @Override
