@@ -64,6 +64,9 @@ public class Detail implements Externalizable {
     @Nullable
     private Text noItemsText;
 
+    @Nullable
+    private Text selectText;
+
     /**
      * Optional and only relevant if this detail has child details. In that
      * case, form may be 'image' or omitted.
@@ -123,7 +126,7 @@ public class Detail implements Externalizable {
                   Vector<Action> actions, Callout callout, String fitAcross,
                   String uniformUnitsString, String forceLandscape, String focusFunction,
                   String printPathProvided, String relevancy, Global global, DetailGroup group,
-                  boolean lazyLoading) {
+                  boolean lazyLoading, Text selectText) {
 
         if (detailsVector.size() > 0 && fieldsVector.size() > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
@@ -132,6 +135,7 @@ public class Detail implements Externalizable {
         this.id = id;
         this.title = title;
         this.noItemsText = noItemsText;
+        this.selectText = selectText;
         if (nodeset != null) {
             this.nodeset = XPathReference.getPathExpr(nodeset).getReference();
         }
@@ -199,6 +203,11 @@ public class Detail implements Externalizable {
     @Nullable
     public Text getNoItemsText() {
         return noItemsText;
+    }
+
+    @Nullable
+    public Text getSelectText() {
+        return selectText;
     }
 
     /**
@@ -284,6 +293,7 @@ public class Detail implements Externalizable {
         global = (Global)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
         group = (DetailGroup) ExtUtil.read(in, new ExtWrapNullable(DetailGroup.class), pf);
         lazyLoading = ExtUtil.readBool(in);
+        selectText = (Text) ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
     }
 
     @Override
@@ -307,6 +317,7 @@ public class Detail implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(global == null ? null : new ExtWrapTagged(global)));
         ExtUtil.write(out, new ExtWrapNullable(group));
         ExtUtil.writeBool(out, lazyLoading);
+        ExtUtil.write(out, new ExtWrapNullable(selectText));
     }
 
     public OrderedHashtable<String, XPathExpression> getVariableDeclarations() {
