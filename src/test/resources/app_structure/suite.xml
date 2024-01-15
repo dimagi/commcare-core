@@ -20,6 +20,11 @@
         <locale id="m0_no_items_text"/>
       </text>
     </no_items_text>
+    <select_text>
+      <text>
+        <locale id="m0_select_text"/>
+      </text>
+    </select_text>
     <global>
       <geo-overlay>
         <coordinates>
