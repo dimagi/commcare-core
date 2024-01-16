@@ -205,6 +205,10 @@ public class Detail implements Externalizable {
         return noItemsText;
     }
 
+    /**
+     *
+     * @return Text displayed in the Continue button on multi-select case list.
+     */
     @Nullable
     public Text getSelectText() {
         return selectText;
