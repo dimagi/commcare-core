@@ -61,7 +61,7 @@
     <instance id="casedb" src="jr://instance/casedb"/>
     <instance id="my-search-input" src="jr://instance/search-input/patients"/>
     <session>
-      <query url="https://www.fake.com/patient_search/" storage-instance="patients" dynamic_search="true">
+      <query url="https://www.fake.com/patient_search/" storage-instance="patients" dynamic_search="true" search_on_clear="true">
         <title>
           <text>
             <locale id="query.title"/>
