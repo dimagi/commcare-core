@@ -2,7 +2,6 @@ package org.javarosa.xpath.expr;
 
 
 import static org.commcare.util.EncryptionHelper.CC_KEY_ALGORITHM_AES;
-import static org.commcare.util.EncryptionHelper.CC_KEY_ALGORITHM_RSA;
 
 import org.commcare.util.EncryptionHelper;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -42,8 +41,7 @@ public class XPathEncryptStringFunc extends XPathFuncExpr {
         String key = FunctionUtils.toString(o2);
         String algorithm = FunctionUtils.toString(o3);
 
-        if (!algorithm.equals(CC_KEY_ALGORITHM_AES) &&
-                !algorithm.equals(CC_KEY_ALGORITHM_RSA)) {
+        if (!algorithm.equals(CC_KEY_ALGORITHM_AES)) {
             throw new XPathException("Unknown algorithm \"" + algorithm +
                     "\" for " + NAME);
         }
