@@ -48,7 +48,7 @@ public class XPathDecryptStringFunc extends XPathFuncExpr {
         }
 
         try {
-            return encryptionHelper.decryptWithBase64EncodedKey(algorithm, message, key);
+            return encryptionHelper.decryptWithBase64EncodedKey(message, key);
         } catch (EncryptionHelper.EncryptionException e) {
             throw new XPathException(e);
         }

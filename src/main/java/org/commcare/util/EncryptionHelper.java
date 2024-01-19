@@ -5,15 +5,11 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.KeyFactory;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -72,11 +68,11 @@ public class EncryptionHelper {
         }
     }
 
-    public String encryptWithBase64EncodedKey(String algorithm, String message, String key)
+    public String encryptWithBase64EncodedKey(String message, String key)
             throws EncryptionException {
         EncryptionKeyAndTransformation keyAndTransformation;
         try {
-            keyAndTransformation = getKey(algorithm, key, CryptographicOperation.Encryption);
+            keyAndTransformation = getKey(key);
         } catch (InvalidKeySpecException e) {
             throw new EncryptionException("Invalid Key specifications", e);
         }
@@ -135,49 +131,23 @@ public class EncryptionHelper {
      *                               to the RSA algorithm
      * @return Secret key, Public key or Private Key to be used
      */
-    private EncryptionKeyAndTransformation getKey(String algorithm,
-                                                         String base64encodedKey,
-                                                         EncryptionHelper.CryptographicOperation cryptographicOperation)
+    private EncryptionKeyAndTransformation getKey(String base64encodedKey)
             throws EncryptionHelper.EncryptionException, InvalidKeySpecException {
+        final int KEY_LENGTH_BIT = 256;
         byte[] keyBytes;
         try {
             keyBytes = Base64.decode(base64encodedKey);
         } catch (Base64DecoderException e) {
             throw new EncryptionHelper.EncryptionException("Encryption key base 64 encoding is invalid", e);
         }
-        Key key = null;
-        if (algorithm.equals(encryptionKeyProvider.getAESKeyAlgorithmRepresentation())) {
-            final int KEY_LENGTH_BIT = 256;
 
-            if (8 * keyBytes.length != KEY_LENGTH_BIT) {
-                throw new EncryptionHelper.EncryptionException("Key should be " + KEY_LENGTH_BIT +
-                        " bits long, not " + 8 * keyBytes.length);
-            }
-            key = new SecretKeySpec(keyBytes, encryptionKeyProvider.getAESKeyAlgorithmRepresentation());
-        } else if (algorithm.equals(encryptionKeyProvider.getRSAKeyAlgorithmRepresentation())) {
-            // RSA is only used for Android 5.0 - 5.1.1
-            KeyFactory keyFactory;
-            try {
-                keyFactory = KeyFactory.getInstance(encryptionKeyProvider.getRSAKeyAlgorithmRepresentation());
-            } catch (NoSuchAlgorithmException e) {
-                throw new EncryptionHelper.EncryptionException("There is no Provider for the RSA algorithm", e);
-            }
-
-            if (cryptographicOperation == EncryptionHelper.CryptographicOperation.Encryption) {
-                X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
-                key = keyFactory.generatePublic(keySpec);
-            } else {
-                PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
-                key = keyFactory.generatePrivate(keySpec);
-            }
+        if (8 * keyBytes.length != KEY_LENGTH_BIT) {
+            throw new EncryptionHelper.EncryptionException("Key should be " + KEY_LENGTH_BIT +
+                    " bits long, not " + 8 * keyBytes.length);
         }
-
-        if (key == null) {
-            throw new EncryptionHelper.EncryptionException("Encryption key conversion failed");
-        } else {
-            return new EncryptionKeyAndTransformation(key,
-                    encryptionKeyProvider.getTransformationString(key.getAlgorithm()));
-        }
+        return new EncryptionKeyAndTransformation(
+                new SecretKeySpec(keyBytes, encryptionKeyProvider.getAESKeyAlgorithmRepresentation()),
+                encryptionKeyProvider.getTransformationString(encryptionKeyProvider.getAESKeyAlgorithmRepresentation()));
     }
 
     /**
@@ -207,11 +177,11 @@ public class EncryptionHelper {
         }
     }
 
-    public String decryptWithBase64EncodedKey(String algorithm, String message, String key)
+    public String decryptWithBase64EncodedKey(String message, String key)
             throws EncryptionException {
         EncryptionKeyAndTransformation keyAndTransformation;
         try {
-            keyAndTransformation = getKey(algorithm, key, CryptographicOperation.Decryption);
+            keyAndTransformation = getKey(key);
         } catch (InvalidKeySpecException e) {
             throw new EncryptionException("Invalid Key specifications", e);
         }
