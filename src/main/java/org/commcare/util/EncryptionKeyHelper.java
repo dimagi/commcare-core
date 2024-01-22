@@ -1,5 +1,14 @@
 package org.commcare.util;
 
+import java.io.IOException;
+import java.security.Key;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Security;
+import java.security.UnrecoverableEntryException;
+import java.security.cert.CertificateException;
+
 import javax.crypto.spec.SecretKeySpec;
 
 public class EncryptionKeyHelper {
@@ -7,7 +16,6 @@ public class EncryptionKeyHelper {
     // these key algorithm constants are to be used only outside of any Keystore scope
     public static final String CC_KEY_ALGORITHM_AES = "AES";
     public static final String CC_KEY_ALGORITHM_RSA = "RSA";
-
     public static final String CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS = "cc-in-memory-encryption-key-alias";
 
     private static IEncryptionKeyProvider encryptionKeyProvider = EncryptionKeyServiceProvider.getInstance().serviceImpl();
@@ -37,7 +45,48 @@ public class EncryptionKeyHelper {
                     " bits long, not " + 8 * keyBytes.length);
         }
         return new EncryptionKeyAndTransformation(
-                new SecretKeySpec(keyBytes, encryptionKeyProvider.getAESKeyAlgorithmRepresentation()),
-                encryptionKeyProvider.getTransformationString(encryptionKeyProvider.getAESKeyAlgorithmRepresentation()));
+                new SecretKeySpec(keyBytes, CC_KEY_ALGORITHM_AES),
+                "AES/GCM/NoPadding");
+    }
+
+    public static boolean isKeyStoreAvailable() {
+        return Security.getProvider(encryptionKeyProvider.getKeyStoreName()) != null;
+    }
+
+    private static KeyStore keystoreSingleton = null;
+
+    private static KeyStore getKeyStore() throws KeyStoreException, CertificateException,
+            IOException, NoSuchAlgorithmException {
+        if (keystoreSingleton == null) {
+            keystoreSingleton = KeyStore.getInstance(KEYSTORE_NAME);
+            keystoreSingleton.load(null);
+        }
+        return keystoreSingleton;
+    }
+
+    public EncryptionKeyAndTransformation retrieveKeyFromKeyStore(String keyAlias,
+                                                                  EncryptionHelper.CryptographicOperation operation)
+            throws KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException,
+            CertificateException, IOException {
+        Key key;
+        if (getKeyStore().containsAlias(keyAlias)) {
+            KeyStore.Entry keyEntry = getKeyStore().getEntry(keyAlias, null);
+            if (keyEntry instanceof KeyStore.PrivateKeyEntry) {
+                if (operation == EncryptionHelper.CryptographicOperation.Encryption) {
+                    key = ((KeyStore.PrivateKeyEntry)keyEntry).getCertificate().getPublicKey();
+                } else {
+                    key = ((KeyStore.PrivateKeyEntry)keyEntry).getPrivateKey();
+                }
+            } else {
+                key = ((KeyStore.SecretKeyEntry)keyEntry).getSecretKey();
+            }
+        } else {
+            throw new KeyStoreException("Key not found in KeyStore");
+        }
+        if (key != null) {
+            return new EncryptionKeyAndTransformation(key, encryptionKeyProvider.getTransformationString());
+        } else {
+            return null;
+        }
     }
 }
