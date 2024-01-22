@@ -4,6 +4,7 @@ package org.javarosa.xpath.expr;
 import static org.commcare.util.EncryptionKeyHelper.CC_KEY_ALGORITHM_AES;
 
 import org.commcare.util.EncryptionHelper;
+import org.commcare.util.EncryptionKeyHelper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.XPathException;
@@ -48,7 +49,8 @@ public class XPathEncryptStringFunc extends XPathFuncExpr {
 
         try {
             return encryptionHelper.encryptWithBase64EncodedKey(message, key);
-        } catch (EncryptionHelper.EncryptionException e) {
+        } catch (EncryptionHelper.EncryptionException |
+                 EncryptionKeyHelper.EncryptionKeyException e) {
             throw new XPathException(e);
         }
     }

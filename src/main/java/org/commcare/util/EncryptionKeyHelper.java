@@ -8,7 +8,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
-import java.security.spec.InvalidKeySpecException;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -28,7 +27,7 @@ public class EncryptionKeyHelper {
      * @return Secret key to be used to encrypt/decrypt data
      */
     public static EncryptionKeyAndTransformation getKey(String base64encodedKey)
-            throws EncryptionHelper.EncryptionException, InvalidKeySpecException {
+            throws EncryptionKeyException {
         final int KEY_LENGTH_BIT = 256;
         byte[] keyBytes;
         try {
@@ -52,11 +51,15 @@ public class EncryptionKeyHelper {
 
     private static KeyStore keystoreSingleton = null;
 
-    private static KeyStore getKeyStore() throws KeyStoreException, CertificateException,
-            IOException, NoSuchAlgorithmException {
+    private static KeyStore getKeyStore() throws EncryptionKeyException {
         if (keystoreSingleton == null) {
-            keystoreSingleton = KeyStore.getInstance(encryptionKeyProvider.getKeyStoreName());
-            keystoreSingleton.load(null);
+            try {
+                keystoreSingleton = KeyStore.getInstance(encryptionKeyProvider.getKeyStoreName());
+                keystoreSingleton.load(null);
+            } catch (KeyStoreException | CertificateException | IOException |
+                     NoSuchAlgorithmException e) {
+                throw new EncryptionKeyException("KeyStore failed to initialize: ", e);
+            }
         }
         return keystoreSingleton;
     }
@@ -72,27 +75,41 @@ public class EncryptionKeyHelper {
      */
     public static EncryptionKeyAndTransformation retrieveKeyFromKeyStore(String keyAlias,
                                                                          EncryptionHelper.CryptographicOperation cryptographicOperation)
-            throws KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException,
-            CertificateException, IOException {
+            throws EncryptionKeyException {
         Key key;
-        if (getKeyStore().containsAlias(keyAlias)) {
-            KeyStore.Entry keyEntry = getKeyStore().getEntry(keyAlias, null);
-            if (keyEntry instanceof KeyStore.PrivateKeyEntry) {
-                if (cryptographicOperation == EncryptionHelper.CryptographicOperation.Encryption) {
-                    key = ((KeyStore.PrivateKeyEntry)keyEntry).getCertificate().getPublicKey();
+        try {
+            if (getKeyStore().containsAlias(keyAlias)) {
+                KeyStore.Entry keyEntry = getKeyStore().getEntry(keyAlias, null);
+                if (keyEntry instanceof KeyStore.PrivateKeyEntry) {
+                    if (cryptographicOperation == EncryptionHelper.CryptographicOperation.Encryption) {
+                        key = ((KeyStore.PrivateKeyEntry)keyEntry).getCertificate().getPublicKey();
+                    } else {
+                        key = ((KeyStore.PrivateKeyEntry)keyEntry).getPrivateKey();
+                    }
                 } else {
-                    key = ((KeyStore.PrivateKeyEntry)keyEntry).getPrivateKey();
+                    key = ((KeyStore.SecretKeyEntry)keyEntry).getSecretKey();
                 }
             } else {
-                key = ((KeyStore.SecretKeyEntry)keyEntry).getSecretKey();
+                key = encryptionKeyProvider.generateCryptographicKeyInKeyStore(keyAlias, cryptographicOperation);
             }
-        } else {
-            key = encryptionKeyProvider.generateCryptographicKeyInKeyStore(keyAlias, cryptographicOperation);
+        } catch (KeyStoreException| NoSuchAlgorithmException | UnrecoverableEntryException e) {
+            throw new EncryptionKeyException("Error retrieving key from KeyStore: ", e);
         }
         if (key != null) {
             return new EncryptionKeyAndTransformation(key, encryptionKeyProvider.getTransformationString());
         } else {
-            return null;
+            throw new EncryptionKeyException("Key couldn't be found in the keyStore");
+        }
+    }
+
+    public static class EncryptionKeyException extends Exception {
+
+        public EncryptionKeyException(String message) {
+            super(message);
+        }
+
+        public EncryptionKeyException(String message, Throwable cause) {
+            super(message, cause);
         }
     }
 }

@@ -2,6 +2,7 @@ package org.javarosa.xpath.expr;
 
 
 import org.commcare.util.EncryptionHelper;
+import org.commcare.util.EncryptionKeyHelper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.XPathException;
@@ -49,7 +50,8 @@ public class XPathDecryptStringFunc extends XPathFuncExpr {
 
         try {
             return encryptionHelper.decryptWithBase64EncodedKey(message, key);
-        } catch (EncryptionHelper.EncryptionException e) {
+        } catch (EncryptionHelper.EncryptionException |
+                 EncryptionKeyHelper.EncryptionKeyException e) {
             throw new XPathException(e);
         }
     }

@@ -36,25 +36,17 @@ public class EncryptionHelper {
      * @throws UnrecoverableEntryException if an entry in the keystore cannot be retrieved
      */
     public static String encryptWithKeyStore(String message, String keyAlias)
-            throws UnrecoverableEntryException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+            throws EncryptionException, EncryptionKeyHelper.EncryptionKeyException {
         EncryptionKeyAndTransformation keyAndTransformation =
                 EncryptionKeyHelper.retrieveKeyFromKeyStore(keyAlias, CryptographicOperation.Encryption);
 
-        try {
-            return encrypt(message, keyAndTransformation);
-        } catch (EncryptionException e) {
-            throw new RuntimeException("Error encountered while encrypting the data: ", e);
-        }
+        return encrypt(message, keyAndTransformation);
     }
 
     public static String encryptWithBase64EncodedKey(String message, String key)
-            throws EncryptionException {
+            throws EncryptionException, EncryptionKeyHelper.EncryptionKeyException {
         EncryptionKeyAndTransformation keyAndTransformation;
-        try {
-            keyAndTransformation = EncryptionKeyHelper.getKey(key);
-        } catch (InvalidKeySpecException e) {
-            throw new EncryptionException("Invalid Key specifications", e);
-        }
+        keyAndTransformation = EncryptionKeyHelper.getKey(key);
         return encrypt(message, keyAndTransformation);
     }
 
@@ -116,13 +108,10 @@ public class EncryptionHelper {
      * @throws UnrecoverableEntryException if an entry in the keystore cannot be retrieved
      */
     public static String decryptWithKeyStore(String message, String keyAlias)
-            throws EncryptionKeyHelper.EncryptionKeyException {
+            throws EncryptionKeyHelper.EncryptionKeyException, EncryptionHelper.EncryptionException {
         EncryptionKeyAndTransformation keyAndTransformation = EncryptionKeyHelper.getKey(keyAlias);
-        try {
-            return decrypt(message, keyAndTransformation);
-        } catch (EncryptionException e) {
-            throw new RuntimeException("Error encountered while decrypting the data ", e);
-        }
+
+        return decrypt(message, keyAndTransformation);
     }
 
     public static String decryptWithBase64EncodedKey(String message, String key)
