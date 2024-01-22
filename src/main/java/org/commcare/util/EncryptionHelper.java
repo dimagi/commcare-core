@@ -137,15 +137,15 @@ public class EncryptionHelper {
         try {
             byte[] messageBytes = Base64.decode(message);
             ByteBuffer bb = ByteBuffer.wrap(messageBytes);
-            int iv_length_byte = bb.get() & 0xFF;
-            byte[] iv = new byte[iv_length_byte];
+            int ivLengthByte = bb.get() & 0xFF;
+            byte[] iv = new byte[ivLengthByte];
             bb.get(iv);
 
             byte[] cipherText = new byte[bb.remaining()];
             bb.get(cipherText);
 
             Cipher cipher = Cipher.getInstance(keyAndTransform.getTransformation());
-            if (keyAndTransform.getKey().getAlgorithm().equals(EncryptionKeyProvider.getAESKeyAlgorithmRepresentation())) {
+            if (ivLengthByte > 0) {
                 cipher.init(Cipher.DECRYPT_MODE, keyAndTransform.getKey(), new GCMParameterSpec(TAG_LENGTH_BIT, iv));
             } else {
                 cipher.init(Cipher.DECRYPT_MODE, keyAndTransform.getKey());
