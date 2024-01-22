@@ -1,6 +1,5 @@
 package org.commcare.util;
 
-import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
 
 /**
@@ -31,12 +30,7 @@ public class EncryptionKeyServiceProvider {
             service = loader.iterator().next();
         }
 
-        if (service != null) {
-            return service;
-        } else {
-            throw new NoSuchElementException(
-                    "No implementation for IEncryptionKeyProvider");
-        }
+        return service;
     }
 }
 

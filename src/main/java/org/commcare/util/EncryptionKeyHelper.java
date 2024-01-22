@@ -46,7 +46,8 @@ public class EncryptionKeyHelper {
     }
 
     public static boolean isKeyStoreAvailable() {
-        return Security.getProvider(encryptionKeyProvider.getKeyStoreName()) != null;
+        return encryptionKeyProvider != null &&
+                Security.getProvider(encryptionKeyProvider.getKeyStoreName()) != null;
     }
 
     private static KeyStore keystoreSingleton = null;
@@ -65,13 +66,14 @@ public class EncryptionKeyHelper {
     }
 
     /**
-     * Returns a key stored in the KeyStore, PrivateKey or PublicKey, depending on the
-     * cryptographic operation
+     * Returns an EncryptionKeyAndTransformation object that wraps a SecretKey, PrivateKey or
+     * PublicKey, depending on the cryptographic operation and the cryptographic transformation.
+     * This method generates a new key in case the alias doesn't exist.
      *
-     * @param keyAlias                key in String format
+     * @param keyAlias                alias of the key stored in the KeyStore
      * @param cryptographicOperation  Cryptographic operation where the key is to be used, relevant
      *                                to the RSA algorithm
-     * @return Public key or Private Key to be used to encrypt/decrypt data
+     * @return EncryptionKeyAndTransformation to be used to encrypt/decrypt data
      */
     public static EncryptionKeyAndTransformation retrieveKeyFromKeyStore(String keyAlias,
                                                                          EncryptionHelper.CryptographicOperation cryptographicOperation)
