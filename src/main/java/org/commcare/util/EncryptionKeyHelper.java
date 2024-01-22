@@ -87,7 +87,7 @@ public class EncryptionKeyHelper {
                 key = ((KeyStore.SecretKeyEntry)keyEntry).getSecretKey();
             }
         } else {
-            throw new KeyStoreException("Key not found in KeyStore");
+            key = encryptionKeyProvider.generateCryptographicKeyInKeyStore(keyAlias, cryptographicOperation);
         }
         if (key != null) {
             return new EncryptionKeyAndTransformation(key, encryptionKeyProvider.getTransformationString());

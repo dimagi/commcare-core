@@ -1,5 +1,7 @@
 package org.commcare.util;
 
+import java.security.Key;
+
 /**
  * Service interface for Encryption Key providers for KeyStores
  *
@@ -8,7 +10,8 @@ package org.commcare.util;
 
 public interface IEncryptionKeyProvider {
 
-    void generateCryptographicKeyInKeyStore(String keyAlias);
+    Key generateCryptographicKeyInKeyStore(String keyAlias,
+                                           EncryptionHelper.CryptographicOperation cryptographicOperation);
 
     String getTransformationString();
 
