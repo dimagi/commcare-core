@@ -60,6 +60,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
 
         //Now get the headers and templates.
         Text noItemsText = null;
+        Text selectText = null;
         Vector<Detail> subdetails = new Vector<>();
         Vector<DetailField> fields = new Vector<>();
         OrderedHashtable<String, String> variables = new OrderedHashtable<>();
@@ -82,6 +83,14 @@ public class DetailParser extends CommCareElementParser<Detail> {
                 getNextTagInBlock("no_items_text");
                 if ("text".equals(parser.getName().toLowerCase())) {
                     noItemsText = new TextParser(parser).parse();
+                }
+                continue;
+            }
+            if ("select_text".equals(parser.getName().toLowerCase())) {
+                checkNode("select_text");
+                getNextTagInBlock("select_text");
+                if ("text".equals(parser.getName().toLowerCase())) {
+                    selectText = new TextParser(parser).parse();
                 }
                 continue;
             }
@@ -132,7 +141,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
 
         return new Detail(id, title, noItemsText, nodeset, subdetails, fields, variables, actions, callout,
                 fitAcross, useUniformUnits, forceLandscapeView, focusFunction, printTemplatePath,
-                relevancy, global, detailGroup, isLazyLoading);
+                relevancy, global, detailGroup, isLazyLoading, selectText);
     }
 
     protected DetailParser getDetailParser() {
