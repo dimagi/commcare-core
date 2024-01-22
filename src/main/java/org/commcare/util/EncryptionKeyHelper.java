@@ -8,6 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -54,7 +55,7 @@ public class EncryptionKeyHelper {
     private static KeyStore getKeyStore() throws KeyStoreException, CertificateException,
             IOException, NoSuchAlgorithmException {
         if (keystoreSingleton == null) {
-            keystoreSingleton = KeyStore.getInstance(KEYSTORE_NAME);
+            keystoreSingleton = KeyStore.getInstance(encryptionKeyProvider.getKeyStoreName());
             keystoreSingleton.load(null);
         }
         return keystoreSingleton;
@@ -70,14 +71,14 @@ public class EncryptionKeyHelper {
      * @return Public key or Private Key to be used to encrypt/decrypt data
      */
     public EncryptionKeyAndTransformation retrieveKeyFromKeyStore(String keyAlias,
-                                                                  EncryptionHelper.CryptographicOperation operation)
+                                                                  EncryptionHelper.CryptographicOperation cryptographicOperation)
             throws KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException,
             CertificateException, IOException {
         Key key;
         if (getKeyStore().containsAlias(keyAlias)) {
             KeyStore.Entry keyEntry = getKeyStore().getEntry(keyAlias, null);
             if (keyEntry instanceof KeyStore.PrivateKeyEntry) {
-                if (operation == EncryptionHelper.CryptographicOperation.Encryption) {
+                if (cryptographicOperation == EncryptionHelper.CryptographicOperation.Encryption) {
                     key = ((KeyStore.PrivateKeyEntry)keyEntry).getCertificate().getPublicKey();
                 } else {
                     key = ((KeyStore.PrivateKeyEntry)keyEntry).getPrivateKey();
