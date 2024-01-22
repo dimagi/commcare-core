@@ -27,7 +27,7 @@ public class EncryptionKeyHelper {
      * @param base64encodedKey       key in String format
      * @return Secret key to be used to encrypt/decrypt data
      */
-    private static EncryptionKeyAndTransformation getKey(String base64encodedKey)
+    public static EncryptionKeyAndTransformation getKey(String base64encodedKey)
             throws EncryptionHelper.EncryptionException, InvalidKeySpecException {
         final int KEY_LENGTH_BIT = 256;
         byte[] keyBytes;
@@ -70,8 +70,8 @@ public class EncryptionKeyHelper {
      *                                to the RSA algorithm
      * @return Public key or Private Key to be used to encrypt/decrypt data
      */
-    public EncryptionKeyAndTransformation retrieveKeyFromKeyStore(String keyAlias,
-                                                                  EncryptionHelper.CryptographicOperation cryptographicOperation)
+    public static EncryptionKeyAndTransformation retrieveKeyFromKeyStore(String keyAlias,
+                                                                         EncryptionHelper.CryptographicOperation cryptographicOperation)
             throws KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException,
             CertificateException, IOException {
         Key key;

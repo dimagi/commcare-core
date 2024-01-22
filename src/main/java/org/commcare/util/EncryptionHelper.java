@@ -47,7 +47,7 @@ public class EncryptionHelper {
         }
     }
 
-    public String encryptWithBase64EncodedKey(String message, String key)
+    public static String encryptWithBase64EncodedKey(String message, String key)
             throws EncryptionException {
         EncryptionKeyAndTransformation keyAndTransformation;
         try {
