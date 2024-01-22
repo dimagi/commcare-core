@@ -1,6 +1,7 @@
 package org.javarosa.core.model;
 
 import org.commcare.util.EncryptionHelper;
+import org.commcare.util.EncryptionKeyHelper;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.util.restorable.Restorable;
@@ -21,7 +22,7 @@ import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.util.Hashtable;
 
-import static org.commcare.util.EncryptionHelper.CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS;
+import static org.commcare.util.EncryptionKeyHelper.CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS;
 
 /**
  * Peristable object representing a CommCare mobile user.
@@ -102,7 +103,7 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public String getUsername() {
-        if (!encryptionHelper.getEncryptionKeyProvider().isKeyStoreAvailable()) {
+        if (!EncryptionKeyHelper.isKeyStoreAvailable()) {
             return this.plaintextUsername;
         } else {
             try {
@@ -141,7 +142,7 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public void setUsername(String username) {
-        if (!encryptionHelper.getEncryptionKeyProvider().isKeyStoreAvailable()) {
+        if (!EncryptionKeyHelper.isKeyStoreAvailable()) {
             this.plaintextUsername = username;
         } else {
             try {
@@ -214,7 +215,7 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public void setCachedPwd(String password) {
-        if (!encryptionHelper.getEncryptionKeyProvider().isKeyStoreAvailable()) {
+        if (!EncryptionKeyHelper.isKeyStoreAvailable()) {
             this.plaintextCachedPwd = password;
         } else {
             try {
@@ -227,7 +228,7 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public String getCachedPwd() {
-        if (!encryptionHelper.getEncryptionKeyProvider().isKeyStoreAvailable()) {
+        if (!EncryptionKeyHelper.isKeyStoreAvailable()) {
             return this.plaintextCachedPwd;
         } else {
             try {

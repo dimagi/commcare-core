@@ -7,7 +7,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-import static org.commcare.util.EncryptionHelper.CC_KEY_ALGORITHM_AES;
+import static org.commcare.util.EncryptionKeyHelper.CC_KEY_ALGORITHM_AES;
 
 public class XPathDecryptStringFunc extends XPathFuncExpr {
 

@@ -9,38 +9,18 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
-import java.security.spec.InvalidKeySpecException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
+
+import static org.commcare.util.EncryptionKeyHelper.encryptionKeyProvider;
 
 public class EncryptionHelper {
 
-    // these key algorithm constants are to be used only outside of any Keystore scope
-    public static final String CC_KEY_ALGORITHM_AES = "AES";
-    public static final String CC_KEY_ALGORITHM_RSA = "RSA";
-
-    public static final String CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS = "cc-in-memory-encryption-key-alias";
-
     public enum CryptographicOperation {Encryption, Decryption}
-
-    private IEncryptionKeyProvider encryptionKeyProvider = EncryptionKeyServiceProvider.getInstance().serviceImpl();
-
-    public IEncryptionKeyProvider getEncryptionKeyProvider() {
-        return encryptionKeyProvider;
-    }
-
-    public void setEncryptionKeyProvider(IEncryptionKeyProvider newEncryptionKeyProvider) {
-        encryptionKeyProvider = newEncryptionKeyProvider;
-    }
-
-    public void reloadEncryptionKeyProvider() {
-        encryptionKeyProvider = EncryptionKeyServiceProvider.getInstance().serviceImpl();
-    }
 
     /**
      * Encrypts a message using a key stored in the platform KeyStore. The key is retrieved using
@@ -59,7 +39,8 @@ public class EncryptionHelper {
      */
     public String encryptWithKeyStore(String message, String keyAlias)
             throws UnrecoverableEntryException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
-        EncryptionKeyAndTransformation keyAndTransformation = encryptionKeyProvider.retrieveKeyFromKeyStore(keyAlias, CryptographicOperation.Encryption);
+        EncryptionKeyAndTransformation keyAndTransformation = EncryptionKeyProvider.retrieveKeyFromKeyStore(keyAlias, CryptographicOperation.Encryption);
+
 
         try {
             return encrypt(message, keyAndTransformation);
@@ -72,7 +53,7 @@ public class EncryptionHelper {
             throws EncryptionException {
         EncryptionKeyAndTransformation keyAndTransformation;
         try {
-            keyAndTransformation = getKey(key);
+            keyAndTransformation = EncryptionKeyHelper.getKey(key);
         } catch (InvalidKeySpecException e) {
             throw new EncryptionException("Invalid Key specifications", e);
         }
@@ -122,35 +103,6 @@ public class EncryptionHelper {
     }
 
     /**
-     * Converts a Base64 encoded key into a SecretKey, PrivateKey or PublicKey, depending on the
-     * algorithm and cryptographic operation
-     *
-     * @param algorithm              the algorithm to be used to encrypt/decrypt
-     * @param base64encodedKey       key in String format
-     * @param cryptographicOperation Cryptographic operation where the key is to be used, relevant
-     *                               to the RSA algorithm
-     * @return Secret key, Public key or Private Key to be used
-     */
-    private EncryptionKeyAndTransformation getKey(String base64encodedKey)
-            throws EncryptionHelper.EncryptionException, InvalidKeySpecException {
-        final int KEY_LENGTH_BIT = 256;
-        byte[] keyBytes;
-        try {
-            keyBytes = Base64.decode(base64encodedKey);
-        } catch (Base64DecoderException e) {
-            throw new EncryptionHelper.EncryptionException("Encryption key base 64 encoding is invalid", e);
-        }
-
-        if (8 * keyBytes.length != KEY_LENGTH_BIT) {
-            throw new EncryptionHelper.EncryptionException("Key should be " + KEY_LENGTH_BIT +
-                    " bits long, not " + 8 * keyBytes.length);
-        }
-        return new EncryptionKeyAndTransformation(
-                new SecretKeySpec(keyBytes, encryptionKeyProvider.getAESKeyAlgorithmRepresentation()),
-                encryptionKeyProvider.getTransformationString(encryptionKeyProvider.getAESKeyAlgorithmRepresentation()));
-    }
-
-    /**
      * Decrypts a base64 payload containing an IV and AES or RSA encrypted ciphertext using a key
      * stored in the platform KeyStore. The key is retrieved using its alias which is established
      * during key generation.
@@ -169,7 +121,7 @@ public class EncryptionHelper {
             throws UnrecoverableEntryException, KeyStoreException, NoSuchAlgorithmException,
             CertificateException, IOException {
         EncryptionKeyAndTransformation keyAndTransformation =
-                encryptionKeyProvider.retrieveKeyFromKeyStore(keyAlias, CryptographicOperation.Decryption);
+                EncryptionKeyHelper.getKey(keyAlias, CryptographicOperation.Decryption);
         try {
             return decrypt(message, keyAndTransformation);
         } catch (EncryptionException e) {
@@ -181,7 +133,7 @@ public class EncryptionHelper {
             throws EncryptionException {
         EncryptionKeyAndTransformation keyAndTransformation;
         try {
-            keyAndTransformation = getKey(key);
+            keyAndTransformation = EncryptionKeyHelper.getKey(key);
         } catch (InvalidKeySpecException e) {
             throw new EncryptionException("Invalid Key specifications", e);
         }
@@ -212,7 +164,7 @@ public class EncryptionHelper {
             bb.get(cipherText);
 
             Cipher cipher = Cipher.getInstance(keyAndTransform.getTransformation());
-            if (keyAndTransform.getKey().getAlgorithm().equals(encryptionKeyProvider.getAESKeyAlgorithmRepresentation())) {
+            if (keyAndTransform.getKey().getAlgorithm().equals(EncryptionKeyProvider.getAESKeyAlgorithmRepresentation())) {
                 cipher.init(Cipher.DECRYPT_MODE, keyAndTransform.getKey(), new GCMParameterSpec(TAG_LENGTH_BIT, iv));
             } else {
                 cipher.init(Cipher.DECRYPT_MODE, keyAndTransform.getKey());

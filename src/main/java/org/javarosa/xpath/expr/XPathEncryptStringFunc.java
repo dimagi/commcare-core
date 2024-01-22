@@ -1,7 +1,7 @@
 package org.javarosa.xpath.expr;
 
 
-import static org.commcare.util.EncryptionHelper.CC_KEY_ALGORITHM_AES;
+import static org.commcare.util.EncryptionKeyHelper.CC_KEY_ALGORITHM_AES;
 
 import org.commcare.util.EncryptionHelper;
 import org.javarosa.core.model.condition.EvaluationContext;
