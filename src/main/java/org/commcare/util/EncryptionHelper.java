@@ -16,8 +16,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.GCMParameterSpec;
 
-import static org.commcare.util.EncryptionKeyHelper.encryptionKeyProvider;
-
 public class EncryptionHelper {
 
     public enum CryptographicOperation {Encryption, Decryption}
@@ -37,10 +35,10 @@ public class EncryptionHelper {
      *                                     found
      * @throws UnrecoverableEntryException if an entry in the keystore cannot be retrieved
      */
-    public String encryptWithKeyStore(String message, String keyAlias)
+    public static String encryptWithKeyStore(String message, String keyAlias)
             throws UnrecoverableEntryException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
-        EncryptionKeyAndTransformation keyAndTransformation = EncryptionKeyProvider.retrieveKeyFromKeyStore(keyAlias, CryptographicOperation.Encryption);
-
+        EncryptionKeyAndTransformation keyAndTransformation =
+                EncryptionKeyHelper.retrieveKeyFromKeyStore(keyAlias, CryptographicOperation.Encryption);
 
         try {
             return encrypt(message, keyAndTransformation);
@@ -71,7 +69,7 @@ public class EncryptionHelper {
      * @return  A base64 encoded payload containing the IV and AES or RSA encrypted ciphertext,
      *          which can be decoded by this utility's decrypt method and the same key
      */
-    private String encrypt(String message, EncryptionKeyAndTransformation keyAndTransform)
+    private static String encrypt(String message, EncryptionKeyAndTransformation keyAndTransform)
             throws EncryptionException {
         final int MIN_IV_LENGTH_BYTE = 1;
         final int MAX_IV_LENGTH_BYTE = 255;
@@ -117,11 +115,9 @@ public class EncryptionHelper {
      *                                     found
      * @throws UnrecoverableEntryException if an entry in the keystore cannot be retrieved
      */
-    public String decryptWithKeyStore(String message, String keyAlias)
-            throws UnrecoverableEntryException, KeyStoreException, NoSuchAlgorithmException,
-            CertificateException, IOException {
-        EncryptionKeyAndTransformation keyAndTransformation =
-                EncryptionKeyHelper.getKey(keyAlias, CryptographicOperation.Decryption);
+    public static String decryptWithKeyStore(String message, String keyAlias)
+            throws EncryptionKeyHelper.EncryptionKeyException {
+        EncryptionKeyAndTransformation keyAndTransformation = EncryptionKeyHelper.getKey(keyAlias);
         try {
             return decrypt(message, keyAndTransformation);
         } catch (EncryptionException e) {
@@ -129,14 +125,10 @@ public class EncryptionHelper {
         }
     }
 
-    public String decryptWithBase64EncodedKey(String message, String key)
-            throws EncryptionException {
-        EncryptionKeyAndTransformation keyAndTransformation;
-        try {
-            keyAndTransformation = EncryptionKeyHelper.getKey(key);
-        } catch (InvalidKeySpecException e) {
-            throw new EncryptionException("Invalid Key specifications", e);
-        }
+    public static String decryptWithBase64EncodedKey(String message, String key)
+            throws EncryptionException, EncryptionKeyHelper.EncryptionKeyException {
+        EncryptionKeyAndTransformation keyAndTransformation = EncryptionKeyHelper.getKey(key);
+
         return decrypt(message, keyAndTransformation);
     }
 
@@ -149,7 +141,7 @@ public class EncryptionHelper {
      *                        respective cryptographic transformation to be used for decryption
      * @return Decrypted message for the given encrypted message
      */
-    private String decrypt(String message, EncryptionKeyAndTransformation keyAndTransform)
+    private static String decrypt(String message, EncryptionKeyAndTransformation keyAndTransform)
             throws EncryptionException {
         final int TAG_LENGTH_BIT = 128;
 
@@ -178,7 +170,7 @@ public class EncryptionHelper {
         }
     }
 
-    public class EncryptionException extends Exception {
+    public static class EncryptionException extends Exception {
 
         public EncryptionException(String message) {
             super(message);
