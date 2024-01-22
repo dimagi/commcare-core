@@ -21,14 +21,10 @@ public class EncryptionKeyHelper {
     private static IEncryptionKeyProvider encryptionKeyProvider = EncryptionKeyServiceProvider.getInstance().serviceImpl();
 
     /**
-     * Converts a Base64 encoded key into a SecretKey, PrivateKey or PublicKey, depending on the
-     * algorithm and cryptographic operation
+     * Converts a Base64 encoded key into a SecretKey depending on the algorithm
      *
-     * @param algorithm              the algorithm to be used to encrypt/decrypt
      * @param base64encodedKey       key in String format
-     * @param cryptographicOperation Cryptographic operation where the key is to be used, relevant
-     * to the RSA algorithm
-     * @return Secret key, Public key or Private Key to be used
+     * @return Secret key to be used to encrypt/decrypt data
      */
     private static EncryptionKeyAndTransformation getKey(String base64encodedKey)
             throws EncryptionHelper.EncryptionException, InvalidKeySpecException {
@@ -64,6 +60,15 @@ public class EncryptionKeyHelper {
         return keystoreSingleton;
     }
 
+    /**
+     * Returns a key stored in the KeyStore, PrivateKey or PublicKey, depending on the
+     * cryptographic operation
+     *
+     * @param keyAlias                key in String format
+     * @param cryptographicOperation  Cryptographic operation where the key is to be used, relevant
+     *                                to the RSA algorithm
+     * @return Public key or Private Key to be used to encrypt/decrypt data
+     */
     public EncryptionKeyAndTransformation retrieveKeyFromKeyStore(String keyAlias,
                                                                   EncryptionHelper.CryptographicOperation operation)
             throws KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException,
