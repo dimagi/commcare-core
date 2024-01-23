@@ -8,7 +8,7 @@ import java.security.Key;
  * @author avazirna
  */
 
-public interface IEncryptionKeyProvider {
+public interface IKeyStoreEncryptionKeyProvider {
 
     Key generateCryptographicKeyInKeyStore(String keyAlias,
                                            EncryptionHelper.CryptographicOperation cryptographicOperation)
