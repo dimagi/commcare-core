@@ -109,7 +109,8 @@ public class EncryptionHelper {
      */
     public static String decryptWithKeyStore(String message, String keyAlias)
             throws EncryptionKeyHelper.EncryptionKeyException, EncryptionHelper.EncryptionException {
-        EncryptionKeyAndTransformation keyAndTransformation = EncryptionKeyHelper.getKey(keyAlias);
+        EncryptionKeyAndTransformation keyAndTransformation =
+                EncryptionKeyHelper.retrieveKeyFromKeyStore(keyAlias, CryptographicOperation.Decryption);
 
         return decrypt(message, keyAndTransformation);
     }

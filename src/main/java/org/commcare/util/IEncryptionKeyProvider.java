@@ -11,7 +11,8 @@ import java.security.Key;
 public interface IEncryptionKeyProvider {
 
     Key generateCryptographicKeyInKeyStore(String keyAlias,
-                                           EncryptionHelper.CryptographicOperation cryptographicOperation);
+                                           EncryptionHelper.CryptographicOperation cryptographicOperation)
+            throws EncryptionKeyHelper.EncryptionKeyException;
 
     String getTransformationString();
 
