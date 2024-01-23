@@ -1,5 +1,6 @@
 package org.commcare.core.encryption;
 
+import org.commcare.util.EncryptionKeyHelper;
 import org.javarosa.core.io.StreamsUtil;
 
 import java.io.ByteArrayInputStream;
@@ -141,21 +142,22 @@ public class CryptUtil {
     }
 
     // Generate random Secret key with a default key lenght of 256 bits
-    public static SecretKey generateRandomSecretKey() {
+    public static SecretKey generateRandomSecretKey()
+            throws EncryptionKeyHelper.EncryptionKeyException {
         final int AES_DEFAULT_KEY_LENGTH = 256;
         return generateRandomSecretKey(AES_DEFAULT_KEY_LENGTH);
     }
 
-    public static SecretKey generateRandomSecretKey(int keylength) {
+    public static SecretKey generateRandomSecretKey(int keylength)
+            throws EncryptionKeyHelper.EncryptionKeyException {
         KeyGenerator generator;
         try {
             generator = KeyGenerator.getInstance("AES");
             generator.init(keylength, new SecureRandom());
             return generator.generateKey();
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            throw new EncryptionKeyHelper.EncryptionKeyException("Error encountered while generating random Key Pair", e);
         }
-        return null;
     }
 
     public static Cipher getPrivateKeyCipher(byte[] privateKey)
@@ -186,15 +188,15 @@ public class CryptUtil {
     }
 
     // For RSA
-    public static KeyPair generateRandomKeyPair(int keyLength) {
+    public static KeyPair generateRandomKeyPair(int keyLength)
+            throws EncryptionKeyHelper.EncryptionKeyException {
         KeyPairGenerator generator;
         try {
-            generator = KeyPairGenerator.getInstance("RSA");
+             generator = KeyPairGenerator.getInstance("RSA");
             generator.initialize(keyLength, new SecureRandom());
             return generator.genKeyPair();
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            throw new EncryptionKeyHelper.EncryptionKeyException("Error encountered while generating random Key Pair", e);
         }
-        return null;
     }
 }

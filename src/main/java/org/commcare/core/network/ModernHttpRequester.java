@@ -6,6 +6,7 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.interfaces.ResponseStreamAccessor;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
+import org.commcare.util.EncryptionKeyHelper;
 import org.commcare.util.NetworkStatus;
 import org.javarosa.core.io.StreamsUtil;
 
@@ -152,6 +153,9 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
                 } catch (IOException e) {
                     responseProcessor.handleIOException(e);
                     return;
+                } catch (EncryptionKeyHelper.EncryptionKeyException e) {
+                    responseProcessor.handleEncryptionKeyException(e);
+                    return;
                 }
                 responseProcessor.processSuccess(responseCode, responseStream);
             } finally {
@@ -172,7 +176,8 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
      * @throws IOException if an io error happens while reading or writing to cache
      */
 
-    public InputStream getResponseStream(Response<ResponseBody> response) throws IOException {
+    public InputStream getResponseStream(Response<ResponseBody> response)
+            throws IOException, EncryptionKeyHelper.EncryptionKeyException {
         InputStream inputStream = response.body().byteStream();
         BitCache cache = BitCacheFactory.getCache(cacheDirSetup, getContentLength(response));
         cache.initializeCache();
@@ -187,7 +192,8 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
      * @throws IOException if an io error happens while reading or writing to cache
      */
     @Override
-    public InputStream getResponseStream() throws IOException {
+    public InputStream getResponseStream()
+            throws IOException, EncryptionKeyHelper.EncryptionKeyException {
         return getResponseStream(response);
     }
 

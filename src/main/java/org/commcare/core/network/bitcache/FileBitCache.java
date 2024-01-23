@@ -1,6 +1,7 @@
 package org.commcare.core.network.bitcache;
 
 import org.commcare.core.encryption.CryptUtil;
+import org.commcare.util.EncryptionKeyHelper;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -33,7 +34,7 @@ public class FileBitCache implements BitCache {
     }
 
     @Override
-    public void initializeCache() throws IOException {
+    public void initializeCache() throws IOException, EncryptionKeyHelper.EncryptionKeyException {
         File cacheLocation = cacheDirSetup.getCacheDir();
 
         //generate temp file
