@@ -1,14 +1,10 @@
 package org.commcare.util;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableEntryException;
-import java.security.cert.CertificateException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -25,15 +21,11 @@ public class EncryptionHelper {
      * its alias which is established during key generation.
      *
      * @param message  a UTF-8 encoded message to be encrypted
-     * @param keyAlias key alias of the Key stored in the KeyStore, depending on the algorithm,
+     * @param keyAlias alias of the Key stored in the KeyStore, depending on the algorithm,
      *                 it can be a SecretKey (for AES) or PublicKey (for RSA) to be used to
      *                 encrypt the message
      * @return A base64 encoded payload containing the IV and AES or RSA encrypted ciphertext,
      *         which can be decoded by this utility's decrypt method and the same key
-     * @throws KeyStoreException           if the keystore has not been initialized
-     * @throws NoSuchAlgorithmException    if the appropriate data integrity algorithm could not be
-     *                                     found
-     * @throws UnrecoverableEntryException if an entry in the keystore cannot be retrieved
      */
     public static String encryptWithKeyStore(String message, String keyAlias)
             throws EncryptionException, EncryptionKeyHelper.EncryptionKeyException {
@@ -99,13 +91,9 @@ public class EncryptionHelper {
      *
      * @param message  a UTF-8 encoded message to be decrypted
      * @param keyAlias key alias of the Key stored in the KeyStore, depending on the algorithm,
-     *                 it can be a SecretKey (for AES) or PublicKey (for RSA) to be used to
+     *                 it can be a SecretKey (for AES) or PrivateKey (for RSA) to be used to
      *                 decrypt the message
      * @return Decrypted message of the provided ciphertext,
-     * @throws KeyStoreException           if the keystore has not been initialized
-     * @throws NoSuchAlgorithmException    if the appropriate data integrity algorithm could not be
-     *                                     found
-     * @throws UnrecoverableEntryException if an entry in the keystore cannot be retrieved
      */
     public static String decryptWithKeyStore(String message, String keyAlias)
             throws EncryptionKeyHelper.EncryptionKeyException, EncryptionHelper.EncryptionException {
