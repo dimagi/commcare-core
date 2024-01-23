@@ -49,7 +49,7 @@ public class XPathDecryptStringFunc extends XPathFuncExpr {
         }
 
         try {
-            return encryptionHelper.decryptWithBase64EncodedKey(message, key);
+            return encryptionHelper.decryptWithEncodedKey(message, key);
         } catch (EncryptionHelper.EncryptionException |
                  EncryptionKeyHelper.EncryptionKeyException e) {
             throw new XPathException(e);

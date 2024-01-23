@@ -43,10 +43,10 @@ public class EncryptionHelper {
         return encrypt(message, keyAndTransformation);
     }
 
-    public static String encryptWithBase64EncodedKey(String message, String key)
+    public static String encryptWithEncodedKey(String message, String key)
             throws EncryptionException, EncryptionKeyHelper.EncryptionKeyException {
-        EncryptionKeyAndTransformation keyAndTransformation;
-        keyAndTransformation = EncryptionKeyHelper.getKey(key);
+        EncryptionKeyAndTransformation keyAndTransformation = EncryptionKeyHelper.getKey(key);
+
         return encrypt(message, keyAndTransformation);
     }
 
@@ -115,7 +115,7 @@ public class EncryptionHelper {
         return decrypt(message, keyAndTransformation);
     }
 
-    public static String decryptWithBase64EncodedKey(String message, String key)
+    public static String decryptWithEncodedKey(String message, String key)
             throws EncryptionException, EncryptionKeyHelper.EncryptionKeyException {
         EncryptionKeyAndTransformation keyAndTransformation = EncryptionKeyHelper.getKey(key);
 
