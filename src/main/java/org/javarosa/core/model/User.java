@@ -109,9 +109,9 @@ public class User implements Persistable, Restorable, IMetaData {
                 return EncryptionHelper.decryptWithKeyStore(this.encryptedUsername, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
 
             } catch (EncryptionKeyHelper.EncryptionKeyException e) {
-                throw new RuntimeException("Error encountered while retrieving key from keyStore: ", e);
+                throw new RuntimeException("Error encountered while retrieving key from keyStore ", e);
             } catch (EncryptionHelper.EncryptionException e) {
-                throw new RuntimeException("Error encountered while decrypting the username: ", e);
+                throw new RuntimeException("Error encountered while decrypting the username ", e);
             }
         }
     }
@@ -150,9 +150,9 @@ public class User implements Persistable, Restorable, IMetaData {
                 this.encryptedUsername = EncryptionHelper.encryptWithKeyStore(username, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
 
             } catch (EncryptionKeyHelper.EncryptionKeyException e) {
-                throw new RuntimeException("Error encountered while retrieving key from keyStore: ", e);
+                throw new RuntimeException("Error encountered while retrieving key from keyStore ", e);
             } catch (EncryptionHelper.EncryptionException e) {
-                throw new RuntimeException("Error encountered while encrypting the username: ", e);
+                throw new RuntimeException("Error encountered while encrypting the username ", e);
             }
         }
     }
@@ -225,9 +225,9 @@ public class User implements Persistable, Restorable, IMetaData {
                 this.encryptedCachedPwd = EncryptionHelper.encryptWithKeyStore(password, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
 
             } catch (EncryptionKeyHelper.EncryptionKeyException e) {
-                throw new RuntimeException("Error encountered while retrieving key from keyStore: ", e);
+                throw new RuntimeException("Error encountered while retrieving key from keyStore ", e);
             } catch (EncryptionHelper.EncryptionException e) {
-                throw new RuntimeException("Error encountered while encrypting the password: ", e);
+                throw new RuntimeException("Error encountered while encrypting the password ", e);
             }
         }
     }
@@ -240,9 +240,9 @@ public class User implements Persistable, Restorable, IMetaData {
                 return EncryptionHelper.decryptWithKeyStore(this.encryptedCachedPwd, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
 
             } catch (EncryptionKeyHelper.EncryptionKeyException e) {
-                throw new RuntimeException("Error encountered while retrieving key from keyStore: ", e);
+                throw new RuntimeException("Error encountered while retrieving key from keyStore ", e);
             } catch (EncryptionHelper.EncryptionException e) {
-                throw new  RuntimeException("Error encountered while decrypting the username: ", e);
+                throw new  RuntimeException("Error encountered while decrypting the username ", e);
             }
         }
     }

@@ -18,7 +18,22 @@ public class EncryptionKeyHelper {
     public static final String CC_KEY_ALGORITHM_RSA = "RSA";
     public static final String CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS = "cc-in-memory-encryption-key-alias";
 
-    private static IKeyStoreEncryptionKeyProvider keyStoreEncryptionKeyProvider = KeyStoreEncryptionKeyServiceProvider.getInstance().serviceImpl();
+    private static final IKeyStoreEncryptionKeyProvider keyStoreEncryptionKeyProvider = KeyStoreEncryptionKeyServiceProvider.getInstance().serviceImpl();
+
+    private static KeyStore keystoreSingleton = null;
+
+    private static KeyStore getKeyStore() throws EncryptionKeyException {
+        if (keystoreSingleton == null) {
+            try {
+                keystoreSingleton = KeyStore.getInstance(keyStoreEncryptionKeyProvider.getKeyStoreName());
+                keystoreSingleton.load(null);
+            } catch (KeyStoreException | CertificateException | IOException |
+                     NoSuchAlgorithmException e) {
+                throw new EncryptionKeyException("KeyStore failed to initialize", e);
+            }
+        }
+        return keystoreSingleton;
+    }
 
     /**
      * Converts a Base64 encoded key into a SecretKey depending on the algorithm
@@ -26,7 +41,7 @@ public class EncryptionKeyHelper {
      * @param base64encodedKey       key in String format
      * @return Secret key to be used to encrypt/decrypt data
      */
-    public static EncryptionKeyAndTransformation getKey(String base64encodedKey)
+    public static EncryptionKeyAndTransformation retrieveKeyFromEncodedKey(String base64encodedKey)
             throws EncryptionKeyException {
         final int KEY_LENGTH_BIT = 256;
         byte[] keyBytes;
@@ -48,21 +63,6 @@ public class EncryptionKeyHelper {
     public static boolean isKeyStoreAvailable() {
         return keyStoreEncryptionKeyProvider != null &&
                 Security.getProvider(keyStoreEncryptionKeyProvider.getKeyStoreName()) != null;
-    }
-
-    private static KeyStore keystoreSingleton = null;
-
-    private static KeyStore getKeyStore() throws EncryptionKeyException {
-        if (keystoreSingleton == null) {
-            try {
-                keystoreSingleton = KeyStore.getInstance(keyStoreEncryptionKeyProvider.getKeyStoreName());
-                keystoreSingleton.load(null);
-            } catch (KeyStoreException | CertificateException | IOException |
-                     NoSuchAlgorithmException e) {
-                throw new EncryptionKeyException("KeyStore failed to initialize: ", e);
-            }
-        }
-        return keystoreSingleton;
     }
 
     /**
@@ -95,7 +95,7 @@ public class EncryptionKeyHelper {
                 key = keyStoreEncryptionKeyProvider.generateCryptographicKeyInKeyStore(keyAlias, cryptographicOperation);
             }
         } catch (KeyStoreException| NoSuchAlgorithmException | UnrecoverableEntryException e) {
-            throw new EncryptionKeyException("Error retrieving key from KeyStore: ", e);
+            throw new EncryptionKeyException("Error retrieving key from KeyStore", e);
         }
         if (key != null) {
             return new EncryptionKeyAndTransformation(key, keyStoreEncryptionKeyProvider.getTransformationString());

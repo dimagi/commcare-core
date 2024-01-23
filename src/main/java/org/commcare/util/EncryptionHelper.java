@@ -37,7 +37,8 @@ public class EncryptionHelper {
 
     public static String encryptWithEncodedKey(String message, String key)
             throws EncryptionException, EncryptionKeyHelper.EncryptionKeyException {
-        EncryptionKeyAndTransformation keyAndTransformation = EncryptionKeyHelper.getKey(key);
+        EncryptionKeyAndTransformation keyAndTransformation =
+                EncryptionKeyHelper.retrieveKeyFromEncodedKey(key);
 
         return encrypt(message, keyAndTransformation);
     }
@@ -105,7 +106,8 @@ public class EncryptionHelper {
 
     public static String decryptWithEncodedKey(String message, String key)
             throws EncryptionException, EncryptionKeyHelper.EncryptionKeyException {
-        EncryptionKeyAndTransformation keyAndTransformation = EncryptionKeyHelper.getKey(key);
+        EncryptionKeyAndTransformation keyAndTransformation =
+                EncryptionKeyHelper.retrieveKeyFromEncodedKey(key);
 
         return decrypt(message, keyAndTransformation);
     }
