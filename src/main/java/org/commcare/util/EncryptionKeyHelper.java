@@ -60,7 +60,7 @@ public class EncryptionKeyHelper {
                 "AES/GCM/NoPadding");
     }
 
-    public static boolean isKeyStoreAvailable() {
+    private static boolean isKeyStoreAvailable() {
         return keyStoreEncryptionKeyProvider != null &&
                 Security.getProvider(keyStoreEncryptionKeyProvider.getKeyStoreName()) != null;
     }
@@ -78,6 +78,9 @@ public class EncryptionKeyHelper {
     public static EncryptionKeyAndTransformation retrieveKeyFromKeyStore(String keyAlias,
                                                                          EncryptionHelper.CryptographicOperation cryptographicOperation)
             throws EncryptionKeyException {
+        if (!isKeyStoreAvailable()) {
+            throw new EncryptionKeyException("No KeyStore facility available!");
+        }
         Key key;
         try {
             if (getKeyStore().containsAlias(keyAlias)) {

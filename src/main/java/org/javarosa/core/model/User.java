@@ -102,17 +102,16 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public String getUsername() {
-        if (!EncryptionKeyHelper.isKeyStoreAvailable()) {
+        if (this.plaintextUsername != null) {
             return this.plaintextUsername;
-        } else {
-            try {
-                return EncryptionHelper.decryptWithKeyStore(this.encryptedUsername, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
+        }
 
-            } catch (EncryptionKeyHelper.EncryptionKeyException e) {
-                throw new RuntimeException("Error encountered while retrieving key from keyStore ", e);
-            } catch (EncryptionHelper.EncryptionException e) {
-                throw new RuntimeException("Error encountered while decrypting the username ", e);
-            }
+        try {
+            return EncryptionHelper.decryptWithKeyStore(this.encryptedUsername, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
+        } catch (EncryptionKeyHelper.EncryptionKeyException e) {
+            throw new RuntimeException("Error encountered while retrieving key from keyStore", e);
+        } catch (EncryptionHelper.EncryptionException e) {
+            throw new RuntimeException("Error encountered while decrypting the username", e);
         }
     }
 
@@ -143,17 +142,15 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public void setUsername(String username) {
-        if (!EncryptionKeyHelper.isKeyStoreAvailable()) {
+        try {
+            this.encryptedUsername =
+                    EncryptionHelper.encryptWithKeyStore(username, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
+            // set this to null in case it was set in a previous call
+            this.plaintextUsername = null;
+        } catch (EncryptionKeyHelper.EncryptionKeyException
+                 | EncryptionHelper.EncryptionException e) {
+            e.printStackTrace();
             this.plaintextUsername = username;
-        } else {
-            try {
-                this.encryptedUsername = EncryptionHelper.encryptWithKeyStore(username, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
-
-            } catch (EncryptionKeyHelper.EncryptionKeyException e) {
-                throw new RuntimeException("Error encountered while retrieving key from keyStore ", e);
-            } catch (EncryptionHelper.EncryptionException e) {
-                throw new RuntimeException("Error encountered while encrypting the username ", e);
-            }
         }
     }
 
@@ -218,32 +215,29 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public void setCachedPwd(String password) {
-        if (!EncryptionKeyHelper.isKeyStoreAvailable()) {
+        try {
+            this.encryptedCachedPwd =
+                    EncryptionHelper.encryptWithKeyStore(password, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
+            // set this to null in case it was set in a previous call
+            this.plaintextCachedPwd = null;
+        } catch (EncryptionKeyHelper.EncryptionKeyException
+                 | EncryptionHelper.EncryptionException e) {
+            e.printStackTrace();
             this.plaintextCachedPwd = password;
-        } else {
-            try {
-                this.encryptedCachedPwd = EncryptionHelper.encryptWithKeyStore(password, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
-
-            } catch (EncryptionKeyHelper.EncryptionKeyException e) {
-                throw new RuntimeException("Error encountered while retrieving key from keyStore ", e);
-            } catch (EncryptionHelper.EncryptionException e) {
-                throw new RuntimeException("Error encountered while encrypting the password ", e);
-            }
         }
     }
 
     public String getCachedPwd() {
-        if (!EncryptionKeyHelper.isKeyStoreAvailable()) {
+        if (this.plaintextCachedPwd != null) {
             return this.plaintextCachedPwd;
-        } else {
-            try {
-                return EncryptionHelper.decryptWithKeyStore(this.encryptedCachedPwd, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
+        }
 
-            } catch (EncryptionKeyHelper.EncryptionKeyException e) {
-                throw new RuntimeException("Error encountered while retrieving key from keyStore ", e);
-            } catch (EncryptionHelper.EncryptionException e) {
-                throw new  RuntimeException("Error encountered while decrypting the username ", e);
-            }
+        try {
+            return EncryptionHelper.decryptWithKeyStore(this.encryptedCachedPwd, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
+        } catch (EncryptionKeyHelper.EncryptionKeyException e) {
+            throw new RuntimeException("Error encountered while retrieving key from keyStore ", e);
+        } catch (EncryptionHelper.EncryptionException e) {
+            throw new  RuntimeException("Error encountered while decrypting the password ", e);
         }
     }
 
