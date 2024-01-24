@@ -114,4 +114,8 @@ public class LogTypes {
     */
     public static final String TYPE_FCM = "fcm";
 
+    /**
+     * Errors while generating/handling encryption keys
+     */
+    public static final String TYPE_ERROR_ENCRYPTION_KEY = "encryption-key";
 }

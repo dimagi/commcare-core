@@ -1,5 +1,7 @@
 package org.javarosa.core.model;
 
+import org.commcare.util.EncryptionHelper;
+import org.commcare.util.EncryptionKeyHelper;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.util.restorable.Restorable;
@@ -14,7 +16,13 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
+import java.security.cert.CertificateException;
 import java.util.Hashtable;
+
+import static org.commcare.util.EncryptionKeyHelper.CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS;
 
 /**
  * Peristable object representing a CommCare mobile user.
@@ -36,7 +44,8 @@ public class User implements Persistable, Restorable, IMetaData {
     public static final String META_SYNC_TOKEN = "synctoken";
 
     public int recordId = -1; //record id on device
-    private String username;
+    private String plaintextUsername;
+    private String encryptedUsername;
     private String passwordHash;
     private String uniqueId;  //globally-unique id
 
@@ -45,6 +54,11 @@ public class User implements Persistable, Restorable, IMetaData {
     private byte[] wrappedKey;
 
     public Hashtable<String, String> properties = new Hashtable<>();
+
+    // plaintextCachedPwd and encryptedCachedPwd are used to store the password in memory, should
+    // not to be persisted. For aspects related to persisting the password, refer to passwordHash
+    private String plaintextCachedPwd;
+    private String encryptedCachedPwd;
 
     public User() {
         setUserType(STANDARD);
@@ -55,7 +69,7 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public User(String name, String passw, String uniqueID, String userType) {
-        username = name;
+        setUsername(name);
         passwordHash = passw;
         uniqueId = uniqueID;
         setUserType(userType);
@@ -65,7 +79,7 @@ public class User implements Persistable, Restorable, IMetaData {
     // fetch the value for the default user and password from the RMS
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        this.username = ExtUtil.readString(in);
+        setUsername(ExtUtil.readString(in));
         this.passwordHash = ExtUtil.readString(in);
         this.recordId = ExtUtil.readInt(in);
         this.uniqueId = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
@@ -77,7 +91,7 @@ public class User implements Persistable, Restorable, IMetaData {
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeString(out, username);
+        ExtUtil.writeString(out, getUsername());
         ExtUtil.writeString(out, passwordHash);
         ExtUtil.writeNumeric(out, recordId);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(uniqueId));
@@ -88,7 +102,17 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public String getUsername() {
-        return username;
+        if (this.plaintextUsername != null) {
+            return this.plaintextUsername;
+        }
+
+        try {
+            return EncryptionHelper.decryptWithKeyStore(this.encryptedUsername, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
+        } catch (EncryptionKeyHelper.EncryptionKeyException e) {
+            throw new RuntimeException("Error encountered while retrieving key from keyStore", e);
+        } catch (EncryptionHelper.EncryptionException e) {
+            throw new RuntimeException("Error encountered while decrypting the username", e);
+        }
     }
 
     public String getPasswordHash() {
@@ -118,7 +142,16 @@ public class User implements Persistable, Restorable, IMetaData {
     }
 
     public void setUsername(String username) {
-        this.username = username;
+        try {
+            this.encryptedUsername =
+                    EncryptionHelper.encryptWithKeyStore(username, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
+            // set this to null in case it was set in a previous call
+            this.plaintextUsername = null;
+        } catch (EncryptionKeyHelper.EncryptionKeyException
+                 | EncryptionHelper.EncryptionException e) {
+            e.printStackTrace();
+            this.plaintextUsername = username;
+        }
     }
 
     public void setPassword(String passwordHash) {
@@ -163,9 +196,9 @@ public class User implements Persistable, Restorable, IMetaData {
     public Object getMetaData(String fieldName) {
         if (META_UID.equals(fieldName)) {
             return uniqueId;
-        } else if(META_USERNAME.equals(fieldName)) {
-            return username;
-        } else if(META_ID.equals(fieldName)) {
+        } else if (META_USERNAME.equals(fieldName)) {
+            return getUsername();
+        } else if (META_ID.equals(fieldName)) {
             return recordId;
         } else if (META_WRAPPED_KEY.equals(fieldName)) {
             return wrappedKey;
@@ -178,16 +211,34 @@ public class User implements Persistable, Restorable, IMetaData {
     // TODO: Add META_WRAPPED_KEY back in?
     @Override
     public String[] getMetaDataFields() {
-        return new String[] {META_UID, META_USERNAME, META_ID, META_SYNC_TOKEN};
+        return new String[]{META_UID, META_USERNAME, META_ID, META_SYNC_TOKEN};
     }
 
-    //Don't ever save!
-    private String cachedPwd;
     public void setCachedPwd(String password) {
-        this.cachedPwd = password;
+        try {
+            this.encryptedCachedPwd =
+                    EncryptionHelper.encryptWithKeyStore(password, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
+            // set this to null in case it was set in a previous call
+            this.plaintextCachedPwd = null;
+        } catch (EncryptionKeyHelper.EncryptionKeyException
+                 | EncryptionHelper.EncryptionException e) {
+            e.printStackTrace();
+            this.plaintextCachedPwd = password;
+        }
     }
+
     public String getCachedPwd() {
-        return this.cachedPwd;
+        if (this.plaintextCachedPwd != null) {
+            return this.plaintextCachedPwd;
+        }
+
+        try {
+            return EncryptionHelper.decryptWithKeyStore(this.encryptedCachedPwd, CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
+        } catch (EncryptionKeyHelper.EncryptionKeyException e) {
+            throw new RuntimeException("Error encountered while retrieving key from keyStore ", e);
+        } catch (EncryptionHelper.EncryptionException e) {
+            throw new  RuntimeException("Error encountered while decrypting the password ", e);
+        }
     }
 
     public String getLastSyncToken() {

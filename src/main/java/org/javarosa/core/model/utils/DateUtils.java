@@ -947,7 +947,6 @@ public class DateUtils {
         return string.contains(substring);
     }
 
-    // TODO: Move this method to DateUtils
     public static String convertTimeInMsToISO8601(long ms) {
         if (ms == 0) {
             return "";
