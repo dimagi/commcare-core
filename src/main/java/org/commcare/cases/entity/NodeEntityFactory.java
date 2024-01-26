@@ -51,6 +51,7 @@ public class NodeEntityFactory {
 
         Object[] fieldData = new Object[length];
         String[] sortData = new String[length];
+        String[] altTextData = new String[length];
         boolean[] relevancyData = new boolean[length];
         int count = 0;
         for (DetailField f : detail.getFields()) {
@@ -63,6 +64,12 @@ public class NodeEntityFactory {
                     sortData[count] = sortText.evaluate(nodeContext);
                 }
                 relevancyData[count] = f.isRelevant(nodeContext);
+                Text altText = f.getAltText();
+                if (altText == null) {
+                    altTextData[count] = null;
+                } else {
+                    altTextData[count] = altText.evaluate(nodeContext);
+                }
             } catch (XPathSyntaxException e) {
                 /**
                  * TODO: 25/06/17 remove catch blocks from here
@@ -82,7 +89,7 @@ public class NodeEntityFactory {
         }
 
         return new Entity<>(fieldData, sortData, relevancyData, data, extraKey,
-                detail.evaluateFocusFunction(nodeContext), groupKey);
+                detail.evaluateFocusFunction(nodeContext), groupKey, altTextData);
     }
 
     /**
