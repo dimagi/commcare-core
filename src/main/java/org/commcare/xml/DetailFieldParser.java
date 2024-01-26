@@ -76,7 +76,7 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
         }
         while (nextTagInBlock("field")) {
             //sort details
-            checkNode(new String[]{"sort", "background", "endpoint_action"});
+            checkNode(new String[]{"sort", "background", "endpoint_action", "alt_text"});
 
             String name = parser.getName().toLowerCase();
 
@@ -87,6 +87,11 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
                 skipBlock("background");
             } else if (name.equals("endpoint_action")){
                 parseEndpointAction(builder);
+            } else if (name.equals("alt_text")){
+                parser.nextTag();
+                checkNode("text");
+                Text altText = new TextParser(parser).parse();
+                builder.setAltText(altText);
             }
         }
         return builder.build();
