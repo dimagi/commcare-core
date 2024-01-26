@@ -1,5 +1,11 @@
 package org.commcare.suite.model;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
+import javax.annotation.Nullable;
+
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -12,12 +18,6 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
-import javax.annotation.Nullable;
 
 /**
  * Detail Fields represent the <field> elements of a suite's detail
@@ -45,7 +45,8 @@ public class DetailField implements Externalizable {
     private String headerWidthHint = null;  // Something like "500" or "10%"
     private String templateWidthHint = null;
     private String printIdentifier;
-
+    @Nullable
+    private Text altText;
     @Nullable
     private EndpointAction endpointAction;
 
@@ -188,6 +189,7 @@ public class DetailField implements Externalizable {
         header = (Text)ExtUtil.read(in, Text.class, pf);
         template = (DetailTemplate)ExtUtil.read(in, new ExtWrapTagged(DetailTemplate.class), pf);
         sort = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
+        altText = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
 
         //Unfortunately I don't think there's a clean way to do this
         if (ExtUtil.readBool(in)) {
@@ -219,6 +221,7 @@ public class DetailField implements Externalizable {
         ExtUtil.write(out, header);
         ExtUtil.write(out, new ExtWrapTagged(template));
         ExtUtil.write(out, new ExtWrapNullable(sort));
+        ExtUtil.write(out, new ExtWrapNullable(altText));
 
         boolean relevantSet = relevancy != null;
         ExtUtil.writeBool(out, relevantSet);
@@ -271,6 +274,11 @@ public class DetailField implements Externalizable {
     }
 
     @Nullable
+    public Text getAltText() {
+        return altText;
+    }
+
+    @Nullable
     public EndpointAction getEndpointAction() {
         return endpointAction;
     }
@@ -311,6 +319,13 @@ public class DetailField implements Externalizable {
          */
         public void setHeader(Text header) {
             field.header = header;
+        }
+
+        /**
+         * @param altText the alt text to set
+         */
+        public void setAltText(Text altText) {
+            field.altText = altText;
         }
 
         /**
