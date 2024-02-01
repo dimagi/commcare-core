@@ -1,2 +1,3 @@
 m0_no_items_text=Empty List
 m0_select_text=Continue With Case
+m0.case_short.case_starred_1.alt_text.k0=gold star

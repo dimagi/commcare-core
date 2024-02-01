@@ -234,6 +234,14 @@ public class AppStructureTests {
     }
 
     @Test
+    public void testDetailWithAltText() {
+        Detail detail = mApp.getSession().getPlatform().getDetail("m0_case_short");
+        DetailField field = detail.getFields()[0];
+        Text altText = field.getAltText();
+        assertEquals("gold star", altText.evaluate());
+    }
+
+    @Test
     public void testDetailWithBorder() {
         Detail detail = mApp.getSession().getPlatform().getDetail("m0_case_short");
         DetailField field1 = detail.getFields()[0];
