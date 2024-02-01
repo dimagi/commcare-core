@@ -78,6 +78,15 @@
           <xpath function="case_name"/>
         </text>
       </sort>
+      <alt_text>
+        <text>
+          <xpath function="$k0">
+            <variable name="k0">
+              <locale id="m0.case_short.case_starred_1.alt_text.k0"/>
+            </variable>
+          </xpath>
+        </text>
+      </alt_text>
       <endpoint_action endpoint_id="case_list" background="true"/>
     </field>
   </detail>
