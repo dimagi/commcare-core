@@ -248,10 +248,10 @@ public class CommCareConfigEngine {
     }
 
     public void describeApplication() {
-        print.println("Locales defined: ");
-        for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
-            print.println("* " + locale);
-        }
+//        print.println("Locales defined: ");
+//        for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
+//            print.println("* " + locale);
+//        }
 
         Localization.setDefaultLocale("default");
 
