@@ -39,6 +39,7 @@ public class AsyncEntity extends Entity<TreeReference> {
     private final String[] sortData;
     private final boolean[] relevancyData;
     private final String[][] sortDataPieces;
+    private final String[] altTextData;
     private final EvaluationContext context;
     private final Hashtable<String, XPathExpression> mVariableDeclarations;
     private final DetailGroup mDetailGroup;
@@ -73,6 +74,7 @@ public class AsyncEntity extends Entity<TreeReference> {
         this.sortData = new String[fields.length];
         this.sortDataPieces = new String[fields.length][];
         this.relevancyData = new boolean[fields.length];
+        this.altTextData = new String[fields.length];
         this.context = ec;
         this.mVariableDeclarations = variables;
         this.mEntityStorageCache = cache;
@@ -258,5 +260,31 @@ public class AsyncEntity extends Entity<TreeReference> {
             return  (String)mDetailGroup.getFunction().eval(context);
         }
         return null;
+    }
+
+    @Nullable
+    public String getAltTextData(int i) {
+        synchronized (mAsyncLock) {
+            loadVariableContext();
+            Text altText = fields[i].getAltText();
+            if (altText != null) {
+                try {
+                    altTextData[i] = altText.evaluate(context);
+                } catch (XPathException xpe) {
+                    Logger.exception("Error while evaluating field for case list ", xpe);
+                    xpe.printStackTrace();
+                    altTextData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
+                }
+            }
+            return altTextData[i];
+        }
+    }
+
+    @Override
+    public String[] getAltText() {
+        for (int i = 0; i < this.getNumFields(); ++i) {
+            this.getAltTextData(i);
+        }
+        return altTextData;
     }
 }
