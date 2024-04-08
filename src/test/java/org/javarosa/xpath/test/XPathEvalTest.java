@@ -2,7 +2,7 @@ package org.javarosa.xpath.test;
 
 import static org.junit.Assert.fail;
 
-import org.commcare.util.EncryptionUtils;
+import org.commcare.core.encryption.CryptUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.data.IAnswerData;
@@ -32,12 +32,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
-import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Vector;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
 public class XPathEvalTest {
@@ -724,7 +722,7 @@ public class XPathEvalTest {
 
     public void testStringOutput(String xPathInput) throws XPathSyntaxException {
         XPathExpression expr = XPathParseTool.parseXPath(xPathInput);
-        Assert.assertEquals(xPathInput,expr.toPrettyString());
+        Assert.assertEquals(xPathInput, expr.toPrettyString());
     }
 
 
@@ -766,19 +764,12 @@ public class XPathEvalTest {
         testEval("now()", null, ec, "pass");
     }
 
-    // Utility methods for string encryption.
-    private SecretKey generateSecretKey(int keyLength) throws Exception {
-        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-        keyGen.init(keyLength, new SecureRandom());
-        return keyGen.generateKey();
-    }
-
     public void encryptAndCompare(EvaluationContext ec, String algorithm,
                                   int keyLength, String message,
                                   Exception expectedException) throws UnsupportedEncodingException {
         SecretKey secretKey = null;
         try {
-            secretKey = generateSecretKey(keyLength);
+            secretKey = CryptUtil.generateRandomSecretKey(keyLength);
         } catch(Exception ex) {
             fail("Unexpected exception generating secret key");
         }
@@ -800,11 +791,11 @@ public class XPathEvalTest {
             String decryptedMessage = FunctionUtils.toString(decryptedObject);
             if (!message.equals(decryptedMessage)) {
                 fail("Expected decrypted message " + message + ", got " +
-                     decryptedMessage);
+                        decryptedMessage);
             }
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             assertExceptionExpected(expectedException != null,
-                                    expectedException, ex);
+                    expectedException, ex);
             return;
         }
     }

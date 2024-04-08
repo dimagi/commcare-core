@@ -1,5 +1,7 @@
 package org.commcare.core.interfaces;
 
+import org.commcare.util.EncryptionKeyHelper;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -36,4 +38,9 @@ public interface HttpResponseProcessor {
      * A issue occurred while processing the http request or response
      */
     void handleIOException(IOException exception);
+
+    /**
+     * Encryption key error occurred while processing the http response
+     */
+    void handleEncryptionKeyException(EncryptionKeyHelper.EncryptionKeyException mException);
 }

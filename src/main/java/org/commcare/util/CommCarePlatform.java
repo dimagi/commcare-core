@@ -39,6 +39,7 @@ import javax.annotation.Nullable;
 public class CommCarePlatform {
     // TODO: We should make this unique using the parser to invalidate this ID or something
     public static final String APP_PROFILE_RESOURCE_ID = "commcare-application-profile";
+
     private int profile;
     private Profile cachedProfile;
 

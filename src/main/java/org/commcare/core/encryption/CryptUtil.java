@@ -1,5 +1,6 @@
 package org.commcare.core.encryption;
 
+import org.commcare.util.EncryptionKeyHelper;
 import org.javarosa.core.io.StreamsUtil;
 
 import java.io.ByteArrayInputStream;
@@ -8,6 +9,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -138,16 +141,23 @@ public class CryptUtil {
         return null;
     }
 
-    public static SecretKey generateSemiRandomKey() {
+    // Generate random Secret key with a default key lenght of 256 bits
+    public static SecretKey generateRandomSecretKey()
+            throws EncryptionKeyHelper.EncryptionKeyException {
+        final int AES_DEFAULT_KEY_LENGTH = 256;
+        return generateRandomSecretKey(AES_DEFAULT_KEY_LENGTH);
+    }
+
+    public static SecretKey generateRandomSecretKey(int keylength)
+            throws EncryptionKeyHelper.EncryptionKeyException {
         KeyGenerator generator;
         try {
             generator = KeyGenerator.getInstance("AES");
-            generator.init(256, new SecureRandom());
+            generator.init(keylength, new SecureRandom());
             return generator.generateKey();
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            throw new EncryptionKeyHelper.EncryptionKeyException("Error encountered while generating random Key Pair", e);
         }
-        return null;
     }
 
     public static Cipher getPrivateKeyCipher(byte[] privateKey)
@@ -175,5 +185,18 @@ public class CryptUtil {
         Cipher decrypter = Cipher.getInstance("AES");
         decrypter.init(mode, spec);
         return decrypter;
+    }
+
+    // For RSA
+    public static KeyPair generateRandomKeyPair(int keyLength)
+            throws EncryptionKeyHelper.EncryptionKeyException {
+        KeyPairGenerator generator;
+        try {
+             generator = KeyPairGenerator.getInstance("RSA");
+            generator.initialize(keyLength, new SecureRandom());
+            return generator.genKeyPair();
+        } catch (NoSuchAlgorithmException e) {
+            throw new EncryptionKeyHelper.EncryptionKeyException("Error encountered while generating random Key Pair", e);
+        }
     }
 }
