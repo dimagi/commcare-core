@@ -12,6 +12,8 @@ import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -121,14 +123,13 @@ public class AsyncEntity extends Entity<TreeReference> {
 
     @Override
     public String getSortField(int i) {
-        if (mEntityStorageCache.lockCache()) {
+        try (Closeable ignored = mEntityStorageCache.lockCache()) {
             //get our second lock.
             synchronized (mAsyncLock) {
                 if (sortData[i] == null) {
                     // sort data not in search field cache; load and store it
                     Text sortText = fields[i].getSort();
                     if (sortText == null) {
-                        mEntityStorageCache.releaseCache();
                         return null;
                     }
 
@@ -139,7 +140,6 @@ public class AsyncEntity extends Entity<TreeReference> {
                         String value = mEntityStorageCache.retrieveCacheValue(mCacheIndex, cacheKey);
                         if (value != null) {
                             this.setSortData(i, value);
-                            mEntityStorageCache.releaseCache();
                             return sortData[i];
                         }
                     }
@@ -160,9 +160,12 @@ public class AsyncEntity extends Entity<TreeReference> {
                         sortData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
                     }
                 }
-                mEntityStorageCache.releaseCache();
                 return sortData[i];
             }
+        } catch (IOException e) {
+            Logger.exception("Error while getting sort field", e);
+        } finally {
+            mEntityStorageCache.releaseCache();
         }
         return null;
     }
