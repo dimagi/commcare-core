@@ -13,6 +13,8 @@ import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -129,56 +131,50 @@ public class AsyncEntity extends Entity<TreeReference> {
 
     @Override
     public String getSortField(int i) {
-        try {
-            if (mEntityStorageCache == null || mEntityStorageCache.lockCache()) {
-                //get our second lock.
-                synchronized (mAsyncLock) {
-                    if (sortData[i] == null) {
-                        // sort data not in search field cache; load and store it
-                        Text sortText = fields[i].getSort();
-                        if (sortText == null) {
-                            return null;
-                        }
-
-                        String cacheKey = null;
-                        if (mEntityStorageCache != null) {
-                            cacheKey = mEntityStorageCache.getCacheKey(mDetailId, String.valueOf(i));
-
-                            if (mCacheIndex != null) {
-                                //Check the cache!
-                                String value = mEntityStorageCache.retrieveCacheValue(mCacheIndex, cacheKey);
-                                if (value != null) {
-                                    this.setSortData(i, value);
-                                    return sortData[i];
-                                }
-                            }
-                        }
-
-                        loadVariableContext();
-                        try {
-                            sortText = fields[i].getSort();
-                            if (sortText == null) {
-                                this.setSortData(i, getFieldString(i));
-                            } else {
-                                this.setSortData(i, StringUtils.normalize(sortText.evaluate(context)));
-                            }
-                            if (mEntityStorageCache != null) {
-                                mEntityStorageCache.cache(mCacheIndex, cacheKey, sortData[i]);
-                            }
-                        } catch (XPathException xpe) {
-                            Logger.exception("Error while evaluating sort field", xpe);
-                            xpe.printStackTrace();
-                            sortData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
-                        }
+        try (Closeable ignored = mEntityStorageCache != null ? mEntityStorageCache.lockCache() : null) {
+            //get our second lock.
+            synchronized (mAsyncLock) {
+                if (sortData[i] == null) {
+                    // sort data not in search field cache; load and store it
+                    Text sortText = fields[i].getSort();
+                    if (sortText == null) {
+                        return null;
                     }
+                    String cacheKey = null;
+                    if (mEntityStorageCache != null) {
+                        cacheKey = mEntityStorageCache.getCacheKey(mDetailId, String.valueOf(i));
+                        if (mCacheIndex != null) {
+                            //Check the cache!
+                            String value = mEntityStorageCache.retrieveCacheValue(mCacheIndex, cacheKey);
+                            if (value != null) {
+                                this.setSortData(i, value);
+                                return sortData[i];
+                            }
 
+                            loadVariableContext();
+                            try {
+                                sortText = fields[i].getSort();
+                                if (sortText == null) {
+                                    this.setSortData(i, getFieldString(i));
+                                } else {
+                                    this.setSortData(i, StringUtils.normalize(sortText.evaluate(context)));
+                                }
+                                if (mEntityStorageCache != null) {
+                                    mEntityStorageCache.cache(mCacheIndex, cacheKey, sortData[i]);
+                                }
+                            } catch (XPathException xpe) {
+                                Logger.exception("Error while evaluating sort field", xpe);
+                                xpe.printStackTrace();
+                                sortData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
+                            }
+                        }
+                        return sortData[i];
+                    }
                     return sortData[i];
                 }
             }
-        } finally {
-            if (mEntityStorageCache != null) {
-                mEntityStorageCache.releaseCache();
-            }
+        } catch (IOException e) {
+            Logger.exception("Error while getting sort field", e);
         }
         return null;
     }
