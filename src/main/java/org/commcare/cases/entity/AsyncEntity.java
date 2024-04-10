@@ -164,8 +164,6 @@ public class AsyncEntity extends Entity<TreeReference> {
             }
         } catch (IOException e) {
             Logger.exception("Error while getting sort field", e);
-        } finally {
-            mEntityStorageCache.releaseCache();
         }
         return null;
     }

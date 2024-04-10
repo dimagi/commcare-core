@@ -11,8 +11,6 @@ import java.util.Hashtable;
 public interface EntityStorageCache {
     Closeable lockCache();
 
-    void releaseCache();
-
     String getCacheKey(String detailId, String detailFieldIndex);
 
     String retrieveCacheValue(String cacheIndex, String cacheKey);
