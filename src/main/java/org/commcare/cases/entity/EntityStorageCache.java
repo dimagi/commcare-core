@@ -2,15 +2,14 @@ package org.commcare.cases.entity;
 
 import org.commcare.suite.model.Detail;
 
+import java.io.Closeable;
 import java.util.Hashtable;
 
 /**
  * Interface for evaluated entity fields cache
  */
 public interface EntityStorageCache {
-    boolean lockCache();
-
-    void releaseCache();
+    Closeable lockCache();
 
     String getCacheKey(String detailId, String detailFieldIndex);
 
