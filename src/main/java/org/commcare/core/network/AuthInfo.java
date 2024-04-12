@@ -10,6 +10,8 @@ public abstract class AuthInfo {
     public String password;
     public boolean wrapDomain;
 
+    public String bearerToken;
+
     public static class NoAuth extends AuthInfo {
 
     }
@@ -24,7 +26,6 @@ public abstract class AuthInfo {
             this.password = password;
             this.wrapDomain = wrapDomain;
         }
-
     }
 
     // Auth with the currently-logged in user
@@ -32,4 +33,9 @@ public abstract class AuthInfo {
 
     }
 
+    public static class TokenAuth extends AuthInfo {
+        public TokenAuth(String token) {
+            bearerToken = token;
+        }
+    }
 }

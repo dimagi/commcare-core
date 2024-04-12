@@ -41,10 +41,12 @@ public class AsyncEntity extends Entity<TreeReference> {
     private final String[] sortData;
     private final boolean[] relevancyData;
     private final String[][] sortDataPieces;
+
     private final String[] altTextData;
     private final EvaluationContext context;
     private final Hashtable<String, XPathExpression> mVariableDeclarations;
     private final DetailGroup mDetailGroup;
+
     private boolean mVariableContextLoaded = false;
     private final String mCacheIndex;
     private final String mDetailId;
@@ -70,7 +72,6 @@ public class AsyncEntity extends Entity<TreeReference> {
                        @Nullable EntityStorageCache cache, String cacheIndex, String detailId,
                        String extraKey, DetailGroup detailGroup) {
         super(t, extraKey);
-
         this.fields = fields;
         this.data = new Object[fields.length];
         this.sortData = new String[fields.length];

@@ -12,7 +12,6 @@ import java.util.Hashtable;
 import java.util.List;
 
 import javax.annotation.Nullable;
-
 /**
  * @author ctsims
  */
@@ -35,7 +34,6 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     public AsyncNodeEntityFactory(Detail d, EvaluationContext ec,
             @Nullable EntityStorageCache entityStorageCache) {
         super(d, ec);
-
         mVariableDeclarations = detail.getVariableDeclarations();
         mEntityCache = entityStorageCache;
         isBlockingAsyncMode = detail.hasSortField();
