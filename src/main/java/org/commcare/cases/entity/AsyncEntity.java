@@ -3,6 +3,7 @@ package org.commcare.cases.entity;
 
 import org.commcare.cases.util.StringUtils;
 import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.DetailGroup;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
@@ -16,6 +17,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+
+import javax.annotation.Nullable;
 
 /**
  * An AsyncEntity is an entity reference which is capable of building its
@@ -38,12 +41,17 @@ public class AsyncEntity extends Entity<TreeReference> {
     private final String[] sortData;
     private final boolean[] relevancyData;
     private final String[][] sortDataPieces;
+
+    private final String[] altTextData;
     private final EvaluationContext context;
     private final Hashtable<String, XPathExpression> mVariableDeclarations;
+    private final DetailGroup mDetailGroup;
+
     private boolean mVariableContextLoaded = false;
     private final String mCacheIndex;
     private final String mDetailId;
 
+    @Nullable
     private final EntityStorageCache mEntityStorageCache;
 
     /*
@@ -61,15 +69,15 @@ public class AsyncEntity extends Entity<TreeReference> {
 
     public AsyncEntity(DetailField[] fields, EvaluationContext ec,
                        TreeReference t, Hashtable<String, XPathExpression> variables,
-                       EntityStorageCache cache, String cacheIndex, String detailId,
-                       String extraKey) {
+                       @Nullable EntityStorageCache cache, String cacheIndex, String detailId,
+                       String extraKey, DetailGroup detailGroup) {
         super(t, extraKey);
-
         this.fields = fields;
         this.data = new Object[fields.length];
         this.sortData = new String[fields.length];
         this.sortDataPieces = new String[fields.length][];
         this.relevancyData = new boolean[fields.length];
+        this.altTextData = new String[fields.length];
         this.context = ec;
         this.mVariableDeclarations = variables;
         this.mEntityStorageCache = cache;
@@ -79,6 +87,7 @@ public class AsyncEntity extends Entity<TreeReference> {
         this.mCacheIndex = cacheIndex;
 
         this.mDetailId = detailId;
+        this.mDetailGroup = detailGroup;
     }
 
     private void loadVariableContext() {
@@ -123,7 +132,7 @@ public class AsyncEntity extends Entity<TreeReference> {
 
     @Override
     public String getSortField(int i) {
-        try (Closeable ignored = mEntityStorageCache.lockCache()) {
+        try (Closeable ignored = mEntityStorageCache != null ? mEntityStorageCache.lockCache() : null) {
             //get our second lock.
             synchronized (mAsyncLock) {
                 if (sortData[i] == null) {
@@ -132,35 +141,38 @@ public class AsyncEntity extends Entity<TreeReference> {
                     if (sortText == null) {
                         return null;
                     }
+                    String cacheKey = null;
+                    if (mEntityStorageCache != null) {
+                        cacheKey = mEntityStorageCache.getCacheKey(mDetailId, String.valueOf(i));
+                        if (mCacheIndex != null) {
+                            //Check the cache!
+                            String value = mEntityStorageCache.retrieveCacheValue(mCacheIndex, cacheKey);
+                            if (value != null) {
+                                this.setSortData(i, value);
+                                return sortData[i];
+                            }
 
-                    String cacheKey = mEntityStorageCache.getCacheKey(mDetailId, String.valueOf(i));
-
-                    if (mCacheIndex != null) {
-                        //Check the cache!
-                        String value = mEntityStorageCache.retrieveCacheValue(mCacheIndex, cacheKey);
-                        if (value != null) {
-                            this.setSortData(i, value);
-                            return sortData[i];
+                            loadVariableContext();
+                            try {
+                                sortText = fields[i].getSort();
+                                if (sortText == null) {
+                                    this.setSortData(i, getFieldString(i));
+                                } else {
+                                    this.setSortData(i, StringUtils.normalize(sortText.evaluate(context)));
+                                }
+                                if (mEntityStorageCache != null) {
+                                    mEntityStorageCache.cache(mCacheIndex, cacheKey, sortData[i]);
+                                }
+                            } catch (XPathException xpe) {
+                                Logger.exception("Error while evaluating sort field", xpe);
+                                xpe.printStackTrace();
+                                sortData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
+                            }
                         }
+                        return sortData[i];
                     }
-
-                    loadVariableContext();
-                    try {
-                        sortText = fields[i].getSort();
-                        if (sortText == null) {
-                            this.setSortData(i, getFieldString(i));
-                        } else {
-                            this.setSortData(i, StringUtils.normalize(sortText.evaluate(context)));
-                        }
-
-                        mEntityStorageCache.cache(mCacheIndex, cacheKey, sortData[i]);
-                    } catch (XPathException xpe) {
-                        Logger.exception("Error while evaluating sort field", xpe);
-                        xpe.printStackTrace();
-                        sortData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
-                    }
+                    return sortData[i];
                 }
-                return sortData[i];
             }
         } catch (IOException e) {
             Logger.exception("Error while getting sort field", e);
@@ -219,6 +231,9 @@ public class AsyncEntity extends Entity<TreeReference> {
     }
 
     public void setSortData(String cacheKey, String val) {
+        if (mEntityStorageCache == null) {
+            throw new IllegalStateException("No entity cache defined");
+        }
         int sortIndex = mEntityStorageCache.getSortFieldIdFromCacheKey(mDetailId, cacheKey);
         if (sortIndex != -1) {
             setSortData(sortIndex, val);
@@ -233,5 +248,40 @@ public class AsyncEntity extends Entity<TreeReference> {
             //(as a way to restrict possible matching)
             return input.split("\\s+");
         }
+    }
+
+    @Nullable
+    @Override
+    public String getGroupKey() {
+        if (mDetailGroup != null) {
+            return  (String)mDetailGroup.getFunction().eval(context);
+        }
+        return null;
+    }
+
+    @Nullable
+    public String getAltTextData(int i) {
+        synchronized (mAsyncLock) {
+            loadVariableContext();
+            Text altText = fields[i].getAltText();
+            if (altText != null) {
+                try {
+                    altTextData[i] = altText.evaluate(context);
+                } catch (XPathException xpe) {
+                    Logger.exception("Error while evaluating field for case list ", xpe);
+                    xpe.printStackTrace();
+                    altTextData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
+                }
+            }
+            return altTextData[i];
+        }
+    }
+
+    @Override
+    public String[] getAltText() {
+        for (int i = 0; i < this.getNumFields(); ++i) {
+            this.getAltTextData(i);
+        }
+        return altTextData;
     }
 }
