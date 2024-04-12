@@ -143,13 +143,13 @@ dependencies {
 }
 
 jar {
-    archiveBaseName = "commcare-libraries"
+    baseName = "commcare-libraries"
 }
 
 jar.dependsOn test
 
 task cliJar(type: Jar, dependsOn: cliClasses) {
-    archiveBaseName = "commcare-cli"
+    baseName = "commcare-cli"
     from sourceSets.translate.output
     from sourceSets.cli.output
     from sourceSets.main.output
@@ -168,7 +168,7 @@ task cliJar(type: Jar, dependsOn: cliClasses) {
 }
 
 task ccapiJar(type: Jar, dependsOn: ccapiClasses) {
-    archiveBaseName = "commcare-api"
+    baseName = "commcare-api"
     from sourceSets.ccapi.output
     from sourceSets.main.output
     from {
@@ -183,7 +183,7 @@ task ccapiJar(type: Jar, dependsOn: ccapiClasses) {
 }
 
 task harnessJar(type: Jar, dependsOn: translateClasses) {
-    archiveBaseName = "javarosa-cli"
+    baseName = "javarosa-cli"
     from sourceSets.translate.output
     from sourceSets.main.output
     from {
@@ -203,7 +203,7 @@ task harnessJar(type: Jar, dependsOn: translateClasses) {
 // used to provide the test source files to external projects, such as commcare-android,
 // which might want to import classes
 task testsrcJar(type: Jar, dependsOn: testClasses) {
-    archiveClassifier = 'tests'
+    classifier = 'tests'
     from files(sourceSets.test.output)
     from files(sourceSets.cli.output)
     duplicatesStrategy = DuplicatesStrategy.FAIL
@@ -211,7 +211,7 @@ task testsrcJar(type: Jar, dependsOn: testClasses) {
 
 
 task formTranslateJar(type: Jar, dependsOn: translateClasses) {
-    archiveBaseName = "form_translate"
+    baseName = "form_translate"
     from sourceSets.translate.output
     from sourceSets.main.output
     from {
@@ -256,6 +256,17 @@ task extractLibs(type: Copy) {
 }
 
 compileJava.dependsOn extractLibs
+
+
+task jenkinsTest {
+    inputs.files test.outputs.files
+    doLast {
+        def timestamp = System.currentTimeMillis()
+        test.getReports().getJunitXml().getDestination().eachFile { it.lastModified = timestamp }
+    }
+}
+
+check.dependsOn(jenkinsTest)
 
 jmh {
     duplicateClassesStrategy = DuplicatesStrategy.FAIL
