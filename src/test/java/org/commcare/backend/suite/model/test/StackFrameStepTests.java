@@ -181,11 +181,10 @@ public class StackFrameStepTests {
         StackFrameStep queryFrame = steps.get(2);
         assertEquals(SessionFrame.STATE_QUERY_REQUEST, queryFrame.getElementType());
 
-        ImmutableMultimap.Builder<String, ImmutableList> builder = ImmutableMultimap.builder();
-        builder.put("case_type", ImmutableList.of("patient"));
-        builder.put("x_commcare_data_registry", ImmutableList.of("test"));
-        builder.put("case_id", ImmutableList.of("case_one"));
-        builder.put("case_id", ImmutableList.of("dupe1"));
+        ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap.builder();
+        builder.put("case_type", "patient");
+        builder.put("x_commcare_data_registry", "test");
+        builder.putAll("case_id", ImmutableList.of("case_one", "dupe1"));
         assertEquals(builder.build(), queryFrame.getExtras());
     }
 }
