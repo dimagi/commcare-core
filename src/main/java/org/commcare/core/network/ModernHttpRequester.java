@@ -153,7 +153,8 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
                     responseProcessor.handleIOException(e);
                     return;
                 }
-                responseProcessor.processSuccess(responseCode, responseStream);
+                String apiVersion = streamAccessor.getApiVersion();
+                responseProcessor.processSuccess(responseCode, responseStream, apiVersion);
             } finally {
                 StreamsUtil.closeStream(responseStream);
             }
@@ -189,6 +190,17 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     @Override
     public InputStream getResponseStream() throws IOException {
         return getResponseStream(response);
+    }
+
+    @Override
+    public String getApiVersion() {
+        String apiVerison = null;
+        try {
+            apiVerison = response.headers().get("x-api-current-version");
+        } catch(Exception e) {
+            //Ignore exception if API version header isn't present
+        }
+        return apiVerison;
     }
 
     public static RequestBody getPostBody(Multimap<String, String> inputs) {
