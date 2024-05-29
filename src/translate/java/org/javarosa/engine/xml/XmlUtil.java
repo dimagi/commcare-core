@@ -41,7 +41,7 @@ public class XmlUtil {
             DOMConfiguration domConfig = lsSerializer.getDomConfig();
             domConfig.setParameter("format-pretty-print", true);
             domConfig.setParameter("cdata-sections", true);
-            lsSerializer.setNewLine("\n");
+            lsSerializer.setNewLine(System.lineSeparator());
             lsSerializer.write(document, lsOutput);
             return stringWriter.toString();
         } catch (Exception e) {
