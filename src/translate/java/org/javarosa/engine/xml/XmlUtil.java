@@ -41,7 +41,13 @@ public class XmlUtil {
             DOMConfiguration domConfig = lsSerializer.getDomConfig();
             domConfig.setParameter("format-pretty-print", true);
             domConfig.setParameter("cdata-sections", true);
-            lsSerializer.setNewLine("\n");
+
+            // LSSerializer does not have an explicit control for ending the XML Declaration with a
+            // newline, hence the need for the property isStandalone
+            // More in https://bugs.openjdk.org/browse/JDK-8259502
+            domConfig.setParameter("http://www.oracle.com/xml/jaxp/properties/isStandalone", true);
+
+            lsSerializer.setNewLine(System.lineSeparator());
             lsSerializer.write(document, lsOutput);
             return stringWriter.toString();
         } catch (Exception e) {
@@ -52,6 +58,7 @@ public class XmlUtil {
     private static Document parseXmlFile(String in) {
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setNamespaceAware(true);
             DocumentBuilder db = dbf.newDocumentBuilder();
             InputSource is = new InputSource(new StringReader(in));
             return db.parse(is);
