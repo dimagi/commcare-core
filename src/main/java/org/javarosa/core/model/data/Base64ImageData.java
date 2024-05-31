@@ -51,6 +51,10 @@ public class Base64ImageData implements IAnswerData {
         return base64EncodedImage.first;
     }
 
+    public String getFileName() { return base64EncodedImage.first;}
+
+    public String getImageData() { return base64EncodedImage.second;}
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         base64EncodedImage = new Pair<>(ExtUtil.readString(in), ExtUtil.readString(in));
