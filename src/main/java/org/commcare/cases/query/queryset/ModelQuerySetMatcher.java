@@ -53,4 +53,5 @@ public interface ModelQuerySetMatcher {
      */
     QuerySetLookup getQuerySetLookup(TreeReference ref);
 
+    QuerySetLookup getTransformedQuerySetLookupForOutput(QuerySetLookup lookup, TreeReference remainder);
 }

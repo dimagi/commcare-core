@@ -24,4 +24,12 @@ public class IndexedValueLookup implements PredicateProfile {
     public String getKey() {
         return key;
     }
+
+    @Override
+    public String toString() {
+        return "IndexedValueLookup{" +
+                "key='" + key + '\'' +
+                ", value=" + value +
+                '}';
+    }
 }
