@@ -141,6 +141,7 @@ public class FormDef implements IFormElement, IMetaData,
     private ActionController actionController;
     //If this instance is just being edited, don't fire end of form events
     private boolean isCompletedInstance;
+    private boolean newInstance;
 
     private boolean mProfilingEnabled = false;
     private boolean useExpressionCaching;
@@ -1376,6 +1377,12 @@ public class FormDef implements IFormElement, IMetaData,
         }
     }
 
+    public void finilizeInitialization() {
+        if (newInstance) {
+            actionController.triggerActionsFromEvent(Action.EVENT_XFORMS_MODEL_CONSTRUCT_DONE, this);
+        }
+    }
+
     /**
      * Reads the form definition object from the supplied stream.
      *
@@ -1465,6 +1472,7 @@ public class FormDef implements IFormElement, IMetaData,
             actionController.triggerActionsFromEvent(Action.EVENT_XFORMS_READY, this);
         }
         this.isCompletedInstance = isCompletedInstance;
+        this.newInstance = newInstance;
         if (!isReadOnly) {
             initAllTriggerables();
         }
