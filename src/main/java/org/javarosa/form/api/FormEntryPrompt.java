@@ -73,11 +73,12 @@ public class FormEntryPrompt extends FormEntryCaption {
 
                 //determine which selections are already present in the answer
                 if (itemset.copyMode) {
-                    TreeReference destRef = itemset.getDestRef().contextualize(mTreeElement.getRef());
+                    TreeReference destRef = itemset.getDestRef().contextualize(mTreeElement.getRef(true));
                     Vector<TreeReference> subNodes = form.getEvaluationContext().expandReference(destRef);
                     for (int i = 0; i < subNodes.size(); i++) {
                         TreeElement node = form.getMainInstance().resolveReference(subNodes.elementAt(i));
-                        String value = itemset.getRelativeValue().evalReadable(form.getMainInstance(), new EvaluationContext(form.getEvaluationContext(), node.getRef()));
+                        String value = itemset.getRelativeValue().evalReadable(form.getMainInstance(), new EvaluationContext(form.getEvaluationContext(), node.getRef(
+                                true)));
                         preselectedValues.addElement(value);
                     }
                 } else {
@@ -187,7 +188,7 @@ public class FormEntryPrompt extends FormEntryCaption {
         if (mTreeElement.getConstraint() == null) {
             return null;
         } else {
-            EvaluationContext ec = new EvaluationContext(form.exprEvalContext, mTreeElement.getRef());
+            EvaluationContext ec = new EvaluationContext(form.exprEvalContext, mTreeElement.getRef(true));
             if (textForm != null) {
                 ec.setOutputTextForm(textForm);
             }
@@ -207,7 +208,7 @@ public class FormEntryPrompt extends FormEntryCaption {
         ItemsetBinding itemset = q.getDynamicChoices();
         if (itemset != null) {
             if (populatedDynamicChoices == null && shouldAttemptDynamicPopulation) {
-                form.populateDynamicChoices(itemset, mTreeElement.getRef());
+                form.populateDynamicChoices(itemset, mTreeElement.getRef(true));
                 populatedDynamicChoices = itemset.getChoices();
             }
             return populatedDynamicChoices;
@@ -436,7 +437,7 @@ public class FormEntryPrompt extends FormEntryCaption {
         //We could hide it by dispatching hints through a final abstract class instead.
         Constraint c = mTreeElement.getConstraint();
         if (c != null) {
-            hint.init(new EvaluationContext(form.exprEvalContext, mTreeElement.getRef()), c.constraint, this.form.getMainInstance());
+            hint.init(new EvaluationContext(form.exprEvalContext, mTreeElement.getRef(true)), c.constraint, this.form.getMainInstance());
         } else {
             //can't pivot what ain't there.
             throw new UnpivotableExpressionException();

@@ -101,7 +101,7 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
             throw new InvalidReferenceException("Null Source reference while attempting to copy node", from);
         }
 
-        return copyNode(src, to).getRef();
+        return copyNode(src, to).getRef(true);
     }
 
     // for making new repeat instances; 'from' and 'to' must be unambiguous

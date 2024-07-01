@@ -201,8 +201,8 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
     }
 
     @Override
-    public TreeReference getRef() {
-        if (cachedRef == null) {
+    public TreeReference getRef(boolean useCache) {
+        if (cachedRef == null || !useCache) {
             cachedRef = TreeReference.buildRefFromTreeElement(this);
         }
         return cachedRef;

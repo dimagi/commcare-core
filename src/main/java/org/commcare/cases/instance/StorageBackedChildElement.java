@@ -191,8 +191,8 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
     }
 
     @Override
-    public TreeReference getRef() {
-        if (ref == null) {
+    public TreeReference getRef(boolean useCache) {
+        if (ref == null || !useCache) {
             ref = TreeReference.buildRefFromTreeElement(this);
         }
         return ref;

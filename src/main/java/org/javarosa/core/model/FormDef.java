@@ -440,7 +440,7 @@ public class FormDef implements IFormElement, IMetaData,
         //check the relevancy of the immediate parent
         if (relev) {
             TreeElement templNode = mainInstance.getTemplate(repeatRef);
-            TreeReference parentPath = templNode.getParent().getRef().genericize();
+            TreeReference parentPath = templNode.getParent().getRef(true).genericize();
             TreeElement parentNode = mainInstance.resolveReference(parentPath.contextualize(repeatRef));
             relev = parentNode.isRelevant();
         }
@@ -508,7 +508,7 @@ public class FormDef implements IFormElement, IMetaData,
 
     public void copyItemsetAnswer(QuestionDef q, TreeElement targetNode, IAnswerData data) throws InvalidReferenceException {
         ItemsetBinding itemset = q.getDynamicChoices();
-        TreeReference targetRef = targetNode.getRef();
+        TreeReference targetRef = targetNode.getRef(true);
         TreeReference destRef = itemset.getDestRef().contextualize(targetRef);
 
         Vector<Selection> selections = null;
@@ -532,7 +532,8 @@ public class FormDef implements IFormElement, IMetaData,
             TreeElement node = getMainInstance().resolveReference(existingNodes.elementAt(i));
 
             if (itemset.valueRef != null) {
-                String value = itemset.getRelativeValue().evalReadable(this.getMainInstance(), new EvaluationContext(exprEvalContext, node.getRef()));
+                String value = itemset.getRelativeValue().evalReadable(this.getMainInstance(), new EvaluationContext(exprEvalContext, node.getRef(
+                        true)));
                 if (selectedValues.contains(value)) {
                     existingValues.put(value, node); //cache node if in selection and already exists
                 }
@@ -868,7 +869,7 @@ public class FormDef implements IFormElement, IMetaData,
         // recursively add children of element
         for (int i = 0; i < treeElem.getNumChildren(); ++i) {
             AbstractTreeElement child = treeElem.getChildAt(i);
-            TreeReference genericChild = child.getRef().genericize();
+            TreeReference genericChild = child.getRef(true).genericize();
             if (!genericRefs.contains(genericChild)) {
                 genericRefs.add(genericChild);
             }
@@ -880,7 +881,7 @@ public class FormDef implements IFormElement, IMetaData,
             AbstractTreeElement child =
                     treeElem.getAttribute(treeElem.getAttributeNamespace(i),
                             treeElem.getAttributeName(i));
-            TreeReference genericChild = child.getRef().genericize();
+            TreeReference genericChild = child.getRef(true).genericize();
             if (!genericRefs.contains(genericChild)) {
                 genericRefs.add(genericChild);
             }
@@ -1580,7 +1581,7 @@ public class FormDef implements IFormElement, IMetaData,
 
         //so painful
         TreeElement templNode = mainInstance.getTemplate(index.getReference());
-        TreeReference parentPath = templNode.getParent().getRef().genericize();
+        TreeReference parentPath = templNode.getParent().getRef(true).genericize();
         TreeElement parentNode = mainInstance.resolveReference(parentPath.contextualize(index.getReference()));
         return parentNode.getChildMultiplicity(templNode.getName());
     }
@@ -1706,7 +1707,7 @@ public class FormDef implements IFormElement, IMetaData,
         }
 
         if (selections != null) {
-            QuestionDef q = findQuestionByRef(node.getRef(), this);
+            QuestionDef q = findQuestionByRef(node.getRef(true), this);
             if (q == null) {
                 throw new RuntimeException("FormDef.attachControlsToInstanceData: can't find question to link");
             }

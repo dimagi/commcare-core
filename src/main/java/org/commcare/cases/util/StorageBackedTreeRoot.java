@@ -259,7 +259,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
     }
 
     private Collection<TreeReference> buildReferencesFromFetchResults(Collection<Integer> selectedElements) {
-        TreeReference base = this.getRef();
+        TreeReference base = this.getRef(true);
 
         initStorageCache();
 

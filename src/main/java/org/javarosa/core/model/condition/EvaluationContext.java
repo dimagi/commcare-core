@@ -325,7 +325,7 @@ public class EvaluationContext {
         DataInstance baseInstance = retrieveInstance(ref);
         Vector<TreeReference> v = new Vector<>();
 
-        expandReferenceAccumulator(ref, baseInstance, baseInstance.getRoot().getRef(), v, includeTemplates);
+        expandReferenceAccumulator(ref, baseInstance, baseInstance.getRoot().getRef(true), v, includeTemplates);
         return v;
     }
 
@@ -473,15 +473,16 @@ public class EvaluationContext {
                 for (int i = 0; i < count; i++) {
                     AbstractTreeElement child = node.getChild(childName, i);
                     if (child != null) {
-                        childSet.addElement(child.getRef());
+                        childSet.addElement(child.getRef(true));
                     } else {
-                        throw new IllegalStateException("Missing or non-sequential nodes expanding a reference: " + node.getRef());
+                        throw new IllegalStateException("Missing or non-sequential nodes expanding a reference: " + node.getRef(
+                                true));
                     }
                 }
                 if (includeTemplates) {
                     AbstractTreeElement template = node.getChild(childName, TreeReference.INDEX_TEMPLATE);
                     if (template != null) {
-                        childSet.addElement(template.getRef());
+                        childSet.addElement(template.getRef(true));
                     }
                 }
             } else if (childMult != TreeReference.INDEX_ATTRIBUTE) {
@@ -490,7 +491,7 @@ public class EvaluationContext {
                 // appropriate child
                 AbstractTreeElement child = node.getChild(childName, childMult);
                 if (child != null) {
-                    childSet.addElement(child.getRef());
+                    childSet.addElement(child.getRef(true));
                 }
             }
         }
@@ -500,7 +501,7 @@ public class EvaluationContext {
         if (childMult == TreeReference.INDEX_ATTRIBUTE) {
             AbstractTreeElement attribute = node.getAttribute(null, childName);
             if (attribute != null) {
-                childSet.addElement(attribute.getRef());
+                childSet.addElement(attribute.getRef(true));
             }
         }
         return childSet;

@@ -83,7 +83,7 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
     String getAttributeValue(String namespace, String name);
 
     //return the tree reference that corresponds to this tree element
-    TreeReference getRef();
+    TreeReference getRef(boolean useCache);
 
     String getName();
 

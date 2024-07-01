@@ -137,7 +137,7 @@ public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
     }
 
     @Override
-    public TreeReference getRef() {
+    public TreeReference getRef(boolean useCache) {
         return TreeReference.rootRef();
     }
 
