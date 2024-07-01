@@ -374,6 +374,7 @@ public class FormDef implements IFormElement, IMetaData,
         reduceTreeSiblingMultiplicities(parentElement, deleteElement);
 
         this.getMainInstance().cleanCache();
+        exprEvalContext.setUseReferenceCache(false);
 
         triggerTriggerables(deleteRef);
         return newIndex;

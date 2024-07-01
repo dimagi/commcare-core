@@ -94,6 +94,9 @@ public class EvaluationContext {
     // Keeps track of the overall context for the executing query stack
     private QueryContext queryContext;
 
+    // Used to disable reference cache maintained by a TreeElement node
+    private boolean useReferenceCache = true;
+
     /**
      * What element in a nodeset is the context currently pointing to?
      * Used for calculating the position() xpath function.
@@ -172,6 +175,7 @@ public class EvaluationContext {
 
         this.expressionCacher = base.expressionCacher;
         setQueryContext(base.queryContext);
+        this.useReferenceCache = base.useReferenceCache;
     }
 
     public DataInstance getInstance(String id) {
@@ -325,7 +329,7 @@ public class EvaluationContext {
         DataInstance baseInstance = retrieveInstance(ref);
         Vector<TreeReference> v = new Vector<>();
 
-        expandReferenceAccumulator(ref, baseInstance, baseInstance.getRoot().getRef(true), v, includeTemplates);
+        expandReferenceAccumulator(ref, baseInstance, baseInstance.getRoot().getRef(useReferenceCache), v, includeTemplates);
         return v;
     }
 
@@ -473,16 +477,16 @@ public class EvaluationContext {
                 for (int i = 0; i < count; i++) {
                     AbstractTreeElement child = node.getChild(childName, i);
                     if (child != null) {
-                        childSet.addElement(child.getRef(true));
+                        childSet.addElement(child.getRef(useReferenceCache));
                     } else {
                         throw new IllegalStateException("Missing or non-sequential nodes expanding a reference: " + node.getRef(
-                                true));
+                                useReferenceCache));
                     }
                 }
                 if (includeTemplates) {
                     AbstractTreeElement template = node.getChild(childName, TreeReference.INDEX_TEMPLATE);
                     if (template != null) {
-                        childSet.addElement(template.getRef(true));
+                        childSet.addElement(template.getRef(useReferenceCache));
                     }
                 }
             } else if (childMult != TreeReference.INDEX_ATTRIBUTE) {
@@ -491,7 +495,7 @@ public class EvaluationContext {
                 // appropriate child
                 AbstractTreeElement child = node.getChild(childName, childMult);
                 if (child != null) {
-                    childSet.addElement(child.getRef(true));
+                    childSet.addElement(child.getRef(useReferenceCache));
                 }
             }
         }
@@ -501,7 +505,7 @@ public class EvaluationContext {
         if (childMult == TreeReference.INDEX_ATTRIBUTE) {
             AbstractTreeElement attribute = node.getAttribute(null, childName);
             if (attribute != null) {
-                childSet.addElement(attribute.getRef(true));
+                childSet.addElement(attribute.getRef(useReferenceCache));
             }
         }
         return childSet;
@@ -827,5 +831,9 @@ public class EvaluationContext {
             }
         });
         return builder.build();
+    }
+
+    public void setUseReferenceCache(boolean useReferenceCache) {
+        this.useReferenceCache = useReferenceCache;
     }
 }
