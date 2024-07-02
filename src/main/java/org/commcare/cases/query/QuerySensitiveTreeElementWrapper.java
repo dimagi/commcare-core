@@ -127,8 +127,8 @@ public class QuerySensitiveTreeElementWrapper<T extends AbstractTreeElement> imp
     }
 
     @Override
-    public TreeReference getRef() {
-        return wrapped.getRef();
+    public TreeReference getRef(boolean useCache) {
+        return wrapped.getRef(useCache);
     }
 
     @Override

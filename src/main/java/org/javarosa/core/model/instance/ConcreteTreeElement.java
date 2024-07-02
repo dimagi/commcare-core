@@ -329,9 +329,9 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
     TreeReference refCache;
 
     @Override
-    public TreeReference getRef() {
+    public TreeReference getRef(boolean useCache) {
         //TODO: Expire cache somehow;
-        if (refCache == null) {
+        if (refCache == null || !useCache) {
             refCache = TreeReference.buildRefFromTreeElement(this);
         }
         return refCache;
