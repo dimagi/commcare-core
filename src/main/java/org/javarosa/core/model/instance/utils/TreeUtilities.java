@@ -141,7 +141,7 @@ public class TreeUtilities {
                             TreeElement[] children = childAttributeHintMap.get(left).get(literalMatch);
                             if (children != null) {
                                 for (TreeElement element : children) {
-                                    predicateMatches.add(element.getRef());
+                                    predicateMatches.add(element.getRef(true));
                                 }
                             }
                             //Merge and note that this predicate is evaluated and doesn't need to be evaluated
@@ -197,7 +197,7 @@ public class TreeUtilities {
                                 Object value = FunctionUtils.InferType(attrValue);
 
                                 if (isEqOp == XPathEqExpr.testEquality(value, literalMatch)) {
-                                    predicateMatches.add(kids.elementAt(kidI).getRef());
+                                    predicateMatches.add(kids.elementAt(kidI).getRef(true));
                                 }
                             }
 

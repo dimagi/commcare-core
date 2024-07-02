@@ -2592,7 +2592,8 @@ public class XFormParser {
 
                 if (!FormInstance.isHomogeneous(srcNode, dstNode)) {
                     reporter.warning(XFormParserReporter.TYPE_INVALID_STRUCTURE,
-                            "Your itemset source [" + srcNode.getRef().toString() + "] and dest [" + dstNode.getRef().toString() +
+                            "Your itemset source [" + srcNode.getRef(true).toString() + "] and dest [" + dstNode.getRef(
+                                    true).toString() +
                                     "] of appear to be incompatible!", null);
                 }
 

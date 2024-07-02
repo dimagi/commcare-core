@@ -198,7 +198,7 @@ public class IndexedFixtureChildElement extends StorageBackedChildElement<Storag
 
         StorageIndexedTreeElementModel model = parent.getModelTemplate();
 
-        TreeReference baseRefForChildElement = this.getRef().genericize();
+        TreeReference baseRefForChildElement = this.getRef(true).genericize();
 
         HashSet<String> sufficientColumns =
                 filterMetaDataForReferences(model, referencesInScope, baseRefForChildElement);

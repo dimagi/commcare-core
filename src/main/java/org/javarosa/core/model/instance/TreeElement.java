@@ -727,7 +727,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
 
                 if (child.getMaskVar(MASK_REPEATABLE)) {
                     for (int k = 0; k < newChildren.size(); k++) {
-                        TreeElement template = f.getMainInstance().getTemplate(child.getRef());
+                        TreeElement template = f.getMainInstance().getTemplate(child.getRef(true));
                         TreeElement newChild = template.deepCopy(false);
                         newChild.setMult(k);
                         if (children == null) {
@@ -752,10 +752,10 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
 
     //return the tree reference that corresponds to this tree element
     @Override
-    public TreeReference getRef() {
+    public TreeReference getRef(boolean useCache) {
         //TODO: Expire cache somehow;
         synchronized (refCache) {
-            if (refCache[0] == null) {
+            if (refCache[0] == null || !useCache) {
                 refCache[0] = TreeReference.buildRefFromTreeElement(this);
             }
             return refCache[0];
