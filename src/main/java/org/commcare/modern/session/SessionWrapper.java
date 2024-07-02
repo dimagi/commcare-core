@@ -24,6 +24,10 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
     final protected CommCarePlatform mPlatform;
     protected CommCareInstanceInitializer initializer;
     protected RemoteInstanceFetcher remoteInstanceFetcher;
+    /**
+     * A string representing the width of the user's screen in pixels.
+     * To be used in a display condition determining what content to show to the user.
+     */
     private String windowWidth;
 
     public SessionWrapper(CommCareSession session, CommCarePlatform platform, UserSandbox sandbox,
