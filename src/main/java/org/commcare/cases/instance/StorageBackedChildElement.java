@@ -198,6 +198,10 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
         return ref;
     }
 
+    @Override
+    public void clearVolatiles() {
+        ref = null;
+    }
 
     //Context Sensitive Methods
     @Override

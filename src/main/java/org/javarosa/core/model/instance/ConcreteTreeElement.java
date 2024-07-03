@@ -337,6 +337,10 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
         return refCache;
     }
 
+    @Override
+    public void clearVolatiles() {
+        refCache = null;
+    }
 
     @Override
     public String getName() {
