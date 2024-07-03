@@ -290,17 +290,29 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
     }
 
     public void cleanCache() {
-        referenceCache.clear();
-        cleanTreeElementCache(getBase());
+        cleanCache(getBase());
     }
 
-    private void cleanTreeElementCache(AbstractTreeElement<T> node) {
-        if (node == null) {
+    /**
+     * Cleans reference caches maintained by the instance and TreeElements contained in the contextNode
+     * @param contextNode Parent node inside the scope of which we clear the TreeElement volatiles
+     */
+    public void cleanCache(AbstractTreeElement<T> contextNode) {
+        referenceCache.clear();
+        cleanTreeElementCache(contextNode);
+    }
+
+    /**
+     * Loops through the node and it's children and clears their volatiles
+     * @param contextNode Parent node inside the scope of which we clear the TreeElement volatiles
+     */
+    private void cleanTreeElementCache(AbstractTreeElement<T> contextNode) {
+        if (contextNode == null) {
             return;
         }
-        node.clearVolatiles();
-        for (int i = 0; i < node.getNumChildren(); i++) {
-            cleanTreeElementCache(node.getChildAt(i));
+        contextNode.clearVolatiles();
+        for (int i = 0; i < contextNode.getNumChildren(); i++) {
+            cleanTreeElementCache(contextNode.getChildAt(i));
         }
     }
 }
