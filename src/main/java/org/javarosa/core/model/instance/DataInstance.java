@@ -291,5 +291,16 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
 
     public void cleanCache() {
         referenceCache.clear();
+        cleanTreeElementCache(getBase());
+    }
+
+    private void cleanTreeElementCache(AbstractTreeElement<T> node) {
+        if (node == null) {
+            return;
+        }
+        node.clearVolatiles();
+        for (int i = 0; i < node.getNumChildren(); i++) {
+            cleanTreeElementCache(node.getChildAt(i));
+        }
     }
 }

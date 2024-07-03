@@ -753,7 +753,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     //return the tree reference that corresponds to this tree element
     @Override
     public TreeReference getRef() {
-        //TODO: Expire cache somehow;
         synchronized (refCache) {
             if (refCache[0] == null) {
                 refCache[0] = TreeReference.buildRefFromTreeElement(this);
@@ -852,6 +851,11 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     @Override
     public String getNamespace() {
         return namespace;
+    }
+
+    @Override
+    public void clearVolatiles() {
+        refCache[0] = null;
     }
 
     public void setNamespace(String namespace) {
