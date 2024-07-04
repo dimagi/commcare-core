@@ -200,6 +200,7 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
 
     @Override
     public void clearVolatiles() {
+        // we should also clear the other cache implementation in this class in future
         ref = null;
     }
 

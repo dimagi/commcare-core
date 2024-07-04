@@ -856,6 +856,16 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     @Override
     public void clearVolatiles() {
         refCache[0] = null;
+        if (children != null) {
+            for (TreeElement child : children) {
+                child.clearVolatiles();
+            }
+        }
+        if (attributes != null) {
+            for (TreeElement attribute : attributes) {
+                attribute.clearVolatiles();
+            }
+        }
     }
 
     public void setNamespace(String namespace) {
