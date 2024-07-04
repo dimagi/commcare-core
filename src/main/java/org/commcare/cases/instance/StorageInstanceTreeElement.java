@@ -211,6 +211,11 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
     @Override
     public void clearVolatiles() {
         cachedRef = null;
+        if (elements != null) {
+            for (T element : elements) {
+                element.clearVolatiles();
+            }
+        }
     }
 
     private void expireCachedRef() {
