@@ -200,8 +200,11 @@ public abstract class StorageBackedChildElement<Model extends Externalizable>
 
     @Override
     public void clearVolatiles() {
-        // we should also clear the other cache implementation in this class in future
         ref = null;
+        TreeElement cache = cache();
+        if (cache != null) {
+            cache.clearVolatiles();
+        }
     }
 
     //Context Sensitive Methods
