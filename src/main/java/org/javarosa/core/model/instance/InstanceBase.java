@@ -143,7 +143,9 @@ public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
 
     @Override
     public void clearVolatiles() {
-        // nothing to clear
+        if (child != null) {
+            child.clearVolatiles();
+        }
     }
 
     @Override
