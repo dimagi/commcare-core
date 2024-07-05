@@ -293,7 +293,11 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         this.mCacheHost = cacheHost;
     }
 
+    /**
+     * Cleans reference caches maintained by the instance and TreeElements contained in the contextNode
+     */
     public void cleanCache() {
         referenceCache.clear();
+        getBase().clearVolatiles();
     }
 }
