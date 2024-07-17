@@ -33,7 +33,7 @@ import retrofit2.Response;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class ModernHttpRequester implements ResponseStreamAccessor {
+public class ModernHttpRequester {
     /**
      * How long to wait when opening network connection in milliseconds
      */
@@ -87,7 +87,23 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         }
         try {
             response = makeRequest();
-            processResponse(responseProcessor, response.code(), this);
+            final ModernHttpRequester requester = this;
+            processResponse(responseProcessor, response.code(), new ResponseStreamAccessor() {
+                /**
+                 * Only gets called if response processor is supplied
+                 * @return Input Stream from cache
+                 * @throws IOException if an io error happens while reading or writing to cache
+                 */
+                @Override
+                public InputStream getResponseStream() throws IOException {
+                    return requester.getResponseStream(response);
+                }
+
+                @Override
+                public String getApiVersion() {
+                    return requester.getApiVersion();
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
             responseProcessor.handleIOException(e);
@@ -182,17 +198,6 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         return cache.retrieveCache();
     }
 
-    /**
-     * Only gets called if response processor is supplied
-     * @return Input Stream from cache
-     * @throws IOException if an io error happens while reading or writing to cache
-     */
-    @Override
-    public InputStream getResponseStream() throws IOException {
-        return getResponseStream(response);
-    }
-
-    @Override
     public String getApiVersion() {
         String apiVerison = null;
         try {
