@@ -199,13 +199,7 @@ public class ModernHttpRequester {
     }
 
     public String getApiVersion() {
-        String apiVerison = null;
-        try {
-            apiVerison = response.headers().get("x-api-current-version");
-        } catch(Exception e) {
-            //Ignore exception if API version header isn't present
-        }
-        return apiVerison;
+        return response != null ? response.headers().get("x-api-current-version") : null;
     }
 
     public static RequestBody getPostBody(Multimap<String, String> inputs) {
