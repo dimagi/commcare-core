@@ -96,7 +96,7 @@ public class SessionInstanceBuilder {
         addData(sessionMeta, "username", username);
         addData(sessionMeta, "userid", userId);
         addData(sessionMeta, "drift", String.valueOf(drift));
-        addData(sessionMeta, "windowwidth", windowWidth);
+        addData(sessionMeta, "window_width", windowWidth);
 
         sessionRoot.addChild(sessionMeta);
     }
