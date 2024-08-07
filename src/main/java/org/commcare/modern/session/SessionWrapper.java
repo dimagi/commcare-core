@@ -35,7 +35,6 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
         this(platform, sandbox, remoteInstanceFetcher, windowWidth);
         this.frame = session.getFrame();
         this.setFrameStack(session.getFrameStack());
-        this.windowWidth = windowWidth;
     }
 
 
