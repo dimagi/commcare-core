@@ -472,7 +472,7 @@ public class FormIndex implements Externalizable {
         endOfForm = ExtUtil.readBool(in);
         localIndex = ExtUtil.readInt(in);
         instanceIndex = ExtUtil.readInt(in);
-        reference = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
+        reference = (TreeReference)ExtUtil.read(in, new ExtWrapNullable(TreeReference.class), pf);
         nextLevel = (FormIndex)ExtUtil.read(in, new ExtWrapNullable(FormIndex.class), pf);
     }
 
@@ -482,7 +482,7 @@ public class FormIndex implements Externalizable {
         ExtUtil.writeBool(out, endOfForm);
         ExtUtil.writeNumeric(out, localIndex);
         ExtUtil.writeNumeric(out, instanceIndex);
-        ExtUtil.write(out, reference);
+        ExtUtil.write(out, new ExtWrapNullable(reference));
         ExtUtil.write(out, new ExtWrapNullable(nextLevel));
     }
 }
