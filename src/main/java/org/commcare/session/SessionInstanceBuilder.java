@@ -17,11 +17,11 @@ public class SessionInstanceBuilder {
     public static TreeElement getSessionInstance(SessionFrame frame, String deviceId,
                                                   String appversion, long drift,
                                                   String username, String userId,
-                                                  Hashtable<String, String> userFields) {
+                                                  Hashtable<String, String> userFields, String windowWidth) {
         TreeElement sessionRoot = new TreeElement("session", 0);
 
         addSessionNavData(sessionRoot, frame);
-        addMetadata(sessionRoot, deviceId, appversion, username, userId, drift);
+        addMetadata(sessionRoot, deviceId, appversion, username, userId, drift, windowWidth);
         addUserProperties(sessionRoot, userFields);
 
         return sessionRoot;
@@ -88,7 +88,7 @@ public class SessionInstanceBuilder {
 
     private static void addMetadata(TreeElement sessionRoot, String deviceId,
                                     String appversion, String username,
-                                    String userId, long drift) {
+                                    String userId, long drift, String windowWidth) {
         TreeElement sessionMeta = new TreeElement("context", 0);
 
         addData(sessionMeta, "deviceid", deviceId);
@@ -96,6 +96,7 @@ public class SessionInstanceBuilder {
         addData(sessionMeta, "username", username);
         addData(sessionMeta, "userid", userId);
         addData(sessionMeta, "drift", String.valueOf(drift));
+        addData(sessionMeta, "window_width", windowWidth);
 
         sessionRoot.addChild(sessionMeta);
     }
