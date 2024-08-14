@@ -43,15 +43,17 @@ public class ArchiveFileRoot implements ReferenceFactory {
     }
 
     public String addArchiveFile(ZipFile zipFile) {
-        return addArchiveFile(zipFile, null);
+        return addArchiveFile(zipFile, null, null);
     }
 
-    public String addArchiveFile(ZipFile zip, String appId) {
+    public String addArchiveFile(ZipFile zip, String appId, String appVersion) {
         String mGUID;
         if (appId == null) {
             mGUID = PropertyUtils.genGUID(GUID_LENGTH);
-        } else {
+        } else if (appVersion == null) {
             mGUID = appId;
+        } else {
+            mGUID = appId + "_" + appVersion;
         }
         guidToFolderMap.put(mGUID, zip);
         return mGUID;
