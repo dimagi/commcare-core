@@ -1082,18 +1082,9 @@ public class XFormParser {
         Vector<String> usedAtts = new Vector<>();
         usedAtts.addElement(REF_ATTR);
 
-        String ref = e.getAttributeValue("", REF_ATTR);
-
-        if (ref != null) {
-            if (ref.startsWith(ITEXT_OPEN) && ref.endsWith(ITEXT_CLOSE)) {
-                String textRef = ref.substring(ITEXT_OPEN.length(), ref.indexOf(ITEXT_CLOSE));
-
-                verifyTextMappings(textRef, "Group <label>", true);
-                g.setTextID(textRef);
-            } else {
-                throw new RuntimeException("malformed ref [" + ref + "] for <label>");
-            }
-        } else {
+        String labelItextId = getItextReference(e);
+        g.setTextID(labelItextId);
+        if (labelItextId == null) {
             String label = getLabel(e);
             g.setLabelInnerText(label);
         }
@@ -1101,6 +1092,20 @@ public class XFormParser {
         if (XFormUtils.showUnusedAttributeWarning(e, usedAtts)) {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
         }
+    }
+
+    private String getItextReference(Element e) {
+        String ref = e.getAttributeValue("", REF_ATTR);
+        if (ref != null) {
+            if (ref.startsWith(ITEXT_OPEN) && ref.endsWith(ITEXT_CLOSE)) {
+                String textRef = ref.substring(ITEXT_OPEN.length(), ref.indexOf(ITEXT_CLOSE));
+                verifyTextMappings(textRef, "Group <label>", true);
+                return textRef;
+            } else {
+                throw new XFormParseException("malformed ref [" + ref + "] for <label>");
+            }
+        }
+        return null;
     }
 
     private String getLabel(Element e) {
@@ -1509,6 +1514,7 @@ public class XFormParser {
 
         parent.addChild(group);
     }
+
 
     private TreeReference getFormElementRef(IFormElement fe) {
         if (fe instanceof FormDef) {
