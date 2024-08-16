@@ -1082,8 +1082,6 @@ public class XFormParser {
         Vector<String> usedAtts = new Vector<>();
         usedAtts.addElement(REF_ATTR);
 
-
-        String label = getLabel(e);
         String ref = e.getAttributeValue("", REF_ATTR);
 
         if (ref != null) {
@@ -1096,9 +1094,9 @@ public class XFormParser {
                 throw new RuntimeException("malformed ref [" + ref + "] for <label>");
             }
         } else {
+            String label = getLabel(e);
             g.setLabelInnerText(label);
         }
-
 
         if (XFormUtils.showUnusedAttributeWarning(e, usedAtts)) {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
