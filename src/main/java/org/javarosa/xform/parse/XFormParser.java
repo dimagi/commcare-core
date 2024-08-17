@@ -1,5 +1,6 @@
 package org.javarosa.xform.parse;
 
+import org.commcare.cases.util.StringUtils;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.DataBinding;
 import org.javarosa.core.model.FormDef;
@@ -1108,6 +1109,14 @@ public class XFormParser {
         return null;
     }
 
+    private String getLabelOrTextId(Element element) {
+        String labelItextId = getItextReference(element);
+        if (!StringUtils.isEmpty(labelItextId)) {
+            return labelItextId;
+        }
+        return getLabel(element);
+    }
+
     private String getLabel(Element e) {
         if (e.getChildCount() == 0) return null;
 
@@ -1478,23 +1487,23 @@ public class XFormParser {
 
             if (group.isRepeat() && NAMESPACE_JAVAROSA.equals(childNamespace)) {
                 if ("chooseCaption".equals(childName)) {
-                    group.chooseCaption = getLabel(child);
+                    group.chooseCaption = getLabelOrTextId(child);
                 } else if ("addCaption".equals(childName)) {
-                    group.addCaption = getLabel(child);
+                    group.addCaption = getLabelOrTextId(child);
                 } else if ("delCaption".equals(childName)) {
-                    group.delCaption = getLabel(child);
+                    group.delCaption = getLabelOrTextId(child);
                 } else if ("doneCaption".equals(childName)) {
-                    group.doneCaption = getLabel(child);
+                    group.doneCaption = getLabelOrTextId(child);
                 } else if ("addEmptyCaption".equals(childName)) {
-                    group.addEmptyCaption = getLabel(child);
+                    group.addEmptyCaption = getLabelOrTextId(child);
                 } else if ("doneEmptyCaption".equals(childName)) {
-                    group.doneEmptyCaption = getLabel(child);
+                    group.doneEmptyCaption = getLabelOrTextId(child);
                 } else if ("entryHeader".equals(childName)) {
-                    group.entryHeader = getLabel(child);
+                    group.entryHeader = getLabelOrTextId(child);
                 } else if ("delHeader".equals(childName)) {
-                    group.delHeader = getLabel(child);
+                    group.delHeader = getLabelOrTextId(child);
                 } else if ("mainHeader".equals(childName)) {
-                    group.mainHeader = getLabel(child);
+                    group.mainHeader = getLabelOrTextId(child);
                 }
             }
         }
