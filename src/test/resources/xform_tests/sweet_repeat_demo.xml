@@ -17,6 +17,11 @@
                             <age/>
                             <sex/>
                         </child>
+                        <child_new jr:template="">
+                            <name/>
+                            <age/>
+                            <sex/>
+                        </child_new>
                     </children>
 
                     <qq/>
@@ -26,7 +31,31 @@
             </instance>
 
             <bind nodeset="children/child/age" type="int"/>
-
+            <itext>
+                <translation lang="en" default="">
+                    <text id="main-header-label">
+                        <value>Main Header Label</value>
+                    </text>
+                    <text id="add-caption-label">
+                        <value>Add Caption Label</value>
+                    </text>
+                    <text id="add-empty-caption-label">
+                        <value>Add Empty Caption Label</value>
+                    </text>
+                    <text id="del-caption-label">
+                        <value>Delete Caption Label</value>
+                    </text>
+                    <text id="done-caption-label">
+                        <value>Done Caption Label</value>
+                    </text>
+                    <text id="done-empty-caption-label">
+                        <value>Done Empty Caption Label</value>
+                    </text>
+                    <text id="choose-caption-label">
+                        <value>Choose Caption Label</value>
+                    </text>
+                </translation>
+            </itext>
         </model>
     </h:head>
     <h:body>
@@ -78,7 +107,36 @@
                 </select1>
             </repeat>
         </group>
+        <group>
+            <label>child</label>
+            <repeat nodeset="children/child_new">
+                <jr:mainHeader ref="jr:itext('main-header-label')" />
+                <jr:addCaption ref="jr:itext('add-caption-label')" />
+                <jr:addEmptyCaption ref="jr:itext('add-empty-caption-label')" />
+                <jr:delCaption ref="jr:itext('del-caption-label')" />
+                <jr:doneCaption ref="jr:itext('done-caption-label')" />
+                <jr:doneEmptyCaption ref="jr:itext('done-empty-caption-label')" />
+                <jr:chooseCaption ref="jr:itext('choose-caption-label')" />
 
+                <input ref="name">
+                    <label>name</label>
+                </input>
+                <input ref="age">
+                    <label>age</label>
+                </input>
+                <select1 ref="sex">
+                    <label>sex</label>
+                    <item>
+                        <label>Male</label>
+                        <value>M</value>
+                    </item>
+                    <item>
+                        <label>Female</label>
+                        <value>F</value>
+                    </item>
+                </select1>
+            </repeat>
+        </group>
         <input ref="qq">
             <label>post q</label>
         </input>
