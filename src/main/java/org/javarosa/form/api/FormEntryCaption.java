@@ -5,6 +5,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.GroupDef;
 import org.javarosa.core.model.IFormElement;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 
 import java.util.Hashtable;
@@ -225,7 +226,8 @@ public class FormEntryCaption {
         } else if ("add".equals(typeKey)) {
             caption = getCaptionText(g.addCaption);
             if (caption == null) {
-                return "Add another " + title;
+                return Localization.getWithDefault("repeat.dialog.add.another", new String[]{title},
+                        "Add another " + title);
             }
         } else if ("add-empty".equals(typeKey)) {
             caption = getCaptionText(g.addEmptyCaption);
@@ -233,7 +235,8 @@ public class FormEntryCaption {
                 caption = getCaptionText(g.addCaption);
             }
             if (caption == null) {
-                return "None - Add " + title;
+                return Localization.getWithDefault("repeat.dialog.add.new", new String[]{title},
+                        "Add a new " + title);
             }
         } else if ("del".equals(typeKey)) {
             caption = getCaptionText(g.delCaption);
