@@ -54,6 +54,9 @@
                     <text id="choose-caption-label">
                         <value>Choose Caption Label</value>
                     </text>
+                    <text id="entry-header-label">
+                        <value>Entry Header Label</value>
+                    </text>
                 </translation>
             </itext>
         </model>
@@ -117,6 +120,7 @@
                 <jr:doneCaption ref="jr:itext('done-caption-label')" />
                 <jr:doneEmptyCaption ref="jr:itext('done-empty-caption-label')" />
                 <jr:chooseCaption ref="jr:itext('choose-caption-label')" />
+                <jr:entryHeader ref="jr:itext('entry-header-label')" />
 
                 <input ref="name">
                     <label>name</label>
