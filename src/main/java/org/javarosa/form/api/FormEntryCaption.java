@@ -295,11 +295,11 @@ public class FormEntryCaption {
 
             String caption = null;
             if ("header".equals(type)) {
-                caption = g.entryHeader;
+                caption = getCaptionText(g.entryHeader);
             } else if ("choose".equals(type)) {
-                caption = g.chooseCaption;
+                caption = getCaptionText(g.chooseCaption);
                 if (caption == null) {
-                    caption = g.entryHeader;
+                    caption = getCaptionText(g.entryHeader);
                 }
             }
             if (caption == null) {

@@ -662,11 +662,12 @@ public class FormDefTest {
         FormDef formDef = fec.getModel().getForm();
         GroupDef repeat = (GroupDef)formDef.getChild(2);
         assertEquals("main-header-label", repeat.mainHeader);
-        assertEquals("add-caption-label",repeat.addCaption);
-        assertEquals("add-empty-caption-label",repeat.addEmptyCaption);
-        assertEquals("del-caption-label",repeat.delCaption);
-        assertEquals("done-caption-label",repeat.doneCaption);
-        assertEquals("done-empty-caption-label",repeat.doneEmptyCaption);
-        assertEquals("choose-caption-label",repeat.chooseCaption);
+        assertEquals("add-caption-label", repeat.addCaption);
+        assertEquals("add-empty-caption-label", repeat.addEmptyCaption);
+        assertEquals("del-caption-label", repeat.delCaption);
+        assertEquals("done-caption-label", repeat.doneCaption);
+        assertEquals("done-empty-caption-label", repeat.doneEmptyCaption);
+        assertEquals("choose-caption-label", repeat.chooseCaption);
+        assertEquals("entry-header-label", repeat.entryHeader);
     }
 }
