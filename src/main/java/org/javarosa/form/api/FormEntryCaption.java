@@ -230,7 +230,7 @@ public class FormEntryCaption {
         } else if ("add-empty".equals(typeKey)) {
             caption = getCaptionText(g.addEmptyCaption);
             if (caption == null) {
-                caption = g.addCaption;
+                caption = getCaptionText(g.addCaption);
             }
             if (caption == null) {
                 return "None - Add " + title;
