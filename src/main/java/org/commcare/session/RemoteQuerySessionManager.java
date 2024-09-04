@@ -1,5 +1,7 @@
 package org.commcare.session;
 
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
@@ -11,6 +13,7 @@ import org.commcare.suite.model.QueryData;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.util.DateRangeUtils;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
@@ -19,6 +22,7 @@ import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.utils.TreeUtilities;
 import org.javarosa.core.model.utils.ItemSetUtils;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -31,6 +35,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -74,8 +79,15 @@ public class RemoteQuerySessionManager {
             QueryPrompt prompt = queryPrompts.get(promptId);
 
             if (isPromptSupported(prompt) && prompt.getDefaultValueExpr() != null) {
-                userAnswers.put(prompt.getKey(),
-                        FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext)));
+                String value = FunctionUtils.toString(prompt.getDefaultValueExpr().eval(evaluationContext));
+                if(INPUT_TYPE_DATERANGE.equals(prompt.getInput())){
+                    try {
+                        value = DateRangeUtils.formatDateRangeAnswer(value);
+                    } catch (ParseException e) {
+                        Logger.exception("Error parsing default date range " + value + " for " + promptId, e);
+                    }
+                }
+                userAnswers.put(prompt.getKey(), value);
             }
         }
     }
