@@ -114,4 +114,5 @@ public class LogTypes {
     */
     public static final String TYPE_FCM = "fcm";
     public static final String TYPE_MEMINFO = "memory-info";
+    public static final String TYPE_MEDIA_EVENT = "media-event";
 }

@@ -1,5 +1,6 @@
 package org.javarosa.xform.parse;
 
+import org.commcare.cases.util.StringUtils;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.DataBinding;
 import org.javarosa.core.model.FormDef;
@@ -1082,27 +1083,38 @@ public class XFormParser {
         Vector<String> usedAtts = new Vector<>();
         usedAtts.addElement(REF_ATTR);
 
-
-        String label = getLabel(e);
-        String ref = e.getAttributeValue("", REF_ATTR);
-
-        if (ref != null) {
-            if (ref.startsWith(ITEXT_OPEN) && ref.endsWith(ITEXT_CLOSE)) {
-                String textRef = ref.substring(ITEXT_OPEN.length(), ref.indexOf(ITEXT_CLOSE));
-
-                verifyTextMappings(textRef, "Group <label>", true);
-                g.setTextID(textRef);
-            } else {
-                throw new RuntimeException("malformed ref [" + ref + "] for <label>");
-            }
-        } else {
+        String labelItextId = getItextReference(e);
+        g.setTextID(labelItextId);
+        if (labelItextId == null) {
+            String label = getLabel(e);
             g.setLabelInnerText(label);
         }
-
 
         if (XFormUtils.showUnusedAttributeWarning(e, usedAtts)) {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
         }
+    }
+
+    private String getItextReference(Element e) {
+        String ref = e.getAttributeValue("", REF_ATTR);
+        if (ref != null) {
+            if (ref.startsWith(ITEXT_OPEN) && ref.endsWith(ITEXT_CLOSE)) {
+                String textRef = ref.substring(ITEXT_OPEN.length(), ref.indexOf(ITEXT_CLOSE));
+                verifyTextMappings(textRef, "Group <label>", true);
+                return textRef;
+            } else {
+                throw new XFormParseException("malformed ref [" + ref + "] for <label>");
+            }
+        }
+        return null;
+    }
+
+    private String getLabelOrTextId(Element element) {
+        String labelItextId = getItextReference(element);
+        if (!StringUtils.isEmpty(labelItextId)) {
+            return labelItextId;
+        }
+        return getLabel(element);
     }
 
     private String getLabel(Element e) {
@@ -1475,23 +1487,23 @@ public class XFormParser {
 
             if (group.isRepeat() && NAMESPACE_JAVAROSA.equals(childNamespace)) {
                 if ("chooseCaption".equals(childName)) {
-                    group.chooseCaption = getLabel(child);
+                    group.chooseCaption = getLabelOrTextId(child);
                 } else if ("addCaption".equals(childName)) {
-                    group.addCaption = getLabel(child);
+                    group.addCaption = getLabelOrTextId(child);
                 } else if ("delCaption".equals(childName)) {
-                    group.delCaption = getLabel(child);
+                    group.delCaption = getLabelOrTextId(child);
                 } else if ("doneCaption".equals(childName)) {
-                    group.doneCaption = getLabel(child);
+                    group.doneCaption = getLabelOrTextId(child);
                 } else if ("addEmptyCaption".equals(childName)) {
-                    group.addEmptyCaption = getLabel(child);
+                    group.addEmptyCaption = getLabelOrTextId(child);
                 } else if ("doneEmptyCaption".equals(childName)) {
-                    group.doneEmptyCaption = getLabel(child);
+                    group.doneEmptyCaption = getLabelOrTextId(child);
                 } else if ("entryHeader".equals(childName)) {
-                    group.entryHeader = getLabel(child);
+                    group.entryHeader = getLabelOrTextId(child);
                 } else if ("delHeader".equals(childName)) {
-                    group.delHeader = getLabel(child);
+                    group.delHeader = getLabelOrTextId(child);
                 } else if ("mainHeader".equals(childName)) {
-                    group.mainHeader = getLabel(child);
+                    group.mainHeader = getLabelOrTextId(child);
                 }
             }
         }
@@ -1511,6 +1523,7 @@ public class XFormParser {
 
         parent.addChild(group);
     }
+
 
     private TreeReference getFormElementRef(IFormElement fe) {
         if (fe instanceof FormDef) {
