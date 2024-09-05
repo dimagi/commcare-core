@@ -446,7 +446,7 @@ public class FormDefTest {
 
     // regression test for when we weren't decrementing multiplicities correctly when repeats were deleted
     @Test
-    public void testDeleteRepeatMultiplicities() throws IOException {
+    public void testDeleteRepeatMultiplicities() throws IOException, XPathSyntaxException {
         FormParseInit fpi = new FormParseInit("/multiple_repeats.xml");
         FormEntryController fec = initFormEntry(fpi, "en");
         fec.stepToNextEvent();
@@ -486,6 +486,16 @@ public class FormDefTest {
         assertEquals(root.getChildMultiplicity("question1"), 2);
         assertNotEquals(root.getChild("question1", 1), null);
 
+        EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
+        ExprEvalUtils.assertEqualsXpathEval("check repeat node set correctly",
+                "Second repeat, first iteration: question5", "/data/question4[1]/question5", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("check repeat node set correctly",
+                "Second repeat, first iteration: question6", "/data/question4[1]/question6", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("check repeat node set correctly",
+                "Second repeat, second iteration: question5", "/data/question4[2]/question5", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("check repeat node set correctly",
+                "Second repeat, second iteration: question6", "/data/question4[2]/question6", evalCtx);
+
         fec.deleteRepeat(0);
 
         // Confirm that the deleted repeat is gone and its sibling's multiplicity reduced
@@ -494,6 +504,11 @@ public class FormDefTest {
         // Confirm that the other repeat is unchanged
         assertEquals(root.getChildMultiplicity("question1"), 2);
         assertNotEquals(root.getChild("question1", 1), null);
+
+        ExprEvalUtils.assertEqualsXpathEval("check repeat node set correctly",
+                "Second repeat, second iteration: question5", "/data/question4[1]/question5", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("check repeat node set correctly",
+                "Second repeat, second iteration: question6", "/data/question4[1]/question6", evalCtx);
     }
 
     /**
