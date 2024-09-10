@@ -125,8 +125,8 @@ public class SyncScreen extends Screen {
         sessionWrapper.addExtraToCurrentFrameStep(EXTRA_POST_SUCCESS, true);
     }
 
-    public Object getSessionSuccessStatus() {
-        return sessionWrapper.getCurrentFrameStepExtra(EXTRA_POST_SUCCESS);
+    public Boolean isPostAlreadyDone() {
+        return sessionWrapper.getCurrentFrameStepExtra(EXTRA_POST_SUCCESS) == null ;
     }
 
     @Override
