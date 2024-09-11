@@ -125,6 +125,10 @@ public class SyncScreen extends Screen {
         sessionWrapper.addExtraToCurrentFrameStep(EXTRA_POST_SUCCESS, true);
     }
 
+    public Boolean isPostAlreadyAttempted() {
+        return sessionWrapper.getCurrentFrameStepExtra(EXTRA_POST_SUCCESS) != null ;
+    }
+
     @Override
     public String[] getOptions() {
         return new String[0];
