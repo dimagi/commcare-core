@@ -176,7 +176,7 @@ public class AsyncEntity extends Entity<TreeReference> {
         } catch (IOException e) {
             Logger.exception("Error while getting sort field", e);
         }
-        return null;
+        return sortData[i];
     }
 
     @Override
