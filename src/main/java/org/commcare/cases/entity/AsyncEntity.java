@@ -169,15 +169,13 @@ public class AsyncEntity extends Entity<TreeReference> {
                                 sortData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
                             }
                         }
-                        return sortData[i];
                     }
-                    return sortData[i];
                 }
             }
         } catch (IOException e) {
             Logger.exception("Error while getting sort field", e);
         }
-        return null;
+        return sortData[i];
     }
 
     @Override
