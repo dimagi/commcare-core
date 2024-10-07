@@ -1451,7 +1451,7 @@ public class FormDef implements IFormElement, IMetaData,
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
-            formInstances.put(instanceId, instance.initialize(factory, instanceId));
+            formInstances.put(instanceId, instance.initialize(factory, instanceId, null));
         }
         setEvaluationContext(this.exprEvalContext);
 

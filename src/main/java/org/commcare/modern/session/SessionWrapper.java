@@ -63,10 +63,14 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
         return getEvaluationContext(getIIF());
     }
 
+    public EvaluationContext getEvaluationContextWithLocale(String locale) {
+        return getEvaluationContext(getIIF(), locale);
+    }
+
     @Override
     public EvaluationContext getRestrictedEvaluationContext(String commandId,
                                                             Set<String> instancesToInclude) {
-        return getEvaluationContext(getIIF(), commandId, instancesToInclude);
+        return getEvaluationContext(getIIF(), commandId, instancesToInclude, null);
     }
 
     @Override
@@ -81,7 +85,7 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
      * @return The evaluation context relevant for the provided command id
      */
     public EvaluationContext getEvaluationContext(String commandId) {
-        return getEvaluationContext(getIIF(), commandId, null);
+        return getEvaluationContext(getIIF(), commandId, null, null);
     }
 
     public CommCareInstanceInitializer getIIF() {
