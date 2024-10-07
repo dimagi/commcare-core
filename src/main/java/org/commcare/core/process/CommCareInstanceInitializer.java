@@ -74,7 +74,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
     @Override
     @Nonnull
-    public InstanceRoot generateRoot(ExternalDataInstance instance) {
+    public InstanceRoot generateRoot(ExternalDataInstance instance, String locale) {
         String ref = instance.getReference();
         if (ref.contains(LedgerInstanceTreeElement.MODEL_NAME)) {
             return setupLedgerData(instance);
@@ -83,7 +83,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         } else if (ref.contains("fixture")) {
             return setupFixtureData(instance);
         } else if (instance.getReference().contains("session")) {
-            return setupSessionData(instance);
+            return setupSessionData(instance, locale);
         } else if (ref.startsWith(ExternalDataInstance.JR_REMOTE_REFERENCE)) {
             return setupExternalDataInstance(instance, ref, SessionFrame.STATE_QUERY_REQUEST);
         } else if (ref.startsWith(JR_SELECTED_ENTITIES_REFERENCE)) {
@@ -236,7 +236,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         }
     }
 
-    protected InstanceRoot setupSessionData(ExternalDataInstance instance) {
+    protected InstanceRoot setupSessionData(ExternalDataInstance instance, String locale) {
         if (this.mPlatform == null) {
             throw new RuntimeException("Cannot generate session instance with undeclared platform!");
         }
@@ -244,7 +244,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         TreeElement root =
                 SessionInstanceBuilder.getSessionInstance(sessionWrapper.getFrame(), getDeviceId(),
                         getVersionString(), getCurrentDrift(), u.getUsername(), u.getUniqueId(),
-                        u.getProperties(), getWindowWidth());
+                        u.getProperties(), getWindowWidth(), locale);
         root.setParent(instance.getBase());
         return new ConcreteInstanceRoot(root);
     }

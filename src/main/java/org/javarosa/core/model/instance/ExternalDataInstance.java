@@ -137,9 +137,9 @@ public class ExternalDataInstance extends DataInstance {
     }
 
     @Override
-    public DataInstance initialize(InstanceInitializationFactory initializer, String instanceId) {
+    public DataInstance initialize(InstanceInitializationFactory initializer, String instanceId, String locale) {
         base = new InstanceBase(instanceId);
-        InstanceRoot instanceRoot = initializer.generateRoot(this);
+        InstanceRoot instanceRoot = initializer.generateRoot(this, locale);
         // this indirectly calls `this.copyFromSource` via the InstanceRoot so that we call the
         // correct method based on the type
         instanceRoot.setupNewCopy(this);
