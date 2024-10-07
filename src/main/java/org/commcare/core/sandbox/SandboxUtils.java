@@ -34,7 +34,7 @@ public class SandboxUtils {
 
         Hashtable<String, DataInstance> instances = new Hashtable<>();
         ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
-        edi.initialize(iif, instanceId);
+        edi.initialize(iif, instanceId, null);
         instances.put(instanceId, edi);
 
         return new EvaluationContext(null, instances);
