@@ -252,6 +252,10 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         return this;
     }
 
+    public DataInstance initialize(InstanceInitializationFactory initializer, String instanceId) {
+        return initialize(initializer, instanceId, null);
+    }
+
     @Override
     public String[] getMetaDataFields() {
         return new String[]{META_XMLNS, META_ID};

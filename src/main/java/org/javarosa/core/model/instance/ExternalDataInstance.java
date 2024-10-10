@@ -146,6 +146,10 @@ public class ExternalDataInstance extends DataInstance {
         return initializer.getSpecializedExternalDataInstance(this);
     }
 
+    public DataInstance initialize(InstanceInitializationFactory initializer, String instanceId) {
+        return initialize(initializer, instanceId, null);
+    }
+
     public void copyFromSource(InstanceRoot instanceRoot) {
         root = instanceRoot.getRoot();
         base.setChild(root);
