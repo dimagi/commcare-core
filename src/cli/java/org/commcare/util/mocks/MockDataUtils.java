@@ -48,7 +48,7 @@ public class MockDataUtils {
             String instanceId = instanceRefToId.get(instanceRef);
             ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
 
-            instances.put(instanceId, edi.initialize(iif, instanceId));
+            instances.put(instanceId, edi.initialize(iif, instanceId, null));
         }
 
         return new EvaluationContext(null, instances);
