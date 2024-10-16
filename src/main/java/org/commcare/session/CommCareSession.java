@@ -614,7 +614,11 @@ public class CommCareSession {
      * @return Evaluation context for current session state
      */
     public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif) {
-        return this.getEvaluationContext(iif, getCommand(), null);
+        return this.getEvaluationContext(iif, getCommand(), null, null);
+    }
+
+    public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif, String locale) {
+        return this.getEvaluationContext(iif, getCommand(), null, locale);
     }
 
     /**
@@ -626,7 +630,8 @@ public class CommCareSession {
      */
     public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif,
             String command,
-            Set<String> instancesToInclude) {
+            Set<String> instancesToInclude,
+            String locale) {
         if (command == null) {
             return new EvaluationContext(null);
         }
@@ -661,7 +666,7 @@ public class CommCareSession {
 
         for (Enumeration en = instancesInScope.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
-            instancesInScope.put(key, instancesInScope.get(key).initialize(iif, key));
+            instancesInScope.put(key, instancesInScope.get(key).initialize(iif, key, locale));
         }
         addInstancesFromFrame(instancesInScope, iif);
 

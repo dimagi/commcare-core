@@ -17,7 +17,7 @@ public class InstanceInitializationFactory {
     }
 
     @Nonnull
-    public InstanceRoot generateRoot(ExternalDataInstance instance) {
+    public InstanceRoot generateRoot(ExternalDataInstance instance, String locale) {
         return ConcreteInstanceRoot.NULL;
     }
 }

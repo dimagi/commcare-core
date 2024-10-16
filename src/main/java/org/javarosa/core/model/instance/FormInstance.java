@@ -245,11 +245,15 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
     }
 
     @Override
-    public DataInstance initialize(InstanceInitializationFactory initializer, String instanceId) {
+    public DataInstance initialize(InstanceInitializationFactory initializer, String instanceId, String locale) {
         this.instanceid = instanceId;
         root.setInstanceName(instanceId);
 
         return this;
+    }
+
+    public DataInstance initialize(InstanceInitializationFactory initializer, String instanceId) {
+        return initialize(initializer, instanceId, null);
     }
 
     @Override
