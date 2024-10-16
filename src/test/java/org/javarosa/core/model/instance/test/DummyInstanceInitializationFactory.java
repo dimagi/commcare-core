@@ -18,7 +18,7 @@ public class DummyInstanceInitializationFactory extends InstanceInitializationFa
         return instance;
     }
     @Override
-    public InstanceRoot generateRoot(ExternalDataInstance instance) {
+    public InstanceRoot generateRoot(ExternalDataInstance instance, String locale) {
         throw new RuntimeException("Loading external instances isn't supported " +
                 "using this instance initialization factory.");
     }

@@ -31,7 +31,7 @@ public class TestInstanceInitializer extends InstanceInitializationFactory {
     }
 
     @Override
-    public InstanceRoot generateRoot(ExternalDataInstance instance) {
+    public InstanceRoot generateRoot(ExternalDataInstance instance, String locale) {
         String ref = instance.getReference();
         if (ref.contains(CaseInstanceTreeElement.MODEL_NAME)) {
             CaseInstanceTreeElement root = new CaseInstanceTreeElement(instance.getBase(), sandbox.getCaseStorage());
