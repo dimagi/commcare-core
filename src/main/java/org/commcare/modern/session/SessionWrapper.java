@@ -41,6 +41,10 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
     public SessionWrapper(CommCareSession session, CommCarePlatform platform, UserSandbox sandbox, String windowWidth) {
         this(session, platform, sandbox, null, windowWidth);
     }
+
+    public SessionWrapper(CommCareSession session, CommCarePlatform platform, UserSandbox sandbox) {
+        this(session, platform, sandbox, null, null);
+    }
     
     public SessionWrapper(CommCarePlatform platform, UserSandbox sandbox) {
         super(platform);
