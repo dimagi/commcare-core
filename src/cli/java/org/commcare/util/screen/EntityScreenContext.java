@@ -9,7 +9,6 @@ public class EntityScreenContext extends ScreenContext{
     private final int mSortIndex;
     private final int mCasesPerPage;
     private final String[] mSelectedValues;
-    private final String mLocale;
 
     /**
      * If requesting a case detail will be a case id, else null. When the case id is given it is used to short
@@ -21,14 +20,13 @@ public class EntityScreenContext extends ScreenContext{
     private final boolean fuzzySearch;
 
     public EntityScreenContext(int offset, String searchText, int sortIndex, int casesPerPage,
-            String[] selectedValues, String locale, String detailSelection, boolean isFuzzySearch) {
+            String[] selectedValues, String detailSelection, boolean isFuzzySearch) {
         super(true);
         mOffSet = offset;
         mSearchText = searchText;
         mSortIndex = sortIndex;
         mCasesPerPage = casesPerPage == 0 ? DEFAULT_CASES_PER_PAGE : casesPerPage;
         mSelectedValues = selectedValues;
-        mLocale = locale;
         mDetailSelection = detailSelection;
         fuzzySearch = isFuzzySearch;
     }
@@ -44,7 +42,6 @@ public class EntityScreenContext extends ScreenContext{
         mSortIndex = 0;
         mCasesPerPage = DEFAULT_CASES_PER_PAGE;
         mSelectedValues = null;
-        mLocale = null;
         mDetailSelection = null;
         fuzzySearch = false;
     }
@@ -67,10 +64,6 @@ public class EntityScreenContext extends ScreenContext{
 
     public String[] getSelectedValues() {
         return mSelectedValues;
-    }
-
-    public String getLocale() {
-        return mLocale;
     }
 
     public String getDetailSelection() {

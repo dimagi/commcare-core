@@ -29,7 +29,7 @@ public class MockupProviderFactory extends InstanceInitializationFactory {
     }
 
     @Override
-    public InstanceRoot generateRoot(ExternalDataInstance instance, String locale) {
+    public InstanceRoot generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
 
         if(instances.containsKey(ref)) {
