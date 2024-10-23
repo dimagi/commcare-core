@@ -78,12 +78,12 @@ public class QueryModelTests {
         // test loading instance with new ref
         ExternalDataInstance instance = new ExternalDataInstance("jr://instance/search-input/registry1",
                 "custom-id");
-        Assert.assertNotNull(session.getIIF().generateRoot(instance, null).getRoot());
+        Assert.assertNotNull(session.getIIF().generateRoot(instance).getRoot());
 
         // test that we can still load instances using the legacy ref
         ExternalDataInstance legacyInstance = new ExternalDataInstance("jr://instance/search-input",
                 "search-input:registry1");
-        Assert.assertNotNull(session.getIIF().generateRoot(legacyInstance, null).getRoot());
+        Assert.assertNotNull(session.getIIF().generateRoot(legacyInstance).getRoot());
     }
 
     @NotNull
