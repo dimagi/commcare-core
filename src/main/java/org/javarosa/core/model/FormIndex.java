@@ -1,7 +1,15 @@
 package org.javarosa.core.model;
 
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
+import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Vector;
 
 /**
@@ -22,7 +30,7 @@ import java.util.Vector;
  *
  * @author Clayton Sims
  */
-public class FormIndex {
+public class FormIndex implements Externalizable {
 
     private boolean beginningOfForm = false;
     private boolean endOfForm = false;
@@ -30,7 +38,7 @@ public class FormIndex {
     /**
      * The index of the questiondef in the current context
      */
-    private final int localIndex;
+    private int localIndex;
 
     /**
      * The multiplicity of the current instance of a repeated question or group
@@ -43,6 +51,10 @@ public class FormIndex {
     private FormIndex nextLevel;
 
     private TreeReference reference;
+
+    // needed for serialization
+    public FormIndex(){
+    }
 
     public static FormIndex createBeginningOfFormIndex() {
         FormIndex begin = new FormIndex(-1, null);
@@ -452,5 +464,25 @@ public class FormIndex {
             cur = cur.getNextLevel();
             i++;
         }
+    }
+
+    @Override
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        beginningOfForm = ExtUtil.readBool(in);
+        endOfForm = ExtUtil.readBool(in);
+        localIndex = ExtUtil.readInt(in);
+        instanceIndex = ExtUtil.readInt(in);
+        reference = (TreeReference)ExtUtil.read(in, new ExtWrapNullable(TreeReference.class), pf);
+        nextLevel = (FormIndex)ExtUtil.read(in, new ExtWrapNullable(FormIndex.class), pf);
+    }
+
+    @Override
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeBool(out, beginningOfForm);
+        ExtUtil.writeBool(out, endOfForm);
+        ExtUtil.writeNumeric(out, localIndex);
+        ExtUtil.writeNumeric(out, instanceIndex);
+        ExtUtil.write(out, new ExtWrapNullable(reference));
+        ExtUtil.write(out, new ExtWrapNullable(nextLevel));
     }
 }
