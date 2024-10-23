@@ -243,12 +243,8 @@ public class EntityScreen extends CompoundScreenHost {
         if (mShortDetail == null) {
             throw new CommCareSessionException("Missing detail definition for: " + detailId);
         }
-        EntityScreenContext context = getEntityScreenContext();
-        String locale = null;
-        if (context != null) {
-            locale = context.getLocale();
-        }
-        evalContext = mSession.getEvaluationContextWithLocale(locale);
+
+        evalContext = mSession.getEvaluationContext();
     }
 
     @Trace

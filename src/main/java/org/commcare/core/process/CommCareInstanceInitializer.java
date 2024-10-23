@@ -74,7 +74,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
     @Override
     @Nonnull
-    public InstanceRoot generateRoot(ExternalDataInstance instance, String locale) {
+    public InstanceRoot generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
         if (ref.contains(LedgerInstanceTreeElement.MODEL_NAME)) {
             return setupLedgerData(instance);
@@ -83,7 +83,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         } else if (ref.contains("fixture")) {
             return setupFixtureData(instance);
         } else if (instance.getReference().contains("session")) {
-            return setupSessionData(instance, locale);
+            return setupSessionData(instance);
         } else if (ref.startsWith(ExternalDataInstance.JR_REMOTE_REFERENCE)) {
             return setupExternalDataInstance(instance, ref, SessionFrame.STATE_QUERY_REQUEST);
         } else if (ref.startsWith(JR_SELECTED_ENTITIES_REFERENCE)) {
@@ -236,7 +236,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         }
     }
 
-    protected InstanceRoot setupSessionData(ExternalDataInstance instance, String locale) {
+    protected InstanceRoot setupSessionData(ExternalDataInstance instance) {
         if (this.mPlatform == null) {
             throw new RuntimeException("Cannot generate session instance with undeclared platform!");
         }
@@ -244,13 +244,17 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         TreeElement root =
                 SessionInstanceBuilder.getSessionInstance(sessionWrapper.getFrame(), getDeviceId(),
                         getVersionString(), getCurrentDrift(), u.getUsername(), u.getUniqueId(),
-                        u.getProperties(), getWindowWidth(), locale);
+                        u.getProperties(), getWindowWidth(), getLocale());
         root.setParent(instance.getBase());
         return new ConcreteInstanceRoot(root);
     }
 
     protected String getWindowWidth() {
         return sessionWrapper.getWindowWidth();
+    }
+
+    protected String getLocale() {
+        return Localization.getCurrentLocale();
     }
 
     protected long getCurrentDrift() {
