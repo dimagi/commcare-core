@@ -4,6 +4,8 @@ import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.GroupDef;
+import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
@@ -20,6 +22,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.test.DummyInstanceInitializationFactory;
 import org.javarosa.core.model.utils.test.PersistableSandbox;
 import org.javarosa.core.test.FormParseInit;
+import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -443,7 +446,7 @@ public class FormDefTest {
 
     // regression test for when we weren't decrementing multiplicities correctly when repeats were deleted
     @Test
-    public void testDeleteRepeatMultiplicities() throws IOException {
+    public void testDeleteRepeatMultiplicities() throws IOException, XPathSyntaxException {
         FormParseInit fpi = new FormParseInit("/multiple_repeats.xml");
         FormEntryController fec = initFormEntry(fpi, "en");
         fec.stepToNextEvent();
@@ -483,6 +486,16 @@ public class FormDefTest {
         assertEquals(root.getChildMultiplicity("question1"), 2);
         assertNotEquals(root.getChild("question1", 1), null);
 
+        EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
+        ExprEvalUtils.assertEqualsXpathEval("check repeat node set correctly",
+                "Second repeat, first iteration: question5", "/data/question4[1]/question5", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("check repeat node set correctly",
+                "Second repeat, first iteration: question6", "/data/question4[1]/question6", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("check repeat node set correctly",
+                "Second repeat, second iteration: question5", "/data/question4[2]/question5", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("check repeat node set correctly",
+                "Second repeat, second iteration: question6", "/data/question4[2]/question6", evalCtx);
+
         fec.deleteRepeat(0);
 
         // Confirm that the deleted repeat is gone and its sibling's multiplicity reduced
@@ -491,6 +504,11 @@ public class FormDefTest {
         // Confirm that the other repeat is unchanged
         assertEquals(root.getChildMultiplicity("question1"), 2);
         assertNotEquals(root.getChild("question1", 1), null);
+
+        ExprEvalUtils.assertEqualsXpathEval("check repeat node set correctly",
+                "Second repeat, second iteration: question5", "/data/question4[1]/question5", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("check repeat node set correctly",
+                "Second repeat, second iteration: question6", "/data/question4[1]/question6", evalCtx);
     }
 
     /**
@@ -650,5 +668,21 @@ public class FormDefTest {
             }
 
         } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+    }
+
+    @Test
+    public void testRepeatCaptions() throws Exception {
+        FormParseInit fpi = new FormParseInit("/xform_tests/sweet_repeat_demo.xml");
+        FormEntryController fec = initFormEntry(fpi);
+        FormDef formDef = fec.getModel().getForm();
+        GroupDef repeat = (GroupDef)formDef.getChild(2);
+        assertEquals("main-header-label", repeat.mainHeader);
+        assertEquals("add-caption-label", repeat.addCaption);
+        assertEquals("add-empty-caption-label", repeat.addEmptyCaption);
+        assertEquals("del-caption-label", repeat.delCaption);
+        assertEquals("done-caption-label", repeat.doneCaption);
+        assertEquals("done-empty-caption-label", repeat.doneEmptyCaption);
+        assertEquals("choose-caption-label", repeat.chooseCaption);
+        assertEquals("entry-header-label", repeat.entryHeader);
     }
 }

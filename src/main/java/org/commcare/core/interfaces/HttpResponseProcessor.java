@@ -12,7 +12,7 @@ public interface HttpResponseProcessor {
     /**
      * Http response was in the 200s
      */
-    void processSuccess(int responseCode, InputStream responseData);
+    void processSuccess(int responseCode, InputStream responseData, String apiVersion);
 
     /**
      * Http response was in the 400s.
