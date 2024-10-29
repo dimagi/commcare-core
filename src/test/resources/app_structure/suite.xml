@@ -244,9 +244,10 @@
     <text>Menu</text>
     <command id="m0-f0"/>
   </menu>
-  <menu id="m3">
+  <menu id="m3" relevant="count(instance('my_instance'))>0">
     <text>Menu</text>
     <command id="m0-f1"/>
+    <instance id="my_instance" src="my_instance_source"/>
   </menu>
   <endpoint id="case_list" respect-relevancy="false">
     <argument id="selected_cases" instance-id="selected_cases" instance-src="jr://instance/selected-entities"/>
