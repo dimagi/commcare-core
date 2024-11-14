@@ -155,13 +155,4 @@ public class EntityDatum extends SessionDatum {
             return null;
         }
     }
-
-    @Override
-    public String toString() {
-        return "EntityDatum{" +
-                "nodeset=" + nodeset +
-                ", shortDetail='" + shortDetail + '\'' +
-                ", autoSelectEnabled=" + autoSelectEnabled +
-                '}';
-    }
 }

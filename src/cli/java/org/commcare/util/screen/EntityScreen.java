@@ -97,7 +97,6 @@ public class EntityScreen extends CompoundScreenHost {
     public void evaluateAutoLaunch(String nextInput) throws CommCareSessionException {
         EvaluationContext subContext = getAutoLaunchEvaluationContext(nextInput);
         for (Action action : mShortDetail.getCustomActions(evalContext)) {
-            System.out.println("in evaluateAutoLaunch, action: " + action);
             if (action.isAutoLaunchAction(subContext)) {
                 // Supply an empty case list so we can "select" from it later using getEntityFromID
                 mCurrentScreen = new EntityListSubscreen(mShortDetail, new Vector<>(), evalContext,
@@ -236,13 +235,10 @@ public class EntityScreen extends CompoundScreenHost {
         }
 
         evalContext = mSession.getEvaluationContext();
-        System.out.println("in setSession, evalContext: " + evalContext);
     }
 
     @Trace
     private Vector<TreeReference> expandEntityReferenceSet(EvaluationContext context) {
-        System.out.println("in expandEntityReferenceSet, mNeededDatum: " + mNeededDatum);
-        System.out.println("in expandEntityReferenceSet, mNeededDatum.getNodeset(): " + mNeededDatum.getNodeset());
         return evalContext.expandReference(mNeededDatum.getNodeset());
     }
 
@@ -510,8 +506,6 @@ public class EntityScreen extends CompoundScreenHost {
             throws CommCareSessionException {
         evaluateAutoLaunch(nextInput);
         if (getAutoLaunchAction() != null) {
-            // JT NOTE for some reason, when autoselect for entry datum is true, this evaluates to false 
-            // when autoselect for entry datum is false, it evaluates to true
             setPendingAction(getAutoLaunchAction());
             executePendingAction(session);
             return true;
