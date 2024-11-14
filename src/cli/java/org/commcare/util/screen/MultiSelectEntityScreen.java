@@ -25,6 +25,8 @@ import org.javarosa.core.util.NoLocalizedTextException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import java.util.Arrays;
+
 /**
  * Variation of EntityScreen to allow for selection of multiple entities at once
  */
@@ -70,21 +72,28 @@ public class MultiSelectEntityScreen extends EntityScreen {
 
     @Override
     protected boolean shouldAutoSelect() {
+        // System.out.println("in show autoselect");
+        // System.out.println("mneededdatum " + mNeededDatum);
         return mNeededDatum.isAutoSelectEnabled() && references.size() != 0;
     }
 
     @Override
     public boolean autoSelectEntities(SessionWrapper session) {
+        System.out.println("Starting autoSelectEntities with " + references.size() + " references");
         int selectionSize = references.size();
         if (validateSelectionSize(selectionSize)) {
+            System.out.println("Selection size " + selectionSize + " validated successfully");
             String[] evaluatedValues = new String[selectionSize];
             for (int i = 0; i < selectionSize; i++) {
                 evaluatedValues[i] = getReturnValueFromSelection(references.elementAt(i));
+                System.out.println("Evaluated value " + (i + 1) + ": " + evaluatedValues[i]);
             }
             processSelectionIntoInstance(evaluatedValues, getNeededDatumId());
+            System.out.println("Processed selection into instance with datum ID: " + getNeededDatumId());
             updateSession(session);
             return true;
         }
+        System.out.println("Auto-selection failed validation check");
         return false;
     }
 
@@ -169,6 +178,8 @@ public class MultiSelectEntityScreen extends EntityScreen {
                 TreeReference currentReference = getAndValidateEntityReference(selectedValues[i]);
                 evaluatedValues[i] = getReturnValueFromSelection(currentReference);
             }
+            System.out.println("in processSelectedValues, evaluatedValues: " + Arrays.toString(evaluatedValues));
+            System.out.println("in processSelectedValues, getNeededDatumId(): " + getNeededDatumId());
             processSelectionIntoInstance(evaluatedValues, getNeededDatumId());
         }
     }
