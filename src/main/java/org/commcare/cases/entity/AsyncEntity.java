@@ -132,6 +132,10 @@ public class AsyncEntity extends Entity<TreeReference> {
 
     @Override
     public String getSortField(int i) {
+        if (sortData[i] != null) {
+            return sortData[i];
+        }
+
         try (Closeable ignored = mEntityStorageCache != null ? mEntityStorageCache.lockCache() : null) {
             //get our second lock.
             synchronized (mAsyncLock) {
