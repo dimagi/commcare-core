@@ -192,4 +192,8 @@ public class NodeEntityFactory {
             return isEntitySetReadyInternal();
         }
     }
+
+    public void cacheEntities(List<Entity<TreeReference>> entities) {
+        throw new RuntimeException("Method not supported for normal Node Entity Factory");
+    }
 }

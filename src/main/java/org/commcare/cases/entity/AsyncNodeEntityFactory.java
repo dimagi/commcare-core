@@ -108,6 +108,12 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         }
     }
 
+    @Override
+    public void cacheEntities(List<Entity<TreeReference>> entities) {
+        primeCache();
+        setUnCachedData(entities);
+    }
+
     private void setUnCachedData(List<Entity<TreeReference>> entities) {
         for (int i = 0; i < entities.size(); i++) {
             AsyncEntity e = (AsyncEntity)entities.get(i);
