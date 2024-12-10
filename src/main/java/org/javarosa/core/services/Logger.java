@@ -1,5 +1,6 @@
 package org.javarosa.core.services;
 
+import org.commcare.util.LogTypes;
 import org.javarosa.core.api.ILogger;
 import org.javarosa.core.log.FatalException;
 import org.javarosa.core.log.WrappedException;
@@ -52,7 +53,14 @@ public class Logger {
 
     public static void exception(String info, Throwable e) {
         e.printStackTrace();
-        log("exception", (info != null ? info + ": " : "") + WrappedException.printException(e));
+        log(LogTypes.TYPE_EXCEPTION, (info != null ? info + ": " : "") + WrappedException.printException(e));
+        if (logger != null) {
+            try {
+                logger.logException(e);
+            } catch (RuntimeException ex) {
+                logger.panic();
+            }
+        }
     }
 
     public static void die(String thread, Exception e) {
