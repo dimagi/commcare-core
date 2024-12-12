@@ -116,4 +116,8 @@ public class LogTypes {
 
     public static final String TYPE_MEDIA_EVENT = "media-event";
 
+    /**
+     * A Java Exception log
+     */
+    public static final String TYPE_EXCEPTION = "exception";
 }
