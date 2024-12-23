@@ -78,7 +78,11 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
      * Bulk loads search field cache from db.
      * Note that the cache is lazily built upon first case list search.
      */
-    private void primeCache() {
+    protected void primeCache() {
+        if (progressListener != null) {
+            progressListener.publishEntityLoadingProgress(
+                    EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_CACHING, 0, 100);
+        }
         if (mEntityCache == null || mTemplateIsCachable == null || !mTemplateIsCachable || mCacheHost == null) {
             return;
         }
@@ -88,10 +92,15 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
             return;
         }
         mEntityCache.primeCache(mEntitySet,cachePrimeKeys, detail);
+        if (progressListener != null) {
+            progressListener.publishEntityLoadingProgress(
+                    EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_CACHING, 100, 100);
+        }
     }
 
     @Override
     protected void prepareEntitiesInternal(List<Entity<TreeReference>> entities) {
+        // Legacy cache and index code, only here to maintain backward compatibility
         // if blocking mode load cache on the same thread and set any data thats not cached
         if (isBlockingAsyncMode) {
             primeCache();
@@ -114,11 +123,16 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         setUnCachedData(entities);
     }
 
-    private void setUnCachedData(List<Entity<TreeReference>> entities) {
+    protected void setUnCachedData(List<Entity<TreeReference>> entities) {
         for (int i = 0; i < entities.size(); i++) {
             AsyncEntity e = (AsyncEntity)entities.get(i);
             for (int col = 0; col < e.getNumFields(); ++col) {
                 e.getSortField(col);
+            }
+            if (progressListener != null) {
+                progressListener.publishEntityLoadingProgress(
+                        EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_UNCACHED_CALCULATION, i,
+                        entities.size());
             }
         }
     }

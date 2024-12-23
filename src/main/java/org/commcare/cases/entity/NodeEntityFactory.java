@@ -12,8 +12,11 @@ import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 /**
  * @author ctsims
@@ -25,6 +28,7 @@ public class NodeEntityFactory {
     protected final EvaluationContext ec;
     protected final Detail detail;
     private ReducingTraceReporter traceReporter;
+    protected EntityLoadingProgressListener progressListener;
 
     public NodeEntityFactory(Detail d, EvaluationContext ec) {
         this.detail = d;
@@ -149,6 +153,7 @@ public class NodeEntityFactory {
      * Performs the underlying work to prepare the entity set
      * (see prepareEntities()). Separated out to enforce timing
      * related to preparing and utilizing results
+     *
      * @param entities
      */
     protected void prepareEntitiesInternal(List<Entity<TreeReference>> entities) {
@@ -195,5 +200,9 @@ public class NodeEntityFactory {
 
     public void cacheEntities(List<Entity<TreeReference>> entities) {
         throw new RuntimeException("Method not supported for normal Node Entity Factory");
+    }
+
+    public void setEntityProgressListener(EntityLoadingProgressListener progressListener) {
+        this.progressListener = progressListener;
     }
 }
