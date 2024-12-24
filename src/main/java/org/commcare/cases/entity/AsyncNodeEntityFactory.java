@@ -30,6 +30,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
 
     // Don't show entity list until we primeCache and caches all fields
     private final boolean isBlockingAsyncMode;
+    private boolean isCancelled = false;
 
     public AsyncNodeEntityFactory(Detail d, EvaluationContext ec,
             @Nullable EntityStorageCache entityStorageCache) {
@@ -79,6 +80,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
      * Note that the cache is lazily built upon first case list search.
      */
     protected void primeCache() {
+        if (isCancelled) return;
         if (progressListener != null) {
             progressListener.publishEntityLoadingProgress(
                     EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_CACHING, 0, 100);
@@ -125,6 +127,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
 
     protected void setUnCachedData(List<Entity<TreeReference>> entities) {
         for (int i = 0; i < entities.size(); i++) {
+            if (isCancelled) return;
             AsyncEntity e = (AsyncEntity)entities.get(i);
             for (int col = 0; col < e.getNumFields(); ++col) {
                 e.getSortField(col);
@@ -142,6 +145,11 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         synchronized (mAsyncLock) {
             return mAsyncPrimingThread == null || !mAsyncPrimingThread.isAlive();
         }
+    }
+
+    @Override
+    public void cancelLoading() {
+        isCancelled = true;
     }
 
     public boolean isBlockingAsyncMode() {

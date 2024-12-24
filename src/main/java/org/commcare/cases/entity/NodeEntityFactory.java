@@ -12,11 +12,8 @@ import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-
-import javax.annotation.Nullable;
 
 /**
  * @author ctsims
@@ -204,5 +201,9 @@ public class NodeEntityFactory {
 
     public void setEntityProgressListener(EntityLoadingProgressListener progressListener) {
         this.progressListener = progressListener;
+    }
+
+    public void cancelLoading() {
+        throw new RuntimeException("Method not supported for normal Node Entity Factory");
     }
 }
