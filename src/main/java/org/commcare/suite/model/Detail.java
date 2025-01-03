@@ -503,6 +503,16 @@ public class Detail implements Externalizable {
         return false;
     }
 
+    public boolean shouldCache() {
+        // todo
+        return false;
+    }
+
+    public boolean shouldLazyLoad() {
+        // todo
+        return false;
+    }
+
     private abstract class Map<E> {
         private final E a;
 
