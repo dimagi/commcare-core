@@ -263,7 +263,11 @@ public class Detail implements Externalizable {
      * Whether this detail is expected to be so huge in scope that
      * the platform should limit its strategy for loading it to be asynchronous
      * and cached on special keys.
+     *
+     * Legacy way to turn on cache and index: can be removed once we migrate to new
+     * cache and index entirely
      */
+    @Deprecated
     public boolean useAsyncStrategy() {
         for (DetailField f : getFields()) {
             if (f.getSortOrder() == DetailField.SORT_ORDER_CACHABLE) {
