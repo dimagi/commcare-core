@@ -515,6 +515,18 @@ public class Detail implements Externalizable {
         return false;
     }
 
+    // Returns true if we should trigger any optimizations for this detail
+    public boolean shouldOptimize() {
+        if (cacheEnabled || lazyLoading) {
+            for (DetailField field : fields) {
+                if (field.isOptimize()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private abstract class Map<E> {
         private final E a;
 
