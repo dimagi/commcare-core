@@ -11,7 +11,7 @@
     </resource>
   </locale>
 
-  <detail id="m0_case_short" lazy_loading="true">
+  <detail id="m0_case_short" cache_enabled="true" lazy_loading="true">
     <title>
       <text>Case List</text>
     </title>
@@ -66,7 +66,7 @@
         </template>
       </field>
     </lookup>
-    <field>
+    <field optimize="true">
       <style horz-align="left" vert-align="center" font-size="small" show-border="true" show-shading="true">
         <grid grid-height="2" grid-width="3" grid-x="3" grid-y="5"/>
       </style>

@@ -256,9 +256,11 @@ public class AppStructureTests {
     }
 
     @Test
-    public void testDetailWithLazyLoadingSet() {
+    public void testDetailPerformanceAttributes() {
         Detail detail = mApp.getSession().getPlatform().getDetail("m0_case_short");
         assertTrue(detail.isLazyLoading());
+        assertTrue(detail.isCacheEnabled());
+        assertTrue(detail.getFields()[0].isOptimize());
     }
 
     @Test

@@ -109,6 +109,7 @@ public class Detail implements Externalizable {
 
     // Loads detail fields lazily when required
     private boolean lazyLoading;
+    private boolean cacheEnabled;
 
     private DetailGroup group;
 
@@ -126,7 +127,7 @@ public class Detail implements Externalizable {
                   Vector<Action> actions, Callout callout, String fitAcross,
                   String uniformUnitsString, String forceLandscape, String focusFunction,
                   String printPathProvided, String relevancy, Global global, DetailGroup group,
-                  boolean lazyLoading, Text selectText) {
+                  boolean lazyLoading,boolean cacheEnabled, Text selectText) {
 
         if (detailsVector.size() > 0 && fieldsVector.size() > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
@@ -178,6 +179,7 @@ public class Detail implements Externalizable {
         this.global = global;
         this.group = group;
         this.lazyLoading = lazyLoading;
+        this.cacheEnabled = cacheEnabled;
     }
 
     /**
@@ -231,6 +233,10 @@ public class Detail implements Externalizable {
 
     public boolean isLazyLoading() {
         return lazyLoading;
+    }
+
+    public boolean isCacheEnabled() {
+        return cacheEnabled;
     }
 
     /**
@@ -302,6 +308,7 @@ public class Detail implements Externalizable {
         group = (DetailGroup) ExtUtil.read(in, new ExtWrapNullable(DetailGroup.class), pf);
         lazyLoading = ExtUtil.readBool(in);
         selectText = (Text) ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
+        cacheEnabled = ExtUtil.readBool(in);
     }
 
     @Override
@@ -326,6 +333,7 @@ public class Detail implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(group));
         ExtUtil.writeBool(out, lazyLoading);
         ExtUtil.write(out, new ExtWrapNullable(selectText));
+        ExtUtil.writeBool(out, cacheEnabled);
     }
 
     public OrderedHashtable<String, XPathExpression> getVariableDeclarations() {
@@ -504,16 +512,6 @@ public class Detail implements Externalizable {
                 return true;
             }
         }
-        return false;
-    }
-
-    public boolean shouldCache() {
-        // todo
-        return false;
-    }
-
-    public boolean shouldLazyLoad() {
-        // todo
         return false;
     }
 
