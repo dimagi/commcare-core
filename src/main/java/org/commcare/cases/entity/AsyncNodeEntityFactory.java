@@ -57,7 +57,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         String entityKey = loadCalloutDataMapKey(nodeContext);
         AsyncEntity entity =
                 new AsyncEntity(detail.getFields(), nodeContext, data, mVariableDeclarations,
-                        mEntityCache, mCacheIndex, detail.getId(), entityKey, detail.getGroup());
+                        mEntityCache, mCacheIndex, detail.getId(), entityKey, detail.getGroup(), detail.isCacheEnabled());
 
         if (mCacheIndex != null) {
             mEntitySet.put(mCacheIndex, entity);
@@ -106,7 +106,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         // if blocking mode load cache on the same thread and set any data thats not cached
         if (isBlockingAsyncMode) {
             primeCache();
-            setUnCachedData(entities);
+            setUnCachedDataOld(entities);
         } else {
             // otherwise we want to show the entity list asap and hence want to offload the loading cache part to a separate
             // thread while caching any uncached data later on UI thread during Adapter's getView
@@ -121,8 +121,13 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
 
     @Override
     public void cacheEntities(List<Entity<TreeReference>> entities) {
-        primeCache();
-        setUnCachedData(entities);
+        if (detail.isCacheEnabled()) {
+            primeCache();
+            setUnCachedData(entities);
+        } else {
+            primeCache();
+            setUnCachedDataOld(entities);
+        }
     }
 
     protected void setUnCachedData(List<Entity<TreeReference>> entities) {
@@ -130,7 +135,27 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
             if (isCancelled) return;
             AsyncEntity e = (AsyncEntity)entities.get(i);
             for (int col = 0; col < e.getNumFields(); ++col) {
-                e.getSortField(col);
+                if (detail.getFields()[col].isOptimize()) {
+                    e.getField(col);
+                    e.getSortField(col);
+                }
+            }
+            if (progressListener != null) {
+                progressListener.publishEntityLoadingProgress(
+                        EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_UNCACHED_CALCULATION, i,
+                        entities.size());
+            }
+        }
+    }
+
+    // Old cache and index pathway where we only cache sort fields
+    @Deprecated
+    protected void setUnCachedDataOld(List<Entity<TreeReference>> entities) {
+        for (int i = 0; i < entities.size(); i++) {
+            if (isCancelled) return;
+            AsyncEntity e = (AsyncEntity)entities.get(i);
+            for (int col = 0; col < e.getNumFields(); ++col) {
+                    e.getSortField(col);
             }
             if (progressListener != null) {
                 progressListener.publishEntityLoadingProgress(
