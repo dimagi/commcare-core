@@ -43,7 +43,7 @@ public class AsyncEntity extends Entity<TreeReference> {
     private final DetailField[] fields;
     private final Object[] data;
     private final String[] sortData;
-    private final boolean[] relevancyData;
+    private final Boolean[] relevancyData;
     private final String[][] sortDataPieces;
 
     private final String[] altTextData;
@@ -51,7 +51,6 @@ public class AsyncEntity extends Entity<TreeReference> {
     private final Hashtable<String, XPathExpression> mVariableDeclarations;
     private final DetailGroup mDetailGroup;
     private final boolean cacheEnabled;
-
     private boolean mVariableContextLoaded = false;
     private final String mCacheIndex;
     private final String mDetailId;
@@ -80,7 +79,7 @@ public class AsyncEntity extends Entity<TreeReference> {
         this.data = new Object[fields.length];
         this.sortData = new String[fields.length];
         this.sortDataPieces = new String[fields.length][];
-        this.relevancyData = new boolean[fields.length];
+        this.relevancyData = new Boolean[fields.length];
         this.altTextData = new String[fields.length];
         this.context = ec;
         this.mVariableDeclarations = variables;
@@ -93,6 +92,31 @@ public class AsyncEntity extends Entity<TreeReference> {
         this.mDetailId = detail.getId();
         this.mDetailGroup = detail.getGroup();
         this.cacheEnabled = detail.isCacheEnabled();
+        calculateNonLazyFields(detail);
+    }
+
+    /**
+     * Calculates fields that are not lazy loaded as per following scenarios:
+     * 1. Both cache and lazy loading is not enabled i.e. we are in legacy cache and index => all fields are
+     * lazy loaded and we don't need to calculate anything here
+     * 2. only cache is enabled without lazy loading => calculate all fields now
+     * 3. both cache and lazy load are enabled => calculate all fields not marked as optimise
+     */
+    private void calculateNonLazyFields(Detail detail) {
+        boolean lazyLoading = detail.isLazyLoading();
+        if (!cacheEnabled && !lazyLoading) {
+            return;
+        }
+
+        for (int i = 0; i < fields.length; i++) {
+            DetailField field = fields[i];
+            if (!lazyLoading || !field.isOptimize()) {
+                data[i] = getField(i);
+                sortData[i] = getSortField(i);
+                altTextData[i] = getAltTextData(i);
+                relevancyData[i] = getRelevancyData(i);
+            }
+        }
     }
 
     private void loadVariableContext() {
@@ -250,15 +274,24 @@ public class AsyncEntity extends Entity<TreeReference> {
             if (getField(fieldIndex).equals("")) {
                 return false;
             }
+            return getRelevancyData(fieldIndex);
+        }
+    }
 
-            try {
-                this.relevancyData[fieldIndex] = this.fields[fieldIndex].isRelevant(this.context);
-            } catch (XPathSyntaxException e) {
-                final String msg = "Invalid relevant condition for field : " + fields[fieldIndex].getHeader().toString();
-                Logger.exception(msg, e);
-                throw new RuntimeException(msg);
+    private boolean getRelevancyData(int i) {
+        synchronized (mAsyncLock) {
+            if (relevancyData[i] != null) {
+                return relevancyData[i];
             }
-            return this.relevancyData[fieldIndex];
+            loadVariableContext();
+            try {
+                relevancyData[i] = fields[i].isRelevant(context);
+            } catch (XPathSyntaxException e) {
+                final String msg = "Invalid relevant condition for field : " + fields[i].getHeader().toString();
+                Logger.exception(msg, e);
+                throw new XPathException(e);
+            }
+            return relevancyData[i];
         }
     }
 
@@ -333,6 +366,9 @@ public class AsyncEntity extends Entity<TreeReference> {
     @Nullable
     public String getAltTextData(int i) {
         synchronized (mAsyncLock) {
+            if (altTextData[i] != null) {
+                return altTextData[i];
+            }
             loadVariableContext();
             Text altText = fields[i].getAltText();
             if (altText != null) {
