@@ -177,7 +177,6 @@ public class AsyncEntity extends Entity<TreeReference> {
             data[i] = fields[i].getTemplate().evaluate(context);
         } catch (XPathException xpe) {
             Logger.exception("Error while evaluating field for case list ", xpe);
-            xpe.printStackTrace();
             data[i] = "<invalid xpath: " + xpe.getMessage() + ">";
         }
         return data[i];
@@ -254,7 +253,6 @@ public class AsyncEntity extends Entity<TreeReference> {
             }
         } catch (XPathException xpe) {
             Logger.exception("Error while evaluating sort field", xpe);
-            xpe.printStackTrace();
             sortData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
         }
     }
@@ -376,7 +374,6 @@ public class AsyncEntity extends Entity<TreeReference> {
                     altTextData[i] = altText.evaluate(context);
                 } catch (XPathException xpe) {
                     Logger.exception("Error while evaluating field for case list ", xpe);
-                    xpe.printStackTrace();
                     altTextData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
                 }
             }

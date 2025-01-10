@@ -1,6 +1,8 @@
 package org.commcare.cases.entity;
 
 
+import static org.commcare.cases.entity.EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_UNCACHED_CALCULATION;
+
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
@@ -140,11 +142,13 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
                     e.getSortField(col);
                 }
             }
-            if (progressListener != null) {
-                progressListener.publishEntityLoadingProgress(
-                        EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_UNCACHED_CALCULATION, i,
-                        entities.size());
+            if (progressListener != null && i % 100 == 0) {
+                progressListener.publishEntityLoadingProgress(PHASE_UNCACHED_CALCULATION, i, entities.size());
             }
+        }
+        if (progressListener != null) {
+            progressListener.publishEntityLoadingProgress(PHASE_UNCACHED_CALCULATION, entities.size(),
+                    entities.size());
         }
     }
 
@@ -159,7 +163,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
             }
             if (progressListener != null) {
                 progressListener.publishEntityLoadingProgress(
-                        EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_UNCACHED_CALCULATION, i,
+                        PHASE_UNCACHED_CALCULATION, i,
                         entities.size());
             }
         }

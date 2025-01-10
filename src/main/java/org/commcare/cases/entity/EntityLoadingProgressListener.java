@@ -19,9 +19,10 @@ public interface EntityLoadingProgressListener {
          */
         PHASE_CACHING(2),
 
+
         /**
          * Phase in which we calculate any uncached entity fields. Can take much longer if things are not
-         * already cached and similarly can be very quick when most things are arealdy cached.
+         * already cached and similarly can be very quick when most things are not available in cache.
          */
         PHASE_UNCACHED_CALCULATION(3);
 
@@ -49,7 +50,7 @@ public interface EntityLoadingProgressListener {
      * Method to implement to listen to the entity loading progress
      *
      * @param phase    The specific phase of entity loading process
-     * @param progress progress corrosponding to the current entity loading phase
+     * @param progress progress corresponding to the current entity loading phase
      * @param total    max progress corresponding to the current entity loading phase
      */
     void publishEntityLoadingProgress(EntityLoadingProgressPhase phase, int progress, int total);

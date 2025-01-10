@@ -94,6 +94,21 @@
       </alt_text>
       <endpoint_action endpoint_id="case_list" background="true"/>
     </field>
+    <field>
+      <header>
+        <text>Name</text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="2" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
   </detail>
   <detail id="m0_case_long">
     <title>

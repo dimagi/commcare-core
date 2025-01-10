@@ -261,6 +261,11 @@ public class AppStructureTests {
         assertTrue(detail.isLazyLoading());
         assertTrue(detail.isCacheEnabled());
         assertTrue(detail.getFields()[0].isOptimize());
+        assertFalse(detail.getFields()[1].isOptimize());
+
+        Detail detailNoCaching = mApp.getSession().getPlatform().getDetail("m1_case_short");
+        assertFalse(detailNoCaching.isCacheEnabled());
+        assertFalse(detailNoCaching.isCacheEnabled());
     }
 
     @Test
