@@ -5,6 +5,7 @@ import static org.commcare.cases.entity.EntityStorageCache.ValueType.TYPE_NORMAL
 import static org.commcare.cases.entity.EntityStorageCache.ValueType.TYPE_SORT_FIELD;
 
 import org.commcare.cases.util.StringUtils;
+import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.DetailGroup;
 import org.commcare.suite.model.Text;
@@ -71,12 +72,11 @@ public class AsyncEntity extends Entity<TreeReference> {
      */
     private final Object mAsyncLock = new Object();
 
-    public AsyncEntity(DetailField[] fields, EvaluationContext ec,
-                       TreeReference t, Hashtable<String, XPathExpression> variables,
-                       @Nullable EntityStorageCache cache, String cacheIndex, String detailId,
-                       String extraKey, DetailGroup detailGroup, boolean cacheEnabled) {
+    public AsyncEntity(Detail detail, EvaluationContext ec,
+            TreeReference t, Hashtable<String, XPathExpression> variables,
+            @Nullable EntityStorageCache cache, String cacheIndex, String extraKey) {
         super(t, extraKey);
-        this.fields = fields;
+        this.fields = detail.getFields();
         this.data = new Object[fields.length];
         this.sortData = new String[fields.length];
         this.sortDataPieces = new String[fields.length][];
@@ -90,9 +90,9 @@ public class AsyncEntity extends Entity<TreeReference> {
         //if this ref is _cachable_ every time, since it's a pretty big lift
         this.mCacheIndex = cacheIndex;
 
-        this.mDetailId = detailId;
-        this.mDetailGroup = detailGroup;
-        this.cacheEnabled = cacheEnabled;
+        this.mDetailId = detail.getId();
+        this.mDetailGroup = detail.getGroup();
+        this.cacheEnabled = detail.isCacheEnabled();
     }
 
     private void loadVariableContext() {
