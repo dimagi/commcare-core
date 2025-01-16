@@ -52,7 +52,8 @@ public class XPathPolygonDistanceFunc extends XPathFuncExpr{
             GeoPointData castedTo = new GeoPointData().cast(new UncastData(unpackedTo));
             double distance=PolygonUtils.distanceToClosestBoundary(polygonList,new double[]{castedTo.getLatitude(), castedTo.getLongitude()});
 
-            return distance;
+
+            return  Math.round(distance * 100.0) / 100.0;
         } catch (NumberFormatException e) {
             throw new XPathTypeMismatchException("boundary-distance() function requires arguments containing " +
                     "numeric values only, but received arguments: " + unpackedFrom + " and " + unpackedTo);
