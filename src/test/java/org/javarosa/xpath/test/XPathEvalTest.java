@@ -173,7 +173,8 @@ public class XPathEvalTest {
         FormInstance instance = createTestInstance();
 
         /* unsupporteds */
-        testEval("boundary-distance('78.0186987 27.2043773 78.0187201 27.203509 78.0202758 27.2035281 78.0203027 27.2044155','78.02052 27.20424')", null, null, Double.valueOf(0));
+        testEval("polygon-distance('78.0186987 27.2043773 78.0187201 27.203509 78.0202758 27.2035281 78.0203027 27.2044155','78.02052 27.20424')", null, null, Double.valueOf(0));
+        testEval("point-inside-polygon('78.0186987 27.2043773 78.0187201 27.203509 78.0202758 27.2035281 78.0203027 27.2044155','78.02052 27.20424')", null, null, false);
         testEval("/union | /expr", null, null, new XPathUnsupportedException());
         testEval("/descendant::blah", null, null, new XPathUnsupportedException());
         testEval("/cant//support", null, null, new XPathUnsupportedException());
