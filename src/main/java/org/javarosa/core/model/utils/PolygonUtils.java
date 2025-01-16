@@ -10,6 +10,7 @@ public class PolygonUtils {
      *                      (latitude and longitude pairs).
      * @param testPoint A list of doubles representing the latitude and longitude of the test point.
      * @return true if the point is inside the polygon, false otherwise.
+     * This Code is written with the help of chatGPT
      */
     public static boolean isPointInsidePolygon(List<Double> polygonPoints, double[] testPoint) {
         int intersectCount = 0;
