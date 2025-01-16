@@ -11,12 +11,12 @@ public class PolygonUtils {
      * @param testPoint A list of doubles representing the latitude and longitude of the test point.
      * @return true if the point is inside the polygon, false otherwise.
      */
-    public static boolean isPointInsidePolygon(List<Double> polygonPoints, List<Double> testPoint) {
+    public static boolean isPointInsidePolygon(List<Double> polygonPoints, double[] testPoint) {
         int intersectCount = 0;
         int vertexCount = polygonPoints.size() / 2;
 
-        double testLat = testPoint.get(0);
-        double testLng = testPoint.get(1);
+        double testLat = testPoint[0];
+        double testLng = testPoint[1];
 
         for (int i = 0; i < vertexCount; i++) {
             double lat1 = polygonPoints.get(2 * i);
