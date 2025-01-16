@@ -11,20 +11,25 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class XPathBoundaryDistanceFunc extends XPathFuncExpr{
+public class XPathPolygonDistanceFunc extends XPathFuncExpr{
     public static final String NAME = "boundaryDistance";
     private static final int EXPECTED_ARG_COUNT = 2;
 
-    public XPathBoundaryDistanceFunc() {
+    public XPathPolygonDistanceFunc() {
         name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
-    public XPathBoundaryDistanceFunc(XPathExpression[] args) throws XPathSyntaxException {
+    public XPathPolygonDistanceFunc(XPathExpression[] args) throws XPathSyntaxException {
         super(NAME, args, EXPECTED_ARG_COUNT, true);
     }
 
-
+    /**
+     * Returns the distance between the polygon and the geopoint, in meters, given objects to unpack.
+     * Ignores altitude and accuracy.
+     * Note that the arguments can be strings.
+     * Returns -1 if one of the arguments is null or the empty string.
+     */
     @Override
     protected Object evalBody(DataInstance model, EvaluationContext evalContext, Object[] evaluatedArgs) {
         return boundaryDistance(evaluatedArgs[0], evaluatedArgs[1]);
@@ -49,7 +54,7 @@ public class XPathBoundaryDistanceFunc extends XPathFuncExpr{
 
             return distance;
         } catch (NumberFormatException e) {
-            throw new XPathTypeMismatchException("distance() function requires arguments containing " +
+            throw new XPathTypeMismatchException("boundary-distance() function requires arguments containing " +
                     "numeric values only, but received arguments: " + unpackedFrom + " and " + unpackedTo);
         }
     }
