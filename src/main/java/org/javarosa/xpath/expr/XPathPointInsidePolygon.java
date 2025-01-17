@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class XPathPointInsidePolygon extends XPathFuncExpr{
-    public static final String NAME = "insidePolygon";
+    public static final String NAME = "inside-polygon";
     private static final int EXPECTED_ARG_COUNT = 2;
     /**
      * Returns true if the geopoint is inside the polygon, in meters, given objects to unpack.

@@ -173,8 +173,6 @@ public class XPathEvalTest {
         FormInstance instance = createTestInstance();
 
         /* unsupporteds */
-        testEval("polygon-distance('78.0186987 27.2043773 78.0187201 27.203509 78.0202758 27.2035281 78.0203027 27.2044155','78.02052 27.20424')", null, null, Double.valueOf(0));
-        testEval("point-inside-polygon('78.0186987 27.2043773 78.0187201 27.203509 78.0202758 27.2035281 78.0203027 27.2044155','78.02052 27.20424')", null, null, false);
         testEval("/union | /expr", null, null, new XPathUnsupportedException());
         testEval("/descendant::blah", null, null, new XPathUnsupportedException());
         testEval("/cant//support", null, null, new XPathUnsupportedException());
@@ -610,7 +608,14 @@ public class XPathEvalTest {
         testEval("$var_string_five", null, varContext, "five");
         testEval("$var_int_five", null, varContext, Double.valueOf(5.0));
         testEval("$var_double_five", null, varContext, Double.valueOf(5.0));
+        //Polygon point
+        testEval("polygon-point('78.041309 27.174957 78.042574 27.174884 78.042661 27.175493 78.041383 27.175569','78.041 27.176')", null, null, "78.041383 27.175569");  // Outside, near bottom-left vertex
 
+        //inside polygon
+        testEval("inside-polygon('78.0186987 27.2043773 78.0187201 27.203509 78.0202758 27.2035281 78.0203027 27.2044155','78.0195 27.204')", null, null, true);  // Inside the polygon
+        testEval("inside-polygon('78.0186987 27.2043773 78.0187201 27.203509 78.0202758 27.2035281 78.0203027 27.2044155','78.0205 27.2035')", null, null, false);  // Outside the polygon, near bottom-right
+        testEval("inside-polygon('78.0186987 27.2043773 78.0187201 27.203509 78.0202758 27.2035281 78.0203027 27.2044155','78.018 27.204')", null, null, false);  // Outside the polygon, far left
+        testEval("inside-polygon('78.0186987 27.2043773 78.0187201 27.203509 78.0202758 27.2035281 78.0203027 27.2044155','78.0187201 27.203509')", null, null, true);  // On the polygon vertex
         //Attribute XPath References
         //testEval("/@blah", null, null, new XPathUnsupportedException());
         //TODO: Need to test with model, probably in a different file
