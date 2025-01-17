@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class XPathPolygonDistanceFunc extends XPathFuncExpr{
-    public static final String NAME = "boundaryDistance";
+    public static final String NAME = "polygon-distance";
     private static final int EXPECTED_ARG_COUNT = 2;
 
     public XPathPolygonDistanceFunc() {
