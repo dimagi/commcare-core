@@ -20,6 +20,8 @@ public interface CaseIndexTable {
 
     LinkedHashSet<Integer> getCasesMatchingIndex(String indexName, String value);
 
+    LinkedHashSet<Integer> getCasesWithTarget(String value);
+
     void indexCase(Case c);
 
     void clearCaseIndices(Collection<Integer> idsToClear);
