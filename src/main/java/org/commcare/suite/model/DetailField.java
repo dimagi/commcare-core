@@ -77,6 +77,8 @@ public class DetailField implements Externalizable {
     private String fontSize;
     private String cssID;
 
+    private boolean optimize;
+
     public DetailField() {
     }
 
@@ -214,6 +216,7 @@ public class DetailField implements Externalizable {
         endpointAction = (EndpointAction)ExtUtil.read(in, new ExtWrapNullable(EndpointAction.class), pf);
         showBorder = ExtUtil.readBool(in);
         showShading = ExtUtil.readBool(in);
+        optimize = ExtUtil.readBool(in);
     }
 
     @Override
@@ -247,6 +250,7 @@ public class DetailField implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(endpointAction));
         ExtUtil.writeBool(out, showBorder);
         ExtUtil.writeBool(out, showShading);
+        ExtUtil.writeBool(out, optimize);
     }
 
     public int getGridX() {
@@ -297,6 +301,10 @@ public class DetailField implements Externalizable {
 
     public boolean getShowShading() {
         return showShading;
+    }
+
+    public boolean isOptimize() {
+        return optimize;
     }
 
     public static class Builder {
@@ -434,5 +442,9 @@ public class DetailField implements Externalizable {
         }
 
         public void setShowShading(boolean showShading) { field.showShading = showShading; }
+
+        public void setOptimize(boolean optimize) {
+            field.optimize = optimize;
+        }
     }
 }
