@@ -83,10 +83,6 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
      */
     protected void primeCache() {
         if (isCancelled) return;
-        if (progressListener != null) {
-            progressListener.publishEntityLoadingProgress(
-                    EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_CACHING, 0, 100);
-        }
         if (mEntityCache == null || mTemplateIsCachable == null || !mTemplateIsCachable || mCacheHost == null) {
             return;
         }
@@ -95,10 +91,15 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         if (cachePrimeKeys == null) {
             return;
         }
+        updateProgress(EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_CACHING, 0, 100);
         mEntityCache.primeCache(mEntitySet,cachePrimeKeys, detail);
+        updateProgress(EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_CACHING, 100, 100);
+    }
+
+    private void updateProgress(EntityLoadingProgressListener.EntityLoadingProgressPhase phase, int progress,
+            int total) {
         if (progressListener != null) {
-            progressListener.publishEntityLoadingProgress(
-                    EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_CACHING, 100, 100);
+            progressListener.publishEntityLoadingProgress(phase, progress, total);
         }
     }
 
@@ -142,14 +143,11 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
                     e.getSortField(col);
                 }
             }
-            if (progressListener != null && i % 100 == 0) {
-                progressListener.publishEntityLoadingProgress(PHASE_UNCACHED_CALCULATION, i, entities.size());
+            if (i % 100 == 0) {
+                updateProgress(PHASE_UNCACHED_CALCULATION, i, entities.size());
             }
         }
-        if (progressListener != null) {
-            progressListener.publishEntityLoadingProgress(PHASE_UNCACHED_CALCULATION, entities.size(),
-                    entities.size());
-        }
+        updateProgress(PHASE_UNCACHED_CALCULATION, entities.size(), entities.size());
     }
 
     // Old cache and index pathway where we only cache sort fields
@@ -161,11 +159,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
             for (int col = 0; col < e.getNumFields(); ++col) {
                     e.getSortField(col);
             }
-            if (progressListener != null) {
-                progressListener.publishEntityLoadingProgress(
-                        PHASE_UNCACHED_CALCULATION, i,
-                        entities.size());
-            }
+            updateProgress(PHASE_UNCACHED_CALCULATION, i, entities.size());
         }
     }
 

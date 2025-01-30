@@ -22,7 +22,7 @@ public interface EntityLoadingProgressListener {
 
         /**
          * Phase in which we calculate any uncached entity fields. Can take much longer if things are not
-         * already cached and similarly can be very quick when most things are not available in cache.
+         * already cached and similarly can be very quick when most things are available in cache.
          */
         PHASE_UNCACHED_CALCULATION(3);
 
