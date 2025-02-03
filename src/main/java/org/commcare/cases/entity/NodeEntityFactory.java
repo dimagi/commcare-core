@@ -212,6 +212,10 @@ public class NodeEntityFactory {
      * @param progressListener The progress listener to use
      */
     public void setEntityProgressListener(EntityLoadingProgressListener progressListener) {
+        if (this.progressListener != null) {
+            throw new RuntimeException(
+                    "Entity loading progress listener is already set in entity factory");
+        }
         this.progressListener = progressListener;
     }
 
