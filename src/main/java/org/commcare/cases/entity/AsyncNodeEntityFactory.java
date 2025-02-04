@@ -4,6 +4,7 @@ package org.commcare.cases.entity;
 import static org.commcare.cases.entity.EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_UNCACHED_CALCULATION;
 
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.CacheHost;
@@ -123,22 +124,29 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     }
 
     @Override
-    public void cacheEntities(List<Entity<TreeReference>> entities) {
+    public void cacheEntities(List<Entity<TreeReference>> entities, Boolean skipLazyLoad) {
         if (detail.isCacheEnabled()) {
             primeCache();
-            setUnCachedData(entities);
+            setUnCachedData(entities, skipLazyLoad);
         } else {
             primeCache();
             setUnCachedDataOld(entities);
         }
     }
 
-    protected void setUnCachedData(List<Entity<TreeReference>> entities) {
+    protected void setUnCachedData(List<Entity<TreeReference>> entities, Boolean skipLazyLoad) {
         for (int i = 0; i < entities.size(); i++) {
             if (isCancelled) return;
             AsyncEntity e = (AsyncEntity)entities.get(i);
             for (int col = 0; col < e.getNumFields(); ++col) {
-                if (detail.getFields()[col].isOptimize()) {
+                DetailField field = detail.getFields()[col];
+                // if lazy loading, don't pre-calculate fields marked as optmize
+                if (!skipLazyLoad && detail.isLazyLoading()) {
+                    if (!field.isOptimize()) {
+                        e.getField(col);
+                        e.getSortField(col);
+                    }
+                } else {
                     e.getField(col);
                     e.getSortField(col);
                 }

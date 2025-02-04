@@ -199,10 +199,11 @@ public class NodeEntityFactory {
      * Caches the provided entities. Default implementation throws RuntimeException.
      * Subclasses should override this method if they support caching.
      *
-     * @param entities List of entities to cache
+     * @param entities     List of entities to cache
+     * @param skipLazyLoad true if we want to calculate even lazy-loading properties as part of the process
      * @throws RuntimeException if caching is not supported
      */
-    public void cacheEntities(List<Entity<TreeReference>> entities) {
+    public void cacheEntities(List<Entity<TreeReference>> entities, Boolean skipLazyLoad) {
         throw new RuntimeException("Method not supported for normal Node Entity Factory");
     }
 

@@ -92,31 +92,6 @@ public class AsyncEntity extends Entity<TreeReference> {
         this.mDetailId = detail.getId();
         this.mDetailGroup = detail.getGroup();
         this.cacheEnabled = detail.isCacheEnabled();
-        calculateNonLazyFields(detail);
-    }
-
-    /**
-     * Calculates fields that are not lazy loaded as per following scenarios:
-     * 1. Both cache and lazy loading is not enabled i.e. we are in legacy cache and index => all fields are
-     * lazy loaded and we don't need to calculate anything here
-     * 2. only cache is enabled without lazy loading => calculate all fields now
-     * 3. both cache and lazy load are enabled => calculate all fields not marked as optimise
-     */
-    private void calculateNonLazyFields(Detail detail) {
-        boolean lazyLoading = detail.isLazyLoading();
-        if (!cacheEnabled && !lazyLoading) {
-            return;
-        }
-
-        for (int i = 0; i < fields.length; i++) {
-            DetailField field = fields[i];
-            if (!lazyLoading || !field.isOptimize()) {
-                data[i] = getField(i);
-                sortData[i] = getSortField(i);
-                altTextData[i] = getAltTextData(i);
-                relevancyData[i] = getRelevancyData(i);
-            }
-        }
     }
 
     private void loadVariableContext() {
