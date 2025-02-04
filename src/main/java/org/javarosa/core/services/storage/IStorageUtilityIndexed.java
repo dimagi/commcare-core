@@ -251,6 +251,25 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      *                                   they may need to clean up if the bulk read doesn't complete
      */
 
+    Vector<E> getSortedRecordsForValues(String[] metaFieldNames, Object[] values,String orderby);
+
+    /**
+     * Load multiple record objects from storage at one time from a list of record ids.
+     * <p>
+     * If the provided recordMap already contains entries for any ids, it is _not_
+     * required for them to be retrieved from storage again.
+     *
+     * if orderby is passed it will give the sorted list based on this key, need to add  DESC or ASC for
+     * sorting done by ascending or descending
+     *
+     * @throws RequestAbandonedException If the current request is abandoned, this method will
+     *                                   throw a RequestAbandonedException. Callers should not
+     *                                   generally catch that exception unless they rethrow it
+     *                                   or another exception, but they should anticipate that
+     *                                   they may need to clean up if the bulk read doesn't complete
+     */
+
+
     void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, E> recordMap)
             throws RequestAbandonedException;
 
