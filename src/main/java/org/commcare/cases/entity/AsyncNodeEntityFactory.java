@@ -124,29 +124,33 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     }
 
     @Override
-    public void cacheEntities(List<Entity<TreeReference>> entities, Boolean skipLazyLoad) {
+    public void cacheEntities(List<Entity<TreeReference>> entities, Boolean inBackground) {
         if (detail.isCacheEnabled()) {
             primeCache();
-            setUnCachedData(entities, skipLazyLoad);
+            setUnCachedData(entities, inBackground);
         } else {
             primeCache();
             setUnCachedDataOld(entities);
         }
     }
 
-    protected void setUnCachedData(List<Entity<TreeReference>> entities, Boolean skipLazyLoad) {
+    protected void setUnCachedData(List<Entity<TreeReference>> entities, Boolean inBackground) {
         for (int i = 0; i < entities.size(); i++) {
             if (isCancelled) return;
             AsyncEntity e = (AsyncEntity)entities.get(i);
+            boolean foregroundWithLazyLoading = !inBackground && detail.isLazyLoading();
+            boolean foregroundWithoutLazyLoading = !inBackground && !detail.isLazyLoading();
             for (int col = 0; col < e.getNumFields(); ++col) {
                 DetailField field = detail.getFields()[col];
-                // if lazy loading, don't pre-calculate fields marked as optmize
-                if (!skipLazyLoad && detail.isLazyLoading()) {
-                    if (!field.isOptimize()) {
-                        e.getField(col);
-                        e.getSortField(col);
-                    }
-                } else {
+                /**
+                 * 1. If we are in foreground with lazy loading turned on, the priority is to show
+                 * the user screen asap. Therefore, we need to skip calculating lazy fields.
+                 * 2. If we are in foreground with lazy loading turned off, we want to calculate all fields here.
+                 * 3. If we are in background with lazy loading turned on or off, we want to calculate all fields
+                 * backed by cache in order to keep them ready for when user loads the list.
+                 */
+                if (foregroundWithoutLazyLoading || (foregroundWithLazyLoading && !field.isOptimize()) || (
+                        inBackground && field.isOptimize())) {
                     e.getField(col);
                     e.getSortField(col);
                 }
