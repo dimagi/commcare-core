@@ -1,5 +1,8 @@
 package org.javarosa.core.storage;
 
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.Interner;
@@ -9,11 +12,16 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+import java.util.stream.Stream;
 
 /**
  * Tests for basic storage utility functions
@@ -39,24 +47,24 @@ public abstract class IndexedStorageUtilityTests {
     public void setupStorageContainer() {
         storage = createStorageUtility();
 
-        nike = new Shoe("nike", "mens", "10");
+        nike = new Shoe("nike", "mens", 10);
 
         tenSizesOfMensNikes = new Shoe[10];
         for (int i = 0; i < 10; ++i) {
             tenSizesOfMensNikes[i] =
-                    new Shoe("nike", "mens", String.valueOf(i + 1));
+                    new Shoe("nike", "mens", i + 1);
         }
 
         eightSizesOfWomensNikes = new Shoe[8];
         for (int i = 0; i < 8; ++i) {
             eightSizesOfWomensNikes[i] =
-                    new Shoe("nike", "womens", String.valueOf(i + 1));
+                    new Shoe("nike", "womens", i + 1);
         }
 
         fiveSizesOfMensVans = new Shoe[5];
         for (int i = 0; i < 5; ++i) {
             fiveSizesOfMensVans[i] =
-                    new Shoe("vans", "mens", String.valueOf(i + 1));
+                    new Shoe("vans", "mens",i + 1);
         }
     }
 
@@ -99,12 +107,12 @@ public abstract class IndexedStorageUtilityTests {
         sizeMatch.add(fiveSizesOfMensVans[2].getID());
 
         List<Integer> matches =
-                storage.getIDsForValue(Shoe.META_SIZE, "3");
+                storage.getIDsForValue(Shoe.META_SIZE, 3);
 
         Assert.assertEquals("Failed single index match [size][3]", sizeMatch, new HashSet<>(matches));
 
         List<Integer> matchesOnVector =
-                storage.getIDsForValues(new String[]{Shoe.META_SIZE}, new String[]{"3"});
+                storage.getIDsForValues(new String[]{Shoe.META_SIZE}, new Integer[]{3});
 
         Assert.assertEquals("Failed single vector index match [size][3]", sizeMatch, new HashSet<>(matchesOnVector));
 
@@ -138,6 +146,45 @@ public abstract class IndexedStorageUtilityTests {
         Assert.assertEquals("Failed index match for all entries", expectedMatches, new HashSet<>(matches));
     }
 
+    @Test
+    public void testSortedRecords() {
+        writeBulkSets();
+
+        // checks Ascending order
+        Vector<Shoe> sortedShoes = storage.getSortedRecordsForValues(
+                new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"nike", "mens"},
+                Shoe.META_SIZE + " ASC");
+        Assert.assertArrayEquals(sortedShoes.toArray(), tenSizesOfMensNikes);
+
+        // checks Descending order
+        sortedShoes = storage.getSortedRecordsForValues(
+                new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"nike", "mens"},
+                Shoe.META_SIZE + " DESC");
+        Assert.assertArrayEquals(sortedShoes.toArray(), reverseArray(tenSizesOfMensNikes));
+
+        // Incorrect keyword ASSC throws exception
+        assertThrows(IllegalArgumentException.class, () -> storage.getSortedRecordsForValues(
+                new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"nike", "mens"},
+                Shoe.META_SIZE + " ASSC"));
+
+        // Checks sort with no selection
+        sortedShoes = storage.getSortedRecordsForValues(new String[]{},
+                new String[]{}, Shoe.META_SIZE + " ASC");
+        int lastSize = -1;
+        for (Shoe sortedShoe : sortedShoes) {
+            assertTrue(sortedShoe.size >= lastSize);
+            lastSize = sortedShoe.size;
+        }
+    }
+
+    private Shoe[] reverseArray(Shoe[] shoes) {
+        ArrayList<Shoe> shoesList = new ArrayList<>(tenSizesOfMensNikes.length);
+        for (int i = tenSizesOfMensNikes.length - 1; i >= 0; i--) {
+            shoesList.add(shoes[i]);
+        }
+        return shoesList.toArray(new Shoe[]{});
+    }
+
     private void writeBulkSets() {
         writeAll(tenSizesOfMensNikes);
         writeAll(eightSizesOfWomensNikes);
@@ -157,5 +204,4 @@ public abstract class IndexedStorageUtilityTests {
             storage.write(s);
         }
     }
-
 }

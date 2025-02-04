@@ -4,7 +4,6 @@ import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.DataInputStream;
@@ -23,7 +22,7 @@ public class Shoe implements Persistable, IMetaData {
     public static final String META_STYLE = "style";
 
     String brand;
-    String size;
+    int size;
     String style;
 
     int recordId = -1;
@@ -33,8 +32,8 @@ public class Shoe implements Persistable, IMetaData {
 
     }
 
-    public Shoe(String brand, String style, String size) {
-        if(brand == null || style == null || size == null) {
+    public Shoe(String brand, String style, int size) {
+        if(brand == null || style == null || size < 1) {
             throw new IllegalArgumentException("No values can be null");
         }
         this.brand = brand;
@@ -82,7 +81,7 @@ public class Shoe implements Persistable, IMetaData {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         brand = ExtUtil.readString(in);
         style = ExtUtil.readString(in);
-        size = ExtUtil.readString(in);
+        size = ExtUtil.readInt(in);
         reviewText = ExtUtil.readString(in);
     }
 
@@ -90,7 +89,7 @@ public class Shoe implements Persistable, IMetaData {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, brand);
         ExtUtil.writeString(out, style);
-        ExtUtil.writeString(out, size);
+        ExtUtil.write(out, size);
 
         ExtUtil.writeString(out, reviewText);
 
@@ -102,7 +101,7 @@ public class Shoe implements Persistable, IMetaData {
             return false;
         }
         Shoe s = (Shoe)o;
-        return this.size.equals(s.size) &&
+        return this.size==(s.size) &&
                 this.style.equals(s.style) &&
                 this.brand.equals(s.brand) &&
                 this.reviewText.equals(s.reviewText);
@@ -110,7 +109,7 @@ public class Shoe implements Persistable, IMetaData {
 
     @Override
     public int hashCode() {
-        return this.size.hashCode() ^
+        return Integer.hashCode(this.size) ^
                 this.style.hashCode() ^
                 this.brand.hashCode() ^
                 this.reviewText.hashCode();
