@@ -259,8 +259,15 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      * If the provided recordMap already contains entries for any ids, it is _not_
      * required for them to be retrieved from storage again.
      *
-     * if orderby is passed it will give the sorted list based on this key, need to add  DESC or ASC for
-     * sorting done by ascending or descending
+     *
+     *  metaFieldNames Array of metadata field names to match
+     * values Array of values corresponding to the field names
+     *  orderby String in format "fieldName [ASC|DESC]". If null or empty, records are returned unsorted.
+     *  ASC/DESC is case-insensitive. If direction is omitted, defaults to ASC.
+     *  If field doesn't exist or is invalid, returns unsorted records.
+     * @return Vector of records matching the criteria, sorted if orderby is valid
+     *
+     * @throws RequestAbandonedException If the current request is abandoned, this method
      *
      * @throws RequestAbandonedException If the current request is abandoned, this method will
      *                                   throw a RequestAbandonedException. Callers should not

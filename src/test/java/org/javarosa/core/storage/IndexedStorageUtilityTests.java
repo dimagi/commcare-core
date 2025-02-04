@@ -28,7 +28,7 @@ public abstract class IndexedStorageUtilityTests {
     Shoe[] eightSizesOfWomensNikes;
 
     Shoe[] fiveSizesOfMensVans;
-    Shoe[] fiveSortedSizesOfMensAddidas;
+    Shoe[] fiveSortedSizesOfMensAdidas;
 
     protected abstract IStorageUtilityIndexed<Shoe> createStorageUtility();
 
@@ -56,9 +56,9 @@ public abstract class IndexedStorageUtilityTests {
                     new Shoe("vans", "mens", String.valueOf(i + 1));
         }
 
-        fiveSortedSizesOfMensAddidas = new Shoe[5];
+        fiveSortedSizesOfMensAdidas = new Shoe[5];
         for (int i = 0; i < 5; ++i) {
-            fiveSortedSizesOfMensAddidas[i]=  new Shoe("addidas", "mens", String.valueOf(5 - i));
+            fiveSortedSizesOfMensAdidas[i]=  new Shoe("adidas", "mens", String.valueOf(5 - i));
         }
     }
 
@@ -129,10 +129,14 @@ public abstract class IndexedStorageUtilityTests {
         Vector<Shoe> matchedRecords = storage.getRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"nike", "mens"});
         Assert.assertEquals("Failed index match [brand,style][nike,mens]", getIdsFromModels(tenSizesOfMensNikes), getIdsFromModels(matchedRecords.toArray(new Shoe[]{})));
 
-        Vector<Shoe> matchedSortedRecords = storage.getSortedRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"addidas", "mens"},Shoe.META_SIZE+" DESC");
-        Assert.assertArrayEquals("Failed index match [brand,style][vans,mens]", fiveSortedSizesOfMensAddidas,matchedSortedRecords.toArray());
+        Vector<Shoe> matchedSortedRecords = storage.getSortedRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"adidas", "mens"},Shoe.META_SIZE+" DESC");
+        Assert.assertArrayEquals("Failed index match [brand,style][adidas,mens]", fiveSortedSizesOfMensAdidas,matchedSortedRecords.toArray());
 
+        Vector<Shoe> matchedAscSortedRecords = storage.getSortedRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"vans", "mens"},Shoe.META_SIZE+" ASC");
+        Assert.assertArrayEquals("Failed index match [brand,style][adidas,mens]", matchedAscSortedRecords.toArray(),fiveSizesOfMensVans);
 
+        Vector<Shoe> matchedAscSortedRecordsTest = storage.getSortedRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"vans", "mens"},Shoe.META_SIZE+" ASSC");
+        Assert.assertArrayEquals("Failed index match [brand,style][adidas,mens]", matchedAscSortedRecords.toArray(),fiveSizesOfMensVans);
     }
 
     @Test
@@ -149,7 +153,7 @@ public abstract class IndexedStorageUtilityTests {
         writeAll(tenSizesOfMensNikes);
         writeAll(eightSizesOfWomensNikes);
         writeAll(fiveSizesOfMensVans);
-        writeAll(fiveSortedSizesOfMensAddidas);
+        writeAll(fiveSortedSizesOfMensAdidas);
     }
 
     Set<Integer> getIdsFromModels(Shoe[] shoes) {
