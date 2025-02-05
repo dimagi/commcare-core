@@ -217,8 +217,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
                         return isAscending ? comparison : -comparison;
                     }
                 } catch (Exception e) {
-                    // Log error and continue with no ordering
-                    System.err.println("Failed to compare records: " + e.getMessage());
                 }
                 return 0; // Default to no ordering if field access fails
             }

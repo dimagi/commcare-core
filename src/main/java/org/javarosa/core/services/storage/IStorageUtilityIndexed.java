@@ -254,26 +254,19 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
     Vector<E> getSortedRecordsForValues(String[] metaFieldNames, Object[] values,String orderby);
 
     /**
-     * Load multiple record objects from storage at one time from a list of record ids.
+     * Load multiple record objects from storage at one time from a list of record ids in sorted way.
      * <p>
      * If the provided recordMap already contains entries for any ids, it is _not_
      * required for them to be retrieved from storage again.
      *
-     *
-     *  metaFieldNames Array of metadata field names to match
+     * metaFieldNames Array of metadata field names to match
      * values Array of values corresponding to the field names
-     *  orderby String in format "fieldName [ASC|DESC]". If null or empty, records are returned unsorted.
-     *  ASC/DESC is case-insensitive. If direction is omitted, defaults to ASC.
-     *  If field doesn't exist or is invalid, returns unsorted records.
+     * orderby String in format "fieldName [ASC|DESC]". If null or empty, records are returned unsorted.
+     * ASC/DESC is case-insensitive. If direction is omitted, defaults to ASC.
+     * If field doesn't exist or is invalid, returns unsorted records.
      * @return Vector of records matching the criteria, sorted if orderby is valid
      *
-     * @throws RequestAbandonedException If the current request is abandoned, this method
-     *
-     * @throws RequestAbandonedException If the current request is abandoned, this method will
-     *                                   throw a RequestAbandonedException. Callers should not
-     *                                   generally catch that exception unless they rethrow it
-     *                                   or another exception, but they should anticipate that
-     *                                   they may need to clean up if the bulk read doesn't complete
+     * @throws Exception If the current request if there is any issue during the comparison
      */
 
 
