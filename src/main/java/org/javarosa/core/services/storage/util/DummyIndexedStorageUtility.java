@@ -17,8 +17,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -172,6 +175,69 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         }
         return matches;
     }
+
+    @Override
+    public Vector<T> getSortedRecordsForValues(String[] metaFieldNames, Object[] values, String orderby) {
+        Vector<T> matches = new Vector<>();
+        List<Integer> idMatches = getIDsForValues(metaFieldNames, values);
+
+        for (Integer id : idMatches) {
+            matches.add(read(id));
+        }
+
+        if (orderby == null || orderby.trim().isEmpty()) {
+            return matches; // No sorting required
+        }
+
+        // Parse orderBy into field and direction
+        if (!orderby.matches("^\\w+\\s*(ASC|DESC)?\\s*$")) {
+            return matches; // Invalid format, return unsorted
+        }
+        String[] orderParts = orderby.trim().split("\\s+");
+        String fieldName = orderParts[0];
+        final boolean isAscending = orderParts.length <= 1 || !orderParts[1].equalsIgnoreCase("DESC");
+        // Perform sorting using reflection for field access
+        Collections.sort(matches, new Comparator<T>() {
+            @Override
+            public int compare(T record1, T record2) {
+                try {
+                    Object value1 = getFieldValue(record1, fieldName);
+                    Object value2 = getFieldValue(record2, fieldName);
+                    if (value1 == null && value2 == null) {
+                        return 0;
+                    }
+                    if (value1 == null) {
+                        return isAscending ? -1 : 1;
+                    }
+                    if (value2 == null) {
+                        return isAscending ? 1 : -1;
+                    }
+                    if (value1 instanceof Comparable && value2 instanceof Comparable) {
+                        int comparison = ((Comparable) value1).compareTo(value2);
+                        return isAscending ? comparison : -comparison;
+                    }
+                } catch (Exception e) {
+                }
+                return 0; // Default to no ordering if field access fails
+            }
+        });
+
+        return matches;
+    }
+    private Object getFieldValue(T record, String fieldName) throws Exception {
+            Class<?> clazz = record.getClass();
+            while (clazz != null) {
+                try {
+                    Field field = clazz.getDeclaredField(fieldName);
+                    field.setAccessible(true);
+                    return field.get(record);
+                } catch (NoSuchFieldException e) {
+                    clazz = clazz.getSuperclass();
+                }
+            }
+            throw new NoSuchFieldException("Field '" + fieldName + "' not found in class hierarchy");
+        }
+
 
     @Override
     public int add(T e) {
