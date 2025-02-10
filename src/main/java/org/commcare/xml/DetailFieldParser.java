@@ -31,8 +31,10 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
     public DetailField parse() throws InvalidStructureException, IOException, XmlPullParserException {
         checkNode("field");
         DetailField.Builder builder = new DetailField.Builder();
-        boolean optimize = Boolean.parseBoolean(parser.getAttributeValue(null, "optimize"));
-        builder.setOptimize(optimize);
+        boolean cacheEnabled = Boolean.parseBoolean(parser.getAttributeValue(null, "cache_enabled"));
+        builder.setCacheEnabled(cacheEnabled);
+        boolean lazyLoading = Boolean.parseBoolean(parser.getAttributeValue(null, "lazy_loading"));
+        builder.setLazyLoading(lazyLoading);
 
         String sortDefault = parser.getAttributeValue(null, "sort");
         if (sortDefault != null && sortDefault.equals("default")) {

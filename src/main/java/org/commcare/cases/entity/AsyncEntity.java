@@ -114,7 +114,7 @@ public class AsyncEntity extends Entity<TreeReference> {
             if (data[i] != null) {
                 return data[i];
             }
-            if (!fields[i].isOptimize()) {
+            if (!fields[i].isCacheEnabled()) {
                 data[i] = evaluateField(i);
                 return data[i];
             }
@@ -174,7 +174,7 @@ public class AsyncEntity extends Entity<TreeReference> {
             }
 
             // eval and return if field is not marked as optimize
-            if (cacheEnabled && !fields[i].isOptimize()) {
+            if (cacheEnabled && !fields[i].isCacheEnabled()) {
                 evaluateSortData(i);
                 return sortData[i];
             }

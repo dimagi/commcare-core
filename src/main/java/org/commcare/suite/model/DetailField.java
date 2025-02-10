@@ -77,7 +77,8 @@ public class DetailField implements Externalizable {
     private String fontSize;
     private String cssID;
 
-    private boolean optimize;
+    private boolean lazyLoading;
+    private boolean cacheEnabled;
 
     public DetailField() {
     }
@@ -216,7 +217,8 @@ public class DetailField implements Externalizable {
         endpointAction = (EndpointAction)ExtUtil.read(in, new ExtWrapNullable(EndpointAction.class), pf);
         showBorder = ExtUtil.readBool(in);
         showShading = ExtUtil.readBool(in);
-        optimize = ExtUtil.readBool(in);
+        cacheEnabled = ExtUtil.readBool(in);
+        lazyLoading = ExtUtil.readBool(in);
     }
 
     @Override
@@ -250,7 +252,8 @@ public class DetailField implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(endpointAction));
         ExtUtil.writeBool(out, showBorder);
         ExtUtil.writeBool(out, showShading);
-        ExtUtil.writeBool(out, optimize);
+        ExtUtil.writeBool(out, cacheEnabled);
+        ExtUtil.writeBool(out, lazyLoading);
     }
 
     public int getGridX() {
@@ -303,8 +306,12 @@ public class DetailField implements Externalizable {
         return showShading;
     }
 
-    public boolean isOptimize() {
-        return optimize;
+    public boolean isLazyLoading() {
+        return lazyLoading;
+    }
+
+    public boolean isCacheEnabled() {
+        return cacheEnabled;
     }
 
     public static class Builder {
@@ -443,8 +450,12 @@ public class DetailField implements Externalizable {
 
         public void setShowShading(boolean showShading) { field.showShading = showShading; }
 
-        public void setOptimize(boolean optimize) {
-            field.optimize = optimize;
+        public void setCacheEnabled(boolean cacheEnabled) {
+            field.cacheEnabled = cacheEnabled;
+        }
+
+        public void setLazyLoading(boolean lazyLoading) {
+            field.lazyLoading = lazyLoading;
         }
     }
 }

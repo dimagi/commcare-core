@@ -519,7 +519,7 @@ public class Detail implements Externalizable {
     public boolean shouldOptimize() {
         if (cacheEnabled || lazyLoading) {
             for (DetailField field : fields) {
-                if (field.isOptimize()) {
+                if (field.isCacheEnabled() || field.isLazyLoading()) {
                     return true;
                 }
             }

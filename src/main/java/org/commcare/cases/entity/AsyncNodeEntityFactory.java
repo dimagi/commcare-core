@@ -149,8 +149,8 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
                  * 3. If we are in background with lazy loading turned on or off, we want to calculate all fields
                  * backed by cache in order to keep them ready for when user loads the list.
                  */
-                if (foregroundWithoutLazyLoading || (foregroundWithLazyLoading && !field.isOptimize()) || (
-                        inBackground && field.isOptimize())) {
+                if (foregroundWithoutLazyLoading || (foregroundWithLazyLoading && !field.isLazyLoading()) || (
+                        inBackground && field.isCacheEnabled())) {
                     e.getField(col);
                     e.getSortField(col);
                 }
