@@ -251,7 +251,7 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      *                                   they may need to clean up if the bulk read doesn't complete
      */
 
-    Vector<E> getSortedRecordsForValues(String[] metaFieldNames, Object[] values,String orderby);
+    Vector<E> getSortedRecordsForValues(String[] metaFieldNames, Object[] values,String orderby) throws IllegalArgumentException;
 
     /**
      * Load multiple record objects from storage at one time from a list of record ids in sorted way.
@@ -266,7 +266,7 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      * If field doesn't exist or is invalid, returns unsorted records.
      * @return Vector of records matching the criteria, sorted if orderby is valid
      *
-     * @throws Exception If the current request if there is any issue during the comparison
+     * @throws IllegalArgumentException If the argument is there or spelling mistake in ASC|DESC
      */
 
 

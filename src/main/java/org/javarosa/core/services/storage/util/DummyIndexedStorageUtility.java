@@ -177,7 +177,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     @Override
-    public Vector<T> getSortedRecordsForValues(String[] metaFieldNames, Object[] values, String orderby) {
+    public Vector<T> getSortedRecordsForValues(String[] metaFieldNames, Object[] values, String orderby) throws IllegalArgumentException{
         Vector<T> matches = new Vector<>();
         List<Integer> idMatches = getIDsForValues(metaFieldNames, values);
 
@@ -191,7 +191,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 
         // Parse orderBy into field and direction
         if (!orderby.matches("^\\w+\\s*(ASC|DESC)?\\s*$")) {
-            return matches; // Invalid format, return unsorted
+            throw new IllegalArgumentException("Invalid format");
         }
         String[] orderParts = orderby.trim().split("\\s+");
         String fieldName = orderParts[0];

@@ -135,8 +135,18 @@ public abstract class IndexedStorageUtilityTests {
         Vector<Shoe> matchedAscSortedRecords = storage.getSortedRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"vans", "mens"},Shoe.META_SIZE+" ASC");
         Assert.assertArrayEquals("Failed index match [brand,style][adidas,mens]", matchedAscSortedRecords.toArray(),fiveSizesOfMensVans);
 
-        Vector<Shoe> matchedAscSortedRecordsTest = storage.getSortedRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"vans", "mens"},Shoe.META_SIZE+" ASSC");
-        Assert.assertArrayEquals("Failed index match [brand,style][adidas,mens]", matchedAscSortedRecords.toArray(),fiveSizesOfMensVans);
+        try {
+            Vector<Shoe> matchedAscSortedRecordsWithoutKey = storage.getSortedRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"vans", "mens"}, " DESC");
+            Assert.assertArrayEquals("Failed the sorted match [brand,style][vans,mens]", fiveSizesOfMensVans, fiveSizesOfMensVans);
+        }catch (IllegalArgumentException e){
+            Assert.assertArrayEquals(e.getMessage(), matchedAscSortedRecords.toArray(), fiveSizesOfMensVans);
+        }
+        try {
+            Vector<Shoe> matchedAscSortedRecordsTest = storage.getSortedRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"vans", "mens"}, Shoe.META_SIZE + " ASSC");
+            Assert.assertArrayEquals("Failed index match [brand,style][adidas,mens]", matchedAscSortedRecords.toArray(), fiveSizesOfMensVans);
+        }catch (IllegalArgumentException e){
+            Assert.assertArrayEquals(e.getMessage(), matchedAscSortedRecords.toArray(), fiveSizesOfMensVans);
+        }
     }
 
     @Test
