@@ -216,7 +216,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
                         int comparison = ((Comparable) value1).compareTo(value2);
                         return isAscending ? comparison : -comparison;
                     }
-                } catch (Exception e) {
+                } catch (Exception ignore) {
                 }
                 return 0; // Default to no ordering if field access fails
             }

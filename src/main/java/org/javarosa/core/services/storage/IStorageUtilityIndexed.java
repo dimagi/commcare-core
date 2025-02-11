@@ -239,6 +239,25 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
     Vector<E> getRecordsForValues(String[] metaFieldNames, Object[] values);
 
     /**
+     * Load multiple record objects from storage at one time from a list of record ids in sorted way.
+     * <p>
+     * If the provided recordMap already contains entries for any ids, it is _not_
+     * required for them to be retrieved from storage again.
+     *
+     * metaFieldNames Array of metadata field names to match
+     * values Array of values corresponding to the field names
+     * orderby String in format "fieldName [ASC|DESC]". If null or empty, records are returned unsorted.
+     * ASC/DESC is case-insensitive. If direction is omitted, defaults to ASC.
+     * @return Vector of records matching the criteria, sorted if orderby is valid
+     *
+     * @throws IllegalArgumentException If the argument is there or spelling mistake in ASC|DESC or there
+     * is parameter missing for the orderby
+     */
+
+    Vector<E> getSortedRecordsForValues(String[] metaFieldNames, Object[] values,String orderby) throws IllegalArgumentException;
+
+
+    /**
      * Load multiple record objects from storage at one time from a list of record ids.
      * <p>
      * If the provided recordMap already contains entries for any ids, it is _not_
@@ -250,26 +269,6 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      *                                   or another exception, but they should anticipate that
      *                                   they may need to clean up if the bulk read doesn't complete
      */
-
-    Vector<E> getSortedRecordsForValues(String[] metaFieldNames, Object[] values,String orderby) throws IllegalArgumentException;
-
-    /**
-     * Load multiple record objects from storage at one time from a list of record ids in sorted way.
-     * <p>
-     * If the provided recordMap already contains entries for any ids, it is _not_
-     * required for them to be retrieved from storage again.
-     *
-     * metaFieldNames Array of metadata field names to match
-     * values Array of values corresponding to the field names
-     * orderby String in format "fieldName [ASC|DESC]". If null or empty, records are returned unsorted.
-     * ASC/DESC is case-insensitive. If direction is omitted, defaults to ASC.
-     * If field doesn't exist or is invalid, returns unsorted records.
-     * @return Vector of records matching the criteria, sorted if orderby is valid
-     *
-     * @throws IllegalArgumentException If the argument is there or spelling mistake in ASC|DESC
-     */
-
-
     void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap<Integer, E> recordMap)
             throws RequestAbandonedException;
 
