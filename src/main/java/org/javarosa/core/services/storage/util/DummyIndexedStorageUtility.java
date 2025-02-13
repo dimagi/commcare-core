@@ -177,7 +177,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     @Override
-    public Vector<T> getSortedRecordsForValues(String[] metaFieldNames, Object[] values, String orderby){
+    public Vector<T> getSortedRecordsForValues(String[] metaFieldNames, Object[] values, String orderby) {
         Vector<T> matches = new Vector<>();
         List<Integer> idMatches = getIDsForValues(metaFieldNames, values);
 
@@ -200,21 +200,21 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         Collections.sort(matches, new Comparator<T>() {
             @Override
             public int compare(T record1, T record2) {
-                    Object value1 = getFieldValue(record1, fieldName);
-                    Object value2 = getFieldValue(record2, fieldName);
-                    if (value1 == null && value2 == null) {
-                        return 0;
-                    }
-                    if (value1 == null) {
-                        return isAscending ? -1 : 1;
-                    }
-                    if (value2 == null) {
-                        return isAscending ? 1 : -1;
-                    }
-                    if (value1 instanceof Comparable && value2 instanceof Comparable) {
-                        int comparison = ((Comparable) value1).compareTo(value2);
-                        return isAscending ? comparison : -comparison;
-                    }
+                Object value1 = getFieldValue(record1, fieldName);
+                Object value2 = getFieldValue(record2, fieldName);
+                if (value1 == null && value2 == null) {
+                    return 0;
+                }
+                if (value1 == null) {
+                    return isAscending ? -1 : 1;
+                }
+                if (value2 == null) {
+                    return isAscending ? 1 : -1;
+                }
+                if (value1 instanceof Comparable && value2 instanceof Comparable) {
+                    int comparison = ((Comparable)value1).compareTo(value2);
+                    return isAscending ? comparison : -comparison;
+                }
                 return 0; // Default to no ordering if field access fails
             }
         });

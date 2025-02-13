@@ -37,8 +37,6 @@ public abstract class IndexedStorageUtilityTests {
     Shoe[] fiveSizesOfMensVans;
     Shoe[] fiveSortedSizesOfMensAdidas;
 
-    Shoe[] combinedCollection;
-
     protected abstract IStorageUtilityIndexed<Shoe> createStorageUtility();
 
     @Before
@@ -141,14 +139,14 @@ public abstract class IndexedStorageUtilityTests {
     public void testSortedRecords() {
         writeBulkSets();
         combineAllList();
-        Vector<Shoe> matchedSortedRecords = storage.getSortedRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"adidas", "mens"},Shoe.META_SIZE+" DESC");
-        Assert.assertArrayEquals("Failed index match [brand,style][adidas,mens]", fiveSortedSizesOfMensAdidas,matchedSortedRecords.toArray());
+        Vector<Shoe> matchedSortedRecords = storage.getSortedRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"adidas", "mens"}, Shoe.META_SIZE + " DESC");
+        Assert.assertArrayEquals("Failed index match [brand,style][adidas,mens]", fiveSortedSizesOfMensAdidas, matchedSortedRecords.toArray());
 
-        Vector<Shoe> matchedAscSortedRecords = storage.getSortedRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"nike", "mens"},Shoe.META_SIZE+" ASC");
-        Assert.assertArrayEquals("Failed index match [brand,style][adidas,mens]", matchedAscSortedRecords.toArray(),tenSizesOfMensNikes);
+        Vector<Shoe> matchedAscSortedRecords = storage.getSortedRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"nike", "mens"}, Shoe.META_SIZE + " ASC");
+        Assert.assertArrayEquals("Failed index match [brand,style][adidas,mens]", matchedAscSortedRecords.toArray(), tenSizesOfMensNikes);
 
-        Vector<Shoe> matchedSortedRecordsEmptyValue = storage.getSortedRecordsForValues(new String[]{}, new String[]{},Shoe.META_SIZE+" DESC");
-        Assert.assertArrayEquals("Failed index match [brand,style][adidas,mens]", matchedSortedRecordsEmptyValue.toArray(),combinedCollection);
+        Vector<Shoe> matchedSortedRecordsEmptyValue = storage.getSortedRecordsForValues(new String[]{}, new String[]{}, Shoe.META_SIZE + " DESC");
+        Assert.assertArrayEquals("Failed index match [brand,style][adidas,mens]", matchedSortedRecordsEmptyValue.toArray(), combineAllList());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             Vector<Shoe> matchedDescSortedRecordsWithoutKey = storage.getSortedRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"adidas", "mens"}, " DESC");
@@ -192,9 +190,8 @@ public abstract class IndexedStorageUtilityTests {
         }
     }
 
-    void combineAllList(){
+    Shoe[] combineAllList() {
         List<Shoe> shoeList = new ArrayList<>();
-
         Collections.addAll(shoeList, eightSizesOfWomensNikes);
         Collections.addAll(shoeList, tenSizesOfMensNikes);
         Collections.addAll(shoeList, fiveSortedSizesOfMensAdidas);
@@ -204,17 +201,14 @@ public abstract class IndexedStorageUtilityTests {
             public int compare(Shoe record1, Shoe record2) {
                 try {
 
-                        int comparison = ((Comparable) record2.size).compareTo(record1.size);
-                        return comparison;
+                    int comparison = ((Comparable)record2.size).compareTo(record1.size);
+                    return comparison;
                 } catch (Exception ignore) {
                 }
                 return 0; // Default to no ordering if field access fails
             }
         });
-        combinedCollection = shoeList.toArray(new Shoe[0]);
-
-
-
+        return shoeList.toArray(new Shoe[0]);
 
     }
 

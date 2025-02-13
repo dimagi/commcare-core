@@ -241,18 +241,18 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
     /**
      * Load multiple record objects from storage at one time from a list of record ids in sorted way.
      * <p>
-     *
+     * <p>
      * metaFieldNames Array of metadata field names to match
      * values Array of values corresponding to the field names
      * orderby String in format "fieldName [ASC|DESC]". If null or empty, records are returned unsorted.
      * ASC/DESC is case-insensitive. If direction is omitted, defaults to ASC.
-     * @return Vector of records matching the criteria, sorted if orderby is valid
      *
+     * @return Vector of records matching the criteria, sorted if orderby is valid
      * @throws IllegalArgumentException If the argument is there or spelling mistake in ASC|DESC or there
-     * is parameter missing for the orderby
+     *                                  is parameter missing for the orderby
      */
 
-    Vector<E> getSortedRecordsForValues(String[] metaFieldNames, Object[] values,String orderby) throws IllegalArgumentException;
+    Vector<E> getSortedRecordsForValues(String[] metaFieldNames, Object[] values, String orderby) throws IllegalArgumentException;
 
 
     /**
