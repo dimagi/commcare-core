@@ -110,7 +110,7 @@ public class Shoe implements Persistable, IMetaData {
 
     @Override
     public int hashCode() {
-        return
+        return Integer.hashCode(this.size) ^
                 this.style.hashCode() ^
                 this.brand.hashCode() ^
                 this.reviewText.hashCode();

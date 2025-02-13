@@ -241,8 +241,6 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
     /**
      * Load multiple record objects from storage at one time from a list of record ids in sorted way.
      * <p>
-     * If the provided recordMap already contains entries for any ids, it is _not_
-     * required for them to be retrieved from storage again.
      *
      * metaFieldNames Array of metadata field names to match
      * values Array of values corresponding to the field names

@@ -177,7 +177,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     @Override
-    public Vector<T> getSortedRecordsForValues(String[] metaFieldNames, Object[] values, String orderby) throws IllegalArgumentException{
+    public Vector<T> getSortedRecordsForValues(String[] metaFieldNames, Object[] values, String orderby){
         Vector<T> matches = new Vector<>();
         List<Integer> idMatches = getIDsForValues(metaFieldNames, values);
 
@@ -200,7 +200,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         Collections.sort(matches, new Comparator<T>() {
             @Override
             public int compare(T record1, T record2) {
-                try {
                     Object value1 = getFieldValue(record1, fieldName);
                     Object value2 = getFieldValue(record2, fieldName);
                     if (value1 == null && value2 == null) {
@@ -216,27 +215,25 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
                         int comparison = ((Comparable) value1).compareTo(value2);
                         return isAscending ? comparison : -comparison;
                     }
-                } catch (Exception ignore) {
-                }
                 return 0; // Default to no ordering if field access fails
             }
         });
 
         return matches;
     }
-    private Object getFieldValue(T record, String fieldName) throws Exception {
-            Class<?> clazz = record.getClass();
-            while (clazz != null) {
-                try {
-                    Field field = clazz.getDeclaredField(fieldName);
-                    field.setAccessible(true);
-                    return field.get(record);
-                } catch (NoSuchFieldException e) {
-                    clazz = clazz.getSuperclass();
-                }
+    private Object getFieldValue(T record, String fieldName)  {
+        Class<?> clazz = record.getClass();
+        while (clazz != null) {
+            try {
+                Field field = clazz.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                return field.get(record);
+            } catch (Exception e) {
+                return null;
             }
-            throw new NoSuchFieldException("Field '" + fieldName + "' not found in class hierarchy");
         }
+        return null;
+    }
 
 
     @Override

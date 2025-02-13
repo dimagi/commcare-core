@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+
 /**
  * Tests for basic storage utility functions
  *
@@ -81,7 +84,7 @@ public abstract class IndexedStorageUtilityTests {
         int id = nike.getID();
         Shoe shouldBeNike = storage.read(id);
         Assert.assertNotNull("Failed to read record from DB", shouldBeNike);
-        Assert.assertEquals("Incorrect record read from DB", nike, shouldBeNike);
+        assertEquals("Incorrect record read from DB", nike, shouldBeNike);
     }
 
     @Test
@@ -94,7 +97,7 @@ public abstract class IndexedStorageUtilityTests {
 
         Shoe shouldBeNewNike = storage.read(nike.getID());
 
-        Assert.assertEquals("Persistable was not ovewritten correctly", review, shouldBeNewNike.getReviewText());
+        assertEquals("Persistable was not ovewritten correctly", review, shouldBeNewNike.getReviewText());
     }
 
     @Test
@@ -102,40 +105,42 @@ public abstract class IndexedStorageUtilityTests {
         writeBulkSets();
 
         Set<Integer> sizeMatch = new HashSet<>();
-        sizeMatch.add(tenSizesOfMensNikes[2].getID());
-        sizeMatch.add(eightSizesOfWomensNikes[2].getID());
-        sizeMatch.add(fiveSizesOfMensVans[2].getID());
+        sizeMatch.add(fiveSortedSizesOfMensAdidas[2].getID());
 
         List<Integer> matches =
-                storage.getIDsForValue(Shoe.META_SIZE, "3");
+                storage.getIDsForValue(Shoe.META_SIZE, 3);
 
-        Assert.assertEquals("Failed single index match [size][3]", sizeMatch, new HashSet<>(matches));
+        assertEquals("Failed single index match [size][3]", sizeMatch, new HashSet<>(matches));
 
         List<Integer> matchesOnVector =
-                storage.getIDsForValues(new String[]{Shoe.META_SIZE}, new String[]{"3"});
+                storage.getIDsForValues(new String[]{Shoe.META_SIZE}, new Integer[]{3});
 
-        Assert.assertEquals("Failed single vector index match [size][3]", sizeMatch, new HashSet<>(matchesOnVector));
+        assertEquals("Failed single vector index match [size][3]", sizeMatch, new HashSet<>(matchesOnVector));
 
     }
 
     @Test
     public void testBulkMetaMatching() {
         writeBulkSets();
-        combineAllList();
 
         List<Integer> matches = storage.getIDsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"nike", "mens"});
 
-        Assert.assertEquals("Failed index match [brand,style][nike,mens]", getIdsFromModels(tenSizesOfMensNikes), new HashSet<>(matches));
+        assertEquals("Failed index match [brand,style][nike,mens]", getIdsFromModels(tenSizesOfMensNikes), new HashSet<>(matches));
 
         LinkedHashSet<Integer> newResultPath = new LinkedHashSet<>();
         storage.getIDsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"nike", "mens"}, newResultPath);
 
-        Assert.assertEquals("Failed index match [brand,style][nike,mens]", new HashSet<>(matches), newResultPath);
+        assertEquals("Failed index match [brand,style][nike,mens]", new HashSet<>(matches), newResultPath);
 
 
         Vector<Shoe> matchedRecords = storage.getRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"nike", "mens"});
-        Assert.assertEquals("Failed index match [brand,style][nike,mens]", getIdsFromModels(tenSizesOfMensNikes), getIdsFromModels(matchedRecords.toArray(new Shoe[]{})));
+        assertEquals("Failed index match [brand,style][nike,mens]", getIdsFromModels(tenSizesOfMensNikes), getIdsFromModels(matchedRecords.toArray(new Shoe[]{})));
+    }
 
+    @Test
+    public void testSortedRecords() {
+        writeBulkSets();
+        combineAllList();
         Vector<Shoe> matchedSortedRecords = storage.getSortedRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"adidas", "mens"},Shoe.META_SIZE+" DESC");
         Assert.assertArrayEquals("Failed index match [brand,style][adidas,mens]", fiveSortedSizesOfMensAdidas,matchedSortedRecords.toArray());
 
@@ -145,18 +150,14 @@ public abstract class IndexedStorageUtilityTests {
         Vector<Shoe> matchedSortedRecordsEmptyValue = storage.getSortedRecordsForValues(new String[]{}, new String[]{},Shoe.META_SIZE+" DESC");
         Assert.assertArrayEquals("Failed index match [brand,style][adidas,mens]", matchedSortedRecordsEmptyValue.toArray(),combinedCollection);
 
-        try {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             Vector<Shoe> matchedDescSortedRecordsWithoutKey = storage.getSortedRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"adidas", "mens"}, " DESC");
-            Assert.assertArrayEquals("Failed the sorted match [brand,style][adidas,mens]", matchedDescSortedRecordsWithoutKey.toArray(), fiveSortedSizesOfMensAdidas);
-        }catch (IllegalArgumentException e){
-            System.out.println(e.getMessage());
-        }
-        try {
+        });
+        Assert.assertEquals("Invalid format", exception.getMessage());
+        Exception exception2 = assertThrows(IllegalArgumentException.class, () -> {
             Vector<Shoe> matchedAscSortedRecordsTest = storage.getSortedRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"vans", "mens"}, Shoe.META_SIZE + " ASSC");
-            Assert.assertArrayEquals("Failed the sorted match [brand,style][adidas,mens]", matchedAscSortedRecordsTest.toArray(), fiveSizesOfMensVans);
-        }catch (IllegalArgumentException e){
-            System.out.println(e.getMessage());
-        }
+        });
+        Assert.assertEquals("Invalid format", exception2.getMessage());
     }
 
     @Test
@@ -166,7 +167,8 @@ public abstract class IndexedStorageUtilityTests {
         Set<Integer> expectedMatches = getIdsFromModels(tenSizesOfMensNikes);
         expectedMatches.addAll(getIdsFromModels(eightSizesOfWomensNikes));
         expectedMatches.addAll(getIdsFromModels(fiveSizesOfMensVans));
-        Assert.assertEquals("Failed index match for all entries", expectedMatches, new HashSet<>(matches));
+        expectedMatches.addAll(getIdsFromModels(fiveSortedSizesOfMensAdidas));
+        assertEquals("Failed index match for all entries", expectedMatches, new HashSet<>(matches));
     }
 
     private void writeBulkSets() {
