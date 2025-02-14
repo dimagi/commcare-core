@@ -1,8 +1,12 @@
 package org.javarosa.core.util;
 
+import org.commcare.modern.util.Pair;
+
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -136,6 +140,33 @@ public class DAG<I, N, E> {
             }
         }
         return roots;
+    }
+
+    public Set<I> getRelatedRecords(Set<I> recordIds) {
+        Set<I> visited = new HashSet<>();
+        LinkedList<I> queue = new LinkedList<>(recordIds);
+        while (!queue.isEmpty()) {
+            I current = queue.poll();
+            if(visited.contains(current)){
+                continue;
+            }
+            visited.add(current);
+            addNeighbors(edges, current, queue, visited);
+            addNeighbors(inverseEdges, current, queue, visited);
+        }
+        return visited;
+    }
+
+    private void addNeighbors(Hashtable<I, Vector<Edge<I, E>>> edges, I current, LinkedList<I> queue,
+            Set<I> visited) {
+        if (edges.containsKey(current)) {
+            Vector<Edge<I, E>> neighbors = edges.get(current);
+            for (Edge<I, E> neighbor : neighbors) {
+                if(!visited.contains(neighbor.i)){
+                    queue.add(neighbor.i);
+                }
+            }
+        }
     }
 
     public static class Edge<I, E> {
