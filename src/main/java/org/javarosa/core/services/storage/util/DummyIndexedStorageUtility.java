@@ -195,16 +195,17 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         }
         String[] orderParts = orderby.trim().split("\\s+");
         String fieldName = orderParts[0];
-        final boolean isAscending = orderParts.length <= 1 || !orderParts[1].equalsIgnoreCase("DESC");
+        final boolean isAscending = orderParts.length == 1 || !orderParts[1].equalsIgnoreCase("DESC");
+
         // Perform sorting using reflection for field access
-        Collections.sort(matches, new Comparator<T>() {
-            @Override
-            public int compare(T record1, T record2) {
+        Collections.sort(matches, (record1, record2) -> {
+            try {
                 Object value1 = getFieldValue(record1, fieldName);
                 Object value2 = getFieldValue(record2, fieldName);
                 if (value1 == null && value2 == null) {
                     return 0;
                 }
+
                 if (value1 == null) {
                     return isAscending ? -1 : 1;
                 }
@@ -216,23 +217,17 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
                     return isAscending ? comparison : -comparison;
                 }
                 return 0; // Default to no ordering if field access fails
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                throw new RuntimeException(e);
             }
         });
-
         return matches;
     }
-    private Object getFieldValue(T record, String fieldName)  {
+    private Object getFieldValue(T record, String fieldName) throws NoSuchFieldException, IllegalAccessException {
         Class<?> clazz = record.getClass();
-        while (clazz != null) {
-            try {
-                Field field = clazz.getDeclaredField(fieldName);
-                field.setAccessible(true);
-                return field.get(record);
-            } catch (Exception e) {
-                return null;
-            }
-        }
-        return null;
+        Field field = clazz.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return field.get(record);
     }
 
 
