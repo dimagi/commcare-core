@@ -89,8 +89,7 @@ public class Shoe implements Persistable, IMetaData {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, brand);
         ExtUtil.writeString(out, style);
-        ExtUtil.write(out, size);
-
+        ExtUtil.writeNumeric(out, size);
         ExtUtil.writeString(out, reviewText);
 
     }
