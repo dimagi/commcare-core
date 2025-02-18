@@ -77,6 +77,10 @@ public class Base64ImageData implements IAnswerData {
         if (elements.length != 2) {
             throw new IllegalArgumentException("Two elements are expected, found "+ elements.length);
         }
+
+        if (DataUtil.isImageFile(getFileName())){
+            throw new IllegalArgumentException("First element needs to be the name of an image file, found "+ getFileName());
+        }
         return new Base64ImageData(new Pair<>(elements[0], elements[1]));
     }
 
