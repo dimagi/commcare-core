@@ -87,4 +87,11 @@ public class DataUtil {
     public static String[] splitOnPlus(String s) {
         return s.split("[+]");
     }
+
+    public static boolean isImageFile(String filename){
+        String lowerFilename = filename.toLowerCase();
+        return lowerFilename.endsWith(".jpg") || lowerFilename.endsWith(".jpeg") ||
+                lowerFilename.endsWith(".png") || lowerFilename.endsWith(".gif") ||
+                lowerFilename.endsWith(".bmp") || lowerFilename.endsWith(".webp");
+    }
 }
