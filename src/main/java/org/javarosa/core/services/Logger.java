@@ -4,6 +4,7 @@ import org.commcare.util.LogTypes;
 import org.javarosa.core.api.ILogger;
 import org.javarosa.core.log.FatalException;
 import org.javarosa.core.log.WrappedException;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 
@@ -51,7 +52,7 @@ public class Logger {
         }
     }
 
-    public static void exception(String info, Throwable e) {
+    public static void exception(String info, @NotNull Throwable e) {
         e.printStackTrace();
         log(LogTypes.TYPE_EXCEPTION, (info != null ? info + ": " : "") + WrappedException.printException(e));
         if (logger != null) {
