@@ -91,6 +91,7 @@ public class XFormParser {
     private static final String SELECTONE = "select1";
     private static final String SELECT = "select";
     private static final String SORT = "sort";
+    private static final String MICRO_IMAGE_APPEARANCE_ATTR = "micro-image";
 
     public static final String NAMESPACE_JAVAROSA = "http://openrosa.org/javarosa";
     public static final String NAMESPACE_HTML = "http://www.w3.org/1999/xhtml";
@@ -906,7 +907,8 @@ public class XFormParser {
 
         if (controlType == Constants.CONTROL_INPUT) {
             String mediaType = e.getAttributeValue(null, MEDIA_TYPE_ATTR);
-            if ("image/*".equals(mediaType)) {
+            String appearance = e.getAttributeValue(null, APPEARANCE_ATTR);
+            if ("image/*".equals(mediaType) && MICRO_IMAGE_APPEARANCE_ATTR.equals(appearance)) {
                 question.setControlType(Constants.CONTROL_MICRO_IMAGE);
             }
         }
