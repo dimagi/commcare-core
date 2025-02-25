@@ -10,6 +10,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 import org.javarosa.xpath.analysis.XPathAnalyzable;
 
+import java.util.HashMap;
 import java.util.Set;
 
 /**
@@ -28,18 +29,18 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
      * A string representing the width of the user's screen in pixels.
      * To be used in a display condition determining what content to show to the user.
      */
-    private String windowWidth;
+    private HashMap<String, Object> metaSessionContext;
 
     public SessionWrapper(CommCareSession session, CommCarePlatform platform, UserSandbox sandbox,
-            RemoteInstanceFetcher remoteInstanceFetcher, String windowWidth) {
-        this(platform, sandbox, remoteInstanceFetcher, windowWidth);
+            RemoteInstanceFetcher remoteInstanceFetcher, HashMap<String, Object> metaSessionContext) {
+        this(platform, sandbox, remoteInstanceFetcher, metaSessionContext);
         this.frame = session.getFrame();
         this.setFrameStack(session.getFrameStack());
     }
 
 
-    public SessionWrapper(CommCareSession session, CommCarePlatform platform, UserSandbox sandbox, String windowWidth) {
-        this(session, platform, sandbox, null, windowWidth);
+    public SessionWrapper(CommCareSession session, CommCarePlatform platform, UserSandbox sandbox, HashMap<String, Object> metaSessionContext) {
+        this(session, platform, sandbox, null, metaSessionContext);
     }
 
     public SessionWrapper(CommCareSession session, CommCarePlatform platform, UserSandbox sandbox) {
@@ -52,13 +53,14 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
         this.mPlatform = platform;
     }
 
-    public SessionWrapper(CommCarePlatform platform, UserSandbox sandbox, RemoteInstanceFetcher remoteInstanceFetcher, String windowWidth) {
+    public SessionWrapper(CommCarePlatform platform, UserSandbox sandbox, RemoteInstanceFetcher remoteInstanceFetcher, HashMap<String, Object> metaSessionContext) {
         super(platform);
         this.mSandbox = sandbox;
         this.mPlatform = platform;
         this.remoteInstanceFetcher = remoteInstanceFetcher;
-        this.windowWidth = windowWidth;
+        this.metaSessionContext = metaSessionContext;
     }
+
 
     /**
      * @return The evaluation context for the current state.
@@ -131,6 +133,6 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
     }
 
     public String getWindowWidth() {
-        return this.windowWidth;
+        return (String)this.metaSessionContext.get("windowWidth");
     }
 }
