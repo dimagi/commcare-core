@@ -35,12 +35,19 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     private final boolean isBlockingAsyncMode;
     private boolean isCancelled = false;
 
+    /**
+     * Whether we are loading entity in a background process.
+     * Used to accelerate processing in foreground by skipping lazy properties
+     */
+    private boolean inBackground;
+
     public AsyncNodeEntityFactory(Detail d, EvaluationContext ec,
-            @Nullable EntityStorageCache entityStorageCache) {
+            @Nullable EntityStorageCache entityStorageCache, boolean inBackground) {
         super(d, ec);
         mVariableDeclarations = detail.getVariableDeclarations();
         mEntityCache = entityStorageCache;
         isBlockingAsyncMode = detail.hasSortField();
+        this.inBackground = inBackground;
     }
 
     @Override
@@ -124,17 +131,17 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     }
 
     @Override
-    public void cacheEntities(List<Entity<TreeReference>> entities, boolean inBackground) {
+    public void cacheEntities(List<Entity<TreeReference>> entities) {
         if (detail.isCacheEnabled()) {
             primeCache();
-            setUnCachedData(entities, inBackground);
+            setUnCachedData(entities);
         } else {
             primeCache();
             setUnCachedDataOld(entities);
         }
     }
 
-    protected void setUnCachedData(List<Entity<TreeReference>> entities, boolean inBackground) {
+    protected void setUnCachedData(List<Entity<TreeReference>> entities) {
         for (int i = 0; i < entities.size(); i++) {
             if (isCancelled) return;
             AsyncEntity e = (AsyncEntity)entities.get(i);
