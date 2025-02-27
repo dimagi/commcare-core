@@ -124,7 +124,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     }
 
     @Override
-    public void cacheEntities(List<Entity<TreeReference>> entities, Boolean inBackground) {
+    public void cacheEntities(List<Entity<TreeReference>> entities, boolean inBackground) {
         if (detail.isCacheEnabled()) {
             primeCache();
             setUnCachedData(entities, inBackground);
@@ -134,7 +134,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         }
     }
 
-    protected void setUnCachedData(List<Entity<TreeReference>> entities, Boolean inBackground) {
+    protected void setUnCachedData(List<Entity<TreeReference>> entities, boolean inBackground) {
         for (int i = 0; i < entities.size(); i++) {
             if (isCancelled) return;
             AsyncEntity e = (AsyncEntity)entities.get(i);

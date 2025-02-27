@@ -203,7 +203,7 @@ public class NodeEntityFactory {
      * @param skipLazyLoad true if we want to calculate even lazy-loading properties as part of the process
      * @throws RuntimeException if caching is not supported
      */
-    public void cacheEntities(List<Entity<TreeReference>> entities, Boolean skipLazyLoad) {
+    public void cacheEntities(List<Entity<TreeReference>> entities, boolean skipLazyLoad) {
         throw new RuntimeException("Method not supported for normal Node Entity Factory");
     }
 
