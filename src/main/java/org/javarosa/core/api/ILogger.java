@@ -30,4 +30,6 @@ public interface ILogger {
     int logSize();
 
     void halt();
+
+    void logException(Throwable e);
 }
