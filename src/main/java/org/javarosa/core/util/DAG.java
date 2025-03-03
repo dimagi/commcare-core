@@ -1,7 +1,5 @@
 package org.javarosa.core.util;
 
-import org.commcare.modern.util.Pair;
-
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -142,7 +140,15 @@ public class DAG<I, N, E> {
         return roots;
     }
 
-    public Set<I> getRelatedRecords(Set<I> recordIds) {
+    /**
+     * Performs a breadth-first search (BFS) to find all related records
+     * starting from the given set of record IDs by traversing both
+     * forward and inverse edges.
+     *
+     * @param recordIds The set of starting record IDs.
+     * @return A set containing all reachable records.
+     */
+    public Set<I> findConnectedRecords(Set<I> recordIds) {
         Set<I> visited = new HashSet<>();
         LinkedList<I> queue = new LinkedList<>(recordIds);
         while (!queue.isEmpty()) {
@@ -151,13 +157,14 @@ public class DAG<I, N, E> {
                 continue;
             }
             visited.add(current);
-            addNeighbors(edges, current, queue, visited);
-            addNeighbors(inverseEdges, current, queue, visited);
+            enqueueUnvisitedNeighbors(edges, current, queue, visited);
+            enqueueUnvisitedNeighbors(inverseEdges, current, queue, visited);
         }
         return visited;
     }
 
-    private void addNeighbors(Hashtable<I, Vector<Edge<I, E>>> edges, I current, LinkedList<I> queue,
+    // Adds unvisited neighboring nodes of the given record to the queue for further traversal
+    private void enqueueUnvisitedNeighbors(Hashtable<I, Vector<Edge<I, E>>> edges, I current, LinkedList<I> queue,
             Set<I> visited) {
         if (edges.containsKey(current)) {
             Vector<Edge<I, E>> neighbors = edges.get(current);

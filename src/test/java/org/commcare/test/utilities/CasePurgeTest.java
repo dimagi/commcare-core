@@ -2,8 +2,6 @@ package org.commcare.test.utilities;
 
 import static org.commcare.cases.util.CasePurgeFilter.getFullCaseGraph;
 
-import com.google.errorprone.annotations.Immutable;
-
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.cases.util.CasePurgeFilter;
@@ -179,7 +177,7 @@ public class CasePurgeTest {
             HashSet<String> relatedCasesSet = relationOutcomeSet.get(caseId);
             HashSet<String> input = new HashSet<>();
             input.add(caseId);
-            Set<String> relatedCases = graph.getRelatedRecords(input);
+            Set<String> relatedCases = graph.findConnectedRecords(input);
             Assert.assertEquals(name, relatedCasesSet, relatedCases);
         }
 
