@@ -2,7 +2,7 @@ package org.javarosa.core.model;
 
 
 /**
- * Constants shared throught classes in the containing package.
+ * Constants shared throughout classes in the containing package.
  */
 public class Constants {
     /**
@@ -89,4 +89,8 @@ public class Constants {
      * constants for stack frame step extras
      */
     public static final String EXTRA_POST_SUCCESS = "post-success";
+
+    // metaSessionContext keys
+    public static final String WINDOW_WIDTH = "windowWidth";
+    public static final String KEEP_APM_TRACES = "keepAPMTraces";
 }

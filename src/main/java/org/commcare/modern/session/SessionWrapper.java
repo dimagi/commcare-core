@@ -10,6 +10,9 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 import org.javarosa.xpath.analysis.XPathAnalyzable;
 
+import static org.javarosa.core.model.Constants.KEEP_APM_TRACES;
+import static org.javarosa.core.model.Constants.WINDOW_WIDTH;
+
 import java.util.HashMap;
 import java.util.Set;
 
@@ -133,6 +136,10 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
     }
 
     public String getWindowWidth() {
-        return (String)this.metaSessionContext.get("windowWidth");
+        return (String)this.metaSessionContext.get(WINDOW_WIDTH);
+    }
+
+    public boolean getKeepDropAPMTraces() {
+        return (boolean)this.metaSessionContext.get(KEEP_APM_TRACES);
     }
 }
