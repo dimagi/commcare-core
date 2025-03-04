@@ -73,7 +73,6 @@ public class CommCareConfigEngine {
     public static final int MINOR_VERSION = 55;
     public static final int MINIMAL_VERSION = 0;
 
-
     public CommCareConfigEngine() {
         this(new LivePrototypeFactory());
     }
