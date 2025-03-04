@@ -141,16 +141,14 @@ public class DAG<I, N, E> {
     }
 
     /**
-     * Performs a breadth-first search (BFS) to find all related records
-     * starting from the given set of record IDs by traversing both
-     * forward and inverse edges.
+     * Find all nodes reachable from the given set of source nodes
      *
-     * @param recordIds The set of starting record IDs.
-     * @return A set containing all reachable records.
+     * @param sourceNodes The set of starting nodes
+     * @return A set containing all reachable nodes
      */
-    public Set<I> findConnectedRecords(Set<I> recordIds) {
+    public Set<I> findConnectedRecords(Set<I> sourceNodes) {
         Set<I> visited = new HashSet<>();
-        LinkedList<I> queue = new LinkedList<>(recordIds);
+        LinkedList<I> queue = new LinkedList<>(sourceNodes);
         while (!queue.isEmpty()) {
             I current = queue.poll();
             if(visited.contains(current)){
