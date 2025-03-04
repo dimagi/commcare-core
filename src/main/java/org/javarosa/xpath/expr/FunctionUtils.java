@@ -90,6 +90,8 @@ public class FunctionUtils {
         funcList.put(XPathEncryptStringFunc.NAME, XPathEncryptStringFunc.class);
         funcList.put(XPathDecryptStringFunc.NAME, XPathDecryptStringFunc.class);
         funcList.put(XPathJsonPropertyFunc.NAME, XPathJsonPropertyFunc.class);
+        funcList.put(XPathClosestPolygonPointFunc.NAME, XPathClosestPolygonPointFunc.class);
+        funcList.put(XPathPointInsidePolygon.NAME, XPathPointInsidePolygon.class);
     }
 
     private static final CacheTable<String, Double> mDoubleParseCache = new CacheTable<>();
