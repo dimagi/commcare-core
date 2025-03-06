@@ -87,9 +87,11 @@ public class XFormParser {
     private static final String BIND_ATTR = "bind";
     private static final String REF_ATTR = "ref";
     private static final String EVENT_ATTR = "event";
+    private static final String MEDIA_TYPE_ATTR = "mediatype";
     private static final String SELECTONE = "select1";
     private static final String SELECT = "select";
     private static final String SORT = "sort";
+    private static final String MICRO_IMAGE_APPEARANCE_ATTR = "micro-image";
 
     public static final String NAMESPACE_JAVAROSA = "http://openrosa.org/javarosa";
     public static final String NAMESPACE_HTML = "http://www.w3.org/1999/xhtml";
@@ -885,12 +887,9 @@ public class XFormParser {
     }
 
     protected QuestionDef parseUpload(IFormElement parent, Element e, int controlUpload) {
-        Vector<String> usedAtts = new Vector<>();
-        usedAtts.addElement("mediatype");
+        QuestionDef question = parseControl(parent, e, controlUpload);
 
-        QuestionDef question = parseControl(parent, e, controlUpload, usedAtts);
-
-        String mediaType = e.getAttributeValue(null, "mediatype");
+        String mediaType = e.getAttributeValue(null, MEDIA_TYPE_ATTR);
         if ("image/*".equals(mediaType)) {
             // NOTE: this could be further expanded. 
             question.setControlType(Constants.CONTROL_IMAGE_CHOOSE);
@@ -904,7 +903,16 @@ public class XFormParser {
     }
 
     protected QuestionDef parseControl(IFormElement parent, Element e, int controlType) {
-        return parseControl(parent, e, controlType, new Vector<String>());
+        QuestionDef question = parseControl(parent, e, controlType, new Vector<String>());
+
+        if (controlType == Constants.CONTROL_INPUT) {
+            String mediaType = e.getAttributeValue(null, MEDIA_TYPE_ATTR);
+            String appearance = e.getAttributeValue(null, APPEARANCE_ATTR);
+            if ("image/*".equals(mediaType) && MICRO_IMAGE_APPEARANCE_ATTR.equals(appearance)) {
+                question.setControlType(Constants.CONTROL_MICRO_IMAGE);
+            }
+        }
+        return question;
     }
 
     /**
@@ -917,6 +925,10 @@ public class XFormParser {
     protected QuestionDef parseControl(IFormElement parent, Element e, int controlType,
                                        Vector<String> usedAtts) {
         QuestionDef question = new QuestionDef();
+
+        if (e.getAttributeValue(null, MEDIA_TYPE_ATTR)!=null) {
+            usedAtts.addElement(MEDIA_TYPE_ATTR);
+        }
 
         // Go through all of the registered extension parsers, and if it is applicable to the
         // element we are currently parsing, add the parsed extension data to the QuestionDef
