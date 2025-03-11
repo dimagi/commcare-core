@@ -27,6 +27,12 @@ public class NodeEntityFactory {
     private ReducingTraceReporter traceReporter;
     protected EntityLoadingProgressListener progressListener;
 
+    /**
+     * Flag that denotes cancellation of the underlying process responsible for loading entities
+     * Implementations of long running methods can check this to interrupt and exit early
+     */
+    protected boolean isCancelled = false;
+
     public NodeEntityFactory(Detail d, EvaluationContext ec) {
         this.detail = d;
         this.ec = ec;
@@ -219,13 +225,7 @@ public class NodeEntityFactory {
         this.progressListener = progressListener;
     }
 
-    /**
-     * Cancels the current loading operation. Default implementation throws RuntimeException.
-     * Subclasses should override this method if they support cancellation.
-     *
-     * @throws RuntimeException if cancellation is not supported
-     */
-    public void cancelLoading() {
-        throw new RuntimeException("Method not supported for normal Node Entity Factory");
+    public void markAsCancelled() {
+        isCancelled = true;
     }
 }
