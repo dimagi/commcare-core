@@ -298,6 +298,16 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      */
     Vector<E> getBulkRecordsForIndex(String metaFieldName, Collection<String> matchingValues);
 
+
+    /**
+     * Bulk retrieves a set of the record ids in storage based on a list of values matching one of the
+     * field for this storage
+     * @param metaFieldName field we are matching against
+     * @param matchingValues matching values for metaFieldName that we want to filter records against
+     * @return A Vector of Externalizable objects e, such that the field specified is equal to the corresponding value provided.
+     */
+    Vector<Integer> getBulkIdsForIndex(String metaFieldName, Collection<String> matchingValues);
+
     /**
      * Provide public accessor to the inner class that is stored
      */

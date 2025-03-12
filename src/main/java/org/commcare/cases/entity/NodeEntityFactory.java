@@ -25,6 +25,7 @@ public class NodeEntityFactory {
     protected final EvaluationContext ec;
     protected final Detail detail;
     private ReducingTraceReporter traceReporter;
+    protected EntityLoadingProgressListener progressListener;
 
     public NodeEntityFactory(Detail d, EvaluationContext ec) {
         this.detail = d;
@@ -149,6 +150,7 @@ public class NodeEntityFactory {
      * Performs the underlying work to prepare the entity set
      * (see prepareEntities()). Separated out to enforce timing
      * related to preparing and utilizing results
+     *
      * @param entities
      */
     protected void prepareEntitiesInternal(List<Entity<TreeReference>> entities) {
@@ -191,5 +193,39 @@ public class NodeEntityFactory {
             }
             return isEntitySetReadyInternal();
         }
+    }
+
+    /**
+     * Caches the provided entities. Default implementation throws RuntimeException.
+     * Subclasses should override this method if they support caching.
+     *
+     * @param entities     List of entities to cache
+     * @throws RuntimeException if caching is not supported
+     */
+    public void cacheEntities(List<Entity<TreeReference>> entities) {
+        throw new RuntimeException("Method not supported for normal Node Entity Factory");
+    }
+
+    /**
+     * Sets the progress listener for entity loading operations.
+     *
+     * @param progressListener The progress listener to use
+     */
+    public void setEntityProgressListener(EntityLoadingProgressListener progressListener) {
+        if (this.progressListener != null) {
+            throw new RuntimeException(
+                    "Entity loading progress listener is already set in entity factory");
+        }
+        this.progressListener = progressListener;
+    }
+
+    /**
+     * Cancels the current loading operation. Default implementation throws RuntimeException.
+     * Subclasses should override this method if they support cancellation.
+     *
+     * @throws RuntimeException if cancellation is not supported
+     */
+    public void cancelLoading() {
+        throw new RuntimeException("Method not supported for normal Node Entity Factory");
     }
 }

@@ -417,6 +417,13 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
     @Override
+    public Vector<Integer> getBulkIdsForIndex(String metaFieldName, Collection<String> matchingValues) {
+        // we don't care about bulk retrieval for dummy storage, so just call normal method to get records here
+        List<Integer> result = getIDsForValues(new String[]{metaFieldName}, matchingValues.toArray());
+        return new Vector<>(result);
+    }
+
+    @Override
     public void bulkReadMetadata(LinkedHashSet cuedCases, String[] metaDataIds, HashMap metadataMap) {
         for (int i : ((LinkedHashSet<Integer>)cuedCases)) {
             metadataMap.put(i, getMetaDataForRecord(i, metaDataIds));
