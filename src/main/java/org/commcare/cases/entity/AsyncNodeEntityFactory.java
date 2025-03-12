@@ -140,11 +140,11 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     }
 
     protected void setUnCachedData(List<Entity<TreeReference>> entities) {
+        boolean foregroundWithLazyLoading = !inBackground && detail.isLazyLoading();
+        boolean foregroundWithoutLazyLoading = !inBackground && !detail.isLazyLoading();
         for (int i = 0; i < entities.size(); i++) {
             if (isCancelled) return;
             AsyncEntity e = (AsyncEntity)entities.get(i);
-            boolean foregroundWithLazyLoading = !inBackground && detail.isLazyLoading();
-            boolean foregroundWithoutLazyLoading = !inBackground && !detail.isLazyLoading();
             for (int col = 0; col < e.getNumFields(); ++col) {
                 DetailField field = detail.getFields()[col];
                 /**
