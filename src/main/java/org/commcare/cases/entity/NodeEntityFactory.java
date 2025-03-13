@@ -31,7 +31,7 @@ public class NodeEntityFactory {
      * Flag that denotes cancellation of the underlying process responsible for loading entities
      * Implementations of long running methods can check this to interrupt and exit early
      */
-    protected boolean isCancelled = false;
+    protected volatile boolean isCancelled = false;
 
     public NodeEntityFactory(Detail d, EvaluationContext ec) {
         this.detail = d;
