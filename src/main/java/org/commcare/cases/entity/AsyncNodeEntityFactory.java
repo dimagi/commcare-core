@@ -19,7 +19,6 @@ import javax.annotation.Nullable;
  * @author ctsims
  */
 public class AsyncNodeEntityFactory extends NodeEntityFactory {
-    private static final String TAG = AsyncNodeEntityFactory.class.getSimpleName();
     private final OrderedHashtable<String, XPathExpression> mVariableDeclarations;
 
     private final Hashtable<String, AsyncEntity> mEntitySet = new Hashtable<>();
@@ -33,7 +32,6 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
 
     // Don't show entity list until we primeCache and caches all fields
     private final boolean isBlockingAsyncMode;
-    private boolean isCancelled = false;
 
     /**
      * Whether we are loading entity in a background process.
@@ -142,11 +140,11 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     }
 
     protected void setUnCachedData(List<Entity<TreeReference>> entities) {
+        boolean foregroundWithLazyLoading = !inBackground && detail.isLazyLoading();
+        boolean foregroundWithoutLazyLoading = !inBackground && !detail.isLazyLoading();
         for (int i = 0; i < entities.size(); i++) {
             if (isCancelled) return;
             AsyncEntity e = (AsyncEntity)entities.get(i);
-            boolean foregroundWithLazyLoading = !inBackground && detail.isLazyLoading();
-            boolean foregroundWithoutLazyLoading = !inBackground && !detail.isLazyLoading();
             for (int col = 0; col < e.getNumFields(); ++col) {
                 DetailField field = detail.getFields()[col];
                 /**
@@ -187,11 +185,6 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         synchronized (mAsyncLock) {
             return mAsyncPrimingThread == null || !mAsyncPrimingThread.isAlive();
         }
-    }
-
-    @Override
-    public void cancelLoading() {
-        isCancelled = true;
     }
 
     public boolean isBlockingAsyncMode() {
