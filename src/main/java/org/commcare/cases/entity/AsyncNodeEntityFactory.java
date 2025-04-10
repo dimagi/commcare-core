@@ -157,7 +157,9 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
                 if (foregroundWithoutLazyLoading || (foregroundWithLazyLoading && !field.isLazyLoading()) || (
                         inBackground && field.isCacheEnabled())) {
                     e.getField(col);
-                    e.getSortField(col);
+                    if (field.getSort() != null) {
+                        e.getSortField(col);
+                    }
                 }
             }
             if (i % 100 == 0) {
