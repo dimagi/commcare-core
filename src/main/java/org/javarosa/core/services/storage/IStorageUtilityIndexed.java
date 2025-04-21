@@ -251,7 +251,6 @@ public interface IStorageUtilityIndexed<E extends Externalizable> {
      *                                   they may need to clean up if the bulk read doesn't complete
      */
 
-    Vector<E> getSortedRecordsForValues(String[] metaFieldNames, Object[] values,String orderby);
 
     /**
      * Load multiple record objects from storage at one time from a list of record ids.

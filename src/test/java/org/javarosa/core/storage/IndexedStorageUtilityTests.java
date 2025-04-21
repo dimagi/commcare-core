@@ -28,7 +28,6 @@ public abstract class IndexedStorageUtilityTests {
     Shoe[] eightSizesOfWomensNikes;
 
     Shoe[] fiveSizesOfMensVans;
-    Shoe[] fiveSortedSizesOfMensAddidas;
 
     protected abstract IStorageUtilityIndexed<Shoe> createStorageUtility();
 
@@ -56,10 +55,6 @@ public abstract class IndexedStorageUtilityTests {
                     new Shoe("vans", "mens", String.valueOf(i + 1));
         }
 
-        fiveSortedSizesOfMensAddidas = new Shoe[5];
-        for (int i = 0; i < 5; ++i) {
-            fiveSortedSizesOfMensAddidas[i]=  new Shoe("addidas", "mens", String.valueOf(5 - i));
-        }
     }
 
     @Test
@@ -129,8 +124,6 @@ public abstract class IndexedStorageUtilityTests {
         Vector<Shoe> matchedRecords = storage.getRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"nike", "mens"});
         Assert.assertEquals("Failed index match [brand,style][nike,mens]", getIdsFromModels(tenSizesOfMensNikes), getIdsFromModels(matchedRecords.toArray(new Shoe[]{})));
 
-        Vector<Shoe> matchedSortedRecords = storage.getSortedRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"addidas", "mens"},Shoe.META_SIZE+" DESC");
-        Assert.assertArrayEquals("Failed index match [brand,style][vans,mens]", fiveSortedSizesOfMensAddidas,matchedSortedRecords.toArray());
 
 
     }
@@ -149,7 +142,6 @@ public abstract class IndexedStorageUtilityTests {
         writeAll(tenSizesOfMensNikes);
         writeAll(eightSizesOfWomensNikes);
         writeAll(fiveSizesOfMensVans);
-        writeAll(fiveSortedSizesOfMensAddidas);
     }
 
     Set<Integer> getIdsFromModels(Shoe[] shoes) {
