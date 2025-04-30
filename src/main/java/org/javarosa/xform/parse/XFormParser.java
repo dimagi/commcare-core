@@ -898,6 +898,8 @@ public class XFormParser {
             question.setControlType(Constants.CONTROL_AUDIO_CAPTURE);
         } else if ("video/*".equals(mediaType)) {
             question.setControlType(Constants.CONTROL_VIDEO_CAPTURE);
+        } else if ("application/*,text/*".equals(mediaType)) {
+            question.setControlType(Constants.CONTROL_DOCUMENT_UPLOAD);
         }
 
         return question;
