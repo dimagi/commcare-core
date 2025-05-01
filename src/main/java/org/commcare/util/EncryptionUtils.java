@@ -32,25 +32,30 @@ public class EncryptionUtils {
             throw new NullPointerException("Transform is null");
         }
 
+        boolean allowEmptyIV = transform.startsWith("RSA");
+
         try {
             Cipher cipher = Cipher.getInstance(transform);
             cipher.init(Cipher.ENCRYPT_MODE, key);
             byte[] encryptedMessage = cipher.doFinal(message);
             byte[] iv = cipher.getIV();
-            if (iv.length < MIN_IV_LENGTH_BYTE || iv.length > MAX_IV_LENGTH_BYTE) {
+            int ivLength = iv == null ? 0 : iv.length;
+            if (!allowEmptyIV && (ivLength < MIN_IV_LENGTH_BYTE || ivLength > MAX_IV_LENGTH_BYTE)) {
                 throw new EncryptionException("Initialization vector should be between " +
                         MIN_IV_LENGTH_BYTE + " and " + MAX_IV_LENGTH_BYTE +
-                        " bytes long, but it is " + iv.length + " bytes");
+                        " bytes long, but it is " + ivLength + " bytes");
             }
-
 
             int extraBytes = includeMessageLength ? 2 : 0;
 
             // The conversion of iv.length to byte takes the low 8 bits. To
             // convert back, cast to int and mask with 0xFF.
-            ByteBuffer byteBuffer = ByteBuffer.allocate(1 + iv.length + extraBytes + encryptedMessage.length)
-                    .put((byte) iv.length)
-                    .put(iv);
+            ByteBuffer byteBuffer = ByteBuffer.allocate(1 + ivLength + extraBytes + encryptedMessage.length)
+                    .put((byte) ivLength);
+
+            if(iv != null) {
+                byteBuffer.put(iv);
+            }
 
             if(includeMessageLength) {
                 byteBuffer.put((byte)(encryptedMessage.length / 256));
@@ -97,7 +102,7 @@ public class EncryptionUtils {
         return new SecretKeySpec(keyBytes, "AES");
     }
 
-    public static byte[] decrypt(byte[] bytes, Key key, String keyAndTransform,
+    public static byte[] decrypt(byte[] bytes, Key key, String transform,
                                           boolean includeMessageLength)
             throws EncryptionException {
         final int TAG_LENGTH_BIT = 128;
@@ -128,7 +133,7 @@ public class EncryptionUtils {
         System.arraycopy(bytes, readIndex, encrypted, 0, encryptedLength);
 
         try {
-            Cipher cipher = Cipher.getInstance(keyAndTransform);
+            Cipher cipher = Cipher.getInstance(transform);
 
             if (includeMessageLength) {
                 cipher.init(Cipher.DECRYPT_MODE, key, iv != null ? new IvParameterSpec(iv) : null);
