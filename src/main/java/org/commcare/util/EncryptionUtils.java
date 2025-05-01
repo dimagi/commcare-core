@@ -19,6 +19,17 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class EncryptionUtils {
 
+    /**
+     * Encrypts a message and produces a base64 encoded payload containing the ciphertext
+     * The key and transform are specified as inputs to
+     * A random IV may be generated to encrypt the input (unless using RSA)
+     *
+     * @param message a byte[] to be encrypted
+     * @param key     A base64 encoded 256 bit symmetric key
+     * @param transform The transformation to use for encryption
+     * @param includeMessageLength Whether to include the message length in the packed payload
+     * @return A base64 encoded payload containing the IV and AES encrypted ciphertext, which can be decoded by this utility's decrypt method and the same symmetric key
+     */
     public static String encrypt(byte[] message, Key key, String transform,
                                         boolean includeMessageLength) throws EncryptionException {
         final int MIN_IV_LENGTH_BYTE = 1;
@@ -102,6 +113,17 @@ public class EncryptionUtils {
         return new SecretKeySpec(keyBytes, "AES");
     }
 
+    /**
+     * Decrypts a message and returns the unencrypted byte[]
+     * The key and transform are specified as inputs
+     * The IV may be generated to encrypt the input (unless using RSA)
+     *
+     * @param bytes a byte[] to be encrypted
+     * @param key     The key that should be used for decryption
+     * @param transform The transformation to use for decryption
+     * @param includeMessageLength Whether the message length is included in the packed bytes input
+     * @return A byte[] containing the unencrypted message
+     */
     public static byte[] decrypt(byte[] bytes, Key key, String transform,
                                           boolean includeMessageLength)
             throws EncryptionException {
@@ -109,10 +131,6 @@ public class EncryptionUtils {
         int readIndex = 0;
         int ivLength = bytes[readIndex] & 0xFF;
         readIndex++;
-        if (ivLength < 0) {
-            //Note: Early chance to catch decryption error
-            throw new EncryptionException("Negative IV length");
-        }
         byte[] iv = null;
         if (ivLength > 0) {
             iv = new byte[ivLength];
