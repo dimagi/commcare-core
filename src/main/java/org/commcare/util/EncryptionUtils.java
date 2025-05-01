@@ -125,6 +125,7 @@ public class EncryptionUtils {
             encryptedLength= (bytes[readIndex] & 0xFF) << 8;
             readIndex++;
             encryptedLength += (bytes[readIndex] & 0xFF);
+            readIndex++;
         } else {
             encryptedLength = bytes.length - readIndex;
         }
