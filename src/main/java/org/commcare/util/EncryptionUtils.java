@@ -24,6 +24,14 @@ public class EncryptionUtils {
         final int MIN_IV_LENGTH_BYTE = 1;
         final int MAX_IV_LENGTH_BYTE = 255;
 
+        if(key == null) {
+            throw new NullPointerException("Key is null");
+        }
+
+        if(transform == null) {
+            throw new NullPointerException("Transform is null");
+        }
+
         try {
             Cipher cipher = Cipher.getInstance(transform);
             cipher.init(Cipher.ENCRYPT_MODE, key);
@@ -117,7 +125,6 @@ public class EncryptionUtils {
         }
 
         byte[] encrypted = new byte[encryptedLength];
-        readIndex++;
         System.arraycopy(bytes, readIndex, encrypted, 0, encryptedLength);
 
         try {
