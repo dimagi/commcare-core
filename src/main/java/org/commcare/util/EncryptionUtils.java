@@ -145,7 +145,7 @@ public class EncryptionUtils {
             return cipher.doFinal(encrypted);
         } catch(NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException |
                 InvalidAlgorithmParameterException | BadPaddingException | InvalidKeyException e) {
-            throw new RuntimeException(e);
+            throw new EncryptionException("Decrypting message failed", e);
         }
     }
 
