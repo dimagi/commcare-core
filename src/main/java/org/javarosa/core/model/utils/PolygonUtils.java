@@ -57,7 +57,7 @@ public class PolygonUtils {
      * @param pointData A {@link GeoPointData} representing the test point.
      * @return true if the point is inside or on the polygon, false otherwise.
      */
-    public static boolean isPointInsideOrOnPolygon(Polygon polygon, GeoPointData pointData) {
+    public static boolean isPointInsideOrOnPolygon(GeoPointData pointData,Polygon polygon) {
         GeometryFactory geometryFactory = new GeometryFactory();
         Point point = geometryFactory.createPoint(
                 new Coordinate(pointData.getLongitude(), pointData.getLatitude()));
@@ -71,7 +71,7 @@ public class PolygonUtils {
      * @param pointData A {@link GeoPointData} representing the external point.
      * @return A string in the format "lat lng" representing the closest point on the polygon.
      */
-    public static String getClosestPointOnPolygon(Polygon polygon, GeoPointData pointData) {
+    public static String getClosestPointOnPolygon(GeoPointData pointData,Polygon polygon) {
         GeometryFactory geometryFactory = new GeometryFactory();
         Point externalPoint = geometryFactory.createPoint(
                 new Coordinate(pointData.getLongitude(), pointData.getLatitude()));
