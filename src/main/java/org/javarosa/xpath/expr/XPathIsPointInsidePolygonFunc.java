@@ -37,21 +37,21 @@ public class XPathIsPointInsidePolygonFunc extends XPathFuncExpr {
     }
 
     public static boolean isPointWithinBoundary(Object from, Object to) {
-        String unpackedFrom = (String)FunctionUtils.unpack(from);
-        String unpackedTo = (String)FunctionUtils.unpack(to);
-        if (unpackedFrom == null || "".equals(unpackedFrom) || unpackedTo == null || "".equals(unpackedTo)) {
+        String inputPoint = (String)FunctionUtils.unpack(from);
+        String inputPolygon = (String)FunctionUtils.unpack(to);
+        if (inputPoint == null || "".equals(inputPoint) || inputPolygon == null || "".equals(inputPolygon)) {
             return false;
         }
         try {
-            String[] coordinates = unpackedFrom.split(" ");
+            String[] coordinates = inputPolygon.split(" ");
             Polygon polygon = PolygonUtils.createValidatedPolygon(Arrays.asList(coordinates));
             // Casting and uncasting seems strange but is consistent with the codebase
-            GeoPointData pointData = new GeoPointData().cast(new UncastData(unpackedTo));
+            GeoPointData pointData = new GeoPointData().cast(new UncastData(inputPoint));
 
-            return PolygonUtils.isPointInsideOrOnPolygon(polygon, pointData);
+            return PolygonUtils.isPointInsideOrOnPolygon(pointData, polygon);
         } catch (NumberFormatException e) {
             throw new XPathTypeMismatchException("point-in-boundary() function requires arguments containing " +
-                    "numeric values only, but received arguments: " + unpackedFrom + " and " + unpackedTo);
+                    "numeric values only, but received arguments: " + inputPoint + " and " + inputPolygon);
         } catch (IllegalArgumentException e) {
             throw new XPathTypeMismatchException(e.getMessage());
         }

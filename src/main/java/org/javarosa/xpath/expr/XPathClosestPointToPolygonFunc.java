@@ -36,20 +36,20 @@ public class XPathClosestPointToPolygonFunc extends XPathFuncExpr {
     }
 
     public static String closestPointToPolygon(Object from, Object to) {
-        String unpackedFrom = (String)FunctionUtils.unpack(from);
-        String unpackedTo = (String)FunctionUtils.unpack(to);
-        if (unpackedFrom == null || "".equals(unpackedFrom) || unpackedTo == null || "".equals(unpackedTo)) {
+        String inputPoint = (String)FunctionUtils.unpack(from);
+        String inputPolygon = (String)FunctionUtils.unpack(to);
+        if (inputPoint == null || "".equals(inputPoint) || inputPolygon == null || "".equals(inputPolygon)) {
             return "";
         }
         try {
-            String[] coordinates = unpackedFrom.split(" ");
+            String[] coordinates = inputPolygon.split(" ");
             Polygon polygon = PolygonUtils.createValidatedPolygon(Arrays.asList(coordinates));
             // Casting and uncasting seems strange but is consistent with the codebase
-            GeoPointData pointData = new GeoPointData().cast(new UncastData(unpackedTo));
-            return PolygonUtils.getClosestPointOnPolygon(polygon, pointData);
+            GeoPointData pointData = new GeoPointData().cast(new UncastData(inputPoint));
+            return PolygonUtils.getClosestPointOnPolygon(pointData, polygon);
         } catch (NumberFormatException e) {
             throw new XPathTypeMismatchException("polygon-point() function requires arguments containing " +
-                    "numeric values only, but received arguments: " + unpackedFrom + " and " + unpackedTo);
+                    "numeric values only, but received arguments: " + inputPoint + " and " + inputPolygon);
         } catch (IllegalArgumentException e) {
             throw new XPathTypeMismatchException(e.getMessage());
         }
