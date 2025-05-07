@@ -259,9 +259,9 @@ public class ASTNodeFunctionCall extends ASTNode {
                 return new XPathDecryptStringFunc(args);
             case "json-property":
                 return new XPathJsonPropertyFunc(args);
-            case "polygon-point":
+            case "closest-point-on-polygon":
                 return new XPathClosestPointToPolygonFunc(args);
-            case "inside-polygon":
+            case "is-point-inside-polygon":
                 return new XPathIsPointInsidePolygonFunc(args);
             default:
                 return new XPathCustomRuntimeFunc(name, args);
