@@ -19,7 +19,7 @@ public class PolygonUtils {
      * @return a valid {@link Polygon} object
      * @throws IllegalArgumentException if the input is malformed or the polygon is invalid
      */
-    public static Polygon createValidatedPolygon(List<String> latLngList) throws IllegalArgumentException {
+    public static Polygon createPolygon(List<String> latLngList) throws IllegalArgumentException {
         if (latLngList == null || latLngList.size() < 6 || latLngList.size() % 2 != 0) {
             throw new IllegalArgumentException(
                     "Input must contain at least three lat/lng pairs (six elements total), and must be "
