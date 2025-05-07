@@ -70,7 +70,7 @@ public class CommCareConfigEngine {
     protected ArchiveFileRoot mArchiveRoot;
 
     public static final int MAJOR_VERSION = 2;
-    public static final int MINOR_VERSION = 53;
+    public static final int MINOR_VERSION = 57;
     public static final int MINIMAL_VERSION = 0;
 
 
