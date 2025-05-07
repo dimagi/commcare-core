@@ -38,16 +38,16 @@ import java.util.Arrays;
  * </pre>
  * <p>This example finds the closest point on the polygon to (78.041, 27.176)</p>
  */
-public class XPathClosestPointToPolygonFunc extends XPathFuncExpr {
+public class XPathClosestPointOnPolygonFunc extends XPathFuncExpr {
     public static final String NAME = "closest-point-on-polygon";
     private static final int EXPECTED_ARG_COUNT = 2;
 
-    public XPathClosestPointToPolygonFunc() {
+    public XPathClosestPointOnPolygonFunc() {
         name = NAME;
         expectedArgCount = EXPECTED_ARG_COUNT;
     }
 
-    public XPathClosestPointToPolygonFunc(XPathExpression[] args) throws XPathSyntaxException {
+    public XPathClosestPointOnPolygonFunc(XPathExpression[] args) throws XPathSyntaxException {
         super(NAME, args, EXPECTED_ARG_COUNT, true);
     }
 

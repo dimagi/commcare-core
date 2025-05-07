@@ -7,7 +7,7 @@ import org.javarosa.xpath.expr.XPathAtanFunc;
 import org.javarosa.xpath.expr.XPathAtanTwoFunc;
 import org.javarosa.xpath.expr.XPathBooleanFromStringFunc;
 import org.javarosa.xpath.expr.XPathBooleanFunc;
-import org.javarosa.xpath.expr.XPathClosestPointToPolygonFunc;
+import org.javarosa.xpath.expr.XPathClosestPointOnPolygonFunc;
 import org.javarosa.xpath.expr.XPathCeilingFunc;
 import org.javarosa.xpath.expr.XPathChecklistFunc;
 import org.javarosa.xpath.expr.XPathChecksumFunc;
@@ -260,7 +260,7 @@ public class ASTNodeFunctionCall extends ASTNode {
             case "json-property":
                 return new XPathJsonPropertyFunc(args);
             case "closest-point-on-polygon":
-                return new XPathClosestPointToPolygonFunc(args);
+                return new XPathClosestPointOnPolygonFunc(args);
             case "is-point-inside-polygon":
                 return new XPathIsPointInsidePolygonFunc(args);
             default:
