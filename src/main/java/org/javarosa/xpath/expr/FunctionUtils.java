@@ -90,7 +90,7 @@ public class FunctionUtils {
         funcList.put(XPathEncryptStringFunc.NAME, XPathEncryptStringFunc.class);
         funcList.put(XPathDecryptStringFunc.NAME, XPathDecryptStringFunc.class);
         funcList.put(XPathJsonPropertyFunc.NAME, XPathJsonPropertyFunc.class);
-        funcList.put(XPathClosestPointToPolygonFunc.NAME, XPathClosestPointToPolygonFunc.class);
+        funcList.put(XPathClosestPointOnPolygonFunc.NAME, XPathClosestPointOnPolygonFunc.class);
         funcList.put(XPathIsPointInsidePolygonFunc.NAME, XPathIsPointInsidePolygonFunc.class);
     }
 
