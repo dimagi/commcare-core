@@ -189,7 +189,9 @@ public class AsyncEntity extends Entity<TreeReference> {
                 }
             }
             evaluateSortData(i);
-            mEntityStorageCache.cache(mCacheIndex, cacheKey, sortData[i]);
+            if (mEntityStorageCache != null && mCacheIndex != null) {
+                mEntityStorageCache.cache(mCacheIndex, cacheKey, sortData[i]);
+            }
             return sortData[i];
         }
     }
