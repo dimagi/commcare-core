@@ -2,7 +2,6 @@ package org.javarosa.xpath.test;
 
 import static org.junit.Assert.fail;
 
-import org.commcare.util.EncryptionUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.data.IAnswerData;
@@ -609,6 +608,60 @@ public class XPathEvalTest {
         testEval("$var_string_five", null, varContext, "five");
         testEval("$var_int_five", null, varContext, Double.valueOf(5.0));
         testEval("$var_double_five", null, varContext, Double.valueOf(5.0));
+        //Polygon point
+        testEval(
+                "closest-point-on-polygon('78.041 27.176','78.041309 27.174957 78.042574 27.174884 78.042661 27.175493 78"
+                        + ".041383 27.175569')",
+                null, null, "78.041383 27.175569");  // Outside, near bottom-left vertex
+        testEval(
+                "closest-point-on-polygon('78.041 27.176','78.041309 27.174957 78.042574 27.174884 78.042661 27.175493 78"
+                        + ".041383 27.175569')",
+                null, null, "78.041383 27.175569"); // Bottom-left vertex
+
+        testEval(
+                "closest-point-on-polygon('78.043 27.175','78.041309 27.174957 78.042574 27.174884 78.042661 27.175493 78"
+                        + ".041383 27.175569')",
+                null, null, "78.04259876 27.175057319999997"); // Near top-right
+
+        testEval("closest-point-on-polygon('78.042 27.175','78.041 27.174 78.043 27.174 78.043 27.176 78.041 27.176')", null,
+                null, "78.042 27.175"); // Inside polygon
+
+        testEval("closest-point-on-polygon('78.042 27.177','78.040 27.174 78.044 27.174 78.044 27.176 78.040 27.176')", null,
+                null, "78.042 27.176"); // Near top edge
+
+        testEval("closest-point-on-polygon('78.039 27.175','78.040 27.174 78.044 27.174 78.044 27.176 78.040 27.176')", null,
+                null, "78.04 27.175"); // Left of polygon
+
+        testEval("closest-point-on-polygon('78.045 27.1755','78.040 27.174 78.044 27.174 78.044 27.176 78.040 27.176')", null,
+                null, "78.044 27.1755"); // Right side
+
+        testEval("closest-point-on-polygon('78.042 27.173','78.040 27.174 78.044 27.174 78.044 27.176 78.040 27.176')", null,
+                null, "78.042 27.174"); // Bottom side
+        //inside polygon
+        testEval(
+                "is-point-inside-polygon('78.0195 27.204','78.0186987 27.2043773 78.0187201 27.203509 78.0202758 27"
+                        + ".2035281 78.0203027 27.2044155')",
+                null, null, true);  // Inside the polygon
+        testEval(
+                "is-point-inside-polygon('78.0205 27.2035','78.0186987 27.2043773 78.0187201 27.203509 78.0202758 27"
+                        + ".2035281 78.0203027 27.2044155')",
+                null, null, false);  // Outside the polygon, near bottom-right
+        testEval(
+                "is-point-inside-polygon('78.018 27.204', '78.0186987 27.2043773 78.0187201 27.203509 78.0202758 27"
+                        + ".2035281 78.0203027 27.2044155')",
+                null, null, false);  // Outside the polygon, far left
+        testEval(
+                "is-point-inside-polygon('78.0187201 27.203509', '78.0186987 27.2043773 78.0187201 27.203509 78.0202758 27.2035281 78.0203027 27.2044155')",
+                null, null, true);  // On the polygon vertex
+
+        //Test Polygon
+        testEval("is-point-inside-polygon('1 1','0 0 2 2 0 2 2 0')", null, null, new XPathException(
+                "Invalid polygon: Self-intersection"));  // Self-intersecting polygon
+        testEval("is-point-inside-polygon('78.0187201 27.203509','78.0186987 27.2043773 78.0187201')", null, null,
+                new XPathException("Invalid polygon: Self-intersection"));  // Odd count, invalid input
+        testEval("is-point-inside-polygon('78.0187201 27.203509','78.0186987 27.2043773 78.0187201 27.203509')", null, null,
+                new XPathException(
+                        "Invalid polygon: Self-intersection"));  // Only 2 points, not a polygon
 
         //Attribute XPath References
         //testEval("/@blah", null, null, new XPathUnsupportedException());

@@ -82,7 +82,7 @@ dependencies {
     implementation 'io.opentracing:opentracing-api:0.33.0'
     implementation 'io.opentracing:opentracing-util:0.33.0'
     implementation 'com.datadoghq:dd-trace-api:1.10.0'
-
+    implementation 'org.locationtech.jts:jts-core:1.19.0'
     cliImplementation 'org.json:json:20140107'
     cliImplementation 'com.github.stefanhaustein:kxml2:2.4.1'
     cliImplementation 'commons-cli:commons-cli:1.3.1'
