@@ -614,10 +614,6 @@ public class XPathEvalTest {
                 null, null, "27.175569 78.041383");  // Outside, near bottom-left vertex
 
         testEval(
-                "closest-point-on-polygon('27.176 78.041','27.174957 78.041309 27.174884 78.042574 27.175493 78.042661 27.175569 78.041383')",
-                null, null, "27.175569 78.041383");
-
-        testEval(
                 "closest-point-on-polygon('27.175 78.043','27.174957 78.041309 27.174884 78.042574 27.175493 78.042661 27.175569 78.041383')",
                 null, null, "27.175057319999997 78.04259876");  // Near top-right edge
 

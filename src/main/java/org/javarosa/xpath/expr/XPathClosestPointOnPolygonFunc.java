@@ -23,9 +23,9 @@ import java.util.Arrays;
  *
  * <p><strong>Parameters:</strong></p>
  * <ul>
+ *   <li><code>point_coord</code>: A single point as "lat lon eg('27.175 78.043')"</li>
  *   <li><code>polygon_coords</code>: A space-separated string of lat/lon pairs (e.g. "'27.174957 78.041309 27
  *   .174884 78.042574 27.175493 78.042661 27.175569 78.041383'")</li>
- *   <li><code>point_coord</code>: A single point as "lat lon eg('27.175 78.043')"</li>
  * </ul>
  *
  * <p><strong>Returns:</strong></p>

@@ -23,8 +23,8 @@ import java.util.Arrays;
  *
  * <p><strong>Parameters:</strong></p>
  * <ul>
+ *    <li><code>point_coord</code>: A single point as "lat lon"</li>
  *   <li><code>polygon_coords</code>: A space-separated string of lat/lon pairs (e.g. "lat1 lon1 lat2 lon2 ...")</li>
- *   <li><code>point_coord</code>: A single point as "lat lon"</li>
  * </ul>
  *
  * <p><strong>Returns:</strong></p>
