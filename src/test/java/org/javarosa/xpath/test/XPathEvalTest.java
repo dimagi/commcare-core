@@ -681,8 +681,8 @@ public class XPathEvalTest {
                 "closest-point-on-polygon('27.175 91.043', '27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
                 null, null, "27.175057319999997 91.04259876");
         testEval(
-                "closest-point-on-polygon('91.043 27.176','27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
-                null, null, "27.175569 91.041383");
+                "closest-point-on-polygon('27.176 91.043','27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, "27.175493 91.042661");
 
         //Attribute XPath References
         //testEval("/@blah", null, null, new XPathUnsupportedException());
