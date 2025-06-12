@@ -23,8 +23,8 @@ import java.util.Arrays;
  *
  * <p><strong>Parameters:</strong></p>
  * <ul>
- *   <li><code>polygon_coords</code>: A space-separated string of lon/lat pairs (e.g. "lon1 lat1 lon2 lat2 ...")</li>
- *   <li><code>point_coord</code>: A single point as "lon lat"</li>
+ *   <li><code>polygon_coords</code>: A space-separated string of lat/lon pairs (e.g. "lat1 lon1 lat2 lon2 ...")</li>
+ *   <li><code>point_coord</code>: A single point as "lat lon"</li>
  * </ul>
  *
  * <p><strong>Returns:</strong></p>
@@ -33,9 +33,9 @@ import java.util.Arrays;
  *
  * <p><strong>Recommended Use:</strong></p>
  * <pre>
- *     is-point-inside-polygon('78.041309 27.174957','78.041309 27.174957 78.042574 27.174884 78.042661 27.175493 78.041383 27.175569')
+ *     is-point-inside-polygon('27.174957 78.041309 ','27.174957 78.041309 27.174884 78.042574 27.175493 78.042661 27.175569 78.041383')
  * </pre>
- * <p>This example checks whether the point (78.041309, 27.174957) lies inside or on the polygon boundary.
+ * <p>This example checks whether the point (27.174957 78.041309) lies inside or on the polygon boundary.
  * It will return <code>true</code> because the point is exactly on one of the polygon's vertices.</p>
  */
 public class XPathIsPointInsidePolygonFunc extends XPathFuncExpr {
