@@ -34,6 +34,7 @@ public class PolygonUtils {
             double latitude = Double.parseDouble(latLngList.get(i * 2));
             double longitude = Double.parseDouble(latLngList.get(i * 2 + 1));
             coordinates[i] = new Coordinate(longitude, latitude); // JTS uses x=longitude, y=latitude
+            isValidCoordinates(coordinates[i].getY(), coordinates[i].getX());
         }
 
         // Close the polygon
@@ -50,6 +51,12 @@ public class PolygonUtils {
         return polygon;
     }
 
+    private static void isValidCoordinates(double latitude, double longitude) {
+        if ((latitude < -90.0 || latitude > 90.0) || (longitude < -180.0 || longitude > 180.0)) {
+            throw new IllegalArgumentException("Invalid polygon coordinates");
+        }
+    }
+
     /**
      * Determines if a given point lies inside or on the boundary of the provided polygon.
      *
@@ -57,8 +64,9 @@ public class PolygonUtils {
      * @param pointData A {@link GeoPointData} representing the test point.
      * @return true if the point is inside or on the polygon, false otherwise.
      */
-    public static boolean isPointInsideOrOnPolygon(GeoPointData pointData,Polygon polygon) {
+    public static boolean isPointInsideOrOnPolygon(GeoPointData pointData, Polygon polygon) throws IllegalArgumentException{
         GeometryFactory geometryFactory = new GeometryFactory();
+        isValidCoordinates(pointData.getLatitude(), pointData.getLongitude());
         Point point = geometryFactory.createPoint(
                 new Coordinate(pointData.getLongitude(), pointData.getLatitude()));
         return polygon.covers(point);
@@ -71,8 +79,9 @@ public class PolygonUtils {
      * @param pointData A {@link GeoPointData} representing the external point.
      * @return A string in the format "lat lng" representing the closest point on the polygon.
      */
-    public static String getClosestPointOnPolygon(GeoPointData pointData,Polygon polygon) {
+    public static String getClosestPointOnPolygon(GeoPointData pointData, Polygon polygon) throws IllegalArgumentException {
         GeometryFactory geometryFactory = new GeometryFactory();
+        isValidCoordinates(pointData.getLatitude(), pointData.getLongitude());
         Point externalPoint = geometryFactory.createPoint(
                 new Coordinate(pointData.getLongitude(), pointData.getLatitude()));
         Coordinate[] nearestPoints = DistanceOp.nearestPoints(polygon, externalPoint);
