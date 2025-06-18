@@ -2,7 +2,6 @@ package org.javarosa.xpath.test;
 
 import static org.junit.Assert.fail;
 
-import org.commcare.util.EncryptionUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.data.IAnswerData;
@@ -609,6 +608,99 @@ public class XPathEvalTest {
         testEval("$var_string_five", null, varContext, "five");
         testEval("$var_int_five", null, varContext, Double.valueOf(5.0));
         testEval("$var_double_five", null, varContext, Double.valueOf(5.0));
+        //Polygon point
+        testEval(
+                "closest-point-on-polygon('27.176 78.041','27.174957 78.041309 27.174884 78.042574 27.175493 78.042661 27.175569 78.041383')",
+                null, null, "27.175569 78.041383");  // Outside, near bottom-left vertex
+
+        testEval(
+                "closest-point-on-polygon('27.175 78.043','27.174957 78.041309 27.174884 78.042574 27.175493 78.042661 27.175569 78.041383')",
+                null, null, "27.175057319999997 78.04259876");  // Near top-right edge
+
+        testEval(
+                "closest-point-on-polygon('27.175 78.042','27.174 78.041 27.174 78.043 27.176 78.043 27.176 78.041')",
+                null, null, "27.175 78.042");  // Inside polygon
+
+        testEval(
+                "closest-point-on-polygon('27.177 78.042','27.174 78.040 27.174 78.044 27.176 78.044 27.176 78.040')",
+                null, null, "27.176 78.042");  // Near top edge
+
+        testEval(
+                "closest-point-on-polygon('27.175 78.039','27.174 78.040 27.174 78.044 27.176 78.044 27.176 78.040')",
+                null, null, "27.175 78.04");  // Left of polygon
+
+        testEval(
+                "closest-point-on-polygon('27.1755 78.045','27.174 78.040 27.174 78.044 27.176 78.044 27.176 78.040')",
+                null, null, "27.1755 78.044");  // Right side
+
+        testEval(
+                "closest-point-on-polygon('27.173 78.042','27.174 78.040 27.174 78.044 27.176 78.044 27.176 78.040')",
+                null, null, "27.174 78.042");  // Bottom side
+
+        //inside polygon
+        testEval(
+                "is-point-inside-polygon('27.204 78.0195','27.2043773 78.0186987 27.203509 78.0187201 27.2035281 78.0202758 27.2044155 78.0203027')",
+                null, null, true);  // Inside
+
+        testEval(
+                "is-point-inside-polygon('27.2035 78.0205','27.2043773 78.0186987 27.203509 78.0187201 27.2035281 78.0202758 27.2044155 78.0203027')",
+                null, null, false);  // Outside, near bottom-right
+
+        testEval(
+                "is-point-inside-polygon('27.204 78.018','27.2043773 78.0186987 27.203509 78.0187201 27.2035281 78.0202758 27.2044155 78.0203027')",
+                null, null, false);  // Outside, far left
+
+        testEval(
+                "is-point-inside-polygon('27.203509 78.0187201','27.2043773 78.0186987 27.203509 78.0187201 27.2035281 78.0202758 27.2044155 78.0203027')",
+                null, null, true);  // On vertex
+
+        testEval(
+                "is-point-inside-polygon('27.203509 78.0187201','27.2043773 78.0186987 27.203509 78.0187201 27.2035281 78.0202758 27.2044155 78.0203027')",
+                null, null, true);  // On vertex again
+
+        testEval(
+                "closest-point-on-polygon('27.175 91.043','27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, "27.175057319999997 91.04259876");
+
+        testEval(
+                "closest-point-on-polygon('27.175 91.043','27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, "27.175057319999997 91.04259876");
+        testEval(
+                "closest-point-on-polygon('27.176 91.043', '27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, "27.175493 91.042661");
+        testEval(
+                "closest-point-on-polygon('27.175 91.040', '27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, "27.174957 91.041309");
+        testEval(
+                "closest-point-on-polygon('27.175 91.044', '27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, "27.175197319999985 91.04261876");
+        testEval(
+                "closest-point-on-polygon('27.176 91.041', '27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, "27.175569 91.041383");
+        testEval(
+                "closest-point-on-polygon('27.175 91.043', '27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, "27.175057319999997 91.04259876");
+        testEval(
+                "closest-point-on-polygon('27.176 91.043','91.041309 27.174957 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, new XPathException());
+        testEval(
+                "closest-point-on-polygon('91.043 27.176','91.041309 27.174957 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, new XPathException());
+        testEval(
+                "closest-point-on-polygon('91.043 27.176','27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, new XPathException());
+
+        testEval(
+                "closest-point-on-polygon('27.176 182.043','27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, new XPathException());
+
+        testEval(
+                "closest-point-on-polygon('27.176 -182.043','27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, new XPathException());
+
+        testEval(
+                "closest-point-on-polygon('27.176 91.043','27.174957 -184.056 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, new XPathException());
 
         //Attribute XPath References
         //testEval("/@blah", null, null, new XPathUnsupportedException());
