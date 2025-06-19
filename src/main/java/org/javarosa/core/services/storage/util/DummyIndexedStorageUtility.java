@@ -17,11 +17,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -174,12 +171,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
             matches.add(read(id));
         }
         return matches;
-    }
-    private Object getFieldValue(T record, String fieldName) throws Exception {
-        // Get the field by name and set accessible
-        Field field = record.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        return field.get(record);
     }
 
     @Override

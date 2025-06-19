@@ -1,6 +1,10 @@
 package org.javarosa.core.storage;
 
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
+import org.javarosa.core.util.Interner;
+import org.javarosa.core.util.externalizable.LivePrototypeFactory;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +58,6 @@ public abstract class IndexedStorageUtilityTests {
             fiveSizesOfMensVans[i] =
                     new Shoe("vans", "mens", String.valueOf(i + 1));
         }
-
     }
 
     @Test
@@ -123,9 +126,6 @@ public abstract class IndexedStorageUtilityTests {
 
         Vector<Shoe> matchedRecords = storage.getRecordsForValues(new String[]{Shoe.META_BRAND, Shoe.META_STYLE}, new String[]{"nike", "mens"});
         Assert.assertEquals("Failed index match [brand,style][nike,mens]", getIdsFromModels(tenSizesOfMensNikes), getIdsFromModels(matchedRecords.toArray(new Shoe[]{})));
-
-
-
     }
 
     @Test
