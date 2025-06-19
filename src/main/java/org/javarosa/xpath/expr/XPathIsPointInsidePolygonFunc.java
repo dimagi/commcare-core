@@ -1,5 +1,6 @@
 package org.javarosa.xpath.expr;
 
+import org.gavaghan.geodesy.GlobalCoordinates;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.UncastData;
@@ -8,9 +9,8 @@ import org.javarosa.core.model.utils.PolygonUtils;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
-import org.locationtech.jts.geom.Polygon;
-
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * XPath function "is-point-inside-polygon()" determines whether a geographic point lies inside
@@ -64,10 +64,11 @@ public class XPathIsPointInsidePolygonFunc extends XPathFuncExpr {
         }
         try {
             String[] coordinates = inputPolygon.split(" ");
-            Polygon polygon = PolygonUtils.createPolygon(Arrays.asList(coordinates));
+            List<GlobalCoordinates> polygon = PolygonUtils.createPolygon(Arrays.asList(coordinates));
             GeoPointData pointData = new GeoPointData().cast(new UncastData(inputPoint));
-
-            return PolygonUtils.isPointInsideOrOnPolygon(pointData, polygon);
+            PolygonUtils.isValidCoordinates(pointData.getLatitude(),pointData.getLongitude());
+            GlobalCoordinates pointCoordinates= new GlobalCoordinates(pointData.getLatitude(),pointData.getLongitude());
+            return PolygonUtils.isPointInsideOrOnPolygon(pointCoordinates, polygon);
         } catch (NumberFormatException e) {
             throw new XPathTypeMismatchException("is-point-inside-polygon() function requires arguments containing " +
                     "numeric values only, but received arguments: " + inputPoint + " and " + inputPolygon);
