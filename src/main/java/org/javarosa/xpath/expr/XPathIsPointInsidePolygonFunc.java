@@ -1,5 +1,6 @@
 package org.javarosa.xpath.expr;
 
+import org.gavaghan.geodesy.GlobalCoordinates;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.UncastData;
@@ -8,9 +9,9 @@ import org.javarosa.core.model.utils.PolygonUtils;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
-import org.locationtech.jts.geom.Polygon;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * XPath function "is-point-inside-polygon()" determines whether a geographic point lies inside
@@ -23,8 +24,9 @@ import java.util.Arrays;
  *
  * <p><strong>Parameters:</strong></p>
  * <ul>
- *   <li><code>polygon_coords</code>: A space-separated string of lon/lat pairs (e.g. "lon1 lat1 lon2 lat2 ...")</li>
- *   <li><code>point_coord</code>: A single point as "lon lat"</li>
+ *    <li><code>point_coord</code>: A single point as "lat lon"</li>
+ *   <li><code>polygon_coords</code>: A space-separated string of lat/lon pairs (e.g. "lat1 lon1 lat2 lon2 ...")
+ *   </li>
  * </ul>
  *
  * <p><strong>Returns:</strong></p>
@@ -33,9 +35,9 @@ import java.util.Arrays;
  *
  * <p><strong>Recommended Use:</strong></p>
  * <pre>
- *     is-point-inside-polygon('78.041309 27.174957','78.041309 27.174957 78.042574 27.174884 78.042661 27.175493 78.041383 27.175569')
+ *     is-point-inside-polygon('27.174957 78.041309 ','27.174957 78.041309 27.174884 78.042574 27.175493 78.042661 27.175569 78.041383')
  * </pre>
- * <p>This example checks whether the point (78.041309, 27.174957) lies inside or on the polygon boundary.
+ * <p>This example checks whether the point (27.174957 78.041309) lies inside or on the polygon boundary.
  * It will return <code>true</code> because the point is exactly on one of the polygon's vertices.</p>
  */
 public class XPathIsPointInsidePolygonFunc extends XPathFuncExpr {
@@ -60,17 +62,21 @@ public class XPathIsPointInsidePolygonFunc extends XPathFuncExpr {
         String inputPoint = (String)FunctionUtils.unpack(from);
         String inputPolygon = (String)FunctionUtils.unpack(to);
         if (inputPoint == null || "".equals(inputPoint) || inputPolygon == null || "".equals(inputPolygon)) {
-            throw new XPathException("is-point-inside-polygon() function requires coordinates of point and polygon");
+            throw new XPathException(
+                    "is-point-inside-polygon() function requires coordinates of point and polygon");
         }
         try {
             String[] coordinates = inputPolygon.split(" ");
-            Polygon polygon = PolygonUtils.createPolygon(Arrays.asList(coordinates));
+            List<GlobalCoordinates> polygon = PolygonUtils.createPolygon(Arrays.asList(coordinates));
             GeoPointData pointData = new GeoPointData().cast(new UncastData(inputPoint));
-
-            return PolygonUtils.isPointInsideOrOnPolygon(pointData, polygon);
+            PolygonUtils.isValidCoordinates(pointData.getLatitude(), pointData.getLongitude());
+            GlobalCoordinates pointCoordinates = new GlobalCoordinates(pointData.getLatitude(),
+                    pointData.getLongitude());
+            return PolygonUtils.isPointInsideOrOnPolygon(pointCoordinates, polygon);
         } catch (NumberFormatException e) {
-            throw new XPathTypeMismatchException("is-point-inside-polygon() function requires arguments containing " +
-                    "numeric values only, but received arguments: " + inputPoint + " and " + inputPolygon);
+            throw new XPathTypeMismatchException(
+                    "is-point-inside-polygon() function requires arguments containing " +
+                            "numeric values only, but received arguments: " + inputPoint + " and " + inputPolygon);
         } catch (IllegalArgumentException e) {
             throw new XPathException(e.getMessage());
         }

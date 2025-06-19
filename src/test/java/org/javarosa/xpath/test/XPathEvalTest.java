@@ -610,58 +610,106 @@ public class XPathEvalTest {
         testEval("$var_double_five", null, varContext, Double.valueOf(5.0));
         //Polygon point
         testEval(
-                "closest-point-on-polygon('78.041 27.176','78.041309 27.174957 78.042574 27.174884 78.042661 27.175493 78"
-                        + ".041383 27.175569')",
-                null, null, "78.041383 27.175569");  // Outside, near bottom-left vertex
-        testEval(
-                "closest-point-on-polygon('78.041 27.176','78.041309 27.174957 78.042574 27.174884 78.042661 27.175493 78"
-                        + ".041383 27.175569')",
-                null, null, "78.041383 27.175569"); // Bottom-left vertex
+                "closest-point-on-polygon('27.176 78.041','27.174957 78.041309 27.174884 78.042574 27.175493 78.042661 27.175569 78.041383')",
+                null, null, "27.175568999999996 78.041383");  // Outside, near bottom-left vertex
 
         testEval(
-                "closest-point-on-polygon('78.043 27.175','78.041309 27.174957 78.042574 27.174884 78.042661 27.175493 78"
-                        + ".041383 27.175569')",
-                null, null, "78.04259876 27.175057319999997"); // Near top-right
+                "closest-point-on-polygon('27.175 78.043','27.174957 78.041309 27.174884 78.042574 27.175493 78.042661 27.175569 78.041383')",
+                null, null, "27.175046033871524 78.04259714760224");  // Near top-right edge
 
-        testEval("closest-point-on-polygon('78.042 27.175','78.041 27.174 78.043 27.174 78.043 27.176 78.041 27.176')", null,
-                null, "78.042 27.175"); // Inside polygon
+        testEval(
+                "closest-point-on-polygon('27.175 78.042','27.174 78.041 27.174 78.043 27.176 78.043 27.176 78.041')",
+                null, null, "27.175000003564435 78.043");  // Inside polygon
 
-        testEval("closest-point-on-polygon('78.042 27.177','78.040 27.174 78.044 27.174 78.044 27.176 78.040 27.176')", null,
-                null, "78.042 27.176"); // Near top edge
+        testEval(
+                "closest-point-on-polygon('27.177 78.042','27.174 78.040 27.174 78.044 27.176 78.044 27.176 78.040')",
+                null, null, "27.17600001425842 78.04200000000026");  // Near top edge
 
-        testEval("closest-point-on-polygon('78.039 27.175','78.040 27.174 78.044 27.174 78.044 27.176 78.040 27.176')", null,
-                null, "78.04 27.175"); // Left of polygon
+        testEval(
+                "closest-point-on-polygon('27.175 78.039','27.174 78.040 27.174 78.044 27.176 78.044 27.176 78.040')",
+                null, null, "27.175000003564605 78.04000000000002");  // Left of polygon
 
-        testEval("closest-point-on-polygon('78.045 27.1755','78.040 27.174 78.044 27.174 78.044 27.176 78.040 27.176')", null,
-                null, "78.044 27.1755"); // Right side
+        testEval(
+                "closest-point-on-polygon('27.1755 78.045','27.174 78.040 27.174 78.044 27.176 78.044 27.176 78.040')",
+                null, null, "27.175500003564423 78.04399999999998");  // Right side
 
-        testEval("closest-point-on-polygon('78.042 27.173','78.040 27.174 78.044 27.174 78.044 27.176 78.040 27.176')", null,
-                null, "78.042 27.174"); // Bottom side
+        testEval(
+                "closest-point-on-polygon('27.173 78.042','27.174 78.040 27.174 78.044 27.176 78.044 27.176 78.040')",
+                null, null, "27.1740000142577 78.0419999999998");  // Bottom side
+
         //inside polygon
         testEval(
-                "is-point-inside-polygon('78.0195 27.204','78.0186987 27.2043773 78.0187201 27.203509 78.0202758 27"
-                        + ".2035281 78.0203027 27.2044155')",
-                null, null, true);  // Inside the polygon
-        testEval(
-                "is-point-inside-polygon('78.0205 27.2035','78.0186987 27.2043773 78.0187201 27.203509 78.0202758 27"
-                        + ".2035281 78.0203027 27.2044155')",
-                null, null, false);  // Outside the polygon, near bottom-right
-        testEval(
-                "is-point-inside-polygon('78.018 27.204', '78.0186987 27.2043773 78.0187201 27.203509 78.0202758 27"
-                        + ".2035281 78.0203027 27.2044155')",
-                null, null, false);  // Outside the polygon, far left
-        testEval(
-                "is-point-inside-polygon('78.0187201 27.203509', '78.0186987 27.2043773 78.0187201 27.203509 78.0202758 27.2035281 78.0203027 27.2044155')",
-                null, null, true);  // On the polygon vertex
+                "is-point-inside-polygon('27.204 78.0195','27.2043773 78.0186987 27.203509 78.0187201 27.2035281 78.0202758 27.2044155 78.0203027')",
+                null, null, true);  // Inside
 
-        //Test Polygon
-        testEval("is-point-inside-polygon('1 1','0 0 2 2 0 2 2 0')", null, null, new XPathException(
-                "Invalid polygon: Self-intersection"));  // Self-intersecting polygon
-        testEval("is-point-inside-polygon('78.0187201 27.203509','78.0186987 27.2043773 78.0187201')", null, null,
-                new XPathException("Invalid polygon: Self-intersection"));  // Odd count, invalid input
-        testEval("is-point-inside-polygon('78.0187201 27.203509','78.0186987 27.2043773 78.0187201 27.203509')", null, null,
-                new XPathException(
-                        "Invalid polygon: Self-intersection"));  // Only 2 points, not a polygon
+        testEval(
+                "is-point-inside-polygon('27.2035 78.0205','27.2043773 78.0186987 27.203509 78.0187201 27.2035281 78.0202758 27.2044155 78.0203027')",
+                null, null, false);  // Outside, near bottom-right
+
+        testEval(
+                "is-point-inside-polygon('27.204 78.018','27.2043773 78.0186987 27.203509 78.0187201 27.2035281 78.0202758 27.2044155 78.0203027')",
+                null, null, false);  // Outside, far left
+
+        testEval(
+                "is-point-inside-polygon('27.203509 78.0187201','27.2043773 78.0186987 27.203509 78.0187201 27.2035281 78.0202758 27.2044155 78.0203027')",
+                null, null, true);  // On vertex
+
+        testEval(
+                "is-point-inside-polygon('27.203509 78.0187201','27.2043773 78.0186987 27.203509 78.0187201 27.2035281 78.0202758 27.2044155 78.0203027')",
+                null, null, true);  // On vertex again
+
+        testEval(
+                "closest-point-on-polygon('27.175 91.043','27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, "27.175046033871524 91.04259714760224");
+
+        testEval(
+                "closest-point-on-polygon('27.175 91.043','27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, "27.175046033871524 91.04259714760224");
+        testEval(
+                "closest-point-on-polygon('27.176 91.043', '27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, "27.17549299999999 91.04266100000001");
+        testEval(
+                "closest-point-on-polygon('27.175 91.040', '27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, "27.174957000000006 91.04130900000001");
+        testEval(
+                "closest-point-on-polygon('27.175 91.044', '27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, "27.17515847323034 91.04261321034267");
+        testEval(
+                "closest-point-on-polygon('27.176 91.041', '27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, "27.175568999999996 91.041383");
+        testEval(
+                "closest-point-on-polygon('27.175 91.043', '27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, "27.175046033871524 91.04259714760224");
+        testEval(
+                "closest-point-on-polygon('27.176 91.043','91.041309 27.174957 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, new XPathException());
+        testEval(
+                "closest-point-on-polygon('91.043 27.176','91.041309 27.174957 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, new XPathException());
+        testEval(
+                "closest-point-on-polygon('91.043 27.176','27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, new XPathException());
+
+        testEval(
+                "closest-point-on-polygon('27.176 182.043','27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, new XPathException());
+
+        testEval(
+                "closest-point-on-polygon('27.176 -182.043','27.174957 91.041309 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, new XPathException());
+
+        testEval(
+                "closest-point-on-polygon('27.176 91.043','27.174957 -184.056 27.174884 91.042574 27.175493 91.042661 27.175569 91.041383')",
+                null, null, new XPathException());
+        //Test cases for large polygons ~150km
+        testEval(
+                "closest-point-on-polygon('27.28 91.32', '27.20 91.10 27.20 91.30 27.40 91.30 27.40 91.10')",
+                null, null, "27.28000142694998 91.30000000000001"
+        );
+        testEval(
+                "closest-point-on-polygon('27.35 91.30', '27.20 91.10 27.20 91.30 27.40 91.30 27.40 91.10')",
+                null, null, "27.349999999999994 91.30000000000001"
+        );
 
         //Attribute XPath References
         //testEval("/@blah", null, null, new XPathUnsupportedException());
