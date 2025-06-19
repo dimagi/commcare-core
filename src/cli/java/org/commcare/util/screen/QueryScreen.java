@@ -26,7 +26,6 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.commcare.cases.model.Case;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -66,6 +65,8 @@ public class QueryScreen extends Screen {
 
     private boolean dynamicSearch;
     private boolean searchOnClear;
+
+    private IStorageUtilityIndexed<Case> caseSearchStorage;
 
     public QueryScreen(String domainedUsername, String password, PrintStream out,
             VirtualDataInstanceStorage instanceStorage, SessionUtils sessionUtils) {
