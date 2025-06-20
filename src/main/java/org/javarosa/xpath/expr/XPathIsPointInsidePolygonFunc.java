@@ -69,7 +69,7 @@ public class XPathIsPointInsidePolygonFunc extends XPathFuncExpr {
             String[] coordinates = inputPolygon.split(" ");
             List<GlobalCoordinates> polygon = PolygonUtils.createPolygon(Arrays.asList(coordinates));
             GeoPointData pointData = new GeoPointData().cast(new UncastData(inputPoint));
-            PolygonUtils.isValidCoordinates(pointData.getLatitude(), pointData.getLongitude());
+            PolygonUtils.validateCoordinates(pointData.getLatitude(), pointData.getLongitude());
             GlobalCoordinates pointCoordinates = new GlobalCoordinates(pointData.getLatitude(),
                     pointData.getLongitude());
             return PolygonUtils.isPointInsideOrOnPolygon(pointCoordinates, polygon);
