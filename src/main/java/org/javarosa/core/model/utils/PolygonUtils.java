@@ -16,24 +16,24 @@ public class PolygonUtils {
     /**
      * Creates a polygon from a flat list of lat/lon strings.
      *
-     * @param latLngList Flat list of lat/lon values (e.g., [lat1, lon1, lat2, lon2, ...])
+     * @param latLongList Flat list of lat/lon values (e.g., [lat1, lon1, lat2, lon2, ...])
      * @return List of GlobalCoordinates representing the polygon (closed)
      * @throws IllegalArgumentException if input is invalid or polygon is malformed
      */
-    public static List<GlobalCoordinates> createPolygon(List<String> latLngList) throws IllegalArgumentException {
-        if (latLngList == null || latLngList.size() < 6 || latLngList.size() % 2 != 0) {
+    public static List<GlobalCoordinates> createPolygon(List<String> latLongList) throws IllegalArgumentException {
+        if (latLongList == null || latLongList.size() < 6 || latLongList.size() % 2 != 0) {
             throw new IllegalArgumentException(
                     "Input must contain at least three lat/lng pairs (six elements total), and must be even-sized.");
         }
 
-        int numPoints = latLngList.size() / 2;
+        int numPoints = latLongList.size() / 2;
         List<GlobalCoordinates> polygon = new ArrayList<>();
 
         for (int i = 0; i < numPoints; i++) {
-            double lat = Double.parseDouble(latLngList.get(i * 2));
-            double lon = Double.parseDouble(latLngList.get(i * 2 + 1));
-            isValidCoordinates(lat, lon);
-            polygon.add(new GlobalCoordinates(lat, lon));
+            double latitude = Double.parseDouble(latLongList.get(i * 2));
+            double longitude = Double.parseDouble(latLongList.get(i * 2 + 1));
+            validateCoordinates(latitude, longitude);
+            polygon.add(new GlobalCoordinates(latitude, longitude));
         }
 
         // Close polygon if not already closed
@@ -57,7 +57,7 @@ public class PolygonUtils {
      * @param longitude Longitude in degrees
      * @throws IllegalArgumentException if values are outside geographic bounds
      */
-    public static void isValidCoordinates(double latitude, double longitude) {
+    public static void validateCoordinates(double latitude, double longitude) {
         if ((latitude < -90.0 || latitude > 90.0) || (longitude < -180.0 || longitude > 180.0)) {
             throw new IllegalArgumentException("Invalid polygon coordinates");
         }
@@ -146,25 +146,25 @@ public class PolygonUtils {
         int n = polygon.size();
 
         double testLat = point.getLatitude();
-        double testLon = point.getLongitude();
+        double testLong = point.getLongitude();
 
         for (int i = 0; i < n; i++) {
             GlobalCoordinates A = polygon.get(i);
             GlobalCoordinates B = polygon.get((i + 1) % n);
 
-            double lat1 = A.getLatitude();
-            double lon1 = A.getLongitude();
-            double lat2 = B.getLatitude();
-            double lon2 = B.getLongitude();
+            double latA = A.getLatitude();
+            double longA = A.getLongitude();
+            double latB = B.getLatitude();
+            double longB = B.getLongitude();
 
             // Vertex check
-            if ((testLat == lat1 && testLon == lon1) || (testLat == lat2 && testLon == lon2)) {
+            if ((testLat == latA && testLong == longA) || (testLat == latB && testLong == longB)) {
                 return true;
             }
 
             // Ray casting
-            if (((lat1 > testLat) != (lat2 > testLat)) &&
-                    (testLon < (lon2 - lon1) * (testLat - lat1) / (lat2 - lat1 + 1e-10) + lon1)) {
+            if (((latA > testLat) != (latB > testLat)) &&
+                    (testLong < (longB - longA) * (testLat - latA) / (latB - latA + 1e-10) + longA)) {
                 intersectCount++;
             }
         }
