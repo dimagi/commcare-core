@@ -21,9 +21,9 @@ To do this -
 
 ##### Duplicating A CommCare Android change to Formplayer
 
-1. If you are working on a CommCare Android change, you will want to start by checking out `your_feature_branch` from `master` as the base branch. Make changes on `your_feature_branch` and create your original PR against `master` branch.
+1. If you are working on a CommCare Android change, you have to start by checking out `your_feature_branch` from `master` as the base branch. Make changes on `your_feature_branch` and create your original PR against `master` branch. Get it approved and not merge it.
 
-2. Now you will need to duplicate this PR by making another PR against `formplayer`. Make sure the branch for this PR is is merged and is not deleted. Then create the comment `duplicate this PR <starting-commit-id> <ending-commit-id>`. The `ending-commit-id` should be the last non-merge commit in the PR. This should result in a Github Actions workflow duplicating your PR against `formplayer`. Go to the duplicate PR, close and re-open it to run the Github checks against it.
+2. Now you will need to duplicate this PR by making another PR against `formplayer`. For this create the comment `duplicate this PR <starting-commit-id> <ending-commit-id>` of the `your_feature_branch`. The `ending-commit-id` should be the last non-merge commit in the PR. This should result in a Github Actions workflow duplicating your PR against `formplayer`. Go to the duplicate PR, close and re-open it to run the Github checks against it.
 
 3. In order for us to test that your PR against `formplayer` doesn't break anything on Formplayer, we need to run formplayer side tests with your PR.
 To do this - 
