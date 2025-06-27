@@ -354,7 +354,7 @@ public class CalendarUtils {
             cd.setTimeZone(DateUtils.timezone());
         }
         long dateInMillis = cd.getTime().getTime();
-        DateTimeZone timezoneObject = DateTimeZone.forOffsetMillis(cd.getTimeZone().getRawOffset());
+        DateTimeZone timezoneObject = DateTimeZone.forTimeZone(cd.getTimeZone());
         return fromMillis(dateInMillis, timezoneObject);
     }
 
