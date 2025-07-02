@@ -354,7 +354,7 @@ public class CalendarUtils {
             cd.setTimeZone(DateUtils.timezone());
         }
         long dateInMillis = cd.getTime().getTime();
-        DateTimeZone timezoneObject = DateTimeZone.forOffsetMillis(cd.getTimeZone().getRawOffset());
+        DateTimeZone timezoneObject = DateTimeZone.forTimeZone(cd.getTimeZone());
         return fromMillis(dateInMillis, timezoneObject);
     }
 
@@ -419,7 +419,9 @@ public class CalendarUtils {
     public static long toMillisFromJavaEpoch(int year, int month, int day, DateTimeZone currentTimeZone) {
         int daysFromMinDay = countDaysFromMinDay(year, month, day);
         long millisFromMinDay = daysFromMinDay * UniversalDate.MILLIS_IN_DAY;
-        int timezoneOffsetFromUTC = currentTimeZone.getOffset(millisFromMinDay);
+
+        int timezoneOffsetFromUTC = currentTimeZone.getOffset(millisFromMinDay + MIN_MILLIS_FROM_JAVA_EPOCH);
+
         long millisNormalizedToUTC = millisFromMinDay - timezoneOffsetFromUTC;
         return millisNormalizedToUTC + MIN_MILLIS_FROM_JAVA_EPOCH;
     }
