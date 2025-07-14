@@ -61,6 +61,7 @@ public class CalendarUtils {
     /*
      * Nepali calendar system has no discernible cyclic month pattern, so we must manually
      * enter them here as new calendars are known.
+     * Calendar source: https://nepalipatro.com.np/calendar
      *
      * TODO: Enter month lengths for years beyond 2090
      */
@@ -176,16 +177,16 @@ public class CalendarUtils {
         NEPALI_YEAR_MONTHS.put(2078, new int[]{0, 31, 31, 31, 32, 31, 31, 30, 29, 30, 29, 30, 30});
         NEPALI_YEAR_MONTHS.put(2079, new int[]{0, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30});
         NEPALI_YEAR_MONTHS.put(2080, new int[]{0, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 30});
-        NEPALI_YEAR_MONTHS.put(2081, new int[]{0, 31, 31, 32, 32, 31, 30, 30, 30, 29, 30, 30, 30});
-        NEPALI_YEAR_MONTHS.put(2082, new int[]{0, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 30, 30});
-        NEPALI_YEAR_MONTHS.put(2083, new int[]{0, 31, 31, 32, 31, 31, 30, 30, 30, 29, 30, 30, 30});
-        NEPALI_YEAR_MONTHS.put(2084, new int[]{0, 31, 31, 32, 31, 31, 30, 30, 30, 29, 30, 30, 30});
-        NEPALI_YEAR_MONTHS.put(2085, new int[]{0, 31, 32, 31, 32, 30, 31, 30, 30, 29, 30, 30, 30});
-        NEPALI_YEAR_MONTHS.put(2086, new int[]{0, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 30, 30});
-        NEPALI_YEAR_MONTHS.put(2087, new int[]{0, 31, 31, 32, 31, 31, 31, 30, 30, 29, 30, 30, 30});
-        NEPALI_YEAR_MONTHS.put(2088, new int[]{0, 30, 31, 32, 32, 30, 31, 30, 30, 29, 30, 30, 30});
-        NEPALI_YEAR_MONTHS.put(2089, new int[]{0, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 30, 30});
-        NEPALI_YEAR_MONTHS.put(2090, new int[]{0, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 30, 30});
+        NEPALI_YEAR_MONTHS.put(2081, new int[]{0, 31, 32, 31, 32, 31, 30, 30, 30, 29, 30, 29, 31});
+        NEPALI_YEAR_MONTHS.put(2082, new int[]{0, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30});
+        NEPALI_YEAR_MONTHS.put(2083, new int[]{0, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30});
+        NEPALI_YEAR_MONTHS.put(2084, new int[]{0, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31});
+        NEPALI_YEAR_MONTHS.put(2085, new int[]{0, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 29, 31});
+        NEPALI_YEAR_MONTHS.put(2086, new int[]{0, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30});
+        NEPALI_YEAR_MONTHS.put(2087, new int[]{0, 31, 31, 32, 32, 31, 31, 30, 29, 30, 29, 30, 30});
+        NEPALI_YEAR_MONTHS.put(2088, new int[]{0, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31});
+        NEPALI_YEAR_MONTHS.put(2089, new int[]{0, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 29, 31});
+        NEPALI_YEAR_MONTHS.put(2090, new int[]{0, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30});
     }
 
     private static final int MAX_YEAR = 2090;
