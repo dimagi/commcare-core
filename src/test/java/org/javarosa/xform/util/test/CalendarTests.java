@@ -79,7 +79,7 @@ public class CalendarTests {
         millis = CalendarUtils.toMillisFromJavaEpoch(2081, 6, 16, timeZone);
         nepaliDateStr = CalendarUtils.convertToNepaliString(new Date(millis), null);
         assertEquals( "16 Ashwin 2081", nepaliDateStr);
-        DateUtils.setTimezoneProvider(null);
+        DateUtils.resetTimezoneProvider();
     }
 
     private static void assertSameDate(UniversalDate a, UniversalDate b) {
