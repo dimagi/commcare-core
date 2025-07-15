@@ -7,6 +7,7 @@ import org.javarosa.core.services.locale.TableLocaleSource;
 import org.javarosa.xform.util.CalendarUtils;
 import org.javarosa.xform.util.UniversalDate;
 import org.joda.time.DateTimeZone;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Calendar;
@@ -19,6 +20,19 @@ import static org.junit.Assert.assertEquals;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class CalendarTests {
+
+    @Before
+    public void configureLocaleForCalendar() {
+        Localization.getGlobalLocalizerAdvanced().addAvailableLocale("default");
+        Localization.setLocale("default");
+        TableLocaleSource localeData = new TableLocaleSource();
+        localeData.setLocaleMapping("ethiopian_months",
+                "Mäskäräm,T’ïk’ïmt,Hïdar,Tahsas,T’ïr,Yäkatit,Mägabit,Miyaziya,Gïnbot,Säne,Hämle,Nähäse,P’agume");
+        localeData.setLocaleMapping("nepali_months",
+                "Baishakh,Jestha,Ashadh,Shrawan,Bhadra,Ashwin,Kartik,Mangsir,Poush,Magh,Falgun,Chaitra");
+        Localization.getGlobalLocalizerAdvanced().registerLocaleResource("default", localeData);
+    }
+
     @Test
     public void testTimesFallOnSameDate() {
         DateTimeZone nepaliTimeZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("GMT+05:45"));
@@ -44,7 +58,6 @@ public class CalendarTests {
     // millis <=> date is different in every timezone
     @Test
     public void testConvertToNepaliString() {
-        configureLocaleForCalendar();
         MockTimeZoneProvider mockTimeZoneProvider = new MockTimeZoneProvider(TimeZone.getTimeZone("Europe/Madrid"));
         DateUtils.setTimezoneProvider(mockTimeZoneProvider);
         DateTimeZone timeZone = DateTimeZone.forOffsetMillis(mockTimeZoneProvider.getTimezone().getRawOffset());
@@ -67,17 +80,6 @@ public class CalendarTests {
         nepaliDateStr = CalendarUtils.convertToNepaliString(new Date(millis), null);
         assertEquals( "16 Ashwin 2081", nepaliDateStr);
         DateUtils.setTimezoneProvider(null);
-    }
-
-    private void configureLocaleForCalendar() {
-        Localization.getGlobalLocalizerAdvanced().addAvailableLocale("default");
-        Localization.setLocale("default");
-        TableLocaleSource localeData = new TableLocaleSource();
-        localeData.setLocaleMapping("ethiopian_months",
-                "Mäskäräm,T’ïk’ïmt,Hïdar,Tahsas,T’ïr,Yäkatit,Mägabit,Miyaziya,Gïnbot,Säne,Hämle,Nähäse,P’agume");
-        localeData.setLocaleMapping("nepali_months",
-                "Baishakh,Jestha,Ashadh,Shrawan,Bhadra,Ashwin,Kartik,Mangsir,Poush,Magh,Falgun,Chaitra");
-        Localization.getGlobalLocalizerAdvanced().registerLocaleResource("default", localeData);
     }
 
     private static void assertSameDate(UniversalDate a, UniversalDate b) {
