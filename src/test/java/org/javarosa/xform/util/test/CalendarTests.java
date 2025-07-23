@@ -60,7 +60,7 @@ public class CalendarTests {
     public void testConvertToNepaliString() {
         MockTimeZoneProvider mockTimeZoneProvider = new MockTimeZoneProvider(TimeZone.getTimeZone("Europe/Madrid"));
         DateUtils.setTimezoneProvider(mockTimeZoneProvider);
-        DateTimeZone timeZone = DateTimeZone.forOffsetMillis(mockTimeZoneProvider.getTimezone().getRawOffset());
+        DateTimeZone timeZone = DateTimeZone.forTimeZone(mockTimeZoneProvider.timeZone);
         // this is what Nepali widget uses to calculate the millis from date fields
         long millis = CalendarUtils.toMillisFromJavaEpoch(2081, 6, 16, timeZone);
         String nepaliDateStr = CalendarUtils.convertToNepaliString(new Date(millis), null);
@@ -68,14 +68,14 @@ public class CalendarTests {
 
 
         mockTimeZoneProvider.setTimezone(TimeZone.getTimeZone("Asia/Kathmandu"));
-        timeZone = DateTimeZone.forOffsetMillis(mockTimeZoneProvider.getTimezone().getRawOffset());
+        timeZone = DateTimeZone.forTimeZone(mockTimeZoneProvider.timeZone);
         millis = CalendarUtils.toMillisFromJavaEpoch(2081, 6, 16, timeZone);
         nepaliDateStr = CalendarUtils.convertToNepaliString(new Date(millis), null);
         assertEquals( "16 Ashwin 2081", nepaliDateStr);
 
 
         mockTimeZoneProvider.setTimezone(TimeZone.getTimeZone("America/Chicago"));
-        timeZone = DateTimeZone.forOffsetMillis(mockTimeZoneProvider.getTimezone().getRawOffset());
+        timeZone = DateTimeZone.forTimeZone(mockTimeZoneProvider.timeZone);
         millis = CalendarUtils.toMillisFromJavaEpoch(2081, 6, 16, timeZone);
         nepaliDateStr = CalendarUtils.convertToNepaliString(new Date(millis), null);
         assertEquals( "16 Ashwin 2081", nepaliDateStr);
