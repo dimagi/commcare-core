@@ -17,8 +17,6 @@ import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -59,15 +57,7 @@ public class AsyncEntity extends Entity<TreeReference> {
     private final EntityStorageCache mEntityStorageCache;
 
     /*
-     * the Object's lock. NOTE: _DO NOT LOCK ANY CODE WHICH READS/WRITES THE CACHE
-     * UNTIL YOU HAVE A LOCK FOR THE DB!
-     * 
-     * The lock is for the integrity of this object, not the larger environment, 
-     * and any DB access has its own implict lock between threads, so it's easy
-     * to accidentally deadlock if you don't already have the db lock
-     * 
-     * Basically you should never be calling mEntityStorageCache from inside of
-     * a lock that 
+     * the Object's lock for the integrity of this object
      */
     private final Object mAsyncLock = new Object();
 
@@ -118,32 +108,25 @@ public class AsyncEntity extends Entity<TreeReference> {
                 data[i] = evaluateField(i);
                 return data[i];
             }
-        }
-        try (Closeable ignored = mEntityStorageCache != null ? mEntityStorageCache.lockCache() : null) {
-            synchronized (mAsyncLock) {
-                if (data[i] == null) {
-                    String cacheKey = null;
-                    if (mEntityStorageCache != null && mCacheIndex != null) {
-                        cacheKey = mEntityStorageCache.getCacheKey(mDetailId, String.valueOf(i), TYPE_NORMAL_FIELD);
-                        // Return from the cache if we have a value
-                        String value = mEntityStorageCache.retrieveCacheValue(mCacheIndex, cacheKey);
-                        if (value != null) {
-                            data[i] = value;
-                            return data[i];
-                        }
-                    }
-                    // Otherwise evaluate, cache and return the value
-                    data[i] = evaluateField(i);
-                    if (mEntityStorageCache != null && mCacheIndex != null) {
-                        mEntityStorageCache.cache(mCacheIndex, cacheKey, String.valueOf(data[i]));
+            String cacheKey = null;
+            if (data[i] == null) {
+                if (mEntityStorageCache != null && mCacheIndex != null) {
+                    cacheKey = mEntityStorageCache.getCacheKey(mDetailId, String.valueOf(i),
+                            TYPE_NORMAL_FIELD);
+                    // Return from the cache if we have a value
+                    String value = mEntityStorageCache.retrieveCacheValue(mCacheIndex, cacheKey);
+                    if (value != null) {
+                        data[i] = value;
+                        return data[i];
                     }
                 }
-                return data[i];
             }
-        } catch (IOException e) {
-            Logger.exception("Error while getting field", e);
+            data[i] = evaluateField(i);
+            if (mEntityStorageCache != null && mCacheIndex != null) {
+                mEntityStorageCache.cache(mCacheIndex, cacheKey, String.valueOf(data[i]));
+            }
         }
-        return null;
+        return data[i];
     }
 
     private Object evaluateField(int i) {
@@ -178,43 +161,39 @@ public class AsyncEntity extends Entity<TreeReference> {
                 evaluateSortData(i);
                 return sortData[i];
             }
-        }
-        try (Closeable ignored = mEntityStorageCache != null ? mEntityStorageCache.lockCache() : null) {
-            //get our second lock.
-            synchronized (mAsyncLock) {
-                if (sortData[i] == null) {
-                    Text sortText = fields[i].getSort();
-                    if (sortText == null) {
-                        return null;
+
+            String cacheKey = null;
+            if (sortData[i] == null) {
+                Text sortText = fields[i].getSort();
+                if (sortText == null) {
+                    return null;
+                }
+
+                if (mEntityStorageCache != null) {
+                    if (cacheEnabled) {
+                        cacheKey = mEntityStorageCache.getCacheKey(mDetailId, String.valueOf(i),
+                                TYPE_SORT_FIELD);
+                    } else {
+                        // old cache and index
+                        cacheKey = i + "_" + TYPE_SORT_FIELD;
                     }
-                    String cacheKey;
-                    if (mEntityStorageCache != null) {
-                        if (cacheEnabled) {
-                            cacheKey = mEntityStorageCache.getCacheKey(mDetailId, String.valueOf(i),
-                                    TYPE_SORT_FIELD);
-                        } else {
-                            // old cache and index
-                            cacheKey = i + "_" + TYPE_SORT_FIELD;
+                    if (mCacheIndex != null) {
+                        //Check the cache!
+                        String value = mEntityStorageCache.retrieveCacheValue(mCacheIndex, cacheKey);
+                        if (value != null) {
+                            this.setSortData(i, value);
+                            return sortData[i];
                         }
-                        if (mCacheIndex != null) {
-                            //Check the cache!
-                            String value = mEntityStorageCache.retrieveCacheValue(mCacheIndex, cacheKey);
-                            if (value != null) {
-                                this.setSortData(i, value);
-                                return sortData[i];
-                            }
-                            // sort data not in search field cache; load and store it
-                            evaluateSortData(i);
-                            mEntityStorageCache.cache(mCacheIndex, cacheKey, sortData[i]);
-                        }
+
                     }
                 }
-                return sortData[i];
             }
-        } catch (IOException e) {
-            Logger.exception("Error while getting sort field", e);
+            evaluateSortData(i);
+            if (mEntityStorageCache != null && mCacheIndex != null) {
+                mEntityStorageCache.cache(mCacheIndex, cacheKey, sortData[i]);
+            }
+            return sortData[i];
         }
-        return null;
     }
 
     private void evaluateSortData(int i) {
@@ -331,7 +310,7 @@ public class AsyncEntity extends Entity<TreeReference> {
     @Override
     public String getGroupKey() {
         if (mDetailGroup != null) {
-            return  (String)mDetailGroup.getFunction().eval(context);
+            return (String)mDetailGroup.getFunction().eval(context);
         }
         return null;
     }
