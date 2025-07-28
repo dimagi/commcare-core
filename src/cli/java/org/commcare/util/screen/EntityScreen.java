@@ -1,6 +1,7 @@
 package org.commcare.util.screen;
 
 import org.commcare.cases.entity.EntityUtil;
+import org.commcare.cases.model.Case;
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.core.interfaces.UserSandbox;
@@ -18,6 +19,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.InstrumentationUtils;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.util.Hashtable;
@@ -268,7 +270,9 @@ public class EntityScreen extends CompoundScreenHost {
 
     @Override
     public String getBreadcrumb(String input, UserSandbox sandbox, SessionWrapper session) {
-        String caseName = FormDataUtil.getCaseName(sandbox, input);
+        QueryScreen queryScreen = this.getQueryScreen();
+        IStorageUtilityIndexed<Case> caseSearchStorage = queryScreen != null ? queryScreen.getCaseSearchStorage() : null;
+        String caseName = FormDataUtil.getCaseName(sandbox, caseSearchStorage, input);
         return caseName == null ? ScreenUtils.getBestTitle(session) : caseName;
     }
 
