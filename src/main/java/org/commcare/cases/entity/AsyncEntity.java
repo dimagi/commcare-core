@@ -184,7 +184,6 @@ public class AsyncEntity extends Entity<TreeReference> {
                             this.setSortData(i, value);
                             return sortData[i];
                         }
-
                     }
                 }
             }

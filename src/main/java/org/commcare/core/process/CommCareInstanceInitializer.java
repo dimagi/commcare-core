@@ -244,13 +244,17 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         TreeElement root =
                 SessionInstanceBuilder.getSessionInstance(sessionWrapper.getFrame(), getDeviceId(),
                         getVersionString(), getCurrentDrift(), u.getUsername(), u.getUniqueId(),
-                        u.getProperties(), getWindowWidth());
+                        u.getProperties(), getWindowWidth(), getLocale());
         root.setParent(instance.getBase());
         return new ConcreteInstanceRoot(root);
     }
 
     protected String getWindowWidth() {
         return sessionWrapper.getWindowWidth();
+    }
+
+    protected String getLocale() {
+        return Localization.getCurrentLocale();
     }
 
     protected long getCurrentDrift() {
