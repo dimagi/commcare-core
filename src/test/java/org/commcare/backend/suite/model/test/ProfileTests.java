@@ -9,6 +9,7 @@ import static org.junit.Assert.fail;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.AndroidPackageDependency;
+import org.commcare.suite.model.Credential;
 import org.commcare.suite.model.Profile;
 import org.commcare.test.utilities.PersistableSandbox;
 import org.commcare.util.engine.CommCareConfigEngine;
@@ -90,6 +91,16 @@ public class ProfileTests {
         expectedDependencies[0] = new AndroidPackageDependency("org.commcare.reminders");
         expectedDependencies[1] = new AndroidPackageDependency("org.commcare.test");
         assertEquals(Arrays.toString(expectedDependencies),Arrays.toString(p.getDependencies().toArray()));
+    }
+
+    @Test
+    public void testCredentialsParse() {
+        Profile p = getProfile(BASIC_PROFILE_PATH);
+        assertTrue(p.isFeatureActive("credentials"));
+        Credential[] expectedCredentials = new Credential[2];
+        expectedCredentials[0] = new Credential("3MON_ACTIVE", "APP_ACTIVITY");
+        expectedCredentials[1] = new Credential("6MON_ACTIVE", "APP_ACTIVITY");
+        assertEquals(Arrays.toString(expectedCredentials),Arrays.toString(p.getCredentials().toArray()));
     }
 
     private void compareProfiles(Profile a, Profile b) {

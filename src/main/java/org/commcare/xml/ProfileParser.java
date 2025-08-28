@@ -6,6 +6,7 @@ package org.commcare.xml;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.AndroidPackageDependency;
+import org.commcare.suite.model.Credential;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.reference.RootTranslator;
@@ -27,7 +28,11 @@ public class ProfileParser extends ElementParser<Profile> {
 
     private static final String NAME_DEPENDENCIES = "dependencies";
     private static final String NAME_ANDROID_PACKAGE = "android_package";
+    private static final String NAME_CREDENTIALS = "credentials";
+    private static final String NAME_CREDENTIAL = "credential";
     private static final String ATTR_ID = "id";
+    private static final String ATTR_CREDENTIAL_LEVEL = "level";
+    private static final String ATTR_CREDENTIAL_TYPE = "type";
 
     ResourceTable table;
     String resourceId;
@@ -244,11 +249,33 @@ public class ProfileParser extends ElementParser<Profile> {
             } else if (tag.equals(NAME_DEPENDENCIES)) {
                 profile.setDependencies(parseDependencies());
             } else if (tag.equals("sense")) {
+            }else if (tag.equals(NAME_CREDENTIALS)) {
+                profile.setCredentials(parseCredentials());
             }
 
             profile.setFeatureActive(tag, isActive);
             //TODO: set feature activation in profile
         }
+    }
+
+    private Vector<Credential> parseCredentials()
+            throws InvalidStructureException, XmlPullParserException, IOException {
+        Vector<Credential> appCredentials = new Vector<>();
+        while (nextTagInBlock(NAME_CREDENTIALS)) {
+            String tag = parser.getName().toLowerCase();
+            if (tag.equals(NAME_CREDENTIAL)) {
+                String level = parser.getAttributeValue(null, ATTR_CREDENTIAL_LEVEL);
+                String type = parser.getAttributeValue(null, ATTR_CREDENTIAL_TYPE);
+                if (level == null) {
+                    throw new InvalidStructureException("No level defined for credential");
+                }
+                if (type == null) {
+                    throw new InvalidStructureException("No type defined for credential");
+                }
+                appCredentials.add(new Credential(level, type));
+            }
+        }
+        return appCredentials;
     }
 
     private Vector<AndroidPackageDependency> parseDependencies()
