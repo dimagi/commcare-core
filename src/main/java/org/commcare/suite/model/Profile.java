@@ -48,6 +48,7 @@ public class Profile implements Persistable {
      * were added for multiple app seating functionality
      */
     private boolean fromOld;
+    private Vector<Credential> credentials;
 
     @SuppressWarnings("unused")
     public Profile() {
@@ -77,6 +78,7 @@ public class Profile implements Persistable {
         properties = new Vector<>();
         roots = new Vector<>();
         dependencies = new Vector<>();
+        credentials = new Vector<>();
         featureStatus = new Hashtable<>();
         //turn on default features
         featureStatus.put("users", true);
@@ -191,6 +193,14 @@ public class Profile implements Persistable {
         this.dependencies = dependencies;
     }
 
+    public void setCredentials(Vector<Credential> credentials) {
+        this.credentials = credentials;
+    }
+
+    public Vector<Credential> getCredentials() {
+        return credentials;
+    }
+
     /**
      * A helper method which initializes the properties specified
      * by this profile definition.
@@ -228,6 +238,8 @@ public class Profile implements Persistable {
         buildProfileId = ExtUtil.readString(in);
         dependencies = (Vector<AndroidPackageDependency>)ExtUtil.read(in,
                 new ExtWrapList(AndroidPackageDependency.class), pf);
+        credentials = (Vector<Credential>)ExtUtil.read(in,
+                new ExtWrapList(Credential.class), pf);
     }
 
     @Override
@@ -244,5 +256,6 @@ public class Profile implements Persistable {
         ExtUtil.write(out, new ExtWrapMap(featureStatus));
         ExtUtil.writeString(out, buildProfileId);
         ExtUtil.write(out, new ExtWrapList(dependencies));
+        ExtUtil.write(out, new ExtWrapList(credentials));
     }
 }
