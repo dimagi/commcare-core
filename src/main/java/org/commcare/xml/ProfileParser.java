@@ -3,6 +3,7 @@
  */
 package org.commcare.xml;
 
+import org.commcare.cases.util.StringUtils;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.AndroidPackageDependency;
@@ -266,10 +267,10 @@ public class ProfileParser extends ElementParser<Profile> {
             if (tag.equals(NAME_CREDENTIAL)) {
                 String level = parser.getAttributeValue(null, ATTR_CREDENTIAL_LEVEL);
                 String type = parser.getAttributeValue(null, ATTR_CREDENTIAL_TYPE);
-                if (level == null) {
+                if (StringUtils.isEmpty(level)) {
                     throw new InvalidStructureException("No level defined for credential");
                 }
-                if (type == null) {
+                if (StringUtils.isEmpty(type)) {
                     throw new InvalidStructureException("No type defined for credential");
                 }
                 appCredentials.add(new Credential(level, type));
