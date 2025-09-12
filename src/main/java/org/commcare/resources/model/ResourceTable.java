@@ -942,7 +942,7 @@ public class ResourceTable {
         setMissingResources(missingResources);
     }
 
-    private void attemptResourceInitialization(CommCarePlatform platform, boolean isUpgrade,
+    public void attemptResourceInitialization(CommCarePlatform platform, boolean isUpgrade,
                                                Resource r, Vector<Resource> missingResources) throws ResourceInitializationException {
         try {
             r.getInstaller().initialize(platform, isUpgrade);
