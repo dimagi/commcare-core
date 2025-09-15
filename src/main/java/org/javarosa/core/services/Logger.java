@@ -53,10 +53,15 @@ public class Logger {
 
     public static void exception(String info, Throwable e) {
         e.printStackTrace();
-        log(LogTypes.TYPE_EXCEPTION, (info != null ? info + ": " : "") + WrappedException.printException(e));
+        info = info != null ? info + ": " : "";
+        log(LogTypes.TYPE_EXCEPTION, info + WrappedException.printException(e));
         if (logger != null) {
             try {
-                logger.logException(e);
+                String message = e.getMessage();
+                if (message == null) {
+                    message = "";
+                }
+                logger.logException(new Exception(info + message, e));
             } catch (RuntimeException ex) {
                 logger.panic();
             }
