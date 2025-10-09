@@ -5,5 +5,7 @@ import java.io.InputStream;
 
 public interface ResponseStreamAccessor {
     InputStream getResponseStream() throws IOException;
+
+    InputStream getErrorResponseStream();
     String getApiVersion();
 }

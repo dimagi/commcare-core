@@ -12,6 +12,7 @@ import org.javarosa.core.io.StreamsUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,6 +101,11 @@ public class ModernHttpRequester {
                 }
 
                 @Override
+                public InputStream getErrorResponseStream() {
+                    return requester.getErrorResponseStream(response);
+                }
+
+                @Override
                 public String getApiVersion() {
                     return requester.getApiVersion();
                 }
@@ -175,7 +181,7 @@ public class ModernHttpRequester {
                 StreamsUtil.closeStream(responseStream);
             }
         } else if (responseCode >= 400 && responseCode < 500) {
-            responseProcessor.processClientError(responseCode);
+            responseProcessor.processClientError(responseCode, streamAccessor);
         } else if (responseCode >= 500 && responseCode < 600) {
             responseProcessor.processServerError(responseCode);
         } else {
@@ -196,6 +202,14 @@ public class ModernHttpRequester {
         OutputStream cacheOut = cache.getCacheStream();
         StreamsUtil.writeFromInputToOutputNew(inputStream, cacheOut);
         return cache.retrieveCache();
+    }
+
+    @Nullable
+    public InputStream getErrorResponseStream(Response<ResponseBody> response) {
+        if (response.errorBody() != null) {
+            return response.errorBody().byteStream();
+        }
+        return null;
     }
 
     public String getApiVersion() {
