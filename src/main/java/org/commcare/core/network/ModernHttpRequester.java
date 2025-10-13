@@ -8,6 +8,7 @@ import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
 import org.commcare.util.NetworkStatus;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,6 +101,7 @@ public class ModernHttpRequester {
                     return requester.getResponseStream(response);
                 }
 
+                @Nullable
                 @Override
                 public InputStream getErrorResponseStream() {
                     return requester.getErrorResponseStream(response);
@@ -181,7 +183,15 @@ public class ModernHttpRequester {
                 StreamsUtil.closeStream(responseStream);
             }
         } else if (responseCode >= 400 && responseCode < 500) {
-            responseProcessor.processClientError(responseCode, streamAccessor);
+            InputStream errorStream = null;
+            try {
+                errorStream = streamAccessor.getErrorResponseStream();
+                responseProcessor.processClientError(responseCode, errorStream);
+            } catch (Exception e) {
+                Logger.exception("Exception during network error processing", e);
+            } finally {
+                StreamsUtil.closeStream(errorStream);
+            }
         } else if (responseCode >= 500 && responseCode < 600) {
             responseProcessor.processServerError(responseCode);
         } else {
