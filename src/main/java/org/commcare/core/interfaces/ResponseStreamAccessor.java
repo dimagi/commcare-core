@@ -9,6 +9,6 @@ public interface ResponseStreamAccessor {
     InputStream getResponseStream() throws IOException;
 
     @Nullable
-    InputStream getErrorResponseStream();
+    InputStream getErrorResponseStream() throws IOException;
     String getApiVersion();
 }

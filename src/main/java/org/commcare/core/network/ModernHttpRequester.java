@@ -103,7 +103,7 @@ public class ModernHttpRequester {
 
                 @Nullable
                 @Override
-                public InputStream getErrorResponseStream() {
+                public InputStream getErrorResponseStream() throws IOException {
                     return requester.getErrorResponseStream(response);
                 }
 
@@ -207,6 +207,11 @@ public class ModernHttpRequester {
 
     public InputStream getResponseStream(Response<ResponseBody> response) throws IOException {
         InputStream inputStream = response.body().byteStream();
+        return cacheResponse(inputStream, response);
+    }
+
+    private InputStream cacheResponse(InputStream inputStream, Response<ResponseBody> response)
+            throws IOException {
         BitCache cache = BitCacheFactory.getCache(cacheDirSetup, getContentLength(response));
         cache.initializeCache();
         OutputStream cacheOut = cache.getCacheStream();
@@ -215,9 +220,9 @@ public class ModernHttpRequester {
     }
 
     @Nullable
-    public InputStream getErrorResponseStream(Response<ResponseBody> response) {
+    public InputStream getErrorResponseStream(Response<ResponseBody> response) throws IOException {
         if (response.errorBody() != null) {
-            return response.errorBody().byteStream();
+            return cacheResponse( response.errorBody().byteStream(), response);
         }
         return null;
     }
