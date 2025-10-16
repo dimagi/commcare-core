@@ -10,8 +10,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLException;
 
 /**
  * @author ctsims
@@ -44,7 +43,7 @@ public class JavaHttpReference implements Reference {
             HttpURLConnection.setFollowRedirects(true);
 
             return conn.getInputStream();
-        } catch (SSLHandshakeException | SSLPeerUnverifiedException e) {
+        } catch (SSLException e) {
             if(NetworkStatus.isCaptivePortal()) {
                 throw new CaptivePortalRedirectException();
             }

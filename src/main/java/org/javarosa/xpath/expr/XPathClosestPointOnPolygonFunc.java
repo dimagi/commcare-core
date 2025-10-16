@@ -24,9 +24,9 @@ import java.util.List;
  *
  * <p><strong>Parameters:</strong></p>
  * <ul>
- *   <li><code>polygon_coords</code>: A space-separated string of lon/lat pairs (e.g. "'78.041309 27.174957 78
- *   .042574 27.174884 78.042661 27.175493 78.041383 27.175569'")</li>
- *   <li><code>point_coord</code>: A single point as "lon lat eg('78.043 27.175)"</li>
+ *   <li><code>point_coord</code>: A single point as "lat lon eg('27.175 78.043')"</li>
+ *   <li><code>polygon_coords</code>: A space-separated string of lat/lon pairs (e.g. "'27.174957 78.041309 27
+ *   .174884 78.042574 27.175493 78.042661 27.175569 78.041383'")</li>
  * </ul>
  *
  * <p><strong>Returns:</strong></p>
@@ -35,9 +35,9 @@ import java.util.List;
  *
  * <p><strong>Recommended Use:</strong></p>
  * <pre>
- *     closest-point-on-polygon('78.041 27.176','78.041309 27.174957 78.042574 27.174884 78.042661 27.175493 78.041383 27.175569')
+ *     closest-point-on-polygon('27.176 78.041','27.174957 78.041309 27.174884 78.042574 27.175493 78.042661 27.175569 78.041383')
  * </pre>
- * <p>This example finds the closest point on the polygon to (78.041, 27.176)</p>
+ * <p>This example finds the closest point on the polygon to (27.176 78.041)</p>
  */
 public class XPathClosestPointOnPolygonFunc extends XPathFuncExpr {
     public static final String NAME = "closest-point-on-polygon";

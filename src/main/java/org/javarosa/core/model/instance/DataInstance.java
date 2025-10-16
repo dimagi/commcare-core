@@ -245,12 +245,16 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         this.name = name;
     }
 
+    @Override
     public String toString() {
         String name = "NULL";
         if (this.name != null) {
             name = this.name;
         }
-        return name;
+        return "DataInstance{" +
+                "name='" + name + '\'' +
+                ", instanceid='" + instanceid + '\'' +
+                '}';
     }
 
     @Override
