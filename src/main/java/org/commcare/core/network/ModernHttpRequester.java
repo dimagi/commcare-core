@@ -8,10 +8,12 @@ import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
 import org.commcare.util.NetworkStatus;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,6 +101,12 @@ public class ModernHttpRequester {
                     return requester.getResponseStream(response);
                 }
 
+                @Nullable
+                @Override
+                public InputStream getErrorResponseStream() throws IOException {
+                    return requester.getErrorResponseStream(response);
+                }
+
                 @Override
                 public String getApiVersion() {
                     return requester.getApiVersion();
@@ -175,7 +183,15 @@ public class ModernHttpRequester {
                 StreamsUtil.closeStream(responseStream);
             }
         } else if (responseCode >= 400 && responseCode < 500) {
-            responseProcessor.processClientError(responseCode);
+            InputStream errorStream = null;
+            try {
+                errorStream = streamAccessor.getErrorResponseStream();
+                responseProcessor.processClientError(responseCode, errorStream);
+            } catch (Exception e) {
+                Logger.exception("Exception during network error processing", e);
+            } finally {
+                StreamsUtil.closeStream(errorStream);
+            }
         } else if (responseCode >= 500 && responseCode < 600) {
             responseProcessor.processServerError(responseCode);
         } else {
@@ -191,11 +207,24 @@ public class ModernHttpRequester {
 
     public InputStream getResponseStream(Response<ResponseBody> response) throws IOException {
         InputStream inputStream = response.body().byteStream();
+        return cacheResponse(inputStream, response);
+    }
+
+    private InputStream cacheResponse(InputStream inputStream, Response<ResponseBody> response)
+            throws IOException {
         BitCache cache = BitCacheFactory.getCache(cacheDirSetup, getContentLength(response));
         cache.initializeCache();
         OutputStream cacheOut = cache.getCacheStream();
         StreamsUtil.writeFromInputToOutputNew(inputStream, cacheOut);
         return cache.retrieveCache();
+    }
+
+    @Nullable
+    public InputStream getErrorResponseStream(Response<ResponseBody> response) throws IOException {
+        if (response.errorBody() != null) {
+            return cacheResponse( response.errorBody().byteStream(), response);
+        }
+        return null;
     }
 
     public String getApiVersion() {
