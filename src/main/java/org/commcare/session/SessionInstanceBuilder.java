@@ -24,7 +24,6 @@ public class SessionInstanceBuilder {
         addSessionNavData(sessionRoot, frame);
         addMetadata(sessionRoot, deviceId, appversion, username, userId, drift, windowWidth, applanguage);
         addUserProperties(sessionRoot, userFields);
-
         return sessionRoot;
     }
 
@@ -100,7 +99,6 @@ public class SessionInstanceBuilder {
         addData(sessionMeta, "drift", String.valueOf(drift));
         addData(sessionMeta, "window_width", windowWidth);
         addData(sessionMeta, "applanguage", applanguage);
-
         sessionRoot.addChild(sessionMeta);
     }
 
