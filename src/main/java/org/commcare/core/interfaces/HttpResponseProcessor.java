@@ -20,7 +20,7 @@ public interface HttpResponseProcessor {
      * Can represent authentication issues, data parity issues between client
      * and server, among other things
      */
-    void processClientError(int responseCode);
+    void processClientError(int responseCode, InputStream errorStream);
 
     /**
      * Http response was in the 500s
