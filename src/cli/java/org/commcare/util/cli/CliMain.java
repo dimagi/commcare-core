@@ -64,7 +64,7 @@ public class CliMain {
         try {
             cliCommand.handle();
         } catch (Exception e) {
-            System.err.println("\nValidation failed with error:");
+            System.err.println("\Command failed with error:");
             e.printStackTrace();
             System.exit(-1);
         }
