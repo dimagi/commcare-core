@@ -178,10 +178,6 @@ public class EntityScreen extends CompoundScreenHost {
                 referenceMap.put(getReturnValueFromSelection(reference, needed, evalContext), reference);
             }
 
-            // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic
-            // setting
-            evalContext.addFunctionHandler(new ScreenUtils.HereDummyFunc(-23.56, -46.66));
-
             if (shouldAutoSelect()) {
                 if (!this.setCurrentScreenToDetail()) {
                     readyToSkip = true;
