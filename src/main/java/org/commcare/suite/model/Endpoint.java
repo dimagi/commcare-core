@@ -93,21 +93,28 @@ public class Endpoint implements Externalizable {
             }
         }
 
-        Vector<String> unexpectedArguments = new Vector<>();
-        for (String argumentId : argumentIds) {
-            if(!isValidArgumentId(endpointArguments, argumentId)){
-                unexpectedArguments.add(argumentId);
-            }
-        }
+//        Vector<String> unexpectedArguments = new Vector<>();
+//        for (String argumentId : argumentIds) {
+//            if(!isValidArgumentId(endpointArguments, argumentId)){
+//                unexpectedArguments.add(argumentId);
+//            }
+//        }
 
-        if (missingArguments.size() > 0 || unexpectedArguments.size() > 0) {
-            throw new InvalidEndpointArgumentsException(missingArguments, unexpectedArguments);
-        }
+//        if (missingArguments.size() > 0 || unexpectedArguments.size() > 0) {
+//            throw new InvalidEndpointArgumentsException(missingArguments, unexpectedArguments);
+//        }
 
         for (int i = 0; i < endpointArguments.size(); i++) {
-            String argumentName = endpointArguments.elementAt(i).getId();
+            EndpointArgument argument = endpointArguments.elementAt(i);
+            String argumentName = argument.getId();
             if (args.containsKey(argumentName)) {
                 evaluationContext.setVariable(argumentName, args.get(argumentName));
+            }
+            if (argument.isInstanceArgument()) {
+                argumentName = "instance_id_" + argumentName;
+                if (args.containsKey(argumentName)) {
+                    evaluationContext.setVariable(argumentName, args.get(argumentName));
+                }
             }
         }
     }
