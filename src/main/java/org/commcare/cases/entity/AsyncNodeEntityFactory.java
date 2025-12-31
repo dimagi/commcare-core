@@ -1,7 +1,10 @@
 package org.commcare.cases.entity;
 
 
+import static org.commcare.cases.entity.EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_UNCACHED_CALCULATION;
+
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.CacheHost;
@@ -12,12 +15,10 @@ import java.util.Hashtable;
 import java.util.List;
 
 import javax.annotation.Nullable;
-
 /**
  * @author ctsims
  */
 public class AsyncNodeEntityFactory extends NodeEntityFactory {
-    private static final String TAG = AsyncNodeEntityFactory.class.getSimpleName();
     private final OrderedHashtable<String, XPathExpression> mVariableDeclarations;
 
     private final Hashtable<String, AsyncEntity> mEntitySet = new Hashtable<>();
@@ -32,13 +33,19 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     // Don't show entity list until we primeCache and caches all fields
     private final boolean isBlockingAsyncMode;
 
-    public AsyncNodeEntityFactory(Detail d, EvaluationContext ec,
-            @Nullable EntityStorageCache entityStorageCache) {
-        super(d, ec);
+    /**
+     * Whether we are loading entity in a background process.
+     * Used to accelerate processing in foreground by skipping lazy properties
+     */
+    private boolean inBackground;
 
+    public AsyncNodeEntityFactory(Detail d, EvaluationContext ec,
+            @Nullable EntityStorageCache entityStorageCache, boolean inBackground) {
+        super(d, ec);
         mVariableDeclarations = detail.getVariableDeclarations();
         mEntityCache = entityStorageCache;
         isBlockingAsyncMode = detail.hasSortField();
+        this.inBackground = inBackground;
     }
 
     @Override
@@ -57,8 +64,8 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
 
         String entityKey = loadCalloutDataMapKey(nodeContext);
         AsyncEntity entity =
-                new AsyncEntity(detail.getFields(), nodeContext, data, mVariableDeclarations,
-                        mEntityCache, mCacheIndex, detail.getId(), entityKey, detail.getGroup());
+                new AsyncEntity(detail, nodeContext, data, mVariableDeclarations,
+                        mEntityCache, mCacheIndex, entityKey);
 
         if (mCacheIndex != null) {
             mEntitySet.put(mCacheIndex, entity);
@@ -80,7 +87,8 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
      * Bulk loads search field cache from db.
      * Note that the cache is lazily built upon first case list search.
      */
-    private void primeCache() {
+    protected void primeCache() {
+        if (isCancelled) return;
         if (mEntityCache == null || mTemplateIsCachable == null || !mTemplateIsCachable || mCacheHost == null) {
             return;
         }
@@ -89,15 +97,25 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         if (cachePrimeKeys == null) {
             return;
         }
+        updateProgress(EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_CACHING, 0, 100);
         mEntityCache.primeCache(mEntitySet,cachePrimeKeys, detail);
+        updateProgress(EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_CACHING, 100, 100);
+    }
+
+    private void updateProgress(EntityLoadingProgressListener.EntityLoadingProgressPhase phase, int progress,
+            int total) {
+        if (progressListener != null) {
+            progressListener.publishEntityLoadingProgress(phase, progress, total);
+        }
     }
 
     @Override
     protected void prepareEntitiesInternal(List<Entity<TreeReference>> entities) {
+        // Legacy cache and index code, only here to maintain backward compatibility
         // if blocking mode load cache on the same thread and set any data thats not cached
         if (isBlockingAsyncMode) {
             primeCache();
-            setUnCachedData(entities);
+            setUnCachedDataOld(entities);
         } else {
             // otherwise we want to show the entity list asap and hence want to offload the loading cache part to a separate
             // thread while caching any uncached data later on UI thread during Adapter's getView
@@ -110,12 +128,57 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         }
     }
 
-    private void setUnCachedData(List<Entity<TreeReference>> entities) {
+    @Override
+    public void cacheEntities(List<Entity<TreeReference>> entities) {
+        if (detail.isCacheEnabled()) {
+            primeCache();
+            setUnCachedData(entities);
+        } else {
+            primeCache();
+            setUnCachedDataOld(entities);
+        }
+    }
+
+    protected void setUnCachedData(List<Entity<TreeReference>> entities) {
+        boolean foregroundWithLazyLoading = !inBackground && detail.isLazyLoading();
+        boolean foregroundWithoutLazyLoading = !inBackground && !detail.isLazyLoading();
         for (int i = 0; i < entities.size(); i++) {
+            if (isCancelled) return;
             AsyncEntity e = (AsyncEntity)entities.get(i);
             for (int col = 0; col < e.getNumFields(); ++col) {
-                e.getSortField(col);
+                DetailField field = detail.getFields()[col];
+                /**
+                 * 1. If we are in foreground with lazy loading turned on, the priority is to show
+                 * the user screen asap. Therefore, we need to skip calculating lazy fields.
+                 * 2. If we are in foreground with lazy loading turned off, we want to calculate all fields here.
+                 * 3. If we are in background with lazy loading turned on or off, we want to calculate all fields
+                 * backed by cache in order to keep them ready for when user loads the list.
+                 */
+                if (foregroundWithoutLazyLoading || (foregroundWithLazyLoading && !field.isLazyLoading()) || (
+                        inBackground && field.isCacheEnabled())) {
+                    e.getField(col);
+                    if (field.getSort() != null) {
+                        e.getSortField(col);
+                    }
+                }
             }
+            if (i % 100 == 0) {
+                updateProgress(PHASE_UNCACHED_CALCULATION, i, entities.size());
+            }
+        }
+        updateProgress(PHASE_UNCACHED_CALCULATION, entities.size(), entities.size());
+    }
+
+    // Old cache and index pathway where we only cache sort fields
+    @Deprecated
+    protected void setUnCachedDataOld(List<Entity<TreeReference>> entities) {
+        for (int i = 0; i < entities.size(); i++) {
+            if (isCancelled) return;
+            AsyncEntity e = (AsyncEntity)entities.get(i);
+            for (int col = 0; col < e.getNumFields(); ++col) {
+                    e.getSortField(col);
+            }
+            updateProgress(PHASE_UNCACHED_CALCULATION, i, entities.size());
         }
     }
 
