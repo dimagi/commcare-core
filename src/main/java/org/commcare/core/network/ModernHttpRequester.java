@@ -39,7 +39,7 @@ public class ModernHttpRequester {
     /**
      * How long to wait when opening network connection in milliseconds
      */
-    public static final int CONNECTION_TIMEOUT = (int)TimeUnit.MINUTES.toMillis(2);
+    public static final int CONNECTION_TIMEOUT = (int)TimeUnit.MINUTES.toMillis(4);
 
     /**
      * How long to wait when receiving data (in milliseconds)
