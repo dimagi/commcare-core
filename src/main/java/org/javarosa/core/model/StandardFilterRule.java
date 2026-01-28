@@ -13,7 +13,7 @@ public class StandardFilterRule implements ComboboxFilterRule {
     }
 
     @Override
-    public boolean choiceShouldBeShown(String choice, CharSequence textEntered) {
-        return choice.toLowerCase().startsWith(textEntered.toString().toLowerCase());
+    public boolean choiceShouldBeShown(ComboItem choice, CharSequence textEntered) {
+        return choice.getDisplayText().toLowerCase().startsWith(textEntered.toString().toLowerCase());
     }
 }
