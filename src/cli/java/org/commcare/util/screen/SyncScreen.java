@@ -43,6 +43,11 @@ public class SyncScreen extends Screen {
         parseMakeRequest();
     }
 
+    @Override
+    public void init(SessionWrapper session, StringBuilder sb) throws CommCareSessionException {
+        this.init(session);
+    }
+
     private void parseMakeRequest() throws CommCareSessionException {
         PostRequest postRequest = getPostRequest();
         try {
