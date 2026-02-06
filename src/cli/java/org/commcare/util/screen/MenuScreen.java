@@ -101,6 +101,11 @@ public class MenuScreen extends Screen {
     }
 
     @Override
+    public void init(SessionWrapper session, StringBuilder sb) throws CommCareSessionException {
+        this.init(session);
+    }
+
+    @Override
     public String getScreenTitle() {
         return mTitle;
     }

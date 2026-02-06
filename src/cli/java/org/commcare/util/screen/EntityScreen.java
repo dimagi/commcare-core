@@ -123,6 +123,13 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
+    @Trace
+    public void init(SessionWrapper session, StringBuilder sb) throws CommCareSessionException {
+        if (initReferences(session, sb)) {
+            initListSubScreen();
+        }
+    }
+
     /**
      * Initialises EntityListSubscreen for current entity screen
      * Should only be called after initReferences
@@ -151,6 +158,10 @@ public class EntityScreen extends CompoundScreenHost {
      * @return whether we initialised references as part of this call
      */
     public boolean initReferences(SessionWrapper session) throws CommCareSessionException {
+        return this.initReferences(session, null);
+    }
+
+    public boolean initReferences(SessionWrapper session, StringBuilder loggingSb) throws CommCareSessionException {
         if (initialized) {
             if (session != this.mSession) {
                 throw new CommCareSessionException(
@@ -175,13 +186,16 @@ public class EntityScreen extends CompoundScreenHost {
         if (needsFullInit || references.size() == 1 || shouldAutoSelect()) {
             referenceMap = new Hashtable<>();
             EntityDatum needed = (EntityDatum)session.getNeededDatum();
-            StringBuilder sb = new StringBuilder("USH-6370 Checking in 'initReferences' ");
+            if (loggingSb != null) {
+                loggingSb.append("USH-6370 Checking in 'initReferences' ");
+            }
             for (TreeReference reference : references) {
                 String value = getReturnValueFromSelection(reference, needed, evalContext);
-                sb.append("\n").append(reference).append(":").append(value);
+                if (loggingSb != null) {
+                    loggingSb.append("\n").append(reference).append(":").append(value);
+                }
                 referenceMap.put(value, reference);
             }
-            Logger.log("E", sb.toString());
 
             // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic
             // setting

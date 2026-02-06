@@ -105,6 +105,11 @@ public class QueryScreen extends Screen {
         groupHeaders = getQueryDatum().getUserQueryGroupHeaders();
     }
 
+    @Override
+    public void init(SessionWrapper session, StringBuilder sb) throws CommCareSessionException {
+        this.init(session);
+    }
+
     private String getTitleLocaleString() {
         try {
             mTitle = getQueryDatum().getTitleText().evaluate();

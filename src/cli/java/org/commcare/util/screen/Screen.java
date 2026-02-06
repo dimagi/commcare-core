@@ -26,6 +26,8 @@ public abstract class Screen implements OptionsScreen {
      */
     public abstract void init(SessionWrapper session) throws CommCareSessionException;
 
+    public abstract void init(SessionWrapper session, StringBuilder sb) throws CommCareSessionException;
+
     /**
      * Display a prompt to the user.
      * @param out Output stream to write the prompt to.
