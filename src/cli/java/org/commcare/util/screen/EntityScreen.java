@@ -19,6 +19,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.utils.InstrumentationUtils;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -174,9 +175,13 @@ public class EntityScreen extends CompoundScreenHost {
         if (needsFullInit || references.size() == 1 || shouldAutoSelect()) {
             referenceMap = new Hashtable<>();
             EntityDatum needed = (EntityDatum)session.getNeededDatum();
+            StringBuilder sb = new StringBuilder("USH-6370 Checking in 'initReferences' ");
             for (TreeReference reference : references) {
-                referenceMap.put(getReturnValueFromSelection(reference, needed, evalContext), reference);
+                String value = getReturnValueFromSelection(reference, needed, evalContext);
+                sb.append("\n").append(reference).append(":").append(value);
+                referenceMap.put(value, reference);
             }
+            Logger.log("E", sb.toString());
 
             // for now override 'here()' with the coords of Sao Paulo, eventually allow dynamic
             // setting
