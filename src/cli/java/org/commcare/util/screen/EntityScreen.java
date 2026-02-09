@@ -192,7 +192,7 @@ public class EntityScreen extends CompoundScreenHost {
             for (TreeReference reference : references) {
                 String value = getReturnValueFromSelection(reference, needed, evalContext);
                 if (loggingSb != null) {
-                    loggingSb.append("\n").append(reference).append(":").append(value);
+                    loggingSb.append("\n").append(value);
                 }
                 referenceMap.put(value, reference);
             }
