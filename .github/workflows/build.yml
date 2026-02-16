@@ -35,3 +35,36 @@ jobs:
         with:
           gradle-version: ${{ env.JOB_GRADLE_VERSION }}
           arguments: build
+
+  cli-jar:
+    # Only build the CLI jar when code is merged to master/formplayer, not on PR checks
+    if: github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      JAVA_VERSION: '17'
+      JOB_GRADLE_VERSION: 8.1
+      FORMPLAYER_GRADLE_VERSION: 8.1
+      FORMPLAYER_JAVA_VERSION: '17'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set environment for Formplayer
+        if: ${{ github.ref_name == 'formplayer' }}
+        run: |
+          echo "JOB_GRADLE_VERSION=${{ env.FORMPLAYER_GRADLE_VERSION }}" >> "$GITHUB_ENV"
+          echo "JAVA_VERSION=${{ env.FORMPLAYER_JAVA_VERSION }}" >> "$GITHUB_ENV"
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'adopt'
+      - name: Build CLI JAR
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: ${{ env.JOB_GRADLE_VERSION }}
+          arguments: cliJar
+      - name: Upload CLI JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: commcare-cli
+          path: build/libs/commcare-cli*.jar
