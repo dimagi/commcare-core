@@ -38,7 +38,7 @@ jobs:
 
   cli-jar:
     # Only build the CLI jar when code is merged to master/formplayer, not on PR checks
-    if: github.event_name == 'push'
+    # if: github.event_name == 'push'
     needs: build
     runs-on: ubuntu-latest
     env:
