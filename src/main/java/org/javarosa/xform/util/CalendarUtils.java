@@ -440,4 +440,11 @@ public class CalendarUtils {
         cal.set(Calendar.MILLISECOND, 0);
     }
 
+    public static void toMidday(Calendar cal) {
+        cal.set(Calendar.HOUR_OF_DAY, 12);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+    }
+
 }
