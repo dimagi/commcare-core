@@ -66,6 +66,8 @@ jobs:
         env:
           COMMCARE_CORE_SHA: ${{ github.event.pull_request.head.sha }}
           CHECK_NAME: ${{ matrix.check_name }}
+          REPO: ${{ matrix.repo }}
+          WORKFLOW_FILE: ${{ matrix.workflow_file }}
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           script: |
@@ -75,7 +77,8 @@ jobs:
               sha: process.env.COMMCARE_CORE_SHA,
               state: 'pending',
               context: process.env.CHECK_NAME,
-              description: 'Waiting for downstream tests...'
+              description: 'Waiting for downstream tests...',
+              target_url: `https://github.com/${process.env.REPO}/actions/workflows/${process.env.WORKFLOW_FILE}`
             });
 
       - name: Trigger downstream workflow
