@@ -12,14 +12,25 @@ The `trigger-downstream` job in `.github/workflows/build.yml` runs after the
 
 1. Sets **pending** commit statuses on the PR (`cross-repo / commcare-android`
    and `cross-repo / formplayer`)
-2. Fires `workflow_dispatch` to each downstream repo, passing the PR's head SHA,
-   PR number, and check name
+2. Fires `workflow_dispatch` to each downstream repo, passing:
+   - `commcare_core_sha` — the PR's **merge commit** SHA (the same code the
+     `build` job tested)
+   - `commcare_core_status_sha` — the PR's **head commit** SHA (for reporting
+     status back to the correct commit on the PR)
+   - `commcare_core_pr` — the PR number
+   - `commcare_core_check_name` — the status check name
 3. Exits immediately (fire-and-forget)
 
 Each downstream repo's CI workflow accepts these inputs via `workflow_dispatch`.
-When present, it checks out the specified commcare-core SHA instead of its
-default, runs tests, and reports the result back as a commit status on the
-commcare-core PR.
+When present, it checks out commcare-core at `commcare_core_sha` (the merge
+commit) instead of its default, runs tests, and reports the result back as a
+commit status on the commcare-core PR using `commcare_core_status_sha` (the
+head commit).
+
+The merge commit is used for checkout so that downstream repos test the same
+code that commcare-core's own build tested — i.e., the PR's changes merged
+into the base branch. The head SHA is used for status reporting because GitHub
+associates PR status checks with the head commit, not the merge commit.
 
 ## Authentication
 
