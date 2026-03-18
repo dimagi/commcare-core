@@ -98,7 +98,7 @@ jobs:
                 owner,
                 repo,
                 workflow_id: process.env.WORKFLOW_FILE,
-                ref: 'dmr/cross-repo-ci',
+                ref: 'master',
                 inputs: {
                   commcare_core_sha: process.env.COMMCARE_CORE_SHA,
                   commcare_core_pr: process.env.COMMCARE_CORE_PR,
