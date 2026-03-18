@@ -9,6 +9,7 @@ on:
     branches:
       - 'master'
       - 'formplayer'
+      - 'dmr/cross-repo-ci'
 
 jobs:
   build:
