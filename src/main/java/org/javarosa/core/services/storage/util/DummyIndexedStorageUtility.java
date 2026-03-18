@@ -21,10 +21,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -363,15 +365,20 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 
     @Override
     public Vector<T> getBulkRecordsForIndex(String metaFieldName, Collection<String> matchingValues) {
-        // we don't care about bulk retrieval for dummy storage, so just call normal method to get records here
-        return getRecordsForValues(new String[]{metaFieldName}, matchingValues.toArray());
+        Vector<T> result = new Vector<>();
+        for (String value : matchingValues) {
+            result.addAll(getRecordsForValues(new String[]{metaFieldName}, new Object[]{value}));
+        }
+        return result;
     }
 
     @Override
     public Vector<Integer> getBulkIdsForIndex(String metaFieldName, Collection<String> matchingValues) {
-        // we don't care about bulk retrieval for dummy storage, so just call normal method to get records here
-        List<Integer> result = getIDsForValues(new String[]{metaFieldName}, matchingValues.toArray());
-        return new Vector<>(result);
+        Set<Integer> resultSet = new HashSet<>();
+        for (String value : matchingValues) {
+            resultSet.addAll(getIDsForValue(metaFieldName, value));
+        }
+        return new Vector<>(resultSet);
     }
 
     @Override
