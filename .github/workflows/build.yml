@@ -65,7 +65,7 @@ jobs:
       - name: Set pending status
         uses: actions/github-script@v7
         env:
-          COMMCARE_CORE_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           CHECK_NAME: ${{ matrix.check_name }}
           REPO: ${{ matrix.repo }}
           WORKFLOW_FILE: ${{ matrix.workflow_file }}
@@ -75,7 +75,7 @@ jobs:
             await github.rest.repos.createCommitStatus({
               owner: 'dimagi',
               repo: 'commcare-core',
-              sha: process.env.COMMCARE_CORE_SHA,
+              sha: process.env.HEAD_SHA,
               state: 'pending',
               context: process.env.CHECK_NAME,
               description: 'Waiting for downstream tests...',
@@ -85,7 +85,8 @@ jobs:
       - name: Trigger downstream workflow
         uses: actions/github-script@v7
         env:
-          COMMCARE_CORE_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          MERGE_SHA: ${{ github.sha }}
           COMMCARE_CORE_PR: ${{ github.event.pull_request.number }}
           CHECK_NAME: ${{ matrix.check_name }}
           REPO: ${{ matrix.repo }}
@@ -101,9 +102,10 @@ jobs:
                 workflow_id: process.env.WORKFLOW_FILE,
                 ref: 'master',
                 inputs: {
-                  commcare_core_sha: process.env.COMMCARE_CORE_SHA,
+                  commcare_core_sha: process.env.MERGE_SHA,
                   commcare_core_pr: process.env.COMMCARE_CORE_PR,
-                  commcare_core_check_name: process.env.CHECK_NAME
+                  commcare_core_check_name: process.env.CHECK_NAME,
+                  commcare_core_status_sha: process.env.HEAD_SHA
                 }
               });
             } catch (error) {
@@ -111,7 +113,7 @@ jobs:
               await github.rest.repos.createCommitStatus({
                 owner: 'dimagi',
                 repo: 'commcare-core',
-                sha: process.env.COMMCARE_CORE_SHA,
+                sha: process.env.HEAD_SHA,
                 state: 'error',
                 context: process.env.CHECK_NAME,
                 description: `Failed to trigger: ${error.message}`.substring(0, 140)
