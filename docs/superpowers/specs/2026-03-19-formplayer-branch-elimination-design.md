@@ -6,16 +6,17 @@ commcare-core historically maintained two branches (`master` and `formplayer`) f
 
 ## Approach
 
-Two sequential PRs using Approach 1 (sequential PRs respecting dependency order).
+Sequential PRs across multiple repos, respecting dependency order.
 
 ## Phase 1: Formplayer Repo PR
 
-Update the formplayer repo so its commcare-core submodule tracks `master` instead of the now-deleted `formplayer` branch.
+Update the formplayer repo so its commcare-core submodule tracks `master` instead of the now-deleted `formplayer` branch, and update documentation.
 
 ### Changes
 
 - **`.gitmodules`** — change `branch = formplayer` to `branch = master`
 - **`libs/commcare`** — update submodule pointer to current `master` HEAD of commcare-core
+- **`README.md`** (lines 162-169) — rewrite the "Contributing changes to commcare" and "Updating the CommCare version" sections. Remove references to commcare-core's `master` branch being "not stable" and the `formplayer` branch being the target. Update to reflect that `master` is the single branch used by both downstream repos.
 
 ## Phase 2: commcare-core PR
 
@@ -43,10 +44,36 @@ Remove all formplayer branch infrastructure from commcare-core in a single PR.
   - Explain that cross-repo CI automatically tests both commcare-android and formplayer
   - Include brief contributing guidance (how to run tests, PR expectations)
 
+## Phase 3: staging-branches Repo PR
+
+Update the formplayer staging config to track `master` instead of `formplayer` for the commcare-core submodule.
+
+### Changes
+
+- **`formplayer-staging.yml`** (line 9) — change `trunk: formplayer` to `trunk: master` under `submodules: libs/commcare:`
+- Any feature branches referencing the formplayer branch naming convention (e.g., `masterToFormplayer2.60`) should be reviewed and updated or removed as appropriate
+
+## Phase 4: commcare-hq PR
+
+Update documentation that references the dual-branch strategy.
+
+### Changes
+
+- **`docs/formplayer.rst`** (line 25) — remove the statement "Mobile uses the `master` branch, while formplayer uses the `formplayer` branch. The two branches have a fairly small diff." Replace with a note that both downstream repos use `master`.
+
+## Phase 5: Close commcare-android test PR #2612
+
+PR #2612 on commcare-android is a standing "test PR" used as a manual harness for testing commcare-core changes against Android. This workflow is replaced by cross-repo CI. Close the PR with a comment explaining the replacement.
+
 ## Sequencing
 
-1. Merge Phase 1 (formplayer submodule update)
+1. Merge Phase 1 (formplayer submodule + README update)
 2. Merge Phase 2 (commcare-core cleanup)
+3. Merge Phase 3 (staging-branches config update)
+4. Merge Phase 4 (commcare-hq docs update)
+5. Phase 5 (close commcare-android test PR)
+
+Phases 3-5 have no strict ordering dependency on each other and can be done in parallel after Phase 2.
 
 Order matters because formplayer's `.gitmodules` currently references the `formplayer` branch. Although the branch is already deleted (so this is already broken), updating formplayer first ensures a clean transition.
 
