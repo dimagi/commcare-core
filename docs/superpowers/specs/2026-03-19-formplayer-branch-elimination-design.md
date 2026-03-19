@@ -54,3 +54,4 @@ Order matters because formplayer's `.gitmodules` currently references the `formp
 
 - The `formplayer` branch has already been deleted from the commcare-core remote — no branch deletion step is needed.
 - No code reconciliation is needed — the branches were already in sync.
+- The `trigger-downstream` job in `build.yml` (lines 40-121) requires no changes — it is gated on `pull_request` events, not branch names.
