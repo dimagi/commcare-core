@@ -4,11 +4,9 @@ on:
   push:
     branches:
       - 'master'
-      - 'formplayer'
   pull_request:
     branches:
       - 'master'
-      - 'formplayer'
 
 jobs:
   build:
@@ -16,15 +14,8 @@ jobs:
     env:
       JAVA_VERSION: '17'
       JOB_GRADLE_VERSION: 8.1
-      FORMPLAYER_GRADLE_VERSION: 8.1
-      FORMPLAYER_JAVA_VERSION: '17'
     steps:
       - uses: actions/checkout@v6
-      - name: Set environment for Formplayer
-        if: ${{ github.ref_name == 'formplayer' || github.base_ref == 'formplayer' }}
-        run: |
-          echo "JOB_GRADLE_VERSION=${{ env.FORMPLAYER_GRADLE_VERSION }}" >> "$GITHUB_ENV"
-          echo "JAVA_VERSION=${{ env.FORMPLAYER_JAVA_VERSION }}" >> "$GITHUB_ENV"
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
