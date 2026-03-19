@@ -61,7 +61,7 @@ public class DataModelSerializer {
         serializer.flush();
     }
 
-    private void serializeNode(AbstractTreeElement instanceNode) throws IOException {
+    public void serializeNode(AbstractTreeElement instanceNode) throws IOException {
         //don't serialize template nodes or non-relevant nodes
         if (!instanceNode.isRelevant() || instanceNode.getMult() == TreeReference.INDEX_TEMPLATE) {
             return;

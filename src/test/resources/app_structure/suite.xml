@@ -11,7 +11,7 @@
     </resource>
   </locale>
 
-  <detail id="m0_case_short" lazy_loading="true">
+  <detail id="m0_case_short" cache_enabled="true" lazy_loading="true">
     <title>
       <text>Case List</text>
     </title>
@@ -66,7 +66,7 @@
         </template>
       </field>
     </lookup>
-    <field>
+    <field cache_enabled="true">
       <style horz-align="left" vert-align="center" font-size="small" show-border="true" show-shading="true">
         <grid grid-height="2" grid-width="3" grid-x="3" grid-y="5"/>
       </style>
@@ -93,6 +93,21 @@
         </text>
       </alt_text>
       <endpoint_action endpoint_id="case_list" background="true"/>
+    </field>
+    <field lazy_loading="true">
+      <header>
+        <text>Name</text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="2" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
     </field>
   </detail>
   <detail id="m0_case_long">
