@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -136,6 +137,111 @@ public abstract class IndexedStorageUtilityTests {
         expectedMatches.addAll(getIdsFromModels(eightSizesOfWomensNikes));
         expectedMatches.addAll(getIdsFromModels(fiveSizesOfMensVans));
         Assert.assertEquals("Failed index match for all entries", expectedMatches, new HashSet<>(matches));
+    }
+
+    @Test
+    public void testGetBulkRecordsForIndex_multipleValues() {
+        writeBulkSets();
+
+        Set<Shoe> expected = new HashSet<>(Arrays.asList(
+                tenSizesOfMensNikes[0], tenSizesOfMensNikes[1],
+                eightSizesOfWomensNikes[0], eightSizesOfWomensNikes[1],
+                fiveSizesOfMensVans[0], fiveSizesOfMensVans[1]
+        ));
+
+        Vector<Shoe> result = storage.getBulkRecordsForIndex(Shoe.META_SIZE, Arrays.asList("1", "2"));
+        Assert.assertEquals("getBulkRecordsForIndex should return records for all matching values",
+                expected, new HashSet<>(result));
+    }
+
+    @Test
+    public void testGetBulkRecordsForIndex_singleValue() {
+        writeBulkSets();
+
+        Set<Shoe> expected = new HashSet<>(Arrays.asList(
+                tenSizesOfMensNikes[4],
+                eightSizesOfWomensNikes[4],
+                fiveSizesOfMensVans[4]
+        ));
+
+        Vector<Shoe> result = storage.getBulkRecordsForIndex(Shoe.META_SIZE, Arrays.asList("5"));
+        Assert.assertEquals("getBulkRecordsForIndex should return records matching the given value",
+                expected, new HashSet<>(result));
+    }
+
+    @Test
+    public void testGetBulkRecordsForIndex_noMatches() {
+        writeBulkSets();
+
+        Vector<Shoe> result = storage.getBulkRecordsForIndex(Shoe.META_BRAND, Arrays.asList("adidas"));
+        Assert.assertTrue("getBulkRecordsForIndex should return empty result when no records match",
+                result.isEmpty());
+    }
+
+    @Test
+    public void testGetBulkRecordsForIndex_allValuesForField() {
+        writeBulkSets();
+
+        Set<Shoe> expected = new HashSet<>();
+        expected.addAll(Arrays.asList(tenSizesOfMensNikes));
+        expected.addAll(Arrays.asList(eightSizesOfWomensNikes));
+
+        Vector<Shoe> result = storage.getBulkRecordsForIndex(Shoe.META_BRAND, Arrays.asList("nike"));
+        Assert.assertEquals("getBulkRecordsForIndex should return all nike shoes",
+                expected, new HashSet<>(result));
+    }
+
+    @Test
+    public void testGetBulkIdsForIndex_multipleValues() {
+        writeBulkSets();
+
+        // Request IDs for sizes "1" and "2" — should match one shoe from each of the 3 sets
+        Set<Integer> expected = new HashSet<>();
+        expected.add(tenSizesOfMensNikes[0].getID());
+        expected.add(tenSizesOfMensNikes[1].getID());
+        expected.add(eightSizesOfWomensNikes[0].getID());
+        expected.add(eightSizesOfWomensNikes[1].getID());
+        expected.add(fiveSizesOfMensVans[0].getID());
+        expected.add(fiveSizesOfMensVans[1].getID());
+
+        Vector<Integer> result = storage.getBulkIdsForIndex(Shoe.META_SIZE, Arrays.asList("1", "2"));
+        Assert.assertEquals("getBulkIdsForIndex should return IDs for all records matching any of the given values",
+                expected, new HashSet<>(result));
+    }
+
+    @Test
+    public void testGetBulkIdsForIndex_singleValue() {
+        writeBulkSets();
+
+        Set<Integer> expected = new HashSet<>();
+        expected.add(tenSizesOfMensNikes[4].getID());
+        expected.add(eightSizesOfWomensNikes[4].getID());
+        expected.add(fiveSizesOfMensVans[4].getID());
+
+        Vector<Integer> result = storage.getBulkIdsForIndex(Shoe.META_SIZE, Arrays.asList("5"));
+        Assert.assertEquals("getBulkIdsForIndex should return IDs for all records matching the given value",
+                expected, new HashSet<>(result));
+    }
+
+    @Test
+    public void testGetBulkIdsForIndex_noMatches() {
+        writeBulkSets();
+
+        Vector<Integer> result = storage.getBulkIdsForIndex(Shoe.META_BRAND, Arrays.asList("adidas"));
+        Assert.assertTrue("getBulkIdsForIndex should return empty result when no records match",
+                result.isEmpty());
+    }
+
+    @Test
+    public void testGetBulkIdsForIndex_allValuesForField() {
+        writeBulkSets();
+
+        Set<Integer> allIds = getIdsFromModels(tenSizesOfMensNikes);
+        allIds.addAll(getIdsFromModels(eightSizesOfWomensNikes));
+
+        Vector<Integer> result = storage.getBulkIdsForIndex(Shoe.META_BRAND, Arrays.asList("nike"));
+        Assert.assertEquals("getBulkIdsForIndex should return IDs for all nike shoes",
+                allIds, new HashSet<>(result));
     }
 
     private void writeBulkSets() {
