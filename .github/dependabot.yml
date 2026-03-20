@@ -6,12 +6,3 @@ updates:
       interval: daily
     labels:
       - dependencies
-
-  # Copy of above config for formplayer
-  - package-ecosystem: gradle
-    directory: "/"
-    target-branch: "formplayer"
-    schedule:
-      interval: daily
-    labels:
-      - dependencies
