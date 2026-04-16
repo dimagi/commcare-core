@@ -56,19 +56,35 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<Case, Ca
     @Nullable
     private final CaseIndexTable caseIndexTable;
 
+    @Nullable
+    private final String storageCacheIdentifier;
+
     //We're storing this here for now because this is a safe lifecycle object that must represent
     //a single snapshot of the case database, but it could be generalized later.
     private Hashtable<String, LinkedHashSet<Integer>> mIndexCache = new Hashtable<>();
 
     public CaseInstanceTreeElement(AbstractTreeElement instanceRoot,
                                    IStorageUtilityIndexed<Case> storage){
-        this(instanceRoot, storage, null);
+        this(instanceRoot, storage, null, null);
     }
 
     public CaseInstanceTreeElement(AbstractTreeElement instanceRoot,
                                    IStorageUtilityIndexed<Case> storage, CaseIndexTable caseIndexTable) {
+        this(instanceRoot, storage, caseIndexTable, null);
+    }
+
+    /**
+     * @param storageCacheIdentifier Optional identifier to distinguish this instance's entries
+     *        in the shared RecordObjectCache from other CaseInstanceTreeElement instances
+     *        (e.g. the case search table name). When null, the cache name is just "casedb".
+     */
+    public CaseInstanceTreeElement(AbstractTreeElement instanceRoot,
+                                   IStorageUtilityIndexed<Case> storage,
+                                   CaseIndexTable caseIndexTable,
+                                   @Nullable String storageCacheIdentifier) {
         super(instanceRoot, storage, MODEL_NAME, "case");
         this.caseIndexTable = caseIndexTable;
+        this.storageCacheIdentifier = storageCacheIdentifier;
     }
 
     @Override
@@ -143,7 +159,10 @@ public class CaseInstanceTreeElement extends StorageInstanceTreeElement<Case, Ca
     }
 
     public String getStorageCacheName() {
-        return CaseInstanceTreeElement.MODEL_NAME;
+        if (storageCacheIdentifier != null) {
+            return MODEL_NAME + ":" + storageCacheIdentifier;
+        }
+        return MODEL_NAME;
     }
 
     @Override
