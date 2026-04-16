@@ -41,6 +41,16 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
     private int numRecords = -1;
     private TreeReference cachedRef = null;
 
+    /**
+     * USH-6370 diagnostic: set by the caller to capture RecordObjectCache
+     * bulk-load and first-hit events during a request, to diagnose the
+     * cache-key collision between concurrent CaseInstanceTreeElement
+     * instances that share the "casedb" storageCacheName.
+     */
+    public static final ThreadLocal<StringBuilder> USH6370_DIAGNOSTIC_LOG = new ThreadLocal<>();
+    // First-hit tracker, keyed by "<cacheHash>|<teHash>|<storageCacheKey>"
+    private static final ThreadLocal<java.util.Set<String>> USH6370_SEEN_HITS = new ThreadLocal<>();
+
     public StorageInstanceTreeElement(AbstractTreeElement instanceRoot,
                                       IStorageUtilityIndexed<Model> storage,
                                       String modelName, String childName) {
@@ -294,6 +304,7 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
 
         if (recordObjectCache != null) {
             if (recordObjectCache.isLoaded(storageCacheKey, recordId)) {
+                logUsh6370Hit(storageCacheKey, recordId, recordObjectCache);
                 return recordObjectCache.getLoadedRecordObject(storageCacheKey, recordId);
             }
 
@@ -305,6 +316,7 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
                                 this.getStorageCacheName(), tranche.first));
 
                 LinkedHashSet<Integer> body = tranche.second;
+                logUsh6370BulkLoad(storageCacheKey, body, recordObjectCache);
                 storage.bulkRead(body, recordObjectCache.getLoadedCaseMap(storageCacheKey));
                 loadTrace.setOutcome("Loaded: " + body.size());
                 context.reportTrace(loadTrace);
@@ -318,6 +330,50 @@ public abstract class StorageInstanceTreeElement<Model extends Externalizable, T
 
     public static boolean canLoadRecordFromGroup(RecordSetResultCache recordSetCache, String cacheName, int recordId) {
         return recordSetCache != null && recordSetCache.hasMatchingRecordSet(cacheName, recordId);
+    }
+
+    private void logUsh6370BulkLoad(String storageCacheKey, LinkedHashSet<Integer> body,
+            RecordObjectCache<Model> cache) {
+        StringBuilder sb = USH6370_DIAGNOSTIC_LOG.get();
+        if (sb == null) {
+            return;
+        }
+        sb.append("\n  BULK_LOAD key=").append(storageCacheKey)
+                .append(" te=").append(System.identityHashCode(this))
+                .append(" storage=").append(System.identityHashCode(this.storage))
+                .append(" cache=").append(System.identityHashCode(cache))
+                .append(" count=").append(body.size());
+        java.util.Iterator<Integer> it = body.iterator();
+        sb.append(" firstIds=[");
+        for (int i = 0; i < 5 && it.hasNext(); i++) {
+            if (i > 0) sb.append(",");
+            sb.append(it.next());
+        }
+        sb.append("]");
+    }
+
+    private void logUsh6370Hit(String storageCacheKey, int recordId,
+            RecordObjectCache<Model> cache) {
+        StringBuilder sb = USH6370_DIAGNOSTIC_LOG.get();
+        if (sb == null) {
+            return;
+        }
+        // Dedup: log only first hit per (cache, tree-element, storageCacheKey) triple
+        java.util.Set<String> seen = USH6370_SEEN_HITS.get();
+        if (seen == null) {
+            seen = new java.util.HashSet<>();
+            USH6370_SEEN_HITS.set(seen);
+        }
+        String key = System.identityHashCode(cache) + "|" + System.identityHashCode(this)
+                + "|" + storageCacheKey;
+        if (!seen.add(key)) {
+            return;
+        }
+        sb.append("\n  HIT key=").append(storageCacheKey)
+                .append(" te=").append(System.identityHashCode(this))
+                .append(" storage=").append(System.identityHashCode(this.storage))
+                .append(" cache=").append(System.identityHashCode(cache))
+                .append(" firstRecordId=").append(recordId);
     }
 
     /**
