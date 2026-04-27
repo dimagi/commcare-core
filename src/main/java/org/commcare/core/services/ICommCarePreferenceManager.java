@@ -8,4 +8,8 @@ public interface ICommCarePreferenceManager {
     void putLong(String key, long value);
 
     long getLong(String key, long defaultValue);
+
+    void putBoolean(String key, boolean value);
+
+    boolean getBoolean(String key, boolean defaultValue);
 }
