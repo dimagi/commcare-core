@@ -890,9 +890,14 @@ public class XFormParser {
         QuestionDef question = parseControl(parent, e, controlUpload);
 
         String mediaType = e.getAttributeValue(null, MEDIA_TYPE_ATTR);
+        String appearance = e.getAttributeValue(null, APPEARANCE_ATTR);
         if ("image/*".equals(mediaType)) {
-            // NOTE: this could be further expanded. 
-            question.setControlType(Constants.CONTROL_IMAGE_CHOOSE);
+            if (MICRO_IMAGE_APPEARANCE_ATTR.equals(appearance)) {
+                question.setControlType(Constants.CONTROL_MICRO_IMAGE);
+            } else {
+                // NOTE: this could be further expanded.
+                question.setControlType(Constants.CONTROL_IMAGE_CHOOSE);
+            }
         } else if ("audio/*".equals(mediaType)) {
             question.setControlType(Constants.CONTROL_AUDIO_CAPTURE);
         } else if ("video/*".equals(mediaType)) {
@@ -905,16 +910,7 @@ public class XFormParser {
     }
 
     protected QuestionDef parseControl(IFormElement parent, Element e, int controlType) {
-        QuestionDef question = parseControl(parent, e, controlType, new Vector<String>());
-
-        if (controlType == Constants.CONTROL_INPUT) {
-            String mediaType = e.getAttributeValue(null, MEDIA_TYPE_ATTR);
-            String appearance = e.getAttributeValue(null, APPEARANCE_ATTR);
-            if ("image/*".equals(mediaType) && MICRO_IMAGE_APPEARANCE_ATTR.equals(appearance)) {
-                question.setControlType(Constants.CONTROL_MICRO_IMAGE);
-            }
-        }
-        return question;
+        return parseControl(parent, e, controlType, new Vector<String>());
     }
 
     /**
