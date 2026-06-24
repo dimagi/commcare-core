@@ -4,7 +4,6 @@ import org.gavaghan.geodesy.GeodeticCalculator;
 import org.gavaghan.geodesy.GeodeticCurve;
 import org.gavaghan.geodesy.GlobalCoordinates;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,23 +20,10 @@ public class PolygonUtils {
      * @throws IllegalArgumentException if input is invalid or polygon is malformed
      */
     public static List<GlobalCoordinates> createPolygon(List<String> latLongList) throws IllegalArgumentException {
-        if (latLongList == null || latLongList.size() < 6 || latLongList.size() % 2 != 0) {
-            throw new IllegalArgumentException(
-                    "Input must contain at least three lat/lng pairs (six elements total), and must be even-sized.");
-        }
-
-        int numPoints = latLongList.size() / 2;
-        List<GlobalCoordinates> polygon = new ArrayList<>();
-
-        for (int i = 0; i < numPoints; i++) {
-            double latitude = Double.parseDouble(latLongList.get(i * 2));
-            double longitude = Double.parseDouble(latLongList.get(i * 2 + 1));
-            validateCoordinates(latitude, longitude);
-            polygon.add(new GlobalCoordinates(latitude, longitude));
-        }
+        List<GlobalCoordinates> polygon = GeoPointUtils.createPointList(latLongList);
 
         // Close polygon if not already closed
-        if (!polygon.get(0).equals(polygon.get(polygon.size() - 1))) {
+        if (polygon.size() > 2 && !polygon.get(0).equals(polygon.get(polygon.size() - 1))) {
             polygon.add(new GlobalCoordinates(
                     polygon.get(0).getLatitude(),
                     polygon.get(0).getLongitude()));
@@ -48,19 +34,6 @@ public class PolygonUtils {
         }
 
         return polygon;
-    }
-
-    /**
-     * Checks if coordinates are within valid bounds for latitude and longitude.
-     *
-     * @param latitude  Latitude in degrees
-     * @param longitude Longitude in degrees
-     * @throws IllegalArgumentException if values are outside geographic bounds
-     */
-    public static void validateCoordinates(double latitude, double longitude) {
-        if ((latitude < -90.0 || latitude > 90.0) || (longitude < -180.0 || longitude > 180.0)) {
-            throw new IllegalArgumentException("Invalid polygon coordinates");
-        }
     }
 
     /**

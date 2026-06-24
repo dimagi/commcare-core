@@ -1,6 +1,10 @@
 package org.javarosa.core.model.utils;
 
+import org.gavaghan.geodesy.GlobalCoordinates;
 import org.javarosa.core.model.data.GeoPointData;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Static utility methods for GeoPointData.
@@ -61,5 +65,44 @@ public class GeoPointUtils {
      */
     private static double havDistance(double lat1, double lat2, double dLng) {
         return hav(lat1 - lat2) + hav(dLng) * Math.cos(lat1) * Math.cos(lat2);
+    }
+
+    /**
+     * Checks if coordinates are within valid bounds for latitude and longitude.
+     *
+     * @param latitude  Latitude in degrees
+     * @param longitude Longitude in degrees
+     * @throws IllegalArgumentException if values are outside geographic bounds
+     */
+    public static void validateCoordinates(double latitude, double longitude) {
+        if ((latitude < -90.0 || latitude > 90.0) || (longitude < -180.0 || longitude > 180.0)) {
+            throw new IllegalArgumentException("Invalid coordinates");
+        }
+    }
+
+    /**
+     * Creates a point list from a flat list of lat/lon strings.
+     *
+     * @param latLongList Flat list of lat/lon values (e.g., [lat1, lon1, lat2, lon2, ...])
+     * @return List of GlobalCoordinates representing the list of points
+     * @throws IllegalArgumentException if input is invalid (odd number of elements)
+     */
+    public static List<GlobalCoordinates> createPointList(List<String> latLongList) throws IllegalArgumentException {
+        if (latLongList == null || latLongList.size() % 2 != 0) {
+            throw new IllegalArgumentException(
+                    "Input must contain a list of lat/lng pairs, and must be even-sized.");
+        }
+
+        int numPoints = latLongList.size() / 2;
+        List<GlobalCoordinates> pointList = new ArrayList<>();
+
+        for (int i = 0; i < numPoints; i++) {
+            double latitude = Double.parseDouble(latLongList.get(i * 2));
+            double longitude = Double.parseDouble(latLongList.get(i * 2 + 1));
+            validateCoordinates(latitude, longitude);
+            pointList.add(new GlobalCoordinates(latitude, longitude));
+        }
+
+        return pointList;
     }
 }

@@ -188,6 +188,7 @@ public class EntityScreen extends CompoundScreenHost {
                 }
             }
         }
+
         initialized = true;
         return true;
     }

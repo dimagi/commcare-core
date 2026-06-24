@@ -63,7 +63,6 @@ public class QueryScreen extends Screen {
 
     private boolean defaultSearch;
 
-    private boolean dynamicSearch;
     private boolean searchOnClear;
 
     private IStorageUtilityIndexed<Case> caseSearchStorage;
@@ -100,7 +99,6 @@ public class QueryScreen extends Screen {
 
         mTitle = getTitleLocaleString();
         description = getDescriptionLocaleString();
-        dynamicSearch = getQueryDatum().getDynamicSearch();
         searchOnClear = getQueryDatum().isSearchOnClear();
         groupHeaders = getQueryDatum().getUserQueryGroupHeaders();
     }
@@ -221,10 +219,6 @@ public class QueryScreen extends Screen {
 
     public String getDescriptionText() {
         return description;
-    }
-
-    public boolean getDynamicSearch() {
-        return dynamicSearch;
     }
 
     public boolean isSearchOnClear(){

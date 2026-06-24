@@ -5,6 +5,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.utils.GeoPointUtils;
 import org.javarosa.core.model.utils.PolygonUtils;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
@@ -69,7 +70,7 @@ public class XPathIsPointInsidePolygonFunc extends XPathFuncExpr {
             String[] coordinates = inputPolygon.split(" ");
             List<GlobalCoordinates> polygon = PolygonUtils.createPolygon(Arrays.asList(coordinates));
             GeoPointData pointData = new GeoPointData().cast(new UncastData(inputPoint));
-            PolygonUtils.validateCoordinates(pointData.getLatitude(), pointData.getLongitude());
+            GeoPointUtils.validateCoordinates(pointData.getLatitude(), pointData.getLongitude());
             GlobalCoordinates pointCoordinates = new GlobalCoordinates(pointData.getLatitude(),
                     pointData.getLongitude());
             return PolygonUtils.isPointInsideOrOnPolygon(pointCoordinates, polygon);

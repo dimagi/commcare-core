@@ -318,10 +318,6 @@ public class RemoteQuerySessionManager {
         return queryDatum.doDefaultSearch();
     }
 
-    public boolean getDynamicSearch() {
-        return queryDatum.getDynamicSearch();
-    }
-
     public boolean isSearchOnClear() {
         return queryDatum.isSearchOnClear();
     }

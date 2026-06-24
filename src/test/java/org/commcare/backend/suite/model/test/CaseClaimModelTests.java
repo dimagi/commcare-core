@@ -63,8 +63,6 @@ public class CaseClaimModelTests {
         Text description = ((RemoteQueryDatum) datum).getDescriptionText();
         Assert.assertEquals("Description text", description.evaluate());
 
-        Assert.assertTrue(((RemoteQueryDatum)datum).getDynamicSearch());
-
         Assert.assertTrue(((RemoteQueryDatum)datum).isSearchOnClear());
     }
 

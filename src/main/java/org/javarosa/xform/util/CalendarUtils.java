@@ -432,4 +432,12 @@ public class CalendarUtils {
     public static void setArrayDataSource(ArrayDataSource arrayDataSource) {
         CalendarUtils.arrayDataSource = arrayDataSource;
     }
+
+    public static void toMidnight(Calendar cal) {
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+    }
+
 }

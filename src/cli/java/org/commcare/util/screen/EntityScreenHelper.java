@@ -1,11 +1,9 @@
 package org.commcare.util.screen;
 
-import org.commcare.cases.entity.AsyncEntity;
 import org.commcare.cases.entity.AsyncNodeEntityFactory;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.EntitySortNotificationInterface;
 import org.commcare.cases.entity.EntitySorter;
-import org.commcare.cases.entity.EntityStorageCache;
 import org.commcare.cases.entity.EntityStringFilterer;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.suite.model.Detail;
@@ -16,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +35,7 @@ public class EntityScreenHelper {
             EntityScreenContext entityScreenContext, TreeReference[] entitiesRefs) {
         NodeEntityFactory nodeEntityFactory;
         if (detail.isLazyLoading()) {
-            nodeEntityFactory = new AsyncNodeEntityFactory(detail, context, null);
+            nodeEntityFactory = new AsyncNodeEntityFactory(detail, context, null, false);
         } else {
             nodeEntityFactory = new NodeEntityFactory(detail, context);
         }

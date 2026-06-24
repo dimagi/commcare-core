@@ -20,11 +20,11 @@ public class MultiWordFilterRule implements ComboboxFilterRule {
      * @return true if choiceLowerCase contains any word within textEntered (the "words" of
      * textEntered are obtained by splitting textEntered on " ")
      */
-    public boolean choiceShouldBeShown(String choice, CharSequence textEntered) {
-        if ("".equals(textEntered) || textEntered == null) {
+    public boolean choiceShouldBeShown(ComboItem choice, CharSequence textEntered) {
+        if (textEntered == null || "".contentEquals(textEntered)) {
             return true;
         }
-        String choiceLowerCase = choice.toLowerCase();
+        String choiceLowerCase = choice.getDisplayText().toLowerCase();
         String[] enteredTextIndividualWords = textEntered.toString().split(" ");
         for (String word : enteredTextIndividualWords) {
             if (!choiceLowerCase.contains(word.toLowerCase())) {
