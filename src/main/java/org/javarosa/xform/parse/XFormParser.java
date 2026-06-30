@@ -923,7 +923,7 @@ public class XFormParser {
                                        Vector<String> usedAtts) {
         QuestionDef question = new QuestionDef();
 
-        if (e.getAttributeValue(null, MEDIA_TYPE_ATTR)!=null) {
+        if (e.getAttributeValue(null, MEDIA_TYPE_ATTR) != null) {
             usedAtts.addElement(MEDIA_TYPE_ATTR);
         }
 
