@@ -2,14 +2,18 @@ package org.commcare.util.screen;
 
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.SessionFrame;
+import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.StackFrameStep;
+import org.commcare.suite.model.Suite;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.xpath.XPathException;
 
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -72,6 +76,33 @@ public class ScreenUtils {
             return getAppTitle();
         }
         return bestTitle;
+    }
+
+    public static String getMenuTitle(SessionWrapper session) {
+        Hashtable<String, String> menus = new Hashtable<>();
+        for (Suite s : session.getPlatform().getInstalledSuites()) {
+            for (Menu m : s.getMenus()) {
+                menus.put(m.getId(), m.getName().evaluate());
+            }
+        }
+
+        String menuTitle = null;
+
+        for (StackFrameStep step : session.getFrame().getSteps()) {
+            if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
+                if (menus.containsKey(step.getId())) {
+                    menuTitle = menus.get(step.getId());
+                }
+            }
+        }
+
+        if (menuTitle != null) {
+            //Menus contain a potential argument listing where that value is on the screen,
+            //clear it out if it exists
+            return Localizer.processArguments(menuTitle, new String[]{""}).trim();
+        }
+
+        return menuTitle;
     }
 
     public static String getAppTitle() {
