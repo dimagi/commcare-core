@@ -346,6 +346,12 @@ public class CommCareSession {
             }
         }
 
+        if (returnVal != null) {
+            //Menus contain a potential argument listing where that value is on the screen,
+            //clear it out if it exists
+            return Localizer.processArguments(returnVal, new String[]{""}).trim();
+        }
+
         return returnVal;
     }
 
