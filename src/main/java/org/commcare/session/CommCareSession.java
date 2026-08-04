@@ -328,6 +328,27 @@ public class CommCareSession {
         return returnVal;
     }
 
+    public String getClosestMenuTitle() {
+        Hashtable<String, String> menus = new Hashtable<>();
+        for (Suite s : platform.getInstalledSuites()) {
+            for (Menu m : s.getMenus()) {
+                menus.put(m.getId(), m.getName().evaluate());
+            }
+        }
+
+        String returnVal = null;
+
+        for (StackFrameStep step : frame.getSteps()) {
+            if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
+                if (menus.containsKey(step.getId())) {
+                    returnVal = menus.get(step.getId());
+                }
+            }
+        }
+
+        return returnVal;
+    }
+
     /**
      * @return The next relevant datum for the current entry. Requires there to be
      * an entry on the stack
