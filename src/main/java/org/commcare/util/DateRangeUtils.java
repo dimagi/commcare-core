@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import javax.annotation.Nullable;
 
@@ -74,8 +75,12 @@ public class DateRangeUtils {
         return DATE_RANGE_ANSWER_PREFIX + startDate + DATE_RANGE_ANSWER_DELIMITER + endDate;
     }
 
-    // Convers given time as yyyy-mm-dd
+    // Converts given time as yyyy-mm-dd
     public static String getDateFromTime(Long time) {
-        return new SimpleDateFormat(DATE_FORMAT, Locale.US).format(new Date(time));
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT, Locale.US);
+        // Date range times are held as UTC midnight (see getTimeFromDateOffsettingTz), so the
+        // local zone would report the wrong day for anywhere west of Greenwich.
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return sdf.format(new Date(time));
     }
 }
