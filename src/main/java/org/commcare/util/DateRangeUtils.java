@@ -28,9 +28,9 @@ public class DateRangeUtils {
         if (humanReadableDateRange.contains(DATE_RANGE_ANSWER_HUMAN_READABLE_DELIMITER)) {
             String[] humanReadableDateRangeSplit = humanReadableDateRange.split(DATE_RANGE_ANSWER_HUMAN_READABLE_DELIMITER);
             if (humanReadableDateRangeSplit.length == 2) {
-                SimpleDateFormat sdf = getUtcDateFormat();
-                Date startDate = sdf.parse(humanReadableDateRangeSplit[0]);
-                Date endDate = sdf.parse(humanReadableDateRangeSplit[1]);
+                SimpleDateFormat dateFormat = getUtcDateFormat();
+                Date startDate = dateFormat.parse(humanReadableDateRangeSplit[0]);
+                Date endDate = dateFormat.parse(humanReadableDateRangeSplit[1]);
                 return new Pair<>(startDate.getTime(), endDate.getTime());
             }
         }
@@ -38,9 +38,9 @@ public class DateRangeUtils {
     }
 
     private static SimpleDateFormat getUtcDateFormat() {
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT, Locale.US);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return sdf;
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.US);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return dateFormat;
     }
 
     /**

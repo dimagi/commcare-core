@@ -22,22 +22,22 @@ public class DateRangeUtilsTest {
 
     @Test
     public void testDateConversion() throws ParseException {
-        for (String tz : new String[]{"UTC", "America/New_York", "America/Los_Angeles", "Asia/Kolkata", "Pacific/Kiritimati"}) {
-            TimeZone.setDefault(TimeZone.getTimeZone(tz));
+        for (String timeZoneId : new String[]{"UTC", "America/New_York", "America/Los_Angeles", "Asia/Kolkata", "Pacific/Kiritimati"}) {
+            TimeZone.setDefault(TimeZone.getTimeZone(timeZoneId));
             String dateRange = "2020-02-15 to 2021-03-18";
             String formattedDateRange = DateRangeUtils.formatDateRangeAnswer(dateRange);
-            assertEquals(tz, "__range__2020-02-15__2021-03-18", formattedDateRange);
-            assertEquals(tz, dateRange, DateRangeUtils.getHumanReadableDateRange(formattedDateRange));
+            assertEquals(timeZoneId, "__range__2020-02-15__2021-03-18", formattedDateRange);
+            assertEquals(timeZoneId, dateRange, DateRangeUtils.getHumanReadableDateRange(formattedDateRange));
         }
     }
 
     @Test
     public void testPickerTimesAreUtcMidnight() throws ParseException {
-        for (String tz : new String[]{"UTC", "America/New_York", "Asia/Kolkata"}) {
-            TimeZone.setDefault(TimeZone.getTimeZone(tz));
+        for (String timeZoneId : new String[]{"UTC", "America/New_York", "Asia/Kolkata"}) {
+            TimeZone.setDefault(TimeZone.getTimeZone(timeZoneId));
             Pair<Long, Long> selection = DateRangeUtils.parseHumanReadableDate("2020-02-15 to 2020-02-15");
-            assertEquals(tz, FEB_15_2020_UTC_MIDNIGHT, (long)selection.first);
-            assertEquals(tz, "2020-02-15", DateRangeUtils.getDateFromTime(FEB_15_2020_UTC_MIDNIGHT));
+            assertEquals(timeZoneId, FEB_15_2020_UTC_MIDNIGHT, (long)selection.first);
+            assertEquals(timeZoneId, "2020-02-15", DateRangeUtils.getDateFromTime(FEB_15_2020_UTC_MIDNIGHT));
         }
     }
 }
