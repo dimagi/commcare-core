@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import javax.annotation.Nullable;
 
@@ -27,17 +28,19 @@ public class DateRangeUtils {
         if (humanReadableDateRange.contains(DATE_RANGE_ANSWER_HUMAN_READABLE_DELIMITER)) {
             String[] humanReadableDateRangeSplit = humanReadableDateRange.split(DATE_RANGE_ANSWER_HUMAN_READABLE_DELIMITER);
             if (humanReadableDateRangeSplit.length == 2) {
-                SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT, Locale.US);
-                Date startDate = sdf.parse(humanReadableDateRangeSplit[0]);
-                Date endDate = sdf.parse(humanReadableDateRangeSplit[1]);
-                return new Pair<>(getTimeFromDateOffsettingTz(startDate), getTimeFromDateOffsettingTz(endDate));
+                SimpleDateFormat dateFormat = getUtcDateFormat();
+                Date startDate = dateFormat.parse(humanReadableDateRangeSplit[0]);
+                Date endDate = dateFormat.parse(humanReadableDateRangeSplit[1]);
+                return new Pair<>(startDate.getTime(), endDate.getTime());
             }
         }
         throw new ParseException("Argument " + humanReadableDateRange + " should be formatted as 'yyyy-mm-dd to yyyy-mm-dd'", 0);
     }
 
-    private static Long getTimeFromDateOffsettingTz(Date date) {
-        return date.getTime() - date.getTimezoneOffset() * 60 * 1000;
+    private static SimpleDateFormat getUtcDateFormat() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.US);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return dateFormat;
     }
 
     /**
@@ -74,8 +77,8 @@ public class DateRangeUtils {
         return DATE_RANGE_ANSWER_PREFIX + startDate + DATE_RANGE_ANSWER_DELIMITER + endDate;
     }
 
-    // Convers given time as yyyy-mm-dd
+    // Converts given UTC time as yyyy-mm-dd
     public static String getDateFromTime(Long time) {
-        return new SimpleDateFormat(DATE_FORMAT, Locale.US).format(new Date(time));
+        return getUtcDateFormat().format(new Date(time));
     }
 }
