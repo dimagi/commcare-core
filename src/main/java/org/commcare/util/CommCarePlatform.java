@@ -4,11 +4,13 @@ import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Endpoint;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Profile;
+import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.PropertyManager;
@@ -20,6 +22,7 @@ import org.javarosa.core.services.storage.StorageManager;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.annotation.Nullable;
@@ -213,6 +216,33 @@ public class CommCarePlatform {
             }
         }
         return commonDisplayStyle;
+    }
+
+
+    /**
+     * Loops through complete set of detail config and checks whether
+     * any of them are cache enabled
+     *
+     * @return true if entity caching is enabled for any of the detail configs in app, false otherwise
+     */
+    public boolean isEntityCachingEnabled() {
+        Map<String, Entry> commandMap = getCommandToEntryMap();
+        for (String command : commandMap.keySet()) {
+            Entry entry = commandMap.get(command);
+            if (entry == null) continue;
+            for (SessionDatum sessionDatum : entry.getSessionDataReqs()) {
+                if (sessionDatum instanceof EntityDatum) {
+                    String shortDetailId = ((EntityDatum)sessionDatum).getShortDetail();
+                    if (shortDetailId != null) {
+                        Detail detail = getDetail(shortDetailId);
+                        if (detail.isCacheEnabled()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public OfflineUserRestore getDemoUserRestore() {

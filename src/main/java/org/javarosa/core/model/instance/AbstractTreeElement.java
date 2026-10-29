@@ -100,6 +100,9 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
 
     String getNamespace();
 
+    // clear any cache maintained by the TreeElement implementation
+    void clearVolatiles();
+
     /**
      * TODO: Worst method name ever. Don't use this unless you know what's up.
      * @param predicates  possibly list of predicates to be evaluated. predicates will be removed from list if they are

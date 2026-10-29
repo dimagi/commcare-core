@@ -625,4 +625,8 @@ public class FormEntryModel {
         return TraceSerialization.serializeEvaluationTrace(indexDebug.get(category),
                 TraceSerialization.TraceInfoType.FULL_PROFILE, false);
     }
+
+    public boolean isNonCountedRepeat() {
+        return getForm().isNonCountedRepeat(getFormIndex());
+    }
 }

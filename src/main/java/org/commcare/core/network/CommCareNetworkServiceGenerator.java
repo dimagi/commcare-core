@@ -140,6 +140,10 @@ public class CommCareNetworkServiceGenerator {
         return createCommCareNetworkService(null, false, true, ImmutableMultimap.of());
     }
 
+    public static CommCareNetworkService createNoAuthCommCareNetworkService(Multimap<String, String> params) {
+        return createCommCareNetworkService(null, false, true, params);
+    }
+
     private static boolean isValidRedirect(HttpUrl url, HttpUrl newUrl) {
         // unless it's https, don't worry about it
         if (!url.scheme().equals("https")) {

@@ -8,18 +8,19 @@ import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
 import org.commcare.util.NetworkStatus;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLException;
 
 import okhttp3.FormBody;
 import okhttp3.MultipartBody;
@@ -34,7 +35,7 @@ import retrofit2.Response;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class ModernHttpRequester implements ResponseStreamAccessor {
+public class ModernHttpRequester {
     /**
      * How long to wait when opening network connection in milliseconds
      */
@@ -88,7 +89,29 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         }
         try {
             response = makeRequest();
-            processResponse(responseProcessor, response.code(), this);
+            final ModernHttpRequester requester = this;
+            processResponse(responseProcessor, response.code(), new ResponseStreamAccessor() {
+                /**
+                 * Only gets called if response processor is supplied
+                 * @return Input Stream from cache
+                 * @throws IOException if an io error happens while reading or writing to cache
+                 */
+                @Override
+                public InputStream getResponseStream() throws IOException {
+                    return requester.getResponseStream(response);
+                }
+
+                @Nullable
+                @Override
+                public InputStream getErrorResponseStream() throws IOException {
+                    return requester.getErrorResponseStream(response);
+                }
+
+                @Override
+                public String getApiVersion() {
+                    return requester.getApiVersion();
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
             responseProcessor.handleIOException(e);
@@ -122,14 +145,22 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     private Response executeAndCheckCaptivePortals(Call currentCall) throws IOException {
         try {
             return currentCall.execute();
-        } catch (SSLHandshakeException | SSLPeerUnverifiedException e) {
+        } catch (SSLException e) {
+            // SSLHandshakeException is thrown by the CommcareRequestGenerator on
+            // 4.3 devices when the peer certificate is bad.
+            //
+            // SSLPeerUnverifiedException is thrown by the CommcareRequestGenerator
+            // on 2.3 devices when the peer certificate is bad.
+            //
             // This may be a real SSL exception associated with the real endpoint server, or this
             // might be a property of the local network.
+
             if(NetworkStatus.isCaptivePortal()) {
                 throw new CaptivePortalRedirectException();
             }
 
             //Otherwise just rethrow the original exception. Probably a certificate issue
+            //Could be related to local clock issue
             throw e;
         }
     }
@@ -146,12 +177,21 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
                     responseProcessor.handleIOException(e);
                     return;
                 }
-                responseProcessor.processSuccess(responseCode, responseStream);
+                String apiVersion = streamAccessor.getApiVersion();
+                responseProcessor.processSuccess(responseCode, responseStream, apiVersion);
             } finally {
                 StreamsUtil.closeStream(responseStream);
             }
         } else if (responseCode >= 400 && responseCode < 500) {
-            responseProcessor.processClientError(responseCode);
+            InputStream errorStream = null;
+            try {
+                errorStream = streamAccessor.getErrorResponseStream();
+                responseProcessor.processClientError(responseCode, errorStream);
+            } catch (Exception e) {
+                Logger.exception("Exception during network error processing", e);
+            } finally {
+                StreamsUtil.closeStream(errorStream);
+            }
         } else if (responseCode >= 500 && responseCode < 600) {
             responseProcessor.processServerError(responseCode);
         } else {
@@ -167,6 +207,11 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
 
     public InputStream getResponseStream(Response<ResponseBody> response) throws IOException {
         InputStream inputStream = response.body().byteStream();
+        return cacheResponse(inputStream, response);
+    }
+
+    private InputStream cacheResponse(InputStream inputStream, Response<ResponseBody> response)
+            throws IOException {
         BitCache cache = BitCacheFactory.getCache(cacheDirSetup, getContentLength(response));
         cache.initializeCache();
         OutputStream cacheOut = cache.getCacheStream();
@@ -174,14 +219,16 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         return cache.retrieveCache();
     }
 
-    /**
-     * Only gets called if response processor is supplied
-     * @return Input Stream from cache
-     * @throws IOException if an io error happens while reading or writing to cache
-     */
-    @Override
-    public InputStream getResponseStream() throws IOException {
-        return getResponseStream(response);
+    @Nullable
+    public InputStream getErrorResponseStream(Response<ResponseBody> response) throws IOException {
+        if (response.errorBody() != null) {
+            return cacheResponse( response.errorBody().byteStream(), response);
+        }
+        return null;
+    }
+
+    public String getApiVersion() {
+        return response != null ? response.headers().get("x-api-current-version") : null;
     }
 
     public static RequestBody getPostBody(Multimap<String, String> inputs) {

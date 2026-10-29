@@ -91,8 +91,9 @@ public abstract class XPathExpression extends InFormCacheableExpr implements Ext
 
         for (TreeReference ref : refs) {
             AbstractTreeElement treeElement = instance.resolveReference(ref);
-            s.serialize(treeElement);
+            s.serializeNode(treeElement);
         }
+        serializer.flush();
     }
 
     /**

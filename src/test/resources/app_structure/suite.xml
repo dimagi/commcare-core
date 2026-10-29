@@ -11,7 +11,7 @@
     </resource>
   </locale>
 
-  <detail id="m0_case_short" lazy_loading="true">
+  <detail id="m0_case_short" cache_enabled="true" lazy_loading="true">
     <title>
       <text>Case List</text>
     </title>
@@ -20,6 +20,11 @@
         <locale id="m0_no_items_text"/>
       </text>
     </no_items_text>
+    <select_text>
+      <text>
+        <locale id="m0_select_text"/>
+      </text>
+    </select_text>
     <global>
       <geo-overlay>
         <coordinates>
@@ -61,7 +66,7 @@
         </template>
       </field>
     </lookup>
-    <field>
+    <field cache_enabled="true">
       <style horz-align="left" vert-align="center" font-size="small" show-border="true" show-shading="true">
         <grid grid-height="2" grid-width="3" grid-x="3" grid-y="5"/>
       </style>
@@ -78,7 +83,31 @@
           <xpath function="case_name"/>
         </text>
       </sort>
+      <alt_text>
+        <text>
+          <xpath function="$k0">
+            <variable name="k0">
+              <locale id="m0.case_short.case_starred_1.alt_text.k0"/>
+            </variable>
+          </xpath>
+        </text>
+      </alt_text>
       <endpoint_action endpoint_id="case_list" background="true"/>
+    </field>
+    <field lazy_loading="true">
+      <header>
+        <text>Name</text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="2" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
     </field>
   </detail>
   <detail id="m0_case_long">
@@ -230,9 +259,10 @@
     <text>Menu</text>
     <command id="m0-f0"/>
   </menu>
-  <menu id="m3">
+  <menu id="m3" relevant="count(instance('my_instance'))>0">
     <text>Menu</text>
     <command id="m0-f1"/>
+    <instance id="my_instance" src="my_instance_source"/>
   </menu>
   <endpoint id="case_list" respect-relevancy="false">
     <argument id="selected_cases" instance-id="selected_cases" instance-src="jr://instance/selected-entities"/>

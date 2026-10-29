@@ -12,7 +12,7 @@ public interface ComboboxFilterRule {
      * @return If the given choice should be displayed in combobox's dropdown menu, based upon
      * the text that the user currently has entered
      */
-    boolean choiceShouldBeShown(String choice, CharSequence textEntered);
+    boolean choiceShouldBeShown(ComboItem choice, CharSequence textEntered);
 
 
     /**

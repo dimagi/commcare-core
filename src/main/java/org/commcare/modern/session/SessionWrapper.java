@@ -24,17 +24,26 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
     final protected CommCarePlatform mPlatform;
     protected CommCareInstanceInitializer initializer;
     protected RemoteInstanceFetcher remoteInstanceFetcher;
+    /**
+     * A string representing the width of the user's screen in pixels.
+     * To be used in a display condition determining what content to show to the user.
+     */
+    private String windowWidth;
 
     public SessionWrapper(CommCareSession session, CommCarePlatform platform, UserSandbox sandbox,
-            RemoteInstanceFetcher remoteInstanceFetcher) {
-        this(platform, sandbox, remoteInstanceFetcher);
+            RemoteInstanceFetcher remoteInstanceFetcher, String windowWidth) {
+        this(platform, sandbox, remoteInstanceFetcher, windowWidth);
         this.frame = session.getFrame();
         this.setFrameStack(session.getFrameStack());
     }
 
 
+    public SessionWrapper(CommCareSession session, CommCarePlatform platform, UserSandbox sandbox, String windowWidth) {
+        this(session, platform, sandbox, null, windowWidth);
+    }
+
     public SessionWrapper(CommCareSession session, CommCarePlatform platform, UserSandbox sandbox) {
-        this(session, platform, sandbox, null);
+        this(session, platform, sandbox, null, null);
     }
     
     public SessionWrapper(CommCarePlatform platform, UserSandbox sandbox) {
@@ -43,11 +52,12 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
         this.mPlatform = platform;
     }
 
-    public SessionWrapper(CommCarePlatform platform, UserSandbox sandbox, RemoteInstanceFetcher remoteInstanceFetcher) {
+    public SessionWrapper(CommCarePlatform platform, UserSandbox sandbox, RemoteInstanceFetcher remoteInstanceFetcher, String windowWidth) {
         super(platform);
         this.mSandbox = sandbox;
         this.mPlatform = platform;
         this.remoteInstanceFetcher = remoteInstanceFetcher;
+        this.windowWidth = windowWidth;
     }
 
     /**
@@ -118,5 +128,9 @@ public class SessionWrapper extends CommCareSession implements SessionWrapperInt
 
     public RemoteInstanceFetcher getRemoteInstanceFetcher() {
         return remoteInstanceFetcher;
+    }
+
+    public String getWindowWidth() {
+        return this.windowWidth;
     }
 }

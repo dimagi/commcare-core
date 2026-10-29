@@ -1,11 +1,14 @@
 package org.commcare.test.utilities;
 
+import static org.commcare.cases.util.CasePurgeFilter.getFullCaseGraph;
+
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.cases.util.InvalidCaseGraphException;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
+import org.javarosa.core.util.DAG;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,8 +20,10 @@ import org.junit.runners.Parameterized;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -52,11 +57,11 @@ public class CasePurgeTest {
     }
 
     private static Object[] parseParametersFromJSONObject(JSONObject root) {
-        Object[] parameters = new Object[7];
+        Object[] parameters = new Object[8];
         parameters[0] = root.getString("name");
 
         String[] jsonArrayKeys =
-                new String[]{"cases", "owned", "closed", "subcases", "extensions", "outcome"};
+                new String[]{"cases", "owned", "closed", "subcases", "extensions", "outcome", "relation_outcome"};
         for (int i = 0; i < jsonArrayKeys.length; i++) {
             addJSONArrayIfPresent(root, i+1, jsonArrayKeys[i], parameters);
         }
@@ -76,17 +81,19 @@ public class CasePurgeTest {
     private final HashSet<String> ownedCases = new HashSet<>();
     private final HashSet<String> closedCases = new HashSet<>();
     private final HashSet<String> outcomeSet = new HashSet<>();
+    private final HashMap<String, HashSet<String>> relationOutcomeSet = new HashMap<>();
     private final ArrayList<String[]> indices = new ArrayList<>();
 
     public CasePurgeTest(String name, JSONArray cases, JSONArray owned, JSONArray closed,
-                         JSONArray subcases, JSONArray extensions, JSONArray outcome) {
+                         JSONArray subcases, JSONArray extensions, JSONArray outcome, JSONArray relationOutcomes) {
         this.name = name;
-        createTestObjectsFromParameters(cases, owned, closed, subcases, extensions, outcome);
+        createTestObjectsFromParameters(cases, owned, closed, subcases, extensions, outcome, relationOutcomes);
     }
 
     private void createTestObjectsFromParameters(JSONArray casesJson, JSONArray ownedJson,
-                                                 JSONArray closedJson, JSONArray subcasesJson,
-                                                 JSONArray extensionsJson, JSONArray outcomeJson) {
+            JSONArray closedJson, JSONArray subcasesJson,
+            JSONArray extensionsJson, JSONArray outcomeJson,
+            JSONArray relationOutcomes) {
         if (casesJson != null) {
             getCases(casesJson, cases);
         }
@@ -104,6 +111,23 @@ public class CasePurgeTest {
             getIndices(extensionsJson, indices, CaseIndex.RELATIONSHIP_EXTENSION);
         }
         getCases(outcomeJson, outcomeSet);
+        if (relationOutcomes != null) {
+            populateRelationOutcomes(relationOutcomes, outcomeSet);
+        }
+    }
+
+    private void populateRelationOutcomes(JSONArray relationOutcomes, HashSet<String> outcomeSet)
+            throws JSONException {
+        int count = 0;
+        for (String outcome : outcomeSet) {
+            JSONObject relationOutcome = (JSONObject)relationOutcomes.get(count++);
+            JSONArray relatedCases = relationOutcome.optJSONArray("related_cases");
+            HashSet<String> relatedCasesSet = new HashSet<>();
+            for (int i = 0; i < relatedCases.length(); ++i) {
+                relatedCasesSet.add(relatedCases.getString(i));
+            }
+            relationOutcomeSet.put(outcome, relatedCasesSet);
+        }
     }
 
     private void getIndices(JSONArray indices, ArrayList<String[]> indexSet,
@@ -138,16 +162,26 @@ public class CasePurgeTest {
         Vector<String> ownerIds = new Vector<>();
         ownerIds.add(userId);
 
-        storage.removeAll(new CasePurgeFilter(storage, ownerIds));
+
+        storage.removeAll(new CasePurgeFilter(getFullCaseGraph(storage, ownerIds)));
 
         HashSet<String> inStorage = new HashSet<>();
+        // redo the graph as we don't want the eliminated cases anymore
+        DAG<String, int[], String> graph = getFullCaseGraph(storage, ownerIds);
         for (IStorageIterator<Case> iterator = storage.iterate(); iterator.hasMore(); ) {
             Case c = iterator.nextRecord();
-            inStorage.add(c.getCaseId());
+            String caseId = c.getCaseId();
+            inStorage.add(caseId);
+
+
+            HashSet<String> relatedCasesSet = relationOutcomeSet.get(caseId);
+            HashSet<String> input = new HashSet<>();
+            input.add(caseId);
+            Set<String> relatedCases = graph.findConnectedRecords(input);
+            Assert.assertEquals(name, relatedCasesSet, relatedCases);
         }
 
         Assert.assertEquals(name, outcomeSet, inStorage);
-
     }
 
     private void initCaseStorage(DummyIndexedStorageUtility<Case> storage,

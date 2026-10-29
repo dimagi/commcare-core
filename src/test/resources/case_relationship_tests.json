@@ -22,6 +22,23 @@
             "a",
             "b",
             "c"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a"
+                ]
+            },
+            {
+                "related_cases": [
+                    "b"
+                ]
+            },
+            {
+                "related_cases": [
+                    "c"
+                ]
+            }
         ]
     },
     {
@@ -38,6 +55,20 @@
         "outcome": [
             "d",
             "b"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "d",
+                    "b"
+                ]
+            },
+            {
+                "related_cases": [
+                    "b",
+                    "d"
+                ]
+            }
         ]
     },
     {
@@ -65,6 +96,20 @@
         "outcome": [
             "a",
             "b"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a",
+                    "b"
+                ]
+            },
+            {
+                "related_cases": [
+                    "b",
+                    "a"
+                ]
+            }
         ]
     },
     {
@@ -84,6 +129,13 @@
         ],
         "outcome": [
             "a"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a"
+                ]
+            }
         ]
     },
     {
@@ -127,6 +179,20 @@
         "outcome": [
             "d",
             "b"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "d",
+                    "b"
+                ]
+            },
+            {
+                "related_cases": [
+                    "b",
+                    "d"
+                ]
+            }
         ]
     },
     {
@@ -152,6 +218,13 @@
         ],
         "outcome": [
             "b"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "b"
+                ]
+            }
         ]
     },
     {
@@ -168,6 +241,20 @@
         "outcome": [
             "a",
             "e"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a",
+                    "e"
+                ]
+            },
+            {
+                "related_cases": [
+                    "e",
+                    "a"
+                ]
+            }
         ]
     },
     {
@@ -211,6 +298,29 @@
             "a",
             "b",
             "e"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "e"
+                ]
+            },
+            {
+                "related_cases": [
+                    "b",
+                    "e",
+                    "a"
+                ]
+            },
+            {
+                "related_cases": [
+                    "e",
+                    "a",
+                    "b"
+                ]
+            }
         ]
     },
     {
@@ -263,6 +373,29 @@
             "a",
             "b",
             "e"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "e"
+                ]
+            },
+            {
+                "related_cases": [
+                    "b",
+                    "e",
+                    "a"
+                ]
+            },
+            {
+                "related_cases": [
+                    "e",
+                    "a",
+                    "b"
+                ]
+            }
         ]
     },
     {
@@ -288,6 +421,13 @@
         ],
         "outcome": [
             "b"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "b"
+                ]
+            }
         ]
     },
     {
@@ -304,6 +444,20 @@
         "outcome": [
             "d",
             "a"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "d",
+                    "a"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "d"
+                ]
+            }
         ]
     },
     {
@@ -320,6 +474,20 @@
         "outcome": [
             "d",
             "a"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "d",
+                    "a"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "d"
+                ]
+            }
         ]
     },
     {
@@ -341,6 +509,29 @@
             "d",
             "a",
             "b"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "d",
+                    "a",
+                    "b"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "d",
+                    "b"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "d",
+                    "b"
+                ]
+            }
         ]
     },
     {
@@ -367,6 +558,40 @@
             "b",
             "c",
             "d"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c",
+                    "d"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c",
+                    "d"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c",
+                    "d"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c",
+                    "d"
+                ]
+            }
         ]
     },
     {
@@ -400,6 +625,53 @@
             "c",
             "d",
             "e"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c",
+                    "d",
+                    "e"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c",
+                    "d",
+                    "e"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c",
+                    "d",
+                    "e"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c",
+                    "d",
+                    "e"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c",
+                    "d",
+                    "e"
+                ]
+            }
         ]
     },
     {
@@ -418,6 +690,13 @@
         ],
         "outcome": [
             "a"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a"
+                ]
+            }
         ]
     },
     {
@@ -444,6 +723,29 @@
             "a",
             "b",
             "c"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c"
+                ]
+            }
         ]
     },
     {
@@ -471,6 +773,29 @@
             "a",
             "b",
             "c"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c"
+                ]
+            }
         ]
     },
     {
@@ -497,6 +822,20 @@
         "outcome": [
             "a",
             "b"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a",
+                    "b"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b"
+                ]
+            }
         ]
     },
     {
@@ -521,6 +860,29 @@
             "a",
             "b",
             "e"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "e"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "e"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "e"
+                ]
+            }
         ]
     },
     {
@@ -655,6 +1017,13 @@
         ],
         "outcome": [
             "a"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a"
+                ]
+            }
         ]
     },
     {
@@ -687,6 +1056,53 @@
             "c",
             "d",
             "e"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c",
+                    "d",
+                    "e"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c",
+                    "d",
+                    "e"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c",
+                    "d",
+                    "e"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c",
+                    "d",
+                    "e"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c",
+                    "d",
+                    "e"
+                ]
+            }
         ]
     },
     {
@@ -721,6 +1137,13 @@
         ],
         "outcome": [
             "a"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a"
+                ]
+            }
         ]
     },
     {
@@ -756,6 +1179,29 @@
         ],
         "outcome": [
             "a", "b", "c"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c"
+                ]
+            }
         ]
     },
     {
@@ -773,6 +1219,13 @@
         ],
         "outcome": [
             "a"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a"
+                ]
+            }
         ]
     },
     {
@@ -791,6 +1244,13 @@
         ],
         "outcome": [
             "a"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a"
+                ]
+            }
         ]
     },
     {
@@ -808,6 +1268,40 @@
         ],
         "outcome": [
             "d", "a", "c", "e"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a",
+                    "c",
+                    "d",
+                    "e"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "c",
+                    "d",
+                    "e"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "c",
+                    "d",
+                    "e"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "c",
+                    "d",
+                    "e"
+                ]
+            }
         ]
     },
     {
@@ -828,6 +1322,40 @@
         ],
         "outcome": [
             "a", "b", "c", "d"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c",
+                    "d"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c",
+                    "d"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c",
+                    "d"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b",
+                    "c",
+                    "d"
+                ]
+            }
         ]
     },
     {
@@ -848,6 +1376,20 @@
         ],
         "outcome": [
             "a", "b"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "a",
+                    "b"
+                ]
+            },
+            {
+                "related_cases": [
+                    "a",
+                    "b"
+                ]
+            }
         ]
     },
     {
@@ -871,6 +1413,38 @@
         ],
         "outcome": [
             "claim", "house", "p_mother", "p_child", "child_health", "measurement"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "claim", "house", "p_mother", "p_child", "child_health", "measurement"
+                ]
+            },
+            {
+                "related_cases": [
+                    "claim", "house", "p_mother", "p_child", "child_health", "measurement"
+                ]
+            },
+            {
+                "related_cases": [
+                    "claim", "house", "p_mother", "p_child", "child_health", "measurement"
+                ]
+            },
+            {
+                "related_cases": [
+                    "claim", "house", "p_mother", "p_child", "child_health", "measurement"
+                ]
+            },
+            {
+                "related_cases": [
+                    "claim", "house", "p_mother", "p_child", "child_health", "measurement"
+                ]
+            },
+            {
+                "related_cases": [
+                    "claim", "house", "p_mother", "p_child", "child_health", "measurement"
+                ]
+            }
         ]
     },
     {
@@ -894,6 +1468,38 @@
         ],
         "outcome": [
             "claim", "house", "p_mother", "p_child", "child_health", "measurement"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "claim", "house", "p_mother", "p_child", "child_health", "measurement"
+                ]
+            },
+            {
+                "related_cases": [
+                    "claim", "house", "p_mother", "p_child", "child_health", "measurement"
+                ]
+            },
+            {
+                "related_cases": [
+                    "claim", "house", "p_mother", "p_child", "child_health", "measurement"
+                ]
+            },
+            {
+                "related_cases": [
+                    "claim", "house", "p_mother", "p_child", "child_health", "measurement"
+                ]
+            },
+            {
+                "related_cases": [
+                    "claim", "house", "p_mother", "p_child", "child_health", "measurement"
+                ]
+            },
+            {
+                "related_cases": [
+                    "claim", "house", "p_mother", "p_child", "child_health", "measurement"
+                ]
+            }
         ]
     },
     {
@@ -918,6 +1524,18 @@
         ],
         "outcome": [
             "claim", "house"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "claim", "house"
+                ]
+            },
+            {
+                "related_cases": [
+                    "claim", "house"
+                ]
+            }
         ]
     },
     {
@@ -942,6 +1560,18 @@
         ],
         "outcome": [
             "claim", "house"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "claim", "house"
+                ]
+            },
+            {
+                "related_cases": [
+                    "claim", "house"
+                ]
+            }
         ]
     },
     {
@@ -963,6 +1593,33 @@
         ],
         "outcome": [
             "L", "B", "C", "D", "E"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "L", "B", "C", "D", "E"
+                ]
+            },
+            {
+                "related_cases": [
+                    "L", "B", "C", "D", "E"
+                ]
+            },
+            {
+                "related_cases": [
+                    "L", "B", "C", "D", "E"
+                ]
+            },
+            {
+                "related_cases": [
+                    "L", "B", "C", "D", "E"
+                ]
+            },
+            {
+                "related_cases": [
+                    "L", "B", "C", "D", "E"
+                ]
+            }
         ]
     },
     {
@@ -978,6 +1635,13 @@
         ],
         "outcome": [
             "parent"
+        ],
+        "relation_outcome": [
+            {
+                "related_cases": [
+                    "parent"
+                ]
+            }
         ]
     }
 

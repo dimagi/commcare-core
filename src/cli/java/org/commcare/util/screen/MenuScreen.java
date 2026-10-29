@@ -59,6 +59,20 @@ public class MenuScreen extends Screen {
         return false;
     }
 
+    /**
+     * Checks whether a menu with given menuId exists and is a visible option on menu screen
+     * @param menuId id of the menu we want to check visiblility for
+     * @return true if menu exists and is visible, false otherwise
+     */
+    public boolean isMenuVisible(String menuId) {
+        for (MenuDisplayable menuDisplayable : getMenuDisplayables()) {
+            if(menuDisplayable.getCommandID().contentEquals(menuId)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     class ScreenLogger implements LoggerInterface {
 
         @Override

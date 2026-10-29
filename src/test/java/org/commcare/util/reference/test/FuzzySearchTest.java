@@ -30,5 +30,8 @@ public class FuzzySearchTest {
         // false even though we have an exact substring match,
         // Cuz fuzzy search starts checking from 0th location.
         Assert.assertFalse(StringUtils.fuzzyMatch("Test", "CrazyTest").first);
+
+        // false since aply and cape has a difference of 3 edits add 'c', remove 'l', replace 'y' with 'e'
+        Assert.assertFalse(StringUtils.fuzzyMatch("aply", "cape").first);
     }
 }

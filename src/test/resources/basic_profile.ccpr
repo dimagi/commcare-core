@@ -91,6 +91,11 @@
             <android_package id="org.commcare.test"/>
         </dependencies>
 
+        <credentials active="true">
+              <credential level="3MON_ACTIVE" type="APP_ACTIVITY"></credential>
+              <credential level="6MON_ACTIVE" type="APP_ACTIVITY"></credential>
+        </credentials>
+
     </features>
 
     <suite><resource id="suite" version="102">

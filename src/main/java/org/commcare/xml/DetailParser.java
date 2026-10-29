@@ -39,7 +39,8 @@ public class DetailParser extends CommCareElementParser<Detail> {
         String forceLandscapeView = parser.getAttributeValue(null, "force-landscape");
         String printTemplatePath = parser.getAttributeValue(null, "print-template");
         String relevancy = parser.getAttributeValue(null, "relevant");
-        boolean isLazyLoading = Boolean.parseBoolean(parser.getAttributeValue(null, "lazy_loading"));
+        boolean cacheEnabled = Boolean.parseBoolean(parser.getAttributeValue(null, "cache_enabled"));
+        boolean lazyLoading = Boolean.parseBoolean(parser.getAttributeValue(null, "lazy_loading"));
 
         // First fetch the title
         getNextTagInBlock("detail");
@@ -60,6 +61,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
 
         //Now get the headers and templates.
         Text noItemsText = null;
+        Text selectText = null;
         Vector<Detail> subdetails = new Vector<>();
         Vector<DetailField> fields = new Vector<>();
         OrderedHashtable<String, String> variables = new OrderedHashtable<>();
@@ -82,6 +84,14 @@ public class DetailParser extends CommCareElementParser<Detail> {
                 getNextTagInBlock("no_items_text");
                 if ("text".equals(parser.getName().toLowerCase())) {
                     noItemsText = new TextParser(parser).parse();
+                }
+                continue;
+            }
+            if ("select_text".equals(parser.getName().toLowerCase())) {
+                checkNode("select_text");
+                getNextTagInBlock("select_text");
+                if ("text".equals(parser.getName().toLowerCase())) {
+                    selectText = new TextParser(parser).parse();
                 }
                 continue;
             }
@@ -132,7 +142,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
 
         return new Detail(id, title, noItemsText, nodeset, subdetails, fields, variables, actions, callout,
                 fitAcross, useUniformUnits, forceLandscapeView, focusFunction, printTemplatePath,
-                relevancy, global, detailGroup, isLazyLoading);
+                relevancy, global, detailGroup, lazyLoading, cacheEnabled, selectText);
     }
 
     protected DetailParser getDetailParser() {

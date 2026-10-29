@@ -245,12 +245,16 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         this.name = name;
     }
 
+    @Override
     public String toString() {
         String name = "NULL";
         if (this.name != null) {
             name = this.name;
         }
-        return name;
+        return "DataInstance{" +
+                "name='" + name + '\'' +
+                ", instanceid='" + instanceid + '\'' +
+                '}';
     }
 
     @Override
@@ -289,7 +293,11 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         this.mCacheHost = cacheHost;
     }
 
+    /**
+     * Cleans reference caches maintained by the instance and TreeElements contained in the contextNode
+     */
     public void cleanCache() {
         referenceCache.clear();
+        getBase().clearVolatiles();
     }
 }

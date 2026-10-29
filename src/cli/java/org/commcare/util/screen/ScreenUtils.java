@@ -2,14 +2,19 @@ package org.commcare.util.screen;
 
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.SessionFrame;
+import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.StackFrameStep;
+import org.commcare.suite.model.Suite;
+import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.xpath.XPathException;
 
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -72,6 +77,42 @@ public class ScreenUtils {
             return getAppTitle();
         }
         return bestTitle;
+    }
+
+    public static String getMenuTitle(SessionWrapper session) {
+        // Walk backwards looking for the most recent step that is an actual menu
+        Vector<StackFrameStep> steps = session.getFrame().getSteps();
+        for (int i = steps.size() - 1; i >= 0; i--) {
+            StackFrameStep step = steps.elementAt(i);
+            if (!SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
+                continue;
+            }
+
+            for (Suite s : session.getPlatform().getInstalledSuites()) {
+                List<Menu> menus = s.getMenusWithId(step.getId());
+                if (menus == null) {
+                    continue;
+                }
+                for (Menu m : menus) {
+                    Text name = m.getName();
+                    if (name == null) {
+                        continue;
+                    }
+                    try {
+                        // Menus contain a potential argument listing where that value is on the screen,
+                        // clear it out if it exists
+                        return Localizer.processArguments(name.evaluate(), new String[]{""}).trim();
+                    } catch (NoLocalizedTextException | XPathException e) {
+                        // localization resources may not be installed while in the middle of an update,
+                        // or the menu's title may reference session state unavailable here; either way
+                        // this is just for logging, so fall back to no title instead of blowing up.
+                        return null;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     public static String getAppTitle() {

@@ -7,6 +7,7 @@ import org.javarosa.xpath.expr.XPathAtanFunc;
 import org.javarosa.xpath.expr.XPathAtanTwoFunc;
 import org.javarosa.xpath.expr.XPathBooleanFromStringFunc;
 import org.javarosa.xpath.expr.XPathBooleanFunc;
+import org.javarosa.xpath.expr.XPathClosestPointOnPolygonFunc;
 import org.javarosa.xpath.expr.XPathCeilingFunc;
 import org.javarosa.xpath.expr.XPathChecklistFunc;
 import org.javarosa.xpath.expr.XPathChecksumFunc;
@@ -48,6 +49,7 @@ import org.javarosa.xpath.expr.XPathNotFunc;
 import org.javarosa.xpath.expr.XPathNowFunc;
 import org.javarosa.xpath.expr.XPathNumberFunc;
 import org.javarosa.xpath.expr.XPathPiFunc;
+import org.javarosa.xpath.expr.XPathIsPointInsidePolygonFunc;
 import org.javarosa.xpath.expr.XPathPositionFunc;
 import org.javarosa.xpath.expr.XPathPowFunc;
 import org.javarosa.xpath.expr.XPathQName;
@@ -257,6 +259,10 @@ public class ASTNodeFunctionCall extends ASTNode {
                 return new XPathDecryptStringFunc(args);
             case "json-property":
                 return new XPathJsonPropertyFunc(args);
+            case "closest-point-on-polygon":
+                return new XPathClosestPointOnPolygonFunc(args);
+            case "is-point-inside-polygon":
+                return new XPathIsPointInsidePolygonFunc(args);
             default:
                 return new XPathCustomRuntimeFunc(name, args);
         }

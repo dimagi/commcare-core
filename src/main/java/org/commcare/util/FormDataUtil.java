@@ -10,6 +10,7 @@ import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
 /**
  * Use the session state descriptor attached to saved forms to load case
@@ -103,5 +104,25 @@ public class FormDataUtil {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static String getCaseName(UserSandbox userSandbox, IStorageUtilityIndexed<Case> caseSearchStorage, String caseId) {
+        String caseName = getCaseName(userSandbox, caseId);
+        if (caseName != null) {
+            return caseName;
+        }
+
+        if (caseSearchStorage != null && caseSearchStorage.isStorageExists()) {
+            try {
+                Case ourCase = caseSearchStorage.getRecordForValue(Case.INDEX_CASE_ID, caseId);
+                if (ourCase != null) {
+                    return ourCase.getName();
+                }
+            } catch (Exception searchException) {
+                return null;
+            }
+        }
+
+        return null;
     }
 }

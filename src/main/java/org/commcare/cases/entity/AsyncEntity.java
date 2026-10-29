@@ -1,7 +1,11 @@
 package org.commcare.cases.entity;
 
 
+import static org.commcare.cases.entity.EntityStorageCache.ValueType.TYPE_NORMAL_FIELD;
+import static org.commcare.cases.entity.EntityStorageCache.ValueType.TYPE_SORT_FIELD;
+
 import org.commcare.cases.util.StringUtils;
+import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.DetailGroup;
 import org.commcare.suite.model.Text;
@@ -37,11 +41,14 @@ public class AsyncEntity extends Entity<TreeReference> {
     private final DetailField[] fields;
     private final Object[] data;
     private final String[] sortData;
-    private final boolean[] relevancyData;
+    private final Boolean[] relevancyData;
     private final String[][] sortDataPieces;
+
+    private final String[] altTextData;
     private final EvaluationContext context;
     private final Hashtable<String, XPathExpression> mVariableDeclarations;
     private final DetailGroup mDetailGroup;
+    private final boolean cacheEnabled;
     private boolean mVariableContextLoaded = false;
     private final String mCacheIndex;
     private final String mDetailId;
@@ -50,29 +57,20 @@ public class AsyncEntity extends Entity<TreeReference> {
     private final EntityStorageCache mEntityStorageCache;
 
     /*
-     * the Object's lock. NOTE: _DO NOT LOCK ANY CODE WHICH READS/WRITES THE CACHE
-     * UNTIL YOU HAVE A LOCK FOR THE DB!
-     * 
-     * The lock is for the integrity of this object, not the larger environment, 
-     * and any DB access has its own implict lock between threads, so it's easy
-     * to accidentally deadlock if you don't already have the db lock
-     * 
-     * Basically you should never be calling mEntityStorageCache from inside of
-     * a lock that 
+     * the Object's lock for the integrity of this object
      */
     private final Object mAsyncLock = new Object();
 
-    public AsyncEntity(DetailField[] fields, EvaluationContext ec,
-                       TreeReference t, Hashtable<String, XPathExpression> variables,
-                       @Nullable EntityStorageCache cache, String cacheIndex, String detailId,
-                       String extraKey, DetailGroup detailGroup) {
+    public AsyncEntity(Detail detail, EvaluationContext ec,
+            TreeReference t, Hashtable<String, XPathExpression> variables,
+            @Nullable EntityStorageCache cache, String cacheIndex, String extraKey) {
         super(t, extraKey);
-
-        this.fields = fields;
+        this.fields = detail.getFields();
         this.data = new Object[fields.length];
         this.sortData = new String[fields.length];
         this.sortDataPieces = new String[fields.length][];
-        this.relevancyData = new boolean[fields.length];
+        this.relevancyData = new Boolean[fields.length];
+        this.altTextData = new String[fields.length];
         this.context = ec;
         this.mVariableDeclarations = variables;
         this.mEntityStorageCache = cache;
@@ -81,8 +79,9 @@ public class AsyncEntity extends Entity<TreeReference> {
         //if this ref is _cachable_ every time, since it's a pretty big lift
         this.mCacheIndex = cacheIndex;
 
-        this.mDetailId = detailId;
-        this.mDetailGroup = detailGroup;
+        this.mDetailId = detail.getId();
+        this.mDetailGroup = detail.getGroup();
+        this.cacheEnabled = detail.isCacheEnabled();
     }
 
     private void loadVariableContext() {
@@ -102,18 +101,43 @@ public class AsyncEntity extends Entity<TreeReference> {
     @Override
     public Object getField(int i) {
         synchronized (mAsyncLock) {
-            loadVariableContext();
+            if (data[i] != null) {
+                return data[i];
+            }
+            if (!fields[i].isCacheEnabled()) {
+                data[i] = evaluateField(i);
+                return data[i];
+            }
+            String cacheKey = null;
             if (data[i] == null) {
-                try {
-                    data[i] = fields[i].getTemplate().evaluate(context);
-                } catch (XPathException xpe) {
-                    Logger.exception("Error while evaluating field for case list ", xpe);
-                    xpe.printStackTrace();
-                    data[i] = "<invalid xpath: " + xpe.getMessage() + ">";
+                if (mEntityStorageCache != null && mCacheIndex != null) {
+                    cacheKey = mEntityStorageCache.getCacheKey(mDetailId, String.valueOf(i),
+                            TYPE_NORMAL_FIELD);
+                    // Return from the cache if we have a value
+                    String value = mEntityStorageCache.retrieveCacheValue(mCacheIndex, cacheKey);
+                    if (value != null) {
+                        data[i] = value;
+                        return data[i];
+                    }
                 }
             }
-            return data[i];
+            data[i] = evaluateField(i);
+            if (mEntityStorageCache != null && mCacheIndex != null) {
+                mEntityStorageCache.cache(mCacheIndex, cacheKey, String.valueOf(data[i]));
+            }
         }
+        return data[i];
+    }
+
+    private Object evaluateField(int i) {
+        loadVariableContext();
+        try {
+            data[i] = fields[i].getTemplate().evaluate(context);
+        } catch (XPathException xpe) {
+            Logger.exception("Error while evaluating field for case list ", xpe);
+            data[i] = "<invalid xpath: " + xpe.getMessage() + ">";
+        }
+        return data[i];
     }
 
     @Override
@@ -127,58 +151,63 @@ public class AsyncEntity extends Entity<TreeReference> {
 
     @Override
     public String getSortField(int i) {
-        try {
-            if (mEntityStorageCache == null || mEntityStorageCache.lockCache()) {
-                //get our second lock.
-                synchronized (mAsyncLock) {
-                    if (sortData[i] == null) {
-                        // sort data not in search field cache; load and store it
-                        Text sortText = fields[i].getSort();
-                        if (sortText == null) {
-                            return null;
-                        }
+        synchronized (mAsyncLock) {
+            if (sortData[i] != null) {
+                return sortData[i];
+            }
 
-                        String cacheKey = null;
-                        if (mEntityStorageCache != null) {
-                            cacheKey = mEntityStorageCache.getCacheKey(mDetailId, String.valueOf(i));
+            // eval and return if field is not marked as optimize
+            if (cacheEnabled && !fields[i].isCacheEnabled()) {
+                evaluateSortData(i);
+                return sortData[i];
+            }
 
-                            if (mCacheIndex != null) {
-                                //Check the cache!
-                                String value = mEntityStorageCache.retrieveCacheValue(mCacheIndex, cacheKey);
-                                if (value != null) {
-                                    this.setSortData(i, value);
-                                    return sortData[i];
-                                }
-                            }
-                        }
+            String cacheKey = null;
+            if (sortData[i] == null) {
+                Text sortText = fields[i].getSort();
+                if (sortText == null) {
+                    return null;
+                }
 
-                        loadVariableContext();
-                        try {
-                            sortText = fields[i].getSort();
-                            if (sortText == null) {
-                                this.setSortData(i, getFieldString(i));
-                            } else {
-                                this.setSortData(i, StringUtils.normalize(sortText.evaluate(context)));
-                            }
-                            if (mEntityStorageCache != null) {
-                                mEntityStorageCache.cache(mCacheIndex, cacheKey, sortData[i]);
-                            }
-                        } catch (XPathException xpe) {
-                            Logger.exception("Error while evaluating sort field", xpe);
-                            xpe.printStackTrace();
-                            sortData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
+                if (mEntityStorageCache != null) {
+                    if (cacheEnabled) {
+                        cacheKey = mEntityStorageCache.getCacheKey(mDetailId, String.valueOf(i),
+                                TYPE_SORT_FIELD);
+                    } else {
+                        // old cache and index
+                        cacheKey = i + "_" + TYPE_SORT_FIELD;
+                    }
+                    if (mCacheIndex != null) {
+                        //Check the cache!
+                        String value = mEntityStorageCache.retrieveCacheValue(mCacheIndex, cacheKey);
+                        if (value != null) {
+                            this.setSortData(i, value);
+                            return sortData[i];
                         }
                     }
-
-                    return sortData[i];
                 }
             }
-        } finally {
-            if (mEntityStorageCache != null) {
-                mEntityStorageCache.releaseCache();
+            evaluateSortData(i);
+            if (mEntityStorageCache != null && mCacheIndex != null) {
+                mEntityStorageCache.cache(mCacheIndex, cacheKey, sortData[i]);
             }
+            return sortData[i];
         }
-        return null;
+    }
+
+    private void evaluateSortData(int i) {
+        loadVariableContext();
+        try {
+            Text sortText = fields[i].getSort();
+            if (sortText == null) {
+                this.setSortData(i, getFieldString(i));
+            } else {
+                this.setSortData(i, StringUtils.normalize(sortText.evaluate(context)));
+            }
+        } catch (XPathException xpe) {
+            Logger.exception("Error while evaluating sort field", xpe);
+            sortData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
+        }
     }
 
     @Override
@@ -196,15 +225,24 @@ public class AsyncEntity extends Entity<TreeReference> {
             if (getField(fieldIndex).equals("")) {
                 return false;
             }
+            return getRelevancyData(fieldIndex);
+        }
+    }
 
-            try {
-                this.relevancyData[fieldIndex] = this.fields[fieldIndex].isRelevant(this.context);
-            } catch (XPathSyntaxException e) {
-                final String msg = "Invalid relevant condition for field : " + fields[fieldIndex].getHeader().toString();
-                Logger.exception(msg, e);
-                throw new RuntimeException(msg);
+    private boolean getRelevancyData(int i) {
+        synchronized (mAsyncLock) {
+            if (relevancyData[i] != null) {
+                return relevancyData[i];
             }
-            return this.relevancyData[fieldIndex];
+            loadVariableContext();
+            try {
+                relevancyData[i] = fields[i].isRelevant(context);
+            } catch (XPathSyntaxException e) {
+                final String msg = "Invalid relevant condition for field : " + fields[i].getHeader().toString();
+                Logger.exception(msg, e);
+                throw new XPathException(e);
+            }
+            return relevancyData[i];
         }
     }
 
@@ -231,13 +269,29 @@ public class AsyncEntity extends Entity<TreeReference> {
         }
     }
 
+    private void setFieldData(int i, String val) {
+        synchronized (mAsyncLock) {
+            data[i] = val;
+        }
+    }
+
     public void setSortData(String cacheKey, String val) {
         if (mEntityStorageCache == null) {
             throw new IllegalStateException("No entity cache defined");
         }
-        int sortIndex = mEntityStorageCache.getSortFieldIdFromCacheKey(mDetailId, cacheKey);
-        if (sortIndex != -1) {
-            setSortData(sortIndex, val);
+        int fieldIndex = mEntityStorageCache.getFieldIdFromCacheKey(mDetailId, cacheKey);
+        if (fieldIndex != -1) {
+            setSortData(fieldIndex, val);
+        }
+    }
+
+    public void setFieldData(String cacheKey, String val) {
+        if (mEntityStorageCache == null) {
+            throw new IllegalStateException("No entity cache defined");
+        }
+        int fieldIndex = mEntityStorageCache.getFieldIdFromCacheKey(mDetailId, cacheKey);
+        if (fieldIndex != -1) {
+            setFieldData(fieldIndex, val);
         }
     }
 
@@ -255,8 +309,36 @@ public class AsyncEntity extends Entity<TreeReference> {
     @Override
     public String getGroupKey() {
         if (mDetailGroup != null) {
-            return  (String)mDetailGroup.getFunction().eval(context);
+            return (String)mDetailGroup.getFunction().eval(context);
         }
         return null;
+    }
+
+    @Nullable
+    public String getAltTextData(int i) {
+        synchronized (mAsyncLock) {
+            if (altTextData[i] != null) {
+                return altTextData[i];
+            }
+            loadVariableContext();
+            Text altText = fields[i].getAltText();
+            if (altText != null) {
+                try {
+                    altTextData[i] = altText.evaluate(context);
+                } catch (XPathException xpe) {
+                    Logger.exception("Error while evaluating field for case list ", xpe);
+                    altTextData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
+                }
+            }
+            return altTextData[i];
+        }
+    }
+
+    @Override
+    public String[] getAltText() {
+        for (int i = 0; i < this.getNumFields(); ++i) {
+            this.getAltTextData(i);
+        }
+        return altTextData;
     }
 }

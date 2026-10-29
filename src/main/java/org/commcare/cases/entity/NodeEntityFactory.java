@@ -25,6 +25,13 @@ public class NodeEntityFactory {
     protected final EvaluationContext ec;
     protected final Detail detail;
     private ReducingTraceReporter traceReporter;
+    protected EntityLoadingProgressListener progressListener;
+
+    /**
+     * Flag that denotes cancellation of the underlying process responsible for loading entities
+     * Implementations of long running methods can check this to interrupt and exit early
+     */
+    protected volatile boolean isCancelled = false;
 
     public NodeEntityFactory(Detail d, EvaluationContext ec) {
         this.detail = d;
@@ -51,6 +58,7 @@ public class NodeEntityFactory {
 
         Object[] fieldData = new Object[length];
         String[] sortData = new String[length];
+        String[] altTextData = new String[length];
         boolean[] relevancyData = new boolean[length];
         int count = 0;
         for (DetailField f : detail.getFields()) {
@@ -63,6 +71,12 @@ public class NodeEntityFactory {
                     sortData[count] = sortText.evaluate(nodeContext);
                 }
                 relevancyData[count] = f.isRelevant(nodeContext);
+                Text altText = f.getAltText();
+                if (altText == null) {
+                    altTextData[count] = null;
+                } else {
+                    altTextData[count] = altText.evaluate(nodeContext);
+                }
             } catch (XPathSyntaxException e) {
                 /**
                  * TODO: 25/06/17 remove catch blocks from here
@@ -82,7 +96,7 @@ public class NodeEntityFactory {
         }
 
         return new Entity<>(fieldData, sortData, relevancyData, data, extraKey,
-                detail.evaluateFocusFunction(nodeContext), groupKey);
+                detail.evaluateFocusFunction(nodeContext), groupKey, altTextData);
     }
 
     /**
@@ -142,6 +156,7 @@ public class NodeEntityFactory {
      * Performs the underlying work to prepare the entity set
      * (see prepareEntities()). Separated out to enforce timing
      * related to preparing and utilizing results
+     *
      * @param entities
      */
     protected void prepareEntitiesInternal(List<Entity<TreeReference>> entities) {
@@ -184,5 +199,33 @@ public class NodeEntityFactory {
             }
             return isEntitySetReadyInternal();
         }
+    }
+
+    /**
+     * Caches the provided entities. Default implementation throws RuntimeException.
+     * Subclasses should override this method if they support caching.
+     *
+     * @param entities     List of entities to cache
+     * @throws RuntimeException if caching is not supported
+     */
+    public void cacheEntities(List<Entity<TreeReference>> entities) {
+        throw new RuntimeException("Method not supported for normal Node Entity Factory");
+    }
+
+    /**
+     * Sets the progress listener for entity loading operations.
+     *
+     * @param progressListener The progress listener to use
+     */
+    public void setEntityProgressListener(EntityLoadingProgressListener progressListener) {
+        if (this.progressListener != null) {
+            throw new RuntimeException(
+                    "Entity loading progress listener is already set in entity factory");
+        }
+        this.progressListener = progressListener;
+    }
+
+    public void markAsCancelled() {
+        isCancelled = true;
     }
 }

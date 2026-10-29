@@ -61,7 +61,13 @@ public class CliMain {
             return;
         }
 
-        cliCommand.handle();
+        try {
+            cliCommand.handle();
+        } catch (Exception e) {
+            System.err.println("\nCommand failed with error:");
+            e.printStackTrace();
+            System.exit(-1);
+        }
     }
 
     private static CliCommand getCliCommand(String commandName) throws CliCommandNotFound {

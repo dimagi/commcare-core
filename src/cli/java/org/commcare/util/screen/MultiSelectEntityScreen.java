@@ -5,6 +5,7 @@ import static org.commcare.xml.SessionDatumParser.DEFAULT_MAX_SELECT_VAL;
 
 import com.google.common.collect.ImmutableMap;
 
+import org.commcare.cases.model.Case;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.interfaces.VirtualDataInstanceStorage;
 import org.commcare.data.xml.VirtualInstances;
@@ -20,6 +21,7 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.NoLocalizedTextException;
 
 import javax.annotation.Nonnull;
@@ -230,7 +232,10 @@ public class MultiSelectEntityScreen extends EntityScreen {
             int caseCount = root.getNumChildren();
             if (caseCount > 0) {
                 String caseId = root.getChildAt(0).getValue().getDisplayText();
-                String caseName = FormDataUtil.getCaseName(sandbox, caseId);
+                String caseName = null;
+                QueryScreen queryScreen = this.getQueryScreen();
+                IStorageUtilityIndexed<Case> caseSearchStorage = queryScreen != null ? queryScreen.getCaseSearchStorage() : null;
+                caseName = FormDataUtil.getCaseName(sandbox, caseSearchStorage, caseId);
                 if (caseName != null) {
                     if (caseCount > 1) {
                         return "(" + caseCount + ") " + caseName + ", ...";

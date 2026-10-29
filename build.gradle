@@ -9,18 +9,12 @@ buildscript {
 
 plugins {
     id 'java-library'
-    id "me.champeau.jmh" version "0.7.0"
+    id "me.champeau.jmh" version "0.7.3"
 }
 
-// Needed even though it looks unused
-sourceCompatibility = JavaVersion.VERSION_17
-
-configurations {
-    ccapi.extendsFrom(ccapiImplementation)
-    cliOutput.extendsFrom (cliImplementation)
-    harness
-    translate.extendsFrom(translateImplementation)
-    testsAsJar
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 repositories {
@@ -29,7 +23,7 @@ repositories {
 }
 
 test {
-    reports.junitXml.destination = file('build/reports/tests')
+    reports.junitXml.outputLocation = layout.buildDirectory.dir('reports/tests')
 }
 
 sourceSets {
@@ -66,30 +60,38 @@ sourceSets {
 
 }
 
+configurations {
+    ccapi.extendsFrom(ccapiImplementation)
+    cliOutput.extendsFrom (cliImplementation)
+    harness
+    translate.extendsFrom(translateImplementation)
+    testsAsJar
+}
+
 dependencies {
     api 'com.github.stefanhaustein:kxml2:2.4.1'
     implementation 'javax.ws.rs:javax.ws.rs-api:2.0.1'
     // Added so Android Studio recognizes libs in util jar projects
-    implementation 'org.json:json:20220924'
+    implementation 'org.json:json:20251224'
     implementation 'commons-cli:commons-cli:1.3.1'
     implementation 'joda-time:joda-time:2.12.6'
     implementation 'com.carrotsearch:hppc:0.9.1'
-    api 'com.squareup.retrofit2:retrofit:2.3.0'
-    api 'com.squareup.okhttp3:okhttp:4.11.0'
+    api 'com.squareup.retrofit2:retrofit:2.9.0'
+    api 'com.squareup.okhttp3:okhttp:5.5.0'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
     implementation 'com.google.guava:guava:31.1-jre'
     implementation 'io.opentracing:opentracing-api:0.33.0'
     implementation 'io.opentracing:opentracing-util:0.33.0'
     implementation 'com.datadoghq:dd-trace-api:1.10.0'
-
-    cliImplementation 'org.json:json:20140107'
+    implementation 'org.gavaghan:geodesy:1.1.3'
+    cliImplementation 'org.json:json:20251224'
     cliImplementation 'com.github.stefanhaustein:kxml2:2.4.1'
     cliImplementation 'commons-cli:commons-cli:1.3.1'
     cliImplementation 'joda-time:joda-time:2.12.6'
     cliImplementation 'io.reactivex.rxjava2:rxjava:2.1.1'
-    cliImplementation 'com.squareup.retrofit2:retrofit:2.3.0'
-    cliImplementation 'com.squareup.okhttp3:okhttp:4.11.0'
+    cliImplementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    cliImplementation 'com.squareup.okhttp3:okhttp:5.5.0'
     cliImplementation 'com.google.guava:guava:31.1-jre'
     cliImplementation 'com.datadoghq:dd-trace-api:1.10.0'
 
@@ -98,22 +100,23 @@ dependencies {
     testImplementation sourceSets.cli.output
     testImplementation sourceSets.translate.output
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.json:json:20140107'
+    testImplementation 'org.json:json:20251224'
     testImplementation 'org.xerial:sqlite-jdbc:3.40.0.0'
     testImplementation 'joda-time:joda-time:2.12.6'
-    testImplementation 'com.squareup.retrofit2:retrofit:2.3.0'
-    testImplementation 'com.squareup.okhttp3:okhttp:4.11.0'
+    testImplementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    testImplementation 'com.squareup.okhttp3:okhttp:5.5.0'
+
     testImplementation 'com.google.guava:guava:31.1-jre'
 
     ccapiImplementation sourceSets.main.output
-    ccapiImplementation 'org.json:json:20140107'
+    ccapiImplementation 'org.json:json:20251224'
     ccapiImplementation 'org.xerial:sqlite-jdbc:3.40.0.0'
     ccapiImplementation 'com.github.stefanhaustein:kxml2:2.4.1'
     ccapiImplementation 'joda-time:joda-time:2.12.6'
     ccapiImplementation 'com.carrotsearch:hppc:0.9.1'
     ccapiImplementation 'io.reactivex.rxjava2:rxjava:2.1.1'
-    ccapiImplementation "com.squareup.retrofit2:retrofit:2.3.0"
-    ccapiImplementation 'com.squareup.okhttp3:okhttp:4.11.0'
+    ccapiImplementation "com.squareup.retrofit2:retrofit:2.9.0"
+    ccapiImplementation 'com.squareup.okhttp3:okhttp:5.5.0'
     ccapiImplementation 'com.google.guava:guava:31.1-jre'
     ccapiImplementation 'io.opentracing:opentracing-api:0.33.0'
     ccapiImplementation 'io.opentracing:opentracing-util:0.33.0'
@@ -124,10 +127,10 @@ dependencies {
     translateImplementation 'commons-cli:commons-cli:1.3.1'
     translateImplementation files('lib/json-simple-1.1.1.jar')
     translateImplementation 'joda-time:joda-time:2.12.6'
-    translateImplementation 'org.json:json:20140107'
+    translateImplementation 'org.json:json:20251224'
     translateImplementation 'io.reactivex.rxjava2:rxjava:2.1.1'
-    translateImplementation "com.squareup.retrofit2:retrofit:2.3.0"
-    translateImplementation 'com.squareup.okhttp3:okhttp:4.11.0'
+    translateImplementation "com.squareup.retrofit2:retrofit:2.9.0"
+    translateImplementation 'com.squareup.okhttp3:okhttp:5.5.0'
     translateImplementation 'com.google.guava:guava:31.1-jre'
 
     // 'compile' dependency is also needed to run 'gradle jmh' for some reason,

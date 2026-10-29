@@ -132,6 +132,11 @@ public class QuerySensitiveTreeElementWrapper<T extends AbstractTreeElement> imp
     }
 
     @Override
+    public void clearVolatiles() {
+        wrapped.clearVolatiles();
+    }
+
+    @Override
     public String getName() {
         return wrapped.getName();
     }

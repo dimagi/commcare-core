@@ -633,7 +633,6 @@ public class CommCareSession {
         Vector<Entry> entries = getEntriesForCommand(command);
         Vector<Menu> menus = getMenusForCommand(command);
 
-        Menu menu = null;
         Entry entry = null;
         Hashtable<String, DataInstance> instancesInScope = new Hashtable<>();
         Hashtable<String, DataInstance> menuInstances = null;
@@ -649,8 +648,7 @@ public class CommCareSession {
             }
         }
 
-        if (!menus.isEmpty()) {
-            menu = menus.elementAt(0);
+        for (Menu menu : menus) {
             if (menu != null) {
                 menuInstances = menu.getInstances(instancesToInclude);
             }
