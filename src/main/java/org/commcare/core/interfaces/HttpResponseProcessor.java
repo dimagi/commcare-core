@@ -12,7 +12,7 @@ public interface HttpResponseProcessor {
     /**
      * Http response was in the 200s
      */
-    void processSuccess(int responseCode, InputStream responseData);
+    void processSuccess(int responseCode, InputStream responseData, String apiVersion);
 
     /**
      * Http response was in the 400s.
@@ -20,7 +20,7 @@ public interface HttpResponseProcessor {
      * Can represent authentication issues, data parity issues between client
      * and server, among other things
      */
-    void processClientError(int responseCode);
+    void processClientError(int responseCode, InputStream errorStream);
 
     /**
      * Http response was in the 500s

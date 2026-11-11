@@ -1,9 +1,11 @@
 package org.javarosa.form.api;
 
+import org.commcare.cases.util.StringUtils;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.GroupDef;
 import org.javarosa.core.model.IFormElement;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 
 import java.util.Hashtable;
@@ -217,35 +219,37 @@ public class FormEntryCaption {
 
         String caption = null;
         if ("mainheader".equals(typeKey)) {
-            caption = g.mainHeader;
+            caption = getCaptionText(g.mainHeader);
             if (caption == null) {
                 return title;
             }
         } else if ("add".equals(typeKey)) {
-            caption = g.addCaption;
+            caption = getCaptionText(g.addCaption);
             if (caption == null) {
-                return "Add another " + title;
+                return Localization.getWithDefault("repeat.dialog.add.another", new String[]{title},
+                        "Add another " + title);
             }
         } else if ("add-empty".equals(typeKey)) {
-            caption = g.addEmptyCaption;
+            caption = getCaptionText(g.addEmptyCaption);
             if (caption == null) {
-                caption = g.addCaption;
+                caption = getCaptionText(g.addCaption);
             }
             if (caption == null) {
-                return "None - Add " + title;
+                return Localization.getWithDefault("repeat.dialog.add.new", new String[]{title},
+                        "Add a new " + title);
             }
         } else if ("del".equals(typeKey)) {
-            caption = g.delCaption;
+            caption = getCaptionText(g.delCaption);
             if (caption == null) {
                 return "Delete " + title;
             }
         } else if ("done".equals(typeKey)) {
-            caption = g.doneCaption;
+            caption = getCaptionText(g.doneCaption);
             if (caption == null) {
                 return "Done";
             }
         } else if ("done-empty".equals(typeKey)) {
-            caption = g.doneEmptyCaption;
+            caption = getCaptionText(g.doneEmptyCaption);
             if (caption == null) {
                 caption = g.doneCaption;
             }
@@ -253,7 +257,7 @@ public class FormEntryCaption {
                 return "Skip";
             }
         } else if ("delheader".equals(typeKey)) {
-            caption = g.delHeader;
+            caption = getCaptionText(g.delHeader);
             if (caption == null) {
                 return "Delete which " + title + "?";
             }
@@ -263,6 +267,16 @@ public class FormEntryCaption {
         vars.put("name", title);
         vars.put("n", Integer.valueOf(count));
         return form.fillTemplateString(caption, index.getReference(), vars);
+    }
+
+    private String getCaptionText(String textIdOrText) {
+        if (!StringUtils.isEmpty(textIdOrText)) {
+            String returnText = getIText(textIdOrText, null);
+            if (returnText != null) {
+                return substituteStringArgs(returnText);
+            }
+        }
+        return substituteStringArgs(textIdOrText);
     }
 
     //this should probably be somewhere better
@@ -284,11 +298,11 @@ public class FormEntryCaption {
 
             String caption = null;
             if ("header".equals(type)) {
-                caption = g.entryHeader;
+                caption = getCaptionText(g.entryHeader);
             } else if ("choose".equals(type)) {
-                caption = g.chooseCaption;
+                caption = getCaptionText(g.chooseCaption);
                 if (caption == null) {
-                    caption = g.entryHeader;
+                    caption = getCaptionText(g.entryHeader);
                 }
             }
             if (caption == null) {

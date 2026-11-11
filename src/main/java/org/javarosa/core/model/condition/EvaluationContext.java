@@ -256,7 +256,8 @@ public class EvaluationContext {
     public void setVariable(String name, Object value) {
         //No such thing as a null xpath variable. Empty
         //values in XPath just get converted to ""
-        if (value == null) {
+        if (value == null||
+                (value instanceof String && value.toString().trim().isEmpty())) {
             variables.put(name, "");
             return;
         }

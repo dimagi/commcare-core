@@ -1,5 +1,6 @@
 package org.commcare.util.screen;
 
+import org.commcare.cases.entity.AsyncNodeEntityFactory;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.EntitySortNotificationInterface;
 import org.commcare.cases.entity.EntitySorter;
@@ -32,7 +33,12 @@ public class EntityScreenHelper {
      */
     public static List<Entity<TreeReference>> initEntities(EvaluationContext context, Detail detail,
             EntityScreenContext entityScreenContext, TreeReference[] entitiesRefs) {
-        NodeEntityFactory nodeEntityFactory = new NodeEntityFactory(detail, context);
+        NodeEntityFactory nodeEntityFactory;
+        if (detail.isLazyLoading()) {
+            nodeEntityFactory = new AsyncNodeEntityFactory(detail, context, null, false);
+        } else {
+            nodeEntityFactory = new NodeEntityFactory(detail, context);
+        }
         List<Entity<TreeReference>> entities = new ArrayList<>();
         for (TreeReference reference : entitiesRefs) {
             entities.add(nodeEntityFactory.getEntity(reference));

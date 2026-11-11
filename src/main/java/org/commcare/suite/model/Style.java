@@ -11,6 +11,9 @@ public class Style {
     private String horizontalAlign;
     private String verticalAlign;
 
+    private boolean showBorder;
+    private boolean showShading;
+
     public Style(){}
 
     public Style(DetailField detail){
@@ -35,6 +38,8 @@ public class Style {
 
         verticalAlign = detail.getVerticalAlign();
         horizontalAlign = detail.getHorizontalAlign();
+        showBorder = detail.getShowBorder();
+        showShading = detail.getShowShading();
     }
 
     enum DisplayFormat {
@@ -117,5 +122,13 @@ public class Style {
 
     public String getVerticalAlign() {
         return verticalAlign;
+    }
+
+    public boolean getShowBorder() {
+        return showBorder;
+    }
+
+    public boolean getShowShading() {
+        return showShading;
     }
 }

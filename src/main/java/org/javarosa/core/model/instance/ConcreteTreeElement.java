@@ -337,6 +337,20 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
         return refCache;
     }
 
+    @Override
+    public void clearVolatiles() {
+        refCache = null;
+        if (children != null) {
+            for (T child : children) {
+                child.clearVolatiles();
+            }
+        }
+        if (attributes != null) {
+            for (T attribute : attributes) {
+                attribute.clearVolatiles();
+            }
+        }
+    }
 
     @Override
     public String getName() {

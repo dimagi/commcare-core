@@ -3,6 +3,8 @@ package org.javarosa.core.util;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -136,6 +138,40 @@ public class DAG<I, N, E> {
             }
         }
         return roots;
+    }
+
+    /**
+     * Find all nodes reachable from the given set of source nodes
+     *
+     * @param sourceNodes The set of starting nodes
+     * @return A set containing all reachable nodes
+     */
+    public Set<I> findConnectedRecords(Set<I> sourceNodes) {
+        Set<I> visited = new HashSet<>();
+        LinkedList<I> queue = new LinkedList<>(sourceNodes);
+        while (!queue.isEmpty()) {
+            I current = queue.poll();
+            if(visited.contains(current)){
+                continue;
+            }
+            visited.add(current);
+            enqueueUnvisitedNeighbors(edges, current, queue, visited);
+            enqueueUnvisitedNeighbors(inverseEdges, current, queue, visited);
+        }
+        return visited;
+    }
+
+    // Adds unvisited neighboring nodes of the given record to the queue for further traversal
+    private void enqueueUnvisitedNeighbors(Hashtable<I, Vector<Edge<I, E>>> edges, I current, LinkedList<I> queue,
+            Set<I> visited) {
+        if (edges.containsKey(current)) {
+            Vector<Edge<I, E>> neighbors = edges.get(current);
+            for (Edge<I, E> neighbor : neighbors) {
+                if(!visited.contains(neighbor.i)){
+                    queue.add(neighbor.i);
+                }
+            }
+        }
     }
 
     public static class Edge<I, E> {

@@ -30,8 +30,11 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
     @Override
     public DetailField parse() throws InvalidStructureException, IOException, XmlPullParserException {
         checkNode("field");
-
         DetailField.Builder builder = new DetailField.Builder();
+        boolean cacheEnabled = Boolean.parseBoolean(parser.getAttributeValue(null, "cache_enabled"));
+        builder.setCacheEnabled(cacheEnabled);
+        boolean lazyLoading = Boolean.parseBoolean(parser.getAttributeValue(null, "lazy_loading"));
+        builder.setLazyLoading(lazyLoading);
 
         String sortDefault = parser.getAttributeValue(null, "sort");
         if (sortDefault != null && sortDefault.equals("default")) {
@@ -76,7 +79,7 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
         }
         while (nextTagInBlock("field")) {
             //sort details
-            checkNode(new String[]{"sort", "background", "endpoint_action"});
+            checkNode(new String[]{"sort", "background", "endpoint_action", "alt_text"});
 
             String name = parser.getName().toLowerCase();
 
@@ -87,6 +90,11 @@ public class DetailFieldParser extends CommCareElementParser<DetailField> {
                 skipBlock("background");
             } else if (name.equals("endpoint_action")){
                 parseEndpointAction(builder);
+            } else if (name.equals("alt_text")){
+                parser.nextTag();
+                checkNode("text");
+                Text altText = new TextParser(parser).parse();
+                builder.setAltText(altText);
             }
         }
         return builder.build();

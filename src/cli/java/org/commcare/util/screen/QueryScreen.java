@@ -9,6 +9,7 @@ import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
 import com.google.common.collect.Multimap;
 
+import org.commcare.cases.model.Case;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.interfaces.VirtualDataInstanceStorage;
 import org.commcare.data.xml.VirtualInstances;
@@ -18,11 +19,13 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.QueryPrompt;
+import org.commcare.suite.model.QueryGroup;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -44,6 +47,7 @@ public class QueryScreen extends Screen {
 
     private RemoteQuerySessionManager remoteQuerySessionManager;
     protected OrderedHashtable<String, QueryPrompt> userInputDisplays;
+    protected Hashtable<String, QueryGroup> groupHeaders;
     private SessionWrapper sessionWrapper;
     private String[] fields;
     private String mTitle;
@@ -59,7 +63,9 @@ public class QueryScreen extends Screen {
 
     private boolean defaultSearch;
 
-    private boolean dynamicSearch;
+    private boolean searchOnClear;
+
+    private IStorageUtilityIndexed<Case> caseSearchStorage;
 
     public QueryScreen(String domainedUsername, String password, PrintStream out,
             VirtualDataInstanceStorage instanceStorage, SessionUtils sessionUtils) {
@@ -93,7 +99,8 @@ public class QueryScreen extends Screen {
 
         mTitle = getTitleLocaleString();
         description = getDescriptionLocaleString();
-        dynamicSearch = getQueryDatum().getDynamicSearch();
+        searchOnClear = getQueryDatum().isSearchOnClear();
+        groupHeaders = getQueryDatum().getUserQueryGroupHeaders();
     }
 
     private String getTitleLocaleString() {
@@ -214,8 +221,8 @@ public class QueryScreen extends Screen {
         return description;
     }
 
-    public boolean getDynamicSearch() {
-        return dynamicSearch;
+    public boolean isSearchOnClear(){
+        return searchOnClear;
     }
 
     @Override
@@ -262,6 +269,21 @@ public class QueryScreen extends Screen {
         return userInputDisplays;
     }
 
+    public Hashtable<String, QueryGroup> getGroupHeaders() {
+        return groupHeaders;
+    }
+
+    public Hashtable<String, String> evalGroupHeaders() {
+        Hashtable<String, String> queryGroupMap = new Hashtable<>();
+        for (Map.Entry<String, QueryGroup> entry : groupHeaders.entrySet()) {
+            String key = entry.getKey();
+            QueryGroup queryGroupItem = entry.getValue();
+            String text = queryGroupItem.getDisplay().getText().evaluate(sessionWrapper.getEvaluationContext());
+            queryGroupMap.put(key, text);
+        }
+        return queryGroupMap;
+    }
+
     public String getCurrentMessage() {
         return currentMessage;
     }
@@ -298,5 +320,13 @@ public class QueryScreen extends Screen {
     @Override
     public String toString() {
         return "QueryScreen[" + mTitle + "]";
+    }
+
+    public void setCaseSearchStorage(IStorageUtilityIndexed<Case> caseSearchStorage) {
+        this.caseSearchStorage = caseSearchStorage;
+    }
+
+    public IStorageUtilityIndexed<Case> getCaseSearchStorage() {
+        return caseSearchStorage;
     }
 }

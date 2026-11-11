@@ -12,6 +12,7 @@ public class Entity<T> {
     private final T t;
     private Object[] data;
     private String[] sortData;
+    private String[] altTextData;
     private boolean[] relevancyData;
     /**
      * Key used to attach external data (i.e. from case list callout) to an entity
@@ -28,7 +29,7 @@ public class Entity<T> {
     }
 
     public Entity(Object[] data, String[] sortData, boolean[] relevancyData, T t,
-                  String extraKey, boolean shouldReceiveFocus, String groupKey) {
+            String extraKey, boolean shouldReceiveFocus, String groupKey, String[] altTextData) {
         this.t = t;
         this.sortData = sortData;
         this.data = data;
@@ -36,6 +37,7 @@ public class Entity<T> {
         this.extraKey = extraKey;
         this.shouldReceiveFocus = shouldReceiveFocus;
         this.groupKey = groupKey;
+        this.altTextData = altTextData;
     }
 
     public Object getField(int i) {
@@ -86,6 +88,10 @@ public class Entity<T> {
 
     public Object[] getData() {
         return data;
+    }
+
+    public String[] getAltText() {
+        return altTextData;
     }
 
     public String[] getSortFieldPieces(int i) {

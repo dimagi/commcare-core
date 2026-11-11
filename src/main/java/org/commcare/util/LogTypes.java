@@ -107,11 +107,18 @@ public class LogTypes {
 
     public static final String TYPE_CC_UPDATE = "commcare-update";
 
-    /**
-     * Logs related to Firebase Cloud Messaging
-     */
-    public static final String TYPE_FCM = "fcm";
-
     public static final String TYPE_NETWORK = "commcare-network";
 
+
+   /**
+    * Logs related to Firebase Cloud Messaging
+    */
+    public static final String TYPE_FCM = "fcm";
+
+    public static final String TYPE_MEDIA_EVENT = "media-event";
+
+    /**
+     * A Java Exception log
+     */
+    public static final String TYPE_EXCEPTION = "exception";
 }

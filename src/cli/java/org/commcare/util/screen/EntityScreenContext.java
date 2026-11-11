@@ -3,7 +3,7 @@ package org.commcare.util.screen;
 /**
  * Holds essential meta data associated with the entity screen
  */
-public class EntityScreenContext {
+public class EntityScreenContext extends ScreenContext{
     private final int mOffSet;
     private final String mSearchText;
     private final int mSortIndex;
@@ -21,6 +21,7 @@ public class EntityScreenContext {
 
     public EntityScreenContext(int offset, String searchText, int sortIndex, int casesPerPage,
             String[] selectedValues, String detailSelection, boolean isFuzzySearch) {
+        super(true);
         mOffSet = offset;
         mSearchText = searchText;
         mSortIndex = sortIndex;
@@ -31,6 +32,11 @@ public class EntityScreenContext {
     }
 
     public EntityScreenContext() {
+        this(true);
+    }
+
+    public EntityScreenContext(boolean respectRelevancy) {
+        super(respectRelevancy);
         mOffSet = 0;
         mSearchText = null;
         mSortIndex = 0;

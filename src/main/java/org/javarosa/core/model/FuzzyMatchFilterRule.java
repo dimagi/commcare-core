@@ -17,13 +17,13 @@ public class FuzzyMatchFilterRule implements ComboboxFilterRule {
     }
 
     @Override
-    public boolean choiceShouldBeShown(String choice, CharSequence textEntered) {
-        if ("".equals(textEntered) || textEntered == null) {
+    public boolean choiceShouldBeShown(ComboItem choice, CharSequence textEntered) {
+        if (textEntered == null || "".contentEquals(textEntered)) {
             return true;
         }
 
         String textEnteredLowerCase = textEntered.toString().toLowerCase();
-        String choiceLowerCase = choice.toLowerCase();
+        String choiceLowerCase = choice.getDisplayText().toLowerCase();
 
         // Try the easy cases first
         if (isSubstringOrFuzzyMatch(choiceLowerCase, textEnteredLowerCase, 2)) {

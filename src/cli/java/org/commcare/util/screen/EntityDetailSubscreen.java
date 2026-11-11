@@ -3,8 +3,10 @@ package org.commcare.util.screen;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Style;
+import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 
+import javax.annotation.Nullable;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
@@ -25,6 +27,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
     private final Object[] data ;
     private final String[] headers;
     private final Style[] styles;
+    private final String[] altText;
     private final int mCurrentIndex;
     private Detail detail;
 
@@ -40,6 +43,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
         ArrayList<String> headersTemporary = new ArrayList<>();
         ArrayList<Object> dataTemporary = new ArrayList<>();
         ArrayList<Style> stylesTemporary = new ArrayList<>();
+        ArrayList<String> altTextTemporary = new ArrayList<>();
 
         detail.populateEvaluationContextVariables(subContext);
 
@@ -51,6 +55,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
                 headersTemporary.add(createHeader(field, subContext));
                 rowTemporary.add(createRow(field, subContext, data));
                 stylesTemporary.add(createStyle(field));
+                altTextTemporary.add(createAltText(field, subContext));
             }
         }
 
@@ -58,14 +63,25 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
         headers = new String[rowTemporary.size()];
         data = new Object[rowTemporary.size()];
         styles = new Style[rowTemporary.size()];
+        altText = new String[rowTemporary.size()];
 
         rowTemporary.toArray(rows);
         headersTemporary.toArray(headers);
         dataTemporary.toArray(data);
         stylesTemporary.toArray(styles);
+        altTextTemporary.toArray(altText);
 
         mDetailListTitles = detailListTitles;
         mCurrentIndex = currentIndex;
+    }
+
+    @Nullable
+    private String createAltText(DetailField field, EvaluationContext ec) {
+        Text altText = field.getAltText();
+        if (altText != null) {
+            return altText.evaluate(ec);
+        }
+        return null;
     }
 
     private Style createStyle(DetailField field) {
@@ -176,5 +192,9 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
 
     public Style[] getStyles() {
         return styles;
+    }
+
+    public String[] getAltText() {
+        return altText;
     }
 }

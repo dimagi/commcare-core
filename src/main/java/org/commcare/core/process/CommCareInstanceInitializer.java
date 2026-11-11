@@ -244,9 +244,17 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         TreeElement root =
                 SessionInstanceBuilder.getSessionInstance(sessionWrapper.getFrame(), getDeviceId(),
                         getVersionString(), getCurrentDrift(), u.getUsername(), u.getUniqueId(),
-                        u.getProperties());
+                        u.getProperties(), getWindowWidth(), getLocale());
         root.setParent(instance.getBase());
         return new ConcreteInstanceRoot(root);
+    }
+
+    protected String getWindowWidth() {
+        return sessionWrapper.getWindowWidth();
+    }
+
+    protected String getLocale() {
+        return Localization.getCurrentLocale();
     }
 
     protected long getCurrentDrift() {
@@ -287,10 +295,14 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
     public static class FixtureInitializationException extends RuntimeException {
 
+        public final String reference;
+
         public FixtureInitializationException(String lookupReference) {
             super(Localization.getWithDefault("lookup.table.missing.error",
                     new String[]{lookupReference},
                     "Unable to find lookup table: " + lookupReference));
+
+            this.reference = lookupReference;
         }
     }
 }

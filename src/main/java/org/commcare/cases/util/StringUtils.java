@@ -119,7 +119,7 @@ public class StringUtils {
         for (int j = 1; j < len1; j++) {
 
             // initial cost of skipping prefix in String s1
-            newcost[0] = j - 1;
+            newcost[0] = j;
 
             // transformation cost for each letter in s0
             for (int i = 1; i < len0; i++) {

@@ -1,0 +1,46 @@
+name: Create Release on Tag
+
+on:
+  push:
+    tags:
+      - 'commcare_*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g. commcare_2.61.5)'
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      JAVA_VERSION: '17'
+      GRADLE_VERSION: '8.1'
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.TAG }}
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'adopt'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-version: ${{ env.GRADLE_VERSION }}
+      - name: Build CLI JAR
+        run: gradle cliJar
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${TAG#commcare_}" >> "$GITHUB_OUTPUT"
+      - name: Create draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          tag_name: ${{ env.TAG }}
+          name: CommCare ${{ steps.version.outputs.VERSION }}
+          files: build/libs/commcare-cli.jar
