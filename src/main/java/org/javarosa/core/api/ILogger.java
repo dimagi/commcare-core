@@ -5,6 +5,7 @@ import org.javarosa.core.log.StreamLogSerializer;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * IIncidentLogger's are used for instrumenting applications to identify usage
@@ -32,4 +33,8 @@ public interface ILogger {
     void halt();
 
     void logException(Throwable e);
+
+    default void logException(Throwable e, Map<String, String> keys) {
+        logException(e);
+    }
 }

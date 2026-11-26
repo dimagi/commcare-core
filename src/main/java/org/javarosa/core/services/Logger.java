@@ -5,7 +5,9 @@ import org.javarosa.core.api.ILogger;
 import org.javarosa.core.log.FatalException;
 import org.javarosa.core.log.WrappedException;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 
 public class Logger {
     private static final int MAX_MSG_LENGTH = 2048;
@@ -52,6 +54,10 @@ public class Logger {
     }
 
     public static void exception(String info, Throwable e) {
+        exception(info, e, Collections.emptyMap());
+    }
+
+    public static void exception(String info, Throwable e, Map<String, String> keys) {
         e.printStackTrace();
         info = info != null ? info + ": " : "";
         log(LogTypes.TYPE_EXCEPTION, info + WrappedException.printException(e));
@@ -61,7 +67,7 @@ public class Logger {
                 if (message == null) {
                     message = "";
                 }
-                logger.logException(new Exception(info + message, e));
+                logger.logException(new Exception(info + message, e), keys);
             } catch (RuntimeException ex) {
                 logger.panic();
             }
